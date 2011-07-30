@@ -95,10 +95,10 @@ namespace SonicRetro.SonLVL
 
     internal enum Solidity : byte
     {
-        NotSolid,
-        TopSolid,
-        LRBSolid,
-        AllSolid
+        NotSolid = 0,
+        TopSolid = 1,
+        LRBSolid = 2,
+        AllSolid = 3
     }
 
     internal abstract class ChunkBlock
@@ -373,6 +373,10 @@ namespace SonicRetro.SonLVL
         [DisplayName("Remember State")]
         public virtual bool RememberState { get; set; }
 
+        [DefaultValue(false)]
+        [DisplayName("Long Distance")]
+        public bool LongDistance { get; set; }
+
         public static int Size { get { return 6; } }
 
         public S2ObjectEntry() { isLoaded = true; }
@@ -384,6 +388,7 @@ namespace SonicRetro.SonLVL
             RememberState = (val & 0x8000) == 0x8000;
             YFlip = (val & 0x4000) == 0x4000;
             XFlip = (val & 0x2000) == 0x2000;
+            LongDistance = (val & 0x1000) == 0x1000;
             Y = (ushort)(val & 0xFFF);
             ID = file[address + 4];
             SubType = file[address + 5];
@@ -395,6 +400,7 @@ namespace SonicRetro.SonLVL
             List<byte> ret = new List<byte>();
             ret.AddRange(ByteConverter.GetBytes(X));
             ushort val = (ushort)(Y & 0xFFF);
+            if (LongDistance) val |= 0x1000;
             if (XFlip) val |= 0x2000;
             if (YFlip) val |= 0x4000;
             if (RememberState) val |= 0x8000;

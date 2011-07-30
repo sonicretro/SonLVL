@@ -170,7 +170,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(504, 410);
+            this.tabPage2.Size = new System.Drawing.Size(876, 410);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Blocks";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -189,7 +189,7 @@
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 1;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(498, 404);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(870, 404);
             this.tableLayoutPanel2.TabIndex = 1;
             // 
             // BlockSelector
@@ -197,10 +197,10 @@
             this.BlockSelector.BackColor = System.Drawing.SystemColors.Window;
             this.BlockSelector.Dock = System.Windows.Forms.DockStyle.Fill;
             this.BlockSelector.ImageSize = 16;
-            this.BlockSelector.Location = new System.Drawing.Point(335, 3);
+            this.BlockSelector.Location = new System.Drawing.Point(583, 3);
             this.BlockSelector.Name = "BlockSelector";
             this.BlockSelector.SelectedIndex = -1;
-            this.BlockSelector.Size = new System.Drawing.Size(160, 398);
+            this.BlockSelector.Size = new System.Drawing.Size(284, 398);
             this.BlockSelector.TabIndex = 2;
             this.BlockSelector.SelectedIndexChanged += new System.EventHandler(this.BlockSelector_SelectedIndexChanged);
             this.BlockSelector.MouseDown += new System.Windows.Forms.MouseEventHandler(this.BlockSelector_MouseDown);
@@ -219,9 +219,9 @@
             this.panel2.Controls.Add(this.BlockTilePropertyGrid);
             this.panel2.Controls.Add(this.groupBox1);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel2.Location = new System.Drawing.Point(169, 3);
+            this.panel2.Location = new System.Drawing.Point(293, 3);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(160, 398);
+            this.panel2.Size = new System.Drawing.Size(284, 398);
             this.panel2.TabIndex = 3;
             // 
             // BlockTilePropertyGrid
@@ -231,7 +231,7 @@
             this.BlockTilePropertyGrid.Location = new System.Drawing.Point(0, 0);
             this.BlockTilePropertyGrid.Name = "BlockTilePropertyGrid";
             this.BlockTilePropertyGrid.PropertySort = System.Windows.Forms.PropertySort.Alphabetical;
-            this.BlockTilePropertyGrid.Size = new System.Drawing.Size(160, 348);
+            this.BlockTilePropertyGrid.Size = new System.Drawing.Size(284, 348);
             this.BlockTilePropertyGrid.TabIndex = 3;
             this.BlockTilePropertyGrid.ToolbarVisible = false;
             this.BlockTilePropertyGrid.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.BlockTilePropertyGrid_PropertyValueChanged);
@@ -245,7 +245,7 @@
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.groupBox1.Location = new System.Drawing.Point(0, 348);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(160, 50);
+            this.groupBox1.Size = new System.Drawing.Size(284, 50);
             this.groupBox1.TabIndex = 4;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Collision Index";
@@ -308,7 +308,7 @@
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage4.Size = new System.Drawing.Size(504, 410);
+            this.tabPage4.Size = new System.Drawing.Size(876, 410);
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "Tiles";
             this.tabPage4.UseVisualStyleBackColor = true;
@@ -326,7 +326,7 @@
             this.tableLayoutPanel4.Name = "tableLayoutPanel4";
             this.tableLayoutPanel4.RowCount = 1;
             this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel4.Size = new System.Drawing.Size(498, 404);
+            this.tableLayoutPanel4.Size = new System.Drawing.Size(870, 404);
             this.tableLayoutPanel4.TabIndex = 1;
             // 
             // TileSelector
@@ -334,10 +334,10 @@
             this.TileSelector.BackColor = System.Drawing.SystemColors.Window;
             this.TileSelector.Dock = System.Windows.Forms.DockStyle.Fill;
             this.TileSelector.ImageSize = 64;
-            this.TileSelector.Location = new System.Drawing.Point(252, 3);
+            this.TileSelector.Location = new System.Drawing.Point(438, 3);
             this.TileSelector.Name = "TileSelector";
             this.TileSelector.SelectedIndex = -1;
-            this.TileSelector.Size = new System.Drawing.Size(243, 398);
+            this.TileSelector.Size = new System.Drawing.Size(429, 398);
             this.TileSelector.TabIndex = 2;
             this.TileSelector.SelectedIndexChanged += new System.EventHandler(this.TileSelector_SelectedIndexChanged);
             this.TileSelector.MouseDown += new System.Windows.Forms.MouseEventHandler(this.TileSelector_MouseDown);
@@ -359,7 +359,7 @@
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage3.Size = new System.Drawing.Size(504, 410);
+            this.tabPage3.Size = new System.Drawing.Size(876, 410);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Solids";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -377,7 +377,7 @@
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
             this.tableLayoutPanel3.RowCount = 1;
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel3.Size = new System.Drawing.Size(498, 404);
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(870, 404);
             this.tableLayoutPanel3.TabIndex = 2;
             // 
             // CollisionSelector
@@ -385,10 +385,10 @@
             this.CollisionSelector.BackColor = System.Drawing.Color.Black;
             this.CollisionSelector.Dock = System.Windows.Forms.DockStyle.Fill;
             this.CollisionSelector.ImageSize = 16;
-            this.CollisionSelector.Location = new System.Drawing.Point(252, 3);
+            this.CollisionSelector.Location = new System.Drawing.Point(438, 3);
             this.CollisionSelector.Name = "CollisionSelector";
             this.CollisionSelector.SelectedIndex = -1;
-            this.CollisionSelector.Size = new System.Drawing.Size(243, 398);
+            this.CollisionSelector.Size = new System.Drawing.Size(429, 398);
             this.CollisionSelector.TabIndex = 2;
             this.CollisionSelector.SelectedIndexChanged += new System.EventHandler(this.CollisionSelector_SelectedIndexChanged);
             // 
@@ -399,7 +399,7 @@
             this.panel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel3.Location = new System.Drawing.Point(3, 3);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(243, 398);
+            this.panel3.Size = new System.Drawing.Size(429, 398);
             this.panel3.TabIndex = 1;
             // 
             // ColAngle
@@ -546,12 +546,15 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(884, 564);
-            this.ControlBox = false;
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.panel1);
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "TileForm";
+            this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.Text = "Tile Editor";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.TileForm_FormClosing);
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);

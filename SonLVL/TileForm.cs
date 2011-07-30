@@ -945,5 +945,14 @@ namespace SonicRetro.SonLVL
             sel.ShowDialog(this);
             BlockCollision2.Value = sel.Selection;
         }
+
+        private void TileForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (e.CloseReason != CloseReason.UserClosing)
+                return;
+            Hide();
+            LevelData.MainForm.tileEditorToolStripMenuItem.Checked = false;
+            e.Cancel = true;
+        }
     }
 }
