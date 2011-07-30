@@ -44,6 +44,7 @@ namespace SonicRetro.SonLVL
         Graphics PanelGfx;
         string levelPath;
         string level;
+        string levelName;
         internal bool loaded;
         Point camera;
         EditingModes EditingMode;
@@ -119,6 +120,7 @@ namespace SonicRetro.SonLVL
                     LevelData.EngineVersion = EngineVersion.Invalid;
                 }
                 LevelData.littleendian = false;
+                timeZoneToolStripMenuItem.Visible = false;
                 switch (LevelData.EngineVersion)
                 {
                     case EngineVersion.S1:
@@ -130,6 +132,7 @@ namespace SonicRetro.SonLVL
                         LevelData.chunksz = 256;
                         Icon = Properties.Resources.gogglemon;
                         LevelData.UnknownImg = Properties.Resources.UnknownImg.Copy();
+                        timeZoneToolStripMenuItem.Visible = true;
                         LevelData.littleendian = true;
                         break;
                     case EngineVersion.S2:
@@ -283,9 +286,13 @@ namespace SonicRetro.SonLVL
             ((ToolStripMenuItem)sender).Checked = true;
             level = ((ToolStripMenuItem)sender).Text;
             levelPath = (string)((ToolStripMenuItem)sender).Tag;
+            if (ini[levelPath].ContainsKey("displayname"))
+                levelName = ini[levelPath]["displayname"];
+            else
+                levelName = level;
             Enabled = false;
-            Text = LevelData.EngineVersion.ToString() + "LVL - Loading " + level + "...";
-            Log("Loading " + level + "...");
+            Text = LevelData.EngineVersion.ToString() + "LVL - Loading " + levelName + "...";
+            Log("Loading " + levelName + "...");
 #if !DEBUG
             backgroundWorker1.RunWorkerAsync();
 #else
@@ -306,6 +313,7 @@ namespace SonicRetro.SonLVL
                 UndoList = new Stack<UndoAction>();
                 RedoList = new Stack<UndoAction>();
                 Dictionary<string, string> gr = ini[levelPath];
+                LevelData.TimeZone = gr.ContainsKey("timezone") ? (TimeZone)Enum.Parse(typeof(TimeZone), gr["timezone"]) : TimeZone.None;
                 LevelData.TileFmt = gr.ContainsKey("tile8fmt") ? (EngineVersion)Enum.Parse(typeof(EngineVersion), gr["tile8fmt"]) : LevelData.EngineVersion;
                 LevelData.BlockFmt = gr.ContainsKey("block16fmt") ? (EngineVersion)Enum.Parse(typeof(EngineVersion), gr["block16fmt"]) : LevelData.EngineVersion;
                 LevelData.ChunkFmt = gr.ContainsKey("chunkfmt") ? (EngineVersion)Enum.Parse(typeof(EngineVersion), gr["chunkfmt"]) : LevelData.EngineVersion;
@@ -378,14 +386,21 @@ namespace SonicRetro.SonLVL
                     {
                         Log("Loading 8x8 tiles from file \"" + gr["tile8"] + "\", using compression SZDD...");
                         tmp = Compression.Decompress(gr["tile8"], Compression.CompressionType.SZDD);
-                        int tcnt = BitConverter.ToInt32(tmp, 8);
-                        int sta = BitConverter.ToInt32(tmp, 0xC);
-                        byte[] tiles = new byte[tcnt * 32];
-                        Array.Copy(tmp, sta, tiles, 0, tiles.Length);
-                        LevelData.Tiles.AddFile(new List<byte>(tiles), -1);
+                        int sta = ByteConverter.ToInt32(tmp, 0xC);
+                        for (int i = 0; i < 4; i++)
+                        {
+                            byte[] tiles = new byte[ByteConverter.ToUInt16(tmp, 0x10 + (i * 2)) * 32];
+                            Array.Copy(tmp, sta, tiles, 0, tiles.Length);
+                            LevelData.Tiles.AddFile(new List<byte>(tiles), -1);
+                            sta += tiles.Length;
+                        }
                     }
                     else
+                    {
                         Log("8x8 tile file \"" + gr["tile8"] + "\" not found.");
+                        for (int i = 0; i < 4; i++)
+                            LevelData.Tiles.AddFile(new List<byte>(new byte[32]), -1);
+                    }
                     if (LevelData.Tiles.Count == 0)
                         LevelData.Tiles.AddFile(new List<byte>(new byte[32]), -1);
                     LevelData.TilesArray = LevelData.Tiles.ToArray();
@@ -764,22 +779,22 @@ namespace SonicRetro.SonLVL
                 if (gr.ContainsKey("sprites"))
                 {
                     tmp = Compression.Decompress(gr["sprites"], Compression.CompressionType.SZDD);
-                    int numspr = BitConverter.ToInt32(tmp, 8);
-                    int taddr = BitConverter.ToInt32(tmp, 0xC);
+                    int numspr = ByteConverter.ToInt32(tmp, 8);
+                    int taddr = ByteConverter.ToInt32(tmp, 0xC);
                     for (int i = 0; i < numspr; i++)
                     {
-                        ushort width = BitConverter.ToUInt16(tmp, 0x10 + (i * 0xC) + 4);
+                        ushort width = ByteConverter.ToUInt16(tmp, 0x10 + (i * 0xC) + 4);
                         if ((width & 4) == 4)
                             width += 4;
-                        ushort height = BitConverter.ToUInt16(tmp, 0x10 + (i * 0xC) + 6);
-                        ushort startcol = BitConverter.ToUInt16(tmp, 0x10 + (i * 0xC) + 8);
+                        ushort height = ByteConverter.ToUInt16(tmp, 0x10 + (i * 0xC) + 6);
+                        ushort startcol = ByteConverter.ToUInt16(tmp, 0x10 + (i * 0xC) + 8);
                         BitmapBits bmp = new BitmapBits(width, height);
                         byte[] til = new byte[height * (width / 2)];
                         Array.Copy(tmp, taddr, til, 0, til.Length);
                         taddr += til.Length;
                         LevelData.LoadBitmap4BppIndexed(bmp, til, width / 2);
                         bmp.IncrementIndexes(startcol / 2);
-                        LevelData.Sprites.Add(new SCDPCSprite(bmp, new Point(BitConverter.ToInt16(tmp, 0x10 + (i * 0xC) + 0), BitConverter.ToInt16(tmp, 0x10 + (i * 0xC) + 2))));
+                        LevelData.Sprites.Add(new SCDPCSprite(bmp, new Point(ByteConverter.ToInt16(tmp, 0x10 + (i * 0xC) + 0), ByteConverter.ToInt16(tmp, 0x10 + (i * 0xC) + 2))));
                     }
                 }
                 LevelData.ObjTypes = new Dictionary<byte, ObjectDefinition>();
@@ -1135,7 +1150,7 @@ namespace SonicRetro.SonLVL
             }
             ObjectSelect.listView2.Items.Clear();
             ObjectSelect.imageList2.Images.Clear();
-            Text = LevelData.EngineVersion.ToString() + "LVL - " + level;
+            Text = LevelData.EngineVersion.ToString() + "LVL - " + levelName;
             hScrollBar1.Minimum = 0;
             vScrollBar1.Minimum = 0;
             switch (EditingMode)
@@ -1270,6 +1285,8 @@ namespace SonicRetro.SonLVL
             string defcmp;
             string[] tilelist;
             int fileind = -1;
+            List<byte> tmp;
+            ReadOnlyCollection<ReadOnlyCollection<byte>> tilefiles = LevelData.Tiles.GetFiles();
             if (LevelData.TileFmt != EngineVersion.SCDPC)
             {
                 switch (LevelData.TileFmt)
@@ -1289,7 +1306,6 @@ namespace SonicRetro.SonLVL
                         break;
                 }
                 tilelist = gr["tile8"].Split('|');
-                ReadOnlyCollection<ReadOnlyCollection<byte>> tilefiles = LevelData.Tiles.GetFiles();
                 foreach (string tileent in tilelist)
                 {
                     fileind++;
@@ -1297,7 +1313,26 @@ namespace SonicRetro.SonLVL
                     Compression.Compress(new List<byte>(tilefiles[fileind]).ToArray(), tileentsp[0], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("block16cmp", defcmp)));
                 }
             }
-            List<byte> tmp;
+            else
+            {
+                tmp = new List<byte>();
+                tmp.Add(0x53);
+                tmp.Add(0x43);
+                tmp.Add(0x52);
+                tmp.Add(0x4C);
+                tmp.AddRange(ByteConverter.GetBytes(0x18 + ((LevelData.TilesArray.Length / 32) * 4) + LevelData.TilesArray.Length));
+                tmp.AddRange(ByteConverter.GetBytes(LevelData.TilesArray.Length / 32));
+                tmp.AddRange(ByteConverter.GetBytes(0x18 + ((LevelData.TilesArray.Length / 32) * 4)));
+                for (int i = 0; i < 4; i++)
+                    tmp.AddRange(ByteConverter.GetBytes((ushort)(tilefiles[i].Count / 32)));
+                for (int i = 0; i < LevelData.TilesArray.Length / 32; i++)
+                {
+                    tmp.AddRange(ByteConverter.GetBytes((ushort)8));
+                    tmp.AddRange(ByteConverter.GetBytes((ushort)8));
+                }
+                tmp.AddRange(LevelData.TilesArray);
+                Compression.Compress(tmp.ToArray(), gr["tile8"], Compression.CompressionType.SZDD);
+            }
             switch (LevelData.BlockFmt)
             {
                 case EngineVersion.S1:
@@ -1763,7 +1798,8 @@ namespace SonicRetro.SonLVL
                     for (int oi = 0; oi < LevelData.Objects.Count; oi++)
                     {
                         ObjectDefinition od = LevelData.getObjectDefinition(LevelData.Objects[oi].ID);
-                        od.Draw(LevelImg8bpp, new Point(LevelData.Objects[oi].X - camera.X, LevelData.Objects[oi].Y - camera.Y), LevelData.Objects[oi].SubType, LevelData.Objects[oi].XFlip, LevelData.Objects[oi].YFlip, true);
+                        if (ObjectVisible(LevelData.Objects[oi]))
+                            od.Draw(LevelImg8bpp, new Point(LevelData.Objects[oi].X - camera.X, LevelData.Objects[oi].Y - camera.Y), LevelData.Objects[oi].SubType, LevelData.Objects[oi].XFlip, LevelData.Objects[oi].YFlip, true);
                     }
                     for (int ri = 0; ri < LevelData.Rings.Count; ri++)
                     {
@@ -2431,6 +2467,7 @@ namespace SonicRetro.SonLVL
                                                     SelectedObjectChanged();
                                                     AddUndo(new ObjectAddedUndoAction(ent3));
                                                     break;
+                                                case EngineVersion.SCD:
                                                 case EngineVersion.SCDPC:
                                                     SCDObjectEntry entcd = (SCDObjectEntry)LevelData.CreateObject(ID);
                                                     LevelData.Objects.Add(entcd);
@@ -2438,6 +2475,18 @@ namespace SonicRetro.SonLVL
                                                     entcd.X = (ushort)(e.X + camera.X);
                                                     entcd.Y = (ushort)(e.Y + camera.Y);
                                                     entcd.RememberState = LevelData.getObjectDefinition(ID).RememberState();
+                                                    switch (LevelData.TimeZone)
+                                                    {
+                                                        case TimeZone.Past:
+                                                            entcd.ShowPast = true;
+                                                            break;
+                                                        case TimeZone.Present:
+                                                            entcd.ShowPresent = true;
+                                                            break;
+                                                        case TimeZone.Future:
+                                                            entcd.ShowFuture = true;
+                                                            break;
+                                                    }
                                                     SelectedItems.Clear();
                                                     SelectedItems.Add(entcd);
                                                     SelectedObjectChanged();
@@ -2484,7 +2533,7 @@ namespace SonicRetro.SonLVL
                             {
                                 ObjectDefinition dat = LevelData.getObjectDefinition(item.ID);
                                 Rectangle bound = dat.Bounds(new Point(item.X, item.Y), item.SubType);
-                                if (bound.Contains(e.X + camera.X, e.Y + camera.Y))
+                                if (ObjectVisible(item) && bound.Contains(e.X + camera.X, e.Y + camera.Y))
                                 {
                                     if (ModifierKeys == Keys.Control)
                                     {
@@ -2669,7 +2718,7 @@ namespace SonicRetro.SonLVL
                             {
                                 ObjectDefinition dat = LevelData.getObjectDefinition(item.ID);
                                 Rectangle bound = dat.Bounds(new Point(item.X , item.Y), item.SubType);
-                                if (bound.Contains(e.X + camera.X, e.Y + camera.Y))
+                                if (ObjectVisible(item) && bound.Contains(e.X + camera.X, e.Y + camera.Y))
                                 {
                                     if (!SelectedItems.Contains(item))
                                     {
@@ -2822,7 +2871,7 @@ namespace SonicRetro.SonLVL
                                 {
                                     ObjectDefinition dat = LevelData.getObjectDefinition(item.ID);
                                     Rectangle bound = dat.Bounds(new Point(item.X, item.Y), item.SubType);
-                                    if (bound.IntersectsWith(selbnds))
+                                    if (ObjectVisible(item) && bound.IntersectsWith(selbnds))
                                         SelectedItems.Add(item);
                                 }
                                 foreach (RingEntry ritem in LevelData.Rings)
@@ -2887,7 +2936,7 @@ namespace SonicRetro.SonLVL
                 {
                     ObjectDefinition dat = LevelData.getObjectDefinition(item.ID);
                     Rectangle bound = dat.Bounds(new Point(item.X, item.Y), item.SubType);
-                    if (bound.Contains(mouse))
+                    if (ObjectVisible(item) && bound.Contains(mouse))
                     {
                         cur = Cursors.SizeAll;
                         break;
@@ -3049,7 +3098,7 @@ namespace SonicRetro.SonLVL
                     for (int oi = 0; oi < LevelData.Objects.Count; oi++)
                     {
                         ObjectDefinition od = LevelData.getObjectDefinition(LevelData.Objects[oi].ID);
-                        od.Draw(bmp, new Point(LevelData.Objects[oi].X, LevelData.Objects[oi].Y), LevelData.Objects[oi].SubType, LevelData.Objects[oi].XFlip, LevelData.Objects[oi].YFlip, !hideDebugObjectsToolStripMenuItem.Checked);
+                        if (ObjectVisible(LevelData.Objects[oi])) od.Draw(bmp, new Point(LevelData.Objects[oi].X, LevelData.Objects[oi].Y), LevelData.Objects[oi].SubType, LevelData.Objects[oi].XFlip, LevelData.Objects[oi].YFlip, !hideDebugObjectsToolStripMenuItem.Checked);
                     }
                     switch (LevelData.RingFmt)
                     {
@@ -3525,6 +3574,18 @@ namespace SonicRetro.SonLVL
                         entcd.X = (ushort)(menuLoc.X + camera.X);
                         entcd.Y = (ushort)(menuLoc.Y + camera.Y);
                         entcd.RememberState = LevelData.getObjectDefinition(ID).RememberState();
+                        switch (LevelData.TimeZone)
+                        {
+                            case TimeZone.Present:
+                                entcd.ShowPresent = true;
+                                break;
+                            case TimeZone.Past:
+                                entcd.ShowPast = true;
+                                break;
+                            case TimeZone.Future:
+                                entcd.ShowFuture = true;
+                                break;
+                        }
                         SelectedItems.Clear();
                         SelectedItems.Add(entcd);
                         SelectedObjectChanged();
@@ -3627,6 +3688,18 @@ namespace SonicRetro.SonLVL
                                         entcd.X = (ushort)(pt.X);
                                         entcd.Y = (ushort)(pt.Y);
                                         entcd.RememberState = LevelData.getObjectDefinition(ID).RememberState();
+                                        switch (LevelData.TimeZone)
+                                        {
+                                            case TimeZone.Present:
+                                                entcd.ShowPresent = true;
+                                                break;
+                                            case TimeZone.Past:
+                                                entcd.ShowPast = true;
+                                                break;
+                                            case TimeZone.Future:
+                                                entcd.ShowFuture = true;
+                                                break;
+                                        }
                                         SelectedItems.Add(entcd);
                                         break;
                                 }
@@ -3936,6 +4009,42 @@ namespace SonicRetro.SonLVL
         {
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(System.IO.Path.Combine(Environment.CurrentDirectory, ini[string.Empty]["buildscr"])) { WorkingDirectory = System.IO.Path.GetDirectoryName(System.IO.Path.Combine(Environment.CurrentDirectory, ini[string.Empty]["buildscr"])) }).WaitForExit();
             System.Diagnostics.Process.Start(System.IO.Path.Combine(Environment.CurrentDirectory, ini[string.Empty]["runcmd"]));
+        }
+
+        private void currentOnlyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            currentOnlyToolStripMenuItem.Checked = true;
+            allToolStripMenuItem.Checked = false;
+            DrawLevel();
+        }
+
+        private void allToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            allToolStripMenuItem.Checked = true;
+            currentOnlyToolStripMenuItem.Checked = false;
+            DrawLevel();
+        }
+
+        private bool ObjectVisible(ObjectEntry obj)
+        {
+            if (allToolStripMenuItem.Checked)
+                return true;
+            if (obj is SCDObjectEntry)
+            {
+                SCDObjectEntry scdobj = (SCDObjectEntry)obj;
+                switch (LevelData.TimeZone)
+                {
+                    case TimeZone.Past:
+                        return scdobj.ShowPast;
+                    case TimeZone.Present:
+                        return scdobj.ShowPresent;
+                    case TimeZone.Future:
+                        return scdobj.ShowFuture;
+                    default:
+                        return true;
+                }
+            }
+            return true;
         }
     }
 

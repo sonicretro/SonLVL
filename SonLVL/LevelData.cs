@@ -57,6 +57,7 @@ namespace SonicRetro.SonLVL
         internal static List<Bitmap[]> ChunkColBmps;
         internal static Bitmap UnknownImg;
         internal static List<SCDPCSprite> Sprites;
+        internal static TimeZone TimeZone;
 
         internal static byte[] ReadFile(string file, Compression.CompressionType cmp)
         {
@@ -968,5 +969,13 @@ namespace SonicRetro.SonLVL
         SCD,
         SCDPC,
         SKC
+    }
+
+    public enum TimeZone
+    {
+        None,
+        Present,
+        Past,
+        Future
     }
 }
