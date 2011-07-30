@@ -378,7 +378,11 @@ namespace SonicRetro.SonLVL
                     {
                         Log("Loading 8x8 tiles from file \"" + gr["tile8"] + "\", using compression SZDD...");
                         tmp = Compression.Decompress(gr["tile8"], Compression.CompressionType.SZDD);
-                        LevelData.Tiles.AddFile(new List<byte>(tmp), 0);
+                        int tcnt = BitConverter.ToInt32(tmp, 8);
+                        int sta = BitConverter.ToInt32(tmp, 0xC);
+                        byte[] tiles = new byte[tcnt * 32];
+                        Array.Copy(tmp, sta, tiles, 0, tiles.Length);
+                        LevelData.Tiles.AddFile(new List<byte>(tiles), -1);
                     }
                     else
                         Log("8x8 tile file \"" + gr["tile8"] + "\" not found.");
@@ -756,6 +760,28 @@ namespace SonicRetro.SonLVL
                 LevelImgPalette.Entries[65] = Color.Yellow;
                 LevelImgPalette.Entries[66] = Color.Black;
                 LevelData.UnknownImg.Palette = LevelData.BmpPal;
+                LevelData.Sprites = new List<SCDPCSprite>();
+                if (gr.ContainsKey("sprites"))
+                {
+                    tmp = Compression.Decompress(gr["sprites"], Compression.CompressionType.SZDD);
+                    int numspr = BitConverter.ToInt32(tmp, 8);
+                    int taddr = BitConverter.ToInt32(tmp, 0xC);
+                    for (int i = 0; i < numspr; i++)
+                    {
+                        ushort width = BitConverter.ToUInt16(tmp, 0x10 + (i * 0xC) + 4);
+                        if ((width & 4) == 4)
+                            width += 4;
+                        ushort height = BitConverter.ToUInt16(tmp, 0x10 + (i * 0xC) + 6);
+                        ushort startcol = BitConverter.ToUInt16(tmp, 0x10 + (i * 0xC) + 8);
+                        BitmapBits bmp = new BitmapBits(width, height);
+                        byte[] til = new byte[height * (width / 2)];
+                        Array.Copy(tmp, taddr, til, 0, til.Length);
+                        taddr += til.Length;
+                        LevelData.LoadBitmap4BppIndexed(bmp, til, width / 2);
+                        bmp.IncrementIndexes(startcol / 2);
+                        LevelData.Sprites.Add(new SCDPCSprite(bmp, new Point(BitConverter.ToInt16(tmp, 0x10 + (i * 0xC) + 0), BitConverter.ToInt16(tmp, 0x10 + (i * 0xC) + 2))));
+                    }
+                }
                 LevelData.ObjTypes = new Dictionary<byte, ObjectDefinition>();
                 LevelData.filecache = new Dictionary<string, byte[]>();
                 LevelData.unkobj = new DefaultObjectDefinition();
@@ -1745,11 +1771,11 @@ namespace SonicRetro.SonLVL
                         {
                             case EngineVersion.S2:
                                 S2RingEntry re = (S2RingEntry)LevelData.Rings[ri];
-                                LevelData.S2RingDef.DrawExport(LevelImg8bpp, new Point(re.X - camera.X, re.Y - camera.Y), re.Direction, re.Count, true);
+                                LevelData.S2RingDef.Draw(LevelImg8bpp, new Point(re.X - camera.X, re.Y - camera.Y), re.Direction, re.Count, true);
                                 break;
                             case EngineVersion.S3K:
                             case EngineVersion.SKC:
-                                LevelData.S3KRingDef.DrawExport(LevelImg8bpp, new Point(LevelData.Rings[ri].X - camera.X, LevelData.Rings[ri].Y - camera.Y), true);
+                                LevelData.S3KRingDef.Draw(LevelImg8bpp, new Point(LevelData.Rings[ri].X - camera.X, LevelData.Rings[ri].Y - camera.Y), true);
                                 break;
                         }
                     }
@@ -1757,7 +1783,7 @@ namespace SonicRetro.SonLVL
                         foreach (CNZBumperEntry item in LevelData.Bumpers)
                             LevelData.unkobj.Draw(LevelImg8bpp, new Point(item.X - camera.X, item.Y - camera.Y), 0, false, false, true);
                     foreach (StartPositionEntry item in LevelData.StartPositions)
-                        LevelData.StartPosDefs[LevelData.StartPositions.IndexOf(item)].DrawExport(LevelImg8bpp, new Point(item.X - camera.X, item.Y - camera.Y), true);
+                        LevelData.StartPosDefs[LevelData.StartPositions.IndexOf(item)].Draw(LevelImg8bpp, new Point(item.X - camera.X, item.Y - camera.Y), true);
                     if (!objectsAboveHighPlaneToolStripMenuItem.Checked)
                     {
                         for (int y = Math.Max(camera.Y / LevelData.chunksz, 0); y <= Math.Min((camera.Y + (panel1.Height - 1)) / LevelData.chunksz, LevelData.FGLayout.GetLength(1) - 1); y++)
@@ -3031,19 +3057,19 @@ namespace SonicRetro.SonLVL
                             for (int ri = 0; ri < LevelData.Rings.Count; ri++)
                             {
                                 S2RingEntry re = (S2RingEntry)LevelData.Rings[ri];
-                                LevelData.S2RingDef.DrawExport(bmp, new Point(re.X, re.Y), re.Direction, re.Count, !hideDebugObjectsToolStripMenuItem.Checked);
+                                LevelData.S2RingDef.Draw(bmp, new Point(re.X, re.Y), re.Direction, re.Count, !hideDebugObjectsToolStripMenuItem.Checked);
                             }
                             break;
                         case EngineVersion.S3K:
                         case EngineVersion.SKC:
                             for (int ri = 0; ri < LevelData.Rings.Count; ri++)
                             {
-                                LevelData.S3KRingDef.DrawExport(bmp, new Point(LevelData.Rings[ri].X, LevelData.Rings[ri].Y), !hideDebugObjectsToolStripMenuItem.Checked);
+                                LevelData.S3KRingDef.Draw(bmp, new Point(LevelData.Rings[ri].X, LevelData.Rings[ri].Y), !hideDebugObjectsToolStripMenuItem.Checked);
                             }
                             break;
                     }
                     for (int si = 0; si < LevelData.StartPositions.Count; si++)
-                        LevelData.StartPosDefs[si].DrawExport(bmp, new Point(LevelData.StartPositions[si].X, LevelData.StartPositions[si].Y), !hideDebugObjectsToolStripMenuItem.Checked);
+                        LevelData.StartPosDefs[si].Draw(bmp, new Point(LevelData.StartPositions[si].X, LevelData.StartPositions[si].Y), !hideDebugObjectsToolStripMenuItem.Checked);
                 }
                 if (!objectsAboveHighPlaneToolStripMenuItem.Checked)
                     for (int y = 0; y < yend; y++)

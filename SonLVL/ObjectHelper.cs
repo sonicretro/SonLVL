@@ -176,6 +176,12 @@ namespace SonicRetro.SonLVL
             return new BitmapBits(LevelData.UnknownImg);
         }
 
+        public static BitmapBits Sprite(int index, out Point offset)
+        {
+            offset = LevelData.Sprites[index].offset;
+            return LevelData.Sprites[index].sprite;
+        }
+
         public static byte[] LevelArt { get { return LevelData.TilesArray; } }
     }
 }

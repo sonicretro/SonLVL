@@ -47,7 +47,6 @@ namespace SonicRetro.SonLVL
         private BitmapBits img;
         private string name;
         private bool rememberstate;
-        private int imgw, imgh;
         private List<byte> subtypes = new List<byte>();
         bool debug = false;
 
@@ -94,13 +93,17 @@ namespace SonicRetro.SonLVL
                 offset = new Point(int.Parse(off[0], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo), int.Parse(off[1], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo));
                 debug = true;
             }
+            else if (data.ContainsKey("sprite"))
+            {
+                int spr = int.Parse(data["sprite"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture);
+                img = LevelData.Sprites[spr].sprite;
+                offset = LevelData.Sprites[spr].offset;
+            }
             else
             {
                 img = ObjectHelper.UnknownObject(out offset);
                 debug = true;
             }
-            imgw = img.Width;
-            imgh = img.Height;
             rememberstate = bool.Parse(data.GetValueOrDefault("rememberstate", "False"));
             debug = debug | bool.Parse(data.GetValueOrDefault("debug", "False"));
             string[] subs = data.GetValueOrDefault("subtypes", "").Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
@@ -147,7 +150,7 @@ namespace SonicRetro.SonLVL
 
         public override Rectangle Bounds(Point loc, byte subtype)
         {
-            return new Rectangle(loc.X + offset.X, loc.Y + offset.Y, imgw, imgh);
+            return new Rectangle(loc.X + offset.X, loc.Y + offset.Y, img.Width, img.Height);
         }
 
         public override void Draw(BitmapBits bmp, Point loc, byte subtype, bool XFlip, bool YFlip, bool includeDebug)
@@ -164,7 +167,7 @@ namespace SonicRetro.SonLVL
         public abstract void Init(Dictionary<string, string> data);
         public abstract string Name();
         public abstract BitmapBits Image();
-        public abstract void DrawExport(BitmapBits bmp, Point loc, Direction direction, byte count, bool includeDebug);
+        public abstract void Draw(BitmapBits bmp, Point loc, Direction direction, byte count, bool includeDebug);
         public abstract Rectangle Bounds(Point loc, Direction direction, byte count);
     }
 
@@ -196,7 +199,7 @@ namespace SonicRetro.SonLVL
             return new Rectangle(loc.X + offset.X, loc.Y + offset.Y, imgw, imgh);
         }
 
-        public override void DrawExport(BitmapBits bmp, Point loc, Direction direction, byte count, bool includeDebug)
+        public override void Draw(BitmapBits bmp, Point loc, Direction direction, byte count, bool includeDebug)
         {
             if (!includeDebug) return;
             bmp.DrawBitmapComposited(img, new Point(loc.X + offset.X, loc.Y + offset.Y));
@@ -207,14 +210,11 @@ namespace SonicRetro.SonLVL
     {
         private Point offset;
         private BitmapBits img;
-        private int imgw, imgh;
         private bool debug = false;
 
         public S3KRingDefinition()
         {
             img = ObjectHelper.UnknownObject(out offset);
-            imgw = img.Width;
-            imgh = img.Height;
             debug = true;
         }
 
@@ -256,10 +256,14 @@ namespace SonicRetro.SonLVL
                 string[] off = data["offset"].Split(',');
                 offset = new Point(int.Parse(off[0], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo), int.Parse(off[1], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo));
             }
+            else if (data.ContainsKey("sprite"))
+            {
+                int spr = int.Parse(data["sprite"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture);
+                img = LevelData.Sprites[spr].sprite;
+                offset = LevelData.Sprites[spr].offset;
+            }
             else
                 img = ObjectHelper.UnknownObject(out offset);
-            imgw = img.Width;
-            imgh = img.Height;
         }
 
         public BitmapBits Image()
@@ -269,10 +273,10 @@ namespace SonicRetro.SonLVL
 
         public Rectangle Bounds(Point loc)
         {
-            return new Rectangle(loc.X + offset.X, loc.Y + offset.Y, imgw, imgh);
+            return new Rectangle(loc.X + offset.X, loc.Y + offset.Y, img.Width, img.Height);
         }
 
-        public void DrawExport(BitmapBits bmp, Point loc, bool includeDebug)
+        public void Draw(BitmapBits bmp, Point loc, bool includeDebug)
         {
             if (!includeDebug & debug) return;
             bmp.DrawBitmapComposited(img, new Point(loc.X + offset.X, loc.Y + offset.Y));
@@ -284,15 +288,12 @@ namespace SonicRetro.SonLVL
         private Point offset;
         private BitmapBits img;
         private string name;
-        private int imgw, imgh;
         bool debug = false;
 
         public StartPositionDefinition(string name)
         {
             this.name = name;
             img = ObjectHelper.UnknownObject(out offset);
-            imgw = img.Width;
-            imgh = img.Height;
             debug = true;
         }
 
@@ -335,10 +336,14 @@ namespace SonicRetro.SonLVL
                 string[] off = data["offset"].Split(',');
                 offset = new Point(int.Parse(off[0], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo), int.Parse(off[1], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo));
             }
+            else if (data.ContainsKey("sprite"))
+            {
+                int spr = int.Parse(data["sprite"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture);
+                img = LevelData.Sprites[spr].sprite;
+                offset = LevelData.Sprites[spr].offset;
+            }
             else
                 img = ObjectHelper.UnknownObject(out offset);
-            imgw = img.Width;
-            imgh = img.Height;
         }
 
         public string Name()
@@ -352,10 +357,10 @@ namespace SonicRetro.SonLVL
 
         public Rectangle Bounds(Point loc)
         {
-            return new Rectangle(loc.X + offset.X, loc.Y + offset.Y, imgw, imgh);
+            return new Rectangle(loc.X + offset.X, loc.Y + offset.Y, img.Width, img.Height);
         }
 
-        public void DrawExport(BitmapBits bmp, Point loc, bool includeDebug)
+        public void Draw(BitmapBits bmp, Point loc, bool includeDebug)
         {
             if (!includeDebug & debug) return;
             bmp.DrawBitmapComposited(img, new Point(loc.X + offset.X, loc.Y + offset.Y));

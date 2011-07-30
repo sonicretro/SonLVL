@@ -56,6 +56,7 @@ namespace SonicRetro.SonLVL
         internal static List<BitmapBits[]> ChunkColBmpBits;
         internal static List<Bitmap[]> ChunkColBmps;
         internal static Bitmap UnknownImg;
+        internal static List<SCDPCSprite> Sprites;
 
         internal static byte[] ReadFile(string file, Compression.CompressionType cmp)
         {
@@ -924,7 +925,7 @@ namespace SonicRetro.SonLVL
             }
         }
 
-        private static void LoadBitmap4BppIndexed(BitmapBits bmp, byte[] Bits, int Stride)
+        internal static void LoadBitmap4BppIndexed(BitmapBits bmp, byte[] Bits, int Stride)
         {
             for (int y = 0; y < bmp.Height; y++)
             {

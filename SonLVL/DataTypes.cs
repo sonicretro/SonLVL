@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 
 namespace SonicRetro.SonLVL
 {
@@ -916,6 +917,18 @@ namespace SonicRetro.SonLVL
             {
                 Tiles[i] = new DPLCEntry(file, (i * DPLCEntry.Size) + address + 2, version);
             }
+        }
+    }
+
+    public struct SCDPCSprite
+    {
+        public Point offset;
+        public BitmapBits sprite;
+
+        public SCDPCSprite(BitmapBits spr, Point off)
+        {
+            sprite = spr;
+            offset = off;
         }
     }
 }
