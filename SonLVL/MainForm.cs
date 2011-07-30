@@ -787,13 +787,13 @@ namespace SonicRetro.SonLVL
                         if ((width & 4) == 4)
                             width += 4;
                         ushort height = ByteConverter.ToUInt16(tmp, 0x10 + (i * 0xC) + 6);
-                        ushort startcol = ByteConverter.ToUInt16(tmp, 0x10 + (i * 0xC) + 8);
+                        ushort startcol = (ushort)(ByteConverter.ToUInt16(tmp, 0x10 + (i * 0xC) + 8) - 0x10);
                         BitmapBits bmp = new BitmapBits(width, height);
                         byte[] til = new byte[height * (width / 2)];
                         Array.Copy(tmp, taddr, til, 0, til.Length);
                         taddr += til.Length;
                         LevelData.LoadBitmap4BppIndexed(bmp, til, width / 2);
-                        bmp.IncrementIndexes(startcol / 2);
+                        bmp.IncrementIndexes(startcol);
                         LevelData.Sprites.Add(new SCDPCSprite(bmp, new Point(ByteConverter.ToInt16(tmp, 0x10 + (i * 0xC) + 0), ByteConverter.ToInt16(tmp, 0x10 + (i * 0xC) + 2))));
                     }
                 }
