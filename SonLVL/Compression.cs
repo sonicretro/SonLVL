@@ -1,4 +1,6 @@
-﻿using SonicRetro.KensSharp;
+﻿using System.Collections.Generic;
+using System.IO;
+using SonicRetro.KensSharp;
 
 namespace SonicRetro.SonLVL
 {
@@ -10,7 +12,7 @@ namespace SonicRetro.SonLVL
             switch (cmp)
             {
                 case CompressionType.Uncompressed:
-                    ret = System.IO.File.ReadAllBytes(file);
+                    ret = File.ReadAllBytes(file);
                     break;
                 case CompressionType.Kosinski:
                     ret = Kosinski.Decompress(file);
@@ -35,29 +37,35 @@ namespace SonicRetro.SonLVL
 
         public static void Compress(byte[] file, string destination, CompressionType cmp)
         {
+            List<byte> outfile = new List<byte>();
             switch (cmp)
             {
                 case CompressionType.Uncompressed:
-                    System.IO.File.WriteAllBytes(destination, file);
+                    outfile.AddRange(file);
                     break;
                 case CompressionType.Kosinski:
-                    Kosinski.Compress(file, destination);
+                    outfile.AddRange(Kosinski.Compress(file));
+                    if (outfile.Count % 2 == 1)
+                        outfile.Add(0);
                     break;
                 case CompressionType.KosinskiM:
-                    ModuledKosinski.Compress(file, destination, LevelData.littleendian ? Endianness.LittleEndian : Endianness.BigEndian);
+                    outfile.AddRange(ModuledKosinski.Compress(file, LevelData.littleendian ? Endianness.LittleEndian : Endianness.BigEndian));
+                    if (outfile.Count % 2 == 1)
+                        outfile.Add(0);
                     break;
                 case CompressionType.Nemesis:
-                    Nemesis.Compress(file, destination);
+                    outfile.AddRange(Nemesis.Compress(file));
                     break;
                 case CompressionType.Enigma:
-                    Enigma.Compress(file, destination, LevelData.littleendian ? Endianness.LittleEndian : Endianness.BigEndian);
+                    outfile.AddRange(Enigma.Compress(file, LevelData.littleendian ? Endianness.LittleEndian : Endianness.BigEndian));
                     break;
                 case CompressionType.SZDD:
-                    SZDDComp.SZDDComp.Compress(file, destination);
+                    outfile.AddRange(SZDDComp.SZDDComp.Compress(file));
                     break;
                 default:
-                    break;
+                    return;
             }
+            File.WriteAllBytes(destination, outfile.ToArray());
         }
 
         public enum CompressionType
