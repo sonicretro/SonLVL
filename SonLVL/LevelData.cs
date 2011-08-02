@@ -139,7 +139,7 @@ namespace SonicRetro.SonLVL
             {
                 string[] ln = fc[st].Split(';')[0].Trim().Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
                 if (ln.Length == 0) continue;
-                if (ln[0].Contains(":"))
+                if (char.IsWhiteSpace(fc[st], 0))
                 {
                     string[] l = ln[0].Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
                     labels.Add(l[0], curaddr);
@@ -182,7 +182,7 @@ namespace SonicRetro.SonLVL
             {
                 string[] ln = fc[st].Split(';')[0].Trim().Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
                 if (ln.Length == 0) continue;
-                if (ln[0].Contains(":"))
+                if (char.IsWhiteSpace(fc[st], 0))
                 {
                     string[] l = ln[0].Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
                     if (l.Length == 1)
