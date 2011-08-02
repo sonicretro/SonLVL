@@ -109,69 +109,126 @@ namespace SonicRetro.SonLVL
 
         internal static byte[] ASMToBin(string file)
         {
-            if (!System.IO.Directory.Exists("mapcache"))
-            {
-                System.IO.DirectoryInfo dir = System.IO.Directory.CreateDirectory("mapcache");
-                dir.Attributes |= System.IO.FileAttributes.Hidden;
-            }
-            string outfile = "mapcache/" + System.IO.Path.ChangeExtension(file, "bin").Replace('/', '!');
-            DateTime modDate = DateTime.MinValue;
-            if (System.IO.File.Exists(outfile))
-                modDate = System.IO.File.GetLastWriteTime(outfile);
-            if (modDate >= System.IO.File.GetLastWriteTime(file))
-                return System.IO.File.ReadAllBytes(outfile);
-            System.Diagnostics.Process proc = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, "asm68k.exe"), "/k /p /o ae- \"" + file + "\", \"" + outfile + "\"") { UseShellExecute = false, CreateNoWindow = true });
-            proc.WaitForExit();
-            return System.IO.File.ReadAllBytes(outfile);
+            return ASMToBin(file, 0);
         }
 
         internal static byte[] ASMToBin(string file, string label)
         {
             string[] fc = System.IO.File.ReadAllLines(file);
-            int st = -1;
+            int sti = -1;
             for (int i = 0; i < fc.Length; i++)
             {
                 if (fc[i].StartsWith(label + ":"))
                 {
-                    st = i;
+                    sti = i;
                     fc[i] = fc[i].Substring(label.Length + 1);
                 }
             }
-            if (st == -1) return new byte[0];
+            if (sti == -1) return new byte[0];
+            return ASMToBin(file, sti);
+        }
+
+
+        internal static byte[] ASMToBin(string file, int sti)
+        {
+            string[] fc = System.IO.File.ReadAllLines(file);
             List<byte> result = new List<byte>();
-            for (; st < fc.Length; st++)
+            Dictionary<string, int> labels = new Dictionary<string, int>();
+            int curaddr = 0;
+            for (int st = sti; st < fc.Length; st++)
             {
-                int ts = Math.Max(fc[st].IndexOf(' '), fc[st].IndexOf('\t'));
-                string[] ln = fc[st].Trim().Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+                string[] ln = fc[st].Split(';')[0].Trim().Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
                 if (ln.Length == 0) continue;
+                if (ln[0].Contains(":"))
+                {
+                    string[] l = ln[0].Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+                    labels.Add(l[0], curaddr);
+                    if (l.Length == 1)
+                    {
+                        string[] ln2 = new string[ln.Length - 1];
+                        for (int i = 0; i < ln2.Length; i++)
+                        {
+                            ln2[i] = ln[i + 1];
+                        }
+                        ln = ln2;
+                    }
+                    else
+                    {
+                        ln[0] = l[1];
+                    }
+                    if (ln.Length == 0) continue;
+                }
                 if (!ln[0].StartsWith("dc.")) break;
                 string d = string.Empty;
                 for (int i = 1; i < ln.Length; i++)
                 {
                     d += ln[i];
                 }
-                if (d.IndexOf(';') > -1)
-                    d = d.Remove(d.IndexOf(';'));
+                string[] dats = d.Split(',');
+                switch (ln[0].Split('.')[1])
+                {
+                    case "b":
+                        curaddr += dats.Length;
+                        break;
+                    case "w":
+                        curaddr += dats.Length * 2;
+                        break;
+                    case "l":
+                        curaddr += dats.Length * 4;
+                        break;
+                }
+            }
+            for (int st = sti; st < fc.Length; st++)
+            {
+                string[] ln = fc[st].Split(';')[0].Trim().Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+                if (ln.Length == 0) continue;
+                if (ln[0].Contains(":"))
+                {
+                    string[] l = ln[0].Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (l.Length == 1)
+                    {
+                        string[] ln2 = new string[ln.Length - 1];
+                        for (int i = 0; i < ln2.Length; i++)
+                        {
+                            ln2[i] = ln[i + 1];
+                        }
+                        ln = ln2;
+                    }
+                    else
+                    {
+                        ln[0] = l[1];
+                    }
+                    if (ln.Length == 0) continue;
+                }
+                if (!ln[0].StartsWith("dc.")) break;
+                string d = string.Empty;
+                for (int i = 1; i < ln.Length; i++)
+                {
+                    d += ln[i];
+                }
                 string[] dats = d.Split(',');
                 switch (ln[0].Split('.')[1])
                 {
                     case "b":
                         foreach (string item in dats)
-                        {
-                            result.Add(ParseASMByte(item));
-                        }
+                            if (item.Contains("-"))
+                                result.Add(unchecked((byte)ParseASMOffset(item, labels)));
+                            else
+                                result.Add(ParseASMByte(item));
                         break;
                     case "w":
                         foreach (string item in dats)
-                        {
-                            result.AddRange(ByteConverter.GetBytes(ParseASMWord(item)));
-                        }
+                            if (item.Contains("-"))
+                                result.AddRange(ByteConverter.GetBytes((short)ParseASMOffset(item, labels)));
+                            else
+                                result.AddRange(ByteConverter.GetBytes(ParseASMWord(item)));
                         break;
                     case "l":
                         foreach (string item in dats)
-                        {
-                            result.AddRange(ByteConverter.GetBytes(ParseASMLong(item)));
-                        }
+                            if (item.Contains("-"))
+                                result.AddRange(ByteConverter.GetBytes(ParseASMOffset(item, labels)));
+                            else
+                                result.AddRange(ByteConverter.GetBytes(ParseASMLong(item)));
                         break;
                 }
             }
@@ -200,6 +257,11 @@ namespace SonicRetro.SonLVL
                 return uint.Parse(data.Substring(1), System.Globalization.NumberStyles.HexNumber);
             else
                 return uint.Parse(data, System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo);
+        }
+
+        internal static int ParseASMOffset(string data, Dictionary<string, int> labels)
+        {
+            return labels[data.Split('-')[0]] - labels[data.Split('-')[1]];
         }
 
         internal static byte[] ProcessDPLC(byte[] artfile, DPLC dplc)
