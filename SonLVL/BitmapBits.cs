@@ -50,8 +50,15 @@ namespace SonicRetro.SonLVL
             BitmapData bmpd = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, bmp.PixelFormat);
             Width = bmpd.Width;
             Height = bmpd.Height;
-            Bits = new byte[Math.Abs(bmpd.Stride) * bmpd.Height];
-            Marshal.Copy(bmpd.Scan0, Bits, 0, Bits.Length);
+            byte[] tmpbits = new byte[Math.Abs(bmpd.Stride) * bmpd.Height];
+            Marshal.Copy(bmpd.Scan0, tmpbits, 0, tmpbits.Length);
+            Bits = new byte[Width * Height];
+            int j = 0;
+            for (int i = 0; i < Bits.Length; i += Width)
+            {
+                Array.Copy(tmpbits, j, Bits, i, Width);
+                j += Math.Abs(bmpd.Stride);
+            }
             bmp.UnlockBits(bmpd);
         }
 

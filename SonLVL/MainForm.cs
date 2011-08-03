@@ -58,6 +58,8 @@ namespace SonicRetro.SonLVL
         internal LogWindow LogWindow;
         internal List<string> LogFile = new List<string>();
         Dictionary<string, ToolStripMenuItem> levelMenuItems;
+        List<BitmapBits> HUDFont;
+        string HUDChars = "0123456789.-:/\\ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
         internal void Log(params string[] lines)
         {
@@ -71,6 +73,18 @@ namespace SonicRetro.SonLVL
             System.Drawing.Imaging.ColorMatrix x = new System.Drawing.Imaging.ColorMatrix();
             x.Matrix33 = 0.75f;
             imageTransparency.SetColorMatrix(x, System.Drawing.Imaging.ColorMatrixFlag.Default, System.Drawing.Imaging.ColorAdjustType.Bitmap);
+            HUDFont = new List<BitmapBits>();
+            HUDFont.Add(new BitmapBits(new Bitmap("HUD\\spc.png")));
+            for (int i = 0; i <= 9; i++)
+                HUDFont.Add(new BitmapBits(new Bitmap("HUD\\" + i + ".png")));
+            HUDFont.Add(new BitmapBits(new Bitmap("HUD\\..png")));
+            HUDFont.Add(new BitmapBits(new Bitmap("HUD\\-.png")));
+            HUDFont.Add(new BitmapBits(new Bitmap("HUD\\col.png")));
+            HUDFont.Add(new BitmapBits(new Bitmap("HUD\\slsh.png")));
+            HUDFont.Add(new BitmapBits(new Bitmap("HUD\\bslsh.png")));
+            for (int i = 0x41; i <= 0x5A; i++)
+                HUDFont.Add(new BitmapBits(new Bitmap("HUD\\" + (char)i + ".png")));
+            hUDToolStripMenuItem.Checked = Properties.Settings.Default.ShowHUD;
             if (System.Diagnostics.Debugger.IsAttached)
                 logToolStripMenuItem_Click(sender, e);
             if (Program.args.Length > 0)
@@ -1777,9 +1791,11 @@ namespace SonicRetro.SonLVL
                     }
                     for (int oi = 0; oi < LevelData.Objects.Count; oi++)
                     {
-                        ObjectDefinition od = LevelData.getObjectDefinition(LevelData.Objects[oi].ID);
-                        if (ObjectVisible(LevelData.Objects[oi]))
-                            od.Draw(LevelImg8bpp, new Point(LevelData.Objects[oi].X - camera.X, LevelData.Objects[oi].Y - camera.Y), LevelData.Objects[oi].SubType, LevelData.Objects[oi].XFlip, LevelData.Objects[oi].YFlip, true);
+                        ObjectEntry oe = LevelData.Objects[oi];
+                        ObjectDefinition od = LevelData.getObjectDefinition(oe.ID);
+                        Point pt = new Point(oe.X - camera.X, oe.Y - camera.Y);
+                        if (ObjectVisible(LevelData.Objects[oi]) && od.Bounds(pt, oe.SubType).Right > 0 & od.Bounds(pt, oe.SubType).Left < panel1.Width)
+                            od.Draw(LevelImg8bpp, pt, oe.SubType, oe.XFlip, oe.YFlip, true);
                     }
                     for (int ri = 0; ri < LevelData.Rings.Count; ri++)
                     {
@@ -1817,6 +1833,31 @@ namespace SonicRetro.SonLVL
                             }
                         }
                     }
+                    Rectangle hudbnd;
+                    int ringcnt = 0;
+                    switch (LevelData.RingFmt)
+                    {
+                        case EngineVersion.S1:
+                            foreach (ObjectEntry item in LevelData.Objects)
+                                if (item.ID == 0x25)
+                                    ringcnt += Math.Min(6, item.SubType & 7) + 1;
+                            break;
+                        case EngineVersion.S2:
+                            foreach (RingEntry item in LevelData.Rings)
+                                ringcnt += ((S2RingEntry)item).Count;
+                            break;
+                        case EngineVersion.S3K:
+                        case EngineVersion.SKC:
+                            ringcnt = LevelData.Rings.Count;
+                            break;
+                    }
+                    if (hUDToolStripMenuItem.Checked)
+                    DrawHUDStr(8, 8,
+                        "Screen Pos: " + camera.X.ToString("X4") + ' ' + camera.Y.ToString("X4") + '\n' +
+                        "Level Size: " + (LevelData.FGLayout.GetLength(0) * LevelData.chunksz).ToString("X4") + ' ' + (LevelData.FGLayout.GetLength(1) * LevelData.chunksz).ToString("X4") + '\n' +
+                        "Objects: " + LevelData.Objects.Count + '\n' +
+                        "Rings: " + ringcnt
+                        , out hudbnd);
                     LevelGfx.DrawImage(LevelImg8bpp.ToBitmap(LevelImgPalette), 0, 0, LevelImg8bpp.Width, LevelImg8bpp.Height);
                     foreach (Entry item in SelectedItems)
                     {
@@ -1894,6 +1935,11 @@ namespace SonicRetro.SonLVL
                                 LevelImg8bpp.DrawBitmapComposited(LevelData.ChunkColBmpBits[LevelData.BGLayout[x, y]][1], new Point(x * LevelData.chunksz - camera.X, y * LevelData.chunksz - camera.Y));
                         }
                     }
+                    if (hUDToolStripMenuItem.Checked)
+                    DrawHUDStr(8, 8,
+                        "Screen Pos: " + camera.X.ToString("X4") + ' ' + camera.Y.ToString("X4") + '\n' +
+                        "Level Size: " + (LevelData.BGLayout.GetLength(0) * LevelData.chunksz).ToString("X4") + (LevelData.BGLayout.GetLength(1) * LevelData.chunksz).ToString("X4")
+                        , out hudbnd);
                     LevelGfx.DrawImage(LevelImg8bpp.ToBitmap(LevelImgPalette), 0, 0, LevelImg8bpp.Width, LevelImg8bpp.Height);
                     if (LevelData.LayoutFmt == EngineVersion.S1)
                         for (int y = Math.Max(camera.Y / LevelData.chunksz, 0); y <= Math.Min((camera.Y + (panel1.Height - 1)) / LevelData.chunksz, LevelData.FGLayout.GetLength(1) - 1); y++)
@@ -1909,10 +1955,34 @@ namespace SonicRetro.SonLVL
                     0, 0, LevelData.chunksz, LevelData.chunksz,
                     GraphicsUnit.Pixel, imageTransparency);
                     break;
-                default:
-                    break;
             }
             PanelGfx.DrawImage(LevelBmp, 0, 0, panel1.Width, panel1.Height);
+        }
+
+        public void DrawHUDStr(int X, int Y, string str, out Rectangle bounds)
+        {
+            BitmapBits curimg;
+            int curX = X;
+            int curY = Y;
+            bounds = new Rectangle();
+            bounds.X = X;
+            bounds.Y = Y;
+            int maxX = X;
+            foreach (string line in str.Split(new char[] {'\n'}, StringSplitOptions.None))
+            {
+                int maxY = 0;
+                foreach (char ch in line)
+                {
+                    curimg = HUDFont[HUDChars.IndexOf(char.ToUpper(ch)) + 1];
+                    LevelImg8bpp.DrawBitmapComposited(curimg, new Point(curX, curY));
+                    curX += curimg.Width;
+                    maxX = Math.Max(maxX, curX);
+                    maxY = Math.Max(maxY, curimg.Height);
+                }
+                curY += maxY;
+                curX = X;
+            }
+            bounds.Height = curY - Y;
         }
 
         private void panel1_Paint(object sender, PaintEventArgs e)
@@ -3256,6 +3326,7 @@ namespace SonicRetro.SonLVL
                         break;
                 }
             }
+            Properties.Settings.Default.ShowHUD = hUDToolStripMenuItem.Checked;
         }
 
         private void LoadObjectDefinitions(string file)
