@@ -1449,33 +1449,23 @@ namespace SonicRetro.SonLVL
                     tmp.AddRange(ByteConverter.GetBytes(bgw));
                     tmp.AddRange(ByteConverter.GetBytes(fgh));
                     tmp.AddRange(ByteConverter.GetBytes(bgh));
-                    ushort ptr = 0x8088;
                     for (int la = 0; la < 32; la++)
                     {
                         if (la < fgh)
-                        {
-                            tmp.AddRange(ByteConverter.GetBytes(ptr));
-                            ptr += fgw;
-                        }
+                            tmp.AddRange(ByteConverter.GetBytes((ushort)(0x8088 + (la * fgw))));
                         else
                             tmp.AddRange(new byte[2]);
                         if (la < bgh)
-                        {
-                            tmp.AddRange(ByteConverter.GetBytes(ptr));
-                            ptr += bgw;
-                        }
+                            tmp.AddRange(ByteConverter.GetBytes((ushort)(0x8088 + (fgh * fgw) + (la * bgw))));
                         else
                             tmp.AddRange(new byte[2]);
                     }
-                    for (int y = 0; y < Math.Max(fgh, bgh); y++)
-                    {
-                        if (y < fgh)
-                            for (int x = 0; x < fgw; x++)
-                                tmp.Add(LevelData.FGLayout[x, y]);
-                        if (y < bgh)
-                            for (int x = 0; x < bgw; x++)
-                                tmp.Add(LevelData.BGLayout[x, y]);
-                    }
+                    for (int y = 0; y < fgh; y++)
+                        for (int x = 0; x < fgw; x++)
+                            tmp.Add(LevelData.FGLayout[x, y]);
+                    for (int y = 0; y < bgh; y++)
+                        for (int x = 0; x < bgw; x++)
+                            tmp.Add(LevelData.BGLayout[x, y]);
                     Compression.Compress(tmp.ToArray(), gr["layout"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("layoutcmp", "Uncompressed")));
                     break;
                 case EngineVersion.SKC:
@@ -1488,34 +1478,24 @@ namespace SonicRetro.SonLVL
                     tmp.AddRange(ByteConverter.GetBytes(bgw));
                     tmp.AddRange(ByteConverter.GetBytes(fgh));
                     tmp.AddRange(ByteConverter.GetBytes(bgh));
-                    ptr = 0x8088;
                     for (int la = 0; la < 32; la++)
                     {
                         if (la < fgh)
-                        {
-                            tmp.AddRange(ByteConverter.GetBytes(ptr));
-                            ptr += fgw;
-                        }
+                            tmp.AddRange(ByteConverter.GetBytes((ushort)(0x8088 + (la * fgw))));
                         else
                             tmp.AddRange(new byte[2]);
                         if (la < bgh)
-                        {
-                            tmp.AddRange(ByteConverter.GetBytes(ptr));
-                            ptr += bgw;
-                        }
+                            tmp.AddRange(ByteConverter.GetBytes((ushort)(0x8088 + (fgh * fgw) + (la * bgw))));
                         else
                             tmp.AddRange(new byte[2]);
                     }
                     List<byte> l = new List<byte>();
-                    for (int y = 0; y < Math.Max(fgh, bgh); y++)
-                    {
-                        if (y < fgh)
-                            for (int x = 0; x < fgw; x++)
-                                l.Add(LevelData.FGLayout[x, y]);
-                        if (y < bgh)
-                            for (int x = 0; x < bgw; x++)
-                                l.Add(LevelData.BGLayout[x, y]);
-                    }
+                    for (int y = 0; y < fgh; y++)
+                        for (int x = 0; x < fgw; x++)
+                            l.Add(LevelData.FGLayout[x, y]);
+                    for (int y = 0; y < bgh; y++)
+                        for (int x = 0; x < bgw; x++)
+                            l.Add(LevelData.BGLayout[x, y]);
                     for (int i = 0; i < l.Count; i++)
                         tmp.Add(l[i ^ 1]);
                     Compression.Compress(tmp.ToArray(), gr["layout"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("layoutcmp", "Uncompressed")));
