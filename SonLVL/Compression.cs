@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using SonicRetro.KensSharp;
 
 namespace SonicRetro.SonLVL
@@ -37,35 +36,47 @@ namespace SonicRetro.SonLVL
 
         public static void Compress(byte[] file, string destination, CompressionType cmp)
         {
-            List<byte> outfile = new List<byte>();
             switch (cmp)
             {
                 case CompressionType.Uncompressed:
-                    outfile.AddRange(file);
+                    File.WriteAllBytes(destination, file);
                     break;
                 case CompressionType.Kosinski:
-                    outfile.AddRange(Kosinski.Compress(file));
-                    if (outfile.Count % 2 == 1)
-                        outfile.Add(0);
+                    using (MemoryStream input = new MemoryStream(file))
+                    {
+                        using (FileStream output = File.Create(destination))
+                        {
+                            using (PaddedStream paddedOutput = new PaddedStream(output, 2, PaddedStreamMode.Write))
+                            {
+                                Kosinski.Compress(input, paddedOutput);
+                            }
+                        }
+                    }
                     break;
                 case CompressionType.KosinskiM:
-                    outfile.AddRange(ModuledKosinski.Compress(file, LevelData.littleendian ? Endianness.LittleEndian : Endianness.BigEndian));
-                    if (outfile.Count % 2 == 1)
-                        outfile.Add(0);
+                    using (MemoryStream input = new MemoryStream(file))
+                    {
+                        using (FileStream output = File.Create(destination))
+                        {
+                            using (PaddedStream paddedOutput = new PaddedStream(output, 2, PaddedStreamMode.Write))
+                            {
+                                ModuledKosinski.Compress(input, paddedOutput, LevelData.littleendian ? Endianness.LittleEndian : Endianness.BigEndian);
+                            }
+                        }
+                    }
                     break;
                 case CompressionType.Nemesis:
-                    outfile.AddRange(Nemesis.Compress(file));
+                    Nemesis.Compress(file, destination);
                     break;
                 case CompressionType.Enigma:
-                    outfile.AddRange(Enigma.Compress(file, LevelData.littleendian ? Endianness.LittleEndian : Endianness.BigEndian));
+                    Enigma.Compress(file, destination, LevelData.littleendian ? Endianness.LittleEndian : Endianness.BigEndian);
                     break;
                 case CompressionType.SZDD:
-                    outfile.AddRange(SZDDComp.SZDDComp.Compress(file));
+                    SZDDComp.SZDDComp.Compress(file, destination);
                     break;
                 default:
-                    return;
+                    break;
             }
-            File.WriteAllBytes(destination, outfile.ToArray());
         }
 
         public enum CompressionType
