@@ -144,7 +144,7 @@ namespace SonicRetro.SonLVL
                         break;
                     case EngineVersion.SCDPC:
                         LevelData.chunksz = 256;
-                        Icon = Properties.Resources.gogglemon;
+                        Icon = Properties.Resources.clockmon;
                         LevelData.UnknownImg = Properties.Resources.UnknownImg.Copy();
                         timeZoneToolStripMenuItem.Visible = true;
                         LevelData.littleendian = true;
@@ -249,7 +249,7 @@ namespace SonicRetro.SonLVL
                         break;
                     case EngineVersion.SCDPC:
                         LevelData.chunksz = 256;
-                        Icon = Properties.Resources.gogglemon;
+                        Icon = Properties.Resources.clockmon;
                         LevelData.UnknownImg = Properties.Resources.UnknownImg.Copy();
                         LevelData.littleendian = true;
                         break;

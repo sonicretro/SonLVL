@@ -60,6 +60,13 @@ namespace SonicRetro.SonLVL.Properties {
             }
         }
         
+        internal static System.Drawing.Icon clockmon {
+            get {
+                object obj = ResourceManager.GetObject("clockmon", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap copy {
             get {
                 object obj = ResourceManager.GetObject("copy", resourceCulture);
