@@ -1038,8 +1038,8 @@ namespace SonicRetro.SonLVL
                         LevelData.ColInds2.AddRange(new byte[LevelData.Blocks.Count - LevelData.ColInds2.Count]);
                 }
                 LevelData.ColArr1 = new sbyte[256][];
-                if (ini[string.Empty].ContainsKey("colarr1") && File.Exists(ini[string.Empty]["colarr1"]))
-                    tmp = Compression.Decompress(ini[string.Empty]["colarr1"], Compression.CompressionType.Uncompressed);
+                if (File.Exists(gr.GetValueOrDefault("colarr1", ini[string.Empty].GetValueOrDefault("colarr1", string.Empty))))
+                    tmp = Compression.Decompress(gr.GetValueOrDefault("colarr1", ini[string.Empty].GetValueOrDefault("colarr1", null)), Compression.CompressionType.Uncompressed);
                 else
                     tmp = new byte[256 * 16];
                 for (int i = 0; i < 256; i++)
@@ -1048,8 +1048,8 @@ namespace SonicRetro.SonLVL
                     for (int j = 0; j < 16; j++)
                         LevelData.ColArr1[i][j] = unchecked((sbyte)tmp[(i * 16) + j]);
                 }
-                if (ini[string.Empty].ContainsKey("angles") && File.Exists(ini[string.Empty]["angles"]))
-                    LevelData.Angles = Compression.Decompress(ini[string.Empty]["angles"], Compression.CompressionType.Uncompressed);
+                if (File.Exists(gr.GetValueOrDefault("angles", ini[string.Empty].GetValueOrDefault("angles", string.Empty))))
+                    LevelData.Angles = Compression.Decompress(gr.GetValueOrDefault("angles", ini[string.Empty].GetValueOrDefault("angles", string.Empty)), Compression.CompressionType.Uncompressed);
                 else
                     LevelData.Angles = new byte[256];
                 LevelData.BlockBmps = new List<Bitmap[]>();
@@ -1795,25 +1795,25 @@ namespace SonicRetro.SonLVL
                     }
                     break;
             }
-            if (ini[string.Empty].ContainsKey("colarr1"))
+            if (gr.GetValueOrDefault("colarr1", ini[string.Empty].GetValueOrDefault("colarr1", null)) != null)
             {
                 tmp = new List<byte>();
                 for (int i = 0; i < 256; i++)
                     for (int j = 0; j < 16; j++)
                         tmp.Add(unchecked((byte)LevelData.ColArr1[i][j]));
-                Compression.Compress(tmp.ToArray(), ini[string.Empty]["colarr2"], Compression.CompressionType.Uncompressed);
+                Compression.Compress(tmp.ToArray(), gr.GetValueOrDefault("colarr1", ini[string.Empty].GetValueOrDefault("colarr1", null)), Compression.CompressionType.Uncompressed);
             }
-            if (ini[string.Empty].ContainsKey("colarr2"))
+            if (gr.GetValueOrDefault("colarr2", ini[string.Empty].GetValueOrDefault("colarr2", null)) != null)
             {
                 sbyte[][] rotcol = LevelData.GenerateRotatedCollision();
                 tmp = new List<byte>();
                 for (int i = 0; i < 256; i++)
                     for (int j = 0; j < 16; j++)
                         tmp.Add(unchecked((byte)rotcol[i][j]));
-                Compression.Compress(tmp.ToArray(), ini[string.Empty]["colarr2"], Compression.CompressionType.Uncompressed);
+                Compression.Compress(tmp.ToArray(), gr.GetValueOrDefault("colarr2", ini[string.Empty].GetValueOrDefault("colarr2", null)), Compression.CompressionType.Uncompressed);
             }
-            if (ini[string.Empty].ContainsKey("angles"))
-                Compression.Compress(LevelData.Angles, ini[string.Empty]["angles"], Compression.CompressionType.Uncompressed);
+            if (gr.GetValueOrDefault("angles", ini[string.Empty].GetValueOrDefault("angles", null)) != null)
+                Compression.Compress(LevelData.Angles, gr.GetValueOrDefault("angles", ini[string.Empty].GetValueOrDefault("angles", null)), Compression.CompressionType.Uncompressed);
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
