@@ -1337,21 +1337,31 @@ namespace SonicRetro.SonLVL
             }
             else
             {
-                // TODO: fix this
                 List<ushort>[] tilepals = new List<ushort>[4];
                 for (int i = 0; i < 4; i++)
                     tilepals[i] = new List<ushort>();
                 foreach (Block blk in LevelData.Blocks)
                     for (int y = 0; y < 2; y++)
                         for (int x = 0; x < 2; x++)
-                            if (tilepals[blk.tiles[x, y].Palette].Contains(blk.tiles[x, y].Tile))
-                                blk.tiles[x, y].Tile = (ushort)tilepals[blk.tiles[x, y].Palette].IndexOf(blk.tiles[x, y].Tile);
-                            else
+                            if (!tilepals[blk.tiles[x, y].Palette].Contains(blk.tiles[x, y].Tile))
                                 tilepals[blk.tiles[x, y].Palette].Add(blk.tiles[x, y].Tile);
+                foreach (Block blk in LevelData.Blocks)
+                    for (int y = 0; y < 2; y++)
+                        for (int x = 0; x < 2; x++)
+                        {
+                            byte pal = blk.tiles[x, y].Palette;
+                            int c = 0;
+                            for (int i = pal - 1; i >= 0; i--)
+                                c += tilepals[i].Count;
+                            blk.tiles[x, y].Tile = (ushort)(tilepals[pal].IndexOf(blk.tiles[x, y].Tile) + c);
+                        }
                 List<byte[]> tiles = new List<byte[]>();
                 for (int p = 0; p < 4; p++)
                     foreach (ushort item in tilepals[p])
-                        tiles.Add(LevelData.Tiles[item]);
+                        if (LevelData.Tiles[item] != null)
+                            tiles.Add(LevelData.Tiles[item]);
+                        else
+                            tiles.Add(new byte[32]);
                 LevelData.Tiles.Clear();
                 LevelData.Tiles.AddFile(tiles, -1);
                 LevelData.UpdateTileArray();
@@ -1615,6 +1625,33 @@ namespace SonicRetro.SonLVL
                         System.IO.File.WriteAllBytes(palentstr[pn].Split(':')[0], tmp.ToArray());
                     }
                     palnum++;
+                    palfilenum = (byte)palfiles.Count;
+                }
+            }
+            else
+            {
+                List<byte[]> palfiles = new List<byte[]>();
+                string[] palentstr;
+                byte palfilenum = 0;
+                if (gr.ContainsKey("palette"))
+                {
+                    palentstr = gr["palette"].Split('|');
+                    for (byte pn = 0; pn < palentstr.Length; pn++)
+                    {
+                        string[] palent = palentstr[pn].Split(':');
+                        palfiles.Add(System.IO.File.ReadAllBytes(palent[0]));
+                    }
+                    for (int pl = 0; pl < 4; pl++)
+                    {
+                        for (int pi = 0; pi < 16; pi++)
+                        {
+                            palfiles[LevelData.PalNum[0][pl, pi]][LevelData.PalAddr[0][pl, pi] * 4] = (byte)((LevelData.Palette[0][pl, pi] & 0xF) * 0x11);
+                            palfiles[LevelData.PalNum[0][pl, pi]][LevelData.PalAddr[0][pl, pi] * 4 + 1] = (byte)(((LevelData.Palette[0][pl, pi] & 0xF0) >> 4) * 0x11);
+                            palfiles[LevelData.PalNum[0][pl, pi]][LevelData.PalAddr[0][pl, pi] * 4 + 2] = (byte)(((LevelData.Palette[0][pl, pi] & 0xF00) >> 8) * 0x11);
+                        }
+                    }
+                    for (byte pn = 0; pn < palentstr.Length; pn++)
+                        System.IO.File.WriteAllBytes(palentstr[pn].Split(':')[0], palfiles[pn]);
                     palfilenum = (byte)palfiles.Count;
                 }
             }
