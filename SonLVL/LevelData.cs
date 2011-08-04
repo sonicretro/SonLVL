@@ -8,8 +8,8 @@ namespace SonicRetro.SonLVL
     internal static class LevelData
     {
         internal static MainForm MainForm;
-        internal static MultiFileIndexer<byte> Tiles;
-        internal static byte[] TilesArray;
+        internal static MultiFileIndexer<byte[]> Tiles;
+        internal static byte[] TileArray;
         internal static EngineVersion TileFmt;
         internal static MultiFileIndexer<Block> Blocks;
         internal static List<BitmapBits[]> BlockBmpBits;
@@ -62,7 +62,7 @@ namespace SonicRetro.SonLVL
         internal static byte[] ReadFile(string file, Compression.CompressionType cmp)
         {
             if (file == "LevelArt")
-                return TilesArray;
+                return TileArray;
             else if (filecache.ContainsKey(file))
                 return filecache[file];
             else
@@ -485,7 +485,7 @@ namespace SonicRetro.SonLVL
                 {
                     PatternIndex pt = Blocks[block].tiles[bx, by];
                     int pr = pt.Priority ? 1 : 0;
-                    BitmapBits tile = TileToBmp8bpp(TilesArray, pt.Tile, pt.Palette);
+                    BitmapBits tile = TileToBmp8bpp(Tiles[pt.Tile], 0, pt.Palette);
                     tile.Flip(pt.XFlip, pt.YFlip);
                     BlockBmpBits[block][pr].DrawBitmap(
                         tile,
@@ -1019,6 +1019,14 @@ namespace SonicRetro.SonLVL
                 for (int x = 0; x < bmp.Width; x++)
                     bmp[x, y] = (byte)(Bits[srcaddr + x] & 0x3F);
             }
+        }
+
+        internal static void UpdateTileArray()
+        {
+            List<byte> tils = new List<byte>();
+            foreach (byte[] item in Tiles)
+                tils.AddRange(item);
+            TileArray = tils.ToArray();
         }
     }
 

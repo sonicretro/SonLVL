@@ -351,7 +351,7 @@ namespace SonicRetro.SonLVL
                 string[] tilelist = gr["tile8"].Split('|');
                 byte[] tmp = null;
                 List<byte> data = new List<byte>();
-                LevelData.Tiles = new MultiFileIndexer<byte>();
+                LevelData.Tiles = new MultiFileIndexer<byte[]>();
                 if (LevelData.TileFmt != EngineVersion.SCDPC)
                 {
                     switch (LevelData.TileFmt)
@@ -378,6 +378,13 @@ namespace SonicRetro.SonLVL
                         {
                             Log("Loading 8x8 tiles from file \"" + tileentsp[0] + "\", using compression " + gr.GetValueOrDefault("tile8cmp", defcmp) + "...");
                             tmp = Compression.Decompress(tileentsp[0], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("tile8cmp", defcmp)));
+                            List<byte[]> tiles = new List<byte[]>();
+                            for (int i = 0; i < tmp.Length; i += 32)
+                            {
+                                byte[] tile = new byte[32];
+                                Array.Copy(tmp, i, tile, 0, 32);
+                                tiles.Add(tile);
+                            }
                             int off = -1;
                             if (tileentsp.Length > 1)
                             {
@@ -387,12 +394,11 @@ namespace SonicRetro.SonLVL
                                 else
                                     off = int.Parse(offstr, System.Globalization.NumberStyles.Integer);
                             }
-                            LevelData.Tiles.AddFile(new List<byte>(tmp), off);
+                            LevelData.Tiles.AddFile(tiles, off);
                         }
                         else
                             Log("8x8 tile file \"" + tileentsp[0] + "\" not found.");
                     }
-                    LevelData.TilesArray = LevelData.Tiles.ToArray();
                 }
                 else
                 {
@@ -401,24 +407,21 @@ namespace SonicRetro.SonLVL
                         Log("Loading 8x8 tiles from file \"" + gr["tile8"] + "\", using compression SZDD...");
                         tmp = Compression.Decompress(gr["tile8"], Compression.CompressionType.SZDD);
                         int sta = ByteConverter.ToInt32(tmp, 0xC);
-                        for (int i = 0; i < 4; i++)
+                        int numt = ByteConverter.ToInt32(tmp, 8);
+                        List<byte[]> tiles = new List<byte[]>();
+                        for (int i = 0; i < numt; i++)
                         {
-                            byte[] tiles = new byte[ByteConverter.ToUInt16(tmp, 0x10 + (i * 2)) * 32];
-                            Array.Copy(tmp, sta, tiles, 0, tiles.Length);
-                            LevelData.Tiles.AddFile(new List<byte>(tiles), -1);
-                            sta += tiles.Length;
+                            byte[] tile = new byte[32];
+                            Array.Copy(tmp, sta, tile, 0, 32);
+                            tiles.Add(tile);
+                            sta += 32;
                         }
+                        LevelData.Tiles.AddFile(tiles, -1);
                     }
                     else
-                    {
                         Log("8x8 tile file \"" + gr["tile8"] + "\" not found.");
-                        for (int i = 0; i < 4; i++)
-                            LevelData.Tiles.AddFile(new List<byte>(new byte[32]), -1);
-                    }
-                    if (LevelData.Tiles.Count == 0)
-                        LevelData.Tiles.AddFile(new List<byte>(new byte[32]), -1);
-                    LevelData.TilesArray = LevelData.Tiles.ToArray();
                 }
+                LevelData.UpdateTileArray();
                 LevelData.Blocks = new MultiFileIndexer<Block>();
                 switch (LevelData.BlockFmt)
                 {
@@ -466,7 +469,7 @@ namespace SonicRetro.SonLVL
                         LevelData.Blocks.AddFile(tmpblk, off == -1 ? off : off / Block.Size);
                     }
                     else
-                        Log("16x16 chunk file \"" + tileentsp[0] + "\" not found.");
+                        Log("16x16 block file \"" + tileentsp[0] + "\" not found.");
                 }
                 if (LevelData.Blocks.Count == 0)
                     LevelData.Blocks.AddFile(new List<Block>() { new Block() }, -1);
@@ -1128,8 +1131,8 @@ namespace SonicRetro.SonLVL
             TileEditor.ChunkPicture.Size = new Size(LevelData.chunksz, LevelData.chunksz);
             TileEditor.BlockSelector.SelectedIndex = 0;
             TileEditor.TileSelector.Images.Clear();
-            for (int i = 0; i < LevelData.TilesArray.Length / 0x20; i++)
-                TileEditor.TileSelector.Images.Add(LevelData.TileToBmp4bpp(LevelData.TilesArray, i, 2));
+            for (int i = 0; i < LevelData.Tiles.Count; i++)
+                TileEditor.TileSelector.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, 2));
             TileEditor.TileSelector.SelectedIndex = 0;
             TileEditor.TileSelector.ChangeSize();
             switch (LevelData.EngineVersion)
@@ -1300,7 +1303,7 @@ namespace SonicRetro.SonLVL
             string[] tilelist;
             int fileind = -1;
             List<byte> tmp;
-            ReadOnlyCollection<ReadOnlyCollection<byte>> tilefiles = LevelData.Tiles.GetFiles();
+            ReadOnlyCollection<ReadOnlyCollection<byte[]>> tilefiles = LevelData.Tiles.GetFiles();
             if (LevelData.TileFmt != EngineVersion.SCDPC)
             {
                 switch (LevelData.TileFmt)
@@ -1324,27 +1327,50 @@ namespace SonicRetro.SonLVL
                 {
                     fileind++;
                     string[] tileentsp = tileent.Split(':');
-                    Compression.Compress(new List<byte>(tilefiles[fileind]).ToArray(), tileentsp[0], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("block16cmp", defcmp)));
+                    tmp = new List<byte>();
+                    foreach (byte[] item in tilefiles[fileind])
+                    {
+                        tmp.AddRange(item);
+                    }
+                    Compression.Compress(tmp.ToArray(), tileentsp[0], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("block16cmp", defcmp)));
                 }
             }
             else
             {
+                // TODO: fix this
+                List<ushort>[] tilepals = new List<ushort>[4];
+                for (int i = 0; i < 4; i++)
+                    tilepals[i] = new List<ushort>();
+                foreach (Block blk in LevelData.Blocks)
+                    for (int y = 0; y < 2; y++)
+                        for (int x = 0; x < 2; x++)
+                            if (tilepals[blk.tiles[x, y].Palette].Contains(blk.tiles[x, y].Tile))
+                                blk.tiles[x, y].Tile = (ushort)tilepals[blk.tiles[x, y].Palette].IndexOf(blk.tiles[x, y].Tile);
+                            else
+                                tilepals[blk.tiles[x, y].Palette].Add(blk.tiles[x, y].Tile);
+                List<byte[]> tiles = new List<byte[]>();
+                for (int p = 0; p < 4; p++)
+                    foreach (ushort item in tilepals[p])
+                        tiles.Add(LevelData.Tiles[item]);
+                LevelData.Tiles.Clear();
+                LevelData.Tiles.AddFile(tiles, -1);
+                LevelData.UpdateTileArray();
                 tmp = new List<byte>();
                 tmp.Add(0x53);
                 tmp.Add(0x43);
                 tmp.Add(0x52);
                 tmp.Add(0x4C);
-                tmp.AddRange(ByteConverter.GetBytes(0x18 + ((LevelData.TilesArray.Length / 32) * 4) + LevelData.TilesArray.Length));
-                tmp.AddRange(ByteConverter.GetBytes(LevelData.TilesArray.Length / 32));
-                tmp.AddRange(ByteConverter.GetBytes(0x18 + ((LevelData.TilesArray.Length / 32) * 4)));
+                tmp.AddRange(ByteConverter.GetBytes(0x18 + (LevelData.Tiles.Count * 4) + (LevelData.Tiles.Count * 32)));
+                tmp.AddRange(ByteConverter.GetBytes(LevelData.Tiles.Count));
+                tmp.AddRange(ByteConverter.GetBytes(0x18 + (LevelData.Tiles.Count * 4)));
                 for (int i = 0; i < 4; i++)
-                    tmp.AddRange(ByteConverter.GetBytes((ushort)(tilefiles[i].Count / 32)));
-                for (int i = 0; i < LevelData.TilesArray.Length / 32; i++)
+                    tmp.AddRange(ByteConverter.GetBytes((ushort)tilepals[i].Count));
+                for (int i = 0; i < LevelData.Tiles.Count; i++)
                 {
                     tmp.AddRange(ByteConverter.GetBytes((ushort)8));
                     tmp.AddRange(ByteConverter.GetBytes((ushort)8));
                 }
-                tmp.AddRange(LevelData.TilesArray);
+                tmp.AddRange(LevelData.TileArray);
                 Compression.Compress(tmp.ToArray(), gr["tile8"], Compression.CompressionType.SZDD);
             }
             switch (LevelData.BlockFmt)
@@ -3470,9 +3496,9 @@ namespace SonicRetro.SonLVL
             FolderBrowserDialog a = new FolderBrowserDialog() { SelectedPath = Environment.CurrentDirectory };
             if (a.ShowDialog() == DialogResult.OK)
             {
-                for (int i = 0; i < LevelData.TilesArray.Length / 32; i++)
+                for (int i = 0; i < LevelData.Tiles.Count; i++)
                 {
-                    LevelData.TileToBmp4bpp(LevelData.TilesArray, i, tilesToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem)).Save(System.IO.Path.Combine(a.SelectedPath, i + ".png"));
+                    LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, tilesToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem)).Save(System.IO.Path.Combine(a.SelectedPath, i + ".png"));
                 }
             }
         }

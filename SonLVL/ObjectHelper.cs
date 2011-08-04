@@ -182,6 +182,6 @@ namespace SonicRetro.SonLVL
             return LevelData.Sprites[index].sprite;
         }
 
-        public static byte[] LevelArt { get { return LevelData.TilesArray; } }
+        public static byte[] LevelArt { get { return LevelData.TileArray; } }
     }
 }

@@ -50,8 +50,8 @@ namespace SonicRetro.SonLVL
         private void IDControl_Load(object sender, EventArgs e)
         {
             listView1.Images.Clear();
-            for (int i = 0; i < LevelData.TilesArray.Length / 0x20; i++)
-                listView1.Images.Add(LevelData.TileToBmp4bpp(LevelData.TilesArray, i, 2));
+            for (int i = 0; i < LevelData.Tiles.Count; i++)
+                listView1.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, 2));
             listView1.ChangeSize();
         }
 
@@ -102,7 +102,7 @@ namespace SonicRetro.SonLVL
 
         public override void PaintValue(PaintValueEventArgs e)
         {
-            e.Graphics.DrawImage(LevelData.TileToBmp4bpp(LevelData.TilesArray, (ushort)e.Value, 2) , e.Bounds);
+            e.Graphics.DrawImage(LevelData.TileToBmp4bpp(LevelData.Tiles[(int)e.Value], 0, 2) , e.Bounds);
         }
 
         public override bool IsDropDownResizable

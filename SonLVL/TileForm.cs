@@ -1,8 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using System.Collections.Generic;
-using System.Drawing.Imaging;
 
 namespace SonicRetro.SonLVL
 {
@@ -213,7 +212,7 @@ namespace SonicRetro.SonLVL
             if (TileSelector.SelectedIndex > -1)
             {
                 selectedTile = TileSelector.SelectedIndex;
-                tile = BitmapBits.FromTile(LevelData.TilesArray, selectedTile);
+                tile = BitmapBits.FromTile(LevelData.Tiles[selectedTile], 0);
                 TilePicture.Invalidate();
             }
         }
@@ -244,10 +243,8 @@ namespace SonicRetro.SonLVL
 
         private void TilePicture_MouseUp(object sender, MouseEventArgs e)
         {
-            byte[] mytile = tile.ToTile();
-            for (int i = 0; i < 32; i++)
-                LevelData.Tiles[(selectedTile * 32) + i] = mytile[i];
-            mytile.CopyTo(LevelData.TilesArray, selectedTile * 32);
+            LevelData.Tiles[selectedTile] = tile.ToTile();
+            LevelData.Tiles[selectedTile].CopyTo(LevelData.TileArray, selectedTile * 32);
             for (int i = 0; i < LevelData.Blocks.Count; i++)
             {
                 bool dr = false;
@@ -258,7 +255,7 @@ namespace SonicRetro.SonLVL
                 if (dr)
                     LevelData.RedrawBlock(i, true);
             }
-            TileSelector.Images[selectedTile] = LevelData.TileToBmp4bpp(LevelData.TilesArray, selectedTile, 2);
+            TileSelector.Images[selectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[selectedTile], 0, 2);
         }
 
         private void ChunkSelector_MouseDown(object sender, MouseEventArgs e)
@@ -345,12 +342,9 @@ namespace SonicRetro.SonLVL
                     BlockSelector.SelectedIndex = Math.Min(BlockSelector.SelectedIndex, LevelData.Blocks.Count - 1);
                     break;
                 case 2: // Tiles
-                    byte[] t = new byte[32];
-                    Array.Copy(LevelData.TilesArray, selectedTile * 32, t, 0, 32);
-                    Clipboard.SetData("SonLVLTile", t);
-                    for (int i = 0; i < 32; i++)
-                        LevelData.Tiles.RemoveAt(selectedTile * 32);
-                    LevelData.TilesArray = LevelData.Tiles.ToArray();
+                    Clipboard.SetData("SonLVLTile", LevelData.Tiles[selectedTile]);
+                    LevelData.Tiles.RemoveAt(selectedTile);
+                    LevelData.UpdateTileArray();
                     TileSelector.Images.RemoveAt(selectedTile);
                     for (int i = 0; i < LevelData.Blocks.Count; i++)
                     {
@@ -380,9 +374,7 @@ namespace SonicRetro.SonLVL
                     Clipboard.SetData("SonLVLBlock", LevelData.Blocks[selectedBlock].GetBytes());
                     break;
                 case 2: // Tiles
-                    byte[] t = new byte[32];
-                    Array.Copy(LevelData.TilesArray, selectedTile * 32, t, 0, 32);
-                    Clipboard.SetData("SonLVLTile", t);
+                    Clipboard.SetData("SonLVLTile", LevelData.Tiles[selectedTile]);
                     break;
             }
         }
@@ -425,10 +417,9 @@ namespace SonicRetro.SonLVL
                     break;
                 case 2: // Tiles
                     byte[] t = (byte[])Clipboard.GetData("SonLVLTile");
-                    for (int i = 0; i < 32; i++)
-                        LevelData.Tiles.InsertBefore(selectedTile * 32 + i, t[i]);
-                    LevelData.TilesArray = LevelData.Tiles.ToArray();
-                    TileSelector.Images.Insert(selectedTile, LevelData.TileToBmp4bpp(LevelData.TilesArray, selectedTile, 2));
+                    LevelData.Tiles.InsertBefore(selectedTile, t);
+                    LevelData.UpdateTileArray();
+                    TileSelector.Images.Insert(selectedTile, LevelData.TileToBmp4bpp(LevelData.Tiles[selectedTile], 0, 2));
                     for (int i = 0; i < LevelData.Blocks.Count; i++)
                         for (int y = 0; y < 2; y++)
                             for (int x = 0; x < 2; x++)
@@ -479,11 +470,10 @@ namespace SonicRetro.SonLVL
                     break;
                 case 2: // Tiles
                     byte[] t = (byte[])Clipboard.GetData("SonLVLTile");
-                    for (int i = 0; i < 32; i++)
-                        LevelData.Tiles.InsertAfter(selectedTile * 32 + i, t[i]);
+                    LevelData.Tiles.InsertAfter(selectedTile, t);
                     selectedTile++;
-                    LevelData.TilesArray = LevelData.Tiles.ToArray();
-                    TileSelector.Images.Insert(selectedTile, LevelData.TileToBmp4bpp(LevelData.TilesArray, selectedTile, 2));
+                    LevelData.UpdateTileArray();
+                    TileSelector.Images.Insert(selectedTile, LevelData.TileToBmp4bpp(LevelData.Tiles[selectedTile], 0, 2));
                     for (int i = 0; i < LevelData.Blocks.Count; i++)
                         for (int y = 0; y < 2; y++)
                             for (int x = 0; x < 2; x++)
@@ -532,10 +522,9 @@ namespace SonicRetro.SonLVL
                     BlockSelector.SelectedIndex = selectedBlock;
                     break;
                 case 2: // Tiles
-                    for (int i = 0; i < 32; i++)
-                        LevelData.Tiles.InsertBefore(selectedTile * 32 + i, 0);
-                    LevelData.TilesArray = LevelData.Tiles.ToArray();
-                    TileSelector.Images.Insert(selectedTile, LevelData.TileToBmp4bpp(LevelData.TilesArray, selectedTile, 2));
+                    LevelData.Tiles.InsertBefore(selectedTile, new byte[32]);
+                    LevelData.UpdateTileArray();
+                    TileSelector.Images.Insert(selectedTile, LevelData.TileToBmp4bpp(LevelData.Tiles[selectedTile], 0, 2));
                     for (int i = 0; i < LevelData.Blocks.Count; i++)
                         for (int y = 0; y < 2; y++)
                             for (int x = 0; x < 2; x++)
@@ -586,11 +575,10 @@ namespace SonicRetro.SonLVL
                     BlockSelector.SelectedIndex = selectedBlock;
                     break;
                 case 2: // Tiles
-                    for (int i = 0; i < 32; i++)
-                        LevelData.Tiles.InsertAfter(selectedTile * 32 + i, 0);
+                    LevelData.Tiles.InsertAfter(selectedTile, new byte[32]);
                     selectedTile++;
-                    LevelData.TilesArray = LevelData.Tiles.ToArray();
-                    TileSelector.Images.Insert(selectedTile, LevelData.TileToBmp4bpp(LevelData.TilesArray, selectedTile, 2));
+                    LevelData.UpdateTileArray();
+                    TileSelector.Images.Insert(selectedTile, LevelData.TileToBmp4bpp(LevelData.Tiles[selectedTile], 0, 2));
                     for (int i = 0; i < LevelData.Blocks.Count; i++)
                         for (int y = 0; y < 2; y++)
                             for (int x = 0; x < 2; x++)
@@ -644,9 +632,8 @@ namespace SonicRetro.SonLVL
                     BlockSelector.SelectedIndex = Math.Min(BlockSelector.SelectedIndex, LevelData.Blocks.Count - 1);
                     break;
                 case 2: // Tiles
-                    for (int i = 0; i < 32; i++)
-                        LevelData.Tiles.RemoveAt(selectedTile * 32);
-                    LevelData.TilesArray = LevelData.Tiles.ToArray();
+                    LevelData.Tiles.RemoveAt(selectedTile);
+                    LevelData.UpdateTileArray();
                     TileSelector.Images.RemoveAt(selectedTile);
                     for (int i = 0; i < LevelData.Blocks.Count; i++)
                     {
@@ -739,12 +726,11 @@ namespace SonicRetro.SonLVL
                                                     }
                                                     if (match) continue;
                                                     tiles.Add(bits);
-                                                    for (int i = 0; i < 32; i++)
-                                                        LevelData.Tiles.Add(tile[i]);
-                                                    selectedTile = (LevelData.Tiles.Count - 1) / 32;
+                                                    LevelData.Tiles.Add(tile);
+                                                    selectedTile = LevelData.Tiles.Count - 1;
                                                     blk.tiles[x, y].Tile = (ushort)selectedTile;
-                                                    LevelData.TilesArray = LevelData.Tiles.ToArray();
-                                                    TileSelector.Images.Add(LevelData.TileToBmp4bpp(LevelData.TilesArray, selectedTile, 2));
+                                                    LevelData.UpdateTileArray();
+                                                    TileSelector.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[selectedTile], 0, 2));
                                                 }
                                             LevelData.Blocks.Add(blk);
                                             LevelData.ColInds1.Add(0);
@@ -819,12 +805,11 @@ namespace SonicRetro.SonLVL
                                             }
                                             if (match) continue;
                                             tiles.Add(bits);
-                                            for (int i = 0; i < 32; i++)
-                                                LevelData.Tiles.Add(tile[i]);
-                                            selectedTile = (LevelData.Tiles.Count - 1) / 32;
+                                            LevelData.Tiles.Add(tile);
+                                            selectedTile = LevelData.Tiles.Count - 1;
                                             blk.tiles[x, y].Tile = (ushort)selectedTile;
-                                            LevelData.TilesArray = LevelData.Tiles.ToArray();
-                                            TileSelector.Images.Add(LevelData.TileToBmp4bpp(LevelData.TilesArray, selectedTile, 2));
+                                            LevelData.UpdateTileArray();
+                                            TileSelector.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[selectedTile], 0, 2));
                                         }
                                     LevelData.Blocks.Add(blk);
                                     LevelData.ColInds1.Add(0);
@@ -876,11 +861,10 @@ namespace SonicRetro.SonLVL
                                     }
                                     if (match) continue;
                                     tiles.Add(bits);
-                                    for (int i = 0; i < 32; i++)
-                                        LevelData.Tiles.Add(tile[i]);
-                                    selectedTile = (LevelData.Tiles.Count - 1) / 32;
-                                    LevelData.TilesArray = LevelData.Tiles.ToArray();
-                                    TileSelector.Images.Add(LevelData.TileToBmp4bpp(LevelData.TilesArray, selectedTile, 2));
+                                    LevelData.Tiles.Add(tile);
+                                    selectedTile = LevelData.Tiles.Count - 1;
+                                    LevelData.UpdateTileArray();
+                                    TileSelector.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[selectedTile], 0, 2));
                                 }
                             TileSelector.SelectedIndex = selectedTile;
                             break;
