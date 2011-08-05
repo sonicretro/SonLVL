@@ -666,7 +666,6 @@ namespace SonicRetro.SonLVL
                         break;
                     case EngineVersion.SCDPC:
                         LevelData.FGLayout = new byte[64, 8];
-                        LevelData.FGLoop = new bool[64, 8];
                         if (File.Exists(gr["fglayout"]))
                         {
                             Log("Loading FG layout from file \"" + gr["fglayout"] + "\", using compression " + gr.GetValueOrDefault("fglayoutcmp", "Uncompressed") + "...");
@@ -675,14 +674,12 @@ namespace SonicRetro.SonLVL
                                 for (int lc = 0; lc < 64; lc++)
                                 {
                                     if ((lr * 64) + lc >= tmp.Length) break;
-                                    LevelData.FGLayout[lc, lr] = (byte)(tmp[(lr * 64) + lc] & 0x7F);
-                                    LevelData.FGLoop[lc, lr] = (tmp[(lr * 64) + lc] & 0x80) == 0x80;
+                                    LevelData.FGLayout[lc, lr] = tmp[(lr * 64) + lc];
                                 }
                         }
                         else
                             Log("FG layout file \"" + gr["fglayout"] + "\" not found.");
                         LevelData.BGLayout = new byte[64, 8];
-                        LevelData.BGLoop = new bool[64, 8];
                         if (File.Exists(gr["bglayout"]))
                         {
                             Log("Loading BG layout from file \"" + gr["bglayout"] + "\", using compression " + gr.GetValueOrDefault("bglayoutcmp", "Uncompressed") + "...");
@@ -690,8 +687,7 @@ namespace SonicRetro.SonLVL
                             for (int lr = 0; lr < 8; lr++)
                                 for (int lc = 0; lc < 64; lc++)
                                 {
-                                    LevelData.BGLayout[lc, lr] = (byte)(tmp[(lr * 64) + lc] & 0x7F);
-                                    LevelData.BGLoop[lc, lr] = (tmp[(lr * 64) + lc] & 0x80) == 0x80;
+                                    LevelData.BGLayout[lc, lr] = tmp[(lr * 64) + lc];
                                 }
                         }
                         else
@@ -1554,12 +1550,12 @@ namespace SonicRetro.SonLVL
                     tmp = new List<byte>();
                     for (int lr = 0; lr < 8; lr++)
                         for (int lc = 0; lc < 64; lc++)
-                            tmp.Add((byte)(LevelData.FGLayout[lc, lr] | (LevelData.FGLoop[lc, lr] ? 0x80 : 0)));
+                            tmp.Add(LevelData.FGLayout[lc, lr]);
                     Compression.Compress(tmp.ToArray(), gr["fglayout"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("fglayoutcmp", "Uncompressed")));
                     tmp = new List<byte>();
                     for (int lr = 0; lr < 8; lr++)
                         for (int lc = 0; lc < 64; lc++)
-                            tmp.Add((byte)(LevelData.BGLayout[lc, lr] | (LevelData.BGLoop[lc, lr] ? 0x80 : 0)));
+                            tmp.Add(LevelData.BGLayout[lc, lr]);
                     Compression.Compress(tmp.ToArray(), gr["bglayout"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("bglayoutcmp", "Uncompressed")));
                     break;
             }
@@ -2777,35 +2773,29 @@ namespace SonicRetro.SonLVL
                             {
                                 locs = new List<Point>();
                                 foreach (Entry item in SelectedItems)
-                                {
                                     locs.Add(new Point(item.X, item.Y));
-                                }
                             }
                             break;
                         case EditingModes.PlaneA:
-                            if ((LevelData.LayoutFmt == EngineVersion.S1 | LevelData.LayoutFmt == EngineVersion.SCDPC) && e.Clicks >= 2)
-                            {
+                            if (LevelData.LayoutFmt == EngineVersion.S1 && e.Clicks >= 2)
                                 LevelData.FGLoop[chunkpoint.X, chunkpoint.Y] = !LevelData.FGLoop[chunkpoint.X, chunkpoint.Y];
-                            }
                             else
+                            {
+                                locs = new List<Point>();
+                                tiles = new List<byte>();
+                                byte t = LevelData.FGLayout[chunkpoint.X, chunkpoint.Y];
+                                if (t != SelectedTile)
                                 {
-                                    locs = new List<Point>();
-                                    tiles = new List<byte>();
-                                    byte t = LevelData.FGLayout[chunkpoint.X, chunkpoint.Y];
-                                    if (t != SelectedTile)
-                                    {
-                                        locs.Add(chunkpoint);
-                                        tiles.Add(t);
-                                        LevelData.FGLayout[chunkpoint.X, chunkpoint.Y] = SelectedTile;
-                                        DrawLevel();
-                                    }
+                                    locs.Add(chunkpoint);
+                                    tiles.Add(t);
+                                    LevelData.FGLayout[chunkpoint.X, chunkpoint.Y] = SelectedTile;
+                                    DrawLevel();
                                 }
+                            }
                             break;
                         case EditingModes.PlaneB:
-                                if ((LevelData.LayoutFmt == EngineVersion.S1 | LevelData.LayoutFmt == EngineVersion.SCDPC) && e.Clicks >= 2)
-                                {
+                                if (LevelData.LayoutFmt == EngineVersion.S1 && e.Clicks >= 2)
                                     LevelData.BGLoop[chunkpoint.X, chunkpoint.Y] = !LevelData.BGLoop[chunkpoint.X, chunkpoint.Y];
-                                }
                                 else
                                 {
                                     locs = new List<Point>();
