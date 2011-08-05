@@ -76,7 +76,7 @@ namespace SonicRetro.SonLVL
         internal static Bitmap TileToBmp4bpp(byte[] file, int index, int palette)
         {
             Bitmap bmp = new Bitmap(8, 8, PixelFormat.Format4bppIndexed);
-            if (index * 32 + 32 <= file.Length)
+            if (file != null && index * 32 + 32 <= file.Length)
             {
                 BitmapData bmpd = bmp.LockBits(new Rectangle(0, 0, 8, 8), ImageLockMode.WriteOnly, PixelFormat.Format4bppIndexed);
                 System.Runtime.InteropServices.Marshal.Copy(file, index * 32, bmpd.Scan0, 32);
@@ -94,7 +94,7 @@ namespace SonicRetro.SonLVL
         internal static BitmapBits TileToBmp8bpp(byte[] file, int index, int pal)
         {
             BitmapBits bmp = new BitmapBits(8, 8);
-            if (index * 32 + 32 <= file.Length)
+            if (file != null && index * 32 + 32 <= file.Length)
             {
                 for (int i = 0; i < 32; i++)
                 {
