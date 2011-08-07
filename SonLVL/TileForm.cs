@@ -40,6 +40,7 @@ namespace SonicRetro.SonLVL
                 selectedChunkBlock = new Point();
                 ChunkBlockPropertyGrid.SelectedObject = LevelData.Chunks[selectedChunk].blocks[0, 0];
                 ChunkPicture.Invalidate();
+                ChunkID.Text = selectedChunk.ToString();
             }
         }
 
@@ -48,6 +49,10 @@ namespace SonicRetro.SonLVL
             e.Graphics.Clear(LevelData.PaletteToColor(2, 0, false));
             e.Graphics.DrawImage(LevelData.ChunkBmps[selectedChunk][0], 0, 0, LevelData.chunksz, LevelData.chunksz);
             e.Graphics.DrawImage(LevelData.ChunkBmps[selectedChunk][1], 0, 0, LevelData.chunksz, LevelData.chunksz);
+            if (LevelData.MainForm.path1ToolStripMenuItem.Checked)
+                e.Graphics.DrawImage(LevelData.ChunkColBmps[selectedChunk][0], 0, 0, LevelData.chunksz, LevelData.chunksz);
+            if (LevelData.MainForm.path2ToolStripMenuItem.Checked)
+                e.Graphics.DrawImage(LevelData.ChunkColBmps[selectedChunk][1], 0, 0, LevelData.chunksz, LevelData.chunksz);
             e.Graphics.DrawRectangle(Pens.White, selectedChunkBlock.X * 16 - 1, selectedChunkBlock.Y * 16 - 1, 18, 18);
         }
 
@@ -74,6 +79,7 @@ namespace SonicRetro.SonLVL
                 BlockTilePropertyGrid.SelectedObject = LevelData.Blocks[selectedBlock].tiles[0, 0];
                 BlockCollision1.Value = LevelData.ColInds1[selectedBlock];
                 BlockCollision2.Value = LevelData.ColInds2[selectedBlock];
+                BlockID.Text = selectedBlock.ToString();
                 BlockPicture.Invalidate();
             }
         }
@@ -84,6 +90,10 @@ namespace SonicRetro.SonLVL
             e.Graphics.Clear(LevelData.PaletteToColor(2, 0, false));
             e.Graphics.DrawImage(LevelData.BlockBmpBits[selectedBlock][0].Scale(4).ToBitmap(LevelData.BmpPal), 0, 0, 64, 64);
             e.Graphics.DrawImage(LevelData.BlockBmpBits[selectedBlock][1].Scale(4).ToBitmap(LevelData.BmpPal), 0, 0, 64, 64);
+            if (LevelData.MainForm.path1ToolStripMenuItem.Checked)
+                e.Graphics.DrawImage(LevelData.ColBmps[LevelData.ColInds1[selectedBlock]], 0, 0, 64, 64);
+            if (LevelData.MainForm.path2ToolStripMenuItem.Checked)
+                e.Graphics.DrawImage(LevelData.ColBmps[LevelData.ColInds2[selectedBlock]], 0, 0, 64, 64);
             e.Graphics.DrawRectangle(Pens.White, selectedBlockTile.X * 32, selectedBlockTile.Y * 32, 31, 31);
         }
 
@@ -225,6 +235,7 @@ namespace SonicRetro.SonLVL
             {
                 selectedTile = TileSelector.SelectedIndex;
                 tile = BitmapBits.FromTile(LevelData.Tiles[selectedTile], 0);
+                TileID.Text = selectedTile.ToString();
                 TilePicture.Invalidate();
             }
         }
@@ -892,6 +903,7 @@ namespace SonicRetro.SonLVL
             {
                 selectedCol = CollisionSelector.SelectedIndex;
                 ColAngle.Value = LevelData.Angles[selectedCol];
+                ColID.Text = selectedCol.ToString();
                 ChunkPicture.Invalidate();
             }
         }

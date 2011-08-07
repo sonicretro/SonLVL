@@ -98,6 +98,7 @@ namespace SonicRetro.SonLVL
 
         public override void PaintValue(PaintValueEventArgs e)
         {
+            if ((ushort)e.Value >= LevelData.Blocks.Count) return;
             e.Graphics.DrawImage(LevelData.BlockBmps[(ushort)e.Value][0], e.Bounds);
             e.Graphics.DrawImage(LevelData.BlockBmps[(ushort)e.Value][1], e.Bounds);
         }

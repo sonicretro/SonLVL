@@ -282,7 +282,34 @@ namespace SonicRetro.SonLVL
         [Browsable(false)]
         public ushort Y { get; set; }
 
+        public string Data
+        {
+            get
+            {
+                byte[] value = GetBytes();
+                List<string> stuff = new List<string>();
+                for (int i = 0; i < value.Length; i += 2)
+                    stuff.Add(ByteConverter.ToUInt16(value, i).ToString("X4"));
+                return string.Join(" ", stuff.ToArray());
+            }
+            set
+            {
+                string data = string.Empty;
+                foreach (char item in value)
+                    if (!char.IsWhiteSpace(item))
+                        data += item;
+                byte[] bytes =GetBytes();
+                data = data.PadRight(bytes.Length * 2, '0');
+                data = data.Substring(0, bytes.Length * 2);
+                for (int i = 0; i < bytes.Length; i++)
+                    bytes[i] = byte.Parse(data.Substring(i * 2, 2), System.Globalization.NumberStyles.HexNumber);
+                FromBytes(bytes);
+            }
+        }
+
         public abstract byte[] GetBytes();
+
+        public abstract void FromBytes(byte[] bytes);
 
         [ReadOnly(true)]
         [ParenthesizePropertyName(true)]
@@ -409,6 +436,19 @@ namespace SonicRetro.SonLVL
             ret.Add(SubType);
             return ret.ToArray();
         }
+
+        public override void FromBytes(byte[] bytes)
+        {
+            X = ByteConverter.ToUInt16(bytes, 0);
+            ushort val = ByteConverter.ToUInt16(bytes, 2);
+            RememberState = (val & 0x8000) == 0x8000;
+            YFlip = (val & 0x4000) == 0x4000;
+            XFlip = (val & 0x2000) == 0x2000;
+            LongDistance = (val & 0x1000) == 0x1000;
+            Y = (ushort)(val & 0xFFF);
+            ID = bytes[4];
+            SubType = bytes[5];
+        }
     }
 
     [DefaultProperty("ID")]
@@ -473,6 +513,19 @@ namespace SonicRetro.SonLVL
             ret.Add(SubType);
             return ret.ToArray();
         }
+
+        public override void FromBytes(byte[] bytes)
+        {
+            X = ByteConverter.ToUInt16(bytes, 0);
+            ushort val = ByteConverter.ToUInt16(bytes, 2);
+            YFlip = (val & 0x8000) == 0x8000;
+            XFlip = (val & 0x4000) == 0x4000;
+            Y = (ushort)(val & 0xFFF);
+            ID = bytes[4];
+            RememberState = (ID & 0x80) == 0x80;
+            ID = (byte)(ID & 0x7F);
+            SubType = bytes[5];
+        }
     }
 
     [DefaultProperty("ID")]
@@ -512,6 +565,18 @@ namespace SonicRetro.SonLVL
             ret.Add(ID);
             ret.Add(SubType);
             return ret.ToArray();
+        }
+
+        public override void FromBytes(byte[] bytes)
+        {
+            X = ByteConverter.ToUInt16(bytes, 0);
+            ushort val = ByteConverter.ToUInt16(bytes, 2);
+            SomeFlag = (val & 0x8000) == 0x8000;
+            YFlip = (val & 0x4000) == 0x4000;
+            XFlip = (val & 0x2000) == 0x2000;
+            Y = (ushort)(val & 0xFFF);
+            ID = bytes[4];
+            SubType = bytes[5];
         }
     }
 
@@ -593,6 +658,22 @@ namespace SonicRetro.SonLVL
             ret.Add(0);
             return ret.ToArray();
         }
+
+        public override void FromBytes(byte[] bytes)
+        {
+            X = ByteConverter.ToUInt16(bytes, 0);
+            ushort val = ByteConverter.ToUInt16(bytes, 2);
+            YFlip = (val & 0x8000) == 0x8000;
+            XFlip = (val & 0x4000) == 0x4000;
+            Y = (ushort)(val & 0xFFF);
+            ID = bytes[4];
+            RememberState = (bytes[4] & 0x80) == 0x80;
+            ID = (byte)(ID & 0x7F);
+            SubType = bytes[5];
+            ShowPresent = (bytes[6] & 0x40) == 0x40;
+            ShowPast = (bytes[6] & 0x80) == 0x80;
+            ShowFuture = (bytes[6] & 0x20) == 0x20;
+        }
     }
 
     [Serializable()]
@@ -649,6 +730,15 @@ namespace SonicRetro.SonLVL
             ret.AddRange(ByteConverter.GetBytes(val));
             return ret.ToArray();
         }
+
+        public override void FromBytes(byte[] bytes)
+        {
+            X = ByteConverter.ToUInt16(bytes, 0);
+            ushort val = ByteConverter.ToUInt16(bytes, 2);
+            Direction = (val & 0x8000) == 0x8000 ? Direction.Vertical : Direction.Horizontal;
+            Count = (byte)(((val & 0x7000) >> 12) + 1);
+            Y = (ushort)(val & 0xFFF);
+        }
     }
 
     [Serializable()]
@@ -670,6 +760,12 @@ namespace SonicRetro.SonLVL
             ret.AddRange(ByteConverter.GetBytes(X));
             ret.AddRange(ByteConverter.GetBytes(Y));
             return ret.ToArray();
+        }
+
+        public override void FromBytes(byte[] bytes)
+        {
+            X = ByteConverter.ToUInt16(bytes, 0);
+            Y = ByteConverter.ToUInt16(bytes, 2);
         }
     }
 
@@ -721,6 +817,13 @@ namespace SonicRetro.SonLVL
             return ret.ToArray();
         }
 
+        public override void FromBytes(byte[] bytes)
+        {
+            ID = ByteConverter.ToUInt16(bytes, 0);
+            X = ByteConverter.ToUInt16(bytes, 2);
+            Y = ByteConverter.ToUInt16(bytes, 4);
+        }
+
         int IComparable<CNZBumperEntry>.CompareTo(CNZBumperEntry other)
         {
             int c = X.CompareTo(other.X);
@@ -747,6 +850,12 @@ namespace SonicRetro.SonLVL
             ret.AddRange(ByteConverter.GetBytes(X));
             ret.AddRange(ByteConverter.GetBytes(Y));
             return ret.ToArray();
+        }
+
+        public override void FromBytes(byte[] bytes)
+        {
+            X = ByteConverter.ToUInt16(bytes, 0);
+            Y = ByteConverter.ToUInt16(bytes, 2);
         }
     }
 

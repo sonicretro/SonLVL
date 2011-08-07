@@ -50,6 +50,9 @@
             this.toolWindowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.hUDToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.paletteToolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
+            this.layersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.lowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.highToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.collisionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.noneToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.path1ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -235,6 +238,7 @@
             this.toolWindowToolStripMenuItem,
             this.hUDToolStripMenuItem,
             this.paletteToolStripMenuItem2,
+            this.layersToolStripMenuItem,
             this.collisionToolStripMenuItem,
             this.timeZoneToolStripMenuItem,
             this.toolStripSeparator4,
@@ -273,6 +277,35 @@
             this.paletteToolStripMenuItem2.Size = new System.Drawing.Size(208, 22);
             this.paletteToolStripMenuItem2.Text = "&Palette";
             this.paletteToolStripMenuItem2.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.paletteToolStripMenuItem2_DropDownItemClicked);
+            // 
+            // layersToolStripMenuItem
+            // 
+            this.layersToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.lowToolStripMenuItem,
+            this.highToolStripMenuItem});
+            this.layersToolStripMenuItem.Name = "layersToolStripMenuItem";
+            this.layersToolStripMenuItem.Size = new System.Drawing.Size(208, 22);
+            this.layersToolStripMenuItem.Text = "&Layers";
+            // 
+            // lowToolStripMenuItem
+            // 
+            this.lowToolStripMenuItem.Checked = true;
+            this.lowToolStripMenuItem.CheckOnClick = true;
+            this.lowToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.lowToolStripMenuItem.Name = "lowToolStripMenuItem";
+            this.lowToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.lowToolStripMenuItem.Text = "&Low";
+            this.lowToolStripMenuItem.Click += new System.EventHandler(this.lowToolStripMenuItem_Click);
+            // 
+            // highToolStripMenuItem
+            // 
+            this.highToolStripMenuItem.Checked = true;
+            this.highToolStripMenuItem.CheckOnClick = true;
+            this.highToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.highToolStripMenuItem.Name = "highToolStripMenuItem";
+            this.highToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.highToolStripMenuItem.Text = "&High";
+            this.highToolStripMenuItem.Click += new System.EventHandler(this.highToolStripMenuItem_Click);
             // 
             // collisionToolStripMenuItem
             // 
@@ -752,8 +785,8 @@
         private System.Windows.Forms.ToolStripMenuItem yWrapToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem collisionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem noneToolStripMenuItem1;
-        private System.Windows.Forms.ToolStripMenuItem path1ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem path2ToolStripMenuItem;
+        internal System.Windows.Forms.ToolStripMenuItem path1ToolStripMenuItem;
+        internal System.Windows.Forms.ToolStripMenuItem path2ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem paletteToolStripMenuItem2;
         private System.Windows.Forms.ToolStripMenuItem hideDebugObjectsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem addGroupOfObjectsToolStripMenuItem;
@@ -764,6 +797,9 @@
         private System.Windows.Forms.ToolStripMenuItem allToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem hUDToolStripMenuItem;
         internal System.Windows.Forms.ToolStripMenuItem toolWindowToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem layersToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem lowToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem highToolStripMenuItem;
 
     }
 }

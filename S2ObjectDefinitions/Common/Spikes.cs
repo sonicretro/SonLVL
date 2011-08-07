@@ -55,7 +55,7 @@ namespace S2ObjectDefinitions.Common
         public override string SubtypeName(byte subtype)
         {
             string result = (((subtype & 0x30) >> 4) + 1).ToString();
-            result += " " + ((subtype & 1) == 1 ? "Moving" : "Still");
+            result += " " + ((MovingDirection)(subtype & 3)).ToString();
             result += " " + ((subtype & 0x40) == 0x40 ? "Horizontal" : "Vertical");
             return result;
         }
@@ -128,16 +128,24 @@ namespace S2ObjectDefinitions.Common
             }
         }
 
-        public bool Moving
+        public MovingDirection Moving
         {
             get
             {
-                return (SubType & 1) == 1;
+                return (MovingDirection)(SubType & 3);
             }
             set
             {
-                SubType = (byte)((SubType & ~1) | (value ? 1 : 0));
+                SubType = (byte)((SubType & ~3) | (int)value);
             }
         }
+    }
+
+    public enum MovingDirection
+    {
+        Static,
+        Vertical,
+        Horizontal,
+        Invalid
     }
 }

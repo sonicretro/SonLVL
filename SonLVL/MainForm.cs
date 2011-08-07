@@ -1835,13 +1835,14 @@ namespace SonicRetro.SonLVL
                     {
                         for (int x = Math.Max(camera.X / LevelData.chunksz, 0); x <= Math.Min((camera.X + (panel1.Width - 1)) / LevelData.chunksz, LevelData.FGLayout.GetLength(0) - 1); x++)
                         {
-                            if (LevelData.FGLayout[x, y] < LevelData.Chunks.Count)
+                            if (LevelData.FGLayout[x, y] < LevelData.Chunks.Count & lowToolStripMenuItem.Checked)
                                 LevelImg8bpp.DrawBitmapComposited(LevelData.ChunkBmpBits[LevelData.FGLayout[x, y]][0], new Point(x * LevelData.chunksz - camera.X, y * LevelData.chunksz - camera.Y));
                             if (objectsAboveHighPlaneToolStripMenuItem.Checked)
                             {
                                 if (LevelData.FGLayout[x, y] < LevelData.Chunks.Count)
                                 {
-                                    LevelImg8bpp.DrawBitmapComposited(LevelData.ChunkBmpBits[LevelData.FGLayout[x, y]][1], new Point(x * LevelData.chunksz - camera.X, y * LevelData.chunksz - camera.Y));
+                                    if (highToolStripMenuItem.Checked)
+                                        LevelImg8bpp.DrawBitmapComposited(LevelData.ChunkBmpBits[LevelData.FGLayout[x, y]][1], new Point(x * LevelData.chunksz - camera.X, y * LevelData.chunksz - camera.Y));
                                     if (path1ToolStripMenuItem.Checked)
                                         LevelImg8bpp.DrawBitmapComposited(LevelData.ChunkColBmpBits[LevelData.FGLayout[x, y]][0], new Point(x * LevelData.chunksz - camera.X, y * LevelData.chunksz - camera.Y));
                                     else if (path2ToolStripMenuItem.Checked)
@@ -1885,7 +1886,8 @@ namespace SonicRetro.SonLVL
                             {
                                 if (LevelData.FGLayout[x, y] < LevelData.Chunks.Count)
                                 {
-                                    LevelImg8bpp.DrawBitmapComposited(LevelData.ChunkBmpBits[LevelData.FGLayout[x, y]][1], new Point(x * LevelData.chunksz - camera.X, y * LevelData.chunksz - camera.Y));
+                                    if (highToolStripMenuItem.Checked)
+                                        LevelImg8bpp.DrawBitmapComposited(LevelData.ChunkBmpBits[LevelData.FGLayout[x, y]][1], new Point(x * LevelData.chunksz - camera.X, y * LevelData.chunksz - camera.Y));
                                     if (path1ToolStripMenuItem.Checked)
                                         LevelImg8bpp.DrawBitmapComposited(LevelData.ChunkColBmpBits[LevelData.FGLayout[x, y]][0], new Point(x * LevelData.chunksz - camera.X, y * LevelData.chunksz - camera.Y));
                                     else if (path2ToolStripMenuItem.Checked)
@@ -1988,12 +1990,16 @@ namespace SonicRetro.SonLVL
                         for (int x = Math.Max(camera.X / LevelData.chunksz, 0); x <= Math.Min((camera.X + (panel1.Width - 1)) / LevelData.chunksz, LevelData.BGLayout.GetLength(0) - 1); x++)
                         {
                             if (LevelData.BGLayout[x, y] < LevelData.Chunks.Count)
-                                LevelImg8bpp.DrawBitmapComposited(LevelData.ChunkBmpBits[LevelData.BGLayout[x, y]][0], new Point(x * LevelData.chunksz - camera.X, y * LevelData.chunksz - camera.Y));
-                            LevelImg8bpp.DrawBitmapComposited(LevelData.ChunkBmpBits[LevelData.BGLayout[x, y]][1], new Point(x * LevelData.chunksz - camera.X, y * LevelData.chunksz - camera.Y));
-                            if (path1ToolStripMenuItem.Checked)
-                                LevelImg8bpp.DrawBitmapComposited(LevelData.ChunkColBmpBits[LevelData.BGLayout[x, y]][0], new Point(x * LevelData.chunksz - camera.X, y * LevelData.chunksz - camera.Y));
-                            else if (path2ToolStripMenuItem.Checked)
-                                LevelImg8bpp.DrawBitmapComposited(LevelData.ChunkColBmpBits[LevelData.BGLayout[x, y]][1], new Point(x * LevelData.chunksz - camera.X, y * LevelData.chunksz - camera.Y));
+                            {
+                                if (lowToolStripMenuItem.Checked)
+                                    LevelImg8bpp.DrawBitmapComposited(LevelData.ChunkBmpBits[LevelData.BGLayout[x, y]][0], new Point(x * LevelData.chunksz - camera.X, y * LevelData.chunksz - camera.Y));
+                                if (highToolStripMenuItem.Checked)
+                                    LevelImg8bpp.DrawBitmapComposited(LevelData.ChunkBmpBits[LevelData.BGLayout[x, y]][1], new Point(x * LevelData.chunksz - camera.X, y * LevelData.chunksz - camera.Y));
+                                if (path1ToolStripMenuItem.Checked)
+                                    LevelImg8bpp.DrawBitmapComposited(LevelData.ChunkColBmpBits[LevelData.BGLayout[x, y]][0], new Point(x * LevelData.chunksz - camera.X, y * LevelData.chunksz - camera.Y));
+                                else if (path2ToolStripMenuItem.Checked)
+                                    LevelImg8bpp.DrawBitmapComposited(LevelData.ChunkColBmpBits[LevelData.BGLayout[x, y]][1], new Point(x * LevelData.chunksz - camera.X, y * LevelData.chunksz - camera.Y));
+                            }
                         }
                     }
                     if (hUDToolStripMenuItem.Checked)
@@ -3190,14 +3196,17 @@ namespace SonicRetro.SonLVL
                 yend++;
                 BitmapBits bmp = new BitmapBits(xend * LevelData.chunksz, yend * LevelData.chunksz);
                 for (int y = 0; y < yend; y++)
-                {
                     for (int x = 0; x < xend; x++)
-                    {
-                        bmp.DrawBitmapComposited(LevelData.ChunkBmpBits[LevelData.FGLayout[x, y]][0], new Point(x * LevelData.chunksz, y * LevelData.chunksz));
-                        if (objectsAboveHighPlaneToolStripMenuItem.Checked)
-                            bmp.DrawBitmapComposited(LevelData.ChunkBmpBits[LevelData.FGLayout[x, y]][1], new Point(x * LevelData.chunksz, y * LevelData.chunksz));
-                    }
-                }
+                        if (LevelData.FGLayout[x, y] < LevelData.Chunks.Count)
+                        {
+                            if (lowToolStripMenuItem.Checked)
+                                bmp.DrawBitmapComposited(LevelData.ChunkBmpBits[LevelData.FGLayout[x, y]][0], new Point(x * LevelData.chunksz, y * LevelData.chunksz));
+                            if (objectsAboveHighPlaneToolStripMenuItem.Checked)
+                            {
+                                if (highToolStripMenuItem.Checked)
+                                    bmp.DrawBitmapComposited(LevelData.ChunkBmpBits[LevelData.FGLayout[x, y]][1], new Point(x * LevelData.chunksz, y * LevelData.chunksz));
+                            }
+                        }
                 if (includeobjectsWithFGToolStripMenuItem.Checked)
                 {
                     for (int oi = 0; oi < LevelData.Objects.Count; oi++)
@@ -3227,12 +3236,12 @@ namespace SonicRetro.SonLVL
                 }
                 if (!objectsAboveHighPlaneToolStripMenuItem.Checked)
                     for (int y = 0; y < yend; y++)
-                    {
                         for (int x = 0; x < xend; x++)
-                        {
-                            bmp.DrawBitmapComposited(LevelData.ChunkBmpBits[LevelData.FGLayout[x, y]][1], new Point(x * LevelData.chunksz, y * LevelData.chunksz));
-                        }
-                    }
+                            if (LevelData.FGLayout[x, y] < LevelData.Chunks.Count)
+                            {
+                                if (highToolStripMenuItem.Checked)
+                                    bmp.DrawBitmapComposited(LevelData.ChunkBmpBits[LevelData.FGLayout[x, y]][1], new Point(x * LevelData.chunksz, y * LevelData.chunksz));
+                            }
                 for (int i = 0; i < bmp.Bits.Length; i++)
                     if (bmp.Bits[i] == 0)
                         bmp.Bits[i] = 32;
@@ -3274,13 +3283,14 @@ namespace SonicRetro.SonLVL
                 yend++;
                 BitmapBits bmp = new BitmapBits(xend * LevelData.chunksz, yend * LevelData.chunksz);
                 for (int y = 0; y < yend; y++)
-                {
                     for (int x = 0; x < xend; x++)
-                    {
-                        bmp.DrawBitmapComposited(LevelData.ChunkBmpBits[LevelData.BGLayout[x, y]][0], new Point(x * LevelData.chunksz, y * LevelData.chunksz));
-                        bmp.DrawBitmapComposited(LevelData.ChunkBmpBits[LevelData.BGLayout[x, y]][1], new Point(x * LevelData.chunksz, y * LevelData.chunksz));
-                    }
-                }
+                        if (LevelData.BGLayout[x, y] < LevelData.Chunks.Count)
+                        {
+                            if (lowToolStripMenuItem.Checked)
+                                bmp.DrawBitmapComposited(LevelData.ChunkBmpBits[LevelData.BGLayout[x, y]][0], new Point(x * LevelData.chunksz, y * LevelData.chunksz));
+                            if (highToolStripMenuItem.Checked)
+                                bmp.DrawBitmapComposited(LevelData.ChunkBmpBits[LevelData.BGLayout[x, y]][1], new Point(x * LevelData.chunksz, y * LevelData.chunksz));
+                        }
                 for (int i = 0; i < bmp.Bits.Length; i++)
                     if (bmp.Bits[i] == 0)
                         bmp.Bits[i] = 32;
@@ -4165,6 +4175,16 @@ namespace SonicRetro.SonLVL
                 EditControls.Show(this);
                 toolWindowToolStripMenuItem.Checked = true;
             }
+        }
+
+        private void lowToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DrawLevel();
+        }
+
+        private void highToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DrawLevel();
         }
     }
 
