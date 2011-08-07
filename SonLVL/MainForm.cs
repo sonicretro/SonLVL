@@ -1190,6 +1190,7 @@ namespace SonicRetro.SonLVL
             SelectedItems = new List<Entry>();
             undoCtrlZToolStripMenuItem.DropDownItems.Clear();
             redoCtrlYToolStripMenuItem.DropDownItems.Clear();
+            toolWindowToolStripMenuItem.Enabled = true;
             saveToolStripMenuItem.Enabled = true;
             editToolStripMenuItem.Enabled = true;
             editorToolStripMenuItem.Enabled = true;
@@ -1199,6 +1200,7 @@ namespace SonicRetro.SonLVL
                 paletteToolStripMenuItem2.DropDownItems.Add(new ToolStripMenuItem(item));
             ((ToolStripMenuItem)paletteToolStripMenuItem2.DropDownItems[0]).Checked = true;
             blendAlternatePaletteToolStripMenuItem.Enabled = LevelData.Palette.Count > 1;
+            timeZoneToolStripMenuItem.Visible = LevelData.TimeZone != TimeZone.None;
             SelectedObjectChanged();
             Enabled = true;
             DrawLevel();
@@ -4149,6 +4151,20 @@ namespace SonicRetro.SonLVL
                 }
             }
             return true;
+        }
+
+        private void toolWindowToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (EditControls.Visible)
+            {
+                EditControls.Hide();
+                toolWindowToolStripMenuItem.Checked = false;
+            }
+            else
+            {
+                EditControls.Show(this);
+                toolWindowToolStripMenuItem.Checked = true;
+            }
         }
     }
 

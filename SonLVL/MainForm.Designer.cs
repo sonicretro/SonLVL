@@ -47,6 +47,8 @@
             this.yWrapToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.objectsAboveHighPlaneToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolWindowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.hUDToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.paletteToolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
             this.collisionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.noneToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
@@ -96,7 +98,6 @@
             this.copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pasteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.hUDToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
@@ -231,6 +232,7 @@
             // 
             this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.objectsAboveHighPlaneToolStripMenuItem,
+            this.toolWindowToolStripMenuItem,
             this.hUDToolStripMenuItem,
             this.paletteToolStripMenuItem2,
             this.collisionToolStripMenuItem,
@@ -247,6 +249,23 @@
             this.objectsAboveHighPlaneToolStripMenuItem.Size = new System.Drawing.Size(208, 22);
             this.objectsAboveHighPlaneToolStripMenuItem.Text = "&Objects above high plane";
             this.objectsAboveHighPlaneToolStripMenuItem.Click += new System.EventHandler(this.objectsAboveHighPlaneToolStripMenuItem_Click);
+            // 
+            // toolWindowToolStripMenuItem
+            // 
+            this.toolWindowToolStripMenuItem.Enabled = false;
+            this.toolWindowToolStripMenuItem.Name = "toolWindowToolStripMenuItem";
+            this.toolWindowToolStripMenuItem.Size = new System.Drawing.Size(208, 22);
+            this.toolWindowToolStripMenuItem.Text = "&Tool Window";
+            this.toolWindowToolStripMenuItem.Click += new System.EventHandler(this.toolWindowToolStripMenuItem_Click);
+            // 
+            // hUDToolStripMenuItem
+            // 
+            this.hUDToolStripMenuItem.Checked = true;
+            this.hUDToolStripMenuItem.CheckOnClick = true;
+            this.hUDToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.hUDToolStripMenuItem.Name = "hUDToolStripMenuItem";
+            this.hUDToolStripMenuItem.Size = new System.Drawing.Size(208, 22);
+            this.hUDToolStripMenuItem.Text = "&HUD";
             // 
             // paletteToolStripMenuItem2
             // 
@@ -293,7 +312,7 @@
             this.allToolStripMenuItem});
             this.timeZoneToolStripMenuItem.Name = "timeZoneToolStripMenuItem";
             this.timeZoneToolStripMenuItem.Size = new System.Drawing.Size(208, 22);
-            this.timeZoneToolStripMenuItem.Text = "&Time Zone";
+            this.timeZoneToolStripMenuItem.Text = "T&ime Zone";
             this.timeZoneToolStripMenuItem.Visible = false;
             // 
             // currentOnlyToolStripMenuItem
@@ -651,15 +670,6 @@
             this.deleteToolStripMenuItem.Text = "&Delete";
             this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
             // 
-            // hUDToolStripMenuItem
-            // 
-            this.hUDToolStripMenuItem.Checked = true;
-            this.hUDToolStripMenuItem.CheckOnClick = true;
-            this.hUDToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.hUDToolStripMenuItem.Name = "hUDToolStripMenuItem";
-            this.hUDToolStripMenuItem.Size = new System.Drawing.Size(208, 22);
-            this.hUDToolStripMenuItem.Text = "&HUD";
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -753,6 +763,7 @@
         private System.Windows.Forms.ToolStripMenuItem currentOnlyToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem allToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem hUDToolStripMenuItem;
+        internal System.Windows.Forms.ToolStripMenuItem toolWindowToolStripMenuItem;
 
     }
 }

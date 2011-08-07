@@ -117,6 +117,12 @@ namespace SonicRetro.SonLVL
                 LevelData.ColorToPalette(line, index, a.Color);
                 PalettePanel.Invalidate();
                 LevelData.PaletteChanged();
+                ChunkSelector.Invalidate();
+                ChunkPicture.Invalidate();
+                BlockSelector.Invalidate();
+                BlockPicture.Invalidate();
+                TileSelector.Invalidate();
+                TilePicture.Invalidate();
             }
             cols = a.CustomColors;
         }
@@ -204,6 +210,12 @@ namespace SonicRetro.SonLVL
                 }
             }
             LevelData.PaletteChanged();
+            ChunkSelector.Invalidate();
+            ChunkPicture.Invalidate();
+            BlockSelector.Invalidate();
+            BlockPicture.Invalidate();
+            TileSelector.Invalidate();
+            TilePicture.Invalidate();
         }
 
         private BitmapBits tile;
