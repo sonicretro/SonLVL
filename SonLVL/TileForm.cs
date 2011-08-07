@@ -40,7 +40,7 @@ namespace SonicRetro.SonLVL
                 selectedChunkBlock = new Point();
                 ChunkBlockPropertyGrid.SelectedObject = LevelData.Chunks[selectedChunk].blocks[0, 0];
                 ChunkPicture.Invalidate();
-                ChunkID.Text = selectedChunk.ToString();
+                ChunkID.Text = selectedChunk.ToString("X4");
             }
         }
 
@@ -79,7 +79,7 @@ namespace SonicRetro.SonLVL
                 BlockTilePropertyGrid.SelectedObject = LevelData.Blocks[selectedBlock].tiles[0, 0];
                 BlockCollision1.Value = LevelData.ColInds1[selectedBlock];
                 BlockCollision2.Value = LevelData.ColInds2[selectedBlock];
-                BlockID.Text = selectedBlock.ToString();
+                BlockID.Text = selectedBlock.ToString("X4");
                 BlockPicture.Invalidate();
             }
         }
@@ -235,7 +235,7 @@ namespace SonicRetro.SonLVL
             {
                 selectedTile = TileSelector.SelectedIndex;
                 tile = BitmapBits.FromTile(LevelData.Tiles[selectedTile], 0);
-                TileID.Text = selectedTile.ToString();
+                TileID.Text = selectedTile.ToString("X4");
                 TilePicture.Invalidate();
             }
         }

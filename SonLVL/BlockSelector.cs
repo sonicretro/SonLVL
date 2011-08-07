@@ -84,9 +84,9 @@ namespace SonicRetro.SonLVL
             if (edSvc != null)
             {
                 // Display an angle selection control and retrieve the value.
-                BlockControl idControl = new BlockControl((ushort)value, edSvc);
+                BlockControl idControl = new BlockControl(ushort.Parse((string)value, System.Globalization.NumberStyles.HexNumber), edSvc);
                 edSvc.DropDownControl(idControl);
-                return idControl.value;
+                return idControl.value.ToString("X");
             }
             return value;
         }
@@ -98,9 +98,10 @@ namespace SonicRetro.SonLVL
 
         public override void PaintValue(PaintValueEventArgs e)
         {
-            if ((ushort)e.Value >= LevelData.Blocks.Count) return;
-            e.Graphics.DrawImage(LevelData.BlockBmps[(ushort)e.Value][0], e.Bounds);
-            e.Graphics.DrawImage(LevelData.BlockBmps[(ushort)e.Value][1], e.Bounds);
+            ushort val = ushort.Parse((string)e.Value, System.Globalization.NumberStyles.HexNumber);
+            if (val >= LevelData.Blocks.Count) return;
+            e.Graphics.DrawImage(LevelData.BlockBmps[val][0], e.Bounds);
+            e.Graphics.DrawImage(LevelData.BlockBmps[val][1], e.Bounds);
         }
 
         public override bool IsDropDownResizable

@@ -23,7 +23,8 @@ namespace SonicRetro.SonLVL
         public bool XFlip { get; set; }
         public bool YFlip { get; set; }
         private ushort _ind;
-        [Editor(typeof(TileEditor), typeof(System.Drawing.Design.UITypeEditor))]
+
+        [Browsable(false)]
         public ushort Tile
         {
             get
@@ -33,6 +34,20 @@ namespace SonicRetro.SonLVL
             set
             {
                 _ind = (ushort)(value & 0x7FF);
+            }
+        }
+
+        [DisplayName("Tile")]
+        [Editor(typeof(TileEditor), typeof(System.Drawing.Design.UITypeEditor))]
+        public string _Tile
+        {
+            get
+            {
+                return _ind.ToString("X4");
+            }
+            set
+            {
+                _ind = (ushort)(ushort.Parse(value, System.Globalization.NumberStyles.HexNumber) & 0x7FF);
             }
         }
 
@@ -47,12 +62,12 @@ namespace SonicRetro.SonLVL
             Palette = (byte)((val >> 13) & 0x3);
             YFlip = (val & 0x1000) == 0x1000;
             XFlip = (val & 0x800) == 0x800;
-            Tile = (ushort)(val & 0x7FF);
+            _ind = (ushort)(val & 0x7FF);
         }
 
         public byte[] GetBytes()
         {
-            ushort val = Tile;
+            ushort val = _ind;
             if (XFlip) val |= 0x800;
             if (YFlip) val |= 0x1000;
             val |= (ushort)(Palette << 13);
@@ -118,8 +133,8 @@ namespace SonicRetro.SonLVL
 
         public bool XFlip { get; set; }
         public bool YFlip { get; set; }
-        private ushort _ind;
-        [Editor(typeof(BlockEditor), typeof(System.Drawing.Design.UITypeEditor))]
+        internal ushort _ind;
+        [Browsable(false)]
         public ushort Block
         {
             get
@@ -129,6 +144,20 @@ namespace SonicRetro.SonLVL
             set
             {
                 _ind = (ushort)(value & 0x3FF);
+            }
+        }
+
+        [DisplayName("Block")]
+        [Editor(typeof(BlockEditor), typeof(System.Drawing.Design.UITypeEditor))]
+        public string _Block
+        {
+            get
+            {
+                return _ind.ToString("X4");
+            }
+            set
+            {
+                _ind = (ushort)(ushort.Parse(value, System.Globalization.NumberStyles.HexNumber) & 0x3FF);
             }
         }
 
@@ -161,12 +190,12 @@ namespace SonicRetro.SonLVL
             _so1 = (byte)((val >> 12) & 0x3);
             YFlip = (val & 0x800) == 0x800;
             XFlip = (val & 0x400) == 0x400;
-            Block = (ushort)(val & 0x3FF);
+            _ind = (ushort)(val & 0x3FF);
         }
 
         public override byte[] GetBytes()
         {
-            ushort val = Block;
+            ushort val = _ind;
             if (XFlip) val |= 0x400;
             if (YFlip) val |= 0x800;
             val |= (ushort)(_so1 << 12);
@@ -185,12 +214,12 @@ namespace SonicRetro.SonLVL
             _so1 = (byte)((val >> 13) & 0x3);
             YFlip = (val & 0x1000) == 0x1000;
             XFlip = (val & 0x800) == 0x800;
-            Block = (ushort)(val & 0x3FF);
+            _ind = (ushort)(val & 0x3FF);
         }
 
         public override byte[] GetBytes()
         {
-            ushort val = Block;
+            ushort val = _ind;
             if (XFlip) val |= 0x800;
             if (YFlip) val |= 0x1000;
             val |= (ushort)(_so1 << 13);
