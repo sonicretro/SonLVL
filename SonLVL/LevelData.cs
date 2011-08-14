@@ -464,9 +464,9 @@ namespace SonicRetro.SonLVL
             if (acceptTransparent && index == 0)
                 return Color.Transparent;
             return Color.FromArgb(
-                (Palette[CurPal][line, index] & 0xF) * 0x11,
-                ((Palette[CurPal][line, index] & 0xF0) >> 4) * 0x11,
-                ((Palette[CurPal][line, index] & 0xF00) >> 8) * 0x11
+                (Palette[CurPal][line, index] & 0xE) * 0x11,
+                ((Palette[CurPal][line, index] & 0xE0) >> 4) * 0x11,
+                ((Palette[CurPal][line, index] & 0xE00) >> 8) * 0x11
                 );
         }
 
