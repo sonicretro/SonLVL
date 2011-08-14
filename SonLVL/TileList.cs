@@ -82,7 +82,8 @@ namespace SonicRetro.SonLVL
             int selX = e.X / actualImageSize;
             if (selX >= tilesPerRow) return;
             int selY = (e.Y + vScrollBar1.Value) / actualImageSize;
-            SelectedIndex = selY * tilesPerRow + selX;
+            if (selY * tilesPerRow + selX < Images.Count)
+                SelectedIndex = selY * tilesPerRow + selX;
             Invalidate();
         }
 
