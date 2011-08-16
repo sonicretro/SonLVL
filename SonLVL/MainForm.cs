@@ -1005,10 +1005,11 @@ namespace SonicRetro.SonLVL
                                 switch (colindt)
                                 {
                                     case 1:
-                                        for (int i = 0; i < 0x300; i++)
+                                        for (int i = 0; i < 0x600; i += 2)
+                                        {
                                             LevelData.ColInds1.Add(tmp[i]);
-                                        for (int i = 0x300; i < 0x600; i++)
-                                            LevelData.ColInds2.Add(tmp[i]);
+                                            LevelData.ColInds2.Add(tmp[i + 1]);
+                                        }
                                         break;
                                     case 2:
                                         for (int i = 0; i < 0x600; i += 2)
