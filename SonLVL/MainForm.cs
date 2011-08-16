@@ -394,7 +394,7 @@ namespace SonicRetro.SonLVL
                                 else
                                     off = int.Parse(offstr, System.Globalization.NumberStyles.Integer);
                             }
-                            LevelData.Tiles.AddFile(tiles, off);
+                            LevelData.Tiles.AddFile(tiles, off == -1 ? off : off / 32);
                         }
                         else
                             Log("8x8 tile file \"" + tileentsp[0] + "\" not found.");
