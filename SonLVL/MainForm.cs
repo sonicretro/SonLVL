@@ -74,16 +74,16 @@ namespace SonicRetro.SonLVL
             x.Matrix33 = 0.75f;
             imageTransparency.SetColorMatrix(x, System.Drawing.Imaging.ColorMatrixFlag.Default, System.Drawing.Imaging.ColorAdjustType.Bitmap);
             HUDFont = new List<BitmapBits>();
-            HUDFont.Add(new BitmapBits(new Bitmap("HUD\\spc.png")));
+            HUDFont.Add(new BitmapBits(new Bitmap("HUD/spc.png")));
             for (int i = 0; i <= 9; i++)
-                HUDFont.Add(new BitmapBits(new Bitmap("HUD\\" + i + ".png")));
-            HUDFont.Add(new BitmapBits(new Bitmap("HUD\\..png")));
-            HUDFont.Add(new BitmapBits(new Bitmap("HUD\\-.png")));
-            HUDFont.Add(new BitmapBits(new Bitmap("HUD\\col.png")));
-            HUDFont.Add(new BitmapBits(new Bitmap("HUD\\slsh.png")));
-            HUDFont.Add(new BitmapBits(new Bitmap("HUD\\bslsh.png")));
+                HUDFont.Add(new BitmapBits(new Bitmap("HUD/" + i + ".png")));
+            HUDFont.Add(new BitmapBits(new Bitmap("HUD/..png")));
+            HUDFont.Add(new BitmapBits(new Bitmap("HUD/-.png")));
+            HUDFont.Add(new BitmapBits(new Bitmap("HUD/col.png")));
+            HUDFont.Add(new BitmapBits(new Bitmap("HUD/slsh.png")));
+            HUDFont.Add(new BitmapBits(new Bitmap("HUD/bslsh.png")));
             for (int i = 0x41; i <= 0x5A; i++)
-                HUDFont.Add(new BitmapBits(new Bitmap("HUD\\" + (char)i + ".png")));
+                HUDFont.Add(new BitmapBits(new Bitmap("HUD/" + (char)i + ".png")));
             hUDToolStripMenuItem.Checked = Properties.Settings.Default.ShowHUD;
             if (System.Diagnostics.Debugger.IsAttached)
                 logToolStripMenuItem_Click(sender, e);
@@ -326,15 +326,16 @@ namespace SonicRetro.SonLVL
                 SelectedTile = 0;
                 UndoList = new Stack<UndoAction>();
                 RedoList = new Stack<UndoAction>();
+                Dictionary<string, string> egr = ini[string.Empty];
                 Dictionary<string, string> gr = ini[levelPath];
                 LevelData.TimeZone = gr.ContainsKey("timezone") ? (TimeZone)Enum.Parse(typeof(TimeZone), gr["timezone"]) : TimeZone.None;
-                LevelData.TileFmt = gr.ContainsKey("tile8fmt") ? (EngineVersion)Enum.Parse(typeof(EngineVersion), gr["tile8fmt"]) : LevelData.EngineVersion;
-                LevelData.BlockFmt = gr.ContainsKey("block16fmt") ? (EngineVersion)Enum.Parse(typeof(EngineVersion), gr["block16fmt"]) : LevelData.EngineVersion;
-                LevelData.ChunkFmt = gr.ContainsKey("chunkfmt") ? (EngineVersion)Enum.Parse(typeof(EngineVersion), gr["chunkfmt"]) : LevelData.EngineVersion;
-                LevelData.LayoutFmt = gr.ContainsKey("layoutfmt") ? (EngineVersion)Enum.Parse(typeof(EngineVersion), gr["layoutfmt"]) : LevelData.EngineVersion;
-                LevelData.PaletteFmt = gr.ContainsKey("palettefmt") ? (EngineVersion)Enum.Parse(typeof(EngineVersion), gr["palettefmt"]) : LevelData.EngineVersion;
-                LevelData.ObjectFmt = gr.ContainsKey("objectsfmt") ? (EngineVersion)Enum.Parse(typeof(EngineVersion), gr["objectsfmt"]) : LevelData.EngineVersion;
-                LevelData.RingFmt = gr.ContainsKey("ringsfmt") ? (EngineVersion)Enum.Parse(typeof(EngineVersion), gr["ringsfmt"]) : LevelData.EngineVersion;
+                LevelData.TileFmt = gr.ContainsKey("tile8fmt") ? (EngineVersion)Enum.Parse(typeof(EngineVersion), gr["tile8fmt"]) : egr.ContainsKey("tile8fmt") ? (EngineVersion)Enum.Parse(typeof(EngineVersion), egr["tile8fmt"]) : LevelData.EngineVersion;
+                LevelData.BlockFmt = gr.ContainsKey("block16fmt") ? (EngineVersion)Enum.Parse(typeof(EngineVersion), gr["block16fmt"]) : egr.ContainsKey("block16fmt") ? (EngineVersion)Enum.Parse(typeof(EngineVersion), egr["block16fmt"]) : LevelData.EngineVersion;
+                LevelData.ChunkFmt = gr.ContainsKey("chunkfmt") ? (EngineVersion)Enum.Parse(typeof(EngineVersion), gr["chunkfmt"]) : egr.ContainsKey("chunkfmt") ? (EngineVersion)Enum.Parse(typeof(EngineVersion), egr["chunkfmt"]) : LevelData.EngineVersion;
+                LevelData.LayoutFmt = gr.ContainsKey("layoutfmt") ? (EngineVersion)Enum.Parse(typeof(EngineVersion), gr["layoutfmt"]) : egr.ContainsKey("layoutfmt") ? (EngineVersion)Enum.Parse(typeof(EngineVersion), egr["layoutfmt"]) : LevelData.EngineVersion;
+                LevelData.PaletteFmt = gr.ContainsKey("palettefmt") ? (EngineVersion)Enum.Parse(typeof(EngineVersion), gr["palettefmt"]) : egr.ContainsKey("palettefmt") ? (EngineVersion)Enum.Parse(typeof(EngineVersion), egr["palettefmt"]) : LevelData.EngineVersion;
+                LevelData.ObjectFmt = gr.ContainsKey("objectsfmt") ? (EngineVersion)Enum.Parse(typeof(EngineVersion), gr["objectsfmt"]) : egr.ContainsKey("objectsfmt") ? (EngineVersion)Enum.Parse(typeof(EngineVersion), egr["objectsfmt"]) : LevelData.EngineVersion;
+                LevelData.RingFmt = gr.ContainsKey("ringsfmt") ? (EngineVersion)Enum.Parse(typeof(EngineVersion), gr["ringsfmt"]) : egr.ContainsKey("ringsfmt") ? (EngineVersion)Enum.Parse(typeof(EngineVersion), egr["ringsfmt"]) : LevelData.EngineVersion;
                 switch (LevelData.ChunkFmt)
                 {
                     case EngineVersion.S1:
@@ -367,17 +368,18 @@ namespace SonicRetro.SonLVL
                             defcmp = "KosinskiM";
                             break;
                         default:
-                            defcmp = string.Empty;
+                            defcmp = "Uncompressed";
                             break;
                     }
+                    LevelData.TileCmp = (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("tile8cmp", egr.GetValueOrDefault("tile8cmp", defcmp)));
                     foreach (string tileent in tilelist)
                     {
                         tmp = null;
                         string[] tileentsp = tileent.Split(':');
                         if (File.Exists(tileentsp[0]))
                         {
-                            Log("Loading 8x8 tiles from file \"" + tileentsp[0] + "\", using compression " + gr.GetValueOrDefault("tile8cmp", defcmp) + "...");
-                            tmp = Compression.Decompress(tileentsp[0], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("tile8cmp", defcmp)));
+                            Log("Loading 8x8 tiles from file \"" + tileentsp[0] + "\", using compression " + LevelData.TileCmp.ToString() + "...");
+                            tmp = Compression.Decompress(tileentsp[0], LevelData.TileCmp);
                             List<byte[]> tiles = new List<byte[]>();
                             for (int i = 0; i < tmp.Length; i += 32)
                             {
@@ -402,6 +404,7 @@ namespace SonicRetro.SonLVL
                 }
                 else
                 {
+                    LevelData.TileCmp = Compression.CompressionType.SZDD;
                     if (File.Exists(gr["tile8"]))
                     {
                         Log("Loading 8x8 tiles from file \"" + gr["tile8"] + "\", using compression SZDD...");
@@ -437,17 +440,18 @@ namespace SonicRetro.SonLVL
                         defcmp = "Uncompressed";
                         break;
                     default:
-                        defcmp = string.Empty;
+                        defcmp = "Uncompressed";
                         break;
                 }
+                LevelData.BlockCmp = (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("block16cmp", egr.GetValueOrDefault("block16cmp", defcmp)));
                 tilelist = gr["block16"].Split('|');
                 foreach (string tileent in tilelist)
                 {
                     string[] tileentsp = tileent.Split(':');
                     if (File.Exists(tileentsp[0]))
                     {
-                        Log("Loading 16x16 blocks from file \"" + tileentsp[0] + "\", using compression " + gr.GetValueOrDefault("block16cmp", defcmp) + "...");
-                        tmp = Compression.Decompress(tileentsp[0], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("block16cmp", defcmp)));
+                        Log("Loading 16x16 blocks from file \"" + tileentsp[0] + "\", using compression " + LevelData.BlockCmp.ToString() + "...");
+                        tmp = Compression.Decompress(tileentsp[0], LevelData.BlockCmp);
                         List<Block> tmpblk = new List<Block>();
                         if (LevelData.EngineVersion == EngineVersion.SKC)
                             LevelData.littleendian = false;
@@ -489,6 +493,7 @@ namespace SonicRetro.SonLVL
                         defcmp = string.Empty;
                         break;
                 }
+                LevelData.ChunkCmp = (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("chunk" + LevelData.chunksz + "cmp", egr.GetValueOrDefault("chunk" + LevelData.chunksz + "cmp", defcmp)));
                 tilelist = gr["chunk" + LevelData.chunksz].Split('|');
                 data = new List<byte>();
                 int fileind = 0;
@@ -497,11 +502,9 @@ namespace SonicRetro.SonLVL
                     string[] tileentsp = tileent.Split(':');
                     if (File.Exists(tileentsp[0]))
                     {
-                        Log("Loading " + LevelData.chunksz + "x" + LevelData.chunksz + " chunks from file \"" + tileentsp[0] + "\", using compression " + gr.GetValueOrDefault("chunk" + LevelData.chunksz + "cmp", defcmp) + "...");
-                        tmp = Compression.Decompress(tileentsp[0], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("chunk" + LevelData.chunksz + "cmp", defcmp)));
+                        Log("Loading " + LevelData.chunksz + "x" + LevelData.chunksz + " chunks from file \"" + tileentsp[0] + "\", using compression " + LevelData.ChunkCmp.ToString() + "...");
+                        tmp = Compression.Decompress(tileentsp[0], LevelData.ChunkCmp);
                         List<Chunk> tmpchnk = new List<Chunk>();
-                        if (LevelData.EngineVersion == EngineVersion.SKC)
-                            LevelData.littleendian = false;
                         if (fileind == 0)
                         {
                             switch (LevelData.EngineVersion)
@@ -513,6 +516,8 @@ namespace SonicRetro.SonLVL
                                     break;
                             }
                         }
+                        if (LevelData.EngineVersion == EngineVersion.SKC)
+                            LevelData.littleendian = false;
                         for (int ba = 0; ba < tmp.Length; ba += Chunk.Size)
                             tmpchnk.Add(new Chunk(tmp, ba));
                         if (LevelData.EngineVersion == EngineVersion.SKC)
@@ -540,12 +545,28 @@ namespace SonicRetro.SonLVL
                 switch (LevelData.LayoutFmt)
                 {
                     case EngineVersion.S1:
+                    case EngineVersion.S3K:
+                    case EngineVersion.SKC:
+                    case EngineVersion.SCDPC:
+                        defcmp = "Uncompressed";
+                        break;
+                    case EngineVersion.S2:
+                        defcmp = "Kosinski";
+                        break;
+                    default:
+                        defcmp = "Uncompressed";
+                        break;
+                }
+                LevelData.LayoutCmp = (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("layoutcmp", egr.GetValueOrDefault("layoutcmp", defcmp)));
+                switch (LevelData.LayoutFmt)
+                {
+                    case EngineVersion.S1:
                         int s1xmax = int.Parse(ini[string.Empty]["levelwidthmax"], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo);
                         int s1ymax = int.Parse(ini[string.Empty]["levelheightmax"], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo);
                         if (File.Exists(gr["fglayout"]))
                         {
-                            Log("Loading FG layout from file \"" + gr["fglayout"] + "\", using compression " + gr.GetValueOrDefault("fglayoutcmp", "Uncompressed") + "...");
-                            tmp = Compression.Decompress(gr["fglayout"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("fglayoutcmp", "Uncompressed")));
+                            Log("Loading FG layout from file \"" + gr["fglayout"] + "\", using compression " + LevelData.LayoutCmp.ToString() + "...");
+                            tmp = Compression.Decompress(gr["fglayout"], LevelData.LayoutCmp);
                             fgw = tmp[0] + 1;
                             fgh = tmp[1] + 1;
                             LevelData.FGLayout = new byte[fgw, fgh];
@@ -566,8 +587,8 @@ namespace SonicRetro.SonLVL
                         }
                         if (File.Exists(gr["bglayout"]))
                         {
-                            Log("Loading BG layout from file \"" + gr["bglayout"] + "\", using compression " + gr.GetValueOrDefault("bglayoutcmp", "Uncompressed") + "...");
-                            tmp = Compression.Decompress(gr["bglayout"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("bglayoutcmp", "Uncompressed")));
+                            Log("Loading BG layout from file \"" + gr["bglayout"] + "\", using compression " + LevelData.LayoutCmp.ToString() + "...");
+                            tmp = Compression.Decompress(gr["bglayout"], LevelData.LayoutCmp);
                             bgw = tmp[0] + 1;
                             bgh = tmp[1] + 1;
                             LevelData.BGLayout = new byte[bgw, bgh];
@@ -591,8 +612,8 @@ namespace SonicRetro.SonLVL
                         LevelData.BGLayout = new byte[128, 16];
                         if (File.Exists(gr["layout"]))
                         {
-                            Log("Loading layout from file \"" + gr["layout"] + "\", using compression " + gr.GetValueOrDefault("layoutcmp", "Kosinski") + "...");
-                            tmp = Compression.Decompress(gr["layout"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("layoutcmp", "Kosinski")));
+                            Log("Loading layout from file \"" + gr["layout"] + "\", using compression " + LevelData.LayoutCmp.ToString() + "...");
+                            tmp = Compression.Decompress(gr["layout"], LevelData.LayoutCmp);
                             for (int la = 0; la < tmp.Length; la += 256)
                             {
                                 for (int laf = 0; laf < 128; laf++)
@@ -607,8 +628,8 @@ namespace SonicRetro.SonLVL
                     case EngineVersion.S3K:
                         if (File.Exists(gr["layout"]))
                         {
-                            Log("Loading layout from file \"" + gr["layout"] + "\", using compression " + gr.GetValueOrDefault("layoutcmp", "Uncompressed") + "...");
-                            tmp = Compression.Decompress(gr["layout"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("layoutcmp", "Uncompressed")));
+                            Log("Loading layout from file \"" + gr["layout"] + "\", using compression " + LevelData.LayoutCmp.ToString() + "...");
+                            tmp = Compression.Decompress(gr["layout"], LevelData.LayoutCmp);
                             fgw = ByteConverter.ToUInt16(tmp, 0);
                             bgw = ByteConverter.ToUInt16(tmp, 2);
                             fgh = ByteConverter.ToUInt16(tmp, 4);
@@ -637,8 +658,8 @@ namespace SonicRetro.SonLVL
                     case EngineVersion.SKC:
                         if (File.Exists(gr["layout"]))
                         {
-                            Log("Loading layout from file \"" + gr["layout"] + "\", using compression " + gr.GetValueOrDefault("layoutcmp", "Uncompressed") + "...");
-                            tmp = Compression.Decompress(gr["layout"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("layoutcmp", "Uncompressed")));
+                            Log("Loading layout from file \"" + gr["layout"] + "\", using compression " + LevelData.LayoutCmp.ToString() + "...");
+                            tmp = Compression.Decompress(gr["layout"], LevelData.LayoutCmp);
                             fgw = ByteConverter.ToUInt16(tmp, 0);
                             bgw = ByteConverter.ToUInt16(tmp, 2);
                             fgh = ByteConverter.ToUInt16(tmp, 4);
@@ -668,8 +689,8 @@ namespace SonicRetro.SonLVL
                         LevelData.FGLayout = new byte[64, 8];
                         if (File.Exists(gr["fglayout"]))
                         {
-                            Log("Loading FG layout from file \"" + gr["fglayout"] + "\", using compression " + gr.GetValueOrDefault("fglayoutcmp", "Uncompressed") + "...");
-                            tmp = Compression.Decompress(gr["fglayout"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("fglayoutcmp", "Uncompressed")));
+                            Log("Loading FG layout from file \"" + gr["fglayout"] + "\", using compression " + LevelData.LayoutCmp.ToString() + "...");
+                            tmp = Compression.Decompress(gr["fglayout"], LevelData.LayoutCmp);
                             for (int lr = 0; lr < 8; lr++)
                                 for (int lc = 0; lc < 64; lc++)
                                 {
@@ -682,8 +703,8 @@ namespace SonicRetro.SonLVL
                         LevelData.BGLayout = new byte[64, 8];
                         if (File.Exists(gr["bglayout"]))
                         {
-                            Log("Loading BG layout from file \"" + gr["bglayout"] + "\", using compression " + gr.GetValueOrDefault("bglayoutcmp", "Uncompressed") + "...");
-                            tmp = Compression.Decompress(gr["bglayout"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("bglayoutcmp", "Uncompressed")));
+                            Log("Loading BG layout from file \"" + gr["bglayout"] + "\", using compression " + LevelData.LayoutCmp.ToString() + "...");
+                            tmp = Compression.Decompress(gr["bglayout"], LevelData.LayoutCmp);
                             for (int lr = 0; lr < 8; lr++)
                                 for (int lc = 0; lc < 64; lc++)
                                 {
@@ -983,16 +1004,32 @@ namespace SonicRetro.SonLVL
                 switch (LevelData.EngineVersion)
                 {
                     case EngineVersion.S1:
+                    case EngineVersion.S3K:
+                    case EngineVersion.SKC:
+                    case EngineVersion.SCDPC:
+                        defcmp = "Uncompressed";
+                        break;
+                    case EngineVersion.S2:
+                        defcmp = "Kosinski";
+                        break;
+                    default:
+                        defcmp = "Uncompressed";
+                        break;
+                }
+                LevelData.ColIndCmp = (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("colindcmp", egr.GetValueOrDefault("colindcmp", defcmp)));
+                switch (LevelData.EngineVersion)
+                {
+                    case EngineVersion.S1:
                     case EngineVersion.SCD:
                     case EngineVersion.SCDPC:
                         if (gr.ContainsKey("colind") && File.Exists(gr["colind"]))
-                            LevelData.ColInds1.AddRange(Compression.Decompress(gr["colind"], Compression.CompressionType.Uncompressed));
+                            LevelData.ColInds1.AddRange(Compression.Decompress(gr["colind"], LevelData.ColIndCmp));
                         break;
                     case EngineVersion.S2:
                         if (gr.ContainsKey("colind1") && File.Exists(gr["colind1"]))
-                            LevelData.ColInds1.AddRange(Compression.Decompress(gr["colind1"], Compression.CompressionType.Kosinski));
+                            LevelData.ColInds1.AddRange(Compression.Decompress(gr["colind1"], LevelData.ColIndCmp));
                         if (gr.ContainsKey("colind2") && File.Exists(gr["colind2"]))
-                            LevelData.ColInds2.AddRange(Compression.Decompress(gr["colind2"], Compression.CompressionType.Kosinski));
+                            LevelData.ColInds2.AddRange(Compression.Decompress(gr["colind2"], LevelData.ColIndCmp));
                         break;
                     case EngineVersion.S3K:
                     case EngineVersion.SKC:
@@ -1000,7 +1037,7 @@ namespace SonicRetro.SonLVL
                         {
                             if (File.Exists(gr["colind"]))
                             {
-                                tmp = Compression.Decompress(gr["colind"], Compression.CompressionType.Uncompressed);
+                                tmp = Compression.Decompress(gr["colind"], LevelData.ColIndCmp);
                                 int colindt = int.Parse(gr.GetValueOrDefault("colindsz", "1"));
                                 switch (colindt)
                                 {
@@ -1298,29 +1335,12 @@ namespace SonicRetro.SonLVL
         {
             Log("Saving " + levelPath + "...");
             Dictionary<string, string> gr = ini[levelPath];
-            string defcmp;
             string[] tilelist;
             int fileind = -1;
             List<byte> tmp;
             ReadOnlyCollection<ReadOnlyCollection<byte[]>> tilefiles = LevelData.Tiles.GetFiles();
             if (LevelData.TileFmt != EngineVersion.SCDPC)
             {
-                switch (LevelData.TileFmt)
-                {
-                    case EngineVersion.S1:
-                        defcmp = "Nemesis";
-                        break;
-                    case EngineVersion.S2:
-                        defcmp = "Kosinski";
-                        break;
-                    case EngineVersion.S3K:
-                    case EngineVersion.SKC:
-                        defcmp = "KosinskiM";
-                        break;
-                    default:
-                        defcmp = string.Empty;
-                        break;
-                }
                 tilelist = gr["tile8"].Split('|');
                 foreach (string tileent in tilelist)
                 {
@@ -1331,7 +1351,7 @@ namespace SonicRetro.SonLVL
                     {
                         tmp.AddRange(item);
                     }
-                    Compression.Compress(tmp.ToArray(), tileentsp[0], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("block16cmp", defcmp)));
+                    Compression.Compress(tmp.ToArray(), tileentsp[0], LevelData.TileCmp);
                 }
             }
             else
@@ -1382,23 +1402,6 @@ namespace SonicRetro.SonLVL
                 tmp.AddRange(LevelData.TileArray);
                 Compression.Compress(tmp.ToArray(), gr["tile8"], Compression.CompressionType.SZDD);
             }
-            switch (LevelData.BlockFmt)
-            {
-                case EngineVersion.S1:
-                    defcmp = "Enigma";
-                    break;
-                case EngineVersion.S2:
-                case EngineVersion.S3K:
-                case EngineVersion.SKC:
-                    defcmp = "Kosinski";
-                    break;
-                case EngineVersion.SCDPC:
-                    defcmp = "Uncompressed";
-                    break;
-                default:
-                    defcmp = string.Empty;
-                    break;
-            }
             tilelist = gr["block16"].Split('|');
             fileind = -1;
             ReadOnlyCollection<ReadOnlyCollection<Block>> blockfiles = LevelData.Blocks.GetFiles();
@@ -1415,25 +1418,10 @@ namespace SonicRetro.SonLVL
                 }
                 if (LevelData.EngineVersion == EngineVersion.SKC)
                     LevelData.littleendian = true;
-                Compression.Compress(tmp.ToArray(), tileentsp[0], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("block16cmp", defcmp)));
+                Compression.Compress(tmp.ToArray(), tileentsp[0], LevelData.BlockCmp);
             }
             tilelist = gr["chunk" + LevelData.chunksz].Split('|');
             fileind = -1;
-            switch (LevelData.ChunkFmt)
-            {
-                case EngineVersion.S1:
-                case EngineVersion.S2:
-                case EngineVersion.S3K:
-                case EngineVersion.SKC:
-                    defcmp = "Kosinski";
-                    break;
-                case EngineVersion.SCDPC:
-                    defcmp = "Uncompressed";
-                    break;
-                default:
-                    defcmp = string.Empty;
-                    break;
-            }
             ReadOnlyCollection<ReadOnlyCollection<Chunk>> chunkfiles = LevelData.Chunks.GetFiles();
             foreach (string tileent in tilelist)
             {
@@ -1457,7 +1445,7 @@ namespace SonicRetro.SonLVL
                             break;
                     }
                 }
-                Compression.Compress(tmp.ToArray(), tileentsp[0], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("chunk" + LevelData.chunksz + "cmp", defcmp)));
+                Compression.Compress(tmp.ToArray(), tileentsp[0], LevelData.ChunkCmp);
             }
             switch (LevelData.LayoutFmt)
             {
@@ -1468,14 +1456,14 @@ namespace SonicRetro.SonLVL
                     for (int lr = 0; lr < LevelData.FGLayout.GetLength(1); lr++)
                         for (int lc = 0; lc < LevelData.FGLayout.GetLength(0); lc++)
                             tmp.Add((byte)(LevelData.FGLayout[lc, lr] | (LevelData.FGLoop[lc, lr] ? 0x80 : 0)));
-                    Compression.Compress(tmp.ToArray(), gr["fglayout"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("fglayoutcmp", "Uncompressed")));
+                    Compression.Compress(tmp.ToArray(), gr["fglayout"], LevelData.LayoutCmp);
                     tmp = new List<byte>();
                     tmp.Add((byte)(LevelData.BGLayout.GetLength(0) - 1));
                     tmp.Add((byte)(LevelData.BGLayout.GetLength(1) - 1));
                     for (int lr = 0; lr < LevelData.BGLayout.GetLength(1); lr++)
                         for (int lc = 0; lc < LevelData.BGLayout.GetLength(0); lc++)
                             tmp.Add((byte)(LevelData.BGLayout[lc, lr] | (LevelData.BGLoop[lc, lr] ? 0x80 : 0)));
-                    Compression.Compress(tmp.ToArray(), gr["bglayout"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("bglayoutcmp", "Uncompressed")));
+                    Compression.Compress(tmp.ToArray(), gr["bglayout"], LevelData.LayoutCmp);
                     break;
                 case EngineVersion.S2:
                     tmp = new List<byte>();
@@ -1486,7 +1474,7 @@ namespace SonicRetro.SonLVL
                         for (int lab = 0; lab < 128; lab++)
                             tmp.Add(LevelData.BGLayout[lab, la]);
                     }
-                    Compression.Compress(tmp.ToArray(), gr["layout"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("layoutcmp", "Kosinski")));
+                    Compression.Compress(tmp.ToArray(), gr["layout"], LevelData.LayoutCmp);
                     break;
                 case EngineVersion.S3K:
                     tmp = new List<byte>();
@@ -1515,7 +1503,7 @@ namespace SonicRetro.SonLVL
                     for (int y = 0; y < bgh; y++)
                         for (int x = 0; x < bgw; x++)
                             tmp.Add(LevelData.BGLayout[x, y]);
-                    Compression.Compress(tmp.ToArray(), gr["layout"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("layoutcmp", "Uncompressed")));
+                    Compression.Compress(tmp.ToArray(), gr["layout"], LevelData.LayoutCmp);
                     break;
                 case EngineVersion.SKC:
                     tmp = new List<byte>();
@@ -1547,19 +1535,19 @@ namespace SonicRetro.SonLVL
                             l.Add(LevelData.BGLayout[x, y]);
                     for (int i = 0; i < l.Count; i++)
                         tmp.Add(l[i ^ 1]);
-                    Compression.Compress(tmp.ToArray(), gr["layout"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("layoutcmp", "Uncompressed")));
+                    Compression.Compress(tmp.ToArray(), gr["layout"], LevelData.LayoutCmp);
                     break;
                 case EngineVersion.SCDPC:
                     tmp = new List<byte>();
                     for (int lr = 0; lr < 8; lr++)
                         for (int lc = 0; lc < 64; lc++)
                             tmp.Add(LevelData.FGLayout[lc, lr]);
-                    Compression.Compress(tmp.ToArray(), gr["fglayout"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("fglayoutcmp", "Uncompressed")));
+                    Compression.Compress(tmp.ToArray(), gr["fglayout"], LevelData.LayoutCmp);
                     tmp = new List<byte>();
                     for (int lr = 0; lr < 8; lr++)
                         for (int lc = 0; lc < 64; lc++)
                             tmp.Add(LevelData.BGLayout[lc, lr]);
-                    Compression.Compress(tmp.ToArray(), gr["bglayout"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), gr.GetValueOrDefault("bglayoutcmp", "Uncompressed")));
+                    Compression.Compress(tmp.ToArray(), gr["bglayout"], LevelData.LayoutCmp);
                     break;
             }
             if (LevelData.EngineVersion != EngineVersion.SCDPC)
@@ -1763,13 +1751,13 @@ namespace SonicRetro.SonLVL
                 case EngineVersion.SCD:
                 case EngineVersion.SCDPC:
                     if (gr.ContainsKey("colind"))
-                        Compression.Compress(LevelData.ColInds1.ToArray(), gr["colind"], Compression.CompressionType.Uncompressed);
+                        Compression.Compress(LevelData.ColInds1.ToArray(), gr["colind"], LevelData.ColIndCmp);
                     break;
                 case EngineVersion.S2:
                     if (gr.ContainsKey("colind1"))
-                        Compression.Compress(LevelData.ColInds1.ToArray(),gr["colind1"], Compression.CompressionType.Kosinski);
+                        Compression.Compress(LevelData.ColInds1.ToArray(),gr["colind1"], LevelData.ColIndCmp);
                     if (gr.ContainsKey("colind2"))
-                        Compression.Compress(LevelData.ColInds2.ToArray(), gr["colind2"], Compression.CompressionType.Kosinski);
+                        Compression.Compress(LevelData.ColInds2.ToArray(), gr["colind2"], LevelData.ColIndCmp);
                     break;
                 case EngineVersion.S3K:
                 case EngineVersion.SKC:
@@ -1790,7 +1778,7 @@ namespace SonicRetro.SonLVL
                                     tmp.AddRange(ByteConverter.GetBytes((ushort)item));
                                 break;
                         }
-                        Compression.Compress(tmp.ToArray(), gr["colind"], Compression.CompressionType.Uncompressed);
+                        Compression.Compress(tmp.ToArray(), gr["colind"], LevelData.ColIndCmp);
                     }
                     break;
             }
