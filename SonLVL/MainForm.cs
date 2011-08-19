@@ -74,16 +74,17 @@ namespace SonicRetro.SonLVL
             x.Matrix33 = 0.75f;
             imageTransparency.SetColorMatrix(x, System.Drawing.Imaging.ColorMatrixFlag.Default, System.Drawing.Imaging.ColorAdjustType.Bitmap);
             HUDFont = new List<BitmapBits>();
-            HUDFont.Add(new BitmapBits(new Bitmap("HUD/spc.png")));
+            string HUDpath = Path.Combine(Application.StartupPath, "HUD");
+            HUDFont.Add(new BitmapBits(new Bitmap(Path.Combine(HUDpath, "spc.png"))));
             for (int i = 0; i <= 9; i++)
-                HUDFont.Add(new BitmapBits(new Bitmap("HUD/" + i + ".png")));
-            HUDFont.Add(new BitmapBits(new Bitmap("HUD/..png")));
-            HUDFont.Add(new BitmapBits(new Bitmap("HUD/-.png")));
-            HUDFont.Add(new BitmapBits(new Bitmap("HUD/col.png")));
-            HUDFont.Add(new BitmapBits(new Bitmap("HUD/slsh.png")));
-            HUDFont.Add(new BitmapBits(new Bitmap("HUD/bslsh.png")));
+                HUDFont.Add(new BitmapBits(new Bitmap(Path.Combine(HUDpath, i + ".png"))));
+            HUDFont.Add(new BitmapBits(new Bitmap(Path.Combine(HUDpath, "..png"))));
+            HUDFont.Add(new BitmapBits(new Bitmap(Path.Combine(HUDpath, "-.png"))));
+            HUDFont.Add(new BitmapBits(new Bitmap(Path.Combine(HUDpath, "col.png"))));
+            HUDFont.Add(new BitmapBits(new Bitmap(Path.Combine(HUDpath, "slsh.png"))));
+            HUDFont.Add(new BitmapBits(new Bitmap(Path.Combine(HUDpath, "bslsh.png"))));
             for (int i = 0x41; i <= 0x5A; i++)
-                HUDFont.Add(new BitmapBits(new Bitmap("HUD/" + (char)i + ".png")));
+                HUDFont.Add(new BitmapBits(new Bitmap(Path.Combine(HUDpath, (char)i + ".png"))));
             hUDToolStripMenuItem.Checked = Properties.Settings.Default.ShowHUD;
             if (System.Diagnostics.Debugger.IsAttached)
                 logToolStripMenuItem_Click(sender, e);
@@ -1028,8 +1029,13 @@ namespace SonicRetro.SonLVL
                     case EngineVersion.S2:
                         if (gr.ContainsKey("colind1") && File.Exists(gr["colind1"]))
                             LevelData.ColInds1.AddRange(Compression.Decompress(gr["colind1"], LevelData.ColIndCmp));
-                        if (gr.ContainsKey("colind2") && File.Exists(gr["colind2"]))
-                            LevelData.ColInds2.AddRange(Compression.Decompress(gr["colind2"], LevelData.ColIndCmp));
+                        if (gr.ContainsKey("colind2"))
+                        {
+                            if (File.Exists(gr["colind2"]))
+                                LevelData.ColInds2.AddRange(Compression.Decompress(gr["colind2"], LevelData.ColIndCmp));
+                        }
+                        else
+                            LevelData.ColInds2 = LevelData.ColInds1;
                         break;
                     case EngineVersion.S3K:
                     case EngineVersion.SKC:
