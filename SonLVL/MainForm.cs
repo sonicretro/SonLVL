@@ -3308,15 +3308,20 @@ namespace SonicRetro.SonLVL
             if ((EditingMode == EditingModes.PlaneA | EditingMode == EditingModes.PlaneB) && locs.Count > 0) AddUndo(new LayoutEditUndoAction(EditingMode, locs, tiles));
             if (objdrag)
             {
-                AddUndo(new ObjectMoveUndoAction(new List<Entry>(SelectedItems), locs));
                 if (ModifierKeys == Keys.Shift)
                 {
                     foreach (Entry item in SelectedItems)
                     {
-                        item.X &= 0xFFF8;
-                        item.Y &= 0xFFF8;
+                        item.X = (ushort)(Math.Round(item.X / 8.0, MidpointRounding.AwayFromZero) * 8);
+                        item.Y = (ushort)(Math.Round(item.Y / 8.0, MidpointRounding.AwayFromZero) * 8);
                     }
                 }
+                bool moved = false;
+                for (int i = 0; i < SelectedItems.Count; i++)
+                    if (SelectedItems[i].X != locs[i].X | SelectedItems[i].Y != locs[i].Y)
+                        moved = true;
+                if (moved)
+                    AddUndo(new ObjectMoveUndoAction(new List<Entry>(SelectedItems), locs));
                 EditControls.propertyGrid1.SelectedObjects = SelectedItems.ToArray();
                 LevelData.Objects.Sort();
                 LevelData.Rings.Sort();
