@@ -1774,8 +1774,11 @@ namespace SonicRetro.SonLVL
                         switch (colindt)
                         {
                             case 1:
-                                tmp.AddRange(LevelData.ColInds1);
-                                tmp.AddRange(LevelData.ColInds2);
+                                for (int i = 0; i < 0x300; i++)
+                                {
+                                    tmp.Add(LevelData.ColInds1[i]);
+                                    tmp.Add(LevelData.ColInds2[i]);
+                                }
                                 break;
                             case 2:
                                 foreach (byte item in LevelData.ColInds1)
