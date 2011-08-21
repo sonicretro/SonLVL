@@ -293,7 +293,7 @@
             this.lowToolStripMenuItem.CheckOnClick = true;
             this.lowToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.lowToolStripMenuItem.Name = "lowToolStripMenuItem";
-            this.lowToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.lowToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
             this.lowToolStripMenuItem.Text = "&Low";
             this.lowToolStripMenuItem.Click += new System.EventHandler(this.lowToolStripMenuItem_Click);
             // 
@@ -303,7 +303,7 @@
             this.highToolStripMenuItem.CheckOnClick = true;
             this.highToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.highToolStripMenuItem.Name = "highToolStripMenuItem";
-            this.highToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.highToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
             this.highToolStripMenuItem.Text = "&High";
             this.highToolStripMenuItem.Click += new System.EventHandler(this.highToolStripMenuItem_Click);
             // 
@@ -608,9 +608,12 @@
             this.vScrollBar1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
                         | System.Windows.Forms.AnchorStyles.Left)));
             this.vScrollBar1.Enabled = false;
+            this.vScrollBar1.LargeChange = 128;
             this.vScrollBar1.Location = new System.Drawing.Point(641, 0);
+            this.vScrollBar1.Maximum = 128;
             this.vScrollBar1.Name = "vScrollBar1";
             this.vScrollBar1.Size = new System.Drawing.Size(17, 486);
+            this.vScrollBar1.SmallChange = 16;
             this.vScrollBar1.TabIndex = 2;
             this.vScrollBar1.ValueChanged += new System.EventHandler(this.ScrollBar_ValueChanged);
             // 
@@ -619,9 +622,12 @@
             this.hScrollBar1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.hScrollBar1.Enabled = false;
+            this.hScrollBar1.LargeChange = 128;
             this.hScrollBar1.Location = new System.Drawing.Point(0, 486);
+            this.hScrollBar1.Maximum = 128;
             this.hScrollBar1.Name = "hScrollBar1";
             this.hScrollBar1.Size = new System.Drawing.Size(641, 17);
+            this.hScrollBar1.SmallChange = 16;
             this.hScrollBar1.TabIndex = 3;
             this.hScrollBar1.ValueChanged += new System.EventHandler(this.ScrollBar_ValueChanged);
             // 
