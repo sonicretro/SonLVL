@@ -102,8 +102,9 @@ namespace SonicRetro.SonLVL
 
         public override void PaintValue(PaintValueEventArgs e)
         {
-            if ((ushort)e.Value >= LevelData.Tiles.Count) return;
-            e.Graphics.DrawImage(LevelData.TileToBmp4bpp(LevelData.Tiles[ushort.Parse((string)e.Value, System.Globalization.NumberStyles.HexNumber)], 0, 2) , e.Bounds);
+            ushort val = ushort.Parse((string)e.Value, System.Globalization.NumberStyles.HexNumber);
+            if (val >= LevelData.Tiles.Count) return;
+            e.Graphics.DrawImage(LevelData.TileToBmp4bpp(LevelData.Tiles[val], 0, 2) , e.Bounds);
         }
 
         public override bool IsDropDownResizable

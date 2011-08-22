@@ -54,11 +54,13 @@
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.TileSelector = new SonicRetro.SonLVL.TileList();
             this.panel6 = new System.Windows.Forms.Panel();
+            this.TileID = new System.Windows.Forms.TextBox();
             this.TilePicture = new System.Windows.Forms.Panel();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.CollisionSelector = new SonicRetro.SonLVL.TileList();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.ColID = new System.Windows.Forms.TextBox();
             this.ColAngle = new System.Windows.Forms.NumericUpDown();
             this.ColPicture = new System.Windows.Forms.Panel();
             this.panel1 = new System.Windows.Forms.Panel();
@@ -74,8 +76,9 @@
             this.importToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip2 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.importToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.TileID = new System.Windows.Forms.TextBox();
-            this.ColID = new System.Windows.Forms.TextBox();
+            this.ChunkCount = new System.Windows.Forms.Label();
+            this.BlockCount = new System.Windows.Forms.Label();
+            this.TileCount = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -157,11 +160,12 @@
             // 
             this.panel4.AutoSize = true;
             this.panel4.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.panel4.Controls.Add(this.ChunkCount);
             this.panel4.Controls.Add(this.ChunkID);
             this.panel4.Controls.Add(this.ChunkPicture);
             this.panel4.Location = new System.Drawing.Point(3, 3);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(262, 288);
+            this.panel4.Size = new System.Drawing.Size(262, 301);
             this.panel4.TabIndex = 0;
             // 
             // ChunkID
@@ -239,11 +243,12 @@
             // 
             this.panel5.AutoSize = true;
             this.panel5.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.panel5.Controls.Add(this.BlockCount);
             this.panel5.Controls.Add(this.BlockID);
             this.panel5.Controls.Add(this.BlockPicture);
             this.panel5.Location = new System.Drawing.Point(3, 3);
             this.panel5.Name = "panel5";
-            this.panel5.Size = new System.Drawing.Size(106, 96);
+            this.panel5.Size = new System.Drawing.Size(106, 113);
             this.panel5.TabIndex = 0;
             // 
             // BlockID
@@ -395,12 +400,22 @@
             // 
             this.panel6.AutoSize = true;
             this.panel6.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.panel6.Controls.Add(this.TileCount);
             this.panel6.Controls.Add(this.TileID);
             this.panel6.Controls.Add(this.TilePicture);
             this.panel6.Location = new System.Drawing.Point(3, 3);
             this.panel6.Name = "panel6";
-            this.panel6.Size = new System.Drawing.Size(134, 160);
+            this.panel6.Size = new System.Drawing.Size(134, 173);
             this.panel6.TabIndex = 0;
+            // 
+            // TileID
+            // 
+            this.TileID.Location = new System.Drawing.Point(3, 137);
+            this.TileID.Name = "TileID";
+            this.TileID.ReadOnly = true;
+            this.TileID.Size = new System.Drawing.Size(100, 20);
+            this.TileID.TabIndex = 3;
+            this.TileID.Text = "0";
             // 
             // TilePicture
             // 
@@ -462,6 +477,15 @@
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(118, 112);
             this.panel3.TabIndex = 1;
+            // 
+            // ColID
+            // 
+            this.ColID.Location = new System.Drawing.Point(3, 89);
+            this.ColID.Name = "ColID";
+            this.ColID.ReadOnly = true;
+            this.ColID.Size = new System.Drawing.Size(100, 20);
+            this.ColID.TabIndex = 4;
+            this.ColID.Text = "0";
             // 
             // ColAngle
             // 
@@ -602,23 +626,32 @@
             this.importToolStripMenuItem1.Text = "&Import";
             this.importToolStripMenuItem1.Click += new System.EventHandler(this.importToolStripMenuItem1_Click);
             // 
-            // TileID
+            // ChunkCount
             // 
-            this.TileID.Location = new System.Drawing.Point(3, 137);
-            this.TileID.Name = "TileID";
-            this.TileID.ReadOnly = true;
-            this.TileID.Size = new System.Drawing.Size(100, 20);
-            this.TileID.TabIndex = 3;
-            this.TileID.Text = "0";
+            this.ChunkCount.AutoSize = true;
+            this.ChunkCount.Location = new System.Drawing.Point(3, 288);
+            this.ChunkCount.Name = "ChunkCount";
+            this.ChunkCount.Size = new System.Drawing.Size(42, 13);
+            this.ChunkCount.TabIndex = 3;
+            this.ChunkCount.Text = "0 / 100";
             // 
-            // ColID
+            // BlockCount
             // 
-            this.ColID.Location = new System.Drawing.Point(3, 89);
-            this.ColID.Name = "ColID";
-            this.ColID.ReadOnly = true;
-            this.ColID.Size = new System.Drawing.Size(100, 20);
-            this.ColID.TabIndex = 4;
-            this.ColID.Text = "0";
+            this.BlockCount.AutoSize = true;
+            this.BlockCount.Location = new System.Drawing.Point(4, 100);
+            this.BlockCount.Name = "BlockCount";
+            this.BlockCount.Size = new System.Drawing.Size(42, 13);
+            this.BlockCount.TabIndex = 3;
+            this.BlockCount.Text = "0 / 400";
+            // 
+            // TileCount
+            // 
+            this.TileCount.AutoSize = true;
+            this.TileCount.Location = new System.Drawing.Point(3, 160);
+            this.TileCount.Name = "TileCount";
+            this.TileCount.Size = new System.Drawing.Size(42, 13);
+            this.TileCount.TabIndex = 4;
+            this.TileCount.Text = "0 / 800";
             // 
             // TileForm
             // 
@@ -717,5 +750,8 @@
         private System.Windows.Forms.Panel panel6;
         private System.Windows.Forms.TextBox TileID;
         private System.Windows.Forms.TextBox ColID;
+        private System.Windows.Forms.Label ChunkCount;
+        private System.Windows.Forms.Label BlockCount;
+        private System.Windows.Forms.Label TileCount;
     }
 }

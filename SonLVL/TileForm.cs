@@ -40,7 +40,8 @@ namespace SonicRetro.SonLVL
                 selectedChunkBlock = new Point();
                 ChunkBlockPropertyGrid.SelectedObject = LevelData.Chunks[selectedChunk].blocks[0, 0];
                 ChunkPicture.Invalidate();
-                ChunkID.Text = selectedChunk.ToString("X4");
+                ChunkID.Text = selectedChunk.ToString("X2");
+                ChunkCount.Text = LevelData.Chunks.Count.ToString("X") + " / 100";
             }
         }
 
@@ -79,7 +80,19 @@ namespace SonicRetro.SonLVL
                 BlockTilePropertyGrid.SelectedObject = LevelData.Blocks[selectedBlock].tiles[0, 0];
                 BlockCollision1.Value = LevelData.ColInds1[selectedBlock];
                 BlockCollision2.Value = LevelData.ColInds2[selectedBlock];
-                BlockID.Text = selectedBlock.ToString("X4");
+                BlockID.Text = selectedBlock.ToString("X3");
+                int blockmax = 0x400;
+                switch (LevelData.EngineVersion)
+                {
+                    case EngineVersion.S2:
+                        blockmax = 0x340;
+                        break;
+                    case EngineVersion.S3K:
+                    case EngineVersion.SKC:
+                        blockmax = 0x300;
+                        break;
+                }
+                BlockCount.Text = LevelData.Blocks.Count.ToString("X") + " / " + blockmax.ToString("X");
                 BlockPicture.Invalidate();
             }
         }
@@ -239,7 +252,8 @@ namespace SonicRetro.SonLVL
             {
                 selectedTile = TileSelector.SelectedIndex;
                 tile = BitmapBits.FromTile(LevelData.Tiles[selectedTile], 0);
-                TileID.Text = selectedTile.ToString("X4");
+                TileID.Text = selectedTile.ToString("X3");
+                TileCount.Text = LevelData.Chunks.Count.ToString("X") + " / 800";
                 TilePicture.Invalidate();
             }
         }
@@ -302,9 +316,20 @@ namespace SonicRetro.SonLVL
         {
             if (e.Button == System.Windows.Forms.MouseButtons.Right)
             {
-                pasteBeforeToolStripMenuItem.Enabled = Clipboard.GetDataObject().GetDataPresent("SonLVLBlock");
+                int blockmax = 0x400;
+                switch (LevelData.EngineVersion)
+                {
+                    case EngineVersion.S2:
+                        blockmax = 0x340;
+                        break;
+                    case EngineVersion.S3K:
+                    case EngineVersion.SKC:
+                        blockmax = 0x300;
+                        break;
+                }
+                pasteBeforeToolStripMenuItem.Enabled = Clipboard.GetDataObject().GetDataPresent("SonLVLBlock") & LevelData.Blocks.Count < blockmax;
                 pasteAfterToolStripMenuItem.Enabled = pasteBeforeToolStripMenuItem.Enabled;
-                importToolStripMenuItem.Enabled = true;
+                importToolStripMenuItem.Enabled = LevelData.Blocks.Count < blockmax;
                 insertAfterToolStripMenuItem.Enabled = importToolStripMenuItem.Enabled;
                 insertBeforeToolStripMenuItem.Enabled = importToolStripMenuItem.Enabled;
                 contextMenuStrip1.Show(BlockSelector, e.Location);
@@ -315,9 +340,9 @@ namespace SonicRetro.SonLVL
         {
             if (e.Button == System.Windows.Forms.MouseButtons.Right)
             {
-                pasteBeforeToolStripMenuItem.Enabled = Clipboard.GetDataObject().GetDataPresent("SonLVLTile");
+                pasteBeforeToolStripMenuItem.Enabled = Clipboard.GetDataObject().GetDataPresent("SonLVLTile") & LevelData.Tiles.Count < 0x800;
                 pasteAfterToolStripMenuItem.Enabled = pasteBeforeToolStripMenuItem.Enabled;
-                importToolStripMenuItem.Enabled = true;
+                importToolStripMenuItem.Enabled = LevelData.Tiles.Count < 0x800;
                 insertAfterToolStripMenuItem.Enabled = importToolStripMenuItem.Enabled;
                 insertBeforeToolStripMenuItem.Enabled = importToolStripMenuItem.Enabled;
                 contextMenuStrip1.Show(TileSelector, e.Location);
@@ -700,7 +725,7 @@ namespace SonicRetro.SonLVL
                     int pal = 0;
                     List<BitmapBits> tiles = new List<BitmapBits>();
                     byte[] tile;
-                    int curtilecnt = LevelData.Tiles.Count / 32;
+                    int curtilecnt = LevelData.Tiles.Count;
                     int curblkcnt = LevelData.Blocks.Count;
                     switch (tabControl1.SelectedIndex)
                     {
