@@ -969,6 +969,8 @@ namespace SonicRetro.SonLVL
                 {
                     Color col = Color.FromArgb(BitConverter.ToInt32(Bits, srcaddr + (x * 4)));
                     bmp[x, y] = (byte)Array.IndexOf(BmpPal.Entries, col.FindNearestMatch(BmpPal.Entries));
+                    if (col.A < 128)
+                        bmp[x, y] = 0;
                 }
             }
         }
@@ -1012,7 +1014,12 @@ namespace SonicRetro.SonLVL
             {
                 int srcaddr = y * Math.Abs(Stride);
                 for (int x = 0; x < bmp.Width; x++)
-                    bmp[x, y] = (byte)Array.IndexOf(BmpPal.Entries, Color.FromArgb(BitConverter.ToUInt16(Bits, srcaddr + (x * 8) + 6) / 255, BitConverter.ToUInt16(Bits, srcaddr + (x * 8) + 4) / 255, BitConverter.ToUInt16(Bits, srcaddr + (x * 8) + 2) / 255, BitConverter.ToUInt16(Bits, srcaddr + (x * 8)) / 255).FindNearestMatch(BmpPal.Entries));
+                {
+                    Color col = Color.FromArgb(BitConverter.ToUInt16(Bits, srcaddr + (x * 8) + 6) / 255, BitConverter.ToUInt16(Bits, srcaddr + (x * 8) + 4) / 255, BitConverter.ToUInt16(Bits, srcaddr + (x * 8) + 2) / 255, BitConverter.ToUInt16(Bits, srcaddr + (x * 8)) / 255);
+                    bmp[x, y] = (byte)Array.IndexOf(BmpPal.Entries, col.FindNearestMatch(BmpPal.Entries));
+                    if (col.A < 128)
+                        bmp[x, y] = 0;
+                }
             }
         }
 

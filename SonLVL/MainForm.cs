@@ -1025,6 +1025,7 @@ namespace SonicRetro.SonLVL
                     case EngineVersion.SCDPC:
                         if (gr.ContainsKey("colind") && File.Exists(gr["colind"]))
                             LevelData.ColInds1.AddRange(Compression.Decompress(gr["colind"], LevelData.ColIndCmp));
+                        LevelData.ColInds2 = LevelData.ColInds1;
                         break;
                     case EngineVersion.S2:
                         if (gr.ContainsKey("colind1") && File.Exists(gr["colind1"]))
