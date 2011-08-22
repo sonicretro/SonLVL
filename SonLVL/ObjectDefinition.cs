@@ -85,6 +85,10 @@ namespace SonicRetro.SonLVL
                     img = ObjectHelper.UnknownObject(out offset);
                     debug = true;
                 }
+
+                string[] off = data["offset"].Split(',');
+                Size delta = new Point(int.Parse(off[0], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo), int.Parse(off[1], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo));
+                offset = offset + delta;
             }
             else if (data.ContainsKey("image"))
             {
@@ -249,6 +253,10 @@ namespace SonicRetro.SonLVL
                 }
                 else
                     img = ObjectHelper.UnknownObject(out offset);
+
+                string[] off = data["offset"].Split(',');
+                Size delta = new Point(int.Parse(off[0], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo), int.Parse(off[1], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo));
+                offset = offset + delta;
             }
             else if (data.ContainsKey("image"))
             {
@@ -329,6 +337,10 @@ namespace SonicRetro.SonLVL
                 }
                 else
                     img = ObjectHelper.UnknownObject(out offset);
+
+                string[] off = data["offset"].Split(',');
+                Size delta = new Point(int.Parse(off[0], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo), int.Parse(off[1], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo));
+                offset = offset + delta;
             }
             else if (data.ContainsKey("image"))
             {
