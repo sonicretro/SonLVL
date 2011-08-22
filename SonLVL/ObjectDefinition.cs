@@ -17,7 +17,7 @@ namespace SonicRetro.SonLVL
         public abstract BitmapBits Image(byte subtype);
         public abstract void Draw(BitmapBits bmp, Point loc, byte subtype, bool XFlip, bool YFlip, bool includeDebug);
         public abstract Rectangle Bounds(Point loc, byte subtype);
-        
+
         public virtual Type ObjectType
         {
             get

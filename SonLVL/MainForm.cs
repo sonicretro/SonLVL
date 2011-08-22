@@ -2454,8 +2454,13 @@ namespace SonicRetro.SonLVL
                                         }
                                         LevelData.FGLayout = newFG;
                                         LevelData.FGLoop = newFGLoop;
+                                        loaded = false;
+                                        hScrollBar1.Minimum = 0;
+                                        vScrollBar1.Minimum = 0;
                                         hScrollBar1.Maximum = (LevelData.FGLayout.GetLength(0) * LevelData.chunksz) - panel1.Width;
                                         vScrollBar1.Maximum = (LevelData.FGLayout.GetLength(1) * LevelData.chunksz) - panel1.Height;
+                                        loaded = true;
+                                        camera = new Point(hScrollBar1.Value, vScrollBar1.Value);
                                         DrawLevel();
                                     }
                                     break;
@@ -2466,9 +2471,9 @@ namespace SonicRetro.SonLVL
                                     {
                                         byte[,] newBG = new byte[(int)dg.levelWidth.Value, (int)dg.levelHeight.Value];
                                         bool[,] newBGLoop = LevelData.LayoutFmt == EngineVersion.S1 ? new bool[(int)dg.levelWidth.Value, (int)dg.levelHeight.Value] : null;
-                                        for (int y = 0; y < Math.Min(dg.levelHeight.Value, LevelData.FGLayout.GetLength(1)); y++)
+                                        for (int y = 0; y < Math.Min(dg.levelHeight.Value, LevelData.BGLayout.GetLength(1)); y++)
                                         {
-                                            for (int x = 0; x < Math.Min(dg.levelWidth.Value, LevelData.FGLayout.GetLength(0)); x++)
+                                            for (int x = 0; x < Math.Min(dg.levelWidth.Value, LevelData.BGLayout.GetLength(0)); x++)
                                             {
                                                 newBG[x, y] = LevelData.BGLayout[x, y];
                                                 if (LevelData.LayoutFmt == EngineVersion.S1)
@@ -2477,8 +2482,13 @@ namespace SonicRetro.SonLVL
                                         }
                                         LevelData.BGLayout = newBG;
                                         LevelData.BGLoop = newBGLoop;
+                                        loaded = false;
+                                        hScrollBar1.Minimum = 0;
+                                        vScrollBar1.Minimum = 0;
                                         hScrollBar1.Maximum = (LevelData.BGLayout.GetLength(0) * LevelData.chunksz) - panel1.Width;
                                         vScrollBar1.Maximum = (LevelData.BGLayout.GetLength(1) * LevelData.chunksz) - panel1.Height;
+                                        loaded = true;
+                                        camera = new Point(hScrollBar1.Value, vScrollBar1.Value);
                                         DrawLevel();
                                     }
                                     break;
