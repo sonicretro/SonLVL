@@ -804,8 +804,8 @@
         private System.Windows.Forms.ToolStripMenuItem hUDToolStripMenuItem;
         internal System.Windows.Forms.ToolStripMenuItem toolWindowToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem layersToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem lowToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem highToolStripMenuItem;
+        internal System.Windows.Forms.ToolStripMenuItem lowToolStripMenuItem;
+        internal System.Windows.Forms.ToolStripMenuItem highToolStripMenuItem;
 
     }
 }

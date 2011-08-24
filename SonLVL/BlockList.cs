@@ -68,8 +68,10 @@ namespace SonicRetro.SonLVL
                 {
                     if (i == selectedIndex)
                         g.DrawRectangle(new Pen(Color.Yellow, 2), actualImageSize * c, (actualImageSize * r) - vScrollBar1.Value, actualImageSize, actualImageSize);
-                    g.DrawImage(Images[i][0], (actualImageSize * c) + 2, (actualImageSize * r) + 2 - vScrollBar1.Value, imageSize, imageSize);
-                    g.DrawImage(Images[i][1], (actualImageSize * c) + 2, (actualImageSize * r) + 2 - vScrollBar1.Value, imageSize, imageSize);
+                    if (LevelData.MainForm.lowToolStripMenuItem.Checked)
+                        g.DrawImage(Images[i][0], (actualImageSize * c) + 2, (actualImageSize * r) + 2 - vScrollBar1.Value, imageSize, imageSize);
+                    if (LevelData.MainForm.highToolStripMenuItem.Checked)
+                        g.DrawImage(Images[i][1], (actualImageSize * c) + 2, (actualImageSize * r) + 2 - vScrollBar1.Value, imageSize, imageSize);
                     i++;
                     if (i == Images.Count) return;
                 }

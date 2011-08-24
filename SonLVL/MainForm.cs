@@ -6,8 +6,8 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using System.Windows.Forms;
 using System.IO;
+using System.Windows.Forms;
 
 namespace SonicRetro.SonLVL
 {
@@ -1895,7 +1895,7 @@ namespace SonicRetro.SonLVL
                             }
                         }
                     }
-                    Rectangle hudbnd;
+                    Rectangle hudbnd = Rectangle.Empty;
                     int ringcnt = 0;
                     switch (LevelData.RingFmt)
                     {
@@ -1920,6 +1920,8 @@ namespace SonicRetro.SonLVL
                         "Objects: " + LevelData.Objects.Count + '\n' +
                         "Rings: " + ringcnt
                         , out hudbnd);
+                    if (EditingMode == EditingModes.PlaneA)
+                        DrawHUDStr(hudbnd.X, hudbnd.Bottom, "Chunk: " + SelectedTile.ToString("X2"), out hudbnd);
                     LevelGfx.DrawImage(LevelImg8bpp.ToBitmap(LevelImgPalette), 0, 0, LevelImg8bpp.Width, LevelImg8bpp.Height);
                     foreach (Entry item in SelectedItems)
                     {
@@ -2004,7 +2006,8 @@ namespace SonicRetro.SonLVL
                     if (hUDToolStripMenuItem.Checked)
                     DrawHUDStr(8, 8,
                         "Screen Pos: " + camera.X.ToString("X4") + ' ' + camera.Y.ToString("X4") + '\n' +
-                        "Level Size: " + (LevelData.BGLayout.GetLength(0) * LevelData.chunksz).ToString("X4") + (LevelData.BGLayout.GetLength(1) * LevelData.chunksz).ToString("X4")
+                        "Level Size: " + (LevelData.BGLayout.GetLength(0) * LevelData.chunksz).ToString("X4") + (LevelData.BGLayout.GetLength(1) * LevelData.chunksz).ToString("X4") + '\n' +
+                        "Chunk: " + SelectedTile.ToString("X2")
                         , out hudbnd);
                     LevelGfx.DrawImage(LevelImg8bpp.ToBitmap(LevelImgPalette), 0, 0, LevelImg8bpp.Width, LevelImg8bpp.Height);
                     if (LevelData.LayoutFmt == EngineVersion.S1)

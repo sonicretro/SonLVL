@@ -48,8 +48,10 @@ namespace SonicRetro.SonLVL
         private void ChunkPicture_Paint(object sender, PaintEventArgs e)
         {
             e.Graphics.Clear(LevelData.PaletteToColor(2, 0, false));
-            e.Graphics.DrawImage(LevelData.ChunkBmps[selectedChunk][0], 0, 0, LevelData.chunksz, LevelData.chunksz);
-            e.Graphics.DrawImage(LevelData.ChunkBmps[selectedChunk][1], 0, 0, LevelData.chunksz, LevelData.chunksz);
+            if (LevelData.MainForm.lowToolStripMenuItem.Checked)
+                e.Graphics.DrawImage(LevelData.ChunkBmps[selectedChunk][0], 0, 0, LevelData.chunksz, LevelData.chunksz);
+            if (LevelData.MainForm.highToolStripMenuItem.Checked)
+                e.Graphics.DrawImage(LevelData.ChunkBmps[selectedChunk][1], 0, 0, LevelData.chunksz, LevelData.chunksz);
             if (LevelData.MainForm.path1ToolStripMenuItem.Checked)
                 e.Graphics.DrawImage(LevelData.ChunkColBmps[selectedChunk][0], 0, 0, LevelData.chunksz, LevelData.chunksz);
             if (LevelData.MainForm.path2ToolStripMenuItem.Checked)
@@ -101,8 +103,10 @@ namespace SonicRetro.SonLVL
         {
             e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
             e.Graphics.Clear(LevelData.PaletteToColor(2, 0, false));
-            e.Graphics.DrawImage(LevelData.BlockBmpBits[selectedBlock][0].Scale(4).ToBitmap(LevelData.BmpPal), 0, 0, 64, 64);
-            e.Graphics.DrawImage(LevelData.BlockBmpBits[selectedBlock][1].Scale(4).ToBitmap(LevelData.BmpPal), 0, 0, 64, 64);
+            if (LevelData.MainForm.lowToolStripMenuItem.Checked)
+                e.Graphics.DrawImage(LevelData.BlockBmpBits[selectedBlock][0].Scale(4).ToBitmap(LevelData.BmpPal), 0, 0, 64, 64);
+            if (LevelData.MainForm.highToolStripMenuItem.Checked)
+                e.Graphics.DrawImage(LevelData.BlockBmpBits[selectedBlock][1].Scale(4).ToBitmap(LevelData.BmpPal), 0, 0, 64, 64);
             if (LevelData.MainForm.path1ToolStripMenuItem.Checked)
                 e.Graphics.DrawImage(LevelData.ColBmps[LevelData.ColInds1[selectedBlock]], 0, 0, 64, 64);
             if (LevelData.MainForm.path2ToolStripMenuItem.Checked)
@@ -940,7 +944,7 @@ namespace SonicRetro.SonLVL
             {
                 selectedCol = CollisionSelector.SelectedIndex;
                 ColAngle.Value = LevelData.Angles[selectedCol];
-                ColID.Text = selectedCol.ToString();
+                ColID.Text = selectedCol.ToString("X2");
                 ChunkPicture.Invalidate();
             }
         }
