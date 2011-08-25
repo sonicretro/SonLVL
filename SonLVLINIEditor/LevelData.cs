@@ -8,6 +8,8 @@ namespace SonLVLINIEditor
 {
     public class GameData
     {
+        internal static MainForm MainForm;
+
         public EngineVersion EngineVersion { get; set; }
         public EngineVersion TileFormat { get; set; }
         public CompressionType TileCompression { get; set; }
@@ -31,7 +33,23 @@ namespace SonLVLINIEditor
         public string ObjectDefinitions { get; set; }
 
         public List<LevelData> levels;
-        private int chunksz;
+
+        public GameData()
+        {
+            EngineVersion = EngineVersion.S2;
+            TileFormat = EngineVersion.S2;
+            BlockFormat = EngineVersion.S2;
+            ChunkFormat = EngineVersion.S2;
+            LayoutFormat = EngineVersion.S2;
+            PaletteFormat = EngineVersion.S2;
+            ObjectFormat = EngineVersion.S2;
+            RingFormat = EngineVersion.S2;
+            CollisionArray1 = string.Empty;
+            CollisionArray2 = string.Empty;
+            Angles = string.Empty;
+            ObjectDefinitions = string.Empty;
+            levels = new List<LevelData>();
+        }
 
         public GameData(string filename)
         {
@@ -43,6 +61,7 @@ namespace SonLVLINIEditor
             BlockFormat = gr.ContainsKey("block16fmt") ? (EngineVersion)Enum.Parse(typeof(EngineVersion), gr["block16fmt"]) : EngineVersion;
             BlockCompression = gr.ContainsKey("block16cmp") ? (CompressionType)Enum.Parse(typeof(CompressionType), gr["block16cmp"]) : CompressionType.Default;
             ChunkFormat = gr.ContainsKey("chunkfmt") ? (EngineVersion)Enum.Parse(typeof(EngineVersion), gr["chunkfmt"]) : EngineVersion;
+            int chunksz = 128;
             switch (ChunkFormat)
             {
                 case EngineVersion.S1:
@@ -66,6 +85,10 @@ namespace SonLVLINIEditor
             CollisionArray2 = gr.GetValueOrDefault("colarr2", string.Empty);
             Angles = gr.GetValueOrDefault("angles", string.Empty);
             ObjectDefinitions = gr.GetValueOrDefault("objlst", string.Empty);
+            levels = new List<LevelData>();
+            foreach (KeyValuePair<string, Dictionary<string, string>> item in ini)
+                if (!string.IsNullOrEmpty(item.Key))
+                    levels.Add(new LevelData(item));
         }
 
         public void Save(string filename)
@@ -83,6 +106,7 @@ namespace SonLVLINIEditor
                 gr.Add("block16cmp", BlockCompression.ToString());
             if (ChunkFormat != EngineVersion)
                 gr.Add("chunkfmt", ChunkFormat.ToString());
+            int chunksz = 128;
             switch (ChunkFormat)
             {
                 case EngineVersion.S1:
@@ -122,7 +146,8 @@ namespace SonLVLINIEditor
 
     public class LevelData
     {
-        public string Name { get; set; }
+        private string name;
+        public string Name { get { return name; } set { name = value; GameData.MainForm.ChangeLevelName(); } }
         public List<FileInfo> Tiles { get; set; }
         public EngineVersion TileFormat { get; set; }
         public CompressionType TileCompression { get; set; }
@@ -142,10 +167,7 @@ namespace SonLVLINIEditor
         public string BGLayout { get; set; }
         public EngineVersion LayoutFormat { get; set; }
         public CompressionType LayoutCompression { get; set; }
-        public List<string> PalName { get; set; }
-        public List<ushort[,]> Palette { get; set; }
-        public List<byte[,]> PalNum { get; set; }
-        public List<int[,]> PalAddr { get; set; }
+        public Dictionary<string, List<PaletteInfo>> Palettes;
         public EngineVersion PaletteFormat { get; set; }
         [Editor(typeof(FileNameEditor), typeof(UITypeEditor))]
         public string Objects { get; set; }
@@ -172,6 +194,16 @@ namespace SonLVLINIEditor
         public TimeZone TimeZone { get; set; }
         [Editor(typeof(FileNameEditor), typeof(UITypeEditor))]
         public string ObjectDefinitions { get; set; }
+
+        public LevelData()
+        {
+            name = "* NEW *";
+        }
+
+        public LevelData(KeyValuePair<string, Dictionary<string, string>> data)
+        {
+
+        }
     }
 
     public class FileInfo
@@ -194,6 +226,28 @@ namespace SonLVLINIEditor
                 return FileName + ':' + Offset;
             else
                 return FileName;
+        }
+    }
+
+    public class PaletteInfo
+    {
+        public string FileName { get; set; }
+        public int SourceOffset { get; set; }
+        public int DestinationOffset { get; set; }
+        public int Length { get; set; }
+
+        public PaletteInfo(string data)
+        {
+            string[] split = data.Split(':');
+            FileName = split[0];
+            SourceOffset = int.Parse(split[1], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo);
+            DestinationOffset = int.Parse(split[2], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo);
+            Length = int.Parse(split[3], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo);
+        }
+
+        public override string ToString()
+        {
+            return FileName + ':' + SourceOffset + ':' + DestinationOffset + ':' + Length;
         }
     }
 
