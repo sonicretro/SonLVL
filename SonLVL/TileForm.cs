@@ -257,7 +257,7 @@ namespace SonicRetro.SonLVL
                 selectedTile = TileSelector.SelectedIndex;
                 tile = BitmapBits.FromTile(LevelData.Tiles[selectedTile], 0);
                 TileID.Text = selectedTile.ToString("X3");
-                TileCount.Text = LevelData.Chunks.Count.ToString("X") + " / 800";
+                TileCount.Text = LevelData.Tiles.Count.ToString("X") + " / 800";
                 TilePicture.Invalidate();
             }
         }
