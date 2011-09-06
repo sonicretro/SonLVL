@@ -183,6 +183,49 @@ namespace SonicRetro.SonLVL
             return res.ToArray();
         }
 
+        public void Rotate(int R)
+        {
+            byte[] tmppix = new byte[Bits.Length];
+            switch (R)
+            {
+                case 1:
+                    for (int y = 0; y < Height; y++)
+                    {
+                        int srcaddr = y * Width;
+                        int dstaddr = (Width * (Width - 1)) + y;
+                        for (int x = 0; x < Width; x++)
+                        {
+                            tmppix[dstaddr] = Bits[srcaddr + x];
+                            dstaddr -= Width;
+                        }
+                    }
+                    Bits = tmppix;
+                    int h = Height;
+                    Height = Width;
+                    Width = h;
+                    break;
+                case 2:
+                    Flip(true, true);
+                    break;
+                case 3:
+                    for (int y = 0; y < Height; y++)
+                    {
+                        int srcaddr = y * Width;
+                        int dstaddr = Height - 1 - y;
+                        for (int x = 0; x < Width; x++)
+                        {
+                            tmppix[dstaddr] = Bits[srcaddr + x];
+                            dstaddr += Width;
+                        }
+                    }
+                    Bits = tmppix;
+                    h = Height;
+                    Height = Width;
+                    Width = h;
+                    break;
+            }
+        }
+
         public BitmapBits Scale(int factor)
         {
             BitmapBits res = new BitmapBits(Width * factor, Height * factor);

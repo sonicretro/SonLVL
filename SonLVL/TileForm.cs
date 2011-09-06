@@ -1003,5 +1003,24 @@ namespace SonicRetro.SonLVL
             LevelData.MainForm.tileEditorToolStripMenuItem.Checked = false;
             e.Cancel = true;
         }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            tile.Rotate(3);
+            LevelData.Tiles[selectedTile] = tile.ToTile();
+            LevelData.Tiles[selectedTile].CopyTo(LevelData.TileArray, selectedTile * 32);
+            for (int i = 0; i < LevelData.Blocks.Count; i++)
+            {
+                bool dr = false;
+                for (int y = 0; y < 2; y++)
+                    for (int x = 0; x < 2; x++)
+                        if (LevelData.Blocks[i].tiles[x, y].Tile == selectedTile)
+                            dr = true;
+                if (dr)
+                    LevelData.RedrawBlock(i, true);
+            }
+            TileSelector.Images[selectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[selectedTile], 0, 2);
+            TilePicture.Invalidate();
+        }
     }
 }
