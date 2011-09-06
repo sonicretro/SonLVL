@@ -727,7 +727,10 @@ namespace SonicRetro.SonLVL
                     int w = bmp.Width;
                     int h = bmp.Height;
                     int pal = 0;
+                    bool match = false;
                     List<BitmapBits> tiles = new List<BitmapBits>();
+                    List<Block> blocks = new List<Block>();
+                    List<Chunk> chunks = new List<Chunk>();
                     byte[] tile;
                     int curtilecnt = LevelData.Tiles.Count;
                     int curblkcnt = LevelData.Blocks.Count;
@@ -748,7 +751,7 @@ namespace SonicRetro.SonLVL
                                                     tile = LevelData.BmpToTile(bmp.Clone(new Rectangle((cx * 16) + (bx * 16) + (x * 8), (cy * 16) + (by * 16) + (y * 8), 8, 8), bmp.PixelFormat), out pal);
                                                     blk.tiles[x, y].Palette = (byte)pal;
                                                     BitmapBits bits = BitmapBits.FromTile(tile, 0);
-                                                    bool match = false;
+                                                    match = false;
                                                     for (int i = 0; i < tiles.Count; i++)
                                                     {
                                                         if (tiles[i].Equals(bits))
@@ -794,6 +797,18 @@ namespace SonicRetro.SonLVL
                                                     LevelData.UpdateTileArray();
                                                     TileSelector.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[selectedTile], 0, 2));
                                                 }
+                                            match = false;
+                                            for (int i = 0; i < blocks.Count; i++)
+                                            {
+                                                if (blk.Equals(blocks[i]))
+                                                {
+                                                    match = true;
+                                                    cnk.blocks[bx, by].Block = (ushort)i;
+                                                    break;
+                                                }
+                                            }
+                                            if (match) continue;
+                                            blocks.Add(blk);
                                             LevelData.Blocks.Add(blk);
                                             LevelData.ColInds1.Add(0);
                                             if (LevelData.EngineVersion == EngineVersion.S2 || LevelData.EngineVersion == EngineVersion.S3K || LevelData.EngineVersion == EngineVersion.SKC)
@@ -805,6 +820,17 @@ namespace SonicRetro.SonLVL
                                             LevelData.RedrawBlock(selectedBlock, false);
                                             cnk.blocks[bx, by].Block = (ushort)selectedBlock;
                                         }
+                                    match = false;
+                                    for (int i = 0; i < chunks.Count; i++)
+                                    {
+                                        if (cnk.Equals(chunks[i]))
+                                        {
+                                            match = true;
+                                            break;
+                                        }
+                                    }
+                                    if (match) continue;
+                                    chunks.Add(cnk);
                                     LevelData.Chunks.Add(cnk);
                                     selectedChunk = LevelData.Chunks.Count - 1;
                                     LevelData.ChunkBmpBits.Add(new BitmapBits[2]);
@@ -828,7 +854,7 @@ namespace SonicRetro.SonLVL
                                             tile = LevelData.BmpToTile(bmp.Clone(new Rectangle((bx * 16) + (x * 8), (by * 16) + (y * 8), 8, 8), bmp.PixelFormat), out pal);
                                             blk.tiles[x, y].Palette = (byte)pal;
                                             BitmapBits bits = BitmapBits.FromTile(tile, 0);
-                                            bool match = false;
+                                            match = false;
                                             for (int i = 0; i < tiles.Count; i++)
                                             {
                                                 if (tiles[i].Equals(bits))
@@ -874,6 +900,17 @@ namespace SonicRetro.SonLVL
                                             LevelData.UpdateTileArray();
                                             TileSelector.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[selectedTile], 0, 2));
                                         }
+                                    match = false;
+                                    for (int i = 0; i < blocks.Count; i++)
+                                    {
+                                        if (blk.Equals(blocks[i]))
+                                        {
+                                            match = true;
+                                            break;
+                                        }
+                                    }
+                                    if (match) continue;
+                                    blocks.Add(blk);
                                     LevelData.Blocks.Add(blk);
                                     LevelData.ColInds1.Add(0);
                                     if (LevelData.EngineVersion == EngineVersion.S2 || LevelData.EngineVersion == EngineVersion.S3K || LevelData.EngineVersion == EngineVersion.SKC)
@@ -893,7 +930,7 @@ namespace SonicRetro.SonLVL
                                 {
                                     tile = LevelData.BmpToTile(bmp.Clone(new Rectangle(x * 8, y * 8, 8, 8), bmp.PixelFormat), out pal);
                                     BitmapBits bits = BitmapBits.FromTile(tile, 0);
-                                    bool match = false;
+                                    match = false;
                                     for (int i = 0; i < tiles.Count; i++)
                                     {
                                         if (tiles[i].Equals(bits))

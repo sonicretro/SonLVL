@@ -74,6 +74,23 @@ namespace SonicRetro.SonLVL
             if (Priority) val |= 0x8000;
             return ByteConverter.GetBytes(val);
         }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is PatternIndex)) return false;
+            PatternIndex other = (PatternIndex)obj;
+            if (Priority != other.Priority) return false;
+            if (Palette != other.Palette) return false;
+            if (XFlip != other.XFlip) return false;
+            if (YFlip != other.YFlip) return false;
+            if (Tile != other.Tile) return false;
+            return true;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 
     internal class Block
@@ -105,6 +122,21 @@ namespace SonicRetro.SonLVL
                 for (int x = 0; x < 2; x++)
                     val.AddRange(tiles[x, y].GetBytes());
             return val.ToArray();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is Block)) return false;
+            Block other = (Block)obj;
+            for (int y = 0; y < 2; y++)
+                for (int x = 0; x < 2; x++)
+                    if (tiles[x, y] != other.tiles[x, y]) return false;
+            return true;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
     }
 
@@ -164,6 +196,22 @@ namespace SonicRetro.SonLVL
         public static int Size { get { return 2; } }
 
         public abstract byte[] GetBytes();
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is ChunkBlock)) return false;
+            ChunkBlock other = (ChunkBlock)obj;
+            if (Solid1 != other.Solid1) return false;
+            if (XFlip != other.XFlip) return false;
+            if (YFlip != other.YFlip) return false;
+            if (Block != other.Block) return false;
+            return true;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 
     internal class S2ChunkBlock : ChunkBlock
@@ -202,6 +250,20 @@ namespace SonicRetro.SonLVL
             val |= (ushort)(_so2 << 14);
             return ByteConverter.GetBytes(val);
         }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is S2ChunkBlock)) return false;
+            if (!base.Equals(obj)) return false;
+            S2ChunkBlock other = (S2ChunkBlock)obj;
+            if (Solid2 != other.Solid2) return false;
+            return true;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 
     internal class S1ChunkBlock : ChunkBlock
@@ -224,6 +286,17 @@ namespace SonicRetro.SonLVL
             if (YFlip) val |= 0x1000;
             val |= (ushort)(_so1 << 13);
             return ByteConverter.GetBytes(val);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is S1ChunkBlock)) return false;
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
     }
 
@@ -289,6 +362,21 @@ namespace SonicRetro.SonLVL
                     val.AddRange(blocks[x, y].GetBytes());
             return val.ToArray();
         }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is Chunk)) return false;
+            Chunk other = (Chunk)obj;
+            for (int y = 0; y < size; y++)
+                for (int x = 0; x < size; x++)
+                    if (blocks[x, y] != other.blocks[x, y]) return false;
+            return true;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 
     [Serializable()]
@@ -327,7 +415,7 @@ namespace SonicRetro.SonLVL
                 foreach (char item in value)
                     if (!char.IsWhiteSpace(item))
                         data += item;
-                byte[] bytes =GetBytes();
+                byte[] bytes = GetBytes();
                 data = data.PadRight(bytes.Length * 2, '0');
                 data = data.Substring(0, bytes.Length * 2);
                 for (int i = 0; i < bytes.Length; i++)
@@ -1028,9 +1116,9 @@ namespace SonicRetro.SonLVL
             switch (version)
             {
                 case EngineVersion.S2:
-            TileNum = ByteConverter.ToUInt16(file, address);
-            TileCount = (byte)((TileNum >> 12) + 1);
-            TileNum &= 0xFFF;
+                    TileNum = ByteConverter.ToUInt16(file, address);
+                    TileCount = (byte)((TileNum >> 12) + 1);
+                    TileNum &= 0xFFF;
                     break;
                 case EngineVersion.S3K:
                 case EngineVersion.SKC:
