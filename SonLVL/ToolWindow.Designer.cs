@@ -35,7 +35,7 @@
             this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
             this.objPicture = new System.Windows.Forms.PictureBox();
             this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.ChunkSelector = new SonicRetro.SonLVL.BlockList();
+            this.ChunkSelector = new SonicRetro.SonLVL.TileList();
             this.tabControl1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -164,7 +164,7 @@
 
         #endregion
 
-        internal BlockList ChunkSelector;
+        internal TileList ChunkSelector;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;

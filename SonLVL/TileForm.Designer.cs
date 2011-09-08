@@ -32,7 +32,7 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.ChunkSelector = new SonicRetro.SonLVL.BlockList();
+            this.ChunkSelector = new SonicRetro.SonLVL.TileList();
             this.panel4 = new System.Windows.Forms.Panel();
             this.ChunkCount = new System.Windows.Forms.Label();
             this.ChunkID = new System.Windows.Forms.TextBox();
@@ -40,7 +40,7 @@
             this.ChunkBlockPropertyGrid = new System.Windows.Forms.PropertyGrid();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.BlockSelector = new SonicRetro.SonLVL.BlockList();
+            this.BlockSelector = new SonicRetro.SonLVL.TileList();
             this.panel5 = new System.Windows.Forms.Panel();
             this.BlockCount = new System.Windows.Forms.Label();
             this.BlockID = new System.Windows.Forms.TextBox();
@@ -722,11 +722,11 @@
         private System.Windows.Forms.TabPage tabPage2;
         internal System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        internal SonicRetro.SonLVL.BlockList ChunkSelector;
+        internal SonicRetro.SonLVL.TileList ChunkSelector;
         private System.Windows.Forms.PropertyGrid ChunkBlockPropertyGrid;
         internal System.Windows.Forms.Panel ChunkPicture;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
-        internal SonicRetro.SonLVL.BlockList BlockSelector;
+        internal SonicRetro.SonLVL.TileList BlockSelector;
         internal System.Windows.Forms.Panel BlockPicture;
         private System.Windows.Forms.PropertyGrid BlockTilePropertyGrid;
         private System.Windows.Forms.Panel panel2;

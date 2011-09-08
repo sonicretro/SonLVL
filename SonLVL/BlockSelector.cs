@@ -9,7 +9,7 @@ namespace SonicRetro.SonLVL
 {
     public class BlockControl : UserControl
     {
-        internal BlockList listView1;
+        internal TileList listView1;
         public ushort value { get; private set; }
         private IWindowsFormsEditorService edSvc;
 
@@ -22,7 +22,7 @@ namespace SonicRetro.SonLVL
 
         private void InitializeComponent()
         {
-            this.listView1 = new BlockList();
+            this.listView1 = new TileList();
             this.SuspendLayout();
             // 
             // listView1
@@ -47,7 +47,7 @@ namespace SonicRetro.SonLVL
 
         private void IDControl_Load(object sender, EventArgs e)
         {
-            listView1.Images = LevelData.BlockBmps;
+            listView1.Images = LevelData.CompBlockBmps;
             listView1.ChangeSize();
         }
 
@@ -100,8 +100,7 @@ namespace SonicRetro.SonLVL
         {
             ushort val = ushort.Parse((string)e.Value, System.Globalization.NumberStyles.HexNumber);
             if (val >= LevelData.Blocks.Count) return;
-            e.Graphics.DrawImage(LevelData.BlockBmps[val][0], e.Bounds);
-            e.Graphics.DrawImage(LevelData.BlockBmps[val][1], e.Bounds);
+            e.Graphics.DrawImage(LevelData.CompBlockBmps[val], e.Bounds);
         }
 
         public override bool IsDropDownResizable

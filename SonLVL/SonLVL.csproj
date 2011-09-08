@@ -108,12 +108,6 @@
     <Compile Include="AddLineDialog.Designer.cs">
       <DependentUpon>AddLineDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="BlockList.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="BlockList.Designer.cs">
-      <DependentUpon>BlockList.cs</DependentUpon>
-    </Compile>
     <Compile Include="DataTypes.cs" />
     <Compile Include="ByteConverter.cs" />
     <Compile Include="Extensions.cs" />
@@ -180,9 +174,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="AddLineDialog.resx">
       <DependentUpon>AddLineDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="BlockList.resx">
-      <DependentUpon>BlockList.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="CollisionSelector.resx">
       <DependentUpon>CollisionSelector.cs</DependentUpon>

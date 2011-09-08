@@ -1095,11 +1095,15 @@ namespace SonicRetro.SonLVL
                     LevelData.Angles = new byte[256];
                 LevelData.BlockBmps = new List<Bitmap[]>();
                 LevelData.BlockBmpBits = new List<BitmapBits[]>();
+                LevelData.CompBlockBmps = new List<Bitmap>();
+                LevelData.CompBlockBmpBits = new List<BitmapBits>();
                 Log("Drawing block bitmaps...");
                 for (int bi = 0; bi < LevelData.Blocks.Count; bi++)
                 {
                     LevelData.BlockBmps.Add(new Bitmap[2]);
                     LevelData.BlockBmpBits.Add(new BitmapBits[2]);
+                    LevelData.CompBlockBmps.Add(null);
+                    LevelData.CompBlockBmpBits.Add(null);
                     LevelData.RedrawBlock(bi, false);
                 }
                 LevelData.ColBmps = new Bitmap[256];
@@ -1110,6 +1114,8 @@ namespace SonicRetro.SonLVL
                 LevelData.ChunkBmpBits = new List<BitmapBits[]>();
                 LevelData.ChunkColBmps = new List<Bitmap[]>();
                 LevelData.ChunkColBmpBits = new List<BitmapBits[]>();
+                LevelData.CompChunkBmps = new List<Bitmap>();
+                LevelData.CompChunkBmpBits = new List<BitmapBits>();
                 Log("Drawing chunk bitmaps...");
                 for (int ci = 0; ci < LevelData.Chunks.Count; ci++)
                 {
@@ -1117,6 +1123,8 @@ namespace SonicRetro.SonLVL
                     LevelData.ChunkBmpBits.Add(new BitmapBits[2]);
                     LevelData.ChunkColBmps.Add(new Bitmap[2]);
                     LevelData.ChunkColBmpBits.Add(new BitmapBits[2]);
+                    LevelData.CompChunkBmps.Add(null);
+                    LevelData.CompChunkBmpBits.Add(null);
                     LevelData.RedrawChunk(ci);
                 }
                 Log("Creating level bitmap...");
@@ -1158,11 +1166,11 @@ namespace SonicRetro.SonLVL
                 EditControls.propertyGrid1.PropertyValueChanged += new PropertyValueChangedEventHandler(EditControls_propertyGrid1_PropertyValueChanged);
                 Activate();
             }
-            EditControls.ChunkSelector.Images = LevelData.ChunkBmps;
-            TileEditor.ChunkSelector.Images = LevelData.ChunkBmps;
+            EditControls.ChunkSelector.Images = LevelData.CompChunkBmps;
+            TileEditor.ChunkSelector.Images = LevelData.CompChunkBmps;
             EditControls.ChunkSelector.ImageSize = LevelData.chunksz;
             TileEditor.ChunkSelector.ImageSize = LevelData.chunksz;
-            TileEditor.BlockSelector.Images = LevelData.BlockBmps;
+            TileEditor.BlockSelector.Images = LevelData.CompBlockBmps;
             TileEditor.BlockSelector.ChangeSize();
             TileEditor.CollisionSelector.Images = new List<Bitmap>(LevelData.ColBmps);
             TileEditor.CollisionSelector.ChangeSize();
@@ -3155,30 +3163,16 @@ namespace SonicRetro.SonLVL
         {
             FolderBrowserDialog a = new FolderBrowserDialog() { SelectedPath = Environment.CurrentDirectory };
             if (a.ShowDialog() == DialogResult.OK)
-            {
                 for (int i = 0; i < LevelData.Blocks.Count; i++)
-                {
-                    BitmapBits bmp = new BitmapBits(16, 16);
-                    bmp.DrawBitmapComposited(LevelData.BlockBmpBits[i][0], new Point(0, 0));
-                    bmp.DrawBitmapComposited(LevelData.BlockBmpBits[i][1], new Point(0, 0));
-                    bmp.ToBitmap(LevelData.BmpPal).Save(System.IO.Path.Combine(a.SelectedPath, i + ".png"));
-                }
-            }
+                    LevelData.CompBlockBmps[i].Save(System.IO.Path.Combine(a.SelectedPath, i + ".png"));
         }
 
         private void chunksToolStripMenuItem_Click(object sender, EventArgs e)
         {
             FolderBrowserDialog a = new FolderBrowserDialog() { SelectedPath = Environment.CurrentDirectory };
             if (a.ShowDialog() == DialogResult.OK)
-            {
                 for (int i = 0; i < LevelData.Chunks.Count; i++)
-                {
-                    BitmapBits bmp = new BitmapBits(LevelData.chunksz, LevelData.chunksz);
-                    bmp.DrawBitmapComposited(LevelData.ChunkBmpBits[i][0], new Point(0, 0));
-                    bmp.DrawBitmapComposited(LevelData.ChunkBmpBits[i][1], new Point(0, 0));
-                    bmp.ToBitmap(LevelData.BmpPal).Save(System.IO.Path.Combine(a.SelectedPath, i + ".png"));
-                }
-            }
+                    LevelData.CompChunkBmps[i].Save(System.IO.Path.Combine(a.SelectedPath, i + ".png"));
         }
 
         private void foregroundToolStripMenuItem_Click(object sender, EventArgs e)

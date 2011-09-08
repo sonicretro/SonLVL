@@ -14,12 +14,16 @@ namespace SonicRetro.SonLVL
         internal static Compression.CompressionType TileCmp;
         internal static MultiFileIndexer<Block> Blocks;
         internal static List<BitmapBits[]> BlockBmpBits;
+        internal static List<BitmapBits> CompBlockBmpBits;
         internal static List<Bitmap[]> BlockBmps;
+        internal static List<Bitmap> CompBlockBmps;
         internal static EngineVersion BlockFmt;
         internal static Compression.CompressionType BlockCmp;
         internal static MultiFileIndexer<Chunk> Chunks;
         internal static List<BitmapBits[]> ChunkBmpBits;
+        internal static List<BitmapBits> CompChunkBmpBits;
         internal static List<Bitmap[]> ChunkBmps;
+        internal static List<Bitmap> CompChunkBmps;
         internal static EngineVersion ChunkFmt;
         internal static Compression.CompressionType ChunkCmp;
         internal static byte[,] FGLayout;
@@ -484,6 +488,7 @@ namespace SonicRetro.SonLVL
         {
             BlockBmpBits[block][0] = new BitmapBits(16, 16);
             BlockBmpBits[block][1] = new BitmapBits(16, 16);
+            CompBlockBmpBits[block] = new BitmapBits(16, 16);
             for (int by = 0; by < 2; by++)
             {
                 for (int bx = 0; bx < 2; bx++)
@@ -498,8 +503,11 @@ namespace SonicRetro.SonLVL
                         );
                 }
             }
+            CompBlockBmpBits[block].DrawBitmapComposited(BlockBmpBits[block][0], Point.Empty);
+            CompBlockBmpBits[block].DrawBitmapComposited(BlockBmpBits[block][1], Point.Empty);
             BlockBmps[block][0] = BlockBmpBits[block][0].ToBitmap(BmpPal);
             BlockBmps[block][1] = BlockBmpBits[block][1].ToBitmap(BmpPal);
+            CompBlockBmps[block] = CompBlockBmpBits[block].ToBitmap(BmpPal);
             if (drawChunks)
             {
                 for (int i = 0; i < Chunks.Count; i++)
@@ -521,6 +529,7 @@ namespace SonicRetro.SonLVL
             ChunkBmpBits[chunk][1] = new BitmapBits(chunksz, chunksz);
             ChunkColBmpBits[chunk][0] = new BitmapBits(chunksz, chunksz);
             ChunkColBmpBits[chunk][1] = new BitmapBits(chunksz, chunksz);
+            CompChunkBmpBits[chunk] = new BitmapBits(chunksz, chunksz);
             for (int by = 0; by < chunksz / 16; by++)
             {
                 for (int bx = 0; bx < chunksz / 16; bx++)
@@ -552,12 +561,15 @@ namespace SonicRetro.SonLVL
                     }
                 }
             }
+            CompChunkBmpBits[chunk].DrawBitmapComposited(ChunkBmpBits[chunk][0], Point.Empty);
+            CompChunkBmpBits[chunk].DrawBitmapComposited(ChunkBmpBits[chunk][1], Point.Empty);
             ChunkBmps[chunk][0] = ChunkBmpBits[chunk][0].ToBitmap(BmpPal);
             ChunkBmps[chunk][1] = ChunkBmpBits[chunk][1].ToBitmap(BmpPal);
             ChunkColBmps[chunk][0] = ChunkColBmpBits[chunk][0].ToBitmap(Color.Transparent, Color.White, Color.Yellow, Color.Black);
             ChunkColBmps[chunk][1] = ChunkColBmpBits[chunk][1].ToBitmap(Color.Transparent, Color.White, Color.Yellow, Color.Black);
             ChunkColBmpBits[chunk][0].IncrementIndexes(63);
             ChunkColBmpBits[chunk][1].IncrementIndexes(63);
+            CompChunkBmps[chunk] = CompChunkBmpBits[chunk].ToBitmap(BmpPal);
         }
 
         internal static ObjectDefinition getObjectDefinition(byte ID)
