@@ -3404,6 +3404,7 @@ namespace SonicRetro.SonLVL
                 }
             }
             Properties.Settings.Default.ShowHUD = hUDToolStripMenuItem.Checked;
+            Properties.Settings.Default.Save();
         }
 
         private void LoadObjectDefinitions(string file)
