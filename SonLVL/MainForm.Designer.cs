@@ -101,6 +101,7 @@
             this.copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pasteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setupEmulatorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.contextMenuStrip1.SuspendLayout();
@@ -113,6 +114,7 @@
             this.changeLevelToolStripMenuItem,
             this.saveToolStripMenuItem,
             this.buildAndRunToolStripMenuItem,
+            this.setupEmulatorToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
@@ -121,7 +123,7 @@
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
             this.openToolStripMenuItem.Text = "&Open...";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
@@ -130,7 +132,7 @@
             this.changeLevelToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.noneToolStripMenuItem});
             this.changeLevelToolStripMenuItem.Name = "changeLevelToolStripMenuItem";
-            this.changeLevelToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
+            this.changeLevelToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
             this.changeLevelToolStripMenuItem.Text = "&Change Level...";
             // 
             // noneToolStripMenuItem
@@ -144,7 +146,7 @@
             // 
             this.saveToolStripMenuItem.Enabled = false;
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
             this.saveToolStripMenuItem.Text = "&Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
@@ -152,14 +154,14 @@
             // 
             this.buildAndRunToolStripMenuItem.Enabled = false;
             this.buildAndRunToolStripMenuItem.Name = "buildAndRunToolStripMenuItem";
-            this.buildAndRunToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
+            this.buildAndRunToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
             this.buildAndRunToolStripMenuItem.Text = "&Build and Run...";
             this.buildAndRunToolStripMenuItem.Click += new System.EventHandler(this.buildAndRunToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
             this.exitToolStripMenuItem.Text = "E&xit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -605,8 +607,8 @@
             // 
             // vScrollBar1
             // 
-            this.vScrollBar1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)));
+            this.vScrollBar1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.vScrollBar1.Enabled = false;
             this.vScrollBar1.LargeChange = 128;
             this.vScrollBar1.Location = new System.Drawing.Point(641, 0);
@@ -619,8 +621,8 @@
             // 
             // hScrollBar1
             // 
-            this.hScrollBar1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.hScrollBar1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.hScrollBar1.Enabled = false;
             this.hScrollBar1.LargeChange = 128;
             this.hScrollBar1.Location = new System.Drawing.Point(0, 486);
@@ -708,6 +710,13 @@
             this.deleteToolStripMenuItem.Size = new System.Drawing.Size(198, 22);
             this.deleteToolStripMenuItem.Text = "&Delete";
             this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
+            // 
+            // setupEmulatorToolStripMenuItem
+            // 
+            this.setupEmulatorToolStripMenuItem.Name = "setupEmulatorToolStripMenuItem";
+            this.setupEmulatorToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.setupEmulatorToolStripMenuItem.Text = "Setup E&mulator...";
+            this.setupEmulatorToolStripMenuItem.Click += new System.EventHandler(this.setupEmulatorToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -806,6 +815,7 @@
         private System.Windows.Forms.ToolStripMenuItem layersToolStripMenuItem;
         internal System.Windows.Forms.ToolStripMenuItem lowToolStripMenuItem;
         internal System.Windows.Forms.ToolStripMenuItem highToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem setupEmulatorToolStripMenuItem;
 
     }
 }

@@ -88,6 +88,7 @@ namespace SonicRetro.SonLVL
             hUDToolStripMenuItem.Checked = Properties.Settings.Default.ShowHUD;
             if (System.Diagnostics.Debugger.IsAttached)
                 logToolStripMenuItem_Click(sender, e);
+            setupEmulatorToolStripMenuItem.Checked = !string.IsNullOrEmpty(Properties.Settings.Default.Emulator);
             if (Program.args.Length > 0)
             {
                 PanelGfx = panel1.CreateGraphics();
@@ -171,7 +172,7 @@ namespace SonicRetro.SonLVL
                 }
                 Text = LevelData.EngineVersion.ToString() + "LVL";
                 Log("Game type is " + LevelData.EngineVersion.ToString() + ".");
-                buildAndRunToolStripMenuItem.Enabled = ini[string.Empty].ContainsKey("buildscr") & ini[string.Empty].ContainsKey("runcmd");
+                buildAndRunToolStripMenuItem.Enabled = ini[string.Empty].ContainsKey("buildscr") & (ini[string.Empty].ContainsKey("romfile") | ini[string.Empty].ContainsKey("runcmd"));
             }
         }
 
@@ -275,7 +276,7 @@ namespace SonicRetro.SonLVL
                 }
                 Text = LevelData.EngineVersion.ToString() + "LVL";
                 Log("Game type is " + LevelData.EngineVersion.ToString() + ".");
-                buildAndRunToolStripMenuItem.Enabled = ini[string.Empty].ContainsKey("buildscr") & ini[string.Empty].ContainsKey("runcmd");
+                buildAndRunToolStripMenuItem.Enabled = ini[string.Empty].ContainsKey("buildscr") & (ini[string.Empty].ContainsKey("romfile") | ini[string.Empty].ContainsKey("runcmd"));
             }
         }
 
@@ -4135,7 +4136,16 @@ namespace SonicRetro.SonLVL
         private void buildAndRunToolStripMenuItem_Click(object sender, EventArgs e)
         {
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(System.IO.Path.Combine(Environment.CurrentDirectory, ini[string.Empty]["buildscr"])) { WorkingDirectory = System.IO.Path.GetDirectoryName(System.IO.Path.Combine(Environment.CurrentDirectory, ini[string.Empty]["buildscr"])) }).WaitForExit();
-            System.Diagnostics.Process.Start(System.IO.Path.Combine(Environment.CurrentDirectory, ini[string.Empty]["runcmd"]));
+            string romfile = ini[string.Empty].GetValueOrDefault("romfile", null);
+            if (romfile == null)
+                romfile = ini[string.Empty].GetValueOrDefault("runcmd", null);
+            if (bool.Parse(ini[string.Empty].GetValueOrDefault("useemu", "true")))
+                if (!string.IsNullOrEmpty(Properties.Settings.Default.Emulator))
+                    System.Diagnostics.Process.Start(Properties.Settings.Default.Emulator, '"' + System.IO.Path.Combine(Environment.CurrentDirectory, ini[string.Empty]["romfile"]) + '"');
+                else
+                    MessageBox.Show("You must set up an emulator before you can run the ROM, use File -> Setup Emulator.");
+            else
+                System.Diagnostics.Process.Start(System.IO.Path.Combine(Environment.CurrentDirectory, ini[string.Empty]["romfile"]));
         }
 
         private void currentOnlyToolStripMenuItem_Click(object sender, EventArgs e)
@@ -4196,6 +4206,23 @@ namespace SonicRetro.SonLVL
         private void highToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DrawLevel();
+        }
+
+        private void setupEmulatorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog opn = new OpenFileDialog() { DefaultExt = "exe", Filter = "EXE Files|*.exe|All Files|*.*", RestoreDirectory = true })
+            {
+                if (!string.IsNullOrEmpty(Properties.Settings.Default.Emulator))
+                {
+                    opn.FileName = Path.GetFileName(Properties.Settings.Default.Emulator);
+                    opn.InitialDirectory = Path.GetDirectoryName(Properties.Settings.Default.Emulator);
+                }
+                if (opn.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    Properties.Settings.Default.Emulator = opn.FileName;
+                    setupEmulatorToolStripMenuItem.Checked = true;
+                }
+            }
         }
     }
 
