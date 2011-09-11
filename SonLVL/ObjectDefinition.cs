@@ -27,6 +27,7 @@ namespace SonicRetro.SonLVL
                     case EngineVersion.S1:
                         return typeof(S1ObjectEntry);
                     case EngineVersion.S2:
+                    case EngineVersion.S2NA:
                         return typeof(S2ObjectEntry);
                     case EngineVersion.S3K:
                     case EngineVersion.SKC:

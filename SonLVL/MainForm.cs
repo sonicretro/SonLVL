@@ -152,6 +152,7 @@ namespace SonicRetro.SonLVL
                         LevelData.littleendian = true;
                         break;
                     case EngineVersion.S2:
+                    case EngineVersion.S2NA:
                         LevelData.chunksz = 128;
                         Icon = Properties.Resources.telemon;
                         LevelData.UnknownImg = Properties.Resources.UnknownImg.Copy();
@@ -256,6 +257,7 @@ namespace SonicRetro.SonLVL
                         LevelData.littleendian = true;
                         break;
                     case EngineVersion.S2:
+                    case EngineVersion.S2NA:
                         LevelData.chunksz = 128;
                         Icon = Properties.Resources.telemon;
                         LevelData.UnknownImg = Properties.Resources.UnknownImg.Copy();
@@ -345,6 +347,7 @@ namespace SonicRetro.SonLVL
                         LevelData.chunksz = 256;
                         break;
                     case EngineVersion.S2:
+                    case EngineVersion.S2NA:
                     case EngineVersion.S3K:
                     case EngineVersion.SKC:
                         LevelData.chunksz = 128;
@@ -360,6 +363,7 @@ namespace SonicRetro.SonLVL
                     switch (LevelData.TileFmt)
                     {
                         case EngineVersion.S1:
+                        case EngineVersion.S2NA:
                             defcmp = "Nemesis";
                             break;
                         case EngineVersion.S2:
@@ -439,6 +443,7 @@ namespace SonicRetro.SonLVL
                         defcmp = "Kosinski";
                         break;
                     case EngineVersion.SCDPC:
+                    case EngineVersion.S2NA:
                         defcmp = "Uncompressed";
                         break;
                     default:
@@ -489,6 +494,7 @@ namespace SonicRetro.SonLVL
                         defcmp = "Kosinski";
                         break;
                     case EngineVersion.SCDPC:
+                    case EngineVersion.S2NA:
                         defcmp = "Uncompressed";
                         break;
                     default:
@@ -547,6 +553,7 @@ namespace SonicRetro.SonLVL
                 switch (LevelData.LayoutFmt)
                 {
                     case EngineVersion.S1:
+                    case EngineVersion.S2NA:
                     case EngineVersion.S3K:
                     case EngineVersion.SKC:
                     case EngineVersion.SCDPC:
@@ -607,6 +614,47 @@ namespace SonicRetro.SonLVL
                             Log("BG layout file \"" + gr["bglayout"] + "\" not found.");
                             LevelData.BGLayout = new byte[s1xmax, s1ymax];
                             LevelData.BGLoop = new bool[s1xmax, s1ymax];
+                        }
+                        break;
+                    case EngineVersion.S2NA:
+                        s1xmax = int.Parse(ini[string.Empty]["levelwidthmax"], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo);
+                        s1ymax = int.Parse(ini[string.Empty]["levelheightmax"], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo);
+                        if (File.Exists(gr["fglayout"]))
+                        {
+                            Log("Loading FG layout from file \"" + gr["fglayout"] + "\", using compression " + LevelData.LayoutCmp.ToString() + "...");
+                            tmp = Compression.Decompress(gr["fglayout"], LevelData.LayoutCmp);
+                            fgw = tmp[0] + 1;
+                            fgh = tmp[1] + 1;
+                            LevelData.FGLayout = new byte[fgw, fgh];
+                            for (int lr = 0; lr < fgh; lr++)
+                                for (int lc = 0; lc < fgw; lc++)
+                                {
+                                    if ((lr * fgw) + lc + 2 >= tmp.Length) break;
+                                    LevelData.FGLayout[lc, lr] = tmp[(lr * fgw) + lc + 2];
+                                }
+                        }
+                        else
+                        {
+                            Log("FG layout file \"" + gr["fglayout"] + "\" not found.");
+                            LevelData.FGLayout = new byte[s1xmax, s1ymax];
+                        }
+                        if (File.Exists(gr["bglayout"]))
+                        {
+                            Log("Loading BG layout from file \"" + gr["bglayout"] + "\", using compression " + LevelData.LayoutCmp.ToString() + "...");
+                            tmp = Compression.Decompress(gr["bglayout"], LevelData.LayoutCmp);
+                            bgw = tmp[0] + 1;
+                            bgh = tmp[1] + 1;
+                            LevelData.BGLayout = new byte[bgw, bgh];
+                            for (int lr = 0; lr < bgh; lr++)
+                                for (int lc = 0; lc < bgw; lc++)
+                                {
+                                    LevelData.BGLayout[lc, lr] = tmp[(lr * bgw) + lc + 2];
+                                }
+                        }
+                        else
+                        {
+                            Log("BG layout file \"" + gr["bglayout"] + "\" not found.");
+                            LevelData.BGLayout = new byte[s1xmax, s1ymax];
                         }
                         break;
                     case EngineVersion.S2:
@@ -871,6 +919,7 @@ namespace SonicRetro.SonLVL
                                 }
                                 break;
                             case EngineVersion.S2:
+                            case EngineVersion.S2NA:
                                 for (int oa = 0; oa < tmp.Length; oa += S2ObjectEntry.Size)
                                 {
                                     if (ByteConverter.ToUInt16(tmp, oa) == 0xFFFF) break;
@@ -909,6 +958,7 @@ namespace SonicRetro.SonLVL
                     switch (LevelData.RingFmt)
                     {
                         case EngineVersion.S2:
+                        case EngineVersion.S2NA:
                             if (File.Exists(gr["rings"]))
                             {
                                 Log("Loading rings from file \"" + gr["rings"] + "\", using compression " + gr.GetValueOrDefault("ringscmp", "Uncompressed") + "...");
@@ -1006,6 +1056,7 @@ namespace SonicRetro.SonLVL
                 switch (LevelData.EngineVersion)
                 {
                     case EngineVersion.S1:
+                    case EngineVersion.S2NA:
                     case EngineVersion.S3K:
                     case EngineVersion.SKC:
                     case EngineVersion.SCDPC:
@@ -1029,6 +1080,7 @@ namespace SonicRetro.SonLVL
                         LevelData.ColInds2 = LevelData.ColInds1;
                         break;
                     case EngineVersion.S2:
+                    case EngineVersion.S2NA:
                         if (gr.ContainsKey("colind1") && File.Exists(gr["colind1"]))
                             LevelData.ColInds1.AddRange(Compression.Decompress(gr["colind1"], LevelData.ColIndCmp));
                         if (gr.ContainsKey("colind2"))
@@ -1195,6 +1247,7 @@ namespace SonicRetro.SonLVL
                     path2ToolStripMenuItem.Visible = false;
                     break;
                 case EngineVersion.S2:
+                case EngineVersion.S2NA:
                 case EngineVersion.S3K:
                 case EngineVersion.SKC:
                     TileEditor.BlockCollision2.Visible = true;
@@ -1481,6 +1534,22 @@ namespace SonicRetro.SonLVL
                             tmp.Add((byte)(LevelData.BGLayout[lc, lr] | (LevelData.BGLoop[lc, lr] ? 0x80 : 0)));
                     Compression.Compress(tmp.ToArray(), gr["bglayout"], LevelData.LayoutCmp);
                     break;
+                case EngineVersion.S2NA:
+                    tmp = new List<byte>();
+                    tmp.Add((byte)(LevelData.FGLayout.GetLength(0) - 1));
+                    tmp.Add((byte)(LevelData.FGLayout.GetLength(1) - 1));
+                    for (int lr = 0; lr < LevelData.FGLayout.GetLength(1); lr++)
+                        for (int lc = 0; lc < LevelData.FGLayout.GetLength(0); lc++)
+                            tmp.Add(LevelData.FGLayout[lc, lr]);
+                    Compression.Compress(tmp.ToArray(), gr["fglayout"], LevelData.LayoutCmp);
+                    tmp = new List<byte>();
+                    tmp.Add((byte)(LevelData.BGLayout.GetLength(0) - 1));
+                    tmp.Add((byte)(LevelData.BGLayout.GetLength(1) - 1));
+                    for (int lr = 0; lr < LevelData.BGLayout.GetLength(1); lr++)
+                        for (int lc = 0; lc < LevelData.BGLayout.GetLength(0); lc++)
+                            tmp.Add(LevelData.BGLayout[lc, lr]);
+                    Compression.Compress(tmp.ToArray(), gr["bglayout"], LevelData.LayoutCmp);
+                    break;
                 case EngineVersion.S2:
                     tmp = new List<byte>();
                     for (int la = 0; la < 16; la++)
@@ -1676,6 +1745,7 @@ namespace SonicRetro.SonLVL
                         }
                         break;
                     case EngineVersion.S2:
+                    case EngineVersion.S2NA:
                         for (int oi = 0; oi < LevelData.Objects.Count; oi++)
                         {
                             tmp.AddRange(((S2ObjectEntry)LevelData.Objects[oi]).GetBytes());
@@ -1718,6 +1788,7 @@ namespace SonicRetro.SonLVL
                 switch (LevelData.RingFmt)
                 {
                     case EngineVersion.S2:
+                    case EngineVersion.S2NA:
                         tmp = new List<byte>();
                         for (int ri = 0; ri < LevelData.Rings.Count; ri++)
                         {
@@ -1770,6 +1841,7 @@ namespace SonicRetro.SonLVL
                         Compression.Compress(LevelData.ColInds1.ToArray(), gr["colind"], LevelData.ColIndCmp);
                     break;
                 case EngineVersion.S2:
+                case EngineVersion.S2NA:
                     if (gr.ContainsKey("colind1"))
                         Compression.Compress(LevelData.ColInds1.ToArray(),gr["colind1"], LevelData.ColIndCmp);
                     if (gr.ContainsKey("colind2"))
@@ -1872,6 +1944,7 @@ namespace SonicRetro.SonLVL
                         switch (LevelData.RingFmt)
                         {
                             case EngineVersion.S2:
+                            case EngineVersion.S2NA:
                                 S2RingEntry re = (S2RingEntry)LevelData.Rings[ri];
                                 LevelData.S2RingDef.Draw(LevelImg8bpp, new Point(re.X - camera.X, re.Y - camera.Y), re.Direction, re.Count, true);
                                 break;
@@ -1914,6 +1987,7 @@ namespace SonicRetro.SonLVL
                                     ringcnt += Math.Min(6, item.SubType & 7) + 1;
                             break;
                         case EngineVersion.S2:
+                        case EngineVersion.S2NA:
                             foreach (RingEntry item in LevelData.Rings)
                                 ringcnt += ((S2RingEntry)item).Count;
                             break;
@@ -2228,6 +2302,7 @@ namespace SonicRetro.SonLVL
                                 ent1.RememberState = LevelData.getObjectDefinition(ID).RememberState();
                                 break;
                             case EngineVersion.S2:
+                            case EngineVersion.S2NA:
                                 S2ObjectEntry ent = (S2ObjectEntry)LevelData.CreateObject(ID);
                                 LevelData.Objects.Add(ent);
                                 ent.SubType = sub;
@@ -2261,6 +2336,7 @@ namespace SonicRetro.SonLVL
                         switch (LevelData.RingFmt)
                         {
                             case EngineVersion.S2:
+                            case EngineVersion.S2NA:
                                 S2RingEntry ent = new S2RingEntry();
                                 ent.X = (ushort)(rand.Next(w));
                                 ent.Y = (ushort)(rand.Next(h));
@@ -2570,6 +2646,7 @@ namespace SonicRetro.SonLVL
                                             switch (LevelData.ObjectFmt)
                                             {
                                                 case EngineVersion.S2:
+                                                case EngineVersion.S2NA:
                                                     S2ObjectEntry ent = (S2ObjectEntry)LevelData.CreateObject(ID);
                                                     LevelData.Objects.Add(ent);
                                                     ent.SubType = sub;
@@ -2646,7 +2723,7 @@ namespace SonicRetro.SonLVL
                                         DrawLevel();
                                     }
                                 }
-                                else if (LevelData.RingFmt == EngineVersion.S2)
+                                else if (LevelData.RingFmt == EngineVersion.S2 | LevelData.RingFmt == EngineVersion.S2NA)
                                 {
                                     LevelData.Rings.Add(new S2RingEntry() { X = (ushort)(e.X + camera.X), Y = (ushort)(e.Y + camera.Y) });
                                     SelectedItems.Clear();
@@ -3079,6 +3156,7 @@ namespace SonicRetro.SonLVL
                     switch (LevelData.RingFmt)
                     {
                         case EngineVersion.S2:
+                        case EngineVersion.S2NA:
                             S2RingEntry rngitem = (S2RingEntry)item;
                             Rectangle bound = LevelData.S2RingDef.Bounds(new Point(rngitem.X, rngitem.Y), rngitem.Direction, rngitem.Count);
                             if (bound.Contains(mouse))
@@ -3224,6 +3302,7 @@ namespace SonicRetro.SonLVL
                     switch (LevelData.RingFmt)
                     {
                         case EngineVersion.S2:
+                        case EngineVersion.S2NA:
                             for (int ri = 0; ri < LevelData.Rings.Count; ri++)
                             {
                                 S2RingEntry re = (S2RingEntry)LevelData.Rings[ri];
@@ -3419,6 +3498,7 @@ namespace SonicRetro.SonLVL
                     switch (LevelData.RingFmt)
                     {
                         case EngineVersion.S2:
+                        case EngineVersion.S2NA:
                             string ty = group.Value["codetype"];
                             string dllfile = System.IO.Path.Combine("dllcache", ty + ".dll");
                             DateTime modDate = DateTime.MinValue;
@@ -3673,6 +3753,7 @@ namespace SonicRetro.SonLVL
                         AddUndo(new ObjectAddedUndoAction(ent1));
                         break;
                     case EngineVersion.S2:
+                    case EngineVersion.S2NA:
                         S2ObjectEntry ent = (S2ObjectEntry)LevelData.CreateObject(ID);
                         LevelData.Objects.Add(ent);
                         ent.SubType = sub;
@@ -3739,6 +3820,7 @@ namespace SonicRetro.SonLVL
                     LevelData.Objects.Sort();
                     break;
                 case EngineVersion.S2:
+                case EngineVersion.S2NA:
                     LevelData.Rings.Add(new S2RingEntry() { X = (ushort)(menuLoc.X + camera.X), Y = (ushort)(menuLoc.Y + camera.Y) });
                     SelectedItems.Clear();
                     SelectedItems.Add(LevelData.Rings[LevelData.Rings.Count - 1]);
@@ -3793,6 +3875,7 @@ namespace SonicRetro.SonLVL
                                         SelectedItems.Add(ent1);
                                         break;
                                     case EngineVersion.S2:
+                                    case EngineVersion.S2NA:
                                         S2ObjectEntry ent = (S2ObjectEntry)LevelData.CreateObject(ID);
                                         LevelData.Objects.Add(ent);
                                         ent.SubType = sub;
@@ -3853,6 +3936,7 @@ namespace SonicRetro.SonLVL
                 switch (LevelData.RingFmt)
                 {
                     case EngineVersion.S2:
+                    case EngineVersion.S2NA:
                         dlg.XDist.Value = LevelData.S2RingDef.Bounds(Point.Empty, Direction.Horizontal, 1).Width;
                         dlg.YDist.Value = LevelData.S2RingDef.Bounds(Point.Empty, Direction.Horizontal, 1).Height;
                         break;
@@ -3878,6 +3962,7 @@ namespace SonicRetro.SonLVL
                             switch (LevelData.RingFmt)
                             {
                                 case EngineVersion.S2:
+                                case EngineVersion.S2NA:
                                     LevelData.Rings.Add(new S2RingEntry() { X = (ushort)(pt.X), Y = (ushort)(pt.Y) });
                                     SelectedItems.Add(LevelData.Rings[LevelData.Rings.Count - 1]);
                                     break;

@@ -322,6 +322,7 @@ namespace SonicRetro.SonLVL
                             blocks[x, y] = new S1ChunkBlock();
                     break;
                 case EngineVersion.S2:
+                case EngineVersion.S2NA:
                 case EngineVersion.S3K:
                 case EngineVersion.SKC:
                     for (int y = 0; y < size; y++)
@@ -345,6 +346,7 @@ namespace SonicRetro.SonLVL
                             blocks[x, y] = new S1ChunkBlock(file, address + ((x + (y * size)) * ChunkBlock.Size));
                     break;
                 case EngineVersion.S2:
+                case EngineVersion.S2NA:
                 case EngineVersion.S3K:
                 case EngineVersion.SKC:
                     for (int y = 0; y < size; y++)
@@ -1116,6 +1118,7 @@ namespace SonicRetro.SonLVL
             switch (version)
             {
                 case EngineVersion.S2:
+                case EngineVersion.S2NA:
                     TileNum = ByteConverter.ToUInt16(file, address);
                     TileCount = (byte)((TileNum >> 12) + 1);
                     TileNum &= 0xFFF;

@@ -87,6 +87,7 @@ namespace SonicRetro.SonLVL
                 switch (LevelData.EngineVersion)
                 {
                     case EngineVersion.S2:
+                    case EngineVersion.S2NA:
                         blockmax = 0x340;
                         break;
                     case EngineVersion.S3K:
@@ -324,6 +325,7 @@ namespace SonicRetro.SonLVL
                 switch (LevelData.EngineVersion)
                 {
                     case EngineVersion.S2:
+                    case EngineVersion.S2NA:
                         blockmax = 0x340;
                         break;
                     case EngineVersion.S3K:
@@ -385,7 +387,7 @@ namespace SonicRetro.SonLVL
                     LevelData.CompBlockBmps.RemoveAt(selectedBlock);
                     LevelData.CompBlockBmpBits.RemoveAt(selectedBlock);
                     LevelData.ColInds1.RemoveAt(selectedBlock);
-                    if (LevelData.EngineVersion == EngineVersion.S2 || LevelData.EngineVersion == EngineVersion.S3K || LevelData.EngineVersion == EngineVersion.SKC)
+                    if (LevelData.EngineVersion == EngineVersion.S2 || LevelData.EngineVersion == EngineVersion.S2NA || LevelData.EngineVersion == EngineVersion.S3K || LevelData.EngineVersion == EngineVersion.SKC)
                         if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2))
                             LevelData.ColInds2.RemoveAt(selectedBlock);
                     for (int i = 0; i < LevelData.Chunks.Count; i++)
@@ -470,7 +472,7 @@ namespace SonicRetro.SonLVL
                     LevelData.CompBlockBmps.Insert(selectedBlock, null);
                     LevelData.CompBlockBmpBits.Insert(selectedBlock, null);
                     LevelData.ColInds1.Insert(selectedBlock, 0);
-                    if (LevelData.EngineVersion == EngineVersion.S2 || LevelData.EngineVersion == EngineVersion.S3K || LevelData.EngineVersion == EngineVersion.SKC)
+                    if (LevelData.EngineVersion == EngineVersion.S2 || LevelData.EngineVersion == EngineVersion.S2NA || LevelData.EngineVersion == EngineVersion.S3K || LevelData.EngineVersion == EngineVersion.SKC)
                         if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2))
                             LevelData.ColInds2.Insert(selectedBlock, 0);
                     for (int i = 0; i < LevelData.Chunks.Count; i++)
@@ -528,7 +530,7 @@ namespace SonicRetro.SonLVL
                     LevelData.CompBlockBmps.Insert(selectedBlock, null);
                     LevelData.CompBlockBmpBits.Insert(selectedBlock, null);
                     LevelData.ColInds1.Insert(selectedBlock, 0);
-                    if (LevelData.EngineVersion == EngineVersion.S2 || LevelData.EngineVersion == EngineVersion.S3K || LevelData.EngineVersion == EngineVersion.SKC)
+                    if (LevelData.EngineVersion == EngineVersion.S2 || LevelData.EngineVersion == EngineVersion.S2NA || LevelData.EngineVersion == EngineVersion.S3K || LevelData.EngineVersion == EngineVersion.SKC)
                         if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2))
                             LevelData.ColInds2.Insert(selectedBlock, 0);
                     for (int i = 0; i < LevelData.Chunks.Count; i++)
@@ -586,7 +588,7 @@ namespace SonicRetro.SonLVL
                     LevelData.CompBlockBmps.Insert(selectedBlock, null);
                     LevelData.CompBlockBmpBits.Insert(selectedBlock, null);
                     LevelData.ColInds1.Insert(selectedBlock, 0);
-                    if (LevelData.EngineVersion == EngineVersion.S2 || LevelData.EngineVersion == EngineVersion.S3K || LevelData.EngineVersion == EngineVersion.SKC)
+                    if (LevelData.EngineVersion == EngineVersion.S2 || LevelData.EngineVersion == EngineVersion.S2NA || LevelData.EngineVersion == EngineVersion.S3K || LevelData.EngineVersion == EngineVersion.SKC)
                         if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2))
                             LevelData.ColInds2.Insert(selectedBlock, 0);
                     for (int i = 0; i < LevelData.Chunks.Count; i++)
@@ -644,7 +646,7 @@ namespace SonicRetro.SonLVL
                     LevelData.CompBlockBmps.Insert(selectedBlock, null);
                     LevelData.CompBlockBmpBits.Insert(selectedBlock, null);
                     LevelData.ColInds1.Insert(selectedBlock, 0);
-                    if (LevelData.EngineVersion == EngineVersion.S2 || LevelData.EngineVersion == EngineVersion.S3K || LevelData.EngineVersion == EngineVersion.SKC)
+                    if (LevelData.EngineVersion == EngineVersion.S2 || LevelData.EngineVersion == EngineVersion.S2NA || LevelData.EngineVersion == EngineVersion.S3K || LevelData.EngineVersion == EngineVersion.SKC)
                         if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2))
                             LevelData.ColInds2.Insert(selectedBlock, 0);
                     for (int i = 0; i < LevelData.Chunks.Count; i++)
@@ -698,7 +700,7 @@ namespace SonicRetro.SonLVL
                     LevelData.BlockBmps.RemoveAt(selectedBlock);
                     LevelData.BlockBmpBits.RemoveAt(selectedBlock);
                     LevelData.ColInds1.RemoveAt(selectedBlock);
-                    if (LevelData.EngineVersion == EngineVersion.S2 || LevelData.EngineVersion == EngineVersion.S3K || LevelData.EngineVersion == EngineVersion.SKC)
+                    if (LevelData.EngineVersion == EngineVersion.S2 || LevelData.EngineVersion == EngineVersion.S2NA || LevelData.EngineVersion == EngineVersion.S3K || LevelData.EngineVersion == EngineVersion.SKC)
                         if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2))
                             LevelData.ColInds2.RemoveAt(selectedBlock);
                     for (int i = 0; i < LevelData.Chunks.Count; i++)
@@ -833,7 +835,7 @@ namespace SonicRetro.SonLVL
                                             blocks.Add(blk);
                                             LevelData.Blocks.Add(blk);
                                             LevelData.ColInds1.Add(0);
-                                            if (LevelData.EngineVersion == EngineVersion.S2 || LevelData.EngineVersion == EngineVersion.S3K || LevelData.EngineVersion == EngineVersion.SKC)
+                                            if (LevelData.EngineVersion == EngineVersion.S2 || LevelData.EngineVersion == EngineVersion.S2NA || LevelData.EngineVersion == EngineVersion.S3K || LevelData.EngineVersion == EngineVersion.SKC)
                                                 if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2))
                                                     LevelData.ColInds2.Add(0);
                                             selectedBlock = LevelData.Blocks.Count - 1;
@@ -939,7 +941,7 @@ namespace SonicRetro.SonLVL
                                     blocks.Add(blk);
                                     LevelData.Blocks.Add(blk);
                                     LevelData.ColInds1.Add(0);
-                                    if (LevelData.EngineVersion == EngineVersion.S2 || LevelData.EngineVersion == EngineVersion.S3K || LevelData.EngineVersion == EngineVersion.SKC)
+                                    if (LevelData.EngineVersion == EngineVersion.S2 || LevelData.EngineVersion == EngineVersion.S2NA || LevelData.EngineVersion == EngineVersion.S3K || LevelData.EngineVersion == EngineVersion.SKC)
                                         if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2))
                                             LevelData.ColInds2.Add(0);
                                     selectedBlock = LevelData.Blocks.Count - 1;

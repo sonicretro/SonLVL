@@ -20,6 +20,7 @@ namespace SonicRetro.SonLVL
                     bmp = LevelData.S1MapFrameToBmp(artfile, s1map, startpal, out off);
                     break;
                 case EngineVersion.S2:
+                case EngineVersion.S2NA:
                     S2Mappings s2map = new S2Mappings(mapfile, ByteConverter.ToInt16(mapfile, frame * 2));
                     bmp = LevelData.S2MapFrameToBmp(artfile, s2map, startpal, out off);
                     break;
@@ -52,6 +53,7 @@ namespace SonicRetro.SonLVL
                     bmp = LevelData.S1MapFrameToBmp(artfile, new S1Mappings(mapfile, 0), startpal, out off);
                     break;
                 case EngineVersion.S2:
+                case EngineVersion.S2NA:
                     bmp = LevelData.S2MapFrameToBmp(artfile, new S2Mappings(mapfile, 0), startpal, out off);
                     break;
                 case EngineVersion.S3K:
@@ -74,6 +76,7 @@ namespace SonicRetro.SonLVL
             switch (LevelData.EngineVersion)
             {
                 case EngineVersion.S2:
+                case EngineVersion.S2NA:
                     S2Mappings s2map = new S2Mappings(mapfile, ByteConverter.ToInt16(mapfile, frame * 2));
                     bmp = LevelData.S2MapFrameDPLCToBmp(artfile, s2map, dp, startpal, out off);
                     break;
@@ -98,6 +101,7 @@ namespace SonicRetro.SonLVL
             switch (LevelData.EngineVersion)
             {
                 case EngineVersion.S2:
+                case EngineVersion.S2NA:
                     S2Mappings s2map = new S2Mappings(mapfile, ByteConverter.ToInt16(mapfile, frame * 2));
                     bmp = LevelData.S2MapFrameDPLCToBmp(artfile, s2map, dp, startpal, out off);
                     break;
@@ -123,6 +127,7 @@ namespace SonicRetro.SonLVL
             switch (LevelData.EngineVersion)
             {
                 case EngineVersion.S2:
+                case EngineVersion.S2NA:
                     bmp = LevelData.S2MapFrameDPLCToBmp(artfile, new S2Mappings(mapfile, 0), new DPLC(dplcfile, 0, EngineVersion.S2), startpal, out off);
                     break;
                 case EngineVersion.S3K:
@@ -146,6 +151,7 @@ namespace SonicRetro.SonLVL
             switch (LevelData.EngineVersion)
             {
                 case EngineVersion.S2:
+                case EngineVersion.S2NA:
                     bmp = LevelData.S2MapFrameDPLCToBmp(artfile, new S2Mappings(mapfile, 0), new DPLC(dplcfile, 0, dplcversion), startpal, out off);
                     break;
                 case EngineVersion.S3K:

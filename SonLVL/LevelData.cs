@@ -1058,6 +1058,7 @@ namespace SonicRetro.SonLVL
     {
         Invalid,
         S1,
+        S2NA,
         S2,
         S3K,
         SCD,
