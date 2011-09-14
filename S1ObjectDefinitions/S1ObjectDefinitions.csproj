@@ -51,6 +51,7 @@
     <Compile Include="GHZ\WallBarrier.cs" />
     <Compile Include="MZ\MovingPlatform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SYZ\Block.cs" />
     <Compile Include="SYZ\Platform.cs" />
   </ItemGroup>
   <ItemGroup>
