@@ -1277,12 +1277,12 @@ namespace SonicRetro.SonLVL
             {
                 case EditingModes.Objects:
                 case EditingModes.PlaneA:
-                    hScrollBar1.Maximum = (LevelData.FGLayout.GetLength(0) * LevelData.chunksz) - panel1.Width;
-                    vScrollBar1.Maximum = (LevelData.FGLayout.GetLength(1) * LevelData.chunksz) - panel1.Height;
+                    hScrollBar1.Maximum = ((LevelData.FGLayout.GetLength(0)+1) * LevelData.chunksz) - panel1.Width;
+                    vScrollBar1.Maximum = ((LevelData.FGLayout.GetLength(1)+1) * LevelData.chunksz) - panel1.Height;
                     break;
                 case EditingModes.PlaneB:
-                    hScrollBar1.Maximum = (LevelData.BGLayout.GetLength(0) * LevelData.chunksz) - panel1.Width;
-                    vScrollBar1.Maximum = (LevelData.BGLayout.GetLength(1) * LevelData.chunksz) - panel1.Height;
+                    hScrollBar1.Maximum = ((LevelData.BGLayout.GetLength(0)+1) * LevelData.chunksz) - panel1.Width;
+                    vScrollBar1.Maximum = ((LevelData.BGLayout.GetLength(1)+1) * LevelData.chunksz) - panel1.Height;
                     break;
             }
             hScrollBar1.Value = hScrollBar1.Minimum;
@@ -2156,7 +2156,7 @@ namespace SonicRetro.SonLVL
                     break;
                 case Keys.Down:
                     if (!loaded) return;
-                    vScrollBar1.Value = (int)Math.Min(camera.Y + step, vScrollBar1.Maximum);
+                    vScrollBar1.Value = (int)Math.Min(camera.Y + step, vScrollBar1.Maximum-LevelData.chunksz+1);
                     break;
                 case Keys.Left:
                     if (!loaded) return;
@@ -2164,7 +2164,7 @@ namespace SonicRetro.SonLVL
                     break;
                 case Keys.Right:
                     if (!loaded) return;
-                    hScrollBar1.Value = (int)Math.Min(camera.X + step, hScrollBar1.Maximum);
+                    hScrollBar1.Value = (int)Math.Min(camera.X + step, hScrollBar1.Maximum-LevelData.chunksz+1);
                     break;
                 case Keys.Delete:
                     if (!loaded) return;
@@ -2232,8 +2232,8 @@ namespace SonicRetro.SonLVL
                     if (!loaded) return;
                     EditingMode = EditingModes.PlaneA;
                     loaded = false;
-                    hScrollBar1.Maximum = (LevelData.FGLayout.GetLength(0) * LevelData.chunksz) - panel1.Width;
-                    vScrollBar1.Maximum = (LevelData.FGLayout.GetLength(1) * LevelData.chunksz) - panel1.Height;
+                    hScrollBar1.Maximum = ((LevelData.FGLayout.GetLength(0)+1) * LevelData.chunksz) - panel1.Width;
+                    vScrollBar1.Maximum = ((LevelData.FGLayout.GetLength(1)+1) * LevelData.chunksz) - panel1.Height;
                     loaded = true;
                     camera = new Point(hScrollBar1.Value, vScrollBar1.Value);
                     DrawLevel();
@@ -2247,8 +2247,8 @@ namespace SonicRetro.SonLVL
                     {
                         EditingMode = EditingModes.Objects;
                         loaded = false;
-                        hScrollBar1.Maximum = (LevelData.FGLayout.GetLength(0) * LevelData.chunksz) - panel1.Width;
-                        vScrollBar1.Maximum = (LevelData.FGLayout.GetLength(1) * LevelData.chunksz) - panel1.Height;
+                        hScrollBar1.Maximum = ((LevelData.FGLayout.GetLength(0)+1) * LevelData.chunksz) - panel1.Width;
+                        vScrollBar1.Maximum = ((LevelData.FGLayout.GetLength(1)+1) * LevelData.chunksz) - panel1.Height;
                         loaded = true;
                         camera = new Point(hScrollBar1.Value, vScrollBar1.Value);
                         DrawLevel();
@@ -2258,8 +2258,8 @@ namespace SonicRetro.SonLVL
                     if (!loaded) return;
                     EditingMode = EditingModes.PlaneB;
                     loaded = false;
-                    hScrollBar1.Maximum = (LevelData.BGLayout.GetLength(0) * LevelData.chunksz) - panel1.Width;
-                    vScrollBar1.Maximum = (LevelData.BGLayout.GetLength(1) * LevelData.chunksz) - panel1.Height;
+                    hScrollBar1.Maximum = ((LevelData.FGLayout.GetLength(0)+1) * LevelData.chunksz) - panel1.Width;
+                    vScrollBar1.Maximum = ((LevelData.FGLayout.GetLength(1)+1) * LevelData.chunksz) - panel1.Height;
                     loaded = true;
                     camera = new Point(hScrollBar1.Value, vScrollBar1.Value);
                     DrawLevel();
@@ -2546,8 +2546,8 @@ namespace SonicRetro.SonLVL
                                         loaded = false;
                                         hScrollBar1.Minimum = 0;
                                         vScrollBar1.Minimum = 0;
-                                        hScrollBar1.Maximum = (LevelData.FGLayout.GetLength(0) * LevelData.chunksz) - panel1.Width;
-                                        vScrollBar1.Maximum = (LevelData.FGLayout.GetLength(1) * LevelData.chunksz) - panel1.Height;
+                                        hScrollBar1.Maximum = ((LevelData.FGLayout.GetLength(0)+1) * LevelData.chunksz) - panel1.Width;
+                                        vScrollBar1.Maximum = ((LevelData.FGLayout.GetLength(1)+1) * LevelData.chunksz) - panel1.Height;
                                         loaded = true;
                                         camera = new Point(hScrollBar1.Value, vScrollBar1.Value);
                                         DrawLevel();
@@ -2574,8 +2574,8 @@ namespace SonicRetro.SonLVL
                                         loaded = false;
                                         hScrollBar1.Minimum = 0;
                                         vScrollBar1.Minimum = 0;
-                                        hScrollBar1.Maximum = (LevelData.BGLayout.GetLength(0) * LevelData.chunksz) - panel1.Width;
-                                        vScrollBar1.Maximum = (LevelData.BGLayout.GetLength(1) * LevelData.chunksz) - panel1.Height;
+                                        hScrollBar1.Maximum = ((LevelData.FGLayout.GetLength(0)+1) * LevelData.chunksz) - panel1.Width;
+                                        vScrollBar1.Maximum = ((LevelData.FGLayout.GetLength(1)+1) * LevelData.chunksz) - panel1.Height;
                                         loaded = true;
                                         camera = new Point(hScrollBar1.Value, vScrollBar1.Value);
                                         DrawLevel();
@@ -2604,12 +2604,12 @@ namespace SonicRetro.SonLVL
             {
                 case EditingModes.Objects:
                 case EditingModes.PlaneA:
-                    hScrollBar1.Maximum = (LevelData.FGLayout.GetLength(0) * LevelData.chunksz) - panel1.Width;
-                    vScrollBar1.Maximum = (LevelData.FGLayout.GetLength(1) * LevelData.chunksz) - panel1.Height;
+                    hScrollBar1.Maximum = ((LevelData.FGLayout.GetLength(0)+1) * LevelData.chunksz) - panel1.Width;
+                    vScrollBar1.Maximum = ((LevelData.FGLayout.GetLength(1)+1) * LevelData.chunksz) - panel1.Height;
                     break;
                 case EditingModes.PlaneB:
-                    hScrollBar1.Maximum = (LevelData.BGLayout.GetLength(0) * LevelData.chunksz) - panel1.Width;
-                    vScrollBar1.Maximum = (LevelData.BGLayout.GetLength(1) * LevelData.chunksz) - panel1.Height;
+                    hScrollBar1.Maximum = ((LevelData.BGLayout.GetLength(0)+1) * LevelData.chunksz) - panel1.Width;
+                    vScrollBar1.Maximum = ((LevelData.BGLayout.GetLength(1)+1) * LevelData.chunksz) - panel1.Height;
                     break;
             }
             loaded = true;
@@ -3718,12 +3718,12 @@ namespace SonicRetro.SonLVL
             {
                 case EditingModes.Objects:
                 case EditingModes.PlaneA:
-                    hScrollBar1.Maximum = (LevelData.FGLayout.GetLength(0) * LevelData.chunksz) - panel1.Width;
-                    vScrollBar1.Maximum = (LevelData.FGLayout.GetLength(1) * LevelData.chunksz) - panel1.Height;
+                    hScrollBar1.Maximum = ((LevelData.FGLayout.GetLength(0)+1) * LevelData.chunksz) - panel1.Width;
+                    vScrollBar1.Maximum = ((LevelData.FGLayout.GetLength(1)+1) * LevelData.chunksz) - panel1.Height;
                     break;
                 case EditingModes.PlaneB:
-                    hScrollBar1.Maximum = (LevelData.BGLayout.GetLength(0) * LevelData.chunksz) - panel1.Width;
-                    vScrollBar1.Maximum = (LevelData.BGLayout.GetLength(1) * LevelData.chunksz) - panel1.Height;
+                    hScrollBar1.Maximum = ((LevelData.BGLayout.GetLength(0)+1) * LevelData.chunksz) - panel1.Width;
+                    vScrollBar1.Maximum = ((LevelData.BGLayout.GetLength(1)+1) * LevelData.chunksz) - panel1.Height;
                     break;
             }
             loaded = true;
