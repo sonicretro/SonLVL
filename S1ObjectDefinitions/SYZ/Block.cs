@@ -111,7 +111,7 @@ namespace S1ObjectDefinitions.SYZ
         }
     }
 
-    public enum PlatformMovement
+    public enum PlatformMovement2
     {
         Stationary,
         RightLeft,

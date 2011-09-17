@@ -856,10 +856,11 @@ namespace SonicRetro.SonLVL
             int[] palcnt = new int[4];
             for (int y = 0; y < 8; y++)
                 for (int x = 0; x < 8; x++)
-                {
-                    palcnt[bmpbits[x, y] / 16]++;
-                    bmpbits[x, y] &= 15;
-                }
+                    if ((bmpbits[x, y] & 15) > 0)
+                    {
+                        palcnt[bmpbits[x, y] / 16]++;
+                        bmpbits[x, y] &= 15;
+                    }
             palette = 0;
             if (palcnt[1] > palcnt[palette])
                 palette = 1;
