@@ -136,6 +136,8 @@ namespace SonicRetro.SonLVL
             {
                 AllowFullOpen = true,
                 AnyColor = true,
+                FullOpen = true,
+                SolidColorOnly = true,
                 Color = LevelData.PaletteToColor(line, index, false)
             };
             if (cols != null)
@@ -699,6 +701,8 @@ namespace SonicRetro.SonLVL
                     LevelData.Blocks.RemoveAt(selectedBlock);
                     LevelData.BlockBmps.RemoveAt(selectedBlock);
                     LevelData.BlockBmpBits.RemoveAt(selectedBlock);
+                    LevelData.CompBlockBmps.RemoveAt(selectedBlock);
+                    LevelData.CompBlockBmpBits.RemoveAt(selectedBlock);
                     LevelData.ColInds1.RemoveAt(selectedBlock);
                     if (LevelData.EngineVersion == EngineVersion.S2 || LevelData.EngineVersion == EngineVersion.S2NA || LevelData.EngineVersion == EngineVersion.S3K || LevelData.EngineVersion == EngineVersion.SKC)
                         if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2))
@@ -1000,6 +1004,7 @@ namespace SonicRetro.SonLVL
                             TileSelector.SelectedIndex = selectedTile;
                             break;
                     }
+                    bmp.Dispose();
                 }
             }
         }

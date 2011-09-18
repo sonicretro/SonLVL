@@ -382,6 +382,15 @@ namespace SonicRetro.SonLVL
                     {
                         tmp = null;
                         string[] tileentsp = tileent.Split(':');
+                        int off = -1;
+                        if (tileentsp.Length > 1)
+                        {
+                            string offstr = tileentsp[1];
+                            if (offstr.StartsWith("0x"))
+                                off = int.Parse(offstr.Substring(2), System.Globalization.NumberStyles.HexNumber);
+                            else
+                                off = int.Parse(offstr, System.Globalization.NumberStyles.Integer);
+                        }
                         if (File.Exists(tileentsp[0]))
                         {
                             Log("Loading 8x8 tiles from file \"" + tileentsp[0] + "\", using compression " + LevelData.TileCmp.ToString() + "...");
@@ -393,19 +402,13 @@ namespace SonicRetro.SonLVL
                                 Array.Copy(tmp, i, tile, 0, 32);
                                 tiles.Add(tile);
                             }
-                            int off = -1;
-                            if (tileentsp.Length > 1)
-                            {
-                                string offstr = tileentsp[1];
-                                if (offstr.StartsWith("0x"))
-                                    off = int.Parse(offstr.Substring(2), System.Globalization.NumberStyles.HexNumber);
-                                else
-                                    off = int.Parse(offstr, System.Globalization.NumberStyles.Integer);
-                            }
                             LevelData.Tiles.AddFile(tiles, off == -1 ? off : off / 32);
                         }
                         else
+                        {
                             Log("8x8 tile file \"" + tileentsp[0] + "\" not found.");
+                            LevelData.Tiles.AddFile(new List<byte[]>() { new byte[32] }, off == -1 ? off : off / 32);
+                        }
                     }
                 }
                 else
@@ -428,7 +431,10 @@ namespace SonicRetro.SonLVL
                         LevelData.Tiles.AddFile(tiles, -1);
                     }
                     else
+                    {
                         Log("8x8 tile file \"" + gr["tile8"] + "\" not found.");
+                        LevelData.Tiles.AddFile(new List<byte[]>() { new byte[32] }, -1);
+                    }
                 }
                 LevelData.UpdateTileArray();
                 LevelData.Blocks = new MultiFileIndexer<Block>();
@@ -455,6 +461,15 @@ namespace SonicRetro.SonLVL
                 foreach (string tileent in tilelist)
                 {
                     string[] tileentsp = tileent.Split(':');
+                    int off = -1;
+                    if (tileentsp.Length > 1)
+                    {
+                        string offstr = tileentsp[1];
+                        if (offstr.StartsWith("0x"))
+                            off = int.Parse(offstr.Substring(2), System.Globalization.NumberStyles.HexNumber);
+                        else
+                            off = int.Parse(offstr, System.Globalization.NumberStyles.Integer);
+                    }
                     if (File.Exists(tileentsp[0]))
                     {
                         Log("Loading 16x16 blocks from file \"" + tileentsp[0] + "\", using compression " + LevelData.BlockCmp.ToString() + "...");
@@ -468,19 +483,13 @@ namespace SonicRetro.SonLVL
                         }
                         if (LevelData.EngineVersion == EngineVersion.SKC)
                             LevelData.littleendian = true;
-                        int off = -1;
-                        if (tileentsp.Length > 1)
-                        {
-                            string offstr = tileentsp[1];
-                            if (offstr.StartsWith("0x"))
-                                off = int.Parse(offstr.Substring(2), System.Globalization.NumberStyles.HexNumber);
-                            else
-                                off = int.Parse(offstr, System.Globalization.NumberStyles.Integer);
-                        }
                         LevelData.Blocks.AddFile(tmpblk, off == -1 ? off : off / Block.Size);
                     }
                     else
+                    {
                         Log("16x16 block file \"" + tileentsp[0] + "\" not found.");
+                        LevelData.Blocks.AddFile(new List<Block>() { new Block() }, off == -1 ? off : off / Block.Size);
+                    }
                 }
                 if (LevelData.Blocks.Count == 0)
                     LevelData.Blocks.AddFile(new List<Block>() { new Block() }, -1);
@@ -508,6 +517,15 @@ namespace SonicRetro.SonLVL
                 foreach (string tileent in tilelist)
                 {
                     string[] tileentsp = tileent.Split(':');
+                    int off = -1;
+                    if (tileentsp.Length > 1)
+                    {
+                        string offstr = tileentsp[1];
+                        if (offstr.StartsWith("0x"))
+                            off = int.Parse(offstr.Substring(2), System.Globalization.NumberStyles.HexNumber);
+                        else
+                            off = int.Parse(offstr, System.Globalization.NumberStyles.Integer);
+                    }
                     if (File.Exists(tileentsp[0]))
                     {
                         Log("Loading " + LevelData.chunksz + "x" + LevelData.chunksz + " chunks from file \"" + tileentsp[0] + "\", using compression " + LevelData.ChunkCmp.ToString() + "...");
@@ -530,20 +548,14 @@ namespace SonicRetro.SonLVL
                             tmpchnk.Add(new Chunk(tmp, ba));
                         if (LevelData.EngineVersion == EngineVersion.SKC)
                             LevelData.littleendian = true;
-                        int off = -1;
-                        if (tileentsp.Length > 1)
-                        {
-                            string offstr = tileentsp[1];
-                            if (offstr.StartsWith("0x"))
-                                off = int.Parse(offstr.Substring(2), System.Globalization.NumberStyles.HexNumber);
-                            else
-                                off = int.Parse(offstr, System.Globalization.NumberStyles.Integer);
-                        }
                         LevelData.Chunks.AddFile(tmpchnk, off == -1 ? off : off / Chunk.Size);
                         fileind++;
                     }
                     else
+                    {
                         Log(LevelData.chunksz + "x" + LevelData.chunksz + " chunk file \"" + tileentsp[0] + "\" not found.");
+                        LevelData.Chunks.AddFile(new List<Chunk>() { new Chunk() }, off == -1 ? off : off / Chunk.Size);
+                    }
                 }
                 if (LevelData.Chunks.Count == 0)
                     LevelData.Chunks.AddFile(new List<Chunk>() { new Chunk() }, -1);
