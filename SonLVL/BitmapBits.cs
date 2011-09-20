@@ -235,6 +235,84 @@ namespace SonicRetro.SonLVL
             return res;
         }
 
+        private void DrawLine(byte index, int x1, int y1, int x2, int y2)
+        {
+            bool steep = Math.Abs(y2 - y1) > Math.Abs(x2 - x1);
+            if (steep)
+            {
+                int tmp = x1;
+                x1 = y1;
+                y1 = tmp;
+                tmp = x2;
+                x2 = y2;
+                y2 = tmp;
+            }
+            if (x1 > x2)
+            {
+                int tmp = x1;
+                x1 = x2;
+                x2 = tmp;
+                tmp = y1;
+                y1 = y2;
+                y2 = tmp;
+            }
+            int deltax = x2 - x1;
+            int deltay = Math.Abs(y2 - y1);
+            double error = 0;
+            double deltaerr = (double)deltay / (double)deltax;
+            int ystep;
+            int y = y1;
+            if (y1 < y2) ystep = 1; else ystep = -1;
+            for (int x = x1; x <= x2; x++)
+            {
+                if (steep)
+                    if (x < Height & y < Width)
+                        this[y, x] = index;
+                    else
+                        if (y < Height & x < Width)
+                            this[x, y] = index;
+                error = error + deltaerr;
+                if (error >= 0.5)
+                {
+                    y = y + ystep;
+                    error = error - 1.0;
+                }
+            }
+        }
+
+        public void DrawLine(byte index, Point p1, Point p2) { DrawLine(index, p1.X, p1.Y, p2.X, p2.Y); }
+
+        public void DrawRectangle(byte index, int x, int y, int width, int height)
+        {
+            DrawLine(index, x, y, x + width, y);
+            DrawLine(index, x, y, x, y + height);
+            DrawLine(index, x + width, y, x + width, y + height);
+            DrawLine(index, x, y + height, x + width, y + height);
+        }
+
+        public void DrawRectangle(byte index, Rectangle rect) { DrawRectangle(index, rect.X, rect.Y, rect.Width, rect.Height); }
+
+        public void FillRectangle(byte index, int x, int y, int width, int height)
+        {
+            int srcl = 0;
+            if (x < 0)
+                srcl = -x;
+            int srct = 0;
+            if (y < 0)
+                srct = -y;
+            int srcr = width;
+            if (srcr > Width - x)
+                srcr = Width - x;
+            int srcb = height;
+            if (srcb > Height - y)
+                srcb = Height - y;
+            for (int cy = srct; cy < srcb; cy++)
+                for (int cx = srcl; cx < srcr; cx++)
+                    this[cx, cy] = index;
+        }
+
+        public void FillRectangle(byte index, Rectangle rect) { DrawRectangle(index, rect.X, rect.Y, rect.Width, rect.Height); }
+
         public override bool Equals(object obj)
         {
             if (base.Equals(obj)) return true;

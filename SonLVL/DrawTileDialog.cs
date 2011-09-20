@@ -51,16 +51,21 @@ namespace SonicRetro.SonLVL
             if (e.Button == System.Windows.Forms.MouseButtons.Left)
             {
                 tile.Bits[((e.Y / (int)numericUpDown1.Value) * tile.Width) + (e.X / (int)numericUpDown1.Value)] = (byte)((selectedColor.Y * 16) + selectedColor.X);
-                TilePicture.Invalidate();
+                lastpoint = new Point(e.X / (int)numericUpDown1.Value, e.Y / (int)numericUpDown1.Value);
+                DrawTile();
             }
         }
 
+        Point lastpoint;
         private void TilePicture_MouseMove(object sender, MouseEventArgs e)
         {
-            if (e.Button == System.Windows.Forms.MouseButtons.Left && new Rectangle(Point.Empty, TilePicture.Size).Contains(e.Location))
+            if (e.Button == System.Windows.Forms.MouseButtons.Left)
             {
+                if (new Rectangle(Point.Empty, TilePicture.Size).Contains(e.Location))
+                    tile.DrawLine((byte)((selectedColor.Y * 16) + selectedColor.X), lastpoint, new Point(e.X / (int)numericUpDown1.Value, e.Y / (int)numericUpDown1.Value));
                 tile.Bits[((e.Y / (int)numericUpDown1.Value) * tile.Width) + (e.X / (int)numericUpDown1.Value)] = (byte)((selectedColor.Y * 16) + selectedColor.X);
-                TilePicture.Invalidate();
+                lastpoint = new Point(e.X / (int)numericUpDown1.Value, e.Y / (int)numericUpDown1.Value);
+                DrawTile();
             }
         }
 
