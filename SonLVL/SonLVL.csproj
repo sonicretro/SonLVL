@@ -104,6 +104,12 @@
     <Compile Include="Compression.cs" />
     <Compile Include="DataTypes.cs" />
     <Compile Include="ByteConverter.cs" />
+    <Compile Include="DrawTileDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DrawTileDialog.Designer.cs">
+      <DependentUpon>DrawTileDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Extensions.cs" />
     <Compile Include="LevelData.cs" />
     <Compile Include="LogWindow.cs">
@@ -168,6 +174,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="CollisionSelector.resx">
       <DependentUpon>CollisionSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DrawTileDialog.resx">
+      <DependentUpon>DrawTileDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="LogWindow.resx">
       <DependentUpon>LogWindow.cs</DependentUpon>
@@ -273,6 +282,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\clockmon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\pencilcur.cur" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

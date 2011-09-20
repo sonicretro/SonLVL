@@ -313,6 +313,7 @@ namespace SonicRetro.SonLVL
                 pasteBeforeToolStripMenuItem.Enabled = Clipboard.GetDataObject().GetDataPresent("SonLVLChunk") & LevelData.Chunks.Count < 256;
                 pasteAfterToolStripMenuItem.Enabled = pasteBeforeToolStripMenuItem.Enabled;
                 importToolStripMenuItem.Enabled = LevelData.Chunks.Count < 256;
+                drawToolStripMenuItem.Enabled = importToolStripMenuItem.Enabled;
                 insertAfterToolStripMenuItem.Enabled = importToolStripMenuItem.Enabled;
                 insertBeforeToolStripMenuItem.Enabled = importToolStripMenuItem.Enabled;
                 contextMenuStrip1.Show(ChunkSelector, e.Location);
@@ -338,6 +339,7 @@ namespace SonicRetro.SonLVL
                 pasteBeforeToolStripMenuItem.Enabled = Clipboard.GetDataObject().GetDataPresent("SonLVLBlock") & LevelData.Blocks.Count < blockmax;
                 pasteAfterToolStripMenuItem.Enabled = pasteBeforeToolStripMenuItem.Enabled;
                 importToolStripMenuItem.Enabled = LevelData.Blocks.Count < blockmax;
+                drawToolStripMenuItem.Enabled = importToolStripMenuItem.Enabled;
                 insertAfterToolStripMenuItem.Enabled = importToolStripMenuItem.Enabled;
                 insertBeforeToolStripMenuItem.Enabled = importToolStripMenuItem.Enabled;
                 contextMenuStrip1.Show(BlockSelector, e.Location);
@@ -351,6 +353,7 @@ namespace SonicRetro.SonLVL
                 pasteBeforeToolStripMenuItem.Enabled = Clipboard.GetDataObject().GetDataPresent("SonLVLTile") & LevelData.Tiles.Count < 0x800;
                 pasteAfterToolStripMenuItem.Enabled = pasteBeforeToolStripMenuItem.Enabled;
                 importToolStripMenuItem.Enabled = LevelData.Tiles.Count < 0x800;
+                drawToolStripMenuItem.Enabled = importToolStripMenuItem.Enabled;
                 insertAfterToolStripMenuItem.Enabled = importToolStripMenuItem.Enabled;
                 insertBeforeToolStripMenuItem.Enabled = importToolStripMenuItem.Enabled;
                 contextMenuStrip1.Show(TileSelector, e.Location);
@@ -750,140 +753,37 @@ namespace SonicRetro.SonLVL
                 opendlg.Filter = "Image Files|*.bmp;*.png;*.jpg;*.gif";
                 opendlg.RestoreDirectory = true;
                 if (opendlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
-                {
-                    Bitmap bmp = new Bitmap(opendlg.FileName);
-                    int w = bmp.Width;
-                    int h = bmp.Height;
-                    int pal = 0;
-                    bool match = false;
-                    List<BitmapBits> tiles = new List<BitmapBits>();
-                    List<Block> blocks = new List<Block>();
-                    List<Chunk> chunks = new List<Chunk>();
-                    byte[] tile;
-                    int curtilecnt = LevelData.Tiles.Count;
-                    int curblkcnt = LevelData.Blocks.Count;
-                    switch (tabControl1.SelectedIndex)
-                    {
-                        case 0: // Chunks
-                            for (int cy = 0; cy < h / LevelData.chunksz; cy++)
-                                for (int cx = 0; cx < w / LevelData.chunksz; cx++)
-                                {
-                                    Chunk cnk = new Chunk();
-                                    for (int by = 0; by < LevelData.chunksz / 16; by++)
-                                        for (int bx = 0; bx < LevelData.chunksz / 16; bx++)
-                                        {
-                                            Block blk = new Block();
-                                            for (int y = 0; y < 2; y++)
-                                                for (int x = 0; x < 2; x++)
-                                                {
-                                                    tile = LevelData.BmpToTile(bmp.Clone(new Rectangle((cx * 16) + (bx * 16) + (x * 8), (cy * 16) + (by * 16) + (y * 8), 8, 8), bmp.PixelFormat), out pal);
-                                                    blk.tiles[x, y].Palette = (byte)pal;
-                                                    BitmapBits bits = BitmapBits.FromTile(tile, 0);
-                                                    match = false;
-                                                    for (int i = 0; i < tiles.Count; i++)
-                                                    {
-                                                        if (tiles[i].Equals(bits))
-                                                        {
-                                                            match = true;
-                                                            blk.tiles[x, y].Tile = (ushort)(i + curtilecnt);
-                                                            break;
-                                                        }
-                                                        BitmapBits flip = new BitmapBits(bits);
-                                                        flip.Flip(true, false);
-                                                        if (tiles[i].Equals(flip))
-                                                        {
-                                                            match = true;
-                                                            blk.tiles[x, y].Tile = (ushort)(i + curtilecnt);
-                                                            blk.tiles[x, y].XFlip = true;
-                                                            break;
-                                                        }
-                                                        flip = new BitmapBits(bits);
-                                                        flip.Flip(false, true);
-                                                        if (tiles[i].Equals(flip))
-                                                        {
-                                                            match = true;
-                                                            blk.tiles[x, y].Tile = (ushort)(i + curtilecnt);
-                                                            blk.tiles[x, y].YFlip = true;
-                                                            break;
-                                                        }
-                                                        flip = new BitmapBits(bits);
-                                                        flip.Flip(true, true);
-                                                        if (tiles[i].Equals(flip))
-                                                        {
-                                                            match = true;
-                                                            blk.tiles[x, y].Tile = (ushort)(i + curtilecnt);
-                                                            blk.tiles[x, y].XFlip = true;
-                                                            blk.tiles[x, y].YFlip = true;
-                                                            break;
-                                                        }
-                                                    }
-                                                    if (match) continue;
-                                                    tiles.Add(bits);
-                                                    LevelData.Tiles.Add(tile);
-                                                    selectedTile = LevelData.Tiles.Count - 1;
-                                                    blk.tiles[x, y].Tile = (ushort)selectedTile;
-                                                    LevelData.UpdateTileArray();
-                                                    TileSelector.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[selectedTile], 0, 2));
-                                                }
-                                            match = false;
-                                            for (int i = 0; i < blocks.Count; i++)
-                                            {
-                                                if (blk.Equals(blocks[i]))
-                                                {
-                                                    match = true;
-                                                    cnk.blocks[bx, by].Block = (ushort)i;
-                                                    break;
-                                                }
-                                            }
-                                            if (match) continue;
-                                            blocks.Add(blk);
-                                            LevelData.Blocks.Add(blk);
-                                            LevelData.ColInds1.Add(0);
-                                            if (LevelData.EngineVersion == EngineVersion.S2 || LevelData.EngineVersion == EngineVersion.S2NA || LevelData.EngineVersion == EngineVersion.S3K || LevelData.EngineVersion == EngineVersion.SKC)
-                                                if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2))
-                                                    LevelData.ColInds2.Add(0);
-                                            selectedBlock = LevelData.Blocks.Count - 1;
-                                            LevelData.BlockBmps.Add(new Bitmap[2]);
-                                            LevelData.BlockBmpBits.Add(new BitmapBits[2]);
-                                            LevelData.CompBlockBmps.Add(null);
-                                            LevelData.CompBlockBmpBits.Add(null);
-                                            LevelData.RedrawBlock(selectedBlock, false);
-                                            cnk.blocks[bx, by].Block = (ushort)selectedBlock;
-                                        }
-                                    match = false;
-                                    for (int i = 0; i < chunks.Count; i++)
-                                    {
-                                        if (cnk.Equals(chunks[i]))
-                                        {
-                                            match = true;
-                                            break;
-                                        }
-                                    }
-                                    if (match) continue;
-                                    chunks.Add(cnk);
-                                    LevelData.Chunks.Add(cnk);
-                                    selectedChunk = LevelData.Chunks.Count - 1;
-                                    LevelData.ChunkBmpBits.Add(new BitmapBits[2]);
-                                    LevelData.ChunkBmps.Add(new Bitmap[2]);
-                                    LevelData.ChunkColBmpBits.Add(new BitmapBits[2]);
-                                    LevelData.ChunkColBmps.Add(new Bitmap[2]);
-                                    LevelData.CompChunkBmps.Add(null);
-                                    LevelData.CompChunkBmpBits.Add(null);
-                                    LevelData.RedrawChunk(selectedChunk);
-                                }
-                            TileSelector.SelectedIndex = selectedTile;
-                            BlockSelector.SelectedIndex = selectedBlock;
-                            ChunkSelector.SelectedIndex = selectedChunk;
-                            break;
-                        case 1: // Blocks
-                            for (int by = 0; by < h / 16; by++)
-                                for (int bx = 0; bx < w / 16; bx++)
+                    ImportImage(new Bitmap(opendlg.FileName));
+            }
+        }
+
+        private void ImportImage(Bitmap bmp)
+        {
+            int w = bmp.Width;
+            int h = bmp.Height;
+            int pal = 0;
+            bool match = false;
+            List<BitmapBits> tiles = new List<BitmapBits>();
+            List<Block> blocks = new List<Block>();
+            List<Chunk> chunks = new List<Chunk>();
+            byte[] tile;
+            int curtilecnt = LevelData.Tiles.Count;
+            int curblkcnt = LevelData.Blocks.Count;
+            switch (tabControl1.SelectedIndex)
+            {
+                case 0: // Chunks
+                    for (int cy = 0; cy < h / LevelData.chunksz; cy++)
+                        for (int cx = 0; cx < w / LevelData.chunksz; cx++)
+                        {
+                            Chunk cnk = new Chunk();
+                            for (int by = 0; by < LevelData.chunksz / 16; by++)
+                                for (int bx = 0; bx < LevelData.chunksz / 16; bx++)
                                 {
                                     Block blk = new Block();
                                     for (int y = 0; y < 2; y++)
                                         for (int x = 0; x < 2; x++)
                                         {
-                                            tile = LevelData.BmpToTile(bmp.Clone(new Rectangle((bx * 16) + (x * 8), (by * 16) + (y * 8), 8, 8), bmp.PixelFormat), out pal);
+                                            tile = LevelData.BmpToTile(bmp.Clone(new Rectangle((cx * 16) + (bx * 16) + (x * 8), (cy * 16) + (by * 16) + (y * 8), 8, 8), bmp.PixelFormat), out pal);
                                             blk.tiles[x, y].Palette = (byte)pal;
                                             BitmapBits bits = BitmapBits.FromTile(tile, 0);
                                             match = false;
@@ -892,7 +792,7 @@ namespace SonicRetro.SonLVL
                                                 if (tiles[i].Equals(bits))
                                                 {
                                                     match = true;
-                                                    blk.tiles[x,y].Tile = (ushort)(i + curtilecnt);
+                                                    blk.tiles[x, y].Tile = (ushort)(i + curtilecnt);
                                                     break;
                                                 }
                                                 BitmapBits flip = new BitmapBits(bits);
@@ -938,6 +838,7 @@ namespace SonicRetro.SonLVL
                                         if (blk.Equals(blocks[i]))
                                         {
                                             match = true;
+                                            cnk.blocks[bx, by].Block = (ushort)i;
                                             break;
                                         }
                                     }
@@ -954,15 +855,43 @@ namespace SonicRetro.SonLVL
                                     LevelData.CompBlockBmps.Add(null);
                                     LevelData.CompBlockBmpBits.Add(null);
                                     LevelData.RedrawBlock(selectedBlock, false);
+                                    cnk.blocks[bx, by].Block = (ushort)selectedBlock;
                                 }
-                            TileSelector.SelectedIndex = selectedTile;
-                            BlockSelector.SelectedIndex = selectedBlock;
-                            break;
-                        case 2: // Tiles
-                            for (int y = 0; y < h / 8; y++)
-                                for (int x = 0; x < w / 8; x++)
+                            match = false;
+                            for (int i = 0; i < chunks.Count; i++)
+                            {
+                                if (cnk.Equals(chunks[i]))
                                 {
-                                    tile = LevelData.BmpToTile(bmp.Clone(new Rectangle(x * 8, y * 8, 8, 8), bmp.PixelFormat), out pal);
+                                    match = true;
+                                    break;
+                                }
+                            }
+                            if (match) continue;
+                            chunks.Add(cnk);
+                            LevelData.Chunks.Add(cnk);
+                            selectedChunk = LevelData.Chunks.Count - 1;
+                            LevelData.ChunkBmpBits.Add(new BitmapBits[2]);
+                            LevelData.ChunkBmps.Add(new Bitmap[2]);
+                            LevelData.ChunkColBmpBits.Add(new BitmapBits[2]);
+                            LevelData.ChunkColBmps.Add(new Bitmap[2]);
+                            LevelData.CompChunkBmps.Add(null);
+                            LevelData.CompChunkBmpBits.Add(null);
+                            LevelData.RedrawChunk(selectedChunk);
+                        }
+                    TileSelector.SelectedIndex = selectedTile;
+                    BlockSelector.SelectedIndex = selectedBlock;
+                    ChunkSelector.SelectedIndex = selectedChunk;
+                    break;
+                case 1: // Blocks
+                    for (int by = 0; by < h / 16; by++)
+                        for (int bx = 0; bx < w / 16; bx++)
+                        {
+                            Block blk = new Block();
+                            for (int y = 0; y < 2; y++)
+                                for (int x = 0; x < 2; x++)
+                                {
+                                    tile = LevelData.BmpToTile(bmp.Clone(new Rectangle((bx * 16) + (x * 8), (by * 16) + (y * 8), 8, 8), bmp.PixelFormat), out pal);
+                                    blk.tiles[x, y].Palette = (byte)pal;
                                     BitmapBits bits = BitmapBits.FromTile(tile, 0);
                                     match = false;
                                     for (int i = 0; i < tiles.Count; i++)
@@ -970,6 +899,7 @@ namespace SonicRetro.SonLVL
                                         if (tiles[i].Equals(bits))
                                         {
                                             match = true;
+                                            blk.tiles[x, y].Tile = (ushort)(i + curtilecnt);
                                             break;
                                         }
                                         BitmapBits flip = new BitmapBits(bits);
@@ -977,6 +907,8 @@ namespace SonicRetro.SonLVL
                                         if (tiles[i].Equals(flip))
                                         {
                                             match = true;
+                                            blk.tiles[x, y].Tile = (ushort)(i + curtilecnt);
+                                            blk.tiles[x, y].XFlip = true;
                                             break;
                                         }
                                         flip = new BitmapBits(bits);
@@ -984,6 +916,8 @@ namespace SonicRetro.SonLVL
                                         if (tiles[i].Equals(flip))
                                         {
                                             match = true;
+                                            blk.tiles[x, y].Tile = (ushort)(i + curtilecnt);
+                                            blk.tiles[x, y].YFlip = true;
                                             break;
                                         }
                                         flip = new BitmapBits(bits);
@@ -991,6 +925,9 @@ namespace SonicRetro.SonLVL
                                         if (tiles[i].Equals(flip))
                                         {
                                             match = true;
+                                            blk.tiles[x, y].Tile = (ushort)(i + curtilecnt);
+                                            blk.tiles[x, y].XFlip = true;
+                                            blk.tiles[x, y].YFlip = true;
                                             break;
                                         }
                                     }
@@ -998,15 +935,83 @@ namespace SonicRetro.SonLVL
                                     tiles.Add(bits);
                                     LevelData.Tiles.Add(tile);
                                     selectedTile = LevelData.Tiles.Count - 1;
+                                    blk.tiles[x, y].Tile = (ushort)selectedTile;
                                     LevelData.UpdateTileArray();
                                     TileSelector.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[selectedTile], 0, 2));
                                 }
-                            TileSelector.SelectedIndex = selectedTile;
-                            break;
-                    }
-                    bmp.Dispose();
-                }
+                            match = false;
+                            for (int i = 0; i < blocks.Count; i++)
+                            {
+                                if (blk.Equals(blocks[i]))
+                                {
+                                    match = true;
+                                    break;
+                                }
+                            }
+                            if (match) continue;
+                            blocks.Add(blk);
+                            LevelData.Blocks.Add(blk);
+                            LevelData.ColInds1.Add(0);
+                            if (LevelData.EngineVersion == EngineVersion.S2 || LevelData.EngineVersion == EngineVersion.S2NA || LevelData.EngineVersion == EngineVersion.S3K || LevelData.EngineVersion == EngineVersion.SKC)
+                                if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2))
+                                    LevelData.ColInds2.Add(0);
+                            selectedBlock = LevelData.Blocks.Count - 1;
+                            LevelData.BlockBmps.Add(new Bitmap[2]);
+                            LevelData.BlockBmpBits.Add(new BitmapBits[2]);
+                            LevelData.CompBlockBmps.Add(null);
+                            LevelData.CompBlockBmpBits.Add(null);
+                            LevelData.RedrawBlock(selectedBlock, false);
+                        }
+                    TileSelector.SelectedIndex = selectedTile;
+                    BlockSelector.SelectedIndex = selectedBlock;
+                    break;
+                case 2: // Tiles
+                    for (int y = 0; y < h / 8; y++)
+                        for (int x = 0; x < w / 8; x++)
+                        {
+                            tile = LevelData.BmpToTile(bmp.Clone(new Rectangle(x * 8, y * 8, 8, 8), bmp.PixelFormat), out pal);
+                            BitmapBits bits = BitmapBits.FromTile(tile, 0);
+                            match = false;
+                            for (int i = 0; i < tiles.Count; i++)
+                            {
+                                if (tiles[i].Equals(bits))
+                                {
+                                    match = true;
+                                    break;
+                                }
+                                BitmapBits flip = new BitmapBits(bits);
+                                flip.Flip(true, false);
+                                if (tiles[i].Equals(flip))
+                                {
+                                    match = true;
+                                    break;
+                                }
+                                flip = new BitmapBits(bits);
+                                flip.Flip(false, true);
+                                if (tiles[i].Equals(flip))
+                                {
+                                    match = true;
+                                    break;
+                                }
+                                flip = new BitmapBits(bits);
+                                flip.Flip(true, true);
+                                if (tiles[i].Equals(flip))
+                                {
+                                    match = true;
+                                    break;
+                                }
+                            }
+                            if (match) continue;
+                            tiles.Add(bits);
+                            LevelData.Tiles.Add(tile);
+                            selectedTile = LevelData.Tiles.Count - 1;
+                            LevelData.UpdateTileArray();
+                            TileSelector.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[selectedTile], 0, 2));
+                        }
+                    TileSelector.SelectedIndex = selectedTile;
+                    break;
             }
+            bmp.Dispose();
         }
 
         private int selectedCol;
@@ -1028,6 +1033,27 @@ namespace SonicRetro.SonLVL
         }
 
         private void ColPicture_MouseDown(object sender, MouseEventArgs e)
+        {
+            int x = e.X / 4;
+            int y = e.Y / 4;
+            switch (e.Button)
+            {
+                case MouseButtons.Left:
+                    LevelData.ColArr1[selectedCol][x] = (sbyte)(16 - y);
+                    break;
+                case MouseButtons.Right:
+                    if (y == 16)
+                        LevelData.ColArr1[selectedCol][x] = 0;
+                    else
+                        LevelData.ColArr1[selectedCol][x] = (sbyte)(-y - 1);
+                    break;
+            }
+            LevelData.RedrawCol(selectedCol, true);
+            ColPicture.Invalidate();
+            CollisionSelector.Images[selectedCol] = LevelData.ColBmps[selectedCol];
+        }
+
+        private void ColPicture_MouseMove(object sender, MouseEventArgs e)
         {
             int x = e.X / 4;
             int y = e.Y / 4;
@@ -1093,6 +1119,27 @@ namespace SonicRetro.SonLVL
             }
             TileSelector.Images[selectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[selectedTile], 0, 2);
             TilePicture.Invalidate();
+        }
+
+        private void drawToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (DrawTileDialog dlg = new DrawTileDialog())
+            {
+                switch (tabControl1.SelectedIndex)
+                {
+                    case 0: // Chunks
+                        dlg.tile = new BitmapBits(LevelData.chunksz, LevelData.chunksz);
+                        break;
+                    case 1: // Blocks
+                        dlg.tile = new BitmapBits(16, 16);
+                        break;
+                    case 2: // Tiles
+                        dlg.tile = new BitmapBits(8, 8);
+                        break;
+                }
+                if (dlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+                    ImportImage(dlg.tile.ToBitmap(LevelData.BmpPal));
+            }
         }
     }
 }
