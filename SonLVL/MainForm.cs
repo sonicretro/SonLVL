@@ -3254,16 +3254,32 @@ namespace SonicRetro.SonLVL
         {
             FolderBrowserDialog a = new FolderBrowserDialog() { SelectedPath = Environment.CurrentDirectory };
             if (a.ShowDialog() == DialogResult.OK)
+            {
+                Color[] palette = new Color[256];
+                for (int i = 0; i < 64; i++)
+                    palette[i] = LevelData.PaletteToColor(i / 16, i % 16, false);
+                for (int i = 64; i < 256; i++)
+                    palette[i] = Color.Black;
+                palette[0] = LevelData.PaletteToColor(2, 0, false);
                 for (int i = 0; i < LevelData.Blocks.Count; i++)
-                    LevelData.CompBlockBmps[i].Save(System.IO.Path.Combine(a.SelectedPath, i + ".png"));
+                    LevelData.CompBlockBmpBits[i].ToBitmap(palette).Save(System.IO.Path.Combine(a.SelectedPath, i + ".png"));
+            }
         }
 
         private void chunksToolStripMenuItem_Click(object sender, EventArgs e)
         {
             FolderBrowserDialog a = new FolderBrowserDialog() { SelectedPath = Environment.CurrentDirectory };
             if (a.ShowDialog() == DialogResult.OK)
+            {
+                Color[] palette = new Color[256];
+                for (int i = 0; i < 64; i++)
+                    palette[i] = LevelData.PaletteToColor(i / 16, i % 16, false);
+                for (int i = 64; i < 256; i++)
+                    palette[i] = Color.Black;
+                palette[0] = LevelData.PaletteToColor(2, 0, false);
                 for (int i = 0; i < LevelData.Chunks.Count; i++)
-                    LevelData.CompChunkBmps[i].Save(System.IO.Path.Combine(a.SelectedPath, i + ".png"));
+                    LevelData.CompChunkBmpBits[i].ToBitmap(palette).Save(System.IO.Path.Combine(a.SelectedPath, i + ".png"));
+            }
         }
 
         private void foregroundToolStripMenuItem_Click(object sender, EventArgs e)
@@ -3349,6 +3365,7 @@ namespace SonicRetro.SonLVL
                     pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, transparentBackFGBGToolStripMenuItem.Checked);
                 for (int i = 64; i < 256; i++)
                     pal.Entries[i] = Color.Black;
+                pal.Entries[0] = LevelData.PaletteToColor(2, 0, transparentBackFGBGToolStripMenuItem.Checked);
                 res.Palette = pal;
                 res.Save(a.FileName);
             }
@@ -3398,6 +3415,7 @@ namespace SonicRetro.SonLVL
                     pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, transparentBackFGBGToolStripMenuItem.Checked);
                 for (int i = 64; i < 256; i++)
                     pal.Entries[i] = Color.Black;
+                pal.Entries[0] = LevelData.PaletteToColor(2, 0, transparentBackFGBGToolStripMenuItem.Checked);
                 res.Palette = pal;
                 res.Save(a.FileName);
             }

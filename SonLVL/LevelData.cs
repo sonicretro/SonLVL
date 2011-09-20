@@ -93,9 +93,7 @@ namespace SonicRetro.SonLVL
             }
             ColorPalette pal = bmp.Palette;
             for (int i = 0; i < 16; i++)
-            {
-                pal.Entries[i] = PaletteToColor(palette, i, true);
-            }
+                pal.Entries[i] = PaletteToColor(palette, i, false);
             bmp.Palette = pal;
             return bmp;
         }
