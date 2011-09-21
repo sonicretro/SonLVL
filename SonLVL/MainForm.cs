@@ -2514,6 +2514,7 @@ namespace SonicRetro.SonLVL
                         switch (LevelData.LayoutFmt)
                         {
                             case EngineVersion.S1:
+                            case EngineVersion.S2NA:
                                 canResize = true;
                                 dg.levelWidth.Minimum = 1;
                                 dg.levelWidth.Maximum = int.Parse(ini[string.Empty]["levelwidthmax"], System.Globalization.NumberStyles.Integer);
@@ -2524,7 +2525,7 @@ namespace SonicRetro.SonLVL
                             case EngineVersion.SKC:
                                 canResize = true;
                                 dg.levelWidth.Minimum = 1;
-                                dg.levelWidth.Maximum = 62;
+                                dg.levelWidth.Maximum = 200;
                                 dg.levelHeight.Minimum = 1;
                                 dg.levelHeight.Maximum = 32;
                                 break;
