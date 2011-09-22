@@ -47,7 +47,7 @@ namespace SonicRetro.SonLVL
         string levelName;
         internal bool loaded;
         Point camera;
-        EditingModes EditingMode;
+        internal EditingModes EditingMode;
         internal byte SelectedTile;
         internal List<Entry> SelectedItems;
         internal ToolWindow EditControls;

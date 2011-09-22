@@ -84,6 +84,7 @@
             this.levelHeight.Name = "levelHeight";
             this.levelHeight.Size = new System.Drawing.Size(53, 20);
             this.levelHeight.TabIndex = 5;
+            this.levelHeight.ValueChanged += new System.EventHandler(this.levelHeight_ValueChanged);
             // 
             // label2
             // 

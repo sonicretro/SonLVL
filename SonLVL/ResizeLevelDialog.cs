@@ -19,5 +19,22 @@ namespace SonicRetro.SonLVL
         {
             Close();
         }
+
+        private void levelHeight_ValueChanged(object sender, EventArgs e)
+        {
+            if (LevelData.LayoutFmt == EngineVersion.S3K || LevelData.LayoutFmt == EngineVersion.SKC)
+            {
+                switch (LevelData.MainForm.EditingMode)
+                {
+                    case EditingModes.Objects:
+                    case EditingModes.PlaneA:
+                        levelWidth.Maximum = Math.Floor((3960 - (LevelData.BGLayout.Length)) / levelHeight.Value);
+                        break;
+                    case EditingModes.PlaneB:
+                        levelWidth.Maximum = Math.Floor((3960 - (LevelData.FGLayout.Length)) / levelHeight.Value);
+                        break;
+                }
+            }
+        }
     }
 }
