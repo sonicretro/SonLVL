@@ -381,26 +381,144 @@ namespace SonicRetro.SonLVL
         }
     }
 
+    [TypeConverter(typeof(PositionConverter))]
+    public class Position
+    {
+        private Entry ent;
+        private ushort x, y;
+        [Browsable(false)]
+        public ushort X { get { if (ent != null) x = ent.X; return x; } set { x = value; if (ent != null) ent.X = value; } }
+        [Browsable(false)]
+        public ushort Y { get { if (ent != null) y = ent.Y; return y; } set { y = value; if (ent != null) ent.Y = value; } }
+
+        [DisplayName("X")]
+        public string XHex { get { return X.ToString("X4"); } set { X = ushort.Parse(value, System.Globalization.NumberStyles.HexNumber); } }
+        [DisplayName("Y")]
+        public string YHex { get { return Y.ToString("X4"); } set { Y = ushort.Parse(value, System.Globalization.NumberStyles.HexNumber); } }
+
+        public Position() { }
+
+        public Position(Entry item)
+        {
+            ent = item;
+            x = item.X;
+            y = item.Y;
+        }
+
+        public Position(string data)
+        {
+            string[] a = data.Split(',');
+            X = ushort.Parse(a[0], System.Globalization.NumberStyles.HexNumber);
+            Y = ushort.Parse(a[1], System.Globalization.NumberStyles.HexNumber);
+        }
+
+        public Position(ushort x, ushort y)
+        {
+            X = x;
+            Y = y;
+        }
+
+        public override string ToString()
+        {
+            return X.ToString("X4") + ", " + Y.ToString("X4");
+        }
+
+        public ushort[] ToArray()
+        {
+            ushort[] result = new ushort[2];
+            result[0] = X;
+            result[1] = Y;
+            return result;
+        }
+
+        public ushort this[int index]
+        {
+            get
+            {
+                switch (index)
+                {
+                    case 0:
+                        return X;
+                    case 1:
+                        return Y;
+                    default:
+                        throw new IndexOutOfRangeException();
+                }
+            }
+            set
+            {
+                switch (index)
+                {
+                    case 0:
+                        X = value;
+                        return;
+                    case 1:
+                        Y = value;
+                        return;
+                    default:
+                        throw new IndexOutOfRangeException();
+                }
+            }
+        }
+    }
+
+    public class PositionConverter : ExpandableObjectConverter
+    {
+        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
+        {
+            if (destinationType == typeof(Position))
+                return true;
+            return base.CanConvertTo(context, destinationType);
+        }
+
+        public override object ConvertTo(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value, Type destinationType)
+        {
+            if (destinationType == typeof(string) && value is Position)
+                return ((Position)value).ToString();
+            return base.ConvertTo(context, culture, value, destinationType);
+        }
+
+        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+        {
+            if (sourceType == typeof(string))
+                return true;
+            return base.CanConvertFrom(context, sourceType);
+        }
+
+        public override object ConvertFrom(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value)
+        {
+            if (value is string)
+                return new Position((string)value);
+            return base.ConvertFrom(context, culture, value);
+        }
+    }
+
     [Serializable()]
     public abstract class Entry : IComparable<Entry>
     {
         [Browsable(false)]
         public ushort X { get; set; }
-        public string Position
+        protected Position pos;
+        [Category("Standard")]
+        [Description("The location of the item within the level.")]
+        public Position Position
         {
             get
             {
-                return X.ToString("X4") + ", " + Y.ToString("X4");
+                return pos;
             }
             set
             {
-                X = ushort.Parse(value.Split(',')[0], System.Globalization.NumberStyles.HexNumber);
-                Y = ushort.Parse(value.Split(',')[1], System.Globalization.NumberStyles.HexNumber);
+                X = value.X;
+                Y = value.Y;
+                pos = new Position(this);
             }
         }
         [Browsable(false)]
         public ushort Y { get; set; }
 
+        [Category("Standard")]
+        [Description("The hexadecimal representation of the item.")]
         public string Data
         {
             get
@@ -430,8 +548,15 @@ namespace SonicRetro.SonLVL
 
         public abstract void FromBytes(byte[] bytes);
 
+        [Browsable(false)]
+        public Sprite Sprite { get; protected set; }
+
+        public abstract void UpdateSprite();
+
         [ReadOnly(true)]
         [ParenthesizePropertyName(true)]
+        [Category("Meta")]
+        [Description("The type of the item.")]
         public string Type
         {
             get
@@ -439,6 +564,12 @@ namespace SonicRetro.SonLVL
                 return GetType().Name;
             }
         }
+
+        [ReadOnly(true)]
+        [ParenthesizePropertyName(true)]
+        [Category("Meta")]
+        [Description("The name of the item.")]
+        public abstract string Name { get; }
 
         int IComparable<Entry>.CompareTo(Entry other)
         {
@@ -452,9 +583,11 @@ namespace SonicRetro.SonLVL
     public abstract class ObjectEntry : Entry, IComparable<ObjectEntry>
     {
         [DefaultValue(false)]
+        [Description("Flips the object vertically.")]
         [DisplayName("Y Flip")]
         public virtual bool YFlip { get; set; }
         [DefaultValue(false)]
+        [Description("Flips the object horizontally.")]
         [DisplayName("X Flip")]
         public virtual bool XFlip { get; set; }
         private byte id;
@@ -472,8 +605,9 @@ namespace SonicRetro.SonLVL
             }
         }
         [DefaultValue("00")]
-        [Editor(typeof(IDEditor), typeof(System.Drawing.Design.UITypeEditor))]
+        [Description("The ID number of the object.")]
         [DisplayName("ID")]
+        [Editor(typeof(IDEditor), typeof(System.Drawing.Design.UITypeEditor))]
         public virtual string _ID
         {
             get
@@ -488,7 +622,9 @@ namespace SonicRetro.SonLVL
         [Browsable(false)]
         public virtual byte SubType { get; set; }
         [DefaultValue("00")]
+        [Description("The subtype of the object.")]
         [DisplayName("Subtype")]
+        [Editor(typeof(SubTypeEditor), typeof(System.Drawing.Design.UITypeEditor))]
         public string _SubType
         {
             get
@@ -509,6 +645,22 @@ namespace SonicRetro.SonLVL
             if (c == 0) c = Y.CompareTo(other.Y);
             return c;
         }
+
+        public override void UpdateSprite()
+        {
+            Sprite = LevelData.GetObjectDefinition(ID).GetSprite(this);
+        }
+
+        public override string Name
+        {
+            get
+            {
+                string ret = LevelData.unkobj.Name();
+                if (LevelData.ObjTypes.ContainsKey(ID))
+                    ret = LevelData.ObjTypes[ID].Name();
+                return ret;
+            }
+        }
     }
 
     [DefaultProperty("ID")]
@@ -516,6 +668,7 @@ namespace SonicRetro.SonLVL
     public class S2ObjectEntry : ObjectEntry
     {
         [DefaultValue(false)]
+        [Description("If true, the object will stay destroyed after it leaves the screen.")]
         [DisplayName("Remember State")]
         public virtual bool RememberState { get; set; }
 
@@ -525,19 +678,14 @@ namespace SonicRetro.SonLVL
 
         public static int Size { get { return 6; } }
 
-        public S2ObjectEntry() { isLoaded = true; }
+        public S2ObjectEntry() { pos = new Position(this); isLoaded = true; }
 
         public S2ObjectEntry(byte[] file, int address)
         {
-            X = ByteConverter.ToUInt16(file, address);
-            ushort val = ByteConverter.ToUInt16(file, address + 2);
-            RememberState = (val & 0x8000) == 0x8000;
-            YFlip = (val & 0x4000) == 0x4000;
-            XFlip = (val & 0x2000) == 0x2000;
-            LongDistance = (val & 0x1000) == 0x1000;
-            Y = (ushort)(val & 0xFFF);
-            ID = file[address + 4];
-            SubType = file[address + 5];
+            byte[] bytes = new byte[Size];
+            Array.Copy(file, address, bytes, 0, Size);
+            FromBytes(bytes);
+            pos = new Position(this);
             isLoaded = true;
         }
 
@@ -575,6 +723,7 @@ namespace SonicRetro.SonLVL
     public class S1ObjectEntry : ObjectEntry
     {
         [DefaultValue(false)]
+        [Description("If true, the object will stay destroyed after it leaves the screen.")]
         [DisplayName("Remember State")]
         public virtual bool RememberState { get; set; }
 
@@ -604,19 +753,14 @@ namespace SonicRetro.SonLVL
 
         public static int Size { get { return 6; } }
 
-        public S1ObjectEntry() { isLoaded = true; }
+        public S1ObjectEntry() { pos = new Position(this); isLoaded = true; }
 
         public S1ObjectEntry(byte[] file, int address)
         {
-            X = ByteConverter.ToUInt16(file, address);
-            ushort val = ByteConverter.ToUInt16(file, address + 2);
-            YFlip = (val & 0x8000) == 0x8000;
-            XFlip = (val & 0x4000) == 0x4000;
-            Y = (ushort)(val & 0xFFF);
-            ID = file[address + 4];
-            RememberState = (file[address + 4] & 0x80) == 0x80;
-            ID = (byte)(ID & 0x7F);
-            SubType = file[address + 5];
+            byte[] bytes = new byte[Size];
+            Array.Copy(file, address, bytes, 0, Size);
+            FromBytes(bytes);
+            pos = new Position(this);
             isLoaded = true;
         }
 
@@ -641,8 +785,7 @@ namespace SonicRetro.SonLVL
             XFlip = (val & 0x4000) == 0x4000;
             Y = (ushort)(val & 0xFFF);
             ID = bytes[4];
-            RememberState = (ID & 0x80) == 0x80;
-            ID = (byte)(ID & 0x7F);
+            RememberState = (bytes[4] & 0x80) == 0x80;
             SubType = bytes[5];
         }
     }
@@ -652,23 +795,20 @@ namespace SonicRetro.SonLVL
     public class S3KObjectEntry : ObjectEntry
     {
         [DefaultValue(false)]
+        [Description("If true, the object will be loaded when it is in horizontal range of the screen, regardless of its Y position.")]
         [DisplayName("Make object manager ignore Y position")]
         public virtual bool SomeFlag { get; set; }
 
         public static int Size { get { return 6; } }
 
-        public S3KObjectEntry() { isLoaded = true; }
+        public S3KObjectEntry() { pos = new Position(this); isLoaded = true; }
 
         public S3KObjectEntry(byte[] file, int address)
         {
-            X = ByteConverter.ToUInt16(file, address);
-            ushort val = ByteConverter.ToUInt16(file, address + 2);
-            SomeFlag = (val & 0x8000) == 0x8000;
-            YFlip = (val & 0x4000) == 0x4000;
-            XFlip = (val & 0x2000) == 0x2000;
-            Y = (ushort)(val & 0xFFF);
-            ID = file[address + 4];
-            SubType = file[address + 5];
+            byte[] bytes = new byte[Size];
+            Array.Copy(file, address, bytes, 0, Size);
+            FromBytes(bytes);
+            pos = new Position(this);
             isLoaded = true;
         }
 
@@ -704,13 +844,17 @@ namespace SonicRetro.SonLVL
     public class SCDObjectEntry : ObjectEntry
     {
         [DefaultValue(false)]
+        [Description("If true, the object will stay destroyed after it leaves the screen.")]
         [DisplayName("Remember State")]
         public virtual bool RememberState { get; set; }
 
+        [Description("If true, the object should be loaded in the Present time zone.")]
         [DisplayName("Show in Present")]
         public virtual bool ShowPresent { get; set; }
+        [Description("If true, the object should be loaded in the Past time zone.")]
         [DisplayName("Show in Past")]
         public virtual bool ShowPast { get; set; }
+        [Description("If true, the object should be loaded in the Future time zone.")]
         [DisplayName("Show in Future")]
         public virtual bool ShowFuture { get; set; }
 
@@ -740,22 +884,14 @@ namespace SonicRetro.SonLVL
 
         public static int Size { get { return 8; } }
 
-        public SCDObjectEntry() { isLoaded = true; }
+        public SCDObjectEntry() { pos = new Position(this); isLoaded = true; }
 
         public SCDObjectEntry(byte[] file, int address)
         {
-            X = ByteConverter.ToUInt16(file, address);
-            ushort val = ByteConverter.ToUInt16(file, address + 2);
-            YFlip = (val & 0x8000) == 0x8000;
-            XFlip = (val & 0x4000) == 0x4000;
-            Y = (ushort)(val & 0xFFF);
-            ID = file[address + 4];
-            RememberState = (file[address + 4] & 0x80) == 0x80;
-            ID = (byte)(ID & 0x7F);
-            SubType = file[address + 5];
-            ShowPresent = (file[address + 6] & 0x40) == 0x40;
-            ShowPast = (file[address + 6] & 0x80) == 0x80;
-            ShowFuture = (file[address + 6] & 0x20) == 0x20;
+            byte[] bytes = new byte[Size];
+            Array.Copy(file, address, bytes, 0, Size);
+            FromBytes(bytes);
+            pos = new Position(this);
             isLoaded = true;
         }
 
@@ -787,7 +923,6 @@ namespace SonicRetro.SonLVL
             Y = (ushort)(val & 0xFFF);
             ID = bytes[4];
             RememberState = (bytes[4] & 0x80) == 0x80;
-            ID = (byte)(ID & 0x7F);
             SubType = bytes[5];
             ShowPresent = (bytes[6] & 0x40) == 0x40;
             ShowPast = (bytes[6] & 0x80) == 0x80;
@@ -796,7 +931,7 @@ namespace SonicRetro.SonLVL
     }
 
     [Serializable()]
-    internal abstract class RingEntry : Entry, IComparable<RingEntry>
+    public abstract class RingEntry : Entry, IComparable<RingEntry>
     {
         int IComparable<RingEntry>.CompareTo(RingEntry other)
         {
@@ -804,16 +939,23 @@ namespace SonicRetro.SonLVL
             if (c == 0) c = Y.CompareTo(other.Y);
             return c;
         }
+
+        public override string Name
+        {
+            get { return "Ring"; }
+        }
     }
 
     [DefaultProperty("Count")]
     [Serializable()]
-    internal class S2RingEntry : RingEntry
+    public class S2RingEntry : RingEntry
     {
         [DefaultValue(Direction.Horizontal)]
+        [Description("The direction of the ring group.")]
         public Direction Direction { get; set; }
         private byte _count;
         [DefaultValue(1)]
+        [Description("The number of rings in this group.")]
         public byte Count
         {
             get
@@ -828,15 +970,14 @@ namespace SonicRetro.SonLVL
 
         public static int Size { get { return 4; } }
 
-        public S2RingEntry() { Count = 1; }
+        public S2RingEntry() { pos = new Position(this); Count = 1; }
 
         public S2RingEntry(byte[] file, int address)
         {
-            X = ByteConverter.ToUInt16(file, address);
-            ushort val = ByteConverter.ToUInt16(file, address + 2);
-            Direction = (val & 0x8000) == 0x8000 ? Direction.Vertical : Direction.Horizontal;
-            Count = (byte)(((val & 0x7000) >> 12) + 1);
-            Y = (ushort)(val & 0xFFF);
+            byte[] bytes = new byte[Size];
+            Array.Copy(file, address, bytes, 0, Size);
+            FromBytes(bytes);
+            pos = new Position(this);
         }
 
         public override byte[] GetBytes()
@@ -858,6 +999,16 @@ namespace SonicRetro.SonLVL
             Count = (byte)(((val & 0x7000) >> 12) + 1);
             Y = (ushort)(val & 0xFFF);
         }
+
+        public override void UpdateSprite()
+        {
+            Sprite = LevelData.S2RingDef.GetSprite(this);
+        }
+
+        public override string Name
+        {
+            get { return LevelData.S2RingDef.Name(); }
+        }
     }
 
     [Serializable()]
@@ -865,12 +1016,14 @@ namespace SonicRetro.SonLVL
     {
         public static int Size { get { return 4; } }
 
-        public S3KRingEntry() { }
+        public S3KRingEntry() { pos = new Position(this); }
 
         public S3KRingEntry(byte[] file, int address)
         {
-            X = ByteConverter.ToUInt16(file, address);
-            Y = ByteConverter.ToUInt16(file, address + 2);
+            byte[] bytes = new byte[Size];
+            Array.Copy(file, address, bytes, 0, Size);
+            FromBytes(bytes);
+            pos = new Position(this);
         }
 
         public override byte[] GetBytes()
@@ -885,6 +1038,11 @@ namespace SonicRetro.SonLVL
         {
             X = ByteConverter.ToUInt16(bytes, 0);
             Y = ByteConverter.ToUInt16(bytes, 2);
+        }
+
+        public override void UpdateSprite()
+        {
+            Sprite = LevelData.S3KRingDef.GetSprite(this);
         }
     }
 
@@ -902,7 +1060,7 @@ namespace SonicRetro.SonLVL
         public ushort ID { get; set; }
 
         [DefaultValue("0000")]
-        [Editor(typeof(IDEditor), typeof(System.Drawing.Design.UITypeEditor))]
+        [Description("The type of bumper.")]
         [DisplayName("ID")]
         public string _ID
         {
@@ -918,13 +1076,14 @@ namespace SonicRetro.SonLVL
 
         public static int Size { get { return 6; } }
 
-        public CNZBumperEntry() { }
+        public CNZBumperEntry() { pos = new Position(this); }
 
         public CNZBumperEntry(byte[] file, int address)
         {
-            ID = ByteConverter.ToUInt16(file, address);
-            X = ByteConverter.ToUInt16(file, address + 2);
-            Y = ByteConverter.ToUInt16(file, address + 4);
+            byte[] bytes = new byte[Size];
+            Array.Copy(file, address, bytes, 0, Size);
+            FromBytes(bytes);
+            pos = new Position(this);
         }
 
         public override byte[] GetBytes()
@@ -949,18 +1108,30 @@ namespace SonicRetro.SonLVL
             if (c == 0) c = Y.CompareTo(other.Y);
             return c;
         }
+
+        public override void UpdateSprite()
+        {
+            Sprite = LevelData.unkobj.GetSprite(new S2ObjectEntry() { X = X, Y = Y });
+        }
+
+        public override string Name
+        {
+            get { return "Bumper"; }
+        }
     }
 
     internal class StartPositionEntry : Entry
     {
         public static int Size { get { return 4; } }
 
-        public StartPositionEntry() { }
+        public StartPositionEntry() { pos = new Position(this); }
 
         public StartPositionEntry(byte[] file, int address)
         {
-            X = ByteConverter.ToUInt16(file, address);
-            Y = ByteConverter.ToUInt16(file, address + 2);
+            byte[] bytes = new byte[Size];
+            Array.Copy(file, address, bytes, 0, Size);
+            FromBytes(bytes);
+            pos = new Position(this);
         }
 
         public override byte[] GetBytes()
@@ -975,6 +1146,16 @@ namespace SonicRetro.SonLVL
         {
             X = ByteConverter.ToUInt16(bytes, 0);
             Y = ByteConverter.ToUInt16(bytes, 2);
+        }
+
+        public override void UpdateSprite()
+        {
+            Sprite = LevelData.StartPosDefs[LevelData.StartPositions.IndexOf(this)].GetSprite(this);
+        }
+
+        public override string Name
+        {
+            get { return LevelData.StartPosDefs[LevelData.StartPositions.IndexOf(this)].Name(); }
         }
     }
 
@@ -1155,15 +1336,44 @@ namespace SonicRetro.SonLVL
         }
     }
 
-    public struct SCDPCSprite
+    public struct Sprite
     {
-        public Point offset;
-        public BitmapBits sprite;
+        public Point Offset;
+        public BitmapBits Image;
+        public int X { get { return Offset.X; } set { Offset.X = value; } }
+        public int Y { get { return Offset.Y; } set { Offset.Y = value; } }
+        public int Width { get { return Image.Width; } }
+        public int Height { get { return Image.Height; } }
+        public Size Size { get { return Image.Size; } }
+        public int Left { get { return X; } }
+        public int Top { get { return Y; } }
+        public int Right { get { return X + Width; } }
+        public int Bottom { get { return Y + Height; } }
+        public Rectangle Bounds { get { return new Rectangle(Offset, Size); } }
 
-        public SCDPCSprite(BitmapBits spr, Point off)
+        public Sprite(BitmapBits spr, Point off)
         {
-            sprite = spr;
-            offset = off;
+            Image = spr;
+            Offset = off;
+        }
+
+        public Sprite(params Sprite[] sprites)
+        {
+            int left = 0;
+            int right = 0;
+            int top = 0;
+            int bottom = 0;
+            for (int i = 0; i < sprites.Length; i++)
+            {
+                left = Math.Min(sprites[i].Left, left);
+                right = Math.Max(sprites[i].Right, right);
+                top = Math.Min(sprites[i].Top, top);
+                bottom = Math.Max(sprites[i].Bottom, bottom);
+            }
+            Offset = new Point(left, top);
+            Image = new BitmapBits(right - left, bottom - top);
+            for (int i = 0; i < sprites.Length; i++)
+                Image.DrawBitmapComposited(sprites[i].Image, new Point(sprites[i].X - left, sprites[i].Y - top));
         }
     }
 }

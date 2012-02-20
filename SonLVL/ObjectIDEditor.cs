@@ -25,28 +25,20 @@ namespace SonicRetro.SonLVL
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(IDControl));
-            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem("Rotating cylinder in Metropolis Zone, twisting pathway in Emerald Hill Zone");
-            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem("2");
-            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem("3");
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.listView1 = new System.Windows.Forms.ListView();
             this.SuspendLayout();
             // 
             // imageList1
             // 
-            this.imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
+            this.imageList1.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
+            this.imageList1.ImageSize = new System.Drawing.Size(32, 32);
             this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
-            this.imageList1.Images.SetKeyName(0, "UnknownImg.png");
             // 
             // listView1
             // 
             this.listView1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listView1.HideSelection = false;
-            this.listView1.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem1,
-            listViewItem2,
-            listViewItem3});
             this.listView1.LargeImageList = this.imageList1;
             this.listView1.Location = new System.Drawing.Point(0, 0);
             this.listView1.MultiSelect = false;
@@ -115,6 +107,8 @@ namespace SonicRetro.SonLVL
         // Displays the UI for value selection.
         public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
         {
+            if (!(context.Instance is ObjectEntry)) return value;
+            if (value == null) value = "0";
             // Uses the IWindowsFormsEditorService to display a 
             // drop-down UI in the Properties window.
             IWindowsFormsEditorService edSvc = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
@@ -130,7 +124,17 @@ namespace SonicRetro.SonLVL
 
         public override bool GetPaintValueSupported(ITypeDescriptorContext context)
         {
-            return false;
+            return true;
+        }
+
+        public override void PaintValue(PaintValueEventArgs e)
+        {
+            if (e.Value == null) return;
+            byte val = byte.Parse((string)e.Value, System.Globalization.NumberStyles.HexNumber);
+            if (LevelData.ObjTypes.ContainsKey(val))
+                e.Graphics.DrawImage(LevelData.ObjTypes[val].Image().ToBitmap(LevelData.BmpPal).Resize(e.Bounds.Size), e.Bounds);
+            else
+                e.Graphics.DrawImage(LevelData.UnknownImg.Resize(e.Bounds.Size), e.Bounds);
         }
 
         public override bool IsDropDownResizable

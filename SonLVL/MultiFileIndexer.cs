@@ -5,7 +5,7 @@ using System.Collections.ObjectModel;
 
 namespace SonicRetro.SonLVL
 {
-    internal class MultiFileIndexer<T> : IEnumerable<T>
+    public class MultiFileIndexer<T> : IEnumerable<T>
     {
         private List<List<T>> filedata = new List<List<T>>();
         private List<int> fileoffs = new List<int>();

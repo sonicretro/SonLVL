@@ -8,21 +8,15 @@ namespace S1ObjectDefinitions.SYZ
 {
     class Block : ObjectDefinition
     {
-        private Point offset;
-        private BitmapBits img;
-        private List<Point> offsets = new List<Point>();
-        private List<BitmapBits> imgs = new List<BitmapBits>();
+        private Sprite img;
+        private List<Sprite> imgs = new List<Sprite>();
 
         public override void Init(Dictionary<string, string> data)
         {
             byte[] artfile = ObjectHelper.LevelArt;
-            img = ObjectHelper.MapASMToBmp(artfile, "../_maps/Floating Blocks and Doors.asm", 0, 2, out offset);
-            Point off;
+            img = ObjectHelper.MapASMToBmp(artfile, "../_maps/Floating Blocks and Doors.asm", 0, 2);
             for (int i = 0; i < 8; i++)
-            {
-                imgs.Add(ObjectHelper.MapASMToBmp(artfile, "../_maps/Floating Blocks and Doors.asm", i, 2, out off));
-                offsets.Add(off);
-            }
+                imgs.Add(ObjectHelper.MapASMToBmp(artfile, "../_maps/Floating Blocks and Doors.asm", i, 2));
         }
 
         public override ReadOnlyCollection<byte> Subtypes()
@@ -45,31 +39,26 @@ namespace S1ObjectDefinitions.SYZ
             return ((PlatformMovement)(subtype & 0xF)).ToString();
         }
 
-        public override string FullName(byte subtype)
-        {
-            return Name() + " - " + SubtypeName(subtype);
-        }
-
         public override BitmapBits Image()
         {
-            return img;
+            return img.Image;
         }
 
         public override BitmapBits Image(byte subtype)
         {
-            return imgs[(subtype & 0xE) << 1];
+            return imgs[(subtype & 0xE) << 1].Image;
         }
 
-        public override Rectangle Bounds(Point loc, byte subtype)
+        public override Rectangle Bounds(ObjectEntry obj, Point camera)
         {
-            return new Rectangle(loc.X + offsets[(subtype & 0xE) << 1].X, loc.Y + offsets[(subtype & 0xE) << 1].Y, imgs[(subtype & 0xE) << 1].Width, imgs[(subtype & 0xE) << 1].Height);
+            return new Rectangle(obj.X + imgs[(obj.SubType & 0xE) << 1].X - camera.X, obj.Y + imgs[(obj.SubType & 0xE) << 1].Y - camera.Y, imgs[(obj.SubType & 0xE) << 1].Width, imgs[(obj.SubType & 0xE) << 1].Height);
         }
 
-        public override void Draw(BitmapBits bmp, Point loc, byte subtype, bool XFlip, bool YFlip, bool includeDebug)
+        public override Sprite GetSprite(ObjectEntry obj)
         {
-            BitmapBits bits = new BitmapBits(imgs[(subtype & 0xE) << 1]);
-            bits.Flip(XFlip, YFlip);
-            bmp.DrawBitmapComposited(bits, new Point(loc.X + offsets[(subtype & 0xE) << 1].X, loc.Y + offsets[(subtype & 0xE) << 1].Y));
+            BitmapBits bits = new BitmapBits(imgs[(obj.SubType & 0xE) << 1].Image);
+            bits.Flip(obj.XFlip, obj.YFlip);
+            return new Sprite(bits, new Point(obj.X + imgs[(obj.SubType & 0xE) << 1].X, obj.Y + imgs[(obj.SubType & 0xE) << 1].Y));
         }
 
         public override Type ObjectType

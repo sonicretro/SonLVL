@@ -63,7 +63,6 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="SonicRetro.KensSharp.Common, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
@@ -110,6 +109,18 @@
     <Compile Include="DrawTileDialog.Designer.cs">
       <DependentUpon>DrawTileDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="ErrorDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ErrorDialog.Designer.cs">
+      <DependentUpon>ErrorDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="BugReportDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BugReportDialog.Designer.cs">
+      <DependentUpon>BugReportDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Extensions.cs" />
     <Compile Include="LevelData.cs" />
     <Compile Include="LogWindow.cs">
@@ -125,6 +136,10 @@
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="MultiFileIndexer.cs" />
+    <Compile Include="ObjectSubTypeEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="XMLDef.cs" />
     <Compile Include="ObjectDefinition.cs" />
     <Compile Include="ObjectHelper.cs" />
     <Compile Include="ResizeLevelDialog.cs">
@@ -141,12 +156,6 @@
     </Compile>
     <Compile Include="TileSelector.cs">
       <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="ToolWindow.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ToolWindow.Designer.cs">
-      <DependentUpon>ToolWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="IniFile.cs" />
     <Compile Include="ObjectIDEditor.cs">
@@ -178,11 +187,20 @@
     <EmbeddedResource Include="DrawTileDialog.resx">
       <DependentUpon>DrawTileDialog.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="ErrorDialog.resx">
+      <DependentUpon>ErrorDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BugReportDialog.resx">
+      <DependentUpon>BugReportDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="LogWindow.resx">
       <DependentUpon>LogWindow.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ObjectSubTypeEditor.resx">
+      <DependentUpon>ObjectSubTypeEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ResizeLevelDialog.resx">
       <DependentUpon>ResizeLevelDialog.cs</DependentUpon>
@@ -194,10 +212,6 @@
       <DependentUpon>TileSelector.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="ToolWindow.resx">
-      <DependentUpon>ToolWindow.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
     <EmbeddedResource Include="ObjectIDEditor.resx">
       <DependentUpon>ObjectIDEditor.cs</DependentUpon>
     </EmbeddedResource>
@@ -207,10 +221,6 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="TileForm.resx">
-      <DependentUpon>TileForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <Compile Include="Properties\Resources.Designer.cs">
@@ -230,12 +240,6 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="TileForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="TileForm.Designer.cs">
-      <DependentUpon>TileForm.cs</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>

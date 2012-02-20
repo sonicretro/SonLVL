@@ -1,10 +1,10 @@
 How to use:
 Copy the INI file folder for your disassembly version to the folder with your disassembly.
-Run S2LVL, and Open S2LVL.ini in the folder you copied.
+Run SonLVL, and Open S2LVL.ini in the folder you copied.
 
 Controls:
 Up, Down, Left, Right: Move the camera by 16 pixels.
-Hold Shift: Move the camera by 128 pixels.
+Hold Shift: Move the camera by 256 or 128 pixels.
 Hold Ctrl: Move the camera to the edge of the level.
 Ctrl+O: Open
 Ctrl+S: Save
@@ -29,7 +29,7 @@ X: Increase subtype of all selected objects. (no undo)
 Ctrl+X: Cut selected objects.
 Ctrl+Y: Copy selected objects.
 Ctrl+V: Paste copied objects.
-Use the 'Object Properties' tab in the tool window to edit the selected object(s)/ring group(s).
+Use the property grid on the right to edit the selected object(s)/ring group(s).
 
 Level Editing:
 Left click: Draw with the selected chunk.
@@ -38,4 +38,4 @@ Right click: Select the chunk under the cursor.
 A: Decrease index of selected chunk.
 Z: Increase index of selected chunk.
 +: Resize the level. May not be available, depending on the game being edited.
-Use the 'Chunks' tab in the tool window to select a chunk.
+Use the list on the right to select a chunk.

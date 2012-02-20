@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ObjDef xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Namespace="S2ObjectDefinitions.DEZ" TypeName="Eggman" Language="cs" Name="Eggman" Image="img1" RememberState="false" DrawOffscreen="false">
+  <Images>
+    <ImageFromMappings id="img1">
+      <ArtFile filename="../art/nemesis/Robotnik's head.bin" compression="Nemesis" offset="40960" />
+      <ArtFile filename="../art/nemesis/Robotnik.bin" compression="Nemesis" offset="41728" />
+      <ArtFile filename="../art/nemesis/Robotnik's lover half.bin" compression="Nemesis" offset="44160" />
+      <MapFileBin filename="../mappings/sprite/objC6_a.bin" frame="0" startpal="0" />
+    </ImageFromMappings>
+  </Images>
+  <Display>
+    <DisplayOption>
+	  <ImageRef image="img1" />
+	</DisplayOption>
+  </Display>
+</ObjDef>

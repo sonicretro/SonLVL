@@ -4,12 +4,9 @@ namespace SonicRetro.SonLVL
 {
     public static class ObjectHelper
     {
-        public static byte[] OpenArtFile(string file, Compression.CompressionType comp)
-        {
-            return LevelData.ReadFile(file, comp);
-        }
+        public static byte[] OpenArtFile(string file, Compression.CompressionType comp) { return LevelData.ReadFile(file, comp); }
 
-        public static BitmapBits MapToBmp(byte[] artfile, byte[] mapfile, int frame, int startpal, out Point offset)
+        public static Sprite MapToBmp(byte[] artfile, byte[] mapfile, int frame, int startpal)
         {
             BitmapBits[] bmp = null;
             Point off = new Point();
@@ -33,16 +30,15 @@ namespace SonicRetro.SonLVL
             BitmapBits Image = new BitmapBits(bmp[0].Width, bmp[0].Height);
             Image.DrawBitmapComposited(bmp[0], Point.Empty);
             Image.DrawBitmapComposited(bmp[1], Point.Empty);
-            offset = off;
-            return Image;
+            return new Sprite(Image, off);
         }
 
-        public static BitmapBits MapASMToBmp(byte[] artfile, string mapfileloc, int frame, int startpal, out Point offset)
+        public static Sprite MapASMToBmp(byte[] artfile, string mapfileloc, int frame, int startpal)
         {
-            return MapToBmp(artfile, LevelData.ASMToBin(mapfileloc), frame, startpal, out offset);
+            return MapToBmp(artfile, LevelData.ASMToBin(mapfileloc), frame, startpal);
         }
 
-        public static BitmapBits MapASMToBmp(byte[] artfile, string mapfileloc, string label, int startpal, out Point offset)
+        public static Sprite MapASMToBmp(byte[] artfile, string mapfileloc, string label, int startpal)
         {
             byte[] mapfile = LevelData.ASMToBin(mapfileloc, label);
             BitmapBits[] bmp = null;
@@ -64,11 +60,10 @@ namespace SonicRetro.SonLVL
             BitmapBits Image = new BitmapBits(bmp[0].Width, bmp[0].Height);
             Image.DrawBitmapComposited(bmp[0], Point.Empty);
             Image.DrawBitmapComposited(bmp[1], Point.Empty);
-            offset = off;
-            return Image;
+            return new Sprite(Image, off);
         }
 
-        public static BitmapBits MapDPLCToBmp(byte[] artfile, byte[] mapfile, byte[] dplc, int frame, int startpal, out Point offset)
+        public static Sprite MapDPLCToBmp(byte[] artfile, byte[] mapfile, byte[] dplc, int frame, int startpal)
         {
             BitmapBits[] bmp = null;
             Point off = new Point();
@@ -89,11 +84,10 @@ namespace SonicRetro.SonLVL
             BitmapBits Image = new BitmapBits(bmp[0].Width, bmp[0].Height);
             Image.DrawBitmapComposited(bmp[0], Point.Empty);
             Image.DrawBitmapComposited(bmp[1], Point.Empty);
-            offset = off;
-            return Image;
+            return new Sprite(Image, off);
         }
 
-        public static BitmapBits MapDPLCToBmp(byte[] artfile, byte[] mapfile, byte[] dplc, EngineVersion dplcversion, int frame, int startpal, out Point offset)
+        public static Sprite MapDPLCToBmp(byte[] artfile, byte[] mapfile, byte[] dplc, EngineVersion dplcversion, int frame, int startpal)
         {
             BitmapBits[] bmp = null;
             Point off = new Point();
@@ -114,11 +108,10 @@ namespace SonicRetro.SonLVL
             BitmapBits Image = new BitmapBits(bmp[0].Width, bmp[0].Height);
             Image.DrawBitmapComposited(bmp[0], Point.Empty);
             Image.DrawBitmapComposited(bmp[1], Point.Empty);
-            offset = off;
-            return Image;
+            return new Sprite(Image, off);
         }
 
-        public static BitmapBits MapASMDPLCToBmp(byte[] artfile, string mapfileloc, string label, string dplcloc, string dplclabel, int startpal, out Point offset)
+        public static Sprite MapASMDPLCToBmp(byte[] artfile, string mapfileloc, string label, string dplcloc, string dplclabel, int startpal)
         {
             byte[] mapfile = LevelData.ASMToBin(mapfileloc, label);
             byte[] dplcfile = LevelData.ASMToBin(dplcloc, dplclabel);
@@ -138,11 +131,10 @@ namespace SonicRetro.SonLVL
             BitmapBits Image = new BitmapBits(bmp[0].Width, bmp[0].Height);
             Image.DrawBitmapComposited(bmp[0], Point.Empty);
             Image.DrawBitmapComposited(bmp[1], Point.Empty);
-            offset = off;
-            return Image;
+            return new Sprite(Image, off);
         }
 
-        public static BitmapBits MapASMDPLCToBmp(byte[] artfile, string mapfileloc, string label, string dplcloc, string dplclabel, EngineVersion dplcversion, int startpal, out Point offset)
+        public static Sprite MapASMDPLCToBmp(byte[] artfile, string mapfileloc, string label, string dplcloc, string dplclabel, EngineVersion dplcversion, int startpal)
         {
             byte[] mapfile = LevelData.ASMToBin(mapfileloc, label);
             byte[] dplcfile = LevelData.ASMToBin(dplcloc, dplclabel);
@@ -162,32 +154,29 @@ namespace SonicRetro.SonLVL
             BitmapBits Image = new BitmapBits(bmp[0].Width, bmp[0].Height);
             Image.DrawBitmapComposited(bmp[0], Point.Empty);
             Image.DrawBitmapComposited(bmp[1], Point.Empty);
-            offset = off;
-            return Image;
+            return new Sprite(Image, off);
         }
 
-        public static BitmapBits MapASMDPLCToBmp(byte[] artfile, string mapfileloc, string dplcloc, int frame, int startpal, out Point offset)
+        public static Sprite MapASMDPLCToBmp(byte[] artfile, string mapfileloc, string dplcloc, int frame, int startpal)
         {
-            return MapDPLCToBmp(artfile, LevelData.ASMToBin(mapfileloc), LevelData.ASMToBin(dplcloc), frame, startpal, out offset);
+            return MapDPLCToBmp(artfile, LevelData.ASMToBin(mapfileloc), LevelData.ASMToBin(dplcloc), frame, startpal);
         }
 
-        public static BitmapBits MapASMDPLCToBmp(byte[] artfile, string mapfileloc, string dplcloc, EngineVersion dplcversion, int frame, int startpal, out Point offset)
+        public static Sprite MapASMDPLCToBmp(byte[] artfile, string mapfileloc, string dplcloc, EngineVersion dplcversion, int frame, int startpal)
         {
-            return MapDPLCToBmp(artfile, LevelData.ASMToBin(mapfileloc), LevelData.ASMToBin(dplcloc), dplcversion, frame, startpal, out offset);
+            return MapDPLCToBmp(artfile, LevelData.ASMToBin(mapfileloc), LevelData.ASMToBin(dplcloc), dplcversion, frame, startpal);
         }
 
-        public static BitmapBits UnknownObject(out Point offset)
-        {
-            offset = new Point(-8, -7);
-            return new BitmapBits(LevelData.UnknownImg);
-        }
+        public static Sprite UnknownObject { get { return new Sprite(new BitmapBits(LevelData.UnknownImg), new Point(-8, -7)); } }
 
-        public static BitmapBits Sprite(int index, out Point offset)
-        {
-            offset = LevelData.Sprites[index].offset;
-            return LevelData.Sprites[index].sprite;
-        }
+        public static Sprite GetSprite(int index) { return LevelData.Sprites[index]; }
 
         public static byte[] LevelArt { get { return LevelData.TileArray; } }
+
+        public static int ShiftLeft(int value, int num) { return value << num; }
+
+        public static int ShiftRight(int value, int num) { return value >> num; }
+
+        public static byte SetSubtypeMask(byte subtype, byte value, int mask) { return (byte)((subtype & ~mask) | (value & mask)); }
     }
 }

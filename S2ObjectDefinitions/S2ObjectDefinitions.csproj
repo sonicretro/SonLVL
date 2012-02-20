@@ -37,19 +37,11 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ARZ\Platform.cs" />
-    <Compile Include="Common\Capsule.cs" />
-    <Compile Include="Common\Monitor.cs" />
+    <Compile Include="Common\InvisibleBlock.cs" />
     <Compile Include="Common\PathSwapper.cs" />
     <Compile Include="Common\RingGroup.cs" />
-    <Compile Include="Common\Spikes.cs" />
-    <Compile Include="Common\Spring.cs" />
-    <Compile Include="CPZ\Barrier.cs" />
-    <Compile Include="CPZ\Platform.cs" />
-    <Compile Include="DEZ\Eggman.cs" />
     <Compile Include="EHZ\Bridge.cs" />
-    <Compile Include="EHZ\Platform.cs" />
-    <Compile Include="EHZ\Waterfall.cs" />
+    <Compile Include="EHZ\TwistingPathway.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

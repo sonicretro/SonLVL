@@ -104,7 +104,7 @@ namespace SonicRetro.SonLVL
         {
             ushort val = ushort.Parse((string)e.Value, System.Globalization.NumberStyles.HexNumber);
             if (val >= LevelData.Tiles.Count) return;
-            e.Graphics.DrawImage(LevelData.TileToBmp4bpp(LevelData.Tiles[val], 0, 2) , e.Bounds);
+            e.Graphics.DrawImage(LevelData.TileToBmp4bpp(LevelData.Tiles[val], 0, 2).Resize(e.Bounds.Size), e.Bounds);
         }
 
         public override bool IsDropDownResizable

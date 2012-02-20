@@ -8,74 +8,90 @@ namespace SonicRetro.SonLVL
         public static byte[] Decompress(string file, CompressionType cmp)
         {
             byte[] ret = new byte[0];
-            switch (cmp)
+            try
             {
-                case CompressionType.Uncompressed:
-                    ret = File.ReadAllBytes(file);
-                    break;
-                case CompressionType.Kosinski:
-                    ret = Kosinski.Decompress(file);
-                    break;
-                case CompressionType.KosinskiM:
-                    ret = ModuledKosinski.Decompress(file, LevelData.littleendian ? Endianness.LittleEndian : Endianness.BigEndian);
-                    break;
-                case CompressionType.Nemesis:
-                    ret = Nemesis.Decompress(file);
-                    break;
-                case CompressionType.Enigma:
-                    ret = Enigma.Decompress(file, LevelData.littleendian ? Endianness.LittleEndian : Endianness.BigEndian);
-                    break;
-                case CompressionType.SZDD:
-                    ret = SZDDComp.SZDDComp.Decompress(file);
-                    break;
-                default:
-                    break;
+                switch (cmp)
+                {
+                    case CompressionType.Uncompressed:
+                        ret = File.ReadAllBytes(file);
+                        break;
+                    case CompressionType.Kosinski:
+                        ret = Kosinski.Decompress(file);
+                        break;
+                    case CompressionType.KosinskiM:
+                        ret = ModuledKosinski.Decompress(file, LevelData.littleendian ? Endianness.LittleEndian : Endianness.BigEndian);
+                        break;
+                    case CompressionType.Nemesis:
+                        ret = Nemesis.Decompress(file);
+                        break;
+                    case CompressionType.Enigma:
+                        ret = Enigma.Decompress(file, LevelData.littleendian ? Endianness.LittleEndian : Endianness.BigEndian);
+                        break;
+                    case CompressionType.SZDD:
+                        ret = SZDDComp.SZDDComp.Decompress(file);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            catch
+            {
+                LevelData.MainForm.Log("Unable to read file \"" + file + "\" with compression " + cmp.ToString() + ":");
+                throw;
             }
             return ret;
         }
 
         public static void Compress(byte[] file, string destination, CompressionType cmp)
         {
-            switch (cmp)
+            try
             {
-                case CompressionType.Uncompressed:
-                    File.WriteAllBytes(destination, file);
-                    break;
-                case CompressionType.Kosinski:
-                    using (MemoryStream input = new MemoryStream(file))
-                    {
-                        using (FileStream output = File.Create(destination))
+                switch (cmp)
+                {
+                    case CompressionType.Uncompressed:
+                        File.WriteAllBytes(destination, file);
+                        break;
+                    case CompressionType.Kosinski:
+                        using (MemoryStream input = new MemoryStream(file))
                         {
-                            using (PaddedStream paddedOutput = new PaddedStream(output, 2, PaddedStreamMode.Write))
+                            using (FileStream output = File.Create(destination))
                             {
-                                Kosinski.Compress(input, paddedOutput);
+                                using (PaddedStream paddedOutput = new PaddedStream(output, 2, PaddedStreamMode.Write))
+                                {
+                                    Kosinski.Compress(input, paddedOutput);
+                                }
                             }
                         }
-                    }
-                    break;
-                case CompressionType.KosinskiM:
-                    using (MemoryStream input = new MemoryStream(file))
-                    {
-                        using (FileStream output = File.Create(destination))
+                        break;
+                    case CompressionType.KosinskiM:
+                        using (MemoryStream input = new MemoryStream(file))
                         {
-                            using (PaddedStream paddedOutput = new PaddedStream(output, 2, PaddedStreamMode.Write))
+                            using (FileStream output = File.Create(destination))
                             {
-                                ModuledKosinski.Compress(input, paddedOutput, LevelData.littleendian ? Endianness.LittleEndian : Endianness.BigEndian);
+                                using (PaddedStream paddedOutput = new PaddedStream(output, 2, PaddedStreamMode.Write))
+                                {
+                                    ModuledKosinski.Compress(input, paddedOutput, LevelData.littleendian ? Endianness.LittleEndian : Endianness.BigEndian);
+                                }
                             }
                         }
-                    }
-                    break;
-                case CompressionType.Nemesis:
-                    Nemesis.Compress(file, destination);
-                    break;
-                case CompressionType.Enigma:
-                    Enigma.Compress(file, destination, LevelData.littleendian ? Endianness.LittleEndian : Endianness.BigEndian);
-                    break;
-                case CompressionType.SZDD:
-                    SZDDComp.SZDDComp.Compress(file, destination);
-                    break;
-                default:
-                    break;
+                        break;
+                    case CompressionType.Nemesis:
+                        Nemesis.Compress(file, destination);
+                        break;
+                    case CompressionType.Enigma:
+                        Enigma.Compress(file, destination, LevelData.littleendian ? Endianness.LittleEndian : Endianness.BigEndian);
+                        break;
+                    case CompressionType.SZDD:
+                        SZDDComp.SZDDComp.Compress(file, destination);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            catch
+            {
+                LevelData.MainForm.Log("Unable to write file \"" + file + "\" with compression " + cmp.ToString() + ":");
+                throw;
             }
         }
 

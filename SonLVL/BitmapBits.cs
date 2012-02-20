@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
@@ -235,7 +233,7 @@ namespace SonicRetro.SonLVL
             return res;
         }
 
-        private void DrawLine(byte index, int x1, int y1, int x2, int y2)
+        public void DrawLine(byte index, int x1, int y1, int x2, int y2)
         {
             bool steep = Math.Abs(y2 - y1) > Math.Abs(x2 - x1);
             if (steep)
@@ -266,11 +264,15 @@ namespace SonicRetro.SonLVL
             for (int x = x1; x <= x2; x++)
             {
                 if (steep)
-                    if (x < Height & y < Width)
+                {
+                    if (x >= 0 & x < Height & y >= 0 & y < Width)
                         this[y, x] = index;
-                    else
-                        if (y < Height & x < Width)
-                            this[x, y] = index;
+                }
+                else
+                {
+                    if (y >= 0 & y < Height & x >= 0 & x < Width)
+                        this[x, y] = index;
+                }
                 error = error + deltaerr;
                 if (error >= 0.5)
                 {

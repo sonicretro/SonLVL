@@ -7,9 +7,7 @@ namespace S2ObjectDefinitions.Common
 {
     class RingGroup : S2RingDefinition
     {
-        private Point offset;
-        private BitmapBits img;
-        private int imgw, imgh;
+        private Sprite img;
         private int spacing;
 
         public override void Init(Dictionary<string, string> data)
@@ -18,12 +16,10 @@ namespace S2ObjectDefinitions.Common
             {
                 byte[] artfile = ObjectHelper.OpenArtFile(data["art"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), data.GetValueOrDefault("artcmp", "Nemesis")));
                 if (data.ContainsKey("map"))
-                    img = ObjectHelper.MapToBmp(artfile, Compression.Decompress(data["map"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), data.GetValueOrDefault("mapcmp", "Uncompressed"))), int.Parse(data["frame"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), out offset);
+                    img = ObjectHelper.MapToBmp(artfile, Compression.Decompress(data["map"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), data.GetValueOrDefault("mapcmp", "Uncompressed"))), int.Parse(data["frame"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture));
                 else if (data.ContainsKey("mapasm"))
-                    img = ObjectHelper.MapASMToBmp(artfile, data["mapasm"], data["mapasmlbl"], int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), out offset);
+                    img = ObjectHelper.MapASMToBmp(artfile, data["mapasm"], data["mapasmlbl"], int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture));
             }
-            imgw = img.Width;
-            imgh = img.Height;
             spacing = int.Parse(data.GetValueOrDefault("spacing", "24"), System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo);
         }
 
@@ -34,35 +30,39 @@ namespace S2ObjectDefinitions.Common
 
         public override BitmapBits Image()
         {
-            return img;
+            return img.Image;
         }
 
-        public override System.Drawing.Rectangle Bounds(Point loc, Direction direction, byte count)
+        public override System.Drawing.Rectangle Bounds(S2RingEntry rng, Point camera)
         {
-            switch (direction)
+            switch (rng.Direction)
             {
                 case Direction.Horizontal:
-                    return new Rectangle(loc.X + offset.X, loc.Y + offset.Y, ((count - 1) * spacing) + imgw, imgh);
+                    return new Rectangle(rng.X + img.X - camera.X, rng.Y + img.Y - camera.Y, ((rng.Count - 1) * spacing) + img.Width, img.Height);
                 case Direction.Vertical:
-                    return new Rectangle(loc.X + offset.X, loc.Y + offset.Y, imgw, ((count - 1) * spacing) + imgh);
+                    return new Rectangle(rng.X + img.X - camera.X, rng.Y + img.Y - camera.Y, img.Width, ((rng.Count - 1) * spacing) + img.Height);
             }
             return Rectangle.Empty;
         }
 
-        public override void Draw(BitmapBits bmp, Point loc, Direction direction, byte count, bool includeDebug)
+        public override Sprite GetSprite(S2RingEntry rng)
         {
-            for (int i = 0; i < count; i++)
+            List<Sprite> sprs = new List<Sprite>();
+            for (int i = 0; i < rng.Count; i++)
             {
-                switch (direction)
+                switch (rng.Direction)
                 {
                     case SonicRetro.SonLVL.Direction.Horizontal:
-                        bmp.DrawBitmapComposited(img, new Point(loc.X + offset.X + (i * spacing), loc.Y + offset.Y));
+                        sprs.Add(new Sprite(img.Image, new Point(img.X + (i * spacing), img.Y)));
                         break;
                     case SonicRetro.SonLVL.Direction.Vertical:
-                        bmp.DrawBitmapComposited(img, new Point(loc.X + offset.X, loc.Y + offset.Y + (i * spacing)));
+                        sprs.Add(new Sprite(img.Image, new Point(img.X, img.Y + (i * spacing))));
                         break;
                 }
-            } 
+            }
+            Sprite spr = new Sprite(sprs.ToArray());
+            spr.Offset = new Point(spr.X + rng.X, spr.Y + rng.Y);
+            return spr;
         }
     }
 }

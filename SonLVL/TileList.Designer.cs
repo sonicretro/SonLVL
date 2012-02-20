@@ -48,9 +48,12 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Window;
             this.Controls.Add(this.vScrollBar1);
+            this.DoubleBuffered = true;
             this.Name = "TileList";
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.TileList_Paint);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TileList_KeyDown);
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.TileList_MouseDown);
+            this.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.TileList_PreviewKeyDown);
             this.Resize += new System.EventHandler(this.TileList_Resize);
             this.ResumeLayout(false);
 

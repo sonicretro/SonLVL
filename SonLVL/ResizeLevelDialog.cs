@@ -5,8 +5,11 @@ namespace SonicRetro.SonLVL
 {
     public partial class ResizeLevelDialog : Form
     {
-        public ResizeLevelDialog()
+        private bool fg;
+
+        public ResizeLevelDialog(bool FG)
         {
+            fg = FG;
             InitializeComponent();
         }
 
@@ -24,16 +27,10 @@ namespace SonicRetro.SonLVL
         {
             if (LevelData.LayoutFmt == EngineVersion.S3K || LevelData.LayoutFmt == EngineVersion.SKC)
             {
-                switch (LevelData.MainForm.EditingMode)
-                {
-                    case EditingModes.Objects:
-                    case EditingModes.PlaneA:
-                        levelWidth.Maximum = Math.Floor((3960 - (LevelData.BGLayout.Length)) / levelHeight.Value);
-                        break;
-                    case EditingModes.PlaneB:
-                        levelWidth.Maximum = Math.Floor((3960 - (LevelData.FGLayout.Length)) / levelHeight.Value);
-                        break;
-                }
+                if (fg)
+                    levelWidth.Maximum = Math.Floor((3960 - (LevelData.BGLayout.Length)) / levelHeight.Value);
+                else
+                    levelWidth.Maximum = Math.Floor((3960 - (LevelData.FGLayout.Length)) / levelHeight.Value);
             }
         }
     }

@@ -12,11 +12,11 @@ namespace SonicRetro.SonLVL
         public abstract string Name();
         public abstract bool RememberState();
         public abstract string SubtypeName(byte subtype);
-        public abstract string FullName(byte subtype);
         public abstract BitmapBits Image();
         public abstract BitmapBits Image(byte subtype);
-        public abstract void Draw(BitmapBits bmp, Point loc, byte subtype, bool XFlip, bool YFlip, bool includeDebug);
-        public abstract Rectangle Bounds(Point loc, byte subtype);
+        public abstract Sprite GetSprite(ObjectEntry obj);
+        public abstract Rectangle Bounds(ObjectEntry obj, Point camera);
+        public virtual bool Debug { get { return false; } }
 
         public virtual Type ObjectType
         {
@@ -44,8 +44,7 @@ namespace SonicRetro.SonLVL
 
     internal class DefaultObjectDefinition : ObjectDefinition
     {
-        private Point offset;
-        private BitmapBits img;
+        private Sprite spr;
         private string name;
         private bool rememberstate;
         private List<byte> subtypes = new List<byte>();
@@ -60,64 +59,61 @@ namespace SonicRetro.SonLVL
                 if (data.ContainsKey("map"))
                 {
                     if (data.ContainsKey("dplc"))
-                        img = ObjectHelper.MapDPLCToBmp(artfile, LevelData.ReadFile(data["map"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), data.GetValueOrDefault("mapcmp", "Uncompressed"))), LevelData.ReadFile(data["dplc"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), data.GetValueOrDefault("dplccmp", "Uncompressed"))), int.Parse(data["frame"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), out offset);
+                        spr = ObjectHelper.MapDPLCToBmp(artfile, LevelData.ReadFile(data["map"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), data.GetValueOrDefault("mapcmp", "Uncompressed"))), LevelData.ReadFile(data["dplc"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), data.GetValueOrDefault("dplccmp", "Uncompressed"))), int.Parse(data["frame"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture));
                     else
-                        img = ObjectHelper.MapToBmp(artfile, LevelData.ReadFile(data["map"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), data.GetValueOrDefault("mapcmp", "Uncompressed"))), int.Parse(data["frame"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), out offset);
+                        spr = ObjectHelper.MapToBmp(artfile, LevelData.ReadFile(data["map"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), data.GetValueOrDefault("mapcmp", "Uncompressed"))), int.Parse(data["frame"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture));
                 }
                 else if (data.ContainsKey("mapasm"))
                 {
                     if (data.ContainsKey("mapasmlbl"))
                     {
                         if (data.ContainsKey("dplcasm"))
-                            img = ObjectHelper.MapASMDPLCToBmp(artfile, data["mapasm"], data["mapasmlbl"], data["dplcasm"], data["dplcasmlbl"], int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), out offset);
+                            spr = ObjectHelper.MapASMDPLCToBmp(artfile, data["mapasm"], data["mapasmlbl"], data["dplcasm"], data["dplcasmlbl"], int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture));
                         else
-                            img = ObjectHelper.MapASMToBmp(artfile, data["mapasm"], data["mapasmlbl"], int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), out offset);
+                            spr = ObjectHelper.MapASMToBmp(artfile, data["mapasm"], data["mapasmlbl"], int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture));
                     }
                     else
                     {
                         if (data.ContainsKey("dplcasm"))
-                            img = ObjectHelper.MapASMDPLCToBmp(artfile, data["mapasm"], data["dplcasm"], int.Parse(data["frame"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), out offset);
+                            spr = ObjectHelper.MapASMDPLCToBmp(artfile, data["mapasm"], data["dplcasm"], int.Parse(data["frame"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture));
                         else
-                            img = ObjectHelper.MapASMToBmp(artfile, data["mapasm"], int.Parse(data["frame"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), out offset);
+                            spr = ObjectHelper.MapASMToBmp(artfile, data["mapasm"], int.Parse(data["frame"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture));
                     }
                 }
                 else
                 {
-                    img = ObjectHelper.UnknownObject(out offset);
+                    spr = ObjectHelper.UnknownObject;
                     debug = true;
                 }
                 if (data.ContainsKey("offset"))
                 {
                     string[] off = data["offset"].Split(',');
                     Size delta = new Size(int.Parse(off[0], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo), int.Parse(off[1], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo));
-                    offset = offset + delta;
+                    spr.Offset = spr.Offset + delta;
                 }
             }
             else if (data.ContainsKey("image"))
             {
-                img = new BitmapBits(new Bitmap(data["image"]));
+                BitmapBits img = new BitmapBits(new Bitmap(data["image"]));
                 string[] off = data["offset"].Split(',');
-                offset = new Point(int.Parse(off[0], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo), int.Parse(off[1], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo));
+                Point offset = new Point(int.Parse(off[0], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo), int.Parse(off[1], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo));
+                spr = new Sprite(img, offset);
                 debug = true;
             }
             else if (data.ContainsKey("sprite"))
             {
-                int spr = int.Parse(data["sprite"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture);
-                img = LevelData.Sprites[spr].sprite;
-                offset = LevelData.Sprites[spr].offset;
+                spr = ObjectHelper.GetSprite(int.Parse(data["sprite"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture));
             }
             else
             {
-                img = ObjectHelper.UnknownObject(out offset);
+                spr = ObjectHelper.UnknownObject;
                 debug = true;
             }
             rememberstate = bool.Parse(data.GetValueOrDefault("rememberstate", "False"));
             debug = debug | bool.Parse(data.GetValueOrDefault("debug", "False"));
             string[] subs = data.GetValueOrDefault("subtypes", "").Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (string item in subs)
-            {
                 subtypes.Add(byte.Parse(item, System.Globalization.NumberStyles.HexNumber));
-            }
         }
 
         public override ReadOnlyCollection<byte> Subtypes()
@@ -140,33 +136,29 @@ namespace SonicRetro.SonLVL
             return string.Empty;
         }
 
-        public override string FullName(byte subtype)
-        {
-            return name;
-        }
-
         public override BitmapBits Image()
         {
-            return img;
+            return spr.Image;
         }
 
         public override BitmapBits Image(byte subtype)
         {
-            return img;
+            return spr.Image;
         }
 
-        public override Rectangle Bounds(Point loc, byte subtype)
+        public override Rectangle Bounds(ObjectEntry obj, Point camera)
         {
-            return new Rectangle(loc.X + offset.X, loc.Y + offset.Y, img.Width, img.Height);
+            return new Rectangle((obj.X + spr.Offset.X) - camera.X, (obj.Y + spr.Offset.Y) - camera.Y, spr.Image.Width, spr.Image.Height);
         }
 
-        public override void Draw(BitmapBits bmp, Point loc, byte subtype, bool XFlip, bool YFlip, bool includeDebug)
+        public override Sprite GetSprite(ObjectEntry obj)
         {
-            if (!includeDebug & debug) return;
-            BitmapBits bits = new BitmapBits(img);
-            bits.Flip(XFlip, YFlip);
-            bmp.DrawBitmapComposited(bits, new Point(loc.X + offset.X, loc.Y + offset.Y));
+            BitmapBits bits = new BitmapBits(spr.Image);
+            bits.Flip(obj.XFlip, obj.YFlip);
+            return new Sprite(bits, new Point(obj.X + spr.Offset.X, obj.Y + spr.Offset.Y));
         }
+
+        public override bool Debug { get { return debug; } }
     }
 
     public abstract class S2RingDefinition
@@ -174,21 +166,18 @@ namespace SonicRetro.SonLVL
         public abstract void Init(Dictionary<string, string> data);
         public abstract string Name();
         public abstract BitmapBits Image();
-        public abstract void Draw(BitmapBits bmp, Point loc, Direction direction, byte count, bool includeDebug);
-        public abstract Rectangle Bounds(Point loc, Direction direction, byte count);
+        public abstract Sprite GetSprite(S2RingEntry rng);
+        public abstract Rectangle Bounds(S2RingEntry rng, Point camera);
+        public virtual bool Debug { get { return false; } }
     }
 
     internal class DefS2RingDef : S2RingDefinition
     {
-        private Point offset;
-        private BitmapBits img;
-        private int imgw, imgh;
+        private Sprite spr;
 
         public override void Init(Dictionary<string, string> data)
         {
-            img = ObjectHelper.UnknownObject(out offset);
-            imgw = img.Width;
-            imgh = img.Height;
+            spr = ObjectHelper.UnknownObject;
         }
 
         public override string Name()
@@ -198,30 +187,30 @@ namespace SonicRetro.SonLVL
 
         public override BitmapBits Image()
         {
-            return img;
+            return spr.Image;
         }
 
-        public override Rectangle Bounds(Point loc, Direction direction, byte count)
+        public override Rectangle Bounds(S2RingEntry rng, Point camera)
         {
-            return new Rectangle(loc.X + offset.X, loc.Y + offset.Y, imgw, imgh);
+            return new Rectangle((rng.X + spr.Offset.X) - camera.X, (rng.Y + spr.Offset.Y) - camera.Y, spr.Image.Width, spr.Image.Height);
         }
 
-        public override void Draw(BitmapBits bmp, Point loc, Direction direction, byte count, bool includeDebug)
+        public override Sprite GetSprite(S2RingEntry rng)
         {
-            if (!includeDebug) return;
-            bmp.DrawBitmapComposited(img, new Point(loc.X + offset.X, loc.Y + offset.Y));
+            return new Sprite(spr.Image, new Point(rng.X + spr.Offset.X, rng.Y + spr.Offset.Y));
         }
+
+        public override bool Debug { get { return true; } }
     }
 
     internal class S3KRingDefinition
     {
-        private Point offset;
-        private BitmapBits img;
+        private Sprite spr;
         private bool debug = false;
 
         public S3KRingDefinition()
         {
-            img = ObjectHelper.UnknownObject(out offset);
+            spr = ObjectHelper.UnknownObject;
             debug = true;
         }
 
@@ -233,80 +222,77 @@ namespace SonicRetro.SonLVL
                 if (data.ContainsKey("map"))
                 {
                     if (data.ContainsKey("dplc"))
-                        img = ObjectHelper.MapDPLCToBmp(artfile, LevelData.ReadFile(data["map"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), data.GetValueOrDefault("mapcmp", "Uncompressed"))), LevelData.ReadFile(data["dplc"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), data.GetValueOrDefault("dplccmp", "Uncompressed"))), int.Parse(data["frame"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), out offset);
+                        spr = ObjectHelper.MapDPLCToBmp(artfile, LevelData.ReadFile(data["map"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), data.GetValueOrDefault("mapcmp", "Uncompressed"))), LevelData.ReadFile(data["dplc"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), data.GetValueOrDefault("dplccmp", "Uncompressed"))), int.Parse(data["frame"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture));
                     else
-                        img = ObjectHelper.MapToBmp(artfile, LevelData.ReadFile(data["map"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), data.GetValueOrDefault("mapcmp", "Uncompressed"))), int.Parse(data["frame"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), out offset);
+                        spr = ObjectHelper.MapToBmp(artfile, LevelData.ReadFile(data["map"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), data.GetValueOrDefault("mapcmp", "Uncompressed"))), int.Parse(data["frame"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture));
                 }
                 else if (data.ContainsKey("mapasm"))
                 {
                     if (data.ContainsKey("mapasmlbl"))
                     {
                         if (data.ContainsKey("dplcasm"))
-                            img = ObjectHelper.MapASMDPLCToBmp(artfile, data["mapasm"], data["mapasmlbl"], data["dplcasm"], data["dplcasmlbl"], int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), out offset);
+                            spr = ObjectHelper.MapASMDPLCToBmp(artfile, data["mapasm"], data["mapasmlbl"], data["dplcasm"], data["dplcasmlbl"], int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture));
                         else
-                            img = ObjectHelper.MapASMToBmp(artfile, data["mapasm"], data["mapasmlbl"], int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), out offset);
+                            spr = ObjectHelper.MapASMToBmp(artfile, data["mapasm"], data["mapasmlbl"], int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture));
                     }
                     else
                     {
                         if (data.ContainsKey("dplcasm"))
-                            img = ObjectHelper.MapASMDPLCToBmp(artfile, data["mapasm"], data["dplcasm"], int.Parse(data["frame"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), out offset);
+                            spr = ObjectHelper.MapASMDPLCToBmp(artfile, data["mapasm"], data["dplcasm"], int.Parse(data["frame"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture));
                         else
-                            img = ObjectHelper.MapASMToBmp(artfile, data["mapasm"], int.Parse(data["frame"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), out offset);
+                            spr = ObjectHelper.MapASMToBmp(artfile, data["mapasm"], int.Parse(data["frame"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture));
                     }
                 }
                 else
-                    img = ObjectHelper.UnknownObject(out offset);
+                    spr = ObjectHelper.UnknownObject;
                 if (data.ContainsKey("offset"))
                 {
                     string[] off = data["offset"].Split(',');
                     Size delta = new Size(int.Parse(off[0], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo), int.Parse(off[1], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo));
-                    offset = offset + delta;
+                    spr.Offset = spr.Offset + delta;
                 }
             }
             else if (data.ContainsKey("image"))
             {
-                img = new BitmapBits(new Bitmap(data["image"]));
+                BitmapBits img = new BitmapBits(new Bitmap(data["image"]));
                 string[] off = data["offset"].Split(',');
-                offset = new Point(int.Parse(off[0], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo), int.Parse(off[1], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo));
+                Point offset = new Point(int.Parse(off[0], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo), int.Parse(off[1], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo));
+                spr = new Sprite(img, offset);
             }
             else if (data.ContainsKey("sprite"))
-            {
-                int spr = int.Parse(data["sprite"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture);
-                img = LevelData.Sprites[spr].sprite;
-                offset = LevelData.Sprites[spr].offset;
-            }
+                spr = ObjectHelper.GetSprite(int.Parse(data["sprite"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture));
             else
-                img = ObjectHelper.UnknownObject(out offset);
+                spr = ObjectHelper.UnknownObject;
         }
 
         public BitmapBits Image()
         {
-            return img;
+            return spr.Image;
         }
 
-        public Rectangle Bounds(Point loc)
+        public Rectangle Bounds(S3KRingEntry rng, Point camera)
         {
-            return new Rectangle(loc.X + offset.X, loc.Y + offset.Y, img.Width, img.Height);
+            return new Rectangle((rng.X + spr.Offset.X) - camera.X, (rng.Y + spr.Offset.Y) - camera.Y, spr.Image.Width, spr.Image.Height);
         }
 
-        public void Draw(BitmapBits bmp, Point loc, bool includeDebug)
+        public Sprite GetSprite(S3KRingEntry rng)
         {
-            if (!includeDebug & debug) return;
-            bmp.DrawBitmapComposited(img, new Point(loc.X + offset.X, loc.Y + offset.Y));
+            return new Sprite(spr.Image, new Point(rng.X + spr.Offset.X, rng.Y + spr.Offset.Y));
         }
+
+        public bool Debug { get { return debug; } }
     }
 
     internal class StartPositionDefinition
     {
-        private Point offset;
-        private BitmapBits img;
+        private Sprite spr;
         private string name;
         bool debug = false;
 
         public StartPositionDefinition(string name)
         {
             this.name = name;
-            img = ObjectHelper.UnknownObject(out offset);
+            spr = ObjectHelper.UnknownObject;
             debug = true;
         }
 
@@ -319,50 +305,47 @@ namespace SonicRetro.SonLVL
                 if (data.ContainsKey("map"))
                 {
                     if (data.ContainsKey("dplc"))
-                        img = ObjectHelper.MapDPLCToBmp(artfile, LevelData.ReadFile(data["map"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), data.GetValueOrDefault("mapcmp", "Uncompressed"))), LevelData.ReadFile(data["dplc"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), data.GetValueOrDefault("dplccmp", "Uncompressed"))), EngineVersion.S2, int.Parse(data["frame"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), out offset);
+                        spr = ObjectHelper.MapDPLCToBmp(artfile, LevelData.ReadFile(data["map"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), data.GetValueOrDefault("mapcmp", "Uncompressed"))), LevelData.ReadFile(data["dplc"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), data.GetValueOrDefault("dplccmp", "Uncompressed"))), int.Parse(data["frame"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture));
                     else
-                        img = ObjectHelper.MapToBmp(artfile, LevelData.ReadFile(data["map"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), data.GetValueOrDefault("mapcmp", "Uncompressed"))), int.Parse(data["frame"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), out offset);
+                        spr = ObjectHelper.MapToBmp(artfile, LevelData.ReadFile(data["map"], (Compression.CompressionType)Enum.Parse(typeof(Compression.CompressionType), data.GetValueOrDefault("mapcmp", "Uncompressed"))), int.Parse(data["frame"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture));
                 }
                 else if (data.ContainsKey("mapasm"))
                 {
                     if (data.ContainsKey("mapasmlbl"))
                     {
                         if (data.ContainsKey("dplcasm"))
-                            img = ObjectHelper.MapASMDPLCToBmp(artfile, data["mapasm"], data["mapasmlbl"], data["dplcasm"], data["dplcasmlbl"], EngineVersion.S2, int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), out offset);
+                            spr = ObjectHelper.MapASMDPLCToBmp(artfile, data["mapasm"], data["mapasmlbl"], data["dplcasm"], data["dplcasmlbl"], int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture));
                         else
-                            img = ObjectHelper.MapASMToBmp(artfile, data["mapasm"], data["mapasmlbl"], int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), out offset);
+                            spr = ObjectHelper.MapASMToBmp(artfile, data["mapasm"], data["mapasmlbl"], int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture));
                     }
                     else
                     {
                         if (data.ContainsKey("dplcasm"))
-                            img = ObjectHelper.MapASMDPLCToBmp(artfile, data["mapasm"], data["dplcasm"], EngineVersion.S2, int.Parse(data["frame"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), out offset);
+                            spr = ObjectHelper.MapASMDPLCToBmp(artfile, data["mapasm"], data["dplcasm"], int.Parse(data["frame"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture));
                         else
-                            img = ObjectHelper.MapASMToBmp(artfile, data["mapasm"], int.Parse(data["frame"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), out offset);
+                            spr = ObjectHelper.MapASMToBmp(artfile, data["mapasm"], int.Parse(data["frame"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture), int.Parse(data.GetValueOrDefault("pal", "0"), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture));
                     }
                 }
                 else
-                    img = ObjectHelper.UnknownObject(out offset);
+                    spr = ObjectHelper.UnknownObject;
                 if (data.ContainsKey("offset"))
                 {
                     string[] off = data["offset"].Split(',');
                     Size delta = new Size(int.Parse(off[0], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo), int.Parse(off[1], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo));
-                    offset = offset + delta;
+                    spr.Offset = spr.Offset + delta;
                 }
             }
             else if (data.ContainsKey("image"))
             {
-                img = new BitmapBits(new Bitmap(data["image"]));
+                BitmapBits img = new BitmapBits(new Bitmap(data["image"]));
                 string[] off = data["offset"].Split(',');
-                offset = new Point(int.Parse(off[0], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo), int.Parse(off[1], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo));
+                Point offset = new Point(int.Parse(off[0], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo), int.Parse(off[1], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo));
+                spr = new Sprite(img, offset);
             }
             else if (data.ContainsKey("sprite"))
-            {
-                int spr = int.Parse(data["sprite"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture);
-                img = LevelData.Sprites[spr].sprite;
-                offset = LevelData.Sprites[spr].offset;
-            }
+                spr = ObjectHelper.GetSprite(int.Parse(data["sprite"], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture));
             else
-                img = ObjectHelper.UnknownObject(out offset);
+                spr = ObjectHelper.UnknownObject;
         }
 
         public string Name()
@@ -371,18 +354,19 @@ namespace SonicRetro.SonLVL
         }
         public BitmapBits Image()
         {
-            return img;
+            return spr.Image;
         }
 
-        public Rectangle Bounds(Point loc)
+        public Rectangle Bounds(StartPositionEntry st, Point camera)
         {
-            return new Rectangle(loc.X + offset.X, loc.Y + offset.Y, img.Width, img.Height);
+            return new Rectangle((st.X + spr.Offset.X) - camera.X, (st.Y + spr.Offset.Y) - camera.Y, spr.Image.Width, spr.Image.Height);
         }
 
-        public void Draw(BitmapBits bmp, Point loc, bool includeDebug)
+        public Sprite GetSprite(StartPositionEntry st)
         {
-            if (!includeDebug & debug) return;
-            bmp.DrawBitmapComposited(img, new Point(loc.X + offset.X, loc.Y + offset.Y));
+            return new Sprite(spr.Image, new Point(st.X + spr.Offset.X, st.Y + spr.Offset.Y));
         }
+
+        public bool Debug { get { return debug; } }
     }
 }

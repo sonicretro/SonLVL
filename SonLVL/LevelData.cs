@@ -54,7 +54,6 @@ namespace SonicRetro.SonLVL
         internal static int chunksz;
         internal static bool littleendian;
         internal static Dictionary<string, byte[]> filecache;
-        internal static Rectangle? LevelBounds;
         internal static List<byte> ColInds1;
         internal static List<byte> ColInds2;
         internal static Compression.CompressionType ColIndCmp;
@@ -65,7 +64,7 @@ namespace SonicRetro.SonLVL
         internal static List<BitmapBits[]> ChunkColBmpBits;
         internal static List<Bitmap[]> ChunkColBmps;
         internal static Bitmap UnknownImg;
-        internal static List<SCDPCSprite> Sprites;
+        internal static List<Sprite> Sprites;
         internal static TimeZone TimeZone;
 
         internal static byte[] ReadFile(string file, Compression.CompressionType cmp)
@@ -142,133 +141,187 @@ namespace SonicRetro.SonLVL
             List<byte> result = new List<byte>();
             Dictionary<string, int> labels = new Dictionary<string, int>();
             int curaddr = 0;
-            for (int st = sti; st < fc.Length; st++)
+            int st = 0;
+            try
             {
-                string[] ln = fc[st].Split(';')[0].Trim().Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
-                if (ln.Length == 0) continue;
-                if (!char.IsWhiteSpace(fc[st], 0))
+                for (st = sti; st < fc.Length; st++)
                 {
-                    string[] l = ln[0].Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
-                    labels.Add(l[0], curaddr);
-                    if (l.Length == 1)
-                    {
-                        string[] ln2 = new string[ln.Length - 1];
-                        for (int i = 0; i < ln2.Length; i++)
-                        {
-                            ln2[i] = ln[i + 1];
-                        }
-                        ln = ln2;
-                    }
-                    else
-                    {
-                        ln[0] = l[1];
-                    }
+                    string[] ln = fc[st].Split(';')[0].Trim().Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
                     if (ln.Length == 0) continue;
+                    if (!char.IsWhiteSpace(fc[st], 0))
+                    {
+                        string[] l = ln[0].Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+                        labels.Add(l[0], curaddr);
+                        if (l.Length == 1)
+                        {
+                            string[] ln2 = new string[ln.Length - 1];
+                            for (int i = 0; i < ln2.Length; i++)
+                            {
+                                ln2[i] = ln[i + 1];
+                            }
+                            ln = ln2;
+                        }
+                        else
+                        {
+                            ln[0] = l[1];
+                        }
+                        if (ln.Length == 0) continue;
+                    }
+                    if (!ln[0].StartsWith("dc.")) break;
+                    string d = string.Empty;
+                    for (int i = 1; i < ln.Length; i++)
+                    {
+                        d += ln[i];
+                    }
+                    string[] dats = d.Split(',');
+                    switch (ln[0].Split('.')[1])
+                    {
+                        case "b":
+                            curaddr += dats.Length;
+                            break;
+                        case "w":
+                            curaddr += dats.Length * 2;
+                            break;
+                        case "l":
+                            curaddr += dats.Length * 4;
+                            break;
+                    }
                 }
-                if (!ln[0].StartsWith("dc.")) break;
-                string d = string.Empty;
-                for (int i = 1; i < ln.Length; i++)
+                for (st = sti; st < fc.Length; st++)
                 {
-                    d += ln[i];
-                }
-                string[] dats = d.Split(',');
-                switch (ln[0].Split('.')[1])
-                {
-                    case "b":
-                        curaddr += dats.Length;
-                        break;
-                    case "w":
-                        curaddr += dats.Length * 2;
-                        break;
-                    case "l":
-                        curaddr += dats.Length * 4;
-                        break;
+                    string[] ln = fc[st].Split(';')[0].Trim().Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (ln.Length == 0) continue;
+                    if (!char.IsWhiteSpace(fc[st], 0))
+                    {
+                        string[] l = ln[0].Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+                        if (l.Length == 1)
+                        {
+                            string[] ln2 = new string[ln.Length - 1];
+                            for (int i = 0; i < ln2.Length; i++)
+                            {
+                                ln2[i] = ln[i + 1];
+                            }
+                            ln = ln2;
+                        }
+                        else
+                        {
+                            ln[0] = l[1];
+                        }
+                        if (ln.Length == 0) continue;
+                    }
+                    if (!ln[0].StartsWith("dc.")) break;
+                    string d = string.Empty;
+                    for (int i = 1; i < ln.Length; i++)
+                    {
+                        d += ln[i];
+                    }
+                    string[] dats = d.Split(',');
+                    switch (ln[0].Split('.')[1])
+                    {
+                        case "b":
+                            foreach (string item in dats)
+                                if (item.Contains("-"))
+                                    if (item.StartsWith("-"))
+                                        result.Add(ParseASMByte(item));
+                                    else
+                                        result.Add(unchecked((byte)ParseASMOffset(item, labels)));
+                                else
+                                    result.Add(ParseASMByte(item));
+                            break;
+                        case "w":
+                            foreach (string item in dats)
+                                if (item.Contains("-"))
+                                    if (item.StartsWith("-"))
+                                        result.AddRange(ByteConverter.GetBytes(ParseASMWord(item)));
+                                    else
+                                        result.AddRange(ByteConverter.GetBytes((short)ParseASMOffset(item, labels)));
+                                else
+                                    result.AddRange(ByteConverter.GetBytes(ParseASMWord(item)));
+                            break;
+                        case "l":
+                            foreach (string item in dats)
+                                if (item.Contains("-"))
+                                    if (item.StartsWith("-"))
+                                        result.AddRange(ByteConverter.GetBytes(ParseASMLong(item)));
+                                    else
+                                        result.AddRange(ByteConverter.GetBytes(ParseASMOffset(item, labels)));
+                                else
+                                    result.AddRange(ByteConverter.GetBytes(ParseASMLong(item)));
+                            break;
+                    }
                 }
             }
-            for (int st = sti; st < fc.Length; st++)
+            catch
             {
-                string[] ln = fc[st].Split(';')[0].Trim().Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
-                if (ln.Length == 0) continue;
-                if (!char.IsWhiteSpace(fc[st], 0))
-                {
-                    string[] l = ln[0].Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
-                    if (l.Length == 1)
-                    {
-                        string[] ln2 = new string[ln.Length - 1];
-                        for (int i = 0; i < ln2.Length; i++)
-                        {
-                            ln2[i] = ln[i + 1];
-                        }
-                        ln = ln2;
-                    }
-                    else
-                    {
-                        ln[0] = l[1];
-                    }
-                    if (ln.Length == 0) continue;
-                }
-                if (!ln[0].StartsWith("dc.")) break;
-                string d = string.Empty;
-                for (int i = 1; i < ln.Length; i++)
-                {
-                    d += ln[i];
-                }
-                string[] dats = d.Split(',');
-                switch (ln[0].Split('.')[1])
-                {
-                    case "b":
-                        foreach (string item in dats)
-                            if (item.Contains("-"))
-                                result.Add(unchecked((byte)ParseASMOffset(item, labels)));
-                            else
-                                result.Add(ParseASMByte(item));
-                        break;
-                    case "w":
-                        foreach (string item in dats)
-                            if (item.Contains("-"))
-                                result.AddRange(ByteConverter.GetBytes((short)ParseASMOffset(item, labels)));
-                            else
-                                result.AddRange(ByteConverter.GetBytes(ParseASMWord(item)));
-                        break;
-                    case "l":
-                        foreach (string item in dats)
-                            if (item.Contains("-"))
-                                result.AddRange(ByteConverter.GetBytes(ParseASMOffset(item, labels)));
-                            else
-                                result.AddRange(ByteConverter.GetBytes(ParseASMLong(item)));
-                        break;
-                }
+                MainForm.Log("Error reading mappings file \"" + file + "\" at line " + st + ":");
+                throw;
             }
             return result.ToArray();
         }
 
         internal static byte ParseASMByte(string data)
         {
-            if (data.StartsWith("$"))
-                return byte.Parse(data.Substring(1), System.Globalization.NumberStyles.HexNumber);
+            if (data.StartsWith("-"))
+            {
+                if (data.StartsWith("-$"))
+                    return unchecked((byte)-sbyte.Parse(data.Substring(2), System.Globalization.NumberStyles.HexNumber));
+                else
+                    return unchecked((byte)-sbyte.Parse(data, System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo));
+            }
             else
-                return byte.Parse(data, System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo);
+            {
+                if (data.StartsWith("$"))
+                    return byte.Parse(data.Substring(1), System.Globalization.NumberStyles.HexNumber);
+                else
+                    return byte.Parse(data, System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo);
+            }
         }
 
         internal static ushort ParseASMWord(string data)
         {
-            if (data.StartsWith("$"))
-                return ushort.Parse(data.Substring(1), System.Globalization.NumberStyles.HexNumber);
+            if (data.StartsWith("-"))
+            {
+                if (data.StartsWith("-$"))
+                    return unchecked((ushort)-short.Parse(data.Substring(2), System.Globalization.NumberStyles.HexNumber));
+                else
+                    return unchecked((ushort)-short.Parse(data, System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo));
+            }
             else
-                return ushort.Parse(data, System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo);
+            {
+                if (data.StartsWith("$"))
+                    return ushort.Parse(data.Substring(1), System.Globalization.NumberStyles.HexNumber);
+                else
+                    return ushort.Parse(data, System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo);
+            }
         }
 
         internal static uint ParseASMLong(string data)
         {
-            if (data.StartsWith("$"))
-                return uint.Parse(data.Substring(1), System.Globalization.NumberStyles.HexNumber);
+            if (data.StartsWith("-"))
+            {
+                if (data.StartsWith("-$"))
+                    return unchecked((uint)-int.Parse(data.Substring(2), System.Globalization.NumberStyles.HexNumber));
+                else
+                    return unchecked((uint)-int.Parse(data, System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo));
+            }
             else
-                return uint.Parse(data, System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo);
+            {
+                if (data.StartsWith("$"))
+                    return uint.Parse(data.Substring(1), System.Globalization.NumberStyles.HexNumber);
+                else
+                    return uint.Parse(data, System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo);
+            }
         }
 
         internal static int ParseASMOffset(string data, Dictionary<string, int> labels)
         {
-            return labels[data.Split('-')[0]] - labels[data.Split('-')[1]];
+            int label1 = 0;
+            if (labels.ContainsKey(data.Split('-')[0]))
+                label1 = labels[data.Split('-')[0]];
+            int label2 = 0;
+            if (labels.ContainsKey(data.Split('-')[1]))
+                label2 = labels[data.Split('-')[1]];
+            return label1 - label2;
         }
 
         internal static byte[] ProcessDPLC(byte[] artfile, DPLC dplc)
@@ -570,7 +623,7 @@ namespace SonicRetro.SonLVL
             CompChunkBmps[chunk] = CompChunkBmpBits[chunk].ToBitmap(BmpPal);
         }
 
-        internal static ObjectDefinition getObjectDefinition(byte ID)
+        internal static ObjectDefinition GetObjectDefinition(byte ID)
         {
             if (ObjTypes.ContainsKey(ID))
                 return ObjTypes[ID];
@@ -578,18 +631,10 @@ namespace SonicRetro.SonLVL
                 return unkobj;
         }
 
-        internal static string getFullObjectName(byte ID, byte SubType)
-        {
-            string ret = unkobj.Name();
-            if (ObjTypes.ContainsKey(ID))
-                ret = ObjTypes[ID].FullName(SubType);
-            return ret;
-        }
-
         internal static void ChangeObjectType(ObjectEntry entry)
         {
             if (Objects.IndexOf(entry) == -1) return;
-            Type t = getObjectDefinition(entry.ID).ObjectType;
+            Type t = GetObjectDefinition(entry.ID).ObjectType;
             if (entry.GetType() == t) return;
             byte[] entb = entry.GetBytes();
             ObjectEntry oe = (ObjectEntry)Activator.CreateInstance(t, new object[] { entb, 0 });
@@ -601,7 +646,7 @@ namespace SonicRetro.SonLVL
                 if (i > -1)
                 {
                     MainForm.SelectedItems[i] = oe;
-                    MainForm.EditControls.propertyGrid1.SelectedObjects = MainForm.SelectedItems.ToArray();
+                    MainForm.ObjectProperties.SelectedObjects = MainForm.SelectedItems.ToArray();
                 }
             }
             if (MainForm.loaded)
@@ -625,7 +670,7 @@ namespace SonicRetro.SonLVL
 
         internal static ObjectEntry CreateObject(byte ID)
         {
-            Type t = getObjectDefinition(ID).ObjectType;
+            Type t = GetObjectDefinition(ID).ObjectType;
             ObjectEntry oe = (ObjectEntry)Activator.CreateInstance(t, new object[] { });
             oe.ID = ID;
             return oe;
@@ -641,6 +686,7 @@ namespace SonicRetro.SonLVL
             MainForm.LevelImgPalette.Entries[64] = Color.White;
             MainForm.LevelImgPalette.Entries[65] = Color.Yellow;
             MainForm.LevelImgPalette.Entries[66] = Color.Black;
+            MainForm.LevelImgPalette.Entries[67] = Properties.Settings.Default.GridColor;
             foreach (Bitmap[] item in BlockBmps)
             {
                 item[0].Palette = BmpPal;
@@ -651,7 +697,6 @@ namespace SonicRetro.SonLVL
                 item[0].Palette = BmpPal;
                 item[1].Palette = BmpPal;
             }
-            MainForm.EditControls.ChunkSelector.BackColor = PaletteToColor(2, 0, false);
             MainForm.DrawLevel();
         }
 
@@ -803,62 +848,60 @@ namespace SonicRetro.SonLVL
         {
             BitmapBits bmpbits = new BitmapBits(8, 8);
             BitmapData bmpd = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, bmp.PixelFormat);
-            byte[] Bits = new byte[Math.Abs(bmpd.Stride) * bmpd.Height];
+            int stride = bmpd.Stride;
+            byte[] Bits = new byte[Math.Abs(stride) * bmpd.Height];
             System.Runtime.InteropServices.Marshal.Copy(bmpd.Scan0, Bits, 0, Bits.Length);
             bmp.UnlockBits(bmpd);
             switch (bmpd.PixelFormat)
             {
                 case PixelFormat.Format16bppArgb1555:
-                    LoadBitmap16BppArgb1555(bmpbits, Bits, bmpd.Stride);
+                    LoadBitmap16BppArgb1555(bmpbits, Bits, stride, BmpPal.Entries);
                     break;
                 case PixelFormat.Format16bppGrayScale:
-                    LoadBitmap16BppGrayScale(bmpbits, Bits, bmpd.Stride);
+                    LoadBitmap16BppGrayScale(bmpbits, Bits, stride, BmpPal.Entries);
                     break;
                 case PixelFormat.Format16bppRgb555:
-                    LoadBitmap16BppRgb555(bmpbits, Bits, bmpd.Stride);
+                    LoadBitmap16BppRgb555(bmpbits, Bits, stride, BmpPal.Entries);
                     break;
                 case PixelFormat.Format16bppRgb565:
-                    LoadBitmap16BppRgb565(bmpbits, Bits, bmpd.Stride);
+                    LoadBitmap16BppRgb565(bmpbits, Bits, stride, BmpPal.Entries);
                     break;
                 case PixelFormat.Format1bppIndexed:
-                    LoadBitmap1BppIndexed(bmpbits, Bits, bmpd.Stride);
+                    LoadBitmap1BppIndexed(bmpbits, Bits, stride);
                     palette = 0;
                     return bmpbits.ToTile();
                 case PixelFormat.Format24bppRgb:
-                    LoadBitmap24BppRgb(bmpbits, Bits, bmpd.Stride);
+                    LoadBitmap24BppRgb(bmpbits, Bits, stride, BmpPal.Entries);
                     break;
                 case PixelFormat.Format32bppArgb:
-                    LoadBitmap32BppArgb(bmpbits, Bits, bmpd.Stride);
+                    LoadBitmap32BppArgb(bmpbits, Bits, stride, BmpPal.Entries);
                     break;
                 case PixelFormat.Format32bppPArgb:
                     throw new NotImplementedException();
                 case PixelFormat.Format32bppRgb:
-                    LoadBitmap32BppRgb(bmpbits, Bits, bmpd.Stride);
+                    LoadBitmap32BppRgb(bmpbits, Bits, stride, BmpPal.Entries);
                     break;
                 case PixelFormat.Format48bppRgb:
-                    LoadBitmap48BppRgb(bmpbits, Bits, bmpd.Stride);
+                    LoadBitmap48BppRgb(bmpbits, Bits, stride, BmpPal.Entries);
                     break;
                 case PixelFormat.Format4bppIndexed:
-                    LoadBitmap4BppIndexed(bmpbits, Bits, bmpd.Stride);
+                    LoadBitmap4BppIndexed(bmpbits, Bits, stride);
                     palette = 0;
                     return bmpbits.ToTile();
                 case PixelFormat.Format64bppArgb:
-                    LoadBitmap64BppArgb(bmpbits, Bits, bmpd.Stride);
+                    LoadBitmap64BppArgb(bmpbits, Bits, stride, BmpPal.Entries);
                     break;
                 case PixelFormat.Format64bppPArgb:
                     throw new NotImplementedException();
                 case PixelFormat.Format8bppIndexed:
-                    LoadBitmap8BppIndexed(bmpbits, Bits, bmpd.Stride);
+                    LoadBitmap8BppIndexed(bmpbits, Bits, stride);
                     break;
             }
             int[] palcnt = new int[4];
             for (int y = 0; y < 8; y++)
                 for (int x = 0; x < 8; x++)
                     if ((bmpbits[x, y] & 15) > 0)
-                    {
                         palcnt[bmpbits[x, y] / 16]++;
-                        bmpbits[x, y] &= 15;
-                    }
             palette = 0;
             if (palcnt[1] > palcnt[palette])
                 palette = 1;
@@ -866,10 +909,52 @@ namespace SonicRetro.SonLVL
                 palette = 2;
             if (palcnt[3] > palcnt[palette])
                 palette = 3;
+            Color[] newpal = new Color[16];
+            for (int i = 0; i < 16; i++)
+                newpal[i] = BmpPal.Entries[(palette * 16) + i];
+            switch (bmpd.PixelFormat)
+            {
+                case PixelFormat.Format16bppArgb1555:
+                    LoadBitmap16BppArgb1555(bmpbits, Bits, stride, newpal);
+                    break;
+                case PixelFormat.Format16bppGrayScale:
+                    LoadBitmap16BppGrayScale(bmpbits, Bits, stride, newpal);
+                    break;
+                case PixelFormat.Format16bppRgb555:
+                    LoadBitmap16BppRgb555(bmpbits, Bits, stride, newpal);
+                    break;
+                case PixelFormat.Format16bppRgb565:
+                    LoadBitmap16BppRgb565(bmpbits, Bits, stride, newpal);
+                    break;
+                case PixelFormat.Format24bppRgb:
+                    LoadBitmap24BppRgb(bmpbits, Bits, stride, newpal);
+                    break;
+                case PixelFormat.Format32bppArgb:
+                    LoadBitmap32BppArgb(bmpbits, Bits, stride, newpal);
+                    break;
+                case PixelFormat.Format32bppPArgb:
+                    throw new NotImplementedException();
+                case PixelFormat.Format32bppRgb:
+                    LoadBitmap32BppRgb(bmpbits, Bits, stride, newpal);
+                    break;
+                case PixelFormat.Format48bppRgb:
+                    LoadBitmap48BppRgb(bmpbits, Bits, stride, newpal);
+                    break;
+                case PixelFormat.Format64bppArgb:
+                    LoadBitmap64BppArgb(bmpbits, Bits, stride, newpal);
+                    break;
+                case PixelFormat.Format64bppPArgb:
+                    throw new NotImplementedException();
+                case PixelFormat.Format8bppIndexed:
+                    for (int y = 0; y < 8; y++)
+                        for (int x = 0; x < 8; x++)
+                            bmpbits[x, y] = (byte)(bmpbits[x, y] & 15);
+                            break;
+            }
             return bmpbits.ToTile();
         }
 
-        private static void LoadBitmap16BppArgb1555(BitmapBits bmp, byte[] Bits, int Stride)
+        private static void LoadBitmap16BppArgb1555(BitmapBits bmp, byte[] Bits, int Stride, Color[] palette)
         {
             for (int y = 0; y < bmp.Height; y++)
             {
@@ -884,14 +969,14 @@ namespace SonicRetro.SonLVL
                     G = G << 3 | G >> 2;
                     int B = pix & 0x1F;
                     B = B << 3 | B >> 2;
-                    bmp[x, y] = (byte)Array.IndexOf(BmpPal.Entries, Color.FromArgb(A, R, G, B).FindNearestMatch(BmpPal.Entries));
+                    bmp[x, y] = (byte)Array.IndexOf(palette, Color.FromArgb(A, R, G, B).FindNearestMatch(palette));
                     if (A < 128)
                         bmp[x, y] = 0;
                 }
             }
         }
 
-        private static void LoadBitmap16BppGrayScale(BitmapBits bmp, byte[] Bits, int Stride)
+        private static void LoadBitmap16BppGrayScale(BitmapBits bmp, byte[] Bits, int Stride, Color[] palette)
         {
             for (int y = 0; y < bmp.Height; y++)
             {
@@ -899,12 +984,12 @@ namespace SonicRetro.SonLVL
                 for (int x = 0; x < bmp.Width; x++)
                 {
                     ushort pix = BitConverter.ToUInt16(Bits, srcaddr + (x * 2));
-                    bmp[x, y] = (byte)Array.IndexOf(BmpPal.Entries, Color.FromArgb(pix >> 8, pix >> 8, pix >> 8).FindNearestMatch(BmpPal.Entries));
+                    bmp[x, y] = (byte)Array.IndexOf(palette, Color.FromArgb(pix >> 8, pix >> 8, pix >> 8).FindNearestMatch(palette));
                 }
             }
         }
 
-        private static void LoadBitmap16BppRgb555(BitmapBits bmp, byte[] Bits, int Stride)
+        private static void LoadBitmap16BppRgb555(BitmapBits bmp, byte[] Bits, int Stride, Color[] palette)
         {
             for (int y = 0; y < bmp.Height; y++)
             {
@@ -918,12 +1003,12 @@ namespace SonicRetro.SonLVL
                     G = G << 3 | G >> 2;
                     int B = pix & 0x1F;
                     B = B << 3 | B >> 2;
-                    bmp[x, y] = (byte)Array.IndexOf(BmpPal.Entries, Color.FromArgb(R, G, B).FindNearestMatch(BmpPal.Entries));
+                    bmp[x, y] = (byte)Array.IndexOf(palette, Color.FromArgb(R, G, B).FindNearestMatch(palette));
                 }
             }
         }
 
-        private static void LoadBitmap16BppRgb565(BitmapBits bmp, byte[] Bits, int Stride)
+        private static void LoadBitmap16BppRgb565(BitmapBits bmp, byte[] Bits, int Stride, Color[] palette)
         {
             for (int y = 0; y < bmp.Height; y++)
             {
@@ -937,7 +1022,7 @@ namespace SonicRetro.SonLVL
                     G = G << 2 | G >> 4;
                     int B = pix & 0x1F;
                     B = B << 3 | B >> 2;
-                    bmp[x, y] = (byte)Array.IndexOf(BmpPal.Entries, Color.FromArgb(R, G, B).FindNearestMatch(BmpPal.Entries));
+                    bmp[x, y] = (byte)Array.IndexOf(palette, Color.FromArgb(R, G, B).FindNearestMatch(palette));
                 }
             }
         }
@@ -961,17 +1046,17 @@ namespace SonicRetro.SonLVL
             }
         }
 
-        private static void LoadBitmap24BppRgb(BitmapBits bmp, byte[] Bits, int Stride)
+        private static void LoadBitmap24BppRgb(BitmapBits bmp, byte[] Bits, int Stride, Color[] palette)
         {
             for (int y = 0; y < bmp.Height; y++)
             {
                 int srcaddr = y * Math.Abs(Stride);
                 for (int x = 0; x < bmp.Width; x++)
-                    bmp[x, y] = (byte)Array.IndexOf(BmpPal.Entries, Color.FromArgb(Bits[srcaddr + (x * 3) + 2], Bits[srcaddr + (x * 3) + 1], Bits[srcaddr + (x * 3)]).FindNearestMatch(BmpPal.Entries));
+                    bmp[x, y] = (byte)Array.IndexOf(palette, Color.FromArgb(Bits[srcaddr + (x * 3) + 2], Bits[srcaddr + (x * 3) + 1], Bits[srcaddr + (x * 3)]).FindNearestMatch(palette));
             }
         }
 
-        private static void LoadBitmap32BppArgb(BitmapBits bmp, byte[] Bits, int Stride)
+        private static void LoadBitmap32BppArgb(BitmapBits bmp, byte[] Bits, int Stride, Color[] palette)
         {
             for (int y = 0; y < bmp.Height; y++)
             {
@@ -979,30 +1064,30 @@ namespace SonicRetro.SonLVL
                 for (int x = 0; x < bmp.Width; x++)
                 {
                     Color col = Color.FromArgb(BitConverter.ToInt32(Bits, srcaddr + (x * 4)));
-                    bmp[x, y] = (byte)Array.IndexOf(BmpPal.Entries, col.FindNearestMatch(BmpPal.Entries));
+                    bmp[x, y] = (byte)Array.IndexOf(palette, col.FindNearestMatch(palette));
                     if (col.A < 128)
                         bmp[x, y] = 0;
                 }
             }
         }
 
-        private static void LoadBitmap32BppRgb(BitmapBits bmp, byte[] Bits, int Stride)
+        private static void LoadBitmap32BppRgb(BitmapBits bmp, byte[] Bits, int Stride, Color[] palette)
         {
             for (int y = 0; y < bmp.Height; y++)
             {
                 int srcaddr = y * Math.Abs(Stride);
                 for (int x = 0; x < bmp.Width; x++)
-                    bmp[x, y] = (byte)Array.IndexOf(BmpPal.Entries, Color.FromArgb(Bits[srcaddr + (x * 4) + 2], Bits[srcaddr + (x * 4) + 1], Bits[srcaddr + (x * 4)]).FindNearestMatch(BmpPal.Entries));
+                    bmp[x, y] = (byte)Array.IndexOf(palette, Color.FromArgb(Bits[srcaddr + (x * 4) + 2], Bits[srcaddr + (x * 4) + 1], Bits[srcaddr + (x * 4)]).FindNearestMatch(palette));
             }
         }
 
-        private static void LoadBitmap48BppRgb(BitmapBits bmp, byte[] Bits, int Stride)
+        private static void LoadBitmap48BppRgb(BitmapBits bmp, byte[] Bits, int Stride, Color[] palette)
         {
             for (int y = 0; y < bmp.Height; y++)
             {
                 int srcaddr = y * Math.Abs(Stride);
                 for (int x = 0; x < bmp.Width; x++)
-                    bmp[x, y] = (byte)Array.IndexOf(BmpPal.Entries, Color.FromArgb(BitConverter.ToUInt16(Bits, srcaddr + (x * 6) + 4) / 255, BitConverter.ToUInt16(Bits, srcaddr + (x * 6) + 2) / 255, BitConverter.ToUInt16(Bits, srcaddr + (x * 6)) / 255).FindNearestMatch(BmpPal.Entries));
+                    bmp[x, y] = (byte)Array.IndexOf(palette, Color.FromArgb(BitConverter.ToUInt16(Bits, srcaddr + (x * 6) + 4) / 255, BitConverter.ToUInt16(Bits, srcaddr + (x * 6) + 2) / 255, BitConverter.ToUInt16(Bits, srcaddr + (x * 6)) / 255).FindNearestMatch(palette));
             }
         }
 
@@ -1019,7 +1104,7 @@ namespace SonicRetro.SonLVL
             }
         }
 
-        private static void LoadBitmap64BppArgb(BitmapBits bmp, byte[] Bits, int Stride)
+        private static void LoadBitmap64BppArgb(BitmapBits bmp, byte[] Bits, int Stride, Color[] palette)
         {
             for (int y = 0; y < bmp.Height; y++)
             {
@@ -1027,7 +1112,7 @@ namespace SonicRetro.SonLVL
                 for (int x = 0; x < bmp.Width; x++)
                 {
                     Color col = Color.FromArgb(BitConverter.ToUInt16(Bits, srcaddr + (x * 8) + 6) / 255, BitConverter.ToUInt16(Bits, srcaddr + (x * 8) + 4) / 255, BitConverter.ToUInt16(Bits, srcaddr + (x * 8) + 2) / 255, BitConverter.ToUInt16(Bits, srcaddr + (x * 8)) / 255);
-                    bmp[x, y] = (byte)Array.IndexOf(BmpPal.Entries, col.FindNearestMatch(BmpPal.Entries));
+                    bmp[x, y] = (byte)Array.IndexOf(palette, col.FindNearestMatch(palette));
                     if (col.A < 128)
                         bmp[x, y] = 0;
                 }

@@ -57,7 +57,7 @@ namespace SonicRetro.SonLVL
             Bitmap bmp = new Bitmap(newsize.Width, newsize.Height);
             Graphics gfx = Graphics.FromImage(bmp);
             gfx.CompositingQuality = CompositingQuality.HighQuality;
-            gfx.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            gfx.InterpolationMode = InterpolationMode.NearestNeighbor;
             gfx.PixelOffsetMode = PixelOffsetMode.HighQuality;
             gfx.SmoothingMode = SmoothingMode.HighQuality;
             gfx.Clear(Color.Transparent);
@@ -155,6 +155,11 @@ namespace SonicRetro.SonLVL
                 }
             }
             return nearest_color;
+        }
+
+        public static Rectangle Scale(this Rectangle r, int factor)
+        {
+            return new Rectangle(r.X * factor, r.Y * factor, r.Width * factor, r.Height * factor);
         }
     }
 }
