@@ -1,4 +1,4 @@
-﻿namespace SonicRetro.SonLVL
+﻿namespace SonicRetro.SonLVL.GUI
 {
     partial class ErrorDialog
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Drawing;
-using SonicRetro.SonLVL;
+using SonicRetro.SonLVL.API;
 
 namespace S3KObjectDefinitions.Common
 {
@@ -12,7 +12,7 @@ namespace S3KObjectDefinitions.Common
         private Sprite img;
         private List<Sprite> imgs = new List<Sprite>();
 
-        public override void Init(Dictionary<string, string> data)
+        public override void Init(ObjectData data)
         {
             List<byte> tmpartfile = new List<byte>();
             tmpartfile.AddRange(ObjectHelper.OpenArtFile("Common/pathswapper-art.bin", Compression.CompressionType.Nemesis));

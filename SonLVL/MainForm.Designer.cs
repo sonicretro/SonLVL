@@ -1,4 +1,4 @@
-﻿namespace SonicRetro.SonLVL
+﻿namespace SonicRetro.SonLVL.GUI
 {
     partial class MainForm
     {
@@ -96,7 +96,7 @@
             this.viewReadmeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reportBugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
-            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.objectContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.addObjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.addRingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.addGroupOfObjectsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -122,10 +122,16 @@
             this.panel2 = new System.Windows.Forms.UserControl();
             this.vScrollBar2 = new System.Windows.Forms.VScrollBar();
             this.hScrollBar2 = new System.Windows.Forms.HScrollBar();
-            this.ChunkSelector = new SonicRetro.SonLVL.TileList();
+            this.fgToolStrip = new System.Windows.Forms.ToolStrip();
+            this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
+            this.ChunkSelector = new SonicRetro.SonLVL.API.TileList();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.splitContainer3 = new System.Windows.Forms.SplitContainer();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
+            this.bgToolStrip = new System.Windows.Forms.ToolStrip();
+            this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButton4 = new System.Windows.Forms.ToolStripButton();
             this.panel3 = new System.Windows.Forms.UserControl();
             this.vScrollBar3 = new System.Windows.Forms.VScrollBar();
             this.hScrollBar3 = new System.Windows.Forms.HScrollBar();
@@ -139,14 +145,14 @@
             this.panel10 = new System.Windows.Forms.Panel();
             this.tabPage5 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
-            this.BlockSelector = new SonicRetro.SonLVL.TileList();
+            this.BlockSelector = new SonicRetro.SonLVL.API.TileList();
             this.panel5 = new System.Windows.Forms.Panel();
             this.BlockCount = new System.Windows.Forms.Label();
             this.BlockID = new System.Windows.Forms.TextBox();
             this.BlockPicture = new System.Windows.Forms.Panel();
             this.panel6 = new System.Windows.Forms.Panel();
             this.BlockTilePropertyGrid = new System.Windows.Forms.PropertyGrid();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.ColIndBox = new System.Windows.Forms.GroupBox();
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.BlockCollision2 = new System.Windows.Forms.NumericUpDown();
@@ -155,7 +161,7 @@
             this.tableLayoutPanel6 = new System.Windows.Forms.TableLayoutPanel();
             this.panel8 = new System.Windows.Forms.Panel();
             this.PalettePanel = new System.Windows.Forms.Panel();
-            this.TileSelector = new SonicRetro.SonLVL.TileList();
+            this.TileSelector = new SonicRetro.SonLVL.API.TileList();
             this.panel7 = new System.Windows.Forms.Panel();
             this.button3 = new System.Windows.Forms.Button();
             this.TileCount = new System.Windows.Forms.Label();
@@ -163,7 +169,7 @@
             this.TilePicture = new System.Windows.Forms.Panel();
             this.tabPage7 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel7 = new System.Windows.Forms.TableLayoutPanel();
-            this.CollisionSelector = new SonicRetro.SonLVL.TileList();
+            this.CollisionSelector = new SonicRetro.SonLVL.API.TileList();
             this.panel9 = new System.Windows.Forms.Panel();
             this.ColID = new System.Windows.Forms.TextBox();
             this.ColAngle = new System.Windows.Forms.NumericUpDown();
@@ -178,10 +184,15 @@
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
             this.importToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.drawToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.contextMenuStrip2 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.paletteContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.importToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.layoutContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.cutToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.copyToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.pasteToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.deleteToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
-            this.contextMenuStrip1.SuspendLayout();
+            this.objectContextMenuStrip.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -193,10 +204,12 @@
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
+            this.fgToolStrip.SuspendLayout();
             this.tabPage3.SuspendLayout();
             this.splitContainer3.Panel1.SuspendLayout();
             this.splitContainer3.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
+            this.bgToolStrip.SuspendLayout();
             this.tabPage4.SuspendLayout();
             this.tableLayoutPanel4.SuspendLayout();
             this.panel4.SuspendLayout();
@@ -204,7 +217,7 @@
             this.tableLayoutPanel5.SuspendLayout();
             this.panel5.SuspendLayout();
             this.panel6.SuspendLayout();
-            this.groupBox1.SuspendLayout();
+            this.ColIndBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.BlockCollision2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.BlockCollision1)).BeginInit();
             this.tabPage6.SuspendLayout();
@@ -216,7 +229,8 @@
             this.panel9.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ColAngle)).BeginInit();
             this.tileContextMenuStrip.SuspendLayout();
-            this.contextMenuStrip2.SuspendLayout();
+            this.paletteContextMenuStrip.SuspendLayout();
+            this.layoutContextMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // fileToolStripMenuItem
@@ -744,9 +758,9 @@
             this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
             this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
             // 
-            // contextMenuStrip1
+            // objectContextMenuStrip
             // 
-            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.objectContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.addObjectToolStripMenuItem,
             this.addRingToolStripMenuItem,
             this.addGroupOfObjectsToolStripMenuItem,
@@ -758,8 +772,8 @@
             this.toolStripSeparator5,
             this.selectAllObjectsToolStripMenuItem,
             this.selectAllRingsToolStripMenuItem});
-            this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(199, 252);
+            this.objectContextMenuStrip.Name = "contextMenuStrip1";
+            this.objectContextMenuStrip.Size = new System.Drawing.Size(199, 230);
             // 
             // addObjectToolStripMenuItem
             // 
@@ -1003,14 +1017,16 @@
             this.tableLayoutPanel2.ColumnCount = 2;
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel2.Controls.Add(this.panel2, 0, 0);
-            this.tableLayoutPanel2.Controls.Add(this.vScrollBar2, 1, 0);
-            this.tableLayoutPanel2.Controls.Add(this.hScrollBar2, 0, 1);
+            this.tableLayoutPanel2.Controls.Add(this.panel2, 0, 1);
+            this.tableLayoutPanel2.Controls.Add(this.vScrollBar2, 1, 1);
+            this.tableLayoutPanel2.Controls.Add(this.hScrollBar2, 0, 2);
+            this.tableLayoutPanel2.Controls.Add(this.fgToolStrip, 0, 0);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-            this.tableLayoutPanel2.RowCount = 2;
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel2.RowCount = 3;
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 66.66666F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel2.Size = new System.Drawing.Size(384, 477);
             this.tableLayoutPanel2.TabIndex = 3;
@@ -1018,10 +1034,10 @@
             // panel2
             // 
             this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel2.Location = new System.Drawing.Point(0, 0);
+            this.panel2.Location = new System.Drawing.Point(0, 25);
             this.panel2.Margin = new System.Windows.Forms.Padding(0);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(367, 460);
+            this.panel2.Size = new System.Drawing.Size(367, 435);
             this.panel2.TabIndex = 1;
             this.panel2.Paint += new System.Windows.Forms.PaintEventHandler(this.panel_Paint);
             this.panel2.KeyDown += new System.Windows.Forms.KeyEventHandler(this.panel2_KeyDown);
@@ -1037,10 +1053,10 @@
             | System.Windows.Forms.AnchorStyles.Left)));
             this.vScrollBar2.Enabled = false;
             this.vScrollBar2.LargeChange = 128;
-            this.vScrollBar2.Location = new System.Drawing.Point(367, 0);
+            this.vScrollBar2.Location = new System.Drawing.Point(367, 25);
             this.vScrollBar2.Maximum = 128;
             this.vScrollBar2.Name = "vScrollBar2";
-            this.vScrollBar2.Size = new System.Drawing.Size(17, 460);
+            this.vScrollBar2.Size = new System.Drawing.Size(17, 435);
             this.vScrollBar2.SmallChange = 16;
             this.vScrollBar2.TabIndex = 2;
             this.vScrollBar2.ValueChanged += new System.EventHandler(this.ScrollBar_ValueChanged);
@@ -1058,6 +1074,39 @@
             this.hScrollBar2.SmallChange = 16;
             this.hScrollBar2.TabIndex = 3;
             this.hScrollBar2.ValueChanged += new System.EventHandler(this.ScrollBar_ValueChanged);
+            // 
+            // fgToolStrip
+            // 
+            this.tableLayoutPanel2.SetColumnSpan(this.fgToolStrip, 2);
+            this.fgToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+            this.fgToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripButton2,
+            this.toolStripButton1});
+            this.fgToolStrip.Location = new System.Drawing.Point(0, 0);
+            this.fgToolStrip.Name = "fgToolStrip";
+            this.fgToolStrip.Size = new System.Drawing.Size(384, 25);
+            this.fgToolStrip.TabIndex = 4;
+            this.fgToolStrip.Text = "toolStrip1";
+            // 
+            // toolStripButton2
+            // 
+            this.toolStripButton2.Checked = true;
+            this.toolStripButton2.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.toolStripButton2.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton2.Image")));
+            this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton2.Name = "toolStripButton2";
+            this.toolStripButton2.Size = new System.Drawing.Size(54, 22);
+            this.toolStripButton2.Text = "Draw";
+            this.toolStripButton2.Click += new System.EventHandler(this.toolStripButton2_Click);
+            // 
+            // toolStripButton1
+            // 
+            this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
+            this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton1.Name = "toolStripButton1";
+            this.toolStripButton1.Size = new System.Drawing.Size(58, 22);
+            this.toolStripButton1.Text = "Select";
+            this.toolStripButton1.Click += new System.EventHandler(this.toolStripButton1_Click);
             // 
             // ChunkSelector
             // 
@@ -1105,25 +1154,60 @@
             this.tableLayoutPanel3.ColumnCount = 2;
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.tableLayoutPanel3.Controls.Add(this.panel3, 0, 0);
-            this.tableLayoutPanel3.Controls.Add(this.vScrollBar3, 1, 0);
-            this.tableLayoutPanel3.Controls.Add(this.hScrollBar3, 0, 1);
+            this.tableLayoutPanel3.Controls.Add(this.bgToolStrip, 0, 0);
+            this.tableLayoutPanel3.Controls.Add(this.panel3, 0, 1);
+            this.tableLayoutPanel3.Controls.Add(this.vScrollBar3, 1, 1);
+            this.tableLayoutPanel3.Controls.Add(this.hScrollBar3, 0, 2);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
-            this.tableLayoutPanel3.RowCount = 2;
+            this.tableLayoutPanel3.RowCount = 3;
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel3.Size = new System.Drawing.Size(384, 477);
             this.tableLayoutPanel3.TabIndex = 3;
             // 
+            // bgToolStrip
+            // 
+            this.tableLayoutPanel3.SetColumnSpan(this.bgToolStrip, 2);
+            this.bgToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+            this.bgToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripButton3,
+            this.toolStripButton4});
+            this.bgToolStrip.Location = new System.Drawing.Point(0, 0);
+            this.bgToolStrip.Name = "bgToolStrip";
+            this.bgToolStrip.Size = new System.Drawing.Size(384, 25);
+            this.bgToolStrip.TabIndex = 5;
+            this.bgToolStrip.Text = "toolStrip1";
+            // 
+            // toolStripButton3
+            // 
+            this.toolStripButton3.Checked = true;
+            this.toolStripButton3.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.toolStripButton3.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton3.Image")));
+            this.toolStripButton3.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton3.Name = "toolStripButton3";
+            this.toolStripButton3.Size = new System.Drawing.Size(54, 22);
+            this.toolStripButton3.Text = "Draw";
+            this.toolStripButton3.Click += new System.EventHandler(this.toolStripButton3_Click);
+            // 
+            // toolStripButton4
+            // 
+            this.toolStripButton4.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton4.Image")));
+            this.toolStripButton4.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton4.Name = "toolStripButton4";
+            this.toolStripButton4.Size = new System.Drawing.Size(58, 22);
+            this.toolStripButton4.Text = "Select";
+            this.toolStripButton4.Click += new System.EventHandler(this.toolStripButton4_Click);
+            // 
             // panel3
             // 
             this.panel3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel3.Location = new System.Drawing.Point(0, 0);
+            this.panel3.Location = new System.Drawing.Point(0, 25);
             this.panel3.Margin = new System.Windows.Forms.Padding(0);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(367, 460);
+            this.panel3.Size = new System.Drawing.Size(367, 435);
             this.panel3.TabIndex = 1;
             this.panel3.Paint += new System.Windows.Forms.PaintEventHandler(this.panel_Paint);
             this.panel3.KeyDown += new System.Windows.Forms.KeyEventHandler(this.panel3_KeyDown);
@@ -1139,10 +1223,10 @@
             | System.Windows.Forms.AnchorStyles.Left)));
             this.vScrollBar3.Enabled = false;
             this.vScrollBar3.LargeChange = 128;
-            this.vScrollBar3.Location = new System.Drawing.Point(367, 0);
+            this.vScrollBar3.Location = new System.Drawing.Point(367, 25);
             this.vScrollBar3.Maximum = 128;
             this.vScrollBar3.Name = "vScrollBar3";
-            this.vScrollBar3.Size = new System.Drawing.Size(17, 460);
+            this.vScrollBar3.Size = new System.Drawing.Size(17, 435);
             this.vScrollBar3.SmallChange = 16;
             this.vScrollBar3.TabIndex = 2;
             this.vScrollBar3.ValueChanged += new System.EventHandler(this.ScrollBar_ValueChanged);
@@ -1332,7 +1416,7 @@
             // panel6
             // 
             this.panel6.Controls.Add(this.BlockTilePropertyGrid);
-            this.panel6.Controls.Add(this.groupBox1);
+            this.panel6.Controls.Add(this.ColIndBox);
             this.panel6.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel6.Location = new System.Drawing.Point(115, 3);
             this.panel6.Name = "panel6";
@@ -1351,19 +1435,19 @@
             this.BlockTilePropertyGrid.ToolbarVisible = false;
             this.BlockTilePropertyGrid.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.BlockTilePropertyGrid_PropertyValueChanged);
             // 
-            // groupBox1
+            // ColIndBox
             // 
-            this.groupBox1.Controls.Add(this.button2);
-            this.groupBox1.Controls.Add(this.button1);
-            this.groupBox1.Controls.Add(this.BlockCollision2);
-            this.groupBox1.Controls.Add(this.BlockCollision1);
-            this.groupBox1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.groupBox1.Location = new System.Drawing.Point(0, 421);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(284, 50);
-            this.groupBox1.TabIndex = 4;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Collision Index";
+            this.ColIndBox.Controls.Add(this.button2);
+            this.ColIndBox.Controls.Add(this.button1);
+            this.ColIndBox.Controls.Add(this.BlockCollision2);
+            this.ColIndBox.Controls.Add(this.BlockCollision1);
+            this.ColIndBox.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.ColIndBox.Location = new System.Drawing.Point(0, 421);
+            this.ColIndBox.Name = "ColIndBox";
+            this.ColIndBox.Size = new System.Drawing.Size(284, 50);
+            this.ColIndBox.TabIndex = 4;
+            this.ColIndBox.TabStop = false;
+            this.ColIndBox.Text = "Collision Index";
             // 
             // button2
             // 
@@ -1706,12 +1790,12 @@
             this.drawToolStripMenuItem.Text = "D&raw";
             this.drawToolStripMenuItem.Click += new System.EventHandler(this.drawToolStripMenuItem_Click);
             // 
-            // contextMenuStrip2
+            // paletteContextMenuStrip
             // 
-            this.contextMenuStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.paletteContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.importToolStripMenuItem1});
-            this.contextMenuStrip2.Name = "contextMenuStrip2";
-            this.contextMenuStrip2.Size = new System.Drawing.Size(111, 26);
+            this.paletteContextMenuStrip.Name = "contextMenuStrip2";
+            this.paletteContextMenuStrip.Size = new System.Drawing.Size(111, 26);
             // 
             // importToolStripMenuItem1
             // 
@@ -1719,6 +1803,48 @@
             this.importToolStripMenuItem1.Size = new System.Drawing.Size(110, 22);
             this.importToolStripMenuItem1.Text = "&Import";
             this.importToolStripMenuItem1.Click += new System.EventHandler(this.importToolStripMenuItem1_Click);
+            // 
+            // layoutContextMenuStrip
+            // 
+            this.layoutContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cutToolStripMenuItem1,
+            this.copyToolStripMenuItem1,
+            this.pasteToolStripMenuItem1,
+            this.deleteToolStripMenuItem1});
+            this.layoutContextMenuStrip.Name = "layoutContextMenuStrip";
+            this.layoutContextMenuStrip.Size = new System.Drawing.Size(108, 92);
+            // 
+            // cutToolStripMenuItem1
+            // 
+            this.cutToolStripMenuItem1.Image = global::SonicRetro.SonLVL.Properties.Resources.cut;
+            this.cutToolStripMenuItem1.Name = "cutToolStripMenuItem1";
+            this.cutToolStripMenuItem1.Size = new System.Drawing.Size(107, 22);
+            this.cutToolStripMenuItem1.Text = "Cu&t";
+            this.cutToolStripMenuItem1.Click += new System.EventHandler(this.cutToolStripMenuItem1_Click);
+            // 
+            // copyToolStripMenuItem1
+            // 
+            this.copyToolStripMenuItem1.Image = global::SonicRetro.SonLVL.Properties.Resources.copy;
+            this.copyToolStripMenuItem1.Name = "copyToolStripMenuItem1";
+            this.copyToolStripMenuItem1.Size = new System.Drawing.Size(107, 22);
+            this.copyToolStripMenuItem1.Text = "&Copy";
+            this.copyToolStripMenuItem1.Click += new System.EventHandler(this.copyToolStripMenuItem1_Click);
+            // 
+            // pasteToolStripMenuItem1
+            // 
+            this.pasteToolStripMenuItem1.Image = global::SonicRetro.SonLVL.Properties.Resources.paste;
+            this.pasteToolStripMenuItem1.Name = "pasteToolStripMenuItem1";
+            this.pasteToolStripMenuItem1.Size = new System.Drawing.Size(107, 22);
+            this.pasteToolStripMenuItem1.Text = "&Paste";
+            this.pasteToolStripMenuItem1.Click += new System.EventHandler(this.pasteToolStripMenuItem1_Click);
+            // 
+            // deleteToolStripMenuItem1
+            // 
+            this.deleteToolStripMenuItem1.Image = global::SonicRetro.SonLVL.Properties.Resources.delete;
+            this.deleteToolStripMenuItem1.Name = "deleteToolStripMenuItem1";
+            this.deleteToolStripMenuItem1.Size = new System.Drawing.Size(107, 22);
+            this.deleteToolStripMenuItem1.Text = "&Delete";
+            this.deleteToolStripMenuItem1.Click += new System.EventHandler(this.deleteToolStripMenuItem1_Click);
             // 
             // MainForm
             // 
@@ -1737,7 +1863,7 @@
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MainForm_KeyDown);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            this.contextMenuStrip1.ResumeLayout(false);
+            this.objectContextMenuStrip.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
@@ -1749,10 +1875,16 @@
             this.splitContainer2.Panel2.ResumeLayout(false);
             this.splitContainer2.ResumeLayout(false);
             this.tableLayoutPanel2.ResumeLayout(false);
+            this.tableLayoutPanel2.PerformLayout();
+            this.fgToolStrip.ResumeLayout(false);
+            this.fgToolStrip.PerformLayout();
             this.tabPage3.ResumeLayout(false);
             this.splitContainer3.Panel1.ResumeLayout(false);
             this.splitContainer3.ResumeLayout(false);
             this.tableLayoutPanel3.ResumeLayout(false);
+            this.tableLayoutPanel3.PerformLayout();
+            this.bgToolStrip.ResumeLayout(false);
+            this.bgToolStrip.PerformLayout();
             this.tabPage4.ResumeLayout(false);
             this.tableLayoutPanel4.ResumeLayout(false);
             this.tableLayoutPanel4.PerformLayout();
@@ -1764,8 +1896,8 @@
             this.panel5.ResumeLayout(false);
             this.panel5.PerformLayout();
             this.panel6.ResumeLayout(false);
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
+            this.ColIndBox.ResumeLayout(false);
+            this.ColIndBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.BlockCollision2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.BlockCollision1)).EndInit();
             this.tabPage6.ResumeLayout(false);
@@ -1781,7 +1913,8 @@
             this.panel9.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ColAngle)).EndInit();
             this.tileContextMenuStrip.ResumeLayout(false);
-            this.contextMenuStrip2.ResumeLayout(false);
+            this.paletteContextMenuStrip.ResumeLayout(false);
+            this.layoutContextMenuStrip.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1815,7 +1948,7 @@
         private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem undoCtrlZToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem redoCtrlYToolStripMenuItem;
-        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ContextMenuStrip objectContextMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem cutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem copyToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem pasteToolStripMenuItem;
@@ -1873,7 +2006,7 @@
         internal System.Windows.Forms.PropertyGrid ObjectProperties;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.SplitContainer splitContainer2;
-        internal TileList ChunkSelector;
+        internal SonicRetro.SonLVL.API.TileList ChunkSelector;
         private System.Windows.Forms.SplitContainer splitContainer3;
         private System.Windows.Forms.ToolStripMenuItem recentProjectsToolStripMenuItem;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
@@ -1883,20 +2016,20 @@
         internal System.Windows.Forms.Panel ChunkPicture;
         private System.Windows.Forms.PropertyGrid ChunkBlockPropertyGrid;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel5;
-        internal TileList BlockSelector;
+        internal SonicRetro.SonLVL.API.TileList BlockSelector;
         private System.Windows.Forms.Panel panel5;
         private System.Windows.Forms.Label BlockCount;
         private System.Windows.Forms.TextBox BlockID;
         internal System.Windows.Forms.Panel BlockPicture;
         private System.Windows.Forms.Panel panel6;
         private System.Windows.Forms.PropertyGrid BlockTilePropertyGrid;
-        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox ColIndBox;
         internal System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button1;
         internal System.Windows.Forms.NumericUpDown BlockCollision2;
         private System.Windows.Forms.NumericUpDown BlockCollision1;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel6;
-        internal TileList TileSelector;
+        internal SonicRetro.SonLVL.API.TileList TileSelector;
         private System.Windows.Forms.Panel panel7;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Label TileCount;
@@ -1905,7 +2038,7 @@
         internal System.Windows.Forms.Panel panel8;
         internal System.Windows.Forms.Panel PalettePanel;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel7;
-        internal TileList CollisionSelector;
+        internal SonicRetro.SonLVL.API.TileList CollisionSelector;
         internal System.Windows.Forms.Panel panel9;
         private System.Windows.Forms.TextBox ColID;
         private System.Windows.Forms.NumericUpDown ColAngle;
@@ -1920,7 +2053,7 @@
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem3;
         private System.Windows.Forms.ToolStripMenuItem importToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem drawToolStripMenuItem;
-        private System.Windows.Forms.ContextMenuStrip contextMenuStrip2;
+        private System.Windows.Forms.ContextMenuStrip paletteContextMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem importToolStripMenuItem1;
         private System.Windows.Forms.Panel panel10;
         private System.Windows.Forms.ToolStripMenuItem gridToolStripMenuItem;
@@ -1939,7 +2072,17 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
         private System.Windows.Forms.ToolStripMenuItem selectAllObjectsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem selectAllRingsToolStripMenuItem;
+        private System.Windows.Forms.ToolStrip fgToolStrip;
+        private System.Windows.Forms.ToolStripButton toolStripButton1;
+        private System.Windows.Forms.ToolStripButton toolStripButton2;
+        private System.Windows.Forms.ContextMenuStrip layoutContextMenuStrip;
+        private System.Windows.Forms.ToolStripMenuItem cutToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem copyToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem pasteToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem1;
+        private System.Windows.Forms.ToolStrip bgToolStrip;
+        private System.Windows.Forms.ToolStripButton toolStripButton3;
+        private System.Windows.Forms.ToolStripButton toolStripButton4;
 
     }
 }
-

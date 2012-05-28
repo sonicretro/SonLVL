@@ -1,0 +1,131 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{01D2110B-F4E7-4914-8781-8B1C24D888AD}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SonicRetro.SonLVL.API</RootNamespace>
+    <AssemblyName>SonLVLAPI</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="SonicRetro.KensSharp.Common">
+      <HintPath>..\..\KENSSharp\Frontend\bin\Release\SonicRetro.KensSharp.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="SonicRetro.KensSharp.Enigma">
+      <HintPath>..\..\KENSSharp\Frontend\bin\Release\SonicRetro.KensSharp.Enigma.dll</HintPath>
+    </Reference>
+    <Reference Include="SonicRetro.KensSharp.Kosinski">
+      <HintPath>..\..\KENSSharp\Frontend\bin\Release\SonicRetro.KensSharp.Kosinski.dll</HintPath>
+    </Reference>
+    <Reference Include="SonicRetro.KensSharp.Nemesis">
+      <HintPath>..\..\KENSSharp\Frontend\bin\Release\SonicRetro.KensSharp.Nemesis.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="SZDDComp">
+      <HintPath>.\SZDDComp.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BitmapBits.cs" />
+    <Compile Include="BlockSelector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ByteConverter.cs" />
+    <Compile Include="Compression.cs" />
+    <Compile Include="DataTypes.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="GameInfo.cs" />
+    <Compile Include="IniFile.cs" />
+    <Compile Include="LevelData.cs" />
+    <Compile Include="MultiFileIndexer.cs" />
+    <Compile Include="ObjectDefinition.cs" />
+    <Compile Include="ObjectHelper.cs" />
+    <Compile Include="ObjectIDEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ObjectSubTypeEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="SonicBoom.cs" />
+    <Compile Include="TileList.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="TileList.Designer.cs">
+      <DependentUpon>TileList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TileSelector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="XMLDef.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="BlockSelector.resx">
+      <DependentUpon>BlockSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ObjectIDEditor.resx">
+      <DependentUpon>ObjectIDEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ObjectSubTypeEditor.resx">
+      <DependentUpon>ObjectSubTypeEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TileList.resx">
+      <DependentUpon>TileList.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TileSelector.resx">
+      <DependentUpon>TileSelector.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\UnknownImg.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\UnknownImg3K.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

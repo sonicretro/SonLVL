@@ -1,16 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
-using SonicRetro.SonLVL;
+using SonicRetro.SonLVL.API;
 
 namespace S12005ObjectDefinitions.Common
 {
-    class EggPrison : SonicRetro.SonLVL.ObjectDefinition
+    class EggPrison : ObjectDefinition
     {
         private Sprite img;
         private List<Sprite> imgs = new List<Sprite>();
 
-        public override void Init(Dictionary<string, string> data)
+        public override void Init(ObjectData data)
         {
             byte[] artfile = ObjectHelper.OpenArtFile("../artnem/prison.bin", Compression.CompressionType.Nemesis);
             img = ObjectHelper.MapASMToBmp(artfile, "../_maps/obj3E.asm", 0, 0);

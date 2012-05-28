@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace SonicRetro.SonLVL
+namespace SonicRetro.SonLVL.GUI
 {
     static class Program
     {
         internal static string[] args;
+        internal static readonly bool IsMonoRuntime = Type.GetType("Mono.Runtime") != null;
+        internal static readonly bool IsWindows = !(Environment.OSVersion.Platform == PlatformID.MacOSX | Environment.OSVersion.Platform == PlatformID.Unix | Environment.OSVersion.Platform == PlatformID.Xbox);
 
         /// <summary>
         /// The main entry point for the application.
@@ -22,10 +24,10 @@ namespace SonicRetro.SonLVL
 
         static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            if (LevelData.MainForm != null)
+            if (MainForm.Instance != null)
             {
-                LevelData.MainForm.Log(e.ExceptionObject.ToString().Split(new string[] { Environment.NewLine }, StringSplitOptions.None));
-                System.IO.File.WriteAllLines("SonLVL.log", LevelData.MainForm.LogFile.ToArray());
+                MainForm.Instance.Log(e.ExceptionObject.ToString().Split(new string[] { Environment.NewLine }, StringSplitOptions.None));
+                System.IO.File.WriteAllLines("SonLVL.log", MainForm.Instance.LogFile.ToArray());
                 using (ErrorDialog ed = new ErrorDialog("Unhandled Exception " + e.ExceptionObject.GetType().Name + "\nLog file has been saved.", false))
                     ed.ShowDialog();
             }

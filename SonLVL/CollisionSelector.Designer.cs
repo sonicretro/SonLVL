@@ -1,4 +1,4 @@
-﻿namespace SonicRetro.SonLVL
+﻿namespace SonicRetro.SonLVL.GUI
 {
     partial class CollisionSelector
     {
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.tileList1 = new SonicRetro.SonLVL.TileList();
+            this.tileList1 = new SonicRetro.SonLVL.API.TileList();
             this.SuspendLayout();
             // 
             // tileList1
@@ -64,6 +64,6 @@
 
         #endregion
 
-        internal TileList tileList1;
+        internal SonicRetro.SonLVL.API.TileList tileList1;
     }
 }

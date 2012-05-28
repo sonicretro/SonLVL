@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
-using SonicRetro.SonLVL;
+using SonicRetro.SonLVL.API;
 
 namespace S1ObjectDefinitions.Common
 {
@@ -11,7 +11,7 @@ namespace S1ObjectDefinitions.Common
         private Sprite img;
         private List<Sprite> imgs = new List<Sprite>();
 
-        public override void Init(Dictionary<string, string> data)
+        public override void Init(ObjectData data)
         {
             byte[] artfile1 = ObjectHelper.OpenArtFile("../artnem/Spring Horizontal.bin", Compression.CompressionType.Nemesis);
             byte[] artfile2 = ObjectHelper.OpenArtFile("../artnem/Spring Vertical.bin", Compression.CompressionType.Nemesis);

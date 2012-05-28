@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
-using SonicRetro.SonLVL;
+using SonicRetro.SonLVL.API;
 using System;
 
 namespace S2ObjectDefinitions.EHZ
@@ -11,7 +11,7 @@ namespace S2ObjectDefinitions.EHZ
         private Sprite img;
         private Sprite sprite;
 
-        public override void Init(Dictionary<string, string> data)
+        public override void Init(ObjectData data)
         {
             img = ObjectHelper.UnknownObject;
             List<Sprite> sprs = new List<Sprite>();

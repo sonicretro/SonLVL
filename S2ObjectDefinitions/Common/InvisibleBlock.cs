@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
-using SonicRetro.SonLVL;
+using SonicRetro.SonLVL.API;
 
 namespace S2ObjectDefinitions.Common
 {
@@ -9,7 +9,7 @@ namespace S2ObjectDefinitions.Common
     {
         private Sprite img;
 
-        public override void Init(Dictionary<string, string> data)
+        public override void Init(ObjectData data)
         {
             byte[] artfile = ObjectHelper.OpenArtFile("../art/nemesis/Monitor and contents.bin", Compression.CompressionType.Nemesis);
             byte[] mapfile = System.IO.File.ReadAllBytes("../mappings/sprite/obj74.bin");

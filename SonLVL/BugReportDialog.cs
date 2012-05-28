@@ -5,7 +5,7 @@ using System.Net;
 using System.Text;
 using System.Windows.Forms;
 
-namespace SonicRetro.SonLVL
+namespace SonicRetro.SonLVL.GUI
 {
     public partial class BugReportDialog : Form
     {
@@ -82,7 +82,7 @@ namespace SonicRetro.SonLVL
                 Username.Text = Environment.MachineName;
             else
                 Username.Text = Properties.Settings.Default.Username;
-            Log.Text = string.Join(Environment.NewLine, LevelData.MainForm.LogFile.ToArray());
+            Log.Text = string.Join(Environment.NewLine, MainForm.Instance.LogFile.ToArray());
         }
     }
 }

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using SonicRetro.SonLVL.API;
 
-namespace SonicRetro.SonLVL
+namespace SonicRetro.SonLVL.GUI
 {
     public partial class AlternatePaletteDialog : Form
     {

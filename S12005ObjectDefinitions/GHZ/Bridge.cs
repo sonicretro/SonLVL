@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Drawing;
-using SonicRetro.SonLVL;
+using SonicRetro.SonLVL.API;
 
 namespace S12005ObjectDefinitions.GHZ
 {
@@ -11,7 +11,7 @@ namespace S12005ObjectDefinitions.GHZ
     {
         private Sprite img;
 
-        public override void Init(Dictionary<string, string> data)
+        public override void Init(ObjectData data)
         {
             byte[] artfile = ObjectHelper.OpenArtFile("../artnem/ghzbridg.bin", Compression.CompressionType.Nemesis);
             img = ObjectHelper.MapASMToBmp(artfile, "../_maps/obj11.asm", 0, 2);

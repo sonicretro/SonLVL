@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace SonicRetro.SonLVL
+namespace SonicRetro.SonLVL.GUI
 {
     public partial class ErrorDialog : Form
     {

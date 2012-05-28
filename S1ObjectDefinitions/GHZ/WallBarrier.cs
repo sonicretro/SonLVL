@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
-using SonicRetro.SonLVL;
+using SonicRetro.SonLVL.API;
 
 namespace S1ObjectDefinitions.GHZ
 {
@@ -10,7 +10,7 @@ namespace S1ObjectDefinitions.GHZ
     {
         private List<Sprite> imgs = new List<Sprite>();
 
-        public override void Init(Dictionary<string, string> data)
+        public override void Init(ObjectData data)
         {
             byte[] artfile = ObjectHelper.OpenArtFile("../artnem/GHZ Edge Wall.bin", Compression.CompressionType.Nemesis);
             imgs.Add(ObjectHelper.MapASMToBmp(artfile, "../_maps/GHZ Edge Walls.asm", 0, 2));

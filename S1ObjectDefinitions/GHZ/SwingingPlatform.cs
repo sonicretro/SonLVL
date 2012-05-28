@@ -1,18 +1,18 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
-using SonicRetro.SonLVL;
+using SonicRetro.SonLVL.API;
 using System;
 
 namespace S1ObjectDefinitions.GHZ
 {
-    class SwingingPlatform : SonicRetro.SonLVL.ObjectDefinition
+    class SwingingPlatform : ObjectDefinition
     {
         private int[] labels = { 0, 1, 2 };
         private Sprite img;
         private List<Sprite> imgs = new List<Sprite>();
 
-        public override void Init(Dictionary<string, string> data)
+        public override void Init(ObjectData data)
         {
             byte[] artfile = ObjectHelper.OpenArtFile("../artnem/GHZ Swinging Platform.bin", Compression.CompressionType.Nemesis);
             img = ObjectHelper.MapASMToBmp(artfile, "../_maps/Swinging Platforms (GHZ).asm", 0, 2);

@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Windows.Forms;
+using SonicRetro.SonLVL.API;
 
-namespace SonicRetro.SonLVL
+namespace SonicRetro.SonLVL.GUI
 {
     public partial class ResizeLevelDialog : Form
     {
@@ -25,7 +26,7 @@ namespace SonicRetro.SonLVL
 
         private void levelHeight_ValueChanged(object sender, EventArgs e)
         {
-            if (LevelData.LayoutFmt == EngineVersion.S3K || LevelData.LayoutFmt == EngineVersion.SKC)
+            if (LevelData.Level.LayoutFormat == EngineVersion.S3K || LevelData.Level.LayoutFormat == EngineVersion.SKC)
             {
                 if (fg)
                     levelWidth.Maximum = Math.Floor((3960 - (LevelData.BGLayout.Length)) / levelHeight.Value);

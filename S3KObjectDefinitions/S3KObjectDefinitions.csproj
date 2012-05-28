@@ -42,9 +42,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SonLVL\SonLVL.csproj">
-      <Project>{934ED80F-F466-423E-8203-9A3F35583323}</Project>
-      <Name>SonLVL</Name>
+    <ProjectReference Include="..\SonLVLAPI\SonLVL.API.csproj">
+      <Project>{01D2110B-F4E7-4914-8781-8B1C24D888AD}</Project>
+      <Name>SonLVL.API</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

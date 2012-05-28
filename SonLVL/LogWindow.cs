@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace SonicRetro.SonLVL
+namespace SonicRetro.SonLVL.GUI
 {
     public partial class LogWindow : Form
     {
@@ -17,13 +17,13 @@ namespace SonicRetro.SonLVL
 
         private void LogWindow_FormClosed(object sender, FormClosedEventArgs e)
         {
-            LevelData.MainForm.LogWindow = null;
-            LevelData.MainForm.logToolStripMenuItem.Enabled = true;
+            MainForm.Instance.LogWindow = null;
+            MainForm.Instance.logToolStripMenuItem.Enabled = true;
         }
 
         internal void UpdateLines()
         {
-            richTextBox1.Lines = LevelData.MainForm.LogFile.ToArray();
+            richTextBox1.Lines = MainForm.Instance.LogFile.ToArray();
             richTextBox1.SelectionLength = 0;
             richTextBox1.SelectionStart = richTextBox1.TextLength;
             richTextBox1.ScrollToCaret();
@@ -31,7 +31,7 @@ namespace SonicRetro.SonLVL
 
         private void button2_Click(object sender, EventArgs e)
         {
-            LevelData.MainForm.LogFile.Clear();
+            MainForm.Instance.LogFile.Clear();
             UpdateLines();
         }
 
@@ -39,7 +39,7 @@ namespace SonicRetro.SonLVL
         {
             SaveFileDialog a = new SaveFileDialog() { DefaultExt = "log", Filter = "Log Files|*.log;*.txt|All Files|*.*" };
             if (a.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
-                System.IO.File.WriteAllLines(a.FileName, LevelData.MainForm.LogFile.ToArray());
+                System.IO.File.WriteAllLines(a.FileName, MainForm.Instance.LogFile.ToArray());
         }
     }
 }
