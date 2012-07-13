@@ -13,22 +13,25 @@ namespace SonicRetro.SonLVL.GUI
     public partial class MainForm : Form
     {
         public static MainForm Instance { get; private set; }
+        Properties.Settings Settings = Properties.Settings.Default;
 
         public MainForm()
         {
             Application.ThreadException += new System.Threading.ThreadExceptionEventHandler(Application_ThreadException);
             Instance = this;
             if (Program.IsMonoRuntime)
-            {
                 Log("Mono runtime detected.");
-                BlockCollision1.TextChanged += new EventHandler(BlockCollision1_TextChanged);
-                BlockCollision2.TextChanged += new EventHandler(BlockCollision2_TextChanged);
-            }
             Log("Operating system: " + Environment.OSVersion.ToString());
             LevelData.LogEvent += new LevelData.LogEventHandler(Log);
             LevelData.ObjectTypeChangedEvent += new LevelData.ObjectTypeChangedEventHandler(LevelData_ObjectTypeChangedEvent);
             LevelData.PaletteChangedEvent += new Action(LevelData_PaletteChangedEvent);
             InitializeComponent();
+            if (Program.IsMonoRuntime)
+            {
+                BlockCollision1.TextChanged += new EventHandler(BlockCollision1_TextChanged);
+                BlockCollision2.TextChanged += new EventHandler(BlockCollision2_TextChanged);
+                ColAngle.TextChanged +=new EventHandler(ColAngle_TextChanged);
+            }
         }
 
         void LevelData_PaletteChangedEvent()
@@ -39,7 +42,7 @@ namespace SonicRetro.SonLVL.GUI
             LevelImgPalette.Entries[64] = Color.White;
             LevelImgPalette.Entries[65] = Color.Yellow;
             LevelImgPalette.Entries[66] = Color.Black;
-            LevelImgPalette.Entries[67] = Properties.Settings.Default.GridColor;
+            LevelImgPalette.Entries[67] = Settings.GridColor;
         }
 
         void LevelData_ObjectTypeChangedEvent(ObjectEntry old, ObjectEntry @new)
@@ -91,8 +94,7 @@ namespace SonicRetro.SonLVL.GUI
         internal LogWindow LogWindow;
         internal List<string> LogFile = new List<string>();
         Dictionary<string, ToolStripMenuItem> levelMenuItems;
-        List<BitmapBits> HUDFont;
-        string HUDChars = "0123456789.-:/\\ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        Dictionary<char, BitmapBits> HUDLetters, HUDNumbers;
 
         internal void Log(params string[] lines)
         {
@@ -101,15 +103,25 @@ namespace SonicRetro.SonLVL.GUI
                 LogWindow.Invoke(new MethodInvoker(LogWindow.UpdateLines));
         }
 
+        private class UpdateInfo
+        {
+            [IniName("revision")]
+            public int Revision { get; set; }
+            [IniName("description")]
+            public string Description { get; set; }
+            [IniName("file")]
+            public string File { get; set; }
+        }
         private void MainForm_Load(object sender, EventArgs e)
         {
             if (File.Exists("SonLVL Updater.exe"))
             {
-                Dictionary<string, Dictionary<string, string>> myini, updini;
+                Dictionary<string, int> downloaded;
+                Dictionary<string, UpdateInfo> updini;
                 if (File.Exists("Updater.ini"))
-                    myini = IniFile.Load("Updater.ini");
+                    downloaded = IniFile.Deserialize<Dictionary<string, int>>("Updater.ini");
                 else
-                    myini = new Dictionary<string, Dictionary<string, string>>() { { string.Empty, new Dictionary<string, string>() } };
+                    downloaded = new Dictionary<string, int>();
 #if !DEBUG
                 try
                 {
@@ -117,16 +129,15 @@ namespace SonicRetro.SonLVL.GUI
                     using (System.Net.WebClient cli = new System.Net.WebClient())
                     {
                         string updatefile = Path.GetTempFileName();
-                        cli.DownloadFile("http://x-hax.cultnet.net/MainMemory/SonLVL/update.ini", updatefile);
-                        updini = IniFile.Load(updatefile);
+                        cli.DownloadFile("http://mm.reimuhakurei.net/SonLVL/update.ini", updatefile);
+                        updini = IniFile.Deserialize<Dictionary<string, UpdateInfo>>(updatefile);
                         File.Delete(updatefile);
                     }
                     List<string> updates = new List<string>();
-                    foreach (KeyValuePair<string, Dictionary<string, string>> item in updini)
+                    foreach (KeyValuePair<string, UpdateInfo> item in updini)
                     {
-                        if (string.IsNullOrEmpty(item.Key)) continue;
-                        if (myini[string.Empty].ContainsKey(item.Key))
-                            if (int.Parse(myini[string.Empty][item.Key], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo) < int.Parse(item.Value["revision"], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo))
+                        if (downloaded.ContainsKey(item.Key))
+                            if (downloaded[item.Key] < item.Value.Revision)
                                 updates.Add(item.Key);
                     }
                     if (updates.Count > 0)
@@ -155,32 +166,29 @@ namespace SonicRetro.SonLVL.GUI
             System.Drawing.Imaging.ColorMatrix x = new System.Drawing.Imaging.ColorMatrix();
             x.Matrix33 = 0.75f;
             imageTransparency.SetColorMatrix(x, System.Drawing.Imaging.ColorMatrixFlag.Default, System.Drawing.Imaging.ColorAdjustType.Bitmap);
-            HUDFont = new List<BitmapBits>();
             string HUDpath = Path.Combine(Application.StartupPath, "HUD");
-            HUDFont.Add(new BitmapBits(new Bitmap(Path.Combine(HUDpath, "spc.png"))));
-            for (int i = 0; i <= 9; i++)
-                HUDFont.Add(new BitmapBits(new Bitmap(Path.Combine(HUDpath, i + ".png"))));
-            HUDFont.Add(new BitmapBits(new Bitmap(Path.Combine(HUDpath, "..png"))));
-            HUDFont.Add(new BitmapBits(new Bitmap(Path.Combine(HUDpath, "-.png"))));
-            HUDFont.Add(new BitmapBits(new Bitmap(Path.Combine(HUDpath, "col.png"))));
-            HUDFont.Add(new BitmapBits(new Bitmap(Path.Combine(HUDpath, "slsh.png"))));
-            HUDFont.Add(new BitmapBits(new Bitmap(Path.Combine(HUDpath, "bslsh.png"))));
-            for (int i = 0x41; i <= 0x5A; i++)
-                HUDFont.Add(new BitmapBits(new Bitmap(Path.Combine(HUDpath, (char)i + ".png"))));
-            hUDToolStripMenuItem.Checked = Properties.Settings.Default.ShowHUD;
+            HUDLetters = new Dictionary<char, BitmapBits>();
+            Dictionary<char, string> huditems = IniFile.Deserialize<Dictionary<char, string>>(Path.Combine(HUDpath, "HUD.ini"));
+            foreach (KeyValuePair<char, string> item in huditems)
+                HUDLetters.Add(item.Key, new BitmapBits(new Bitmap(Path.Combine(HUDpath, item.Value + ".png"))));
+            HUDNumbers = new Dictionary<char, BitmapBits>();
+            huditems = IniFile.Deserialize<Dictionary<char, string>>(Path.Combine(HUDpath, "HUDnum.ini"));
+            foreach (KeyValuePair<char, string> item in huditems)
+                HUDNumbers.Add(item.Key, new BitmapBits(new Bitmap(Path.Combine(HUDpath, item.Value + ".png"))));
+            hUDToolStripMenuItem.Checked = Settings.ShowHUD;
             if (System.Diagnostics.Debugger.IsAttached)
                 logToolStripMenuItem_Click(sender, e);
-            if (!string.IsNullOrEmpty(Properties.Settings.Default.Emulator))
+            if (!string.IsNullOrEmpty(Settings.Emulator))
             {
-                if (File.Exists(Properties.Settings.Default.Emulator))
+                if (File.Exists(Settings.Emulator))
                     setupEmulatorToolStripMenuItem.Checked = true;
                 else
-                    Properties.Settings.Default.Emulator = null;
+                    Settings.Emulator = null;
             }
-            if (Properties.Settings.Default.MRUList == null)
-                Properties.Settings.Default.MRUList = new System.Collections.Specialized.StringCollection();
+            if (Settings.MRUList == null)
+                Settings.MRUList = new System.Collections.Specialized.StringCollection();
             System.Collections.Specialized.StringCollection mru = new System.Collections.Specialized.StringCollection();
-            foreach (string item in Properties.Settings.Default.MRUList)
+            foreach (string item in Settings.MRUList)
             {
                 if (File.Exists(item))
                 {
@@ -188,7 +196,8 @@ namespace SonicRetro.SonLVL.GUI
                     recentProjectsToolStripMenuItem.DropDownItems.Add(item.Replace("&", "&&"));
                 }
             }
-            Properties.Settings.Default.MRUList = mru;
+            Settings.MRUList = mru;
+            if (mru.Count > 0) recentProjectsToolStripMenuItem.DropDownItems.Remove(noneToolStripMenuItem2);
             if (Program.args.Length > 0)
                 LoadINI(Program.args[0]);
         }
@@ -246,7 +255,7 @@ namespace SonicRetro.SonLVL.GUI
                 case EngineVersion.S2:
                 case EngineVersion.S2NA:
                 case EngineVersion.SBoom:
-                    Icon = Properties.Resources.telemon;
+                    Icon = Properties.Resources.Tailsmon2;
                     break;
                 case EngineVersion.S3K:
                     Icon = Properties.Resources.watermon;
@@ -259,15 +268,19 @@ namespace SonicRetro.SonLVL.GUI
             }
             Text = "SonLVL - " + LevelData.Game.EngineVersion.ToString();
             buildAndRunToolStripMenuItem.Enabled = LevelData.Game.BuildScript != null & (LevelData.Game.ROMFile != null | LevelData.Game.RunCommand != null);
-            if (Properties.Settings.Default.MRUList.Contains(filename))
+            if (Settings.MRUList.Count == 0)
+                recentProjectsToolStripMenuItem.DropDownItems.Remove(noneToolStripMenuItem2);
+            if (Settings.MRUList.Contains(filename))
             {
-                recentProjectsToolStripMenuItem.DropDownItems.RemoveAt(Properties.Settings.Default.MRUList.IndexOf(filename));
-                Properties.Settings.Default.MRUList.Remove(filename);
+                recentProjectsToolStripMenuItem.DropDownItems.RemoveAt(Settings.MRUList.IndexOf(filename));
+                Settings.MRUList.Remove(filename);
             }
-            Properties.Settings.Default.MRUList.Insert(0, filename);
+            Settings.MRUList.Insert(0, filename);
             recentProjectsToolStripMenuItem.DropDownItems.Insert(0, new ToolStripMenuItem(filename));
         }
 
+        #region Main Menu
+        #region File Menu
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (loaded)
@@ -314,15 +327,15 @@ namespace SonicRetro.SonLVL.GUI
             Enabled = false;
             Text = "SonLVL - " + LevelData.Game.EngineVersion + " - Loading " + LevelData.Game.GetLevelInfo((string)((ToolStripMenuItem)sender).Tag).DisplayName + "...";
 #if !DEBUG
-            backgroundWorker1.RunWorkerAsync(((ToolStripMenuItem)sender).Tag);
+            backgroundLevelLoader.RunWorkerAsync(((ToolStripMenuItem)sender).Tag);
 #else
-            backgroundWorker1_DoWork(null, new DoWorkEventArgs(((ToolStripMenuItem)sender).Tag));
-            backgroundWorker1_RunWorkerCompleted(null, null);
+            backgroundLevelLoader_DoWork(null, new DoWorkEventArgs(((ToolStripMenuItem)sender).Tag));
+            backgroundLevelLoader_RunWorkerCompleted(null, null);
 #endif
         }
 
         Exception initerror = null;
-        private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
+        private void backgroundLevelLoader_DoWork(object sender, DoWorkEventArgs e)
         {
 #if !DEBUG
             try
@@ -341,7 +354,7 @@ namespace SonicRetro.SonLVL.GUI
                 LevelImgPalette.Entries[64] = Color.White;
                 LevelImgPalette.Entries[65] = Color.Yellow;
                 LevelImgPalette.Entries[66] = Color.Black;
-                LevelImgPalette.Entries[67] = Properties.Settings.Default.GridColor;
+                LevelImgPalette.Entries[67] = Settings.GridColor;
                 curpal = new Color[16];
                 for (int i = 0; i < 16; i++)
                     curpal[i] = LevelData.PaletteToColor(0, i, false);
@@ -351,7 +364,7 @@ namespace SonicRetro.SonLVL.GUI
 #endif
         }
 
-        private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        private void backgroundLevelLoader_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             if (initerror != null)
             {
@@ -374,7 +387,7 @@ namespace SonicRetro.SonLVL.GUI
             BlockSelector.SelectedIndex = 0;
             TileSelector.Images.Clear();
             for (int i = 0; i < LevelData.Tiles.Count; i++)
-                TileSelector.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, 2));
+                TileSelector.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, SelectedColor.Y));
             TileSelector.SelectedIndex = 0;
             TileSelector.ChangeSize();
             switch (LevelData.Level.ChunkFormat)
@@ -455,6 +468,403 @@ namespace SonicRetro.SonLVL.GUI
             Enabled = true;
             DrawLevel();
         }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LevelData.SaveLevel();
+        }
+
+        private void buildAndRunToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Path.Combine(Environment.CurrentDirectory, LevelData.Game.BuildScript)) { WorkingDirectory = Path.GetDirectoryName(Path.Combine(Environment.CurrentDirectory, LevelData.Game.BuildScript)) }).WaitForExit();
+            string romfile = LevelData.Game.ROMFile ?? LevelData.Game.RunCommand;
+            if (LevelData.Game.UseEmulator)
+                if (!string.IsNullOrEmpty(Settings.Emulator))
+                    System.Diagnostics.Process.Start(Settings.Emulator, '"' + Path.Combine(Environment.CurrentDirectory, romfile) + '"');
+                else
+                    MessageBox.Show("You must set up an emulator before you can run the ROM, use File -> Setup Emulator.");
+            else
+                System.Diagnostics.Process.Start(Path.Combine(Environment.CurrentDirectory, romfile));
+        }
+
+        private void setupEmulatorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog opn = new OpenFileDialog() { DefaultExt = "exe", Filter = "EXE Files|*.exe|All Files|*.*", RestoreDirectory = true })
+            {
+                if (!string.IsNullOrEmpty(Settings.Emulator))
+                {
+                    opn.FileName = Path.GetFileName(Settings.Emulator);
+                    opn.InitialDirectory = Path.GetDirectoryName(Settings.Emulator);
+                }
+                if (opn.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    Settings.Emulator = opn.FileName;
+                    setupEmulatorToolStripMenuItem.Checked = true;
+                }
+            }
+        }
+
+        private void recentProjectsToolStripMenuItem_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            loaded = false;
+            LoadINI(Settings.MRUList[recentProjectsToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem)]);
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+        #endregion
+
+        #region Edit Menu
+        public void AddUndo(UndoAction action)
+        {
+            UndoList.Push(action);
+            undoCtrlZToolStripMenuItem.DropDownItems.Insert(0, new ToolStripMenuItem(action.Name));
+            if (UndoList.Count > 100)
+            {
+                UndoAction[] l = UndoList.ToArray();
+                UndoList.Clear();
+                for (int i = 99; i >= 0; i--)
+                {
+                    UndoList.Push(l[i]);
+                }
+                undoCtrlZToolStripMenuItem.DropDownItems.RemoveAt(100);
+            }
+            RedoList.Clear();
+            redoCtrlYToolStripMenuItem.DropDownItems.Clear();
+        }
+
+        private void undoCtrlZToolStripMenuItem_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            DoUndo(undoCtrlZToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem) + 1);
+        }
+
+        private void redoCtrlYToolStripMenuItem_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            DoRedo(redoCtrlYToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem) + 1);
+        }
+
+        private void DoUndo(int num)
+        {
+            for (int i = 0; i < num; i++)
+            {
+                undoCtrlZToolStripMenuItem.DropDownItems.RemoveAt(0);
+                UndoAction act = UndoList.Pop();
+                act.Undo();
+                RedoList.Push(act);
+                redoCtrlYToolStripMenuItem.DropDownItems.Insert(0, new ToolStripMenuItem(act.Name));
+            }
+            SelectedItems.Clear();
+            SelectedObjectChanged();
+            DrawLevel();
+        }
+
+        private void DoRedo(int num)
+        {
+            for (int i = 0; i < num; i++)
+            {
+                redoCtrlYToolStripMenuItem.DropDownItems.RemoveAt(0);
+                UndoAction act = RedoList.Pop();
+                act.Redo();
+                UndoList.Push(act);
+                undoCtrlZToolStripMenuItem.DropDownItems.Insert(0, new ToolStripMenuItem(act.Name));
+            }
+            SelectedItems.Clear();
+            SelectedObjectChanged();
+            DrawLevel();
+        }
+
+        private void blendAlternatePaletteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (AlternatePaletteDialog dlg = new AlternatePaletteDialog())
+            {
+                if (dlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+                {
+                    int underwater = LevelData.CurPal;
+                    LevelData.CurPal = 0;
+                    Color[,] pal = new Color[4, 16];
+                    for (int l = 0; l < 4; l++)
+                        for (int i = 0; i < 16; i++)
+                        {
+                            Color col = LevelData.PaletteToColor(l, i, false);
+                            if (dlg.radioButton1.Checked)
+                                pal[l, i] = col.Blend(dlg.BlendColor);
+                            else if (dlg.radioButton2.Checked)
+                                pal[l, i] = Color.FromArgb(Math.Min(col.R + dlg.BlendColor.R, 255), Math.Min(col.G + dlg.BlendColor.G, 255), Math.Min(col.B + dlg.BlendColor.B, 255));
+                            else
+                                pal[l, i] = Color.FromArgb(Math.Max(col.R - dlg.BlendColor.R, 0), Math.Max(col.G - dlg.BlendColor.G, 0), Math.Max(col.B - dlg.BlendColor.B, 0));
+                        }
+                    LevelData.CurPal = dlg.paletteIndex.SelectedIndex + 1;
+                    for (int l = 0; l < 4; l++)
+                        for (int i = 0; i < 16; i++)
+                            LevelData.ColorToPalette(l, i, pal[l, i]);
+                    LevelData.CurPal = underwater;
+                    LevelData.PaletteChanged();
+                }
+            }
+        }
+        #endregion
+
+        #region View Menu
+        private void objectsAboveHighPlaneToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            objectsAboveHighPlaneToolStripMenuItem.Checked = !objectsAboveHighPlaneToolStripMenuItem.Checked;
+            DrawLevel();
+        }
+
+        private void paletteToolStripMenuItem2_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            foreach (ToolStripMenuItem item in paletteToolStripMenuItem2.DropDownItems)
+                item.Checked = false;
+            ((ToolStripMenuItem)e.ClickedItem).Checked = true;
+            LevelData.CurPal = paletteToolStripMenuItem2.DropDownItems.IndexOf(e.ClickedItem);
+            LevelData.PaletteChanged();
+        }
+
+        private void lowToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DrawLevel();
+        }
+
+        private void highToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DrawLevel();
+        }
+
+        private void collisionToolStripMenuItem_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            if (collisionToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem) < 3)
+            {
+                bool angles = anglesToolStripMenuItem.Checked;
+                foreach (ToolStripItem item in collisionToolStripMenuItem.DropDownItems)
+                    if (item is ToolStripMenuItem)
+                        ((ToolStripMenuItem)item).Checked = false;
+                ((ToolStripMenuItem)e.ClickedItem).Checked = true;
+                anglesToolStripMenuItem.Checked = angles;
+                DrawLevel();
+            }
+        }
+
+        private void anglesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            anglesToolStripMenuItem.Checked = !anglesToolStripMenuItem.Checked;
+            DrawLevel();
+        }
+
+        private void currentOnlyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            currentOnlyToolStripMenuItem.Checked = true;
+            allToolStripMenuItem.Checked = false;
+            DrawLevel();
+        }
+
+        private void allToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            allToolStripMenuItem.Checked = true;
+            currentOnlyToolStripMenuItem.Checked = false;
+            DrawLevel();
+        }
+
+        private void gridColorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ColorDialog a = new ColorDialog
+            {
+                AllowFullOpen = true,
+                AnyColor = true,
+                FullOpen = true,
+                SolidColorOnly = true,
+                Color = Settings.GridColor
+            };
+            if (cols != null)
+                a.CustomColors = cols;
+            if (a.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                Settings.GridColor = a.Color;
+                LevelImgPalette.Entries[67] = a.Color;
+                DrawLevel();
+            }
+            cols = a.CustomColors;
+            a.Dispose();
+        }
+
+        private void zoomToolStripMenuItem_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            foreach (ToolStripMenuItem item in zoomToolStripMenuItem.DropDownItems)
+                item.Checked = false;
+            ((ToolStripMenuItem)e.ClickedItem).Checked = true;
+            switch (zoomToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem))
+            {
+                case 0: // 1/2x
+                    ZoomLevel = 0.5;
+                    break;
+                default:
+                    ZoomLevel = zoomToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem);
+                    break;
+            }
+            if (!loaded) return;
+            loaded = false;
+            UpdateScrollBars();
+            loaded = true;
+            DrawLevel();
+        }
+
+        private void logToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LogWindow = new LogWindow();
+            LogWindow.Show(this);
+            logToolStripMenuItem.Enabled = false;
+        }
+        #endregion
+
+        #region Export Menu
+        private void paletteToolStripMenuItem_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            exportToolStripMenuItem.DropDown.Hide();
+            SaveFileDialog a = new SaveFileDialog() { DefaultExt = "png", Filter = "PNG Files|*.png", RestoreDirectory = true };
+            if (a.ShowDialog() == DialogResult.OK)
+            {
+                int line = paletteToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem);
+                if (line < 4)
+                {
+                    BitmapBits bmp = new BitmapBits(16 * 8, 8);
+                    Color[] pal = new Color[16];
+                    for (int i = 0; i < 16; i++)
+                    {
+                        pal[i] = LevelData.PaletteToColor(line, i, false);
+                        bmp.FillRectangle((byte)i, i * 8, 0, 8, 8);
+                    }
+                    bmp.ToBitmap(pal).Save(a.FileName);
+                }
+                else
+                {
+                    BitmapBits bmp = new BitmapBits(16 * 8, 4 * 8);
+                    Color[] pal = new Color[256];
+                    for (int i = 0; i < 64; i++)
+                        pal[i] = LevelData.PaletteToColor(i / 16, i % 16, false);
+                    for (int i = 64; i < 256; i++)
+                        pal[i] = Color.Black;
+                    for (int y = 0; y < 4; y++)
+                        for (int x = 0; x < 16; x++)
+                            bmp.FillRectangle((byte)((y * 16) + x), x * 8, y * 8, 8, 8);
+                    bmp.ToBitmap(pal).Save(a.FileName);
+                }
+            }
+        }
+
+        private void tilesToolStripMenuItem_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            exportToolStripMenuItem.DropDown.Hide();
+            using (FolderBrowserDialog a = new FolderBrowserDialog() { SelectedPath = Environment.CurrentDirectory })
+                if (a.ShowDialog() == DialogResult.OK)
+                    for (int i = 0; i < LevelData.Tiles.Count; i++)
+                        LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, tilesToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem)).Save(Path.Combine(a.SelectedPath, i + ".png"));
+        }
+
+        private void blocksToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FolderBrowserDialog a = new FolderBrowserDialog() { SelectedPath = Environment.CurrentDirectory };
+            if (a.ShowDialog() == DialogResult.OK)
+            {
+                Color[] palette = new Color[256];
+                for (int i = 0; i < 64; i++)
+                    palette[i] = LevelData.PaletteToColor(i / 16, i % 16, false);
+                for (int i = 64; i < 256; i++)
+                    palette[i] = Color.Black;
+                palette[0] = LevelData.PaletteToColor(2, 0, false);
+                for (int i = 0; i < LevelData.Blocks.Count; i++)
+                    LevelData.CompBlockBmpBits[i].ToBitmap(palette).Save(Path.Combine(a.SelectedPath, i + ".png"));
+            }
+        }
+
+        private void chunksToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FolderBrowserDialog a = new FolderBrowserDialog() { SelectedPath = Environment.CurrentDirectory };
+            if (a.ShowDialog() == DialogResult.OK)
+            {
+                Color[] palette = new Color[256];
+                for (int i = 0; i < 64; i++)
+                    palette[i] = LevelData.PaletteToColor(i / 16, i % 16, false);
+                for (int i = 64; i < 256; i++)
+                    palette[i] = Color.Black;
+                palette[0] = LevelData.PaletteToColor(2, 0, false);
+                for (int i = 0; i < LevelData.Chunks.Count; i++)
+                    LevelData.CompChunkBmpBits[i].ToBitmap(palette).Save(Path.Combine(a.SelectedPath, i + ".png"));
+            }
+        }
+
+        private void foregroundToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog a = new SaveFileDialog()
+            {
+                DefaultExt = "png",
+                Filter = "PNG Files|*.png",
+                RestoreDirectory = true
+            };
+            if (a.ShowDialog() == DialogResult.OK)
+            {
+                BitmapBits bmp = LevelData.DrawForeground(null, includeobjectsWithFGToolStripMenuItem.Checked, !hideDebugObjectsToolStripMenuItem.Checked, objectsAboveHighPlaneToolStripMenuItem.Checked, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked, allToolStripMenuItem.Checked);
+                for (int i = 0; i < bmp.Bits.Length; i++)
+                    if (bmp.Bits[i] == 0)
+                        bmp.Bits[i] = 32;
+                Bitmap res = bmp.ToBitmap();
+                ColorPalette pal = res.Palette;
+                for (int i = 0; i < 64; i++)
+                    pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, transparentBackFGBGToolStripMenuItem.Checked);
+                pal.Entries[64] = Color.White;
+                pal.Entries[65] = Color.Yellow;
+                pal.Entries[66] = Color.Black;
+                for (int i = 67; i < 256; i++)
+                    pal.Entries[i] = Color.Black;
+                pal.Entries[0] = LevelData.PaletteToColor(2, 0, transparentBackFGBGToolStripMenuItem.Checked);
+                res.Palette = pal;
+                res.Save(a.FileName);
+            }
+        }
+
+        private void backgroundToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog a = new SaveFileDialog()
+            {
+                DefaultExt = "png",
+                Filter = "PNG Files|*.png",
+                RestoreDirectory = true
+            };
+            if (a.ShowDialog() == DialogResult.OK)
+            {
+                BitmapBits bmp = LevelData.DrawBackground(null, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked);
+                for (int i = 0; i < bmp.Bits.Length; i++)
+                    if (bmp.Bits[i] == 0)
+                        bmp.Bits[i] = 32;
+                Bitmap res = bmp.ToBitmap();
+                ColorPalette pal = res.Palette;
+                for (int i = 0; i < 64; i++)
+                    pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, transparentBackFGBGToolStripMenuItem.Checked);
+                pal.Entries[64] = Color.White;
+                pal.Entries[65] = Color.Yellow;
+                pal.Entries[66] = Color.Black;
+                for (int i = 67; i < 256; i++)
+                    pal.Entries[i] = Color.Black;
+                pal.Entries[0] = LevelData.PaletteToColor(2, 0, transparentBackFGBGToolStripMenuItem.Checked);
+                res.Palette = pal;
+                res.Save(a.FileName);
+            }
+        }
+        #endregion
+
+        #region Help Menu
+        private void viewReadmeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start(Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "readme.txt"));
+        }
+
+        private void reportBugToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (BugReportDialog err = new BugReportDialog())
+                err.ShowDialog();
+        }
+        #endregion
+        #endregion
 
         void ObjectSelect_listView2_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -537,16 +947,6 @@ namespace SonicRetro.SonLVL.GUI
             DrawLevel();
         }
 
-        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            LevelData.SaveLevel();
-        }
-
-        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Close();
-        }
-
         BitmapBits LevelImg8bpp;
         internal void DrawLevel()
         {
@@ -558,7 +958,7 @@ namespace SonicRetro.SonLVL.GUI
                 case 0:
                     pnlcur = panel1.PointToClient(Cursor.Position);
                     camera = new Point(hScrollBar1.Value, vScrollBar1.Value);
-                    LevelImg8bpp = LevelData.DrawForeground(new Rectangle(camera.X, camera.Y, (int)((panel1.Width - 1) / ZoomLevel), (int)((panel1.Height - 1) / ZoomLevel)), true, true, objectsAboveHighPlaneToolStripMenuItem.Checked, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked, allToolStripMenuItem.Checked);
+                    LevelImg8bpp = LevelData.DrawForeground(new Rectangle(camera.X, camera.Y, (int)(panel1.Width / ZoomLevel), (int)(panel1.Height / ZoomLevel)), true, true, objectsAboveHighPlaneToolStripMenuItem.Checked, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked, allToolStripMenuItem.Checked);
                     if (enableGridToolStripMenuItem.Checked)
                         for (int y = Math.Max(camera.Y / LevelData.chunksz, 0); y <= Math.Min(((camera.Y + (panel1.Height - 1) / ZoomLevel)) / LevelData.chunksz, LevelData.FGLayout.GetLength(1) - 1); y++)
                             for (int x = Math.Max(camera.X / LevelData.chunksz, 0); x <= Math.Min(((camera.X + (panel1.Width - 1) / ZoomLevel)) / LevelData.chunksz, LevelData.FGLayout.GetLength(0) - 1); x++)
@@ -566,7 +966,30 @@ namespace SonicRetro.SonLVL.GUI
                                 LevelImg8bpp.DrawLine(67, x * LevelData.chunksz - camera.X, y * LevelData.chunksz - camera.Y, x * LevelData.chunksz - camera.X + LevelData.chunksz - 1, y * LevelData.chunksz - camera.Y);
                                 LevelImg8bpp.DrawLine(67, x * LevelData.chunksz - camera.X, y * LevelData.chunksz - camera.Y, x * LevelData.chunksz - camera.X, y * LevelData.chunksz - camera.Y + LevelData.chunksz - 1);
                             }
+                    if (anglesToolStripMenuItem.Checked & !noneToolStripMenuItem1.Checked)
+                        for (int y = Math.Max(camera.Y / LevelData.chunksz, 0); y <= Math.Min(((camera.Y + (panel1.Height - 1) / ZoomLevel)) / LevelData.chunksz, LevelData.FGLayout.GetLength(1) - 1); y++)
+                            for (int x = Math.Max(camera.X / LevelData.chunksz, 0); x <= Math.Min(((camera.X + (panel1.Width - 1) / ZoomLevel)) / LevelData.chunksz, LevelData.FGLayout.GetLength(0) - 1); x++)
+                                for (int b = 0; b < LevelData.chunksz / 16; b++)
+                                    for (int a = 0; a < LevelData.chunksz / 16; a++)
+                                    {
+                                        ChunkBlock blk = LevelData.Chunks[LevelData.FGLayout[x, y]].blocks[a, b];
+                                        Solidity solid;
+                                        if (path2ToolStripMenuItem.Checked)
+                                            solid = ((S2ChunkBlock)blk).Solid2;
+                                        else
+                                            solid = blk.Solid1;
+                                        if (solid == Solidity.NotSolid) continue;
+                                        {
+                                            byte coli;
+                                            if (path2ToolStripMenuItem.Checked)
+                                                coli = LevelData.ColInds2[blk.Block];
+                                            else
+                                                coli = LevelData.ColInds1[blk.Block];
+                                            DrawHUDNum(x * LevelData.chunksz + a * 16 - camera.X, y * LevelData.chunksz + b * 16 - camera.Y, LevelData.Angles[coli].ToString("X2"));
+                                        }
+                                    }
                     Rectangle hudbnd = Rectangle.Empty;
+                    Rectangle tmpbnd;
                     int ringcnt = 0;
                     switch (LevelData.Level.RingFormat)
                     {
@@ -587,12 +1010,16 @@ namespace SonicRetro.SonLVL.GUI
                             break;
                     }
                     if (hUDToolStripMenuItem.Checked)
-                        DrawHUDStr(8, 8,
-                            "Screen Pos: " + camera.X.ToString("X4") + ' ' + camera.Y.ToString("X4") + '\n' +
-                            "Level Size: " + (LevelData.FGLayout.GetLength(0) * LevelData.chunksz).ToString("X4") + ' ' + (LevelData.FGLayout.GetLength(1) * LevelData.chunksz).ToString("X4") + '\n' +
+                    {
+                        tmpbnd = hudbnd = DrawHUDStr(8, 8, "Screen Pos: ");
+                        hudbnd = Rectangle.Union(hudbnd, DrawHUDNum(tmpbnd.Right, tmpbnd.Top, camera.X.ToString("X4") + ' ' + camera.Y.ToString("X4")));
+                        tmpbnd = DrawHUDStr(hudbnd.Left, hudbnd.Bottom, "Level Size: ");
+                        hudbnd = Rectangle.Union(hudbnd, tmpbnd);
+                        hudbnd = Rectangle.Union(hudbnd, DrawHUDNum(tmpbnd.Right, tmpbnd.Top, (LevelData.FGLayout.GetLength(0) * LevelData.chunksz).ToString("X4") + ' ' + (LevelData.FGLayout.GetLength(1) * LevelData.chunksz).ToString("X4")));
+                        hudbnd = Rectangle.Union(hudbnd, DrawHUDStr(hudbnd.Left, hudbnd.Bottom,
                             "Objects: " + LevelData.Objects.Count + '\n' +
-                            "Rings: " + ringcnt
-                            , out hudbnd);
+                            "Rings: " + ringcnt));
+                    }
                     LevelBmp = LevelImg8bpp.ToBitmap(LevelImgPalette).To32bpp();
                     LevelGfx = Graphics.FromImage(LevelBmp);
                     LevelGfx.SetOptions();
@@ -652,7 +1079,7 @@ namespace SonicRetro.SonLVL.GUI
                 case 1:
                     pnlcur = panel2.PointToClient(Cursor.Position);
                     camera = new Point(hScrollBar2.Value, vScrollBar2.Value);
-                    LevelImg8bpp = LevelData.DrawForeground(new Rectangle(camera.X, camera.Y, (int)((panel2.Width - 1) / ZoomLevel), (int)((panel2.Height - 1) / ZoomLevel)), true, true, objectsAboveHighPlaneToolStripMenuItem.Checked, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked, allToolStripMenuItem.Checked);
+                    LevelImg8bpp = LevelData.DrawForeground(new Rectangle(camera.X, camera.Y, (int)(panel2.Width / ZoomLevel), (int)(panel2.Height / ZoomLevel)), true, true, objectsAboveHighPlaneToolStripMenuItem.Checked, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked, allToolStripMenuItem.Checked);
                     if (enableGridToolStripMenuItem.Checked)
                         for (int y = Math.Max(camera.Y / LevelData.chunksz, 0); y <= Math.Min(((camera.Y + (panel2.Height - 1) / ZoomLevel)) / LevelData.chunksz, LevelData.FGLayout.GetLength(1) - 1); y++)
                             for (int x = Math.Max(camera.X / LevelData.chunksz, 0); x <= Math.Min(((camera.X + (panel2.Width - 1) / ZoomLevel)) / LevelData.chunksz, LevelData.FGLayout.GetLength(0) - 1); x++)
@@ -680,13 +1107,19 @@ namespace SonicRetro.SonLVL.GUI
                             break;
                     }
                     if (hUDToolStripMenuItem.Checked)
-                    DrawHUDStr(8, 8,
-                        "Screen Pos: " + camera.X.ToString("X4") + ' ' + camera.Y.ToString("X4") + '\n' +
-                        "Level Size: " + (LevelData.FGLayout.GetLength(0) * LevelData.chunksz).ToString("X4") + ' ' + (LevelData.FGLayout.GetLength(1) * LevelData.chunksz).ToString("X4") + '\n' +
-                        "Objects: " + LevelData.Objects.Count + '\n' +
-                        "Rings: " + ringcnt + '\n' +
-                        "Chunk: " + SelectedChunk.ToString("X2")
-                        , out hudbnd);
+                    {
+                        tmpbnd = hudbnd = DrawHUDStr(8, 8, "Screen Pos: ");
+                        hudbnd = Rectangle.Union(hudbnd, DrawHUDNum(tmpbnd.Right, tmpbnd.Top, camera.X.ToString("X4") + ' ' + camera.Y.ToString("X4")));
+                        tmpbnd = DrawHUDStr(hudbnd.Left, hudbnd.Bottom, "Level Size: ");
+                        hudbnd = Rectangle.Union(hudbnd, tmpbnd);
+                        hudbnd = Rectangle.Union(hudbnd, DrawHUDNum(tmpbnd.Right, tmpbnd.Top, (LevelData.FGLayout.GetLength(0) * LevelData.chunksz).ToString("X4") + ' ' + (LevelData.FGLayout.GetLength(1) * LevelData.chunksz).ToString("X4")));
+                        hudbnd = Rectangle.Union(hudbnd, DrawHUDStr(hudbnd.Left, hudbnd.Bottom,
+                            "Objects: " + LevelData.Objects.Count + '\n' +
+                            "Rings: " + ringcnt));
+                        tmpbnd = DrawHUDStr(hudbnd.Left, hudbnd.Bottom, "Chunk: ");
+                        hudbnd = Rectangle.Union(hudbnd, tmpbnd);
+                        hudbnd = Rectangle.Union(hudbnd, DrawHUDNum(tmpbnd.Right, tmpbnd.Top, SelectedChunk.ToString("X2")));
+                    }
                     LevelBmp = LevelImg8bpp.ToBitmap(LevelImgPalette).To32bpp();
                     LevelGfx = Graphics.FromImage(LevelBmp);
                     LevelGfx.SetOptions();
@@ -718,7 +1151,7 @@ namespace SonicRetro.SonLVL.GUI
                 case 2:
                     pnlcur = panel3.PointToClient(Cursor.Position);
                     camera = new Point(hScrollBar3.Value, vScrollBar3.Value);
-                    LevelImg8bpp = LevelData.DrawBackground(new Rectangle(camera.X, camera.Y, (int)((panel3.Width - 1) / ZoomLevel), (int)((panel3.Height - 1) / ZoomLevel)), lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked);
+                    LevelImg8bpp = LevelData.DrawBackground(new Rectangle(camera.X, camera.Y, (int)(panel3.Width / ZoomLevel), (int)(panel3.Height / ZoomLevel)), lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked);
                     if (enableGridToolStripMenuItem.Checked)
                         for (int y = Math.Max(camera.Y / LevelData.chunksz, 0); y <= Math.Min(((camera.Y + (panel2.Height - 1) / ZoomLevel)) / LevelData.chunksz, LevelData.FGLayout.GetLength(1) - 1); y++)
                             for (int x = Math.Max(camera.X / LevelData.chunksz, 0); x <= Math.Min(((camera.X + (panel2.Width - 1) / ZoomLevel)) / LevelData.chunksz, LevelData.FGLayout.GetLength(0) - 1); x++)
@@ -727,11 +1160,16 @@ namespace SonicRetro.SonLVL.GUI
                                 LevelImg8bpp.DrawLine(67, x * LevelData.chunksz - camera.X, y * LevelData.chunksz - camera.Y, x * LevelData.chunksz - camera.X, y * LevelData.chunksz - camera.Y + LevelData.chunksz - 1);
                             }
                     if (hUDToolStripMenuItem.Checked)
-                    DrawHUDStr(8, 8,
-                        "Screen Pos: " + camera.X.ToString("X4") + ' ' + camera.Y.ToString("X4") + '\n' +
-                        "Level Size: " + (LevelData.BGLayout.GetLength(0) * LevelData.chunksz).ToString("X4") + ' ' + (LevelData.BGLayout.GetLength(1) * LevelData.chunksz).ToString("X4") + '\n' +
-                        "Chunk: " + SelectedChunk.ToString("X2")
-                        , out hudbnd);
+                    {
+                        tmpbnd = hudbnd = DrawHUDStr(8, 8, "Screen Pos: ");
+                        hudbnd = Rectangle.Union(hudbnd, DrawHUDNum(tmpbnd.Right, tmpbnd.Top, camera.X.ToString("X4") + ' ' + camera.Y.ToString("X4")));
+                        tmpbnd = DrawHUDStr(hudbnd.Left, hudbnd.Bottom, "Level Size: ");
+                        hudbnd = Rectangle.Union(hudbnd, tmpbnd);
+                        hudbnd = Rectangle.Union(hudbnd, DrawHUDNum(tmpbnd.Right, tmpbnd.Top, (LevelData.BGLayout.GetLength(0) * LevelData.chunksz).ToString("X4") + ' ' + (LevelData.BGLayout.GetLength(1) * LevelData.chunksz).ToString("X4")));
+                        tmpbnd = DrawHUDStr(hudbnd.Left, hudbnd.Bottom, "Chunk: ");
+                        hudbnd = Rectangle.Union(hudbnd, tmpbnd);
+                        hudbnd = Rectangle.Union(hudbnd, DrawHUDNum(tmpbnd.Right, tmpbnd.Top, SelectedChunk.ToString("X2")));
+                    }
                     LevelBmp = LevelImg8bpp.ToBitmap(LevelImgPalette).To32bpp();
                     LevelGfx = Graphics.FromImage(LevelBmp);
                     LevelGfx.SetOptions();
@@ -763,12 +1201,12 @@ namespace SonicRetro.SonLVL.GUI
             }
         }
 
-        public void DrawHUDStr(int X, int Y, string str, out Rectangle bounds)
+        public Rectangle DrawHUDStr(int X, int Y, string str)
         {
             BitmapBits curimg;
             int curX = X;
             int curY = Y;
-            bounds = new Rectangle();
+            Rectangle bounds = new Rectangle();
             bounds.X = X;
             bounds.Y = Y;
             int maxX = X;
@@ -777,7 +1215,35 @@ namespace SonicRetro.SonLVL.GUI
                 int maxY = 0;
                 foreach (char ch in line)
                 {
-                    curimg = HUDFont[HUDChars.IndexOf(char.ToUpper(ch)) + 1];
+                    curimg = HUDLetters[char.ToUpper(ch)];
+                    LevelImg8bpp.DrawBitmapComposited(curimg, new Point(curX, curY));
+                    curX += curimg.Width;
+                    maxX = Math.Max(maxX, curX);
+                    maxY = Math.Max(maxY, curimg.Height);
+                }
+                curY += maxY;
+                curX = X;
+            }
+            bounds.Width = maxX - X;
+            bounds.Height = curY - Y;
+            return bounds;
+        }
+
+        public Rectangle DrawHUDNum(int X, int Y, string str)
+        {
+            BitmapBits curimg;
+            int curX = X;
+            int curY = Y;
+            Rectangle bounds = new Rectangle();
+            bounds.X = X;
+            bounds.Y = Y;
+            int maxX = X;
+            foreach (string line in str.Split(new char[] { '\n' }, StringSplitOptions.None))
+            {
+                int maxY = 0;
+                foreach (char ch in line)
+                {
+                    curimg = HUDNumbers[char.ToUpper(ch)];
                     LevelImg8bpp.DrawBitmapComposited(curimg, new Point(curX, curY));
                     curX += curimg.Width;
                     maxX = Math.Max(maxX, curX);
@@ -787,6 +1253,7 @@ namespace SonicRetro.SonLVL.GUI
                 curX = X;
             }
             bounds.Height = curY - Y;
+            return bounds;
         }
 
         private void panel_Paint(object sender, PaintEventArgs e)
@@ -1058,10 +1525,6 @@ namespace SonicRetro.SonLVL.GUI
                         DrawLevel();
                     }
                     break;
-                case Keys.T:
-                    objectsAboveHighPlaneToolStripMenuItem.Checked = !objectsAboveHighPlaneToolStripMenuItem.Checked;
-                    DrawLevel();
-                    break;
                 case Keys.V:
                     if (!loaded) return;
                     if (e.Control)
@@ -1139,70 +1602,8 @@ namespace SonicRetro.SonLVL.GUI
                         DrawLevel();
                     }
                     break;
-                case Keys.Oemplus:
-                    using (ResizeLevelDialog dg = new ResizeLevelDialog(true))
-                    {
-                        bool canResize;
-                        switch (LevelData.Level.LayoutFormat)
-                        {
-                            case EngineVersion.S1:
-                            case EngineVersion.S2NA:
-                                canResize = true;
-                                dg.levelWidth.Minimum = 1;
-                                dg.levelWidth.Maximum = LevelData.Game.LevelWidthMax;
-                                dg.levelHeight.Minimum = 1;
-                                dg.levelHeight.Maximum = LevelData.Game.LevelHeightMax;
-                                break;
-                            case EngineVersion.S3K:
-                            case EngineVersion.SKC:
-                                canResize = true;
-                                dg.levelWidth.Minimum = 1;
-                                dg.levelWidth.Maximum = 200;
-                                dg.levelHeight.Minimum = 1;
-                                dg.levelHeight.Maximum = 32;
-                                break;
-                            case EngineVersion.SBoom:
-                                canResize = true;
-                                dg.levelWidth.Minimum = SonicBoom.MAX_ROW_LENGTH;
-                                dg.levelWidth.Maximum = SonicBoom.MAX_ROW_LENGTH;
-                                dg.levelWidth.Enabled = false;
-                                dg.levelHeight.Minimum = 1;
-                                dg.levelHeight.Maximum = SonicBoom.MAX_NUMBER_OF_ROWS;
-                                break;
-                            default:
-                                canResize = false;
-                                break;
-                        }
-                        if (canResize)
-                        {
-                            dg.levelWidth.Value = LevelData.FGLayout.GetLength(0);
-                            dg.levelHeight.Value = LevelData.FGLayout.GetLength(1);
-                            if (dg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
-                            {
-                                byte[,] newFG = new byte[(int)dg.levelWidth.Value, (int)dg.levelHeight.Value];
-                                bool[,] newFGLoop = LevelData.Level.LayoutFormat == EngineVersion.S1 ? new bool[(int)dg.levelWidth.Value, (int)dg.levelHeight.Value] : null;
-                                for (int y = 0; y < Math.Min(dg.levelHeight.Value, LevelData.FGLayout.GetLength(1)); y++)
-                                {
-                                    for (int x = 0; x < Math.Min(dg.levelWidth.Value, LevelData.FGLayout.GetLength(0)); x++)
-                                    {
-                                        newFG[x, y] = LevelData.FGLayout[x, y];
-                                        if (LevelData.Level.LayoutFormat == EngineVersion.S1)
-                                            newFGLoop[x, y] = LevelData.FGLoop[x, y];
-                                    }
-                                }
-                                LevelData.FGLayout = newFG;
-                                LevelData.FGLoop = newFGLoop;
-                                loaded = false;
-                                UpdateScrollBars();
-                                loaded = true;
-                                DrawLevel();
-                            }
-                        }
-                        else
-                            MessageBox.Show("The current game does not allow you to resize levels!");
-                    }
-                    break;
             }
+            panel_KeyDown(sender, e);
         }
 
         private void panel2_KeyDown(object sender, KeyEventArgs e)
@@ -1232,10 +1633,6 @@ namespace SonicRetro.SonLVL.GUI
                     SelectedChunk = (byte)(SelectedChunk == 0 ? LevelData.Chunks.Count - 1 : SelectedChunk - 1);
                     DrawLevel();
                     break;
-                case Keys.T:
-                    objectsAboveHighPlaneToolStripMenuItem.Checked = !objectsAboveHighPlaneToolStripMenuItem.Checked;
-                    DrawLevel();
-                    break;
                 case Keys.Z:
                     if (!loaded) return;
                     if (!e.Control)
@@ -1244,70 +1641,8 @@ namespace SonicRetro.SonLVL.GUI
                         DrawLevel();
                     }
                     break;
-                case Keys.Oemplus:
-                    using (ResizeLevelDialog dg = new ResizeLevelDialog(true))
-                    {
-                        bool canResize;
-                        switch (LevelData.Level.LayoutFormat)
-                        {
-                            case EngineVersion.S1:
-                            case EngineVersion.S2NA:
-                                canResize = true;
-                                dg.levelWidth.Minimum = 1;
-                                dg.levelWidth.Maximum = LevelData.Game.LevelWidthMax;
-                                dg.levelHeight.Minimum = 1;
-                                dg.levelHeight.Maximum = LevelData.Game.LevelHeightMax;
-                                break;
-                            case EngineVersion.S3K:
-                            case EngineVersion.SKC:
-                                canResize = true;
-                                dg.levelWidth.Minimum = 1;
-                                dg.levelWidth.Maximum = 200;
-                                dg.levelHeight.Minimum = 1;
-                                dg.levelHeight.Maximum = 32;
-                                break;
-                            case EngineVersion.SBoom:
-                                canResize = true;
-                                dg.levelWidth.Minimum = SonicBoom.MAX_ROW_LENGTH;
-                                dg.levelWidth.Maximum = SonicBoom.MAX_ROW_LENGTH;
-                                dg.levelWidth.Enabled = false;
-                                dg.levelHeight.Minimum = 1;
-                                dg.levelHeight.Maximum = SonicBoom.MAX_NUMBER_OF_ROWS;
-                                break;
-                            default:
-                                canResize = false;
-                                break;
-                        }
-                        if (canResize)
-                        {
-                            dg.levelWidth.Value = LevelData.FGLayout.GetLength(0);
-                            dg.levelHeight.Value = LevelData.FGLayout.GetLength(1);
-                            if (dg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
-                            {
-                                byte[,] newFG = new byte[(int)dg.levelWidth.Value, (int)dg.levelHeight.Value];
-                                bool[,] newFGLoop = LevelData.Level.LayoutFormat == EngineVersion.S1 ? new bool[(int)dg.levelWidth.Value, (int)dg.levelHeight.Value] : null;
-                                for (int y = 0; y < Math.Min(dg.levelHeight.Value, LevelData.FGLayout.GetLength(1)); y++)
-                                {
-                                    for (int x = 0; x < Math.Min(dg.levelWidth.Value, LevelData.FGLayout.GetLength(0)); x++)
-                                    {
-                                        newFG[x, y] = LevelData.FGLayout[x, y];
-                                        if (LevelData.Level.LayoutFormat == EngineVersion.S1)
-                                            newFGLoop[x, y] = LevelData.FGLoop[x, y];
-                                    }
-                                }
-                                LevelData.FGLayout = newFG;
-                                LevelData.FGLoop = newFGLoop;
-                                loaded = false;
-                                UpdateScrollBars();
-                                loaded = true;
-                                DrawLevel();
-                            }
-                            else
-                                MessageBox.Show("The current game does not allow you to resize levels!");
-                        }
-                    }
-                    break;
             }
+            panel_KeyDown(sender, e);
         }
 
         private void panel3_KeyDown(object sender, KeyEventArgs e)
@@ -1345,68 +1680,129 @@ namespace SonicRetro.SonLVL.GUI
                         DrawLevel();
                     }
                     break;
-                case Keys.Oemplus:
-                    using (ResizeLevelDialog dg = new ResizeLevelDialog(false))
+            }
+            panel_KeyDown(sender, e);
+        }
+
+        private void panel_KeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.Q:
+                    bool angles = anglesToolStripMenuItem.Checked;
+                    foreach (ToolStripItem item in collisionToolStripMenuItem.DropDownItems)
+                        if (item is ToolStripMenuItem)
+                            ((ToolStripMenuItem)item).Checked = false;
+                    noneToolStripMenuItem1.Checked = true;
+                    anglesToolStripMenuItem.Checked = angles;
+                    DrawLevel();
+                    break;
+                case Keys.W:
+                    angles = anglesToolStripMenuItem.Checked;
+                    foreach (ToolStripItem item in collisionToolStripMenuItem.DropDownItems)
+                        if (item is ToolStripMenuItem)
+                            ((ToolStripMenuItem)item).Checked = false;
+                    path1ToolStripMenuItem.Checked = true;
+                    anglesToolStripMenuItem.Checked = angles;
+                    DrawLevel();
+                    break;
+                case Keys.E:
+                    switch (LevelData.Level.ChunkFormat)
                     {
-                        bool canResize;
-                        switch (LevelData.Level.LayoutFormat)
-                        {
-                            case EngineVersion.S1:
-                            case EngineVersion.S2NA:
-                                canResize = true;
-                                dg.levelWidth.Minimum = 1;
-                                dg.levelWidth.Maximum = LevelData.Game.LevelWidthMax;
-                                dg.levelHeight.Minimum = 1;
-                                dg.levelHeight.Maximum = LevelData.Game.LevelHeightMax;
-                                break;
-                            case EngineVersion.S3K:
-                            case EngineVersion.SKC:
-                                canResize = true;
-                                dg.levelWidth.Minimum = 1;
-                                dg.levelWidth.Maximum = 200;
-                                dg.levelHeight.Minimum = 1;
-                                dg.levelHeight.Maximum = 32;
-                                break;
-                            case EngineVersion.SBoom:
-                                canResize = true;
-                                dg.levelWidth.Minimum = SonicBoom.MAX_ROW_LENGTH;
-                                dg.levelWidth.Maximum = SonicBoom.MAX_ROW_LENGTH;
-                                dg.levelWidth.Enabled = false;
-                                dg.levelHeight.Minimum = 1;
-                                dg.levelHeight.Maximum = SonicBoom.MAX_NUMBER_OF_ROWS;
-                                break;
-                            default:
-                                canResize = false;
-                                break;
-                        }
-                        if (canResize)
-                        {
-                            dg.levelWidth.Value = LevelData.BGLayout.GetLength(0);
-                            dg.levelHeight.Value = LevelData.BGLayout.GetLength(1);
-                            if (dg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
-                            {
-                                byte[,] newBG = new byte[(int)dg.levelWidth.Value, (int)dg.levelHeight.Value];
-                                bool[,] newBGLoop = LevelData.Level.LayoutFormat == EngineVersion.S1 ? new bool[(int)dg.levelWidth.Value, (int)dg.levelHeight.Value] : null;
-                                for (int y = 0; y < Math.Min(dg.levelHeight.Value, LevelData.BGLayout.GetLength(1)); y++)
-                                {
-                                    for (int x = 0; x < Math.Min(dg.levelWidth.Value, LevelData.BGLayout.GetLength(0)); x++)
-                                    {
-                                        newBG[x, y] = LevelData.BGLayout[x, y];
-                                        if (LevelData.Level.LayoutFormat == EngineVersion.S1)
-                                            newBGLoop[x, y] = LevelData.BGLoop[x, y];
-                                    }
-                                }
-                                LevelData.BGLayout = newBG;
-                                LevelData.BGLoop = newBGLoop;
-                                loaded = false;
-                                UpdateScrollBars();
-                                loaded = true;
-                                DrawLevel();
-                            }
-                            else
-                                MessageBox.Show("The current game does not allow you to resize levels!");
-                        }
+                        case EngineVersion.S1:
+                        case EngineVersion.SCD:
+                        case EngineVersion.SCDPC:
+                            break;
+                        case EngineVersion.S2:
+                        case EngineVersion.S2NA:
+                        case EngineVersion.S3K:
+                        case EngineVersion.SKC:
+                        case EngineVersion.SBoom:
+                            angles = anglesToolStripMenuItem.Checked;
+                            foreach (ToolStripItem item in collisionToolStripMenuItem.DropDownItems)
+                                if (item is ToolStripMenuItem)
+                                    ((ToolStripMenuItem)item).Checked = false;
+                            path2ToolStripMenuItem.Checked = true;
+                            anglesToolStripMenuItem.Checked = angles;
+                            DrawLevel();
+                            break;
                     }
+                    break;
+                case Keys.R:
+                    if (!(e.Alt & e.Control))
+                    {
+                        anglesToolStripMenuItem.Checked = !anglesToolStripMenuItem.Checked;
+                        DrawLevel();
+                    }
+                    break;
+                case Keys.T:
+                    objectsAboveHighPlaneToolStripMenuItem.Checked = !objectsAboveHighPlaneToolStripMenuItem.Checked;
+                    DrawLevel();
+                    break;
+                case Keys.Y:
+                    if (!e.Control)
+                    {
+                        lowToolStripMenuItem.Checked = !lowToolStripMenuItem.Checked;
+                        DrawLevel();
+                    }
+                    break;
+                case Keys.U:
+                    highToolStripMenuItem.Checked = !highToolStripMenuItem.Checked;
+                    DrawLevel();
+                    break;
+                case Keys.I:
+                    enableGridToolStripMenuItem.Checked = !enableGridToolStripMenuItem.Checked;
+                    DrawLevel();
+                    break;
+                case Keys.O:
+                    if (!e.Control)
+                    {
+                        hUDToolStripMenuItem.Checked = !hUDToolStripMenuItem.Checked;
+                        DrawLevel();
+                    }
+                    break;
+                case Keys.P:
+                    switch (LevelData.Game.EngineVersion)
+                    {
+                        case EngineVersion.SCD:
+                        case EngineVersion.SCDPC:
+                            currentOnlyToolStripMenuItem.Checked = !currentOnlyToolStripMenuItem.Checked;
+                            allToolStripMenuItem.Checked = !allToolStripMenuItem.Checked;
+                            DrawLevel();
+                            break;
+                    }
+                    break;
+                case Keys.OemOpenBrackets:
+                    LevelData.CurPal--;
+                    if (LevelData.CurPal == -1)
+                        LevelData.CurPal = LevelData.Palette.Count - 1;
+                    LevelData.PaletteChanged();
+                    DrawLevel();
+                    break;
+                case Keys.OemCloseBrackets:
+                    LevelData.CurPal++;
+                    if (LevelData.CurPal == LevelData.Palette.Count)
+                        LevelData.CurPal = 0;
+                    LevelData.PaletteChanged();
+                    DrawLevel();
+                    break;
+                case Keys.OemMinus:
+                case Keys.Subtract:
+                    for (int i = 1; i < zoomToolStripMenuItem.DropDownItems.Count; i++)
+                        if (((ToolStripMenuItem)zoomToolStripMenuItem.DropDownItems[i]).Checked)
+                        {
+                            zoomToolStripMenuItem_DropDownItemClicked(sender, new ToolStripItemClickedEventArgs(zoomToolStripMenuItem.DropDownItems[i - 1]));
+                            break;
+                        }
+                    break;
+                case Keys.Oemplus:
+                case Keys.Add:
+                    for (int i = 0; i < zoomToolStripMenuItem.DropDownItems.Count - 1; i++)
+                        if (((ToolStripMenuItem)zoomToolStripMenuItem.DropDownItems[i]).Checked)
+                        {
+                            zoomToolStripMenuItem_DropDownItemClicked(sender, new ToolStripItemClickedEventArgs(zoomToolStripMenuItem.DropDownItems[i + 1]));
+                            break;
+                        }
                     break;
             }
         }
@@ -1976,7 +2372,8 @@ namespace SonicRetro.SonLVL.GUI
                             break;
                         case MouseButtons.Right:
                             SelectedChunk = LevelData.FGLayout[chunkpoint.X, chunkpoint.Y];
-                            ChunkSelector.SelectedIndex = SelectedChunk;
+                            if (SelectedChunk < LevelData.Chunks.Count)
+                                ChunkSelector.SelectedIndex = SelectedChunk;
                             DrawLevel();
                             break;
                     }
@@ -2080,7 +2477,8 @@ namespace SonicRetro.SonLVL.GUI
                             break;
                         case MouseButtons.Right:
                             SelectedChunk = LevelData.BGLayout[chunkpoint.X, chunkpoint.Y];
-                            ChunkSelector.SelectedIndex = SelectedChunk;
+                            if (SelectedChunk < LevelData.Chunks.Count)
+                                ChunkSelector.SelectedIndex = SelectedChunk;
                             DrawLevel();
                             break;
                     }
@@ -2158,7 +2556,7 @@ namespace SonicRetro.SonLVL.GUI
         private void ChunkSelector_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (!loaded) return;
-            if (ChunkSelector.SelectedIndex == -1) return;
+            if (ChunkSelector.SelectedIndex == -1 | ChunkSelector.SelectedIndex >= LevelData.Chunks.Count) return;
             SelectedChunk = (byte)ChunkSelector.SelectedIndex;
             SelectedChunkBlock = new Point();
             ChunkBlockPropertyGrid.SelectedObject = LevelData.Chunks[SelectedChunk].blocks[0, 0];
@@ -2166,90 +2564,6 @@ namespace SonicRetro.SonLVL.GUI
             ChunkID.Text = SelectedChunk.ToString("X2");
             ChunkCount.Text = LevelData.Chunks.Count.ToString("X") + " / 100";
             DrawLevel();
-        }
-
-        private void blocksToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            FolderBrowserDialog a = new FolderBrowserDialog() { SelectedPath = Environment.CurrentDirectory };
-            if (a.ShowDialog() == DialogResult.OK)
-            {
-                Color[] palette = new Color[256];
-                for (int i = 0; i < 64; i++)
-                    palette[i] = LevelData.PaletteToColor(i / 16, i % 16, false);
-                for (int i = 64; i < 256; i++)
-                    palette[i] = Color.Black;
-                palette[0] = LevelData.PaletteToColor(2, 0, false);
-                for (int i = 0; i < LevelData.Blocks.Count; i++)
-                    LevelData.CompBlockBmpBits[i].ToBitmap(palette).Save(System.IO.Path.Combine(a.SelectedPath, i + ".png"));
-            }
-        }
-
-        private void chunksToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            FolderBrowserDialog a = new FolderBrowserDialog() { SelectedPath = Environment.CurrentDirectory };
-            if (a.ShowDialog() == DialogResult.OK)
-            {
-                Color[] palette = new Color[256];
-                for (int i = 0; i < 64; i++)
-                    palette[i] = LevelData.PaletteToColor(i / 16, i % 16, false);
-                for (int i = 64; i < 256; i++)
-                    palette[i] = Color.Black;
-                palette[0] = LevelData.PaletteToColor(2, 0, false);
-                for (int i = 0; i < LevelData.Chunks.Count; i++)
-                    LevelData.CompChunkBmpBits[i].ToBitmap(palette).Save(System.IO.Path.Combine(a.SelectedPath, i + ".png"));
-            }
-        }
-
-        private void foregroundToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            SaveFileDialog a = new SaveFileDialog()
-            {
-                DefaultExt = "png",
-                Filter = "PNG Files|*.png",
-                RestoreDirectory = true
-            };
-            if (a.ShowDialog() == DialogResult.OK)
-            {
-                BitmapBits bmp = LevelData.DrawForeground(null, includeobjectsWithFGToolStripMenuItem.Checked, !hideDebugObjectsToolStripMenuItem.Checked, objectsAboveHighPlaneToolStripMenuItem.Checked, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked, allToolStripMenuItem.Checked);
-                for (int i = 0; i < bmp.Bits.Length; i++)
-                    if (bmp.Bits[i] == 0)
-                        bmp.Bits[i] = 32;
-                Bitmap res = bmp.ToBitmap();
-                ColorPalette pal = res.Palette;
-                for (int i = 0; i < 64; i++)
-                    pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, transparentBackFGBGToolStripMenuItem.Checked);
-                for (int i = 64; i < 256; i++)
-                    pal.Entries[i] = Color.Black;
-                pal.Entries[0] = LevelData.PaletteToColor(2, 0, transparentBackFGBGToolStripMenuItem.Checked);
-                res.Palette = pal;
-                res.Save(a.FileName);
-            }
-        }
-
-        private void backgroundToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            SaveFileDialog a = new SaveFileDialog()
-            {
-                DefaultExt = "png",
-                Filter = "PNG Files|*.png",
-                RestoreDirectory = true
-            };
-            if (a.ShowDialog() == DialogResult.OK)
-            {
-                BitmapBits bmp = LevelData.DrawBackground(null, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked);
-                for (int i = 0; i < bmp.Bits.Length; i++)
-                    if (bmp.Bits[i] == 0)
-                        bmp.Bits[i] = 32;
-                Bitmap res = bmp.ToBitmap();
-                ColorPalette pal = res.Palette;
-                for (int i = 0; i < 64; i++)
-                    pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, transparentBackFGBGToolStripMenuItem.Checked);
-                for (int i = 64; i < 256; i++)
-                    pal.Entries[i] = Color.Black;
-                pal.Entries[0] = LevelData.PaletteToColor(2, 0, transparentBackFGBGToolStripMenuItem.Checked);
-                res.Palette = pal;
-                res.Save(a.FileName);
-            }
         }
 
         private void SelectedObjectChanged()
@@ -2271,28 +2585,9 @@ namespace SonicRetro.SonLVL.GUI
                         break;
                 }
             }
-            Properties.Settings.Default.ShowHUD = hUDToolStripMenuItem.Checked;
-            Properties.Settings.Default.ShowGrid = enableGridToolStripMenuItem.Checked;
-            Properties.Settings.Default.Save();
-        }
-
-        private void tilesToolStripMenuItem_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
-        {
-            exportToolStripMenuItem.DropDown.Hide();
-            FolderBrowserDialog a = new FolderBrowserDialog() { SelectedPath = Environment.CurrentDirectory };
-            if (a.ShowDialog() == DialogResult.OK)
-            {
-                for (int i = 0; i < LevelData.Tiles.Count; i++)
-                {
-                    LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, tilesToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem)).Save(System.IO.Path.Combine(a.SelectedPath, i + ".png"));
-                }
-            }
-        }
-
-        private void objectsAboveHighPlaneToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            objectsAboveHighPlaneToolStripMenuItem.Checked = !objectsAboveHighPlaneToolStripMenuItem.Checked;
-            DrawLevel();
+            Settings.ShowHUD = hUDToolStripMenuItem.Checked;
+            Settings.ShowGrid = enableGridToolStripMenuItem.Checked;
+            Settings.Save();
         }
 
         private void ScrollBar_ValueChanged(object sender, EventArgs e)
@@ -2311,64 +2606,6 @@ namespace SonicRetro.SonLVL.GUI
                     break;
             }
             loaded = true;
-            DrawLevel();
-        }
-
-        public void AddUndo(UndoAction action)
-        {
-            UndoList.Push(action);
-            undoCtrlZToolStripMenuItem.DropDownItems.Insert(0, new ToolStripMenuItem(action.Name));
-            if (UndoList.Count > 100)
-            {
-                UndoAction[] l = UndoList.ToArray();
-                UndoList.Clear();
-                for (int i = 99; i >= 0; i--)
-                {
-                    UndoList.Push(l[i]);
-                }
-                undoCtrlZToolStripMenuItem.DropDownItems.RemoveAt(100);
-            }
-            RedoList.Clear();
-            redoCtrlYToolStripMenuItem.DropDownItems.Clear();
-        }
-
-        private void undoCtrlZToolStripMenuItem_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
-        {
-            DoUndo(undoCtrlZToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem) + 1);
-        }
-
-        private void redoCtrlYToolStripMenuItem_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
-        {
-            DoRedo(redoCtrlYToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem) + 1);
-        }
-
-        private void DoUndo(int num)
-        {
-            for (int i = 0; i < num; i++)
-            {
-                undoCtrlZToolStripMenuItem.DropDownItems.RemoveAt(0);
-                UndoAction act = UndoList.Pop();
-                act.Undo();
-                RedoList.Push(act);
-                redoCtrlYToolStripMenuItem.DropDownItems.Insert(0, new ToolStripMenuItem(act.Name));
-            }
-            SelectedItems.Clear();
-            SelectedObjectChanged();
-            DrawLevel();
-        }
-
-        private void DoRedo(int num)
-        {
-            for (int i = 0; i < num; i++)
-            {
-                redoCtrlYToolStripMenuItem.DropDownItems.RemoveAt(0);
-                UndoAction act = RedoList.Pop();
-                act.Redo();
-                UndoList.Push(act);
-                undoCtrlZToolStripMenuItem.DropDownItems.Insert(0, new ToolStripMenuItem(act.Name));
-            }
-            SelectedItems.Clear();
-            SelectedObjectChanged();
             DrawLevel();
         }
 
@@ -2778,162 +3015,6 @@ namespace SonicRetro.SonLVL.GUI
             DrawLevel();
         }
 
-        private void paletteToolStripMenuItem_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
-        {
-            exportToolStripMenuItem.DropDown.Hide();
-            SaveFileDialog a = new SaveFileDialog() { DefaultExt = "png", Filter = "PNG Files|*.png", RestoreDirectory = true };
-            if (a.ShowDialog() == DialogResult.OK)
-            {
-                int line = paletteToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem);
-                if (line < 4)
-                {
-                    Bitmap bmp = new Bitmap(16, 1, PixelFormat.Format4bppIndexed);
-                    ColorPalette pal = bmp.Palette;
-                    byte[] pix = new byte[8];
-                    byte px = 1;
-                    for (int i = 0; i < 16; i++)
-                        pal.Entries[i] = LevelData.PaletteToColor(line, i, false);
-                    for (int i = 0; i < 8; i++)
-                    {
-                        pix[i] = px;
-                        px += 0x22;
-                    }
-                    bmp.Palette = pal;
-                    BitmapData bmpd = bmp.LockBits(new Rectangle(0, 0, 16, 1), ImageLockMode.WriteOnly, PixelFormat.Format4bppIndexed);
-                    System.Runtime.InteropServices.Marshal.Copy(pix, 0, bmpd.Scan0, 8);
-                    bmp.UnlockBits(bmpd);
-                    bmp.Save(a.FileName);
-                }
-                else
-                {
-                    Bitmap bmp = new Bitmap(16, 4, PixelFormat.Format8bppIndexed);
-                    ColorPalette pal = bmp.Palette;
-                    for (int i = 0; i < 64; i++)
-                        pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, false);
-                    for (int i = 64; i < 256; i++)
-                        pal.Entries[i] = Color.Black;
-                    bmp.Palette = pal;
-                    byte[] pix = new byte[64];
-                    for (byte i = 0; i < 64; i++)
-                        pix[i] = i;
-                    BitmapData bmpd = bmp.LockBits(new Rectangle(0, 0, 16, 4), ImageLockMode.WriteOnly, PixelFormat.Format8bppIndexed);
-                    System.Runtime.InteropServices.Marshal.Copy(pix, 0, bmpd.Scan0, 64);
-                    bmp.UnlockBits(bmpd);
-                    bmp.Save(a.FileName);
-                }
-            }
-        }
-
-        private void logToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            LogWindow = new LogWindow();
-            LogWindow.Show(this);
-            logToolStripMenuItem.Enabled = false;
-        }
-
-        private void blendAlternatePaletteToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            using (AlternatePaletteDialog dlg = new AlternatePaletteDialog())
-            {
-                if (dlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
-                {
-                    int underwater = LevelData.CurPal;
-                    LevelData.CurPal = 0;
-                    Color[,] pal = new Color[4, 16];
-                    for (int l = 0; l < 4; l++)
-                        for (int i = 0; i < 16; i++)
-                        {
-                            Color col = LevelData.PaletteToColor(l, i, false);
-                            if (dlg.radioButton1.Checked)
-                                pal[l, i] = col.Blend(dlg.BlendColor);
-                            else if (dlg.radioButton2.Checked)
-                                pal[l, i] = Color.FromArgb(Math.Min(col.R + dlg.BlendColor.R, 255), Math.Min(col.G + dlg.BlendColor.G, 255), Math.Min(col.B + dlg.BlendColor.B, 255));
-                            else
-                                pal[l, i] = Color.FromArgb(Math.Max(col.R - dlg.BlendColor.R, 0), Math.Max(col.G - dlg.BlendColor.G, 0), Math.Max(col.B - dlg.BlendColor.B, 0));
-                        }
-                    LevelData.CurPal = dlg.paletteIndex.SelectedIndex + 1;
-                    for (int l = 0; l < 4; l++)
-                        for (int i = 0; i < 16; i++)
-                            LevelData.ColorToPalette(l, i, pal[l, i]);
-                    LevelData.CurPal = underwater;
-                    LevelData.PaletteChanged();
-                }
-            }
-        }
-
-        private void collisionToolStripMenuItem_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
-        {
-            foreach (ToolStripMenuItem item in collisionToolStripMenuItem.DropDownItems)
-            {
-                item.Checked = false;
-            }
-            ((ToolStripMenuItem)e.ClickedItem).Checked = true;
-            DrawLevel();
-        }
-
-        private void paletteToolStripMenuItem2_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
-        {
-            foreach (ToolStripMenuItem item in paletteToolStripMenuItem2.DropDownItems)
-                item.Checked = false;
-            ((ToolStripMenuItem)e.ClickedItem).Checked = true;
-            LevelData.CurPal = paletteToolStripMenuItem2.DropDownItems.IndexOf(e.ClickedItem);
-            LevelData.PaletteChanged();
-        }
-
-        private void buildAndRunToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Path.Combine(Environment.CurrentDirectory, LevelData.Game.BuildScript)) { WorkingDirectory = Path.GetDirectoryName(Path.Combine(Environment.CurrentDirectory, LevelData.Game.BuildScript)) }).WaitForExit();
-            string romfile = LevelData.Game.ROMFile ?? LevelData.Game.RunCommand;
-            if (LevelData.Game.UseEmulator)
-                if (!string.IsNullOrEmpty(Properties.Settings.Default.Emulator))
-                    System.Diagnostics.Process.Start(Properties.Settings.Default.Emulator, '"' + Path.Combine(Environment.CurrentDirectory, romfile) + '"');
-                else
-                    MessageBox.Show("You must set up an emulator before you can run the ROM, use File -> Setup Emulator.");
-            else
-                System.Diagnostics.Process.Start(Path.Combine(Environment.CurrentDirectory, romfile));
-        }
-
-        private void currentOnlyToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            currentOnlyToolStripMenuItem.Checked = true;
-            allToolStripMenuItem.Checked = false;
-            DrawLevel();
-        }
-
-        private void allToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            allToolStripMenuItem.Checked = true;
-            currentOnlyToolStripMenuItem.Checked = false;
-            DrawLevel();
-        }
-
-        private void lowToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            DrawLevel();
-        }
-
-        private void highToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            DrawLevel();
-        }
-
-        private void setupEmulatorToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            using (OpenFileDialog opn = new OpenFileDialog() { DefaultExt = "exe", Filter = "EXE Files|*.exe|All Files|*.*", RestoreDirectory = true })
-            {
-                if (!string.IsNullOrEmpty(Properties.Settings.Default.Emulator))
-                {
-                    opn.FileName = Path.GetFileName(Properties.Settings.Default.Emulator);
-                    opn.InitialDirectory = Path.GetDirectoryName(Properties.Settings.Default.Emulator);
-                }
-                if (opn.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                {
-                    Properties.Settings.Default.Emulator = opn.FileName;
-                    setupEmulatorToolStripMenuItem.Checked = true;
-                }
-            }
-        }
-
         private void panel_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
             switch (e.KeyCode)
@@ -2968,12 +3049,6 @@ namespace SonicRetro.SonLVL.GUI
                     break;
             }
             DrawLevel();
-        }
-
-        private void recentProjectsToolStripMenuItem_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
-        {
-            loaded = false;
-            LoadINI(Properties.Settings.Default.MRUList[recentProjectsToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem)]);
         }
 
         public int SelectedBlock, SelectedTile;
@@ -3065,9 +3140,9 @@ namespace SonicRetro.SonLVL.GUI
             if (highToolStripMenuItem.Checked)
                 e.Graphics.DrawImage(LevelData.BlockBmpBits[SelectedBlock][1].Scale(4).ToBitmap(LevelData.BmpPal), 0, 0, 64, 64);
             if (path1ToolStripMenuItem.Checked)
-                e.Graphics.DrawImage(LevelData.ColBmps[LevelData.ColInds1[SelectedBlock]], 0, 0, 64, 64);
+                e.Graphics.DrawImage(LevelData.ColBmpBits[LevelData.ColInds1[SelectedBlock]].Scale(4).ToBitmap(Color.Transparent, Color.White), 0, 0, 64, 64);
             if (path2ToolStripMenuItem.Checked)
-                e.Graphics.DrawImage(LevelData.ColBmps[LevelData.ColInds2[SelectedBlock]], 0, 0, 64, 64);
+                e.Graphics.DrawImage(LevelData.ColBmpBits[LevelData.ColInds2[SelectedBlock]].Scale(4).ToBitmap(Color.Transparent, Color.White), 0, 0, 64, 64);
             e.Graphics.DrawRectangle(Pens.White, SelectedBlockTile.X * 32, SelectedBlockTile.Y * 32, 31, 31);
         }
 
@@ -3154,9 +3229,7 @@ namespace SonicRetro.SonLVL.GUI
             bool newpal = e.Y / 32 != SelectedColor.Y;
             SelectedColor = new Point(e.X / 32, e.Y / 32);
             if (e.Button == System.Windows.Forms.MouseButtons.Right)
-            {
                 paletteContextMenuStrip.Show(PalettePanel, e.Location);
-            }
             PalettePanel.Invalidate();
             if (newpal)
             {
@@ -3165,6 +3238,11 @@ namespace SonicRetro.SonLVL.GUI
                     curpal[i] = LevelData.PaletteToColor(SelectedColor.Y, i, false);
             }
             TilePicture.Invalidate();
+            TileSelector.Images.Clear();
+            for (int i = 0; i < LevelData.Tiles.Count; i++)
+                TileSelector.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, SelectedColor.Y));
+            TileSelector.SelectedIndex = SelectedTile;
+            TileSelector.Invalidate();
         }
 
         private void importToolStripMenuItem1_Click(object sender, EventArgs e)
@@ -3184,7 +3262,7 @@ namespace SonicRetro.SonLVL.GUI
                             byte[] file = System.IO.File.ReadAllBytes(a.FileName);
                             for (int i = 0; i < file.Length; i += 2)
                             {
-                                LevelData.Palette[LevelData.CurPal][l, x] = BitConverter.ToUInt16(file, i);
+                                LevelData.Palette[LevelData.CurPal][l, x] = new SonLVLColor(BitConverter.ToUInt16(file, i));
                                 x++;
                                 if (x == 16)
                                 {
@@ -3284,7 +3362,7 @@ namespace SonicRetro.SonLVL.GUI
                 if (dr)
                     LevelData.RedrawBlock(i, true);
             }
-            TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, 2);
+            TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y);
         }
 
         private void ChunkSelector_MouseDown(object sender, MouseEventArgs e)
@@ -3477,7 +3555,7 @@ namespace SonicRetro.SonLVL.GUI
                     byte[] t = (byte[])Clipboard.GetData("SonLVLTile");
                     LevelData.Tiles.InsertBefore(SelectedTile, t);
                     LevelData.UpdateTileArray();
-                    TileSelector.Images.Insert(SelectedTile, LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, 2));
+                    TileSelector.Images.Insert(SelectedTile, LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y));
                     for (int i = 0; i < LevelData.Blocks.Count; i++)
                         for (int y = 0; y < 2; y++)
                             for (int x = 0; x < 2; x++)
@@ -3536,7 +3614,7 @@ namespace SonicRetro.SonLVL.GUI
                     LevelData.Tiles.InsertAfter(SelectedTile, t);
                     SelectedTile++;
                     LevelData.UpdateTileArray();
-                    TileSelector.Images.Insert(SelectedTile, LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, 2));
+                    TileSelector.Images.Insert(SelectedTile, LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y));
                     for (int i = 0; i < LevelData.Blocks.Count; i++)
                         for (int y = 0; y < 2; y++)
                             for (int x = 0; x < 2; x++)
@@ -3591,7 +3669,7 @@ namespace SonicRetro.SonLVL.GUI
                 case 5: // Tiles
                     LevelData.Tiles.InsertBefore(SelectedTile, new byte[32]);
                     LevelData.UpdateTileArray();
-                    TileSelector.Images.Insert(SelectedTile, LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, 2));
+                    TileSelector.Images.Insert(SelectedTile, LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y));
                     for (int i = 0; i < LevelData.Blocks.Count; i++)
                         for (int y = 0; y < 2; y++)
                             for (int x = 0; x < 2; x++)
@@ -3650,7 +3728,7 @@ namespace SonicRetro.SonLVL.GUI
                     LevelData.Tiles.InsertAfter(SelectedTile, new byte[32]);
                     SelectedTile++;
                     LevelData.UpdateTileArray();
-                    TileSelector.Images.Insert(SelectedTile, LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, 2));
+                    TileSelector.Images.Insert(SelectedTile, LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y));
                     for (int i = 0; i < LevelData.Blocks.Count; i++)
                         for (int y = 0; y < 2; y++)
                             for (int x = 0; x < 2; x++)
@@ -3814,7 +3892,7 @@ namespace SonicRetro.SonLVL.GUI
                                             SelectedTile = LevelData.Tiles.Count - 1;
                                             blk.tiles[x, y].Tile = (ushort)SelectedTile;
                                             LevelData.UpdateTileArray();
-                                            TileSelector.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, 2));
+                                            TileSelector.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y));
                                         }
                                     match = false;
                                     for (int i = 0; i < blocks.Count; i++)
@@ -3921,7 +3999,7 @@ namespace SonicRetro.SonLVL.GUI
                                     SelectedTile = LevelData.Tiles.Count - 1;
                                     blk.tiles[x, y].Tile = (ushort)SelectedTile;
                                     LevelData.UpdateTileArray();
-                                    TileSelector.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, 2));
+                                    TileSelector.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y));
                                 }
                             match = false;
                             for (int i = 0; i < blocks.Count; i++)
@@ -3990,7 +4068,7 @@ namespace SonicRetro.SonLVL.GUI
                             LevelData.Tiles.Add(tile);
                             SelectedTile = LevelData.Tiles.Count - 1;
                             LevelData.UpdateTileArray();
-                            TileSelector.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, 2));
+                            TileSelector.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y));
                         }
                     TileSelector.SelectedIndex = SelectedTile;
                     break;
@@ -4080,6 +4158,14 @@ namespace SonicRetro.SonLVL.GUI
             LevelData.Angles[SelectedCol] = (byte)ColAngle.Value;
         }
 
+        private void ColAngle_TextChanged(object sender, EventArgs e)
+        {
+            if (!loaded) return;
+            byte value;
+            if (byte.TryParse(ColAngle.Text, System.Globalization.NumberStyles.HexNumber, null, out value))
+                ColAngle.Value = value;
+        }
+
         private void button1_Click(object sender, EventArgs e)
         {
             if (!loaded) return;
@@ -4112,7 +4198,7 @@ namespace SonicRetro.SonLVL.GUI
                 if (dr)
                     LevelData.RedrawBlock(i, true);
             }
-            TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, 2);
+            TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y);
             TilePicture.Invalidate();
         }
 
@@ -4217,60 +4303,6 @@ namespace SonicRetro.SonLVL.GUI
                         break;
                 }
             }
-        }
-
-        private void colorToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ColorDialog a = new ColorDialog
-            {
-                AllowFullOpen = true,
-                AnyColor = true,
-                FullOpen = true,
-                SolidColorOnly = true,
-                Color = Properties.Settings.Default.GridColor
-            };
-            if (cols != null)
-                a.CustomColors = cols;
-            if (a.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                Properties.Settings.Default.GridColor = a.Color;
-                LevelImgPalette.Entries[67] = a.Color;
-                DrawLevel();
-            }
-            cols = a.CustomColors;
-            a.Dispose();
-        }
-
-        private void viewReadmeToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            System.Diagnostics.Process.Start(Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "readme.txt"));
-        }
-
-        private void reportBugToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            using (BugReportDialog err = new BugReportDialog())
-                err.ShowDialog();
-        }
-
-        private void zoomToolStripMenuItem_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
-        {
-            foreach (ToolStripMenuItem item in zoomToolStripMenuItem.DropDownItems)
-                item.Checked = false;
-            ((ToolStripMenuItem)e.ClickedItem).Checked = true;
-            switch (zoomToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem))
-            {
-                case 0: // 1/2x
-                    ZoomLevel = 0.5;
-                    break;
-                default:
-                    ZoomLevel = zoomToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem);
-                    break;
-            }
-            if (!loaded) return;
-            loaded = false;
-            UpdateScrollBars();
-            loaded = true;
-            DrawLevel();
         }
 
         private void selectAllObjectsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -4414,6 +4446,79 @@ namespace SonicRetro.SonLVL.GUI
             toolStripButton3.Checked = false;
             toolStripButton4.Checked = true;
             BGMode = EditingMode.Select;
+        }
+
+        private void resizeLevelToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (ResizeLevelDialog dg = new ResizeLevelDialog(tabControl1.SelectedIndex != 2))
+            {
+                bool canResize;
+                switch (LevelData.Level.LayoutFormat)
+                {
+                    case EngineVersion.S1:
+                    case EngineVersion.S2NA:
+                        canResize = true;
+                        dg.levelWidth.Minimum = 1;
+                        dg.levelWidth.Maximum = LevelData.Game.LevelWidthMax;
+                        dg.levelHeight.Minimum = 1;
+                        dg.levelHeight.Maximum = LevelData.Game.LevelHeightMax;
+                        break;
+                    case EngineVersion.S3K:
+                    case EngineVersion.SKC:
+                        canResize = true;
+                        dg.levelWidth.Minimum = 1;
+                        dg.levelWidth.Maximum = 200;
+                        dg.levelHeight.Minimum = 1;
+                        dg.levelHeight.Maximum = 32;
+                        break;
+                    case EngineVersion.SBoom:
+                        canResize = true;
+                        dg.levelWidth.Minimum = SonicBoom.MAX_ROW_LENGTH;
+                        dg.levelWidth.Maximum = SonicBoom.MAX_ROW_LENGTH;
+                        dg.levelWidth.Enabled = false;
+                        dg.levelHeight.Minimum = 1;
+                        dg.levelHeight.Maximum = SonicBoom.MAX_NUMBER_OF_ROWS;
+                        break;
+                    default:
+                        canResize = false;
+                        break;
+                }
+                if (canResize)
+                {
+                    byte[,] layout = tabControl1.SelectedIndex == 2 ? LevelData.BGLayout : LevelData.FGLayout;
+                    bool[,] loop = tabControl1.SelectedIndex == 2 ? LevelData.BGLoop : LevelData.FGLoop;
+                    dg.levelWidth.Value = LevelData.BGLayout.GetLength(0);
+                    dg.levelHeight.Value = LevelData.BGLayout.GetLength(1);
+                    if (dg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+                    {
+                        byte[,] newBG = new byte[(int)dg.levelWidth.Value, (int)dg.levelHeight.Value];
+                        bool[,] newBGLoop = LevelData.Level.LayoutFormat == EngineVersion.S1 ? new bool[(int)dg.levelWidth.Value, (int)dg.levelHeight.Value] : null;
+                        for (int y = 0; y < Math.Min(dg.levelHeight.Value, layout.GetLength(1)); y++)
+                            for (int x = 0; x < Math.Min(dg.levelWidth.Value, layout.GetLength(0)); x++)
+                            {
+                                newBG[x, y] = layout[x, y];
+                                if (LevelData.Level.LayoutFormat == EngineVersion.S1)
+                                    newBGLoop[x, y] = loop[x, y];
+                            }
+                        if (tabControl1.SelectedIndex == 2)
+                        {
+                            LevelData.BGLayout = newBG;
+                            LevelData.BGLoop = newBGLoop;
+                        }
+                        else
+                        {
+                            LevelData.FGLayout = newBG;
+                            LevelData.FGLoop = newBGLoop;
+                        }
+                        loaded = false;
+                        UpdateScrollBars();
+                        loaded = true;
+                        DrawLevel();
+                    }
+                    else
+                        MessageBox.Show("The current game does not allow you to resize levels!");
+                }
+            }
         }
     }
 

@@ -12,7 +12,7 @@ namespace S1ObjectDefinitions.GHZ
 
         public override void Init(ObjectData data)
         {
-            byte[] artfile = ObjectHelper.OpenArtFile("../artnem/GHZ Edge Wall.bin", Compression.CompressionType.Nemesis);
+            byte[] artfile = ObjectHelper.OpenArtFile("../artnem/GHZ Edge Wall.bin", CompressionType.Nemesis);
             imgs.Add(ObjectHelper.MapASMToBmp(artfile, "../_maps/GHZ Edge Walls.asm", 0, 2));
             imgs.Add(ObjectHelper.MapASMToBmp(artfile, "../_maps/GHZ Edge Walls.asm", 1, 2));
             imgs.Add(ObjectHelper.MapASMToBmp(artfile, "../_maps/GHZ Edge Walls.asm", 2, 2));

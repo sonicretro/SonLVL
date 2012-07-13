@@ -14,7 +14,7 @@ namespace S1ObjectDefinitions.Common
 
         public override void Init(ObjectData data)
         {
-            byte[] artfile = ObjectHelper.OpenArtFile("../artnem/Monitors.bin", Compression.CompressionType.Nemesis);
+            byte[] artfile = ObjectHelper.OpenArtFile("../artnem/Monitors.bin", CompressionType.Nemesis);
             img = ObjectHelper.MapASMToBmp(artfile, "../_maps/Monitor.asm", 0, 0);
             for (int i = 0; i < 10; i++)
                 imgs.Add(ObjectHelper.MapASMToBmp(artfile, "../_maps/Monitor.asm", labels[i], 0));

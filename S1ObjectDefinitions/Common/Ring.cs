@@ -31,7 +31,7 @@ namespace S1ObjectDefinitions.Common
         
         public override void Init(ObjectData data)
         {
-            byte[] artfile = ObjectHelper.OpenArtFile("../artnem/Rings.bin", Compression.CompressionType.Nemesis);
+            byte[] artfile = ObjectHelper.OpenArtFile("../artnem/Rings.bin", CompressionType.Nemesis);
             img = ObjectHelper.MapASMToBmp(artfile, "../_maps/Rings.asm", 0, 1);
         }
 

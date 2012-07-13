@@ -13,7 +13,7 @@ namespace S1ObjectDefinitions.Common
 
         public override void Init(ObjectData data)
         {
-            byte[] artfile = ObjectHelper.OpenArtFile("../artnem/Hidden Bonuses.bin", Compression.CompressionType.Nemesis);
+            byte[] artfile = ObjectHelper.OpenArtFile("../artnem/Hidden Bonuses.bin", CompressionType.Nemesis);
             img = ObjectHelper.MapASMToBmp(artfile, "../_maps/Hidden Bonuses.asm", 3, 0);
             imgs.Add(ObjectHelper.UnknownObject);
             for (int i = 0; i < labels.Length; i++)

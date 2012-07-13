@@ -14,7 +14,7 @@ namespace S1ObjectDefinitions.Common
 
         public override void Init(ObjectData data)
         {
-            byte[] artfile = ObjectHelper.OpenArtFile("../artnem/Spikes.bin", Compression.CompressionType.Nemesis);
+            byte[] artfile = ObjectHelper.OpenArtFile("../artnem/Spikes.bin", CompressionType.Nemesis);
             img = ObjectHelper.MapASMToBmp(artfile, "../_maps/Spikes.asm", 0, 0);
             Sprite im;
             for (int i = 0; i <= 5; i++)

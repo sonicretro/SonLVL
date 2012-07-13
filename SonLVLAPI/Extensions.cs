@@ -116,12 +116,28 @@ namespace SonicRetro.SonLVL.API
             return newbmp;
         }
 
-        public static TValue GetValueOrDefault<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key, TValue @default)
+        public static TValue GetValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key, TValue @default)
         {
             TValue output;
             if (dict.TryGetValue(key, out output))
                 return output;
             return @default;
+        }
+
+        public static TKey GetKey<TKey, TValue>(this IDictionary<TKey, TValue> dict, TValue value)
+        {
+            foreach (KeyValuePair<TKey, TValue> item in dict)
+                if (item.Value.Equals(value))
+                    return item.Key;
+            throw new KeyNotFoundException();
+        }
+
+        public static Dictionary<TValue, TKey> Swap<TKey, TValue>(this IDictionary<TKey, TValue> dict)
+        {
+            Dictionary<TValue, TKey> result = new Dictionary<TValue, TKey>(dict.Count);
+            foreach (KeyValuePair<TKey, TValue> item in dict)
+                result.Add(item.Value, item.Key);
+            return result;
         }
     }
 }

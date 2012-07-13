@@ -12,7 +12,7 @@ namespace S12005ObjectDefinitions.GHZ
 
         public override void Init(ObjectData data)
         {
-            byte[] artfile = ObjectHelper.OpenArtFile("../artnem/ghzwall2.bin", Compression.CompressionType.Nemesis);
+            byte[] artfile = ObjectHelper.OpenArtFile("../artnem/ghzwall2.bin", CompressionType.Nemesis);
             imgs.Add(ObjectHelper.MapASMToBmp(artfile, "../_maps/obj44.asm", 0, 2));
             imgs.Add(ObjectHelper.MapASMToBmp(artfile, "../_maps/obj44.asm", 1, 2));
             imgs.Add(ObjectHelper.MapASMToBmp(artfile, "../_maps/obj44.asm", 2, 2));

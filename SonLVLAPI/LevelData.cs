@@ -32,7 +32,7 @@ namespace SonicRetro.SonLVL.API
         public static byte[,] BGLayout;
         public static bool[,] BGLoop;
         public static List<string> PalName;
-        public static List<ushort[,]> Palette;
+        public static List<SonLVLColor[,]> Palette;
         public static List<byte[,]> PalNum;
         public static List<int[,]> PalAddr;
         public static int CurPal;
@@ -67,6 +67,22 @@ namespace SonicRetro.SonLVL.API
         public static event Action PaletteChangedEvent = delegate { };
         internal static readonly bool IsMonoRuntime = Type.GetType("Mono.Runtime") != null;
         internal static readonly bool IsWindows = !(Environment.OSVersion.Platform == PlatformID.MacOSX | Environment.OSVersion.Platform == PlatformID.Unix | Environment.OSVersion.Platform == PlatformID.Xbox);
+        private static readonly BitmapBits InvalidTile = new BitmapBits(8, 8);
+        private static readonly BitmapBits InvalidBlock = new BitmapBits(16, 16);
+
+        static LevelData()
+        {
+            InvalidTile.DrawLine(15, 0, 0, 7, 0);
+            InvalidTile.DrawLine(15, 0, 0, 0, 7);
+            InvalidTile.DrawLine(15, 7, 7, 0, 7);
+            InvalidTile.DrawLine(15, 7, 7, 7, 0);
+            InvalidTile.DrawLine(15, 0, 0, 7, 7);
+            InvalidTile.DrawLine(15, 0, 7, 7, 0);
+            InvalidBlock.DrawBitmap(InvalidTile, 0, 0);
+            InvalidBlock.DrawBitmap(InvalidTile, 8, 0);
+            InvalidBlock.DrawBitmap(InvalidTile, 0, 8);
+            InvalidBlock.DrawBitmap(InvalidTile, 8, 8);            
+        }
 
         public static void LoadGame(string filename)
         {
@@ -153,11 +169,11 @@ namespace SonicRetro.SonLVL.API
             }
             else
             {
-                Level.TileCompression = Compression.CompressionType.SZDD;
+                Level.TileCompression = CompressionType.SZDD;
                 if (File.Exists(Level.Tiles[0].Filename))
                 {
                     Log("Loading 8x8 tiles from file \"" + Level.Tiles[0].Filename + "\", using compression SZDD...");
-                    tmp = Compression.Decompress(Level.Tiles[0].Filename, Compression.CompressionType.SZDD);
+                    tmp = Compression.Decompress(Level.Tiles[0].Filename, CompressionType.SZDD);
                     int sta = ByteConverter.ToInt32(tmp, 0xC);
                     int numt = ByteConverter.ToInt32(tmp, 8);
                     List<byte[]> tiles = new List<byte[]>();
@@ -438,7 +454,7 @@ namespace SonicRetro.SonLVL.API
                     break;
             }
             PalName = new List<string>();
-            Palette = new List<ushort[,]>();
+            Palette = new List<SonLVLColor[,]>();
             PalNum = new List<byte[,]>();
             PalAddr = new List<int[,]>();
             byte palfilenum = 0;
@@ -446,7 +462,7 @@ namespace SonicRetro.SonLVL.API
             while (palnum < 9 && Level.Palettes[palnum] != null)
             {
                 PalName.Add(Level.Palettes[palnum].Name);
-                Palette.Add(new ushort[4, 16]);
+                Palette.Add(new SonLVLColor[4, 16]);
                 PalNum.Add(new byte[4, 16]);
                 PalAddr.Add(new int[4, 16]);
                 for (byte pn = 0; pn < Level.Palettes[palnum].Palettes.Collection.Length; pn++)
@@ -455,18 +471,18 @@ namespace SonicRetro.SonLVL.API
                     Log("Loading palette file \"" + palent.Filename + "\"...", "Source: " + palent.Source + " Destination: " + palent.Destination + " Length: " + palent.Length);
                     if (!File.Exists(palent.Filename)) throw new FileNotFoundException("Palette file could not be loaded! Have you set up your disassembly properly?", palent.Filename);
                     tmp = File.ReadAllBytes(palent.Filename);
-                    ushort[] palfile;
+                    SonLVLColor[] palfile;
                     if (Level.PaletteFormat != EngineVersion.SCDPC)
                     {
-                        palfile = new ushort[tmp.Length / 2];
+                        palfile = new SonLVLColor[tmp.Length / 2];
                         for (int pi = 0; pi < tmp.Length; pi += 2)
-                            palfile[pi / 2] = ByteConverter.ToUInt16(tmp, pi);
+                            palfile[pi / 2] = new SonLVLColor(ByteConverter.ToUInt16(tmp, pi));
                     }
                     else
                     {
-                        palfile = new ushort[tmp.Length / 4];
+                        palfile = new SonLVLColor[tmp.Length / 4];
                         for (int pi = 0; pi < tmp.Length; pi += 4)
-                            palfile[pi / 4] = (ushort)((tmp[pi] >> 4) | (tmp[pi + 1] & 0xF0) | ((tmp[pi + 2] >> 4) << 8));
+                            palfile[pi / 4] = new SonLVLColor(tmp[pi], tmp[pi + 1], tmp[pi + 2]);
                     }
                     for (int pa = 0; pa < palent.Length; pa++)
                     {
@@ -486,12 +502,15 @@ namespace SonicRetro.SonLVL.API
                 BmpPal = palbmp.Palette;
                 for (int i = 0; i < 64; i++)
                     BmpPal.Entries[i] = PaletteToColor(i / 16, i % 16, true);
-                for (int i = 64; i < 256; i++)
+                BmpPal.Entries[64] = Color.White;
+                BmpPal.Entries[65] = Color.Yellow;
+                BmpPal.Entries[66] = Color.Black;
+                for (int i = 67; i < 256; i++)
                     BmpPal.Entries[i] = Color.Black;
                 UnknownImg.Palette = BmpPal;
                 if (Level.Sprites != null)
                 {
-                    tmp = Compression.Decompress(Level.Sprites, Compression.CompressionType.SZDD);
+                    tmp = Compression.Decompress(Level.Sprites, CompressionType.SZDD);
                     int numspr = ByteConverter.ToInt32(tmp, 8);
                     int taddr = ByteConverter.ToInt32(tmp, 0xC);
                     for (int i = 0; i < numspr; i++)
@@ -869,7 +888,7 @@ namespace SonicRetro.SonLVL.API
                     tmp.AddRange(ByteConverter.GetBytes((ushort)8));
                 }
                 tmp.AddRange(TileArray);
-                Compression.Compress(tmp.ToArray(), Level.Tiles[0].Filename, Compression.CompressionType.SZDD);
+                Compression.Compress(tmp.ToArray(), Level.Tiles[0].Filename, CompressionType.SZDD);
             }
             fileind = -1;
             ReadOnlyCollection<ReadOnlyCollection<Block>> blockfiles = Blocks.GetFiles();
@@ -1049,7 +1068,7 @@ namespace SonicRetro.SonLVL.API
                     }
                     for (int pl = 0; pl < 4; pl++)
                         for (int pi = 0; pi < 16; pi++)
-                            palfiles[PalNum[palnum][pl, pi]][PalAddr[palnum][pl, pi]] = Palette[palnum][pl, pi];
+                            palfiles[PalNum[palnum][pl, pi]][PalAddr[palnum][pl, pi]] = Palette[palnum][pl, pi].MDColor;
                     for (byte pn = 0; pn < palent.Collection.Length; pn++)
                     {
                         tmp = new List<byte>();
@@ -1074,9 +1093,9 @@ namespace SonicRetro.SonLVL.API
                     {
                         for (int pi = 0; pi < 16; pi++)
                         {
-                            palfiles[PalNum[0][pl, pi]][PalAddr[0][pl, pi] * 4] = (byte)((Palette[0][pl, pi] & 0xF) * 0x11);
-                            palfiles[PalNum[0][pl, pi]][PalAddr[0][pl, pi] * 4 + 1] = (byte)(((Palette[0][pl, pi] & 0xF0) >> 4) * 0x11);
-                            palfiles[PalNum[0][pl, pi]][PalAddr[0][pl, pi] * 4 + 2] = (byte)(((Palette[0][pl, pi] & 0xF00) >> 8) * 0x11);
+                            palfiles[PalNum[0][pl, pi]][PalAddr[0][pl, pi] * 4] = Palette[0][pl, pi].R;
+                            palfiles[PalNum[0][pl, pi]][PalAddr[0][pl, pi] * 4 + 1] = Palette[0][pl, pi].G;
+                            palfiles[PalNum[0][pl, pi]][PalAddr[0][pl, pi] * 4 + 2] = Palette[0][pl, pi].B;
                         }
                     }
                     for (byte pn = 0; pn < palent.Collection.Length; pn++)
@@ -1258,30 +1277,28 @@ namespace SonicRetro.SonLVL.API
                 yend++;
                 bounds = new Rectangle(0, 0, xend * chunksz, yend * chunksz);
             }
-            BitmapBits LevelImg8bpp = new BitmapBits(bounds.Width, bounds.Height);
-            for (int y = Math.Max(bounds.Y / chunksz, 0); y <= Math.Min(bounds.Bottom / chunksz, FGLayout.GetLength(1) - 1); y++)
-                for (int x = Math.Max(bounds.X / chunksz, 0); x <= Math.Min(bounds.Right / chunksz, FGLayout.GetLength(0) - 1); x++)
+            BitmapBits LevelImg8bpp = new BitmapBits(bounds.Size);
+            for (int y = Math.Max(bounds.Y / chunksz, 0); y <= Math.Min((bounds.Bottom - 1) / chunksz, FGLayout.GetLength(1) - 1); y++)
+                for (int x = Math.Max(bounds.X / chunksz, 0); x <= Math.Min((bounds.Right - 1) / chunksz, FGLayout.GetLength(0) - 1); x++)
                 {
                     if (FGLayout[x, y] < Chunks.Count & lowPlane)
-                        LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[FGLayout[x, y]][0], new Point(x * chunksz - bounds.X, y * chunksz - bounds.Y));
+                        LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[FGLayout[x, y]][0], x * chunksz - bounds.X, y * chunksz - bounds.Y);
                     if (objectsAboveHighPlane)
                         if (FGLayout[x, y] < Chunks.Count)
                         {
                             if (highPlane)
-                                LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[FGLayout[x, y]][1], new Point(x * chunksz - bounds.X, y * chunksz - bounds.Y));
+                                LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[FGLayout[x, y]][1], x * chunksz - bounds.X, y * chunksz - bounds.Y);
                             if (collisionPath1)
-                                LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[FGLayout[x, y]][0], new Point(x * chunksz - bounds.X, y * chunksz - bounds.Y));
+                                LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[FGLayout[x, y]][0], x * chunksz - bounds.X, y * chunksz - bounds.Y);
                             else if (collisionPath2)
-                                LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[FGLayout[x, y]][1], new Point(x * chunksz - bounds.X, y * chunksz - bounds.Y));
+                                LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[FGLayout[x, y]][1], x * chunksz - bounds.X, y * chunksz - bounds.Y);
                         }
                 }
             for (int oi = 0; oi < Objects.Count; oi++)
             {
                 ObjectEntry oe = Objects[oi];
-                Sprite spr = oe.Sprite;
-                Point pt = new Point(spr.Offset.X - bounds.X, spr.Offset.Y - bounds.Y);
                 if (ObjectVisible(oe, allTimeZones))
-                    LevelImg8bpp.DrawBitmapComposited(spr.Image, pt);
+                    LevelImg8bpp.DrawSprite(oe.Sprite, -bounds.X, -bounds.Y);
             }
             for (int ri = 0; ri < Rings.Count; ri++)
                 switch (Level.RingFormat)
@@ -1289,43 +1306,27 @@ namespace SonicRetro.SonLVL.API
                     case EngineVersion.S2:
                     case EngineVersion.S2NA:
                     case EngineVersion.SBoom:
-                        S2RingEntry re = (S2RingEntry)Rings[ri];
-                        Sprite spr = re.Sprite;
-                        Point pt = new Point(spr.Offset.X - bounds.X, spr.Offset.Y - bounds.Y);
-                        LevelImg8bpp.DrawBitmapComposited(spr.Image, pt);
-                        break;
                     case EngineVersion.S3K:
                     case EngineVersion.SKC:
-                        S3KRingEntry re3 = (S3KRingEntry)Rings[ri];
-                        spr = re3.Sprite;
-                        pt = new Point(spr.Offset.X - bounds.X, spr.Offset.Y - bounds.Y);
-                        LevelImg8bpp.DrawBitmapComposited(spr.Image, pt);
+                        LevelImg8bpp.DrawSprite(Rings[ri].Sprite, -bounds.X, -bounds.Y);
                         break;
                 }
             if (Bumpers != null)
                 foreach (CNZBumperEntry item in Bumpers)
-                {
-                    Sprite spr = item.Sprite;
-                    Point pt = new Point(spr.Offset.X - bounds.X, spr.Offset.Y - bounds.Y);
-                    LevelImg8bpp.DrawBitmapComposited(spr.Image, pt);
-                }
+                    LevelImg8bpp.DrawSprite(item.Sprite, -bounds.X, -bounds.Y);
             foreach (StartPositionEntry item in StartPositions)
-            {
-                Sprite spr = item.Sprite;
-                Point pt = new Point(spr.Offset.X - bounds.X, spr.Offset.Y - bounds.Y);
-                LevelImg8bpp.DrawBitmapComposited(spr.Image, pt);
-            }
+                LevelImg8bpp.DrawSprite(item.Sprite, -bounds.X, -bounds.Y);
             if (!objectsAboveHighPlane)
                 for (int y = Math.Max(bounds.Y / chunksz, 0); y <= Math.Min(bounds.Bottom / chunksz, FGLayout.GetLength(1) - 1); y++)
                     for (int x = Math.Max(bounds.X / chunksz, 0); x <= Math.Min(bounds.Right / chunksz, FGLayout.GetLength(0) - 1); x++)
                         if (FGLayout[x, y] < Chunks.Count)
                         {
                             if (highPlane)
-                                LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[FGLayout[x, y]][1], new Point(x * chunksz - bounds.X, y * chunksz - bounds.Y));
+                                LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[FGLayout[x, y]][1], x * chunksz - bounds.X, y * chunksz - bounds.Y);
                             if (collisionPath1)
-                                LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[FGLayout[x, y]][0], new Point(x * chunksz - bounds.X, y * chunksz - bounds.Y));
+                                LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[FGLayout[x, y]][0], x * chunksz - bounds.X, y * chunksz - bounds.Y);
                             else if (collisionPath2)
-                                LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[FGLayout[x, y]][1], new Point(x * chunksz - bounds.X, y * chunksz - bounds.Y));
+                                LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[FGLayout[x, y]][1], x * chunksz - bounds.X, y * chunksz - bounds.Y);
                         }
             return LevelImg8bpp;
         }
@@ -1350,19 +1351,19 @@ namespace SonicRetro.SonLVL.API
                 yend++;
                 bounds = new Rectangle(0, 0, xend * chunksz, yend * chunksz);
             }
-            BitmapBits LevelImg8bpp = new BitmapBits(bounds.Width, bounds.Height);
-            for (int y = Math.Max(bounds.Y / chunksz, 0); y <= Math.Min(bounds.Bottom / chunksz, BGLayout.GetLength(1) - 1); y++)
-                for (int x = Math.Max(bounds.X / chunksz, 0); x <= Math.Min(bounds.Right / chunksz, BGLayout.GetLength(0) - 1); x++)
+            BitmapBits LevelImg8bpp = new BitmapBits(bounds.Size);
+            for (int y = Math.Max(bounds.Y / chunksz, 0); y <= Math.Min((bounds.Bottom - 1) / chunksz, BGLayout.GetLength(1) - 1); y++)
+                for (int x = Math.Max(bounds.X / chunksz, 0); x <= Math.Min((bounds.Right - 1) / chunksz, BGLayout.GetLength(0) - 1); x++)
                     if (BGLayout[x, y] < Chunks.Count)
                     {
                         if (lowPlane)
-                            LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[BGLayout[x, y]][0], new Point(x * chunksz - bounds.X, y * chunksz - bounds.Y));
+                            LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[BGLayout[x, y]][0], x * chunksz - bounds.X, y * chunksz - bounds.Y);
                         if (highPlane)
-                            LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[BGLayout[x, y]][1], new Point(x * chunksz - bounds.X, y * chunksz - bounds.Y));
+                            LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[BGLayout[x, y]][1], x * chunksz - bounds.X, y * chunksz - bounds.Y);
                         if (collisionPath1)
-                            LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[BGLayout[x, y]][0], new Point(x * chunksz - bounds.X, y * chunksz - bounds.Y));
+                            LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[BGLayout[x, y]][0], x * chunksz - bounds.X, y * chunksz - bounds.Y);
                         else if (collisionPath2)
-                            LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[BGLayout[x, y]][1], new Point(x * chunksz - bounds.X, y * chunksz - bounds.Y));
+                            LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[BGLayout[x, y]][1], x * chunksz - bounds.X, y * chunksz - bounds.Y);
                     }
             return LevelImg8bpp;
         }
@@ -1577,6 +1578,21 @@ namespace SonicRetro.SonLVL.API
                             }
                             CodeTypeReferenceExpression objhelprefex = new CodeTypeReferenceExpression(typeof(ObjectHelper));
                             CodeThisReferenceExpression thisref = new CodeThisReferenceExpression();
+                            CodeDomProvider pr = null;
+                            switch (xdef.Language.ToLowerInvariant())
+                            {
+                                case "cs":
+                                    pr = new Microsoft.CSharp.CSharpCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v3.5" } });
+                                    break;
+                                case "vb":
+                                    pr = new Microsoft.VisualBasic.VBCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v3.5" } });
+                                    break;
+#if false
+                                case "js":
+                                    pr = new Microsoft.JScript.JScriptCodeProvider();
+                                    break;
+#endif
+                            }
                             List<CodeTypeMember> members = new List<CodeTypeMember>();
                             CodeMemberMethod method = new CodeMemberMethod();
                             method.Attributes = MemberAttributes.Override | MemberAttributes.Public;
@@ -1588,15 +1604,13 @@ namespace SonicRetro.SonLVL.API
                             method.Statements.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(thisref, "unkimg"), new CodePropertyReferenceExpression(objhelprefex, "UnknownObject")));
                             if (xdef.Images != null & xdef.Images.Items != null)
                             {
-                                foreach (object item in xdef.Images.Items)
+                                foreach (XMLDef.Image item in xdef.Images.Items)
                                 {
+                                    members.Add(new CodeMemberField(typeof(Sprite), pr.CreateEscapedIdentifier(item.id)) { Attributes = MemberAttributes.Private });
                                     if (item is XMLDef.ImageFromBitmap)
                                     {
                                         XMLDef.ImageFromBitmap img = (XMLDef.ImageFromBitmap)item;
-                                        members.Add(new CodeMemberField(typeof(Sprite), img.id) { Attributes = MemberAttributes.Private });
-                                        Point pnt = Point.Empty;
-                                        if (img.offset != null)
-                                            pnt = img.offset.ToPoint();
+                                        Point pnt = img.offset.ToPoint();
                                         method.Statements.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(thisref, img.id), new CodeObjectCreateExpression(typeof(Sprite),
                                             new CodeObjectCreateExpression(typeof(BitmapBits), new CodeObjectCreateExpression(typeof(Bitmap), new CodePrimitiveExpression(img.filename))),
                                             new CodeObjectCreateExpression(typeof(Point), new CodePrimitiveExpression(pnt.X), new CodePrimitiveExpression(pnt.Y)))));
@@ -1604,19 +1618,19 @@ namespace SonicRetro.SonLVL.API
                                     else if (item is XMLDef.ImageFromMappings)
                                     {
                                         XMLDef.ImageFromMappings img = (XMLDef.ImageFromMappings)item;
-                                        members.Add(new CodeMemberField(typeof(Sprite), img.id) { Attributes = MemberAttributes.Private });
                                         method.Statements.Add(new CodeAssignStatement(new CodeVariableReferenceExpression("artfiles"), new CodeObjectCreateExpression(typeof(MultiFileIndexer<byte>))));
                                         foreach (XMLDef.ArtFile artfile in img.ArtFiles)
                                         {
                                             method.Statements.Add(new CodeMethodInvokeExpression(new CodeVariableReferenceExpression("artfiles"),
                                                 "AddFile", new CodeObjectCreateExpression(typeof(List<byte>), new CodeMethodInvokeExpression(objhelprefex, "OpenArtFile",
                                                     new CodePrimitiveExpression(artfile.filename),
-                                                    new CodeFieldReferenceExpression(new CodeTypeReferenceExpression(typeof(Compression.CompressionType)), (artfile.compression == Compression.CompressionType.Invalid ? Compression.CompressionType.Nemesis : artfile.compression).ToString()))),
+                                                    new CodeFieldReferenceExpression(new CodeTypeReferenceExpression(typeof(CompressionType)), (artfile.compression == CompressionType.Invalid ? CompressionType.Nemesis : artfile.compression).ToString()))),
                                                     new CodePrimitiveExpression(artfile.offsetSpecified ? artfile.offset : -1)));
                                         }
-                                        if (img.mappings is XMLDef.MapFileBin)
+                                        XMLDef.MapFile map = img.MapFile;
+                                        switch (map.type)
                                         {
-                                            XMLDef.MapFileBin map = (XMLDef.MapFileBin)img.mappings;
+                                            case XMLDef.MapFileType.Binary:
                                             if (string.IsNullOrEmpty(map.dplcfile))
                                                 method.Statements.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(thisref, img.id), new CodeMethodInvokeExpression(objhelprefex, "MapToBmp",
                                                     new CodeMethodInvokeExpression(new CodeVariableReferenceExpression("artfiles"), "ToArray"),
@@ -1629,11 +1643,9 @@ namespace SonicRetro.SonLVL.API
                                                     new CodeMethodInvokeExpression(new CodeTypeReferenceExpression(typeof(File)), "ReadAllBytes", new CodePrimitiveExpression(map.dplcfile)),
                                                     new CodeFieldReferenceExpression(new CodeTypeReferenceExpression(typeof(EngineVersion)), map.dplcver.ToString()),
                                                     new CodePrimitiveExpression(map.frame), new CodePrimitiveExpression(map.startpal))));
-                                        }
-                                        else if (img.mappings is XMLDef.MapFileAsm)
-                                        {
-                                            XMLDef.MapFileAsm map = (XMLDef.MapFileAsm)img.mappings;
-                                            if (map.frameSpecified)
+                                            break;
+                                            case XMLDef.MapFileType.ASM:
+                                            if (string.IsNullOrEmpty(map.label))
                                             {
                                                 if (string.IsNullOrEmpty(map.dplcfile))
                                                     method.Statements.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(thisref, img.id), new CodeMethodInvokeExpression(objhelprefex, "MapASMToBmp",
@@ -1662,23 +1674,17 @@ namespace SonicRetro.SonLVL.API
                                                         new CodeFieldReferenceExpression(new CodeTypeReferenceExpression(typeof(EngineVersion)), map.dplcver.ToString()),
                                                         new CodePrimitiveExpression(map.startpal))));
                                             }
+                                            break;
                                         }
-                                        if (img.offset != null)
-                                        {
-                                            Point pnt = img.offset.ToPoint();
-                                            method.Statements.Add(new CodeAssignStatement(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, img.id), "Offset"), new CodeObjectCreateExpression(typeof(Point), new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, img.id), "X"), CodeBinaryOperatorType.Add, new CodePrimitiveExpression(pnt.X)), new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, img.id), "Y"), CodeBinaryOperatorType.Add, new CodePrimitiveExpression(pnt.Y)))));
-                                        }
+                                        if (!img.offset.IsEmpty)
+                                            method.Statements.Add(new CodeAssignStatement(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, img.id), "Offset"), new CodeObjectCreateExpression(typeof(Point), new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, img.id), "X"), CodeBinaryOperatorType.Add, new CodePrimitiveExpression(img.offset.X)), new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, img.id), "Y"), CodeBinaryOperatorType.Add, new CodePrimitiveExpression(img.offset.Y)))));
                                     }
                                     else if (item is XMLDef.ImageFromSprite)
                                     {
                                         XMLDef.ImageFromSprite img = (XMLDef.ImageFromSprite)item;
-                                        members.Add(new CodeMemberField(typeof(Sprite), img.id) { Attributes = MemberAttributes.Private });
                                         method.Statements.Add(new CodeAssignStatement(new CodeFieldReferenceExpression(thisref, img.id), new CodeMethodInvokeExpression(objhelprefex, "GetSprite", new CodePrimitiveExpression(img.frame))));
-                                        if (img.offset != null)
-                                        {
-                                            Point pnt = img.offset.ToPoint();
-                                            method.Statements.Add(new CodeAssignStatement(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, img.id), "Offset"), new CodeObjectCreateExpression(typeof(Point), new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, img.id), "X"), CodeBinaryOperatorType.Add, new CodePrimitiveExpression(pnt.X)), new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, img.id), "Y"), CodeBinaryOperatorType.Add, new CodePrimitiveExpression(pnt.Y)))));
-                                        }
+                                        if (!img.offset.IsEmpty)
+                                            method.Statements.Add(new CodeAssignStatement(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, img.id), "Offset"), new CodeObjectCreateExpression(typeof(Point), new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, img.id), "X"), CodeBinaryOperatorType.Add, new CodePrimitiveExpression(img.offset.X)), new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, img.id), "Y"), CodeBinaryOperatorType.Add, new CodePrimitiveExpression(img.offset.Y)))));
                                     }
                                 }
                             }
@@ -1713,7 +1719,7 @@ namespace SonicRetro.SonLVL.API
                             method.Attributes = MemberAttributes.Override | MemberAttributes.Public;
                             method.Name = "Image";
                             method.ReturnType = new CodeTypeReference(typeof(BitmapBits));
-                            method.Statements.Add(new CodeMethodReturnStatement(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, string.IsNullOrEmpty(xdef.Image) ? "unkimg" : xdef.Image), "Image")));
+                            method.Statements.Add(new CodeMethodReturnStatement(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, string.IsNullOrEmpty(xdef.Image) ? "unkimg" : pr.CreateEscapedIdentifier(xdef.Image)), "Image")));
                             members.Add(method);
                             method = new CodeMemberMethod();
                             method.Attributes = MemberAttributes.Override | MemberAttributes.Public;
@@ -1722,7 +1728,7 @@ namespace SonicRetro.SonLVL.API
                             method.ReturnType = new CodeTypeReference(typeof(BitmapBits));
                             if (xdef.Subtypes != null && xdef.Subtypes.Items != null)
                                 foreach (XMLDef.Subtype item in xdef.Subtypes.Items)
-                                    method.Statements.Add(new CodeConditionStatement(new CodeBinaryOperatorExpression(new CodeArgumentReferenceExpression("subtype"), CodeBinaryOperatorType.ValueEquality, new CodePrimitiveExpression(item.subtype)), new CodeMethodReturnStatement(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, string.IsNullOrEmpty(item.image) ? "unkimg" : item.image), "Image"))));
+                                    method.Statements.Add(new CodeConditionStatement(new CodeBinaryOperatorExpression(new CodeArgumentReferenceExpression("subtype"), CodeBinaryOperatorType.ValueEquality, new CodePrimitiveExpression(item.subtype)), new CodeMethodReturnStatement(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, string.IsNullOrEmpty(item.image) ? "unkimg" : pr.CreateEscapedIdentifier(item.image)), "Image"))));
                             method.Statements.Add(new CodeMethodReturnStatement(new CodeMethodInvokeExpression(thisref, "Image")));
                             members.Add(method);
                             method = new CodeMemberMethod();
@@ -1730,23 +1736,12 @@ namespace SonicRetro.SonLVL.API
                             method.Name = "GetSprite";
                             method.Parameters.AddRange(new CodeParameterDeclarationExpression[] { new CodeParameterDeclarationExpression(typeof(ObjectEntry), "obj") });
                             method.ReturnType = new CodeTypeReference(typeof(Sprite));
-                            if (xdef.Display != null && !string.IsNullOrEmpty(xdef.Display.SpriteRoutine))
-                                method.Statements.Add(new CodeSnippetStatement(xdef.Display.SpriteRoutine));
-                            else if (xdef.Display != null && xdef.Display.DisplayOptions != null && xdef.Display.DisplayOptions.Length > 0)
+                            if (xdef.Display != null && xdef.Display.DisplayOptions != null && xdef.Display.DisplayOptions.Length > 0)
                             {
                                 Dictionary<string, string> props = new Dictionary<string, string>();
                                 if (xdef.Properties != null && xdef.Properties.Items != null && xdef.Properties.Items.Length > 0)
-                                    foreach (object item in xdef.Properties.Items)
-                                        if (item is XMLDef.BitsProperty)
-                                        {
-                                            XMLDef.BitsProperty bp = (XMLDef.BitsProperty)item;
-                                            props.Add(bp.name, bp.type);
-                                        }
-                                        else
-                                        {
-                                            XMLDef.CustomProperty cp = (XMLDef.CustomProperty)item;
-                                            props.Add(cp.name, cp.type);
-                                        }
+                                    foreach (XMLDef.Property item in xdef.Properties.Items)
+                                        props.Add(item.name, item.type);
                                 if (props.Count > 0)
                                     method.Statements.Add(new CodeVariableDeclarationStatement(xdef.TypeName + basetype.Name, "obj2", new CodeCastExpression(xdef.TypeName + basetype.Name, new CodeArgumentReferenceExpression("obj"))));
                                 else
@@ -1767,7 +1762,7 @@ namespace SonicRetro.SonLVL.API
                                             if (props.ContainsKey(item.property))
                                             {
                                                 if (enums.Contains(props[item.property]))
-                                                    cond.Right = new CodeFieldReferenceExpression(new CodeTypeReferenceExpression(props[item.property]), item.value);
+                                                    cond.Right = new CodeFieldReferenceExpression(new CodeTypeReferenceExpression(pr.CreateEscapedIdentifier(props[item.property])), pr.CreateEscapedIdentifier(item.value));
                                                 else
                                                     switch (props[item.property])
                                                     {
@@ -1786,13 +1781,20 @@ namespace SonicRetro.SonLVL.API
                                                     }
                                             }
                                             else
-                                            {
-                                                Type t = basetype.GetProperty(item.property).PropertyType;
-                                                if (t == typeof(bool))
-                                                    cond.Right = new CodePrimitiveExpression(bool.Parse(item.value));
-                                                if (t == typeof(byte) || t == typeof(ushort))
-                                                    cond.Right = new CodePrimitiveExpression(int.Parse(item.value));
-                                            }
+                                                switch (Type.GetTypeCode(basetype.GetProperty(item.property).PropertyType))
+                                                {
+                                                    case TypeCode.Boolean:
+                                                        cond.Right = new CodePrimitiveExpression(bool.Parse(item.value));
+                                                        break;
+                                                    case TypeCode.Byte:
+                                                    case TypeCode.Int16:
+                                                    case TypeCode.Int32:
+                                                    case TypeCode.SByte:
+                                                    case TypeCode.UInt16:
+                                                    case TypeCode.UInt32:
+                                                        cond.Right = new CodePrimitiveExpression(long.Parse(item.value));
+                                                        break;
+                                                }
                                             if (condlist == null)
                                                 condlist = cond;
                                             else
@@ -1809,24 +1811,56 @@ namespace SonicRetro.SonLVL.API
                                     if (opt.Images != null)
                                         foreach (XMLDef.ImageRef img in opt.Images)
                                         {
-                                            int xoff = img.Offset != null ? img.Offset.X : 0;
-                                            int yoff = img.Offset != null ? img.Offset.Y : 0;
-                                            ifstatement.TrueStatements.Add(new CodeAssignStatement(new CodeVariableReferenceExpression("xoff"), new CodePrimitiveExpression(img.xflip ? -xoff : xoff)));
-                                            if (!img.xflipSpecified)
+                                            int xoff = img.Offset.X;
+                                            if (img.xflip == XMLDef.FlipType.ReverseFlip | img.xflip == XMLDef.FlipType.AlwaysFlip)
+                                                xoff = -xoff;
+                                            int yoff = img.Offset.Y;
+                                            if (img.yflip == XMLDef.FlipType.ReverseFlip | img.yflip == XMLDef.FlipType.AlwaysFlip)
+                                                yoff = -yoff;
+                                            ifstatement.TrueStatements.Add(new CodeAssignStatement(new CodeVariableReferenceExpression("xoff"), new CodePrimitiveExpression(xoff)));
+                                            if (img.xflip == XMLDef.FlipType.NormalFlip | img.xflip == XMLDef.FlipType.ReverseFlip)
                                                 ifstatement.TrueStatements.Add(new CodeConditionStatement(new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "XFlip"), new CodeAssignStatement(new CodeVariableReferenceExpression("xoff"), new CodeBinaryOperatorExpression(new CodePrimitiveExpression(0), CodeBinaryOperatorType.Subtract, new CodeVariableReferenceExpression("xoff")))));
-                                            ifstatement.TrueStatements.Add(new CodeAssignStatement(new CodeVariableReferenceExpression("yoff"), new CodePrimitiveExpression(img.yflip ? -yoff : yoff)));
-                                            if (!img.yflipSpecified)
+                                            ifstatement.TrueStatements.Add(new CodeAssignStatement(new CodeVariableReferenceExpression("yoff"), new CodePrimitiveExpression(yoff)));
+                                            if (img.yflip == XMLDef.FlipType.NormalFlip | img.yflip == XMLDef.FlipType.ReverseFlip)
                                                 ifstatement.TrueStatements.Add(new CodeConditionStatement(new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "YFlip"), new CodeAssignStatement(new CodeVariableReferenceExpression("yoff"), new CodeBinaryOperatorExpression(new CodePrimitiveExpression(0), CodeBinaryOperatorType.Subtract, new CodeVariableReferenceExpression("yoff")))));
-                                            ifstatement.TrueStatements.Add(new CodeAssignStatement(new CodeVariableReferenceExpression("bits"), new CodeObjectCreateExpression(typeof(BitmapBits), new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, img.image), "Image"))));
-                                            ifstatement.TrueStatements.Add(new CodeMethodInvokeExpression(new CodeVariableReferenceExpression("bits"), "Flip", new CodePrimitiveExpression(img.xflip), new CodePrimitiveExpression(img.yflip)));
-                                            if (!img.xflipSpecified)
-                                                if (!img.yflipSpecified)
-                                                    ifstatement.TrueStatements.Add(new CodeMethodInvokeExpression(new CodeVariableReferenceExpression("bits"), "Flip", new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "XFlip"), new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "YFlip")));
-                                                else
-                                                    ifstatement.TrueStatements.Add(new CodeMethodInvokeExpression(new CodeVariableReferenceExpression("bits"), "Flip", new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "XFlip"), new CodePrimitiveExpression(false)));
-                                            else if (!img.yflipSpecified)
-                                                ifstatement.TrueStatements.Add(new CodeMethodInvokeExpression(new CodeVariableReferenceExpression("bits"), "Flip", new CodePrimitiveExpression(false), new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "YFlip")));
-                                            ifstatement.TrueStatements.Add(new CodeMethodInvokeExpression(new CodeVariableReferenceExpression("sprs"), "Add", new CodeObjectCreateExpression(typeof(Sprite), new CodeVariableReferenceExpression("bits"), new CodeObjectCreateExpression(typeof(Point), new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, img.image), "X"), CodeBinaryOperatorType.Add, new CodeVariableReferenceExpression("xoff")), new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, img.image), "Y"), CodeBinaryOperatorType.Add, new CodeVariableReferenceExpression("yoff"))))));
+                                            ifstatement.TrueStatements.Add(new CodeAssignStatement(new CodeVariableReferenceExpression("bits"), new CodeObjectCreateExpression(typeof(BitmapBits), new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, pr.CreateEscapedIdentifier(img.image)), "Image"))));
+                                            if (img.xflip != XMLDef.FlipType.NeverFlip | img.yflip != XMLDef.FlipType.NeverFlip)
+                                            {
+                                                CodeExpression xflipex = null;
+                                                switch (img.xflip)
+                                                {
+                                                    case SonicRetro.SonLVL.API.XMLDef.FlipType.NormalFlip:
+                                                        xflipex = new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "XFlip");
+                                                        break;
+                                                    case SonicRetro.SonLVL.API.XMLDef.FlipType.ReverseFlip:
+                                                        xflipex = new CodeMethodInvokeExpression(objhelprefex, "Not", new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "XFlip"));
+                                                        break;
+                                                    case SonicRetro.SonLVL.API.XMLDef.FlipType.NeverFlip:
+                                                        xflipex = new CodePrimitiveExpression(false);
+                                                        break;
+                                                    case SonicRetro.SonLVL.API.XMLDef.FlipType.AlwaysFlip:
+                                                        xflipex = new CodePrimitiveExpression(true);
+                                                        break;
+                                                }
+                                                CodeExpression yflipex = null;
+                                                switch (img.yflip)
+                                                {
+                                                    case SonicRetro.SonLVL.API.XMLDef.FlipType.NormalFlip:
+                                                        yflipex = new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "YFlip");
+                                                        break;
+                                                    case SonicRetro.SonLVL.API.XMLDef.FlipType.ReverseFlip:
+                                                        yflipex = new CodeMethodInvokeExpression(objhelprefex, "Not", new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "YFlip"));
+                                                        break;
+                                                    case SonicRetro.SonLVL.API.XMLDef.FlipType.NeverFlip:
+                                                        yflipex = new CodePrimitiveExpression(false);
+                                                        break;
+                                                    case SonicRetro.SonLVL.API.XMLDef.FlipType.AlwaysFlip:
+                                                        yflipex = new CodePrimitiveExpression(true);
+                                                        break;
+                                                }
+                                                ifstatement.TrueStatements.Add(new CodeMethodInvokeExpression(new CodeVariableReferenceExpression("bits"), "Flip", xflipex, yflipex));
+                                            }
+                                            ifstatement.TrueStatements.Add(new CodeMethodInvokeExpression(new CodeVariableReferenceExpression("sprs"), "Add", new CodeObjectCreateExpression(typeof(Sprite), new CodeVariableReferenceExpression("bits"), new CodeObjectCreateExpression(typeof(Point), new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, pr.CreateEscapedIdentifier(img.image)), "X"), CodeBinaryOperatorType.Add, new CodeVariableReferenceExpression("xoff")), new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, pr.CreateEscapedIdentifier(img.image)), "Y"), CodeBinaryOperatorType.Add, new CodeVariableReferenceExpression("yoff"))))));
                                         }
                                     ifstatement.TrueStatements.Add(new CodeVariableDeclarationStatement(typeof(Sprite), "spr", new CodeObjectCreateExpression(typeof(Sprite), new CodeMethodInvokeExpression(new CodeVariableReferenceExpression("sprs"), "ToArray"))));
                                     ifstatement.TrueStatements.Add(new CodeAssignStatement(new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("spr"), "Offset"), new CodeObjectCreateExpression(typeof(Point), new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "X"), CodeBinaryOperatorType.Add, new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("spr"), "X")), new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "Y"), CodeBinaryOperatorType.Add, new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("spr"), "Y")))));
@@ -1847,9 +1881,9 @@ namespace SonicRetro.SonLVL.API
                                     foreach (XMLDef.Subtype item in xdef.Subtypes.Items)
                                     {
                                         CodeConditionStatement ifstatement = new CodeConditionStatement(new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "SubType"), CodeBinaryOperatorType.ValueEquality, new CodePrimitiveExpression(item.subtype)));
-                                        ifstatement.TrueStatements.Add(new CodeVariableDeclarationStatement(typeof(BitmapBits), "bits", new CodeObjectCreateExpression(typeof(BitmapBits), new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, item.image), "Image"))));
+                                        ifstatement.TrueStatements.Add(new CodeVariableDeclarationStatement(typeof(BitmapBits), "bits", new CodeObjectCreateExpression(typeof(BitmapBits), new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, pr.CreateEscapedIdentifier(item.image)), "Image"))));
                                         ifstatement.TrueStatements.Add(new CodeExpressionStatement(new CodeMethodInvokeExpression(new CodeVariableReferenceExpression("bits"), "Flip", new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "XFlip"), new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "YFlip"))));
-                                        ifstatement.TrueStatements.Add(new CodeVariableDeclarationStatement(typeof(Sprite), "spr", new CodeObjectCreateExpression(typeof(Sprite), new CodeVariableReferenceExpression("bits"), new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, item.image), "Offset"))));
+                                        ifstatement.TrueStatements.Add(new CodeVariableDeclarationStatement(typeof(Sprite), "spr", new CodeObjectCreateExpression(typeof(Sprite), new CodeVariableReferenceExpression("bits"), new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, pr.CreateEscapedIdentifier(item.image)), "Offset"))));
                                         ifstatement.TrueStatements.Add(new CodeAssignStatement(new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("spr"), "Offset"), new CodeObjectCreateExpression(typeof(Point), new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "X"), CodeBinaryOperatorType.Add, new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("spr"), "X")), new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "Y"), CodeBinaryOperatorType.Add, new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("spr"), "Y")))));
                                         ifstatement.TrueStatements.Add(new CodeMethodReturnStatement(new CodeVariableReferenceExpression("spr")));
                                         method.Statements.Add(ifstatement);
@@ -1867,23 +1901,12 @@ namespace SonicRetro.SonLVL.API
                             method.Name = "Bounds";
                             method.Parameters.AddRange(new CodeParameterDeclarationExpression[] { new CodeParameterDeclarationExpression(typeof(ObjectEntry), "obj"), new CodeParameterDeclarationExpression(typeof(Point), "camera") });
                             method.ReturnType = new CodeTypeReference(typeof(Rectangle));
-                            if (xdef.Display != null && !string.IsNullOrEmpty(xdef.Display.BoundsRoutine))
-                                method.Statements.Add(new CodeSnippetStatement(xdef.Display.BoundsRoutine));
-                            else if (xdef.Display != null && xdef.Display.DisplayOptions != null && xdef.Display.DisplayOptions.Length > 0)
+                            if (xdef.Display != null && xdef.Display.DisplayOptions != null && xdef.Display.DisplayOptions.Length > 0)
                             {
                                 Dictionary<string, string> props = new Dictionary<string, string>();
                                 if (xdef.Properties != null && xdef.Properties.Items != null && xdef.Properties.Items.Length > 0)
-                                    foreach (object item in xdef.Properties.Items)
-                                        if (item is XMLDef.BitsProperty)
-                                        {
-                                            XMLDef.BitsProperty bp = (XMLDef.BitsProperty)item;
-                                            props.Add(bp.name, bp.type);
-                                        }
-                                        else
-                                        {
-                                            XMLDef.CustomProperty cp = (XMLDef.CustomProperty)item;
-                                            props.Add(cp.name, cp.type);
-                                        }
+                                    foreach (XMLDef.Property item in xdef.Properties.Items)
+                                        props.Add(item.name, item.type);
                                 if (props.Count > 0)
                                     method.Statements.Add(new CodeVariableDeclarationStatement(xdef.TypeName + basetype.Name, "obj2", new CodeCastExpression(xdef.TypeName + basetype.Name, new CodeArgumentReferenceExpression("obj"))));
                                 else
@@ -1904,7 +1927,7 @@ namespace SonicRetro.SonLVL.API
                                             if (props.ContainsKey(item.property))
                                             {
                                                 if (enums.Contains(props[item.property]))
-                                                    cond.Right = new CodeFieldReferenceExpression(new CodeTypeReferenceExpression(props[item.property]), item.value);
+                                                    cond.Right = new CodeFieldReferenceExpression(new CodeTypeReferenceExpression(pr.CreateEscapedIdentifier(props[item.property])), pr.CreateEscapedIdentifier(item.value));
                                                 else
                                                     switch (props[item.property])
                                                     {
@@ -1923,13 +1946,20 @@ namespace SonicRetro.SonLVL.API
                                                     }
                                             }
                                             else
-                                            {
-                                                Type t = basetype.GetProperty(item.property).PropertyType;
-                                                if (t == typeof(bool))
-                                                    cond.Right = new CodePrimitiveExpression(bool.Parse(item.value));
-                                                if (t == typeof(byte) || t == typeof(ushort))
-                                                    cond.Right = new CodePrimitiveExpression(int.Parse(item.value));
-                                            }
+                                                switch (Type.GetTypeCode(basetype.GetProperty(item.property).PropertyType))
+                                                {
+                                                    case TypeCode.Boolean:
+                                                        cond.Right = new CodePrimitiveExpression(bool.Parse(item.value));
+                                                        break;
+                                                    case TypeCode.Byte:
+                                                    case TypeCode.Int16:
+                                                    case TypeCode.Int32:
+                                                    case TypeCode.SByte:
+                                                    case TypeCode.UInt16:
+                                                    case TypeCode.UInt32:
+                                                        cond.Right = new CodePrimitiveExpression(long.Parse(item.value));
+                                                        break;
+                                                }
                                             if (condlist == null)
                                                 condlist = cond;
                                             else
@@ -1944,31 +1974,35 @@ namespace SonicRetro.SonLVL.API
                                     bool first = true;
                                     foreach (XMLDef.ImageRef img in opt.Images)
                                     {
-                                        int xoff = img.Offset != null ? img.Offset.X : 0;
-                                        int yoff = img.Offset != null ? img.Offset.Y : 0;
-                                        ifstatement.TrueStatements.Add(new CodeAssignStatement(new CodeVariableReferenceExpression("xoff"), new CodePrimitiveExpression(img.xflip ? -xoff : xoff)));
-                                        if (!img.xflipSpecified)
+                                        int xoff = img.Offset.X;
+                                        if (img.xflip == XMLDef.FlipType.ReverseFlip | img.xflip == XMLDef.FlipType.AlwaysFlip)
+                                            xoff = -xoff;
+                                        int yoff = img.Offset.Y;
+                                        if (img.yflip == XMLDef.FlipType.ReverseFlip | img.yflip == XMLDef.FlipType.AlwaysFlip)
+                                            yoff = -yoff;
+                                        ifstatement.TrueStatements.Add(new CodeAssignStatement(new CodeVariableReferenceExpression("xoff"), new CodePrimitiveExpression(xoff)));
+                                        if (img.xflip == XMLDef.FlipType.NormalFlip | img.xflip == XMLDef.FlipType.ReverseFlip)
                                             ifstatement.TrueStatements.Add(new CodeConditionStatement(new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "XFlip"), new CodeAssignStatement(new CodeVariableReferenceExpression("xoff"), new CodeBinaryOperatorExpression(new CodePrimitiveExpression(0), CodeBinaryOperatorType.Subtract, new CodeVariableReferenceExpression("xoff")))));
                                         ifstatement.TrueStatements.Add(new CodeAssignStatement(new CodeVariableReferenceExpression("xoff"), new CodeBinaryOperatorExpression(new CodeVariableReferenceExpression("xoff"), CodeBinaryOperatorType.Subtract, new CodePropertyReferenceExpression(new CodeArgumentReferenceExpression("camera"), "X"))));
-                                        ifstatement.TrueStatements.Add(new CodeAssignStatement(new CodeVariableReferenceExpression("yoff"), new CodePrimitiveExpression(img.yflip ? -yoff : yoff)));
-                                        if (!img.yflipSpecified)
+                                        ifstatement.TrueStatements.Add(new CodeAssignStatement(new CodeVariableReferenceExpression("yoff"), new CodePrimitiveExpression(yoff)));
+                                        if (img.yflip == XMLDef.FlipType.NormalFlip | img.yflip == XMLDef.FlipType.ReverseFlip)
                                             ifstatement.TrueStatements.Add(new CodeConditionStatement(new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "YFlip"), new CodeAssignStatement(new CodeVariableReferenceExpression("yoff"), new CodeBinaryOperatorExpression(new CodePrimitiveExpression(0), CodeBinaryOperatorType.Subtract, new CodeVariableReferenceExpression("yoff")))));
                                         ifstatement.TrueStatements.Add(new CodeAssignStatement(new CodeVariableReferenceExpression("yoff"), new CodeBinaryOperatorExpression(new CodeVariableReferenceExpression("yoff"), CodeBinaryOperatorType.Subtract, new CodePropertyReferenceExpression(new CodeArgumentReferenceExpression("camera"), "Y"))));
                                         if (first)
                                         {
                                             ifstatement.TrueStatements.Add(new CodeAssignStatement(new CodeVariableReferenceExpression("rect"), new CodeObjectCreateExpression(typeof(Rectangle),
-                                            new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "X"), CodeBinaryOperatorType.Add, new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, img.image), "Offset"), "X"), CodeBinaryOperatorType.Add, new CodeVariableReferenceExpression("xoff"))),
-                                            new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "Y"), CodeBinaryOperatorType.Add, new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, img.image), "Offset"), "Y"), CodeBinaryOperatorType.Add, new CodeVariableReferenceExpression("yoff"))),
-                                            new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, img.image), "Image"), "Width"),
-                                            new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, img.image), "Image"), "Height"))));
+                                            new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "X"), CodeBinaryOperatorType.Add, new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, pr.CreateEscapedIdentifier(img.image)), "Offset"), "X"), CodeBinaryOperatorType.Add, new CodeVariableReferenceExpression("xoff"))),
+                                            new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "Y"), CodeBinaryOperatorType.Add, new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, pr.CreateEscapedIdentifier(img.image)), "Offset"), "Y"), CodeBinaryOperatorType.Add, new CodeVariableReferenceExpression("yoff"))),
+                                            new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, pr.CreateEscapedIdentifier(img.image)), "Image"), "Width"),
+                                            new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, pr.CreateEscapedIdentifier(img.image)), "Image"), "Height"))));
                                             first = false;
                                         }
                                         else
                                             ifstatement.TrueStatements.Add(new CodeAssignStatement(new CodeVariableReferenceExpression("rect"), new CodeMethodInvokeExpression(new CodeTypeReferenceExpression(typeof(Rectangle)), "Union", new CodeVariableReferenceExpression("rect"), new CodeObjectCreateExpression(typeof(Rectangle),
-                                                new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "X"), CodeBinaryOperatorType.Add, new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, img.image), "Offset"), "X"), CodeBinaryOperatorType.Add, new CodeVariableReferenceExpression("xoff"))),
-                                            new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "Y"), CodeBinaryOperatorType.Add, new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, img.image), "Offset"), "Y"), CodeBinaryOperatorType.Add, new CodeVariableReferenceExpression("yoff"))),
-                                                new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, img.image), "Image"), "Width"),
-                                                new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, img.image), "Image"), "Height")))));
+                                                new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "X"), CodeBinaryOperatorType.Add, new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, pr.CreateEscapedIdentifier(img.image)), "Offset"), "X"), CodeBinaryOperatorType.Add, new CodeVariableReferenceExpression("xoff"))),
+                                            new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "Y"), CodeBinaryOperatorType.Add, new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, pr.CreateEscapedIdentifier(img.image)), "Offset"), "Y"), CodeBinaryOperatorType.Add, new CodeVariableReferenceExpression("yoff"))),
+                                                new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, pr.CreateEscapedIdentifier(img.image)), "Image"), "Width"),
+                                                new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, pr.CreateEscapedIdentifier(img.image)), "Image"), "Height")))));
                                     }
                                     ifstatement.TrueStatements.Add(new CodeMethodReturnStatement(new CodeVariableReferenceExpression("rect")));
                                     method.Statements.Add(ifstatement);
@@ -1980,7 +2014,7 @@ namespace SonicRetro.SonLVL.API
                                 method.Statements.Add(new CodeVariableDeclarationStatement(basetype, "obj2", new CodeCastExpression(basetype, new CodeArgumentReferenceExpression("obj"))));
                                 if (xdef.Subtypes != null && xdef.Subtypes.Items != null)
                                     foreach (XMLDef.Subtype item in xdef.Subtypes.Items)
-                                        method.Statements.Add(new CodeConditionStatement(new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "SubType"), CodeBinaryOperatorType.ValueEquality, new CodePrimitiveExpression(item.subtype)), new CodeMethodReturnStatement(new CodeObjectCreateExpression(typeof(Rectangle), new CodeBinaryOperatorExpression(new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "X"), CodeBinaryOperatorType.Add, new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, item.image), "Offset"), "X")), CodeBinaryOperatorType.Subtract, new CodePropertyReferenceExpression(new CodeArgumentReferenceExpression("camera"), "X")), new CodeBinaryOperatorExpression(new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "Y"), CodeBinaryOperatorType.Add, new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, item.image), "Offset"), "Y")), CodeBinaryOperatorType.Subtract, new CodePropertyReferenceExpression(new CodeArgumentReferenceExpression("camera"), "Y")), new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, item.image), "Image"), "Width"), new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, item.image), "Image"), "Height")))));
+                                        method.Statements.Add(new CodeConditionStatement(new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "SubType"), CodeBinaryOperatorType.ValueEquality, new CodePrimitiveExpression(item.subtype)), new CodeMethodReturnStatement(new CodeObjectCreateExpression(typeof(Rectangle), new CodeBinaryOperatorExpression(new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "X"), CodeBinaryOperatorType.Add, new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, item.image), "Offset"), "X")), CodeBinaryOperatorType.Subtract, new CodePropertyReferenceExpression(new CodeArgumentReferenceExpression("camera"), "X")), new CodeBinaryOperatorExpression(new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "Y"), CodeBinaryOperatorType.Add, new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, item.image), "Offset"), "Y")), CodeBinaryOperatorType.Subtract, new CodePropertyReferenceExpression(new CodeArgumentReferenceExpression("camera"), "Y")), new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, item.image), "Image"), "Width"), new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, pr.CreateEscapedIdentifier(item.image)), "Image"), "Height")))));
                                 method.Statements.Add(new CodeMethodReturnStatement(new CodeObjectCreateExpression(typeof(Rectangle), new CodeBinaryOperatorExpression(new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "X"), CodeBinaryOperatorType.Add, new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, "unkimg"), "Offset"), "X")), CodeBinaryOperatorType.Subtract, new CodePropertyReferenceExpression(new CodeArgumentReferenceExpression("camera"), "X")), new CodeBinaryOperatorExpression(new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(new CodeVariableReferenceExpression("obj2"), "Y"), CodeBinaryOperatorType.Add, new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, "unkimg"), "Offset"), "Y")), CodeBinaryOperatorType.Subtract, new CodePropertyReferenceExpression(new CodeArgumentReferenceExpression("camera"), "Y")), new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, "unkimg"), "Image"), "Width"), new CodePropertyReferenceExpression(new CodePropertyReferenceExpression(new CodeFieldReferenceExpression(thisref, "unkimg"), "Image"), "Height"))));
                             }
                             members.Add(method);
@@ -2014,7 +2048,6 @@ namespace SonicRetro.SonLVL.API
                             ctd.IsClass = true;
                             ctd.Members.AddRange(members.ToArray());
                             CodeNamespace cn = new CodeNamespace(xdef.Namespace);
-                            cn.Imports.Add(new CodeNamespaceImport("System.Drawing"));
                             cn.Types.Add(ctd);
                             if (xdef.Properties != null && xdef.Properties.Items != null && xdef.Properties.Items.Length > 0)
                             {
@@ -2030,20 +2063,23 @@ namespace SonicRetro.SonLVL.API
                                 ctor.Parameters.Add(new CodeParameterDeclarationExpression(typeof(byte[]), "file"));
                                 ctor.Parameters.Add(new CodeParameterDeclarationExpression(typeof(int), "address"));
                                 members.Add(ctor);
-                                foreach (object item in xdef.Properties.Items)
+                                foreach (XMLDef.Property item in xdef.Properties.Items)
                                 {
+                                    prop = new CodeMemberProperty();
+                                    prop.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CategoryAttribute)), new CodeAttributeArgument(new CodePrimitiveExpression("Extended"))));
+                                    if (!string.IsNullOrEmpty(item.description))
+                                        prop.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(DescriptionAttribute)), new CodeAttributeArgument(new CodePrimitiveExpression(item.description))));
+                                    prop.Attributes = MemberAttributes.Public;
+                                    prop.Name = item.name;
+                                    prop.HasGet = true;
+                                    prop.HasSet = true;
+                                    prop.Type = new CodeTypeReference(ExpandTypeName(item.type));
                                     if (item is XMLDef.BitsProperty)
                                     {
                                         XMLDef.BitsProperty bp = (XMLDef.BitsProperty)item;
                                         int mask = 0;
                                         for (int i = 0; i < bp.length; i++)
                                             mask += (int)Math.Pow(2, bp.startbit + i);
-                                        prop = new CodeMemberProperty();
-                                        prop.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CategoryAttribute)), new CodeAttributeArgument(new CodePrimitiveExpression("Extended"))));
-                                        if (!string.IsNullOrEmpty(bp.description))
-                                            prop.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(DescriptionAttribute)), new CodeAttributeArgument(new CodePrimitiveExpression(bp.description))));
-                                        prop.Attributes = MemberAttributes.Public;
-                                        prop.Name = bp.name;
                                         if (ExpandTypeName(bp.type) != typeof(bool).FullName)
                                         {
                                             prop.GetStatements.Add(new CodeMethodReturnStatement(new CodeCastExpression(bp.type, new CodeMethodInvokeExpression(objhelprefex, "ShiftRight", new CodeBinaryOperatorExpression(new CodePropertyReferenceExpression(thisref, "SubType"), CodeBinaryOperatorType.BitwiseAnd, new CodePrimitiveExpression(mask)), new CodePrimitiveExpression(bp.startbit)))));
@@ -2056,28 +2092,15 @@ namespace SonicRetro.SonLVL.API
                                                 new CodeStatement[] { new CodeAssignStatement(new CodePropertyReferenceExpression(thisref, "SubType"), new CodeMethodInvokeExpression(objhelprefex, "SetSubtypeMask", new CodePropertyReferenceExpression(thisref, "SubType"), new CodeCastExpression(typeof(byte), new CodePrimitiveExpression(mask)), new CodePrimitiveExpression(mask))) },
                                                 new CodeStatement[] { new CodeAssignStatement(new CodePropertyReferenceExpression(thisref, "SubType"), new CodeMethodInvokeExpression(objhelprefex, "SetSubtypeMask", new CodePropertyReferenceExpression(thisref, "SubType"), new CodeCastExpression(typeof(byte), new CodePrimitiveExpression(0)), new CodePrimitiveExpression(mask))) }));
                                         }
-                                        prop.HasGet = true;
-                                        prop.HasSet = true;
-                                        prop.Type = new CodeTypeReference(ExpandTypeName(bp.type));
-                                        members.Add(prop);
                                     }
                                     else
                                     {
                                         XMLDef.CustomProperty cp = (XMLDef.CustomProperty)item;
-                                        prop = new CodeMemberProperty();
-                                        prop.Attributes = MemberAttributes.Public;
                                         if (cp.@override) prop.Attributes |= MemberAttributes.Override;
-                                        prop.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(CategoryAttribute)), new CodeAttributeArgument(new CodePrimitiveExpression("Extended"))));
-                                        if (!string.IsNullOrEmpty(cp.description))
-                                            prop.CustomAttributes.Add(new CodeAttributeDeclaration(new CodeTypeReference(typeof(DescriptionAttribute)), new CodeAttributeArgument(new CodePrimitiveExpression(cp.description))));
-                                        prop.Name = cp.name;
                                         prop.GetStatements.Add(new CodeSnippetStatement(cp.get));
-                                        prop.HasGet = true;
-                                        prop.HasSet = true;
                                         prop.SetStatements.Add(new CodeSnippetStatement(cp.set));
-                                        prop.Type = new CodeTypeReference(ExpandTypeName(cp.type));
-                                        members.Add(prop);
                                     }
+                                    members.Add(prop);
                                 }
                                 ctd = new CodeTypeDeclaration(xdef.TypeName + basetype.Name);
                                 ctd.Attributes = MemberAttributes.Public;
@@ -2090,13 +2113,13 @@ namespace SonicRetro.SonLVL.API
                             {
                                 foreach (XMLDef.Enum item in xdef.Enums.Items)
                                 {
-                                    ctd = new CodeTypeDeclaration(item.name);
+                                    ctd = new CodeTypeDeclaration(pr.CreateEscapedIdentifier(item.name));
                                     ctd.Attributes = MemberAttributes.Public;
                                     ctd.BaseTypes.Add(typeof(int));
                                     ctd.IsEnum = true;
                                     foreach (XMLDef.EnumMember mem in item.Items)
                                     {
-                                        CodeMemberField mf = new CodeMemberField(typeof(int), mem.name);
+                                        CodeMemberField mf = new CodeMemberField(typeof(int), pr.CreateEscapedIdentifier(mem.name));
                                         if (mem.valueSpecified)
                                             mf.InitExpression = new CodePrimitiveExpression(mem.value);
                                         ctd.Members.Add(mf);
@@ -2108,21 +2131,6 @@ namespace SonicRetro.SonLVL.API
                             ccu.Namespaces.Add(cn);
                             ccu.ReferencedAssemblies.AddRange(new string[] { "System.dll", "System.Core.dll", "System.Drawing.dll", System.Reflection.Assembly.GetExecutingAssembly().Location });
                             Log("Compiling code file...");
-                            CodeDomProvider pr = null;
-                            switch (xdef.Language.ToLowerInvariant())
-                            {
-                                case "cs":
-                                    pr = new Microsoft.CSharp.CSharpCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v3.5" } });
-                                    break;
-                                case "vb":
-                                    pr = new Microsoft.VisualBasic.VBCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v3.5" } });
-                                    break;
-#if false
-                                case "js":
-                                    pr = new Microsoft.JScript.JScriptCodeProvider();
-                                    break;
-#endif
-                            }
                             if (pr != null)
                             {
 #if DEBUG
@@ -2201,7 +2209,7 @@ namespace SonicRetro.SonLVL.API
             }
         }
 
-        public static byte[] ReadFile(string file, Compression.CompressionType cmp)
+        public static byte[] ReadFile(string file, CompressionType cmp)
         {
             if (file == "LevelArt")
                 return TileArray;
@@ -2233,9 +2241,10 @@ namespace SonicRetro.SonLVL.API
 
         public static BitmapBits TileToBmp8bpp(byte[] file, int index, int pal)
         {
-            BitmapBits bmp = new BitmapBits(8, 8);
+            BitmapBits bmp;
             if (file != null && index * 32 + 32 <= file.Length)
             {
+                bmp = new BitmapBits(8, 8);
                 for (int i = 0; i < 32; i++)
                 {
                     bmp.Bits[i * 2] = (byte)((file[i + (index * 32)] >> 4) + (pal * 16));
@@ -2243,6 +2252,11 @@ namespace SonicRetro.SonLVL.API
                     if (bmp.Bits[i * 2] % 16 == 0) bmp.Bits[i * 2] = 0;
                     if (bmp.Bits[(i * 2) + 1] % 16 == 0) bmp.Bits[(i * 2) + 1] = 0;
                 }
+            }
+            else
+            {
+                bmp = new BitmapBits(InvalidTile);
+                bmp.IncrementIndexes(pal * 16);
             }
             return bmp;
         }
@@ -2257,18 +2271,19 @@ namespace SonicRetro.SonLVL.API
                 if (val > -1)
                 {
                     addresses.Add(val);
-                    endlist = Math.Min(endlist, val);
+                    if (val > 0)
+                        endlist = Math.Min(endlist, val);
                 }
             }
             return addresses.ToArray();
         }
 
-        public static byte[] ASMToBin(string file)
+        public static byte[] ASMToBin(string file, EngineVersion version)
         {
-            return ASMToBin(file, 0);
+            return ASMToBin(file, 0, version);
         }
 
-        public static byte[] ASMToBin(string file, string label)
+        public static byte[] ASMToBin(string file, string label, EngineVersion version)
         {
             string[] fc = System.IO.File.ReadAllLines(file);
             int sti = -1;
@@ -2281,12 +2296,12 @@ namespace SonicRetro.SonLVL.API
                 }
             }
             if (sti == -1) return new byte[0];
-            return ASMToBin(file, sti);
+            return ASMToBin(file, sti, version);
         }
 
-        public static byte[] ASMToBin(string file, int sti)
+        public static byte[] ASMToBin(string file, int sti, EngineVersion version)
         {
-            Dictionary<string, int> labels = GetASMLabels(file, sti);
+            Dictionary<string, int> labels = GetASMLabels(file, sti, version);
             string[] fc = System.IO.File.ReadAllLines(file);
             List<byte> result = new List<byte>();
             string lastlabel = string.Empty;
@@ -2303,15 +2318,11 @@ namespace SonicRetro.SonLVL.API
                     {
                         string[] ln2 = new string[ln.Length - 1];
                         for (int i = 0; i < ln2.Length; i++)
-                        {
                             ln2[i] = ln[i + 1];
-                        }
                         ln = ln2;
                     }
                     else
-                    {
                         ln[0] = l[1];
-                    }
                     if (ln.Length == 0) continue;
                 }
                 if (ln[0].Equals("even"))
@@ -2325,28 +2336,26 @@ namespace SonicRetro.SonLVL.API
                     if (result.Count % alignment != 0)
                         result.AddRange(new byte[alignment - (result.Count % alignment)]);
                 }
-                else if (ln[0].Equals("offsetTable"))
+                else if (ln[0].Equals("offsetTable") | ln[0].Equals("mappingsTable"))
                     offsetLabel = lastlabel;
-                else if (ln[0].StartsWith("offsetTableEntry."))
+                else if (ln[0].StartsWith("offsetTableEntry.") | ln[0].StartsWith("mappingsTableEntry."))
                     switch (ln[0].Split('.')[1])
                     {
                         case "b":
-                            result.Add(unchecked((byte)ParseASMOffset(ln[1] + "-" + offsetLabel, labels)));
+                            result.Add(unchecked((byte)LabelSubtract(ln[1], offsetLabel, labels)));
                             break;
                         case "w":
-                            result.AddRange(ByteConverter.GetBytes((short)ParseASMOffset(ln[1] + "-" + offsetLabel, labels)));
+                            result.AddRange(ByteConverter.GetBytes((short)LabelSubtract(ln[1], offsetLabel, labels)));
                             break;
                         case "l":
-                            result.AddRange(ByteConverter.GetBytes(ParseASMOffset(ln[1] + "-" + offsetLabel, labels)));
+                            result.AddRange(ByteConverter.GetBytes(LabelSubtract(ln[1], offsetLabel, labels)));
                             break;
                     }
                 else if (ln[0].StartsWith("dc."))
                 {
                     string d = string.Empty;
                     for (int i = 1; i < ln.Length; i++)
-                    {
                         d += ln[i];
-                    }
                     string[] dats = d.Split(',');
                     switch (ln[0].Split('.')[1])
                     {
@@ -2381,6 +2390,77 @@ namespace SonicRetro.SonLVL.API
                                     result.AddRange(ByteConverter.GetBytes(ParseASMLong(item)));
                             break;
                     }
+                }
+                else if (ln[0].Equals("spriteHeader"))
+                {
+                    string label = labels.GetKey(result.Count);
+                    switch (version)
+                    {
+                        case EngineVersion.S1:
+                            result.Add(unchecked((byte)((LabelSubtract(label + "_End", label, labels) - 1) / 5)));
+                            break;
+                        case EngineVersion.S2:
+                        case EngineVersion.SBoom:
+                            result.AddRange(BitConverter.GetBytes((short)((LabelSubtract(label + "_End", label, labels) - 2) / 8)));
+                            break;
+                        case EngineVersion.S3K:
+                            result.AddRange(BitConverter.GetBytes((short)((LabelSubtract(label + "_End", label, labels) - 2) / 6)));
+                            break;
+                    }
+                }
+                else if (ln[0].Equals("spritePiece"))
+                {
+                    string d = string.Empty;
+                    for (int i = 1; i < ln.Length; i++)
+                        d += ln[i];
+                    string[] dats = d.Split(',');
+                    unchecked { result.AddRange(new MappingsTile((short)ParseASMWord(dats[0]), (short)ParseASMWord(dats[1]), ParseASMByte(dats[2]), ParseASMByte(dats[3]), ParseASMWord(dats[4]), ParseASMByte(dats[5]) == 1, ParseASMByte(dats[6]) == 1, ParseASMByte(dats[7]), ParseASMByte(dats[8]) == 1).GetBytes(version)); }
+                }
+                else if (ln[0].Equals("spritePiece2P"))
+                {
+                    string d = string.Empty;
+                    for (int i = 1; i < ln.Length; i++)
+                        d += ln[i];
+                    string[] dats = d.Split(',');
+                    unchecked { result.AddRange(new MappingsTile((short)ParseASMWord(dats[0]), (short)ParseASMWord(dats[1]), ParseASMByte(dats[2]), ParseASMByte(dats[3]), ParseASMWord(dats[4]), ParseASMByte(dats[5]) == 1, ParseASMByte(dats[6]) == 1, ParseASMByte(dats[7]), ParseASMByte(dats[8]) == 1, ParseASMWord(dats[9]), ParseASMByte(dats[10]) == 1, ParseASMByte(dats[11]) == 1, ParseASMByte(dats[12]), ParseASMByte(dats[13]) == 1).GetBytes(version)); }
+                }
+                else if (ln[0].Equals("dplcHeader"))
+                {
+                    string label = labels.GetKey(result.Count);
+                    switch (version)
+                    {
+                        case EngineVersion.S1:
+                            result.Add(unchecked((byte)((LabelSubtract(label + "_End", label, labels) - 1) / 2)));
+                            break;
+                        case EngineVersion.S2:
+                        case EngineVersion.SBoom:
+                            result.AddRange(BitConverter.GetBytes((short)((LabelSubtract(label + "_End", label, labels) - 2) / 2)));
+                            break;
+                        case EngineVersion.S3K:
+                            result.AddRange(BitConverter.GetBytes((short)((LabelSubtract(label + "_End", label, labels) - 4) / 2)));
+                            break;
+                    }
+                }
+                else if (ln[0].Equals("s3kPlayerDplcHeader"))
+                {
+                    string label = labels.GetKey(result.Count);
+                    result.AddRange(BitConverter.GetBytes((short)((LabelSubtract(label + "_End", label, labels) - 2) / 2)));
+                }
+                else if (ln[0].Equals("dplcEntry"))
+                {
+                    string d = string.Empty;
+                    for (int i = 1; i < ln.Length; i++)
+                        d += ln[i];
+                    string[] dats = d.Split(',');
+                    unchecked { result.AddRange(new DPLCEntry(ParseASMByte(dats[0]), ParseASMWord(dats[1])).GetBytes(version)); }
+                }
+                else if (ln[0].Equals("s3kPlayerDplcEntry"))
+                {
+                    string d = string.Empty;
+                    for (int i = 1; i < ln.Length; i++)
+                        d += ln[i];
+                    string[] dats = d.Split(',');
+                    unchecked { result.AddRange(new DPLCEntry(ParseASMByte(dats[0]), ParseASMWord(dats[1])).GetBytes(EngineVersion.S2)); }
                 }
                 else
                     break;
@@ -2444,21 +2524,20 @@ namespace SonicRetro.SonLVL.API
 
         public static int ParseASMOffset(string data, Dictionary<string, int> labels)
         {
-            int label1 = 0;
-            if (labels.ContainsKey(data.Split('-')[0]))
-                label1 = labels[data.Split('-')[0]];
-            int label2 = 0;
-            if (labels.ContainsKey(data.Split('-')[1]))
-                label2 = labels[data.Split('-')[1]];
-            return label1 - label2;
+            return LabelSubtract(data.Split('-')[0], data.Split('-')[1], labels);
         }
 
-        public static Dictionary<string, int> GetASMLabels(string file)
+        public static int LabelSubtract(string label1, string label2, Dictionary<string, int> labels)
         {
-            return GetASMLabels(file, 0);
+            return (labels.ContainsKey(label1) ? labels[label1] : 0) - (labels.ContainsKey(label2) ? labels[label2] : 0);
         }
 
-        public static Dictionary<string, int> GetASMLabels(string file, string label)
+        public static Dictionary<string, int> GetASMLabels(string file, EngineVersion version)
+        {
+            return GetASMLabels(file, 0, version);
+        }
+
+        public static Dictionary<string, int> GetASMLabels(string file, string label, EngineVersion version)
         {
             string[] fc = System.IO.File.ReadAllLines(file);
             int sti = -1;
@@ -2471,11 +2550,11 @@ namespace SonicRetro.SonLVL.API
                 }
             }
             if (sti == -1) return new Dictionary<string, int>();
-            return GetASMLabels(file, sti);
+            return GetASMLabels(file, sti, version);
         }
 
 
-        public static Dictionary<string, int> GetASMLabels(string file, int sti)
+        public static Dictionary<string, int> GetASMLabels(string file, int sti, EngineVersion version)
         {
             string[] fc = System.IO.File.ReadAllLines(file);
             Dictionary<string, int> labels = new Dictionary<string, int>();
@@ -2514,9 +2593,9 @@ namespace SonicRetro.SonLVL.API
                     if (curaddr % alignment != 0)
                         curaddr += (int)(alignment - (curaddr % alignment));
                 }
-                else if (ln[0].Equals("offsetTable"))
+                else if (ln[0].Equals("offsetTable") | ln[0].Equals("mappingsTable"))
                     continue;
-                else if (ln[0].StartsWith("offsetTableEntry."))
+                else if (ln[0].StartsWith("offsetTableEntry.") | ln[0].StartsWith("mappingsTableEntry."))
                     switch (ln[0].Split('.')[1])
                     {
                         case "b":
@@ -2548,6 +2627,36 @@ namespace SonicRetro.SonLVL.API
                             break;
                     }
                 }
+                else if (ln[0].Equals("spriteHeader") | ln[0].Equals("dplcHeader"))
+                    switch (version)
+                    {
+                        case EngineVersion.S1:
+                            curaddr++;
+                            break;
+                        case EngineVersion.S2:
+                        case EngineVersion.S3K:
+                        case EngineVersion.SBoom:
+                            curaddr += 2;
+                            break;
+                    }
+                else if (ln[0].Equals("s3kPlayerDplcHeader"))
+                    curaddr += 2;
+                else if (ln[0].Equals("spritePiece") | ln[0].Equals("spritePiece2P"))
+                    switch (version)
+                    {
+                        case EngineVersion.S1:
+                            curaddr += 5;
+                            break;
+                        case EngineVersion.S2:
+                        case EngineVersion.SBoom:
+                            curaddr += 8;
+                            break;
+                        case EngineVersion.S3K:
+                            curaddr += 6;
+                            break;
+                    }
+                else if (ln[0].Equals("dplcEntry") | ln[0].Equals("s3kPlayerDplcEntry"))
+                    curaddr += 2;
                 else
                     break;
             }
@@ -2593,12 +2702,12 @@ namespace SonicRetro.SonLVL.API
                     {
                         pcbmp.DrawBitmapComposited(
                             TileToBmp8bpp(art, map[i].Tile.Tile + ti, (map[i].Tile.Palette + startpal) & 3),
-                            new Point(x * 8, y * 8));
+                            x * 8, y * 8);
                         ti++;
                     }
                 }
                 pcbmp.Flip(map[i].Tile.XFlip, map[i].Tile.YFlip);
-                bmp[pr].DrawBitmapComposited(pcbmp, new Point(map[i].X - left, map[i].Y - top));
+                bmp[pr].DrawBitmapComposited(pcbmp, map[i].X - left, map[i].Y - top);
             }
             return new Sprite[] { new Sprite(bmp[0], offset), new Sprite(bmp[1], offset) };
         }
@@ -2612,16 +2721,12 @@ namespace SonicRetro.SonLVL.API
         {
             if (acceptTransparent && index == 0)
                 return Color.Transparent;
-            return Color.FromArgb(
-                (Palette[CurPal][line, index] & 0xE) * 0x11,
-                ((Palette[CurPal][line, index] & 0xE0) >> 4) * 0x11,
-                ((Palette[CurPal][line, index] & 0xE00) >> 8) * 0x11
-                );
+            return Palette[CurPal][line, index].RGBColor;
         }
 
         public static void ColorToPalette(int line, int index, Color color)
         {
-            Palette[CurPal][line, index] = (ushort)(((color.R / 0x11) & 0xE) | (((color.G / 0x11) << 4) & 0xE0) | (((color.B / 0x11) << 8) & 0xE00));
+            Palette[CurPal][line, index] = new SonLVLColor(color);
         }
 
         public static void RedrawBlock(int block, bool drawChunks)
@@ -2639,7 +2744,7 @@ namespace SonicRetro.SonLVL.API
                     tile.Flip(pt.XFlip, pt.YFlip);
                     BlockBmpBits[block][pr].DrawBitmap(
                         tile,
-                        new Point(bx * 8, by * 8)
+                        bx * 8, by * 8
                         );
                 }
             }
@@ -2681,26 +2786,34 @@ namespace SonicRetro.SonLVL.API
                         bmp.Flip(blk.XFlip, blk.YFlip);
                         ChunkBmpBits[chunk][0].DrawBitmap(
                             bmp,
-                            new Point(bx * 16, by * 16));
+                            bx * 16, by * 16);
                         bmp = new BitmapBits(BlockBmps[blk.Block][1]);
                         bmp.Flip(blk.XFlip, blk.YFlip);
                         ChunkBmpBits[chunk][1].DrawBitmap(
                             bmp,
-                            new Point(bx * 16, by * 16));
+                            bx * 16, by * 16);
                         if (ColInds1.Count > 0)
                         {
                             bmp = new BitmapBits(ColBmpBits[ColInds1[blk.Block]]);
                             bmp.IncrementIndexes((int)blk.Solid1 - 1);
                             bmp.Flip(blk.XFlip, blk.YFlip);
-                            ChunkColBmpBits[chunk][0].DrawBitmap(bmp, new Point(bx * 16, by * 16));
+                            ChunkColBmpBits[chunk][0].DrawBitmap(bmp, bx * 16, by * 16);
                             if (blk is S2ChunkBlock)
                             {
                                 bmp = new BitmapBits(ColBmpBits[ColInds2[blk.Block]]);
                                 bmp.IncrementIndexes((int)((S2ChunkBlock)blk).Solid2 - 1);
                                 bmp.Flip(blk.XFlip, blk.YFlip);
-                                ChunkColBmpBits[chunk][1].DrawBitmap(bmp, new Point(bx * 16, by * 16));
+                                ChunkColBmpBits[chunk][1].DrawBitmap(bmp, bx * 16, by * 16);
                             }
                         }
+                    }
+                    else
+                    {
+                        BitmapBits bmp = new BitmapBits(InvalidBlock);
+                        bmp.Flip(blk.XFlip, blk.YFlip);
+                        ChunkBmpBits[chunk][0].DrawBitmap(
+                            bmp,
+                            bx * 16, by * 16);
                     }
                 }
             }
@@ -2764,6 +2877,9 @@ namespace SonicRetro.SonLVL.API
         {
             for (int i = 0; i < 64; i++)
                 BmpPal.Entries[i] = PaletteToColor(i / 16, i % 16, true);
+            BmpPal.Entries[64] = Color.White;
+            BmpPal.Entries[65] = Color.Yellow;
+            BmpPal.Entries[66] = Color.Black;
             foreach (Bitmap[] item in BlockBmps)
             {
                 item[0].Palette = BmpPal;

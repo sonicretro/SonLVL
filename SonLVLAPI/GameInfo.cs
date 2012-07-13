@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
+using System.IO;
 
 namespace SonicRetro.SonLVL.API
 {
@@ -23,33 +24,33 @@ namespace SonicRetro.SonLVL.API
         [IniName("tilefmt")]
         public EngineVersion TileFormat;
         [IniName("tilecmp")]
-        public Compression.CompressionType TileCompression;
+        public CompressionType TileCompression;
         [IniName("blockfmt")]
         public EngineVersion BlockFormat;
         [IniName("blockcmp")]
-        public Compression.CompressionType BlockCompression;
+        public CompressionType BlockCompression;
         [IniName("chunkfmt")]
         public EngineVersion ChunkFormat;
         [IniName("chunkcmp")]
-        public Compression.CompressionType ChunkCompression;
+        public CompressionType ChunkCompression;
         [IniName("layoutfmt")]
         public EngineVersion LayoutFormat;
         [IniName("layoutcmp")]
-        public Compression.CompressionType LayoutCompression;
+        public CompressionType LayoutCompression;
         [IniName("palettefmt")]
         public EngineVersion PaletteFormat;
         [IniName("objectfmt")]
         public EngineVersion ObjectFormat;
         [IniName("objectcmp")]
-        public Compression.CompressionType ObjectCompression;
+        public CompressionType ObjectCompression;
         [IniName("ringfmt")]
         public EngineVersion RingFormat;
         [IniName("ringcmp")]
-        public Compression.CompressionType RingCompression;
+        public CompressionType RingCompression;
         [IniName("colindfmt")]
         public EngineVersion CollisionIndexFormat;
         [IniName("colindcmp")]
-        public Compression.CompressionType CollisionIndexCompression;
+        public CompressionType CollisionIndexCompression;
         [IniName("colind")]
         public string CollisionIndex;
         [IniName("colind1")]
@@ -59,7 +60,7 @@ namespace SonicRetro.SonLVL.API
         [IniName("colarrfmt")]
         public EngineVersion CollisionArrayFormat;
         [IniName("colarrcmp")]
-        public Compression.CompressionType CollisionArrayCompression;
+        public CompressionType CollisionArrayCompression;
         [IniName("colarr1")]
         public string CollisionArray1;
         [IniName("colarr2")]
@@ -67,7 +68,7 @@ namespace SonicRetro.SonLVL.API
         [IniName("anglefmt")]
         public EngineVersion AngleFormat;
         [IniName("anglecmp")]
-        public Compression.CompressionType AngleCompression;
+        public CompressionType AngleCompression;
         [IniName("angles")]
         public string Angles;
         [IniName("buildscr")]
@@ -84,7 +85,11 @@ namespace SonicRetro.SonLVL.API
 
         public static GameInfo Load(string filename)
         {
-            GameInfo result = IniFile.Deserialize<GameInfo>(filename);
+            Dictionary<string, Dictionary<string, string>> ini = IniFile.Load(filename);
+            string userfile = Path.Combine(Path.GetDirectoryName(filename), Path.GetFileNameWithoutExtension(filename) + ".user" + Path.GetExtension(filename));
+            if (File.Exists(userfile))
+                ini = IniFile.Combine(ini, IniFile.Load(userfile));
+            GameInfo result = IniFile.Deserialize<GameInfo>(ini);
             if (result.MappingsVersion == EngineVersion.Invalid)
                 result.MappingsVersion = result.EngineVersion;
             if (result.DPLCVersion == EngineVersion.Invalid)
@@ -119,46 +124,46 @@ namespace SonicRetro.SonLVL.API
             {
                 case EngineVersion.S1:
                 case EngineVersion.S2NA:
-                    result.TileCompression = Compression.CompressionType.Nemesis;
+                    result.TileCompression = CompressionType.Nemesis;
                     break;
                 case EngineVersion.S2:
                 case EngineVersion.SBoom:
-                    result.TileCompression = Compression.CompressionType.Kosinski;
+                    result.TileCompression = CompressionType.Kosinski;
                     break;
                 case EngineVersion.S3K:
                 case EngineVersion.SKC:
-                    result.TileCompression = Compression.CompressionType.KosinskiM;
+                    result.TileCompression = CompressionType.KosinskiM;
                     break;
                 case EngineVersion.SCDPC:
-                    result.TileCompression = Compression.CompressionType.SZDD;
+                    result.TileCompression = CompressionType.SZDD;
                     break;
                 default:
-                    result.TileCompression = Compression.CompressionType.Uncompressed;
+                    result.TileCompression = CompressionType.Uncompressed;
                     break;
             }
-            if (TileCompression != Compression.CompressionType.Invalid)
+            if (TileCompression != CompressionType.Invalid)
                 result.TileCompression = TileCompression;
-            if (info.TileCompression != Compression.CompressionType.Invalid)
+            if (info.TileCompression != CompressionType.Invalid)
                 result.TileCompression = info.TileCompression;
             result.Tiles = info.Tiles;
             switch (result.BlockFormat)
             {
                 case EngineVersion.S1:
-                    result.BlockCompression = Compression.CompressionType.Enigma;
+                    result.BlockCompression = CompressionType.Enigma;
                     break;
                 case EngineVersion.S2:
                 case EngineVersion.S3K:
                 case EngineVersion.SKC:
                 case API.EngineVersion.SBoom:
-                    result.BlockCompression = Compression.CompressionType.Kosinski;
+                    result.BlockCompression = CompressionType.Kosinski;
                     break;
                 default:
-                    result.BlockCompression = Compression.CompressionType.Uncompressed;
+                    result.BlockCompression = CompressionType.Uncompressed;
                     break;
             }
-            if (BlockCompression != Compression.CompressionType.Invalid)
+            if (BlockCompression != CompressionType.Invalid)
                 result.BlockCompression = BlockCompression;
-            if (info.BlockCompression != Compression.CompressionType.Invalid)
+            if (info.BlockCompression != CompressionType.Invalid)
                 result.BlockCompression = info.BlockCompression;
             result.Blocks = info.Blocks;
             switch (result.ChunkFormat)
@@ -168,30 +173,30 @@ namespace SonicRetro.SonLVL.API
                 case EngineVersion.S3K:
                 case EngineVersion.SKC:
                 case API.EngineVersion.SBoom:
-                    result.ChunkCompression = Compression.CompressionType.Kosinski;
+                    result.ChunkCompression = CompressionType.Kosinski;
                     break;
                 default:
-                    result.ChunkCompression = Compression.CompressionType.Uncompressed;
+                    result.ChunkCompression = CompressionType.Uncompressed;
                     break;
             }
-            if (ChunkCompression != Compression.CompressionType.Invalid)
+            if (ChunkCompression != CompressionType.Invalid)
                 result.ChunkCompression = ChunkCompression;
-            if (info.ChunkCompression != Compression.CompressionType.Invalid)
+            if (info.ChunkCompression != CompressionType.Invalid)
                 result.ChunkCompression = info.ChunkCompression;
             result.Chunks = info.Chunks;
             switch (result.LayoutFormat)
             {
                 case EngineVersion.S2:
                 case API.EngineVersion.SBoom:
-                    result.LayoutCompression = Compression.CompressionType.Kosinski;
+                    result.LayoutCompression = CompressionType.Kosinski;
                     break;
                 default:
-                    result.LayoutCompression = Compression.CompressionType.Uncompressed;
+                    result.LayoutCompression = CompressionType.Uncompressed;
                     break;
             }
-            if (LayoutCompression != Compression.CompressionType.Invalid)
+            if (LayoutCompression != CompressionType.Invalid)
                 result.LayoutCompression = LayoutCompression;
-            if (info.LayoutCompression != Compression.CompressionType.Invalid)
+            if (info.LayoutCompression != CompressionType.Invalid)
                 result.LayoutCompression = info.LayoutCompression;
             result.Layout = info.Layout;
             result.FGLayout = info.FGLayout;
@@ -208,20 +213,20 @@ namespace SonicRetro.SonLVL.API
             result.Palettes[8] = info.Palette9;
             result.Sprites = info.Sprites;
             result.ObjectList = info.ObjectList;
-            result.ObjectCompression = Compression.CompressionType.Uncompressed;
-            if (ObjectCompression != Compression.CompressionType.Invalid)
+            result.ObjectCompression = CompressionType.Uncompressed;
+            if (ObjectCompression != CompressionType.Invalid)
                 result.ObjectCompression = ObjectCompression;
-            if (info.ObjectCompression != Compression.CompressionType.Invalid)
+            if (info.ObjectCompression != CompressionType.Invalid)
                 result.ObjectCompression = info.ObjectCompression;
             result.Objects = info.Objects;
-            result.RingCompression = Compression.CompressionType.Uncompressed;
-            if (RingCompression != Compression.CompressionType.Invalid)
+            result.RingCompression = CompressionType.Uncompressed;
+            if (RingCompression != CompressionType.Invalid)
                 result.RingCompression = RingCompression;
-            if (info.RingCompression != Compression.CompressionType.Invalid)
+            if (info.RingCompression != CompressionType.Invalid)
                 result.RingCompression = info.RingCompression;
             result.Rings = info.Rings;
-            result.BumperCompression = Compression.CompressionType.Uncompressed;
-            if (info.BumperCompression != Compression.CompressionType.Invalid)
+            result.BumperCompression = CompressionType.Uncompressed;
+            if (info.BumperCompression != CompressionType.Invalid)
                 result.BumperCompression = info.BumperCompression;
             result.Bumpers = info.Bumpers;
             result.StartPositions = info.StartPositions;
@@ -229,32 +234,33 @@ namespace SonicRetro.SonLVL.API
             {
                 case EngineVersion.S2:
                 case API.EngineVersion.SBoom:
-                    result.CollisionIndexCompression = Compression.CompressionType.Kosinski;
+                    result.CollisionIndexCompression = CompressionType.Kosinski;
                     break;
                 default:
-                    result.CollisionIndexCompression = Compression.CompressionType.Uncompressed;
+                    result.CollisionIndexCompression = CompressionType.Uncompressed;
                     break;
             }
-            if (CollisionIndexCompression != Compression.CompressionType.Invalid)
+            if (CollisionIndexCompression != CompressionType.Invalid)
                 result.CollisionIndexCompression = CollisionIndexCompression;
-            if (info.CollisionIndexCompression != Compression.CompressionType.Invalid)
+            if (info.CollisionIndexCompression != CompressionType.Invalid)
                 result.CollisionIndexCompression = info.CollisionIndexCompression;
             result.CollisionIndex = info.CollisionIndex ?? CollisionIndex;
             result.CollisionIndex1 = info.CollisionIndex1 ?? CollisionIndex1;
             result.CollisionIndex2 = info.CollisionIndex2 ?? CollisionIndex2;
             result.CollisionIndexSize = info.CollisionIndexSize;
-            result.CollisionArrayCompression = Compression.CompressionType.Uncompressed;
-            if (CollisionArrayCompression != Compression.CompressionType.Invalid)
+            result.CollisionArrayCompression = CompressionType.Uncompressed;
+            if (CollisionArrayCompression != CompressionType.Invalid)
                 result.CollisionArrayCompression = CollisionArrayCompression;
-            if (info.CollisionArrayCompression != Compression.CompressionType.Invalid)
+            if (info.CollisionArrayCompression != CompressionType.Invalid)
                 result.CollisionArrayCompression = info.CollisionArrayCompression;
             result.CollisionArray1 = info.CollisionArray1 ?? CollisionArray1;
             result.CollisionArray2 = info.CollisionArray2 ?? CollisionArray2;
-            result.AngleCompression = Compression.CompressionType.Uncompressed;
-            if (AngleCompression != Compression.CompressionType.Invalid)
+            result.AngleCompression = CompressionType.Uncompressed;
+            if (AngleCompression != CompressionType.Invalid)
                 result.AngleCompression = AngleCompression;
-            if (info.AngleCompression != Compression.CompressionType.Invalid)
+            if (info.AngleCompression != CompressionType.Invalid)
                 result.AngleCompression = info.AngleCompression;
+            result.Angles = info.Angles ?? Angles;
             result.TimeZone = info.TimeZone;
             return result;
         }
@@ -267,25 +273,25 @@ namespace SonicRetro.SonLVL.API
         [IniName("tilefmt")]
         public EngineVersion TileFormat;
         [IniName("tilecmp")]
-        public Compression.CompressionType TileCompression;
+        public CompressionType TileCompression;
         [IniName("tiles")]
         public FileList Tiles;
         [IniName("blockfmt")]
         public EngineVersion BlockFormat;
         [IniName("blockcmp")]
-        public Compression.CompressionType BlockCompression;
+        public CompressionType BlockCompression;
         [IniName("blocks")]
         public FileList Blocks;
         [IniName("chunkfmt")]
         public EngineVersion ChunkFormat;
         [IniName("chunkcmp")]
-        public Compression.CompressionType ChunkCompression;
+        public CompressionType ChunkCompression;
         [IniName("chunks")]
         public FileList Chunks;
         [IniName("layoutfmt")]
         public EngineVersion LayoutFormat;
         [IniName("layoutcmp")]
-        public Compression.CompressionType LayoutCompression;
+        public CompressionType LayoutCompression;
         [IniName("layout")]
         public string Layout;
         [IniName("fglayout")]
@@ -317,17 +323,17 @@ namespace SonicRetro.SonLVL.API
         [IniName("objectfmt")]
         public EngineVersion ObjectFormat;
         [IniName("objectcmp")]
-        public Compression.CompressionType ObjectCompression;
+        public CompressionType ObjectCompression;
         [IniName("objects")]
         public string Objects;
         [IniName("ringfmt")]
         public EngineVersion RingFormat;
         [IniName("ringcmp")]
-        public Compression.CompressionType RingCompression;
+        public CompressionType RingCompression;
         [IniName("rings")]
         public string Rings;
         [IniName("bumpercmp")]
-        public Compression.CompressionType BumperCompression;
+        public CompressionType BumperCompression;
         [IniName("bumpers")]
         public string Bumpers;
         [IniName("startpos")]
@@ -335,7 +341,7 @@ namespace SonicRetro.SonLVL.API
         [IniName("colindfmt")]
         public EngineVersion CollisionIndexFormat;
         [IniName("colindcmp")]
-        public Compression.CompressionType CollisionIndexCompression;
+        public CompressionType CollisionIndexCompression;
         [IniName("colind")]
         public string CollisionIndex;
         [IniName("colind1")]
@@ -348,7 +354,7 @@ namespace SonicRetro.SonLVL.API
         [IniName("colarrfmt")]
         public EngineVersion CollisionArrayFormat;
         [IniName("colarrcmp")]
-        public Compression.CompressionType CollisionArrayCompression;
+        public CompressionType CollisionArrayCompression;
         [IniName("colarr1")]
         public string CollisionArray1;
         [IniName("colarr2")]
@@ -356,7 +362,7 @@ namespace SonicRetro.SonLVL.API
         [IniName("anglefmt")]
         public EngineVersion AngleFormat;
         [IniName("anglecmp")]
-        public Compression.CompressionType AngleCompression;
+        public CompressionType AngleCompression;
         [IniName("angles")]
         public string Angles;
         [IniName("timezone")]

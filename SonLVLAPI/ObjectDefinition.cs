@@ -20,13 +20,13 @@ namespace SonicRetro.SonLVL.API
         [IniName("art")]
         public FileList Art;
         [IniName("artcmp")]
-        [DefaultValue(Compression.CompressionType.Nemesis)]
-        public Compression.CompressionType ArtCompression;
+        [DefaultValue(CompressionType.Nemesis)]
+        public CompressionType ArtCompression;
         [IniName("map")]
         public string MapFile;
         [IniName("mapcmp")]
-        [DefaultValue(Compression.CompressionType.Uncompressed)]
-        public Compression.CompressionType MapCompression;
+        [DefaultValue(CompressionType.Uncompressed)]
+        public CompressionType MapCompression;
         [IniName("mapasm")]
         public string MapFileAsm;
         [IniName("mapasmlbl")]
@@ -36,8 +36,8 @@ namespace SonicRetro.SonLVL.API
         [IniName("dplc")]
         public string DPLCFile;
         [IniName("dplccmp")]
-        [DefaultValue(Compression.CompressionType.Uncompressed)]
-        public Compression.CompressionType DPLCCompression;
+        [DefaultValue(CompressionType.Uncompressed)]
+        public CompressionType DPLCCompression;
         [IniName("dplcasm")]
         public string DPLCFileAsm;
         [IniName("dplcasmlbl")]
@@ -125,51 +125,60 @@ namespace SonicRetro.SonLVL.API
         public override void Init(ObjectData data)
         {
             name = data.Name ?? "Unknown";
-            if (data.Art != null)
+            try
             {
-                MultiFileIndexer<byte> art = new MultiFileIndexer<byte>();
-                foreach (FileInfo file in data.Art)
-                    art.AddFile(new List<byte>(ObjectHelper.OpenArtFile(file.Filename, data.ArtCompression)), file.Offset);
-                byte[] artfile = art.ToArray();
-                if (data.MapFile != null)
+                if (data.Art != null)
                 {
-                    if (data.DPLCFile != null)
-                        spr = ObjectHelper.MapDPLCToBmp(artfile, LevelData.ReadFile(data.MapFile, data.MapCompression), data.MapVersion, LevelData.ReadFile(data.DPLCFile, data.DPLCCompression), data.DPLCVersion, data.Frame, data.Palette);
-                    else
-                        spr = ObjectHelper.MapToBmp(artfile, LevelData.ReadFile(data.MapFile, data.MapCompression), data.Frame, data.Palette, data.MapVersion);
-                }
-                else if (data.MapFileAsm != null)
-                {
-                    if (data.MapAsmLabel != null)
+                    MultiFileIndexer<byte> art = new MultiFileIndexer<byte>();
+                    foreach (FileInfo file in data.Art)
+                        art.AddFile(new List<byte>(ObjectHelper.OpenArtFile(file.Filename, data.ArtCompression)), file.Offset);
+                    byte[] artfile = art.ToArray();
+                    if (data.MapFile != null)
                     {
-                        if (data.DPLCFileAsm != null)
-                            spr = ObjectHelper.MapASMDPLCToBmp(artfile, data.MapFileAsm, data.MapAsmLabel, data.MapVersion, data.DPLCFileAsm, data.DPLCAsmLabel, data.DPLCVersion, data.Palette);
+                        if (data.DPLCFile != null)
+                            spr = ObjectHelper.MapDPLCToBmp(artfile, LevelData.ReadFile(data.MapFile, data.MapCompression), data.MapVersion, LevelData.ReadFile(data.DPLCFile, data.DPLCCompression), data.DPLCVersion, data.Frame, data.Palette);
                         else
-                            spr = ObjectHelper.MapASMToBmp(artfile, data.MapFileAsm, data.MapAsmLabel, data.Palette, data.MapVersion);
+                            spr = ObjectHelper.MapToBmp(artfile, LevelData.ReadFile(data.MapFile, data.MapCompression), data.Frame, data.Palette, data.MapVersion);
+                    }
+                    else if (data.MapFileAsm != null)
+                    {
+                        if (data.MapAsmLabel != null)
+                        {
+                            if (data.DPLCFileAsm != null)
+                                spr = ObjectHelper.MapASMDPLCToBmp(artfile, data.MapFileAsm, data.MapAsmLabel, data.MapVersion, data.DPLCFileAsm, data.DPLCAsmLabel, data.DPLCVersion, data.Palette);
+                            else
+                                spr = ObjectHelper.MapASMToBmp(artfile, data.MapFileAsm, data.MapAsmLabel, data.Palette, data.MapVersion);
+                        }
+                        else
+                        {
+                            if (data.DPLCFileAsm != null)
+                                spr = ObjectHelper.MapASMDPLCToBmp(artfile, data.MapFileAsm, data.MapVersion, data.DPLCFileAsm, data.DPLCVersion, data.Frame, data.Palette);
+                            else
+                                spr = ObjectHelper.MapASMToBmp(artfile, data.MapFileAsm, data.Frame, data.Palette, data.MapVersion);
+                        }
                     }
                     else
-                    {
-                        if (data.DPLCFileAsm != null)
-                            spr = ObjectHelper.MapASMDPLCToBmp(artfile, data.MapFileAsm, data.MapVersion, data.DPLCFileAsm, data.DPLCVersion, data.Frame, data.Palette);
-                        else
-                            spr = ObjectHelper.MapASMToBmp(artfile, data.MapFileAsm, data.Frame, data.Palette, data.MapVersion);
-                    }
+                        spr = ObjectHelper.UnknownObject;
+                    if (data.Offset != Size.Empty)
+                        spr.Offset = spr.Offset + data.Offset;
                 }
+                else if (data.Image != null)
+                {
+                    BitmapBits img = new BitmapBits(new Bitmap(data.Image));
+                    spr = new Sprite(img, new Point(data.Offset));
+                    debug = true;
+                }
+                else if (data.Sprite > -1)
+                    spr = ObjectHelper.GetSprite(data.Sprite);
                 else
+                {
                     spr = ObjectHelper.UnknownObject;
-                if (data.Offset != Size.Empty)
-                    spr.Offset = spr.Offset + data.Offset;
+                    debug = true;
+                }
             }
-            else if (data.Image != null)
+            catch (Exception ex)
             {
-                BitmapBits img = new BitmapBits(new Bitmap(data.Image));
-                spr = new Sprite(img, new Point(data.Offset));
-                debug = true;
-            }
-            else if (data.Sprite > -1)
-                spr = ObjectHelper.GetSprite(data.Sprite);
-            else
-            {
+                LevelData.Log("Error loading object definition " + name + ":", ex.ToString());
                 spr = ObjectHelper.UnknownObject;
                 debug = true;
             }
@@ -275,55 +284,66 @@ namespace SonicRetro.SonLVL.API
         public S3KRingDefinition()
         {
             spr = ObjectHelper.UnknownObject;
-            debug = true;
         }
 
         public S3KRingDefinition(ObjectData data)
         {
-            if (data.Art != null)
+            try
             {
-                MultiFileIndexer<byte> art = new MultiFileIndexer<byte>();
-                foreach (FileInfo file in data.Art)
-                    art.AddFile(new List<byte>(ObjectHelper.OpenArtFile(file.Filename, data.ArtCompression)), file.Offset);
-                byte[] artfile = art.ToArray();
-                if (data.MapFile != null)
+                if (data.Art != null)
                 {
-                    if (data.DPLCFile != null)
-                        spr = ObjectHelper.MapDPLCToBmp(artfile, LevelData.ReadFile(data.MapFile, data.MapCompression), data.MapVersion, LevelData.ReadFile(data.DPLCFile, data.DPLCCompression), data.DPLCVersion, data.Frame, data.Palette);
-                    else
-                        spr = ObjectHelper.MapToBmp(artfile, LevelData.ReadFile(data.MapFile, data.MapCompression), data.Frame, data.Palette, data.MapVersion);
-                }
-                else if (data.MapFileAsm != null)
-                {
-                    if (data.MapAsmLabel != null)
+                    MultiFileIndexer<byte> art = new MultiFileIndexer<byte>();
+                    foreach (FileInfo file in data.Art)
+                        art.AddFile(new List<byte>(ObjectHelper.OpenArtFile(file.Filename, data.ArtCompression)), file.Offset);
+                    byte[] artfile = art.ToArray();
+                    if (data.MapFile != null)
                     {
-                        if (data.DPLCFileAsm != null)
-                            spr = ObjectHelper.MapASMDPLCToBmp(artfile, data.MapFileAsm, data.MapAsmLabel, data.MapVersion, data.DPLCFileAsm, data.DPLCAsmLabel, data.DPLCVersion, data.Palette);
+                        if (data.DPLCFile != null)
+                            spr = ObjectHelper.MapDPLCToBmp(artfile, LevelData.ReadFile(data.MapFile, data.MapCompression), data.MapVersion, LevelData.ReadFile(data.DPLCFile, data.DPLCCompression), data.DPLCVersion, data.Frame, data.Palette);
                         else
-                            spr = ObjectHelper.MapASMToBmp(artfile, data.MapFileAsm, data.MapAsmLabel, data.Palette, data.MapVersion);
+                            spr = ObjectHelper.MapToBmp(artfile, LevelData.ReadFile(data.MapFile, data.MapCompression), data.Frame, data.Palette, data.MapVersion);
+                    }
+                    else if (data.MapFileAsm != null)
+                    {
+                        if (data.MapAsmLabel != null)
+                        {
+                            if (data.DPLCFileAsm != null)
+                                spr = ObjectHelper.MapASMDPLCToBmp(artfile, data.MapFileAsm, data.MapAsmLabel, data.MapVersion, data.DPLCFileAsm, data.DPLCAsmLabel, data.DPLCVersion, data.Palette);
+                            else
+                                spr = ObjectHelper.MapASMToBmp(artfile, data.MapFileAsm, data.MapAsmLabel, data.Palette, data.MapVersion);
+                        }
+                        else
+                        {
+                            if (data.DPLCFileAsm != null)
+                                spr = ObjectHelper.MapASMDPLCToBmp(artfile, data.MapFileAsm, data.MapVersion, data.DPLCFileAsm, data.DPLCVersion, data.Frame, data.Palette);
+                            else
+                                spr = ObjectHelper.MapASMToBmp(artfile, data.MapFileAsm, data.Frame, data.Palette, data.MapVersion);
+                        }
                     }
                     else
-                    {
-                        if (data.DPLCFileAsm != null)
-                            spr = ObjectHelper.MapASMDPLCToBmp(artfile, data.MapFileAsm, data.MapVersion, data.DPLCFileAsm, data.DPLCVersion, data.Frame, data.Palette);
-                        else
-                            spr = ObjectHelper.MapASMToBmp(artfile, data.MapFileAsm, data.Frame, data.Palette, data.MapVersion);
-                    }
+                        spr = ObjectHelper.UnknownObject;
+                    if (data.Offset != Size.Empty)
+                        spr.Offset = spr.Offset + data.Offset;
                 }
+                else if (data.Image != null)
+                {
+                    BitmapBits img = new BitmapBits(new Bitmap(data.Image));
+                    spr = new Sprite(img, new Point(data.Offset));
+                }
+                else if (data.Sprite > -1)
+                    spr = ObjectHelper.GetSprite(data.Sprite);
                 else
+                {
                     spr = ObjectHelper.UnknownObject;
-                if (data.Offset != Size.Empty)
-                    spr.Offset = spr.Offset + data.Offset;
+                    debug = true;
+                }
             }
-            else if (data.Image != null)
+            catch (Exception ex)
             {
-                BitmapBits img = new BitmapBits(new Bitmap(data.Image));
-                spr = new Sprite(img, new Point(data.Offset));
-            }
-            else if (data.Sprite > -1)
-                spr = ObjectHelper.GetSprite(data.Sprite);
-            else
+                LevelData.Log("Error loading S3K ring definition:", ex.ToString());
                 spr = ObjectHelper.UnknownObject;
+                debug = true;
+            }
         }
 
         public BitmapBits Image()
@@ -354,56 +374,64 @@ namespace SonicRetro.SonLVL.API
         {
             this.name = name;
             spr = ObjectHelper.UnknownObject;
-            debug = true;
         }
 
         public StartPositionDefinition(ObjectData data, string name)
             : this(name)
         {
-            if (data.Art != null)
+            try
             {
-                MultiFileIndexer<byte> art = new MultiFileIndexer<byte>();
-                foreach (FileInfo file in data.Art)
-                    art.AddFile(new List<byte>(ObjectHelper.OpenArtFile(file.Filename, data.ArtCompression)), file.Offset);
-                byte[] artfile = art.ToArray();
-                if (data.MapFile != null)
+                if (data.Art != null)
                 {
-                    if (data.DPLCFile != null)
-                        spr = ObjectHelper.MapDPLCToBmp(artfile, LevelData.ReadFile(data.MapFile, data.MapCompression), data.MapVersion, LevelData.ReadFile(data.DPLCFile, data.DPLCCompression), data.DPLCVersion == EngineVersion.Invalid & LevelData.Game.DPLCVersion == EngineVersion.S3K ? EngineVersion.S2 : data.DPLCVersion, data.Frame, data.Palette);
-                    else
-                        spr = ObjectHelper.MapToBmp(artfile, LevelData.ReadFile(data.MapFile, data.MapCompression), data.Frame, data.Palette, data.MapVersion);
-                }
-                else if (data.MapFileAsm != null)
-                {
-                    if (data.MapAsmLabel != null)
+                    MultiFileIndexer<byte> art = new MultiFileIndexer<byte>();
+                    foreach (FileInfo file in data.Art)
+                        art.AddFile(new List<byte>(ObjectHelper.OpenArtFile(file.Filename, data.ArtCompression)), file.Offset);
+                    byte[] artfile = art.ToArray();
+                    if (data.MapFile != null)
                     {
-                        if (data.DPLCFileAsm != null)
-                            spr = ObjectHelper.MapASMDPLCToBmp(artfile, data.MapFileAsm, data.MapAsmLabel, data.MapVersion, data.DPLCFileAsm, data.DPLCAsmLabel, data.DPLCVersion == EngineVersion.Invalid & LevelData.Game.DPLCVersion == EngineVersion.S3K ? EngineVersion.S2 : data.DPLCVersion, data.Palette);
+                        if (data.DPLCFile != null)
+                            spr = ObjectHelper.MapDPLCToBmp(artfile, LevelData.ReadFile(data.MapFile, data.MapCompression), data.MapVersion, LevelData.ReadFile(data.DPLCFile, data.DPLCCompression), data.DPLCVersion == EngineVersion.Invalid & LevelData.Game.DPLCVersion == EngineVersion.S3K ? EngineVersion.S2 : data.DPLCVersion, data.Frame, data.Palette);
                         else
-                            spr = ObjectHelper.MapASMToBmp(artfile, data.MapFileAsm, data.MapAsmLabel, data.Palette, data.MapVersion);
+                            spr = ObjectHelper.MapToBmp(artfile, LevelData.ReadFile(data.MapFile, data.MapCompression), data.Frame, data.Palette, data.MapVersion);
+                    }
+                    else if (data.MapFileAsm != null)
+                    {
+                        if (data.MapAsmLabel != null)
+                        {
+                            if (data.DPLCFileAsm != null)
+                                spr = ObjectHelper.MapASMDPLCToBmp(artfile, data.MapFileAsm, data.MapAsmLabel, data.MapVersion, data.DPLCFileAsm, data.DPLCAsmLabel, data.DPLCVersion == EngineVersion.Invalid & LevelData.Game.DPLCVersion == EngineVersion.S3K ? EngineVersion.S2 : data.DPLCVersion, data.Palette);
+                            else
+                                spr = ObjectHelper.MapASMToBmp(artfile, data.MapFileAsm, data.MapAsmLabel, data.Palette, data.MapVersion);
+                        }
+                        else
+                        {
+                            if (data.DPLCFileAsm != null)
+                                spr = ObjectHelper.MapASMDPLCToBmp(artfile, data.MapFileAsm, data.MapVersion, data.DPLCFileAsm, data.DPLCVersion == EngineVersion.Invalid & LevelData.Game.DPLCVersion == EngineVersion.S3K ? EngineVersion.S2 : data.DPLCVersion, data.Frame, data.Palette);
+                            else
+                                spr = ObjectHelper.MapASMToBmp(artfile, data.MapFileAsm, data.Frame, data.Palette, data.MapVersion);
+                        }
                     }
                     else
-                    {
-                        if (data.DPLCFileAsm != null)
-                            spr = ObjectHelper.MapASMDPLCToBmp(artfile, data.MapFileAsm, data.MapVersion, data.DPLCFileAsm, data.DPLCVersion == EngineVersion.Invalid & LevelData.Game.DPLCVersion == EngineVersion.S3K ? EngineVersion.S2 : data.DPLCVersion, data.Frame, data.Palette);
-                        else
-                            spr = ObjectHelper.MapASMToBmp(artfile, data.MapFileAsm, data.Frame, data.Palette, data.MapVersion);
-                    }
+                        spr = ObjectHelper.UnknownObject;
+                    if (data.Offset != Size.Empty)
+                        spr.Offset = spr.Offset + data.Offset;
                 }
+                else if (data.Image != null)
+                {
+                    BitmapBits img = new BitmapBits(new Bitmap(data.Image));
+                    spr = new Sprite(img, new Point(data.Offset));
+                }
+                else if (data.Sprite > -1)
+                    spr = ObjectHelper.GetSprite(data.Sprite);
                 else
                     spr = ObjectHelper.UnknownObject;
-                if (data.Offset != Size.Empty)
-                    spr.Offset = spr.Offset + data.Offset;
             }
-            else if (data.Image != null)
+            catch (Exception ex)
             {
-                BitmapBits img = new BitmapBits(new Bitmap(data.Image));
-                spr = new Sprite(img, new Point(data.Offset));
-            }
-            else if (data.Sprite > -1)
-                spr = ObjectHelper.GetSprite(data.Sprite);
-            else
+                LevelData.Log("Error loading start position definition " + this.name + ":", ex.ToString());
                 spr = ObjectHelper.UnknownObject;
+                debug = true;
+            }
         }
 
         public string Name()

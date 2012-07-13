@@ -14,9 +14,9 @@ namespace S3KObjectDefinitions.Common
         public override void Init(ObjectData data)
         {
             List<byte> tmpartfile = new List<byte>();
-            tmpartfile.AddRange(ObjectHelper.OpenArtFile("../General/Sprites/Monitors/Monitors.bin", Compression.CompressionType.Nemesis));
+            tmpartfile.AddRange(ObjectHelper.OpenArtFile("../General/Sprites/Monitors/Monitors.bin", CompressionType.Nemesis));
             tmpartfile.AddRange(new byte[0x6200 - tmpartfile.Count]);
-            tmpartfile.AddRange(ObjectHelper.OpenArtFile("../General/Sprites/HUD Icon/Sonic life icon.bin", Compression.CompressionType.Nemesis));
+            tmpartfile.AddRange(ObjectHelper.OpenArtFile("../General/Sprites/HUD Icon/Sonic life icon.bin", CompressionType.Nemesis));
             byte[] artfile = tmpartfile.ToArray();
             img = ObjectHelper.MapASMToBmp(artfile, "../General/Sprites/Monitors/Map - Monitor.asm", 0, 0);
             for (int i = 0; i < 11; i++)

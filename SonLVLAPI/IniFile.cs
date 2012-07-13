@@ -4,15 +4,17 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
 using System.Text;
+using IniDictionary = System.Collections.Generic.Dictionary<string, System.Collections.Generic.Dictionary<string, string>>;
+using IniGroup = System.Collections.Generic.Dictionary<string, string>;
 
 namespace SonicRetro.SonLVL.API
 {
     public static class IniFile
     {
-        public static Dictionary<string, Dictionary<string, string>> Load(string filename)
+        public static IniDictionary Load(string filename)
         {
-            Dictionary<string, Dictionary<string, string>> result = new Dictionary<string, Dictionary<string, string>>();
-            Dictionary<string, string> curent = new Dictionary<string, string>();
+            IniDictionary result = new IniDictionary();
+            IniGroup curent = new IniGroup();
             result.Add(string.Empty, curent);
             string curgroup = string.Empty;
             string[] fc = System.IO.File.ReadAllLines(filename);
@@ -64,7 +66,7 @@ namespace SonicRetro.SonLVL.API
                 if (startswithbracket & endbracket != -1)
                 {
                     curgroup = line.Substring(1, endbracket - 1);
-                    curent = new Dictionary<string, string>();
+                    curent = new IniGroup();
                     try
                     {
                         result.Add(curgroup, curent);
@@ -98,10 +100,10 @@ namespace SonicRetro.SonLVL.API
             return result;
         }
 
-        public static void Save(Dictionary<string, Dictionary<string, string>> INI, string filename)
+        public static void Save(IniDictionary INI, string filename)
         {
             List<string> result = new List<string>();
-            foreach (KeyValuePair<string, Dictionary<string, string>> group in INI)
+            foreach (KeyValuePair<string, IniGroup> group in INI)
             {
                 if (!string.IsNullOrEmpty(group.Key))
                     result.Add("[" + group.Key.Replace(@"\", @"\\").Replace("\n", @"\n").Replace("\r", @"\r").Replace(";", @"\;") + "]");
@@ -114,6 +116,20 @@ namespace SonicRetro.SonLVL.API
                 }
             }
             System.IO.File.WriteAllLines(filename, result.ToArray());
+        }
+
+        public static IniDictionary Combine(IniDictionary dictA, IniDictionary dictB)
+        {
+            IniDictionary result = new IniDictionary();
+            foreach (KeyValuePair<string, IniGroup> group in dictA)
+                result.Add(group.Key, new IniGroup(group.Value));
+            foreach (KeyValuePair<string, IniGroup> group in dictB)
+                if (result.ContainsKey(group.Key))
+                    foreach (KeyValuePair<string, string> item in group.Value)
+                        result[group.Key][item.Key] = item.Value;
+                else
+                    result.Add(group.Key, new IniGroup(group.Value));
+            return result;
         }
 
         public static void Serialize(object Object, string Filename)

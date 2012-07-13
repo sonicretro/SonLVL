@@ -15,24 +15,12 @@ namespace SonicRetro.SonLVL.API
         public byte[] Bits { get; private set; }
         public int Width { get; private set; }
         public int Height { get; private set; }
-        public Size Size
-        {
-            get
-            {
-                return new Size(Width, Height);
-            }
-        }
+        public Size Size { get { return new Size(Width, Height); } }
 
         public byte this[int x, int y]
         {
-            get
-            {
-                return Bits[(y * Width) + x];
-            }
-            set
-            {
-                Bits[(y * Width) + x] = value;
-            }
+            get { return Bits[(y * Width) + x]; }
+            set { Bits[(y * Width) + x] = value; }
         }
 
         public BitmapBits(int width, int height)
@@ -41,6 +29,9 @@ namespace SonicRetro.SonLVL.API
             Height = height;
             Bits = new byte[width * height];
         }
+
+        public BitmapBits(Size size)
+            : this(size.Width, size.Height) { }
 
         public BitmapBits(Bitmap bmp)
         {
@@ -98,35 +89,41 @@ namespace SonicRetro.SonLVL.API
             return newbmp;
         }
 
-        public void DrawBitmap(BitmapBits source, Point location)
+        public void DrawBitmap(BitmapBits source, int x, int y)
         {
-            int dstx = location.X; int dsty = location.Y;
             for (int i = 0; i < source.Height; i++)
             {
-                int di = ((dsty + i) * Width) + dstx;
+                int di = ((y + i) * Width) + x;
                 int si = i * source.Width;
                 Array.Copy(source.Bits, si, Bits, di, source.Width);
             }
         }
 
-        public void DrawBitmapComposited(BitmapBits source, Point location)
+        public void DrawBitmap(BitmapBits source, Point location) { DrawBitmap(source, location.X, location.Y); }
+
+        public void DrawBitmapComposited(BitmapBits source, int x, int y)
         {
             int srcl = 0;
-            if (location.X < 0)
-                srcl = -location.X;
+            if (x < 0)
+                srcl = -x;
             int srct = 0;
-            if (location.Y < 0)
-                srct = -location.Y;
+            if (y < 0)
+                srct = -y;
             int srcr = source.Width;
-            if (srcr > Width - location.X)
-                srcr = Width - location.X;
+            if (srcr > Width - x)
+                srcr = Width - x;
             int srcb = source.Height;
-            if (srcb > Height - location.Y)
-                srcb = Height - location.Y;
-            for (int i = srct; i < srcb; i++)
-                for (int x = srcl; x < srcr; x++)
-                    if (source[x, i] != 0)
-                        this[location.X + x, location.Y + i] = source[x, i];
+            if (srcb > Height - y)
+                srcb = Height - y;
+            for (int c = srct; c < srcb; c++)
+                for (int r = srcl; r < srcr; r++)
+                    if (source[r, c] != 0)
+                        this[x + r, y + c] = source[r, c];
+        }
+
+        public void DrawBitmapComposited(BitmapBits source, Point location)
+        {
+            DrawBitmapComposited(source, location.X, location.Y);
         }
 
         public void Flip(bool XFlip, bool YFlip)
@@ -332,6 +329,16 @@ namespace SonicRetro.SonLVL.API
         public override int GetHashCode()
         {
             return base.GetHashCode();
+        }
+
+        public void DrawSprite(Sprite sprite, int x, int y)
+        {
+            DrawBitmapComposited(sprite.Image, sprite.X + x, sprite.Y + y);
+        }
+
+        public void DrawSprite(Sprite sprite, Point location)
+        {
+            DrawBitmapComposited(sprite.Image, location + new Size(sprite.Offset));
         }
     }
 }

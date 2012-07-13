@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Globalization;
 using System.Drawing;
+using System.Globalization;
+using System.IO;
+using System.Text;
 using SonicRetro.SonLVL.API;
 using SonicRetro.SonLVL.API.XMLDef;
 
@@ -77,7 +76,7 @@ namespace SonED2ObjDefConverter
                     int numbitfields = int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
                     if (numbitfields > 0)
                     {
-                        xmldata.Properties = new PropertyList() { Items = new object[numbitfields] };
+                        xmldata.Properties = new PropertyList() { Items = new Property[numbitfields] };
                         xmldata.Enums = new EnumList() { Items = new SonicRetro.SonLVL.API.XMLDef.Enum[numbitfields] };
                         for (int property = 0; property < numbitfields; property++)
                         {
@@ -145,13 +144,13 @@ namespace SonED2ObjDefConverter
                                 xmldata.Display.DisplayOptions[type].Images[sprite] = new ImageRef() { image = "Image" + (images.IndexOf(sprname) + 1).ToString(NumberFormatInfo.InvariantInfo), Offset = new XmlPoint() { X = int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo), Y = int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo) } };
                             }
                         }
-                        xmldata.Images = new ImageList() { Items = new object[images.Count] };
+                        xmldata.Images = new ImageList() { Items = new SonicRetro.SonLVL.API.XMLDef.Image[images.Count] };
                         for (int i = 0; i < images.Count; i++)
                             xmldata.Images.Items[i] = new ImageFromBitmap() { id = "Image" + (i + 1).ToString(NumberFormatInfo.InvariantInfo), filename = "Sprites/" + images[i] };
                     }
                     else
                     {
-                        xmldata.Images = new ImageList() { Items = new object[] { new ImageFromBitmap() { id = "Image1", filename = "Sprites/sprite0-1.png" } } };
+                        xmldata.Images = new ImageList() { Items = new SonicRetro.SonLVL.API.XMLDef.Image[] { new ImageFromBitmap() { id = "Image1", filename = "Sprites/sprite0-1.png" } } };
                         xmldata.Display = new Display() { DisplayOptions = new DisplayOption[] { new DisplayOption() { Images = new ImageRef[] { new ImageRef() { image = "Image1", Offset = new XmlPoint() { X = 8, Y = 7 } } } } } };
                     }
                     objectinis[zoneid][objid.ToString("X2")] = objdata;
@@ -208,7 +207,7 @@ namespace SonED2ObjDefConverter
                     result.Append(item);
             if (result[0] >= '0' & result[0] <= '9')
                 result.Insert(0, '_');
-            return new Microsoft.CSharp.CSharpCodeProvider().CreateValidIdentifier(result.ToString());
+            return result.ToString();
         }
     }
 }

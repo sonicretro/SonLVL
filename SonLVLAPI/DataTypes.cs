@@ -5,6 +5,58 @@ using System.Drawing;
 
 namespace SonicRetro.SonLVL.API
 {
+    public struct SonLVLColor
+    {
+        public byte R { get; set; }
+        public byte G { get; set; }
+        public byte B { get; set; }
+
+        public Color RGBColor
+        {
+            get
+            {
+                return Color.FromArgb(R, G, B);
+            }
+            set
+            {
+                R = value.R;
+                G = value.G;
+                B = value.B;
+            }
+        }
+        public ushort MDColor
+        {
+            get
+            {
+                return (ushort)(((RGBColor.R / 0x11) & 0xE) | (((RGBColor.G / 0x11) << 4) & 0xE0) | (((RGBColor.B / 0x11) << 8) & 0xE00));
+            }
+            set
+            {
+                RGBColor = Color.FromArgb((value & 0xE) * 0x11, ((value & 0xE0) >> 4) * 0x11, ((value & 0xE00) >> 8) * 0x11);
+            }
+        }
+
+        public SonLVLColor(byte red, byte green, byte blue)
+            : this()
+        {
+            R = red;
+            G = green;
+            B = blue;
+        }
+
+        public SonLVLColor(Color color)
+            : this()
+        {
+            RGBColor = color;
+        }
+
+        public SonLVLColor(ushort mdcolor)
+            : this()
+        {
+            MDColor = mdcolor;
+        }
+    }
+
     public class PatternIndex
     {
         public bool Priority { get; set; }
@@ -1168,14 +1220,30 @@ namespace SonicRetro.SonLVL.API
 
     public class MappingsTile
     {
-        public short Y { get; private set; }
-        public byte Width { get; private set; }
-        public byte Height { get; private set; }
-        public PatternIndex Tile { get; private set; }
-        public PatternIndex Tile2 { get; private set; }
-        public short X { get; private set; }
+        public short Y { get; set; }
+        public byte Width { get; set; }
+        public byte Height { get; set; }
+        public PatternIndex Tile { get; set; }
+        public PatternIndex Tile2 { get; set; }
+        public short X { get; set; }
 
         public static int Size(EngineVersion version) { switch (version) { case EngineVersion.S1: return 5; case EngineVersion.S2: case EngineVersion.SBoom: return 8; default: return 6; } }
+
+        public MappingsTile(short xpos, short ypos, byte width, byte height, ushort tile, bool xflip, bool yflip, byte pal, bool pri)
+        {
+            X = xpos;
+            Y = ypos;
+            Width = width;
+            Height = height;
+            Tile = new PatternIndex() { Tile = tile, XFlip = xflip, YFlip = yflip, Palette = pal, Priority = pri };
+            Tile2 = new PatternIndex() { Tile = (ushort)(tile >> 1), XFlip = xflip, YFlip = yflip, Palette = pal, Priority = pri };
+        }
+
+        public MappingsTile(short xpos, short ypos, byte width, byte height, ushort tile, bool xflip, bool yflip, byte pal, bool pri, ushort tile2, bool xflip2, bool yflip2, byte pal2, bool pri2)
+            : this(xpos, ypos, width, height, tile, xflip, yflip, pal, pri)
+        {
+            Tile2 = new PatternIndex() { Tile = tile2, XFlip = xflip2, YFlip = yflip2, Palette = pal2, Priority = pri2 };
+        }
 
         public MappingsTile(byte[] file, int address, EngineVersion version)
         {
@@ -1183,6 +1251,8 @@ namespace SonicRetro.SonLVL.API
             Width = (byte)(((file[address + 1] & 0xC) >> 2) + 1);
             Height = (byte)((file[address + 1] & 0x3) + 1);
             Tile = new PatternIndex(file, address + 2);
+            Tile2 = new PatternIndex(file, address + 2);
+            Tile2.Tile = (ushort)(Tile2.Tile >> 1);
             switch (version)
             {
                 case EngineVersion.S1:
@@ -1199,11 +1269,34 @@ namespace SonicRetro.SonLVL.API
                     break;
             }
         }
+
+        public byte[] GetBytes(EngineVersion version)
+        {
+            List<byte> result = new List<byte>(Size(version));
+            result.Add(unchecked((byte)((sbyte)Y)));
+            result.Add((byte)((((Width - 1) & 3) << 2) | ((Height - 1) & 3)));
+            result.AddRange(Tile.GetBytes());
+            switch (version)
+            {
+                case EngineVersion.S1:
+                    result.Add(unchecked((byte)((sbyte)X)));
+                    break;
+                case EngineVersion.S2:
+                case EngineVersion.SBoom:
+                    result.AddRange(Tile2.GetBytes());
+                    goto case EngineVersion.S3K;
+                case EngineVersion.S3K:
+                case EngineVersion.SKC:
+                    result.AddRange(ByteConverter.GetBytes(X));
+                    break;
+            }
+            return result.ToArray();
+        }
     }
 
     public class MappingsFrame
     {
-        public string Name { get; private set; }
+        public string Name { get; set; }
 
         private MappingsTile[] Tiles { get; set; }
         public MappingsTile this[int index] { get { return Tiles[index]; } }
@@ -1248,6 +1341,33 @@ namespace SonicRetro.SonLVL.API
             for (int i = 0; i < Tiles.Length; i++)
                 Tiles[i] = new MappingsTile(file, (i * MappingsTile.Size(version)) + address + (version == EngineVersion.S1 ? 1 : 2), version);
         }
+
+        public static byte[] GetBytes(MappingsFrame[] maps, EngineVersion version)
+        {
+            int off = maps.Length * 2;
+            List<byte> result = new List<byte>(off);
+            List<byte> mapbytes = new List<byte>();
+            foreach (MappingsFrame item in maps)
+            {
+                result.AddRange(ByteConverter.GetBytes((short)off));
+                mapbytes.AddRange(item.GetBytes(version));
+                off += item.Size(version);
+            }
+            result.AddRange(mapbytes);
+            return result.ToArray();
+        }
+
+        public byte[] GetBytes(EngineVersion version)
+        {
+            List<byte> result = new List<byte>(Size(version));
+            if (version == EngineVersion.S1)
+                result.Add((byte)TileCount);
+            else
+                result.AddRange(ByteConverter.GetBytes((ushort)TileCount));
+            foreach (MappingsTile tile in Tiles)
+                result.AddRange(tile.GetBytes(version));
+            return result.ToArray();
+        }
     }
 
     public class DPLCEntry
@@ -1256,6 +1376,12 @@ namespace SonicRetro.SonLVL.API
         public ushort TileNum { get; set; }
 
         public static int Size { get { return 2; } }
+
+        public DPLCEntry(byte tiles, ushort offset)
+        {
+            TileCount = tiles;
+            TileNum = offset;
+        }
 
         public DPLCEntry(byte[] file, int address, EngineVersion version)
         {
@@ -1276,11 +1402,26 @@ namespace SonicRetro.SonLVL.API
                     break;
             }
         }
+
+        public byte[] GetBytes(EngineVersion version)
+        {
+            switch (version)
+            {
+                case EngineVersion.S1:
+                case EngineVersion.S2:
+                case EngineVersion.SBoom:
+                    return ByteConverter.GetBytes((ushort)(((TileCount & 0xF) << 12) | (TileNum & 0xFFF)));
+                case EngineVersion.S3K:
+                case EngineVersion.SKC:
+                    return ByteConverter.GetBytes((ushort)(((TileNum & 0xFFF) << 4) | (TileCount & 0xF)));
+            }
+            throw new ArgumentOutOfRangeException("version");
+        }
     }
 
     public class DPLCFrame
     {
-        public string Name { get; private set; }
+        public string Name { get; set; }
 
         private DPLCEntry[] Tiles { get; set; }
         public DPLCEntry this[int index]
@@ -1303,7 +1444,7 @@ namespace SonicRetro.SonLVL.API
             List<DPLCFrame> result = new List<DPLCFrame>();
             foreach (int item in addresses)
             {
-                string name = "map_" + item.ToString("X4");
+                string name = "dplc_" + item.ToString("X4");
                 if (labels != null && labels.ContainsValue(item))
                     foreach (KeyValuePair<string, int> label in labels)
                         if (label.Value == item)
@@ -1343,6 +1484,129 @@ namespace SonicRetro.SonLVL.API
             }
             catch { }
         }
+
+        public static byte[] GetBytes(DPLCFrame[] dplcs, EngineVersion version)
+        {
+            int off = dplcs.Length * 2;
+            List<byte> result = new List<byte>(off);
+            List<byte> dplcbytes = new List<byte>();
+            foreach (DPLCFrame item in dplcs)
+            {
+                result.AddRange(ByteConverter.GetBytes((short)off));
+                dplcbytes.AddRange(item.GetBytes(version));
+                off += item.Size(version);
+            }
+            result.AddRange(dplcbytes);
+            return result.ToArray();
+        }
+
+        public byte[] GetBytes(EngineVersion version)
+        {
+            List<byte> result = new List<byte>(Size(version));
+            switch (version)
+            {
+                case EngineVersion.S1:
+                    result.Add((byte)Count);
+                    break;
+                case EngineVersion.S2:
+                case EngineVersion.SBoom:
+                    result.AddRange(ByteConverter.GetBytes((ushort)Count));
+                    break;
+                case EngineVersion.S3K:
+                    result.AddRange(ByteConverter.GetBytes((ushort)(Count - 1)));
+                    break;
+            }
+            foreach (DPLCEntry tile in Tiles)
+                result.AddRange(tile.GetBytes(version));
+            return result.ToArray();
+        }
+    }
+
+    public class Animation
+    {
+        public string Name { get; set; }
+
+        public byte Speed { get; private set; }
+
+        private byte[] Frames { get; set; }
+        public byte this[int index]
+        {
+            get { return Frames[index]; }
+        }
+
+        public byte EndType { get; private set; }
+
+        public byte? ExtraParam { get; private set; }
+
+        public int Count { get { return Frames.Length; } }
+
+        public int Size { get { return Count + 2 + (EndType == 0xFD | EndType == 0xFE ? 1 : 0); } }
+
+        public static Animation[] Load(byte[] file, Dictionary<string, int> labels)
+        {
+            int[] addresses = LevelData.GetOffsetList(file);
+            List<Animation> result = new List<Animation>();
+            foreach (int item in addresses)
+            {
+                string name = "ani_" + item.ToString("X4");
+                if (labels.ContainsValue(item))
+                    foreach (KeyValuePair<string, int> label in labels)
+                        if (label.Value == item)
+                        {
+                            name = label.Key;
+                            break;
+                        }
+                result.Add(new Animation(file, item, name));
+            }
+            return result.ToArray();
+        }
+
+        public Animation(byte[] file, int address, string name)
+        {
+            Name = name;
+            List<byte> fr = new List<byte>();
+            Speed = file[address++];
+            while (address < file.Length && file[address] < 0xF0)
+                fr.Add(file[address++]);
+            if (address < file.Length)
+                EndType = file[address++];
+            switch (EndType)
+            {
+                case 0xFE:
+                    ExtraParam = file[address++];
+                    break;
+                case 0xFD:
+                    ExtraParam = file[address++];
+                    break;
+            }
+            Frames = fr.ToArray();
+        }
+
+        public static byte[] GetBytes(Animation[] anims)
+        {
+            int off = anims.Length * 2;
+            List<byte> result = new List<byte>(off);
+            List<byte> dplcbytes = new List<byte>();
+            foreach (Animation item in anims)
+            {
+                result.AddRange(ByteConverter.GetBytes((short)off));
+                dplcbytes.AddRange(item.GetBytes());
+                off += item.Size;
+            }
+            result.AddRange(dplcbytes);
+            return result.ToArray();
+        }
+
+        public byte[] GetBytes()
+        {
+            List<byte> result = new List<byte>(Size);
+            result.Add(Speed);
+            result.AddRange(Frames);
+            result.Add(EndType);
+            if (ExtraParam.HasValue)
+                result.Add(ExtraParam.Value);
+            return result.ToArray();
+        }
     }
 
     [Serializable]
@@ -1367,23 +1631,34 @@ namespace SonicRetro.SonLVL.API
             Offset = off;
         }
 
+        public Sprite(Sprite sprite)
+        {
+            Image = new BitmapBits(sprite.Image);
+            Offset = sprite.Offset;
+        }
+
         public Sprite(params Sprite[] sprites)
+            : this(new List<Sprite>(sprites))
+        {
+        }
+
+        public Sprite(IEnumerable<Sprite> sprites)
         {
             int left = 0;
             int right = 0;
             int top = 0;
             int bottom = 0;
-            for (int i = 0; i < sprites.Length; i++)
+            foreach (Sprite spr in sprites)
             {
-                left = Math.Min(sprites[i].Left, left);
-                right = Math.Max(sprites[i].Right, right);
-                top = Math.Min(sprites[i].Top, top);
-                bottom = Math.Max(sprites[i].Bottom, bottom);
+                left = Math.Min(spr.Left, left);
+                right = Math.Max(spr.Right, right);
+                top = Math.Min(spr.Top, top);
+                bottom = Math.Max(spr.Bottom, bottom);
             }
             Offset = new Point(left, top);
             Image = new BitmapBits(right - left, bottom - top);
-            for (int i = 0; i < sprites.Length; i++)
-                Image.DrawBitmapComposited(sprites[i].Image, new Point(sprites[i].X - left, sprites[i].Y - top));
+            foreach (Sprite spr in sprites)
+                Image.DrawBitmapComposited(spr.Image, new Point(spr.X - left, spr.Y - top));
         }
     }
 }

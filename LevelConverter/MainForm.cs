@@ -146,7 +146,7 @@ namespace SonicRetro.SonLVL.LevelConverter
                     LevelData.littleendian = true;
                     break;
             }
-            Compression.CompressionType cmp = Compression.CompressionType.Uncompressed;
+            CompressionType cmp = CompressionType.Uncompressed;
             List<byte> tmp2 = new List<byte>();
             if (OutFmt != EngineVersion.SCDPC)
             {
@@ -154,18 +154,18 @@ namespace SonicRetro.SonLVL.LevelConverter
                 {
                     case EngineVersion.S1:
                     case EngineVersion.S2NA:
-                        cmp = Compression.CompressionType.Nemesis;
+                        cmp = CompressionType.Nemesis;
                         break;
                     case EngineVersion.S2:
                     case EngineVersion.SBoom:
-                        cmp = Compression.CompressionType.Kosinski;
+                        cmp = CompressionType.Kosinski;
                         break;
                     case EngineVersion.S3K:
                     case EngineVersion.SKC:
-                        cmp = Compression.CompressionType.KosinskiM;
+                        cmp = CompressionType.KosinskiM;
                         break;
                     default:
-                        cmp = Compression.CompressionType.Uncompressed;
+                        cmp = CompressionType.Uncompressed;
                         break;
                 }
                 foreach (byte[] tile in LevelData.Tiles)
@@ -218,7 +218,7 @@ namespace SonicRetro.SonLVL.LevelConverter
                 }
                 foreach (byte[] tile in LevelData.Tiles)
                     tmp2.AddRange(tile);
-                Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "Tiles.bin"), Compression.CompressionType.SZDD);
+                Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "Tiles.bin"), CompressionType.SZDD);
             }
             Level.Tiles = new FileList("Tiles.bin");
             tmp2 = new List<byte>();
@@ -233,16 +233,16 @@ namespace SonicRetro.SonLVL.LevelConverter
             switch (OutFmt)
             {
                 case EngineVersion.S1:
-                    cmp = Compression.CompressionType.Enigma;
+                    cmp = CompressionType.Enigma;
                     break;
                 case EngineVersion.S2:
                 case EngineVersion.S3K:
                 case EngineVersion.SKC:
                 case EngineVersion.SBoom:
-                    cmp = Compression.CompressionType.Kosinski;
+                    cmp = CompressionType.Kosinski;
                     break;
                 default:
-                    cmp = Compression.CompressionType.Uncompressed;
+                    cmp = CompressionType.Uncompressed;
                     break;
             }
             Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "Blocks.bin"), cmp);
@@ -503,10 +503,10 @@ namespace SonicRetro.SonLVL.LevelConverter
                 case EngineVersion.S2:
                 case EngineVersion.S3K:
                 case EngineVersion.SKC:
-                    cmp = Compression.CompressionType.Kosinski;
+                    cmp = CompressionType.Kosinski;
                     break;
                 default:
-                    cmp = Compression.CompressionType.Uncompressed;
+                    cmp = CompressionType.Uncompressed;
                     break;
             }
             Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "Chunks.bin"), cmp);
@@ -524,7 +524,7 @@ namespace SonicRetro.SonLVL.LevelConverter
                     for (int lr = 0; lr < LevelData.FGLayout.GetLength(1); lr++)
                         for (int lc = 0; lc < LevelData.FGLayout.GetLength(0); lc++)
                             tmp2.Add((byte)(LevelData.FGLayout[lc, lr] | (LevelData.FGLoop[lc, lr] ? 0x80 : 0)));
-                    Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "FGLayout.bin"), Compression.CompressionType.Uncompressed);
+                    Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "FGLayout.bin"), CompressionType.Uncompressed);
                     Level.FGLayout = "FGLayout.bin";
                     tmp2 = new List<byte>();
                     tmp2.Add((byte)(LevelData.BGLayout.GetLength(0) - 1));
@@ -532,7 +532,7 @@ namespace SonicRetro.SonLVL.LevelConverter
                     for (int lr = 0; lr < LevelData.BGLayout.GetLength(1); lr++)
                         for (int lc = 0; lc < LevelData.BGLayout.GetLength(0); lc++)
                             tmp2.Add((byte)(LevelData.BGLayout[lc, lr] | (LevelData.BGLoop[lc, lr] ? 0x80 : 0)));
-                    Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "BGLayout.bin"), Compression.CompressionType.Uncompressed);
+                    Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "BGLayout.bin"), CompressionType.Uncompressed);
                     Level.BGLayout = "BGLayout.bin";
                     break;
                 case EngineVersion.S2NA:
@@ -542,7 +542,7 @@ namespace SonicRetro.SonLVL.LevelConverter
                     for (int lr = 0; lr < LevelData.FGLayout.GetLength(1); lr++)
                         for (int lc = 0; lc < LevelData.FGLayout.GetLength(0); lc++)
                             tmp2.Add(LevelData.FGLayout[lc, lr]);
-                    Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "FGLayout.bin"), Compression.CompressionType.Uncompressed);
+                    Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "FGLayout.bin"), CompressionType.Uncompressed);
                     Level.FGLayout = "FGLayout.bin";
                     tmp2 = new List<byte>();
                     tmp2.Add((byte)(LevelData.BGLayout.GetLength(0) - 1));
@@ -550,7 +550,7 @@ namespace SonicRetro.SonLVL.LevelConverter
                     for (int lr = 0; lr < LevelData.BGLayout.GetLength(1); lr++)
                         for (int lc = 0; lc < LevelData.BGLayout.GetLength(0); lc++)
                             tmp2.Add(LevelData.BGLayout[lc, lr]);
-                    Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "BGLayout.bin"), Compression.CompressionType.Uncompressed);
+                    Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "BGLayout.bin"), CompressionType.Uncompressed);
                     Level.BGLayout = "BGLayout.bin";
                     break;
                 case EngineVersion.S2:
@@ -574,7 +574,7 @@ namespace SonicRetro.SonLVL.LevelConverter
                         else
                             tmp2.AddRange(new byte[128]);
                     }
-                    Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "Layout.bin"), Compression.CompressionType.Kosinski);
+                    Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "Layout.bin"), CompressionType.Kosinski);
                     Level.Layout = "Layout.bin";
                     break;
                 case EngineVersion.S3K:
@@ -600,7 +600,7 @@ namespace SonicRetro.SonLVL.LevelConverter
                     for (int y = 0; y < bgh; y++)
                         for (int x = 0; x < bgw; x++)
                             tmp2.Add(LevelData.BGLayout[x, y]);
-                    Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "Layout.bin"), Compression.CompressionType.Uncompressed);
+                    Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "Layout.bin"), CompressionType.Uncompressed);
                     Level.Layout = "Layout.bin";
                     break;
                 case EngineVersion.SKC:
@@ -629,7 +629,7 @@ namespace SonicRetro.SonLVL.LevelConverter
                             l.Add(LevelData.BGLayout[x, y]);
                     for (int i = 0; i < l.Count; i++)
                         tmp2.Add(l[i ^ 1]);
-                    Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "Layout.bin"), Compression.CompressionType.Uncompressed);
+                    Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "Layout.bin"), CompressionType.Uncompressed);
                     Level.Layout = "Layout.bin";
                     break;
                 case EngineVersion.SCDPC:
@@ -640,7 +640,7 @@ namespace SonicRetro.SonLVL.LevelConverter
                                 tmp2.Add(LevelData.FGLayout[lc, lr]);
                             else
                                 tmp2.Add(0);
-                    Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "FGLayout.bin"), Compression.CompressionType.Uncompressed);
+                    Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "FGLayout.bin"), CompressionType.Uncompressed);
                     Level.FGLayout = "FGLayout.bin";
                     tmp2 = new List<byte>();
                     for (int lr = 0; lr < 8; lr++)
@@ -649,7 +649,7 @@ namespace SonicRetro.SonLVL.LevelConverter
                                 tmp2.Add(LevelData.BGLayout[lc, lr]);
                             else
                                 tmp2.Add(0);
-                    Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "BGLayout.bin"), Compression.CompressionType.Uncompressed);
+                    Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "BGLayout.bin"), CompressionType.Uncompressed);
                     Level.BGLayout = "BGLayout.bin";
                     break;
                 case EngineVersion.SBoom:
@@ -663,20 +663,20 @@ namespace SonicRetro.SonLVL.LevelConverter
             {
                 for (int pl = 0; pl < 4; pl++)
                     for (int pi = 0; pi < 16; pi++)
-                        tmp2.AddRange(ByteConverter.GetBytes(LevelData.Palette[0][pl, pi]));
+                        tmp2.AddRange(ByteConverter.GetBytes(LevelData.Palette[0][pl, pi].MDColor));
             }
             else
             {
                 for (int pl = 0; pl < 4; pl++)
                     for (int pi = 0; pi < 16; pi++)
                     {
-                        tmp2.Add((byte)((LevelData.Palette[0][pl, pi] & 0xF) * 0x11));
-                        tmp2.Add((byte)(((LevelData.Palette[0][pl, pi] & 0xF0) >> 4) * 0x11));
-                        tmp2.Add((byte)(((LevelData.Palette[0][pl, pi] & 0xF00) >> 8) * 0x11));
+                        tmp2.Add(LevelData.Palette[0][pl, pi].R);
+                        tmp2.Add(LevelData.Palette[0][pl, pi].G);
+                        tmp2.Add(LevelData.Palette[0][pl, pi].B);
                         tmp2.Add((byte)1);
                     }
             }
-            Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "Palette.bin"), Compression.CompressionType.Uncompressed);
+            Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "Palette.bin"), CompressionType.Uncompressed);
             Level.Palette = new PaletteList("Palette.bin:0:0:64");
             switch (LevelData.Level.ObjectFormat)
             {
@@ -800,7 +800,7 @@ namespace SonicRetro.SonLVL.LevelConverter
                     }
                     break;
             }
-            Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "Objects.bin"), Compression.CompressionType.Uncompressed);
+            Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "Objects.bin"), CompressionType.Uncompressed);
             Level.Objects = "Objects.bin";
             if (LevelData.Rings != null)
             {
@@ -812,7 +812,7 @@ namespace SonicRetro.SonLVL.LevelConverter
                         for (int ri = 0; ri < LevelData.Rings.Count; ri++)
                             tmp2.AddRange(((S2RingEntry)LevelData.Rings[ri]).GetBytes());
                         tmp2.AddRange(new byte[] { 0xFF, 0xFF });
-                        Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "Rings.bin"), Compression.CompressionType.Uncompressed);
+                        Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "Rings.bin"), CompressionType.Uncompressed);
                         Level.Rings = "Rings.bin";
                         break;
                     case EngineVersion.S3K:
@@ -822,7 +822,7 @@ namespace SonicRetro.SonLVL.LevelConverter
                         for (int ri = 0; ri < LevelData.Rings.Count; ri++)
                             tmp2.AddRange(((S3KRingEntry)LevelData.Rings[ri]).GetBytes());
                         tmp2.AddRange(new byte[] { 0xFF, 0xFF });
-                        Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "Rings.bin"), Compression.CompressionType.Uncompressed);
+                        Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "Rings.bin"), CompressionType.Uncompressed);
                         Level.Rings = "Rings.bin";
                         break;
                     case EngineVersion.SBoom:
@@ -830,7 +830,7 @@ namespace SonicRetro.SonLVL.LevelConverter
                         for (int ri = 0; ri < LevelData.Rings.Count; ri++)
                             tmp2.AddRange(((SonicBoom.SBoomRingEntry)LevelData.Rings[ri]).GetBytes());
                         tmp2.AddRange(new byte[] { 0xFF, 0xFF });
-                        Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "Rings.bin"), Compression.CompressionType.Uncompressed);
+                        Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "Rings.bin"), CompressionType.Uncompressed);
                         Level.Rings = "Rings.bin";
                         break;
                 }
@@ -841,15 +841,15 @@ namespace SonicRetro.SonLVL.LevelConverter
                     case EngineVersion.S1:
                     case EngineVersion.SCD:
                     case EngineVersion.SCDPC:
-                        Compression.Compress(LevelData.ColInds1.ToArray(), Path.Combine(OutDir, "Indexes.bin"), Compression.CompressionType.Uncompressed);
+                        Compression.Compress(LevelData.ColInds1.ToArray(), Path.Combine(OutDir, "Indexes.bin"), CompressionType.Uncompressed);
                         Level.CollisionIndex = "Indexes.bin";
                         break;
                     case EngineVersion.S2:
                     case EngineVersion.S2NA:
                     case EngineVersion.SBoom:
-                        Compression.Compress(LevelData.ColInds1.ToArray(), Path.Combine(OutDir, "Indexes1.bin"), Compression.CompressionType.Kosinski);
+                        Compression.Compress(LevelData.ColInds1.ToArray(), Path.Combine(OutDir, "Indexes1.bin"), CompressionType.Kosinski);
                         Level.CollisionIndex1 = "Indexes1.bin";
-                        Compression.Compress(LevelData.ColInds2.ToArray(), Path.Combine(OutDir, "Indexes2.bin"), Compression.CompressionType.Kosinski);
+                        Compression.Compress(LevelData.ColInds2.ToArray(), Path.Combine(OutDir, "Indexes2.bin"), CompressionType.Kosinski);
                         Level.CollisionIndex2 = "Indexes2.bin";
                         break;
                     case EngineVersion.S3K:
@@ -860,13 +860,13 @@ namespace SonicRetro.SonLVL.LevelConverter
                             tmp2.Add(LevelData.ColInds1[i]);
                             tmp2.Add(LevelData.ColInds2[i]);
                         }
-                        Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "IndexesS3.bin"), Compression.CompressionType.Uncompressed);
+                        Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "IndexesS3.bin"), CompressionType.Uncompressed);
                         tmp2 = new List<byte>();
                         foreach (byte item in LevelData.ColInds1)
                             tmp2.AddRange(ByteConverter.GetBytes((ushort)item));
                         foreach (byte item in LevelData.ColInds2)
                             tmp2.AddRange(ByteConverter.GetBytes((ushort)item));
-                        Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "IndexesSK.bin"), Compression.CompressionType.Uncompressed);
+                        Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "IndexesSK.bin"), CompressionType.Uncompressed);
                         Level.CollisionIndex = "IndexesSK.bin";
                         Level.CollisionIndexSize = 2;
                         break;
@@ -877,19 +877,19 @@ namespace SonicRetro.SonLVL.LevelConverter
                 for (int i = 0; i < 256; i++)
                     for (int j = 0; j < 16; j++)
                         tmp2.Add(unchecked((byte)LevelData.ColArr1[i][j]));
-                Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "Collision.bin"), Compression.CompressionType.Uncompressed);
+                Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "Collision.bin"), CompressionType.Uncompressed);
                 Level.CollisionArray1 = "Collision.bin";
                 sbyte[][] rotcol = LevelData.GenerateRotatedCollision();
                 tmp2 = new List<byte>();
                 for (int i = 0; i < 256; i++)
                     for (int j = 0; j < 16; j++)
                         tmp2.Add(unchecked((byte)rotcol[i][j]));
-                Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "CollisionR.bin"), Compression.CompressionType.Uncompressed);
+                Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "CollisionR.bin"), CompressionType.Uncompressed);
                 Level.CollisionArray2 = "CollisionR.bin";
             }
             if (LevelData.Angles != null)
             {
-                Compression.Compress(LevelData.Angles, Path.Combine(OutDir, "Angles.bin"), Compression.CompressionType.Uncompressed);
+                Compression.Compress(LevelData.Angles, Path.Combine(OutDir, "Angles.bin"), CompressionType.Uncompressed);
                 Level.Angles = "Angles.bin";
             }
             Output.Save(Path.Combine(OutDir, OutFmt.ToString() + "LVL.ini"));

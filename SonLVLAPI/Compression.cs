@@ -1,9 +1,10 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using SonicRetro.KensSharp;
-using System;
 
 namespace SonicRetro.SonLVL.API
 {
+    [System.Diagnostics.DebuggerNonUserCode]
     public class Compression
     {
         public static byte[] Decompress(string file, CompressionType cmp)
@@ -95,16 +96,16 @@ namespace SonicRetro.SonLVL.API
                 throw;
             }
         }
+    }
 
-        public enum CompressionType
-        {
-            Invalid,
-            Uncompressed,
-            Kosinski,
-            KosinskiM,
-            Nemesis,
-            Enigma,
-            SZDD
-        }
+    public enum CompressionType
+    {
+        Invalid,
+        Uncompressed,
+        Kosinski,
+        KosinskiM,
+        Nemesis,
+        Enigma,
+        SZDD
     }
 }

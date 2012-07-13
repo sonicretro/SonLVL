@@ -123,6 +123,13 @@ namespace SonicRetro.SonLVL.Properties {
             }
         }
         
+        internal static System.Drawing.Icon ringmon1 {
+            get {
+                object obj = ResourceManager.GetObject("ringmon1", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap rng {
             get {
                 object obj = ResourceManager.GetObject("rng", resourceCulture);
@@ -130,9 +137,9 @@ namespace SonicRetro.SonLVL.Properties {
             }
         }
         
-        internal static System.Drawing.Icon telemon {
+        internal static System.Drawing.Icon Tailsmon2 {
             get {
-                object obj = ResourceManager.GetObject("telemon", resourceCulture);
+                object obj = ResourceManager.GetObject("Tailsmon2", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
             }
         }

@@ -13,8 +13,8 @@ namespace S12005ObjectDefinitions.Common
 
         public override void Init(ObjectData data)
         {
-            byte[] artfile1 = ObjectHelper.OpenArtFile("../artnem/springh.bin", Compression.CompressionType.Nemesis);
-            byte[] artfile2 = ObjectHelper.OpenArtFile("../artnem/springv.bin", Compression.CompressionType.Nemesis);
+            byte[] artfile1 = ObjectHelper.OpenArtFile("../artnem/springh.bin", CompressionType.Nemesis);
+            byte[] artfile2 = ObjectHelper.OpenArtFile("../artnem/springv.bin", CompressionType.Nemesis);
             string map = "../_maps/obj41.asm";
             img = ObjectHelper.MapASMToBmp(artfile1, map, 0, 0);
             imgs.Add(img); // 0x00

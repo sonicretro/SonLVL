@@ -4,7 +4,7 @@ namespace SonicRetro.SonLVL.API
 {
     public static class ObjectHelper
     {
-        public static byte[] OpenArtFile(string file, Compression.CompressionType comp) { return LevelData.ReadFile(file, comp); }
+        public static byte[] OpenArtFile(string file, CompressionType comp) { return LevelData.ReadFile(file, comp); }
 
         public static Sprite MapToBmp(byte[] artfile, byte[] mapfile, int frame, int startpal)
         {
@@ -25,7 +25,7 @@ namespace SonicRetro.SonLVL.API
 
         public static Sprite MapASMToBmp(byte[] artfile, string mapfileloc, int frame, int startpal, EngineVersion version)
         {
-            return MapToBmp(artfile, LevelData.ASMToBin(mapfileloc), frame, startpal, version);
+            return MapToBmp(artfile, LevelData.ASMToBin(mapfileloc, version), frame, startpal, version);
         }
 
         public static Sprite MapASMToBmp(byte[] artfile, string mapfileloc, string label, int startpal)
@@ -36,7 +36,7 @@ namespace SonicRetro.SonLVL.API
         {
             if (version == EngineVersion.Invalid)
                 version = LevelData.Game.MappingsVersion;
-            byte[] mapfile = LevelData.ASMToBin(mapfileloc, label);
+            byte[] mapfile = LevelData.ASMToBin(mapfileloc, label, version);
             return new Sprite(LevelData.MapFrameToBmp(artfile, new MappingsFrame(mapfile, 0, version, string.Empty), startpal));
         }
 
@@ -70,19 +70,19 @@ namespace SonicRetro.SonLVL.API
                 mapversion = LevelData.Game.MappingsVersion;
             if (dplcversion == EngineVersion.Invalid)
                 dplcversion = LevelData.Game.DPLCVersion;
-            byte[] mapfile = LevelData.ASMToBin(mapfileloc, label);
-            byte[] dplcfile = LevelData.ASMToBin(dplcloc, dplclabel);
+            byte[] mapfile = LevelData.ASMToBin(mapfileloc, label, mapversion);
+            byte[] dplcfile = LevelData.ASMToBin(dplcloc, dplclabel, dplcversion);
             return new Sprite(LevelData.MapFrameDPLCToBmp(artfile, new MappingsFrame(mapfile, 0, mapversion, string.Empty), new DPLCFrame(dplcfile, 0, dplcversion, string.Empty), startpal));
         }
 
         public static Sprite MapASMDPLCToBmp(byte[] artfile, string mapfileloc, string dplcloc, int frame, int startpal)
         {
-            return MapDPLCToBmp(artfile, LevelData.ASMToBin(mapfileloc), LevelData.ASMToBin(dplcloc), frame, startpal);
+            return MapDPLCToBmp(artfile, LevelData.ASMToBin(mapfileloc, LevelData.Game.MappingsVersion), LevelData.ASMToBin(dplcloc, LevelData.Game.DPLCVersion), frame, startpal);
         }
 
         public static Sprite MapASMDPLCToBmp(byte[] artfile, string mapfileloc, EngineVersion mapversion, string dplcloc, EngineVersion dplcversion, int frame, int startpal)
         {
-            return MapDPLCToBmp(artfile, LevelData.ASMToBin(mapfileloc), mapversion, LevelData.ASMToBin(dplcloc), dplcversion, frame, startpal);
+            return MapDPLCToBmp(artfile, LevelData.ASMToBin(mapfileloc, mapversion), mapversion, LevelData.ASMToBin(dplcloc, dplcversion), dplcversion, frame, startpal);
         }
 
         public static Sprite UnknownObject { get { return new Sprite(new BitmapBits(LevelData.UnknownImg), new Point(-8, -7)); } }
@@ -96,5 +96,7 @@ namespace SonicRetro.SonLVL.API
         public static int ShiftRight(int value, int num) { return value >> num; }
 
         public static byte SetSubtypeMask(byte subtype, byte value, int mask) { return (byte)((subtype & ~mask) | (value & mask)); }
+
+        public static bool Not(bool value) { return !value; }
     }
 }

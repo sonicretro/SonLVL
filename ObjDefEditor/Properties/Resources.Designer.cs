@@ -59,5 +59,12 @@ namespace ObjDefEditor.Properties {
                 resourceCulture = value;
             }
         }
+        
+        internal static System.Drawing.Icon randommon {
+            get {
+                object obj = ResourceManager.GetObject("randommon", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
     }
 }

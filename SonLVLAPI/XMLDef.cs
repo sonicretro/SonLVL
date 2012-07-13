@@ -1,6 +1,6 @@
-﻿using System.Xml.Serialization;
+﻿using System.Globalization;
 using System.Xml;
-using System.Text;
+using System.Xml.Serialization;
 
 namespace SonicRetro.SonLVL.API.XMLDef
 {
@@ -18,11 +18,14 @@ namespace SonicRetro.SonLVL.API.XMLDef
         public string Image { get; set; }
         [XmlAttribute]
         public bool RememberState { get; set; }
+        [XmlIgnore]
+        public bool RememberStateSpecified { get { return !RememberState; } set { } }
         [XmlAttribute]
         public bool Debug { get; set; }
+        [XmlIgnore]
+        public bool DebugSpecified { get { return !Debug; } set { } }
         public ImageList Images { get; set; }
         public SubtypeList Subtypes { get; set; }
-        public DataList Data { get; set; }
         public PropertyList Properties { get; set; }
         public EnumList Enums { get; set; }
         public Display Display { get; set; }
@@ -41,6 +44,7 @@ namespace SonicRetro.SonLVL.API.XMLDef
             XmlSerializer xs = new XmlSerializer(typeof(ObjDef));
             System.IO.StreamWriter sw = new System.IO.StreamWriter(filename);
             XmlTextWriter xtr = new XmlTextWriter(sw);
+            xtr.Formatting = Formatting.Indented;
             xs.Serialize(xtr, this);
             xtr.Close();
             sw.Close();
@@ -52,49 +56,53 @@ namespace SonicRetro.SonLVL.API.XMLDef
         [XmlAttribute]
         public string filename { get; set; }
         [XmlAttribute]
-        public Compression.CompressionType compression { get; set; }
+        public CompressionType compression { get; set; }
+        [XmlIgnore]
+        public bool compressionSpecified { get { return compression != CompressionType.Invalid; } set { } }
         [XmlAttribute]
         public int offset { get; set; }
         [XmlIgnore]
         public bool offsetSpecified { get; set; }
     }
 
-    public class MapFileBin
+    public class MapFile
     {
         [XmlAttribute]
-        public string filename { get; set; }
-        [XmlAttribute]
-        public string dplcfile { get; set; }
-        [XmlAttribute]
-        public int frame { get; set; }
-        [XmlAttribute]
-        public int startpal { get; set; }
-        [XmlAttribute]
-        public EngineVersion version { get; set; }
-        [XmlAttribute]
-        public EngineVersion dplcver { get; set; }
-    }
-
-    public class MapFileAsm
-    {
+        public MapFileType type { get; set; }
         [XmlAttribute]
         public string filename { get; set; }
-        [XmlAttribute]
-        public string dplcfile { get; set; }
         [XmlAttribute]
         public string label { get; set; }
+        [XmlIgnore]
+        public bool labelSpecified { get { return !string.IsNullOrEmpty(label); } set { } }
+        [XmlAttribute]
+        public string dplcfile { get; set; }
+        [XmlIgnore]
+        public bool dplcfileSpecified { get { return !string.IsNullOrEmpty(dplcfile); } set { } }
         [XmlAttribute]
         public string dplclabel { get; set; }
+        [XmlIgnore]
+        public bool dplclabelSpecified { get { return !string.IsNullOrEmpty(dplclabel); } set { } }
         [XmlAttribute]
         public int frame { get; set; }
         [XmlIgnore]
-        public bool frameSpecified { get; set; }
+        public bool frameSpecified { get { return string.IsNullOrEmpty(label); } set { } }
         [XmlAttribute]
         public int startpal { get; set; }
         [XmlAttribute]
         public EngineVersion version { get; set; }
+        [XmlIgnore]
+        public bool versionSpecified { get { return version != EngineVersion.Invalid; } set { } }
         [XmlAttribute]
         public EngineVersion dplcver { get; set; }
+        [XmlIgnore]
+        public bool dplcverSpecified { get { return dplcver != EngineVersion.Invalid; } set { } }
+    }
+
+    public enum MapFileType
+    {
+        Binary,
+        ASM
     }
 
     public class ImageList
@@ -102,47 +110,58 @@ namespace SonicRetro.SonLVL.API.XMLDef
         [XmlElement("ImageFromMappings", typeof(ImageFromMappings))]
         [XmlElement("ImageFromBitmap", typeof(ImageFromBitmap))]
         [XmlElement("ImageFromSprite", typeof(ImageFromSprite))]
-        public object[] Items { get; set; }
+        public Image[] Items { get; set; }
     }
 
-    public class ImageFromMappings
+    public abstract class Image
     {
         [XmlAttribute]
         public string id { get; set; }
+        public XmlPoint offset { get; set; }
+        [XmlIgnore]
+        public bool offsetSpecified { get { return !offset.IsEmpty; } set { } }
+    }
+
+    public class ImageFromMappings : Image
+    {
         [XmlElement("ArtFile")]
         public ArtFile[] ArtFiles { get; set; }
-        [XmlElement("MapFileBin", typeof(MapFileBin))]
-        [XmlElement("MapFileAsm", typeof(MapFileAsm))]
-        public object mappings { get; set; }
-        public XmlPoint offset { get; set; }
+        public MapFile MapFile { get; set; }
     }
 
-    public class ImageFromBitmap
+    public class ImageFromBitmap : Image
     {
         [XmlAttribute]
-        public string id { get; set; }
-        [XmlAttribute]
         public string filename { get; set; }
-        public XmlPoint offset { get; set; }
     }
 
-    public class XmlPoint
+    public struct XmlPoint
     {
         [XmlAttribute]
         public int X { get; set; }
+        [XmlIgnore]
+        public bool XSpecified { get { return X != 0; } set { } }
         [XmlAttribute]
         public int Y { get; set; }
+        [XmlIgnore]
+        public bool YSpecified { get { return Y != 0; } set { } }
+
+        public XmlPoint(int x, int y)
+            : this()
+        {
+            X = x;
+            Y = y;
+        }
+
+        public bool IsEmpty { get { return X == 0 & Y == 0; } }
 
         public System.Drawing.Point ToPoint() { return new System.Drawing.Point(X, Y); }
     }
 
-    public class ImageFromSprite
+    public class ImageFromSprite : Image
     {
         [XmlAttribute]
-        public string id { get; set; }
-        [XmlAttribute]
         public int frame { get; set; }
-        public XmlPoint offset { get; set; }
     }
 
     public class SubtypeList
@@ -156,86 +175,48 @@ namespace SonicRetro.SonLVL.API.XMLDef
         [XmlIgnore]
         public byte subtype { get; set; }
         [XmlAttribute]
-        public string id { get { return subtype.ToString("X2"); } set { subtype = byte.Parse(value, System.Globalization.NumberStyles.HexNumber); } }
+        public string id { get { return subtype.ToString("X2"); } set { subtype = byte.Parse(value, NumberStyles.HexNumber); } }
         [XmlAttribute]
         public string name { get; set; }
         [XmlAttribute]
         public string image { get; set; }
     }
 
-    public class DataList
-    {
-        [XmlElement("DataArray", typeof(DataArray))]
-        [XmlElement("DataFile", typeof(DataFile))]
-        public object[] Items { get; set; }
-    }
-
-    public class DataArray
-    {
-        [XmlAttribute]
-        public string id { get; set; }
-        [XmlAttribute]
-        public string type { get; set; }
-        [XmlIgnore]
-        public string[] Data { get; set; }
-        [XmlText]
-        public string _Text_
-        {
-            get
-            {
-                return string.Join(", ", Data);
-            }
-            set
-            {
-                string[] data = value.Split(',');
-                for (int i = 0; i < data.Length; i++)
-                    data[i] = data[i].Trim();
-                Data = data;
-            }
-        }
-    }
-
-    public class DataFile
-    {
-        [XmlAttribute]
-        public string id { get; set; }
-        [XmlAttribute]
-        public string filename { get; set; }
-    }
-
     public class PropertyList
     {
         [XmlElement("CustomProperty", typeof(CustomProperty))]
         [XmlElement("BitsProperty", typeof(BitsProperty))]
-        public object[] Items { get; set; }
+        public Property[] Items { get; set; }
     }
 
-    public class CustomProperty
+    public abstract class Property
     {
         [XmlAttribute]
         public string name { get; set; }
         [XmlAttribute]
         public string type { get; set; }
+        [XmlAttribute]
+        public string description { get; set; }
+        [XmlIgnore]
+        public bool descriptionSpecified { get { return !string.IsNullOrEmpty(description); } set { } }
+    }
+
+    public class CustomProperty : Property
+    {
         public string get { get; set; }
         public string set { get; set; }
         [XmlAttribute]
         public bool @override { get; set; }
-        [XmlAttribute]
-        public string description { get; set; }
+        [XmlIgnore]
+        public bool overrideSpecified { get { return !@override; } set { } }
     }
 
-    public class BitsProperty
+    public class BitsProperty : Property
     {
-        [XmlAttribute]
-        public string name { get; set; }
-        [XmlAttribute]
-        public string type { get; set; }
         [XmlAttribute]
         public int startbit { get; set; }
         [XmlAttribute]
         public int length { get; set; }
-        [XmlAttribute]
-        public string description { get; set; }
     }
 
     public class EnumList
@@ -264,8 +245,6 @@ namespace SonicRetro.SonLVL.API.XMLDef
 
     public class Display
     {
-        public string SpriteRoutine { get; set; }
-        public string BoundsRoutine { get; set; }
         [XmlElement("DisplayOption")]
         public DisplayOption[] DisplayOptions { get; set; }
     }
@@ -293,14 +272,24 @@ namespace SonicRetro.SonLVL.API.XMLDef
         [XmlAttribute]
         public string image { get; set; }
         public XmlPoint Offset { get; set; }
-        [XmlAttribute]
-        public bool xflip { get; set; }
         [XmlIgnore]
-        public bool xflipSpecified { get; set; }
+        public bool OffsetSpecified { get { return !Offset.IsEmpty; } set { } }
         [XmlAttribute]
-        public bool yflip { get; set; }
+        public FlipType xflip { get; set; }
         [XmlIgnore]
-        public bool yflipSpecified { get; set; }
+        public bool xflipSpecified { get { return xflip != FlipType.NormalFlip; } set { } }
+        [XmlAttribute]
+        public FlipType yflip { get; set; }
+        [XmlIgnore]
+        public bool yflipSpecified { get { return yflip != FlipType.NormalFlip; } set { } }
+    }
+
+    public enum FlipType
+    {
+        NormalFlip,
+        ReverseFlip,
+        NeverFlip,
+        AlwaysFlip
     }
 
     public class Line

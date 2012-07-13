@@ -15,7 +15,7 @@ namespace S3KObjectDefinitions.Common
         public override void Init(ObjectData data)
         {
             List<byte> tmpartfile = new List<byte>();
-            tmpartfile.AddRange(ObjectHelper.OpenArtFile("Common/pathswapper-art.bin", Compression.CompressionType.Nemesis));
+            tmpartfile.AddRange(ObjectHelper.OpenArtFile("Common/pathswapper-art.bin", CompressionType.Nemesis));
             byte[] artfile1 = tmpartfile.ToArray();
             img = ObjectHelper.MapASMToBmp(artfile1, "../General/Sprites/Level Misc/Map - Path Swap.asm", 0, 1);
             Point off;

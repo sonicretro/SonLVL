@@ -14,7 +14,7 @@ namespace S1ObjectDefinitions.GHZ
 
         public override void Init(ObjectData data)
         {
-            byte[] artfile = ObjectHelper.OpenArtFile("../artnem/GHZ Swinging Platform.bin", Compression.CompressionType.Nemesis);
+            byte[] artfile = ObjectHelper.OpenArtFile("../artnem/GHZ Swinging Platform.bin", CompressionType.Nemesis);
             img = ObjectHelper.MapASMToBmp(artfile, "../_maps/Swinging Platforms (GHZ).asm", 0, 2);
             for (int i = 0; i < labels.Length; i++)
                 imgs.Add(ObjectHelper.MapASMToBmp(artfile, "../_maps/Swinging Platforms (GHZ).asm", labels[i], i == 1 ? 1 : 2));

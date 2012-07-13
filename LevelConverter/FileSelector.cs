@@ -10,11 +10,15 @@ namespace SonicRetro.SonLVL.LevelConverter
     using System.ComponentModel;
     using System.IO;
     using System.Windows.Forms;
+    using System.Windows.Forms.Design;
+    using System.Collections;
+    using System.Windows.Forms.Design.Behavior;
 
     /// <summary>
     /// Provides a control for selecting a file from an <see cref="OpenFileDialog"/>, by drag and drop or manually typing the
     /// path in a <see cref="TextBox"/>.
     /// </summary>
+    [Designer(typeof(FileSelectorDesigner))]
     public partial class FileSelector : UserControl, ISupportInitialize
     {
         private static readonly object EventFileNameChanged = new object();
@@ -326,6 +330,19 @@ namespace SonicRetro.SonLVL.LevelConverter
             public string DefaultExt { get; set; }
 
             public string Filter { get; set; }
+        }
+    }
+
+    public class FileSelectorDesigner : ControlDesigner
+    {
+        public override IList SnapLines
+        {
+            get
+            {
+                ArrayList list = new ArrayList(base.SnapLines);
+                list.Add(new SnapLine(SnapLineType.Baseline, 17));
+                return list;
+            }
         }
     }
 }

@@ -12,7 +12,7 @@
     <AssemblyName>SonLVL</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <ApplicationIcon>Resources\telemon.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\ringmon1.ico</ApplicationIcon>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>
@@ -193,7 +193,6 @@
     <None Include="Resources\rng.png" />
     <None Include="Resources\watermon.ico" />
     <None Include="Resources\gogglemon.ico" />
-    <None Include="Resources\telemon.ico" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0">
@@ -234,6 +233,12 @@
       <Project>{01D2110B-F4E7-4914-8781-8B1C24D888AD}</Project>
       <Name>SonLVL.API</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ringmon1.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Tailsmon2.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

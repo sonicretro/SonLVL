@@ -37,14 +37,42 @@
     <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
     <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\randommon.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Design" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BugReportDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BugReportDialog.Designer.cs">
+      <DependentUpon>BugReportDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ErrorDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ErrorDialog.Designer.cs">
+      <DependentUpon>ErrorDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FileSelector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="FileSelector.designer.cs">
+      <DependentUpon>FileSelector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FileSelectorMode.cs" />
+    <Compile Include="IDDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="IDDialog.Designer.cs">
+      <DependentUpon>IDDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -53,6 +81,21 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="BugReportDialog.resx">
+      <DependentUpon>BugReportDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ErrorDialog.resx">
+      <DependentUpon>ErrorDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FileSelector.resx">
+      <DependentUpon>FileSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="IDDialog.resx">
+      <DependentUpon>IDDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -79,6 +122,9 @@
       <Project>{01D2110B-F4E7-4914-8781-8B1C24D888AD}</Project>
       <Name>SonLVL.API</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\randommon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
