@@ -5,6 +5,8 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Globalization;
 
 namespace SonicRetro.SonLVL.API
 {
@@ -126,10 +128,24 @@ namespace SonicRetro.SonLVL.API
 
         public static TKey GetKey<TKey, TValue>(this IDictionary<TKey, TValue> dict, TValue value)
         {
+            bool found = false;
+            TKey result = default(TKey);
             foreach (KeyValuePair<TKey, TValue> item in dict)
                 if (item.Value.Equals(value))
-                    return item.Key;
+                {
+                    found = true;
+                    result = item.Key;
+                }
+            if (found) return result;
             throw new KeyNotFoundException();
+        }
+
+        public static TKey GetKeyOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dict, TValue value, TKey @default)
+        {
+            foreach (KeyValuePair<TKey, TValue> item in dict)
+                if (item.Value.Equals(value))
+                    @default = item.Key;
+            return @default;
         }
 
         public static Dictionary<TValue, TKey> Swap<TKey, TValue>(this IDictionary<TKey, TValue> dict)
@@ -138,6 +154,59 @@ namespace SonicRetro.SonLVL.API
             foreach (KeyValuePair<TKey, TValue> item in dict)
                 result.Add(item.Value, item.Key);
             return result;
+        }
+
+        public static string MakeIdentifier(this string name)
+        {
+            StringBuilder result = new StringBuilder();
+            foreach (char item in name)
+                if ((item >= '0' & item <= '9') | (item >= 'A' & item <= 'Z') | (item >= 'a' & item <= 'z') | item == '_')
+                    result.Append(item);
+            if (result[0] >= '0' & result[0] <= '9')
+                result.Insert(0, '_');
+            return result.ToString();
+        }
+
+        public static string ToHex68k(this byte number)
+        {
+            if (number < 10)
+                return number.ToString(NumberFormatInfo.InvariantInfo);
+            else
+                return "$" + number.ToString("X");
+        }
+
+        public static string ToHex68k(this sbyte number)
+        {
+            if (number > -1)
+                if (number < 10)
+                    return number.ToString(NumberFormatInfo.InvariantInfo);
+                else
+                    return "$" + number.ToString("X");
+            else if (number == sbyte.MinValue)
+                return "$80";
+            else
+                return "-" + Math.Abs(number).ToHex68k();
+        }
+
+        public static string ToHex68k(this ushort number)
+        {
+            if (number < 10)
+                return number.ToString(NumberFormatInfo.InvariantInfo);
+            else
+                return "$" + number.ToString("X");
+        }
+
+        public static string ToHex68k(this short number)
+        {
+            if (number > -1)
+                if (number < 10)
+                    return number.ToString(NumberFormatInfo.InvariantInfo);
+                else
+                    return "$" + number.ToString("X");
+            else if (number == short.MinValue)
+                return "$8000";
+            else
+                return "-" + Math.Abs(number).ToHex68k();
         }
     }
 }

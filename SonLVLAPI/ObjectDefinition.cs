@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Drawing;
 using System.ComponentModel;
+using System.Drawing;
+using System.IO;
 
 namespace SonicRetro.SonLVL.API
 {
@@ -18,7 +19,8 @@ namespace SonicRetro.SonLVL.API
         [DefaultValue("Unknown")]
         public string Name;
         [IniName("art")]
-        public FileList Art;
+        [IniCollection(IniCollectionMode.SingleLine, Format = "|")]
+        public FileInfo[] Art;
         [IniName("artcmp")]
         [DefaultValue(CompressionType.Nemesis)]
         public CompressionType ArtCompression;
@@ -57,11 +59,13 @@ namespace SonicRetro.SonLVL.API
         public Size Offset;
         [IniName("rememberstate")]
         public bool RememberState;
+        [IniName("defaultsubtype")]
+        public string DefaultSubtype;
         [IniName("debug")]
         public bool Debug;
         [IniName("subtypes")]
         public string Subtypes;
-        [IniCollection]
+        [IniCollection(IniCollectionMode.IndexOnly)]
         public Dictionary<string, string> CustomProperties;
 
         public ObjectData()
@@ -79,39 +83,386 @@ namespace SonicRetro.SonLVL.API
     public abstract class ObjectDefinition
     {
         public abstract void Init(ObjectData data);
-        public abstract ReadOnlyCollection<byte> Subtypes();
-        public abstract string Name();
-        public abstract bool RememberState();
+        public abstract ReadOnlyCollection<byte> Subtypes { get; }
         public abstract string SubtypeName(byte subtype);
-        public abstract BitmapBits Image();
-        public abstract BitmapBits Image(byte subtype);
+        public abstract Sprite SubtypeImage(byte subtype);
+        public abstract string Name { get; }
+        public virtual bool RememberState { get { return false; } }
+        public virtual byte DefaultSubtype { get { return 0; } }
+        public abstract Sprite Image { get; }
         public abstract Sprite GetSprite(ObjectEntry obj);
-        public abstract Rectangle Bounds(ObjectEntry obj, Point camera);
+        public abstract Rectangle GetBounds(ObjectEntry obj, Point camera);
         public virtual bool Debug { get { return false; } }
+        public virtual PropertySpec[] CustomProperties { get { return new PropertySpec[0]; } }
+    }
 
-        public virtual Type ObjectType
+    /// <summary>
+    /// Represents a single property in a PropertySpec.
+    /// </summary>
+    public class PropertySpec
+    {
+        private Attribute[] attributes;
+        private string category;
+        private object defaultValue;
+        private string description;
+        private string name;
+        private Type type;
+        private Type typeConverter;
+        private Dictionary<string, int> @enum;
+        private Func<ObjectEntry, object> getMethod;
+        private Action<ObjectEntry, object> setMethod;
+
+        /// <summary>
+        /// Initializes a new instance of the PropertySpec class.
+        /// </summary>
+        /// <param name="name">The name of the property displayed in the property grid.</param>
+        /// <param name="type">The fully qualified name of the type of the property.</param>
+        /// <param name="category">The category under which the property is displayed in the
+        /// property grid.</param>
+        /// <param name="description">A string that is displayed in the help area of the
+        /// property grid.</param>
+        /// <param name="defaultValue">The default value of the property, or null if there is
+        /// no default value.</param>
+        /// <param name="getMethod">The method called to get the value of the property.</param>
+        /// <param name="setMethod">The method called to set the value of the property.</param>
+        public PropertySpec(string name, string type, string category, string description, object defaultValue, Func<ObjectEntry, object> getMethod, Action<ObjectEntry, object> setMethod)
+            : this(name, Type.GetType(type), category, description, defaultValue, getMethod, setMethod) { }
+
+        /// <summary>
+        /// Initializes a new instance of the PropertySpec class.
+        /// </summary>
+        /// <param name="name">The name of the property displayed in the property grid.</param>
+        /// <param name="type">A Type that represents the type of the property.</param>
+        /// <param name="category">The category under which the property is displayed in the
+        /// property grid.</param>
+        /// <param name="description">A string that is displayed in the help area of the
+        /// property grid.</param>
+        /// <param name="defaultValue">The default value of the property, or null if there is
+        /// no default value.</param>
+        /// <param name="getMethod">The method called to get the value of the property.</param>
+        /// <param name="setMethod">The method called to set the value of the property.</param>
+        public PropertySpec(string name, Type type, string category, string description, object defaultValue, Func<ObjectEntry, object> getMethod, Action<ObjectEntry, object> setMethod)
+        {
+            this.name = name;
+            this.type = type;
+            this.category = category;
+            this.description = description;
+            this.defaultValue = defaultValue;
+            this.attributes = null;
+            this.getMethod = getMethod;
+            this.setMethod = setMethod;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the PropertySpec class.
+        /// </summary>
+        /// <param name="name">The name of the property displayed in the property grid.</param>
+        /// <param name="type">The fully qualified name of the type of the property.</param>
+        /// <param name="category">The category under which the property is displayed in the
+        /// property grid.</param>
+        /// <param name="description">A string that is displayed in the help area of the
+        /// property grid.</param>
+        /// <param name="defaultValue">The default value of the property, or null if there is
+        /// no default value.</param>
+        /// <param name="typeConverter">The fully qualified name of the type of the type
+        /// converter for this property.  This type must derive from TypeConverter.</param>
+        /// <param name="getMethod">The method called to get the value of the property.</param>
+        /// <param name="setMethod">The method called to set the value of the property.</param>
+        public PropertySpec(string name, string type, string category, string description, object defaultValue, string typeConverter, Func<ObjectEntry, object> getMethod, Action<ObjectEntry, object> setMethod)
+            : this(name, Type.GetType(type), category, description, defaultValue, Type.GetType(typeConverter), getMethod, setMethod) { }
+
+        /// <summary>
+        /// Initializes a new instance of the PropertySpec class.
+        /// </summary>
+        /// <param name="name">The name of the property displayed in the property grid.</param>
+        /// <param name="type">A Type that represents the type of the property.</param>
+        /// <param name="category">The category under which the property is displayed in the
+        /// property grid.</param>
+        /// <param name="description">A string that is displayed in the help area of the
+        /// property grid.</param>
+        /// <param name="defaultValue">The default value of the property, or null if there is
+        /// no default value.</param>
+        /// <param name="typeConverter">The fully qualified name of the type of the type
+        /// converter for this property.  This type must derive from TypeConverter.</param>
+        /// <param name="getMethod">The method called to get the value of the property.</param>
+        /// <param name="setMethod">The method called to set the value of the property.</param>
+        public PropertySpec(string name, Type type, string category, string description, object defaultValue, string typeConverter, Func<ObjectEntry, object> getMethod, Action<ObjectEntry, object> setMethod) :
+            this(name, type, category, description, defaultValue, Type.GetType(typeConverter), getMethod, setMethod) { }
+
+        /// <summary>
+        /// Initializes a new instance of the PropertySpec class.
+        /// </summary>
+        /// <param name="name">The name of the property displayed in the property grid.</param>
+        /// <param name="type">The fully qualified name of the type of the property.</param>
+        /// <param name="category">The category under which the property is displayed in the
+        /// property grid.</param>
+        /// <param name="description">A string that is displayed in the help area of the
+        /// property grid.</param>
+        /// <param name="defaultValue">The default value of the property, or null if there is
+        /// no default value.</param>
+        /// <param name="typeConverter">The Type that represents the type of the type
+        /// converter for this property.  This type must derive from TypeConverter.</param>
+        /// <param name="getMethod">The method called to get the value of the property.</param>
+        /// <param name="setMethod">The method called to set the value of the property.</param>
+        public PropertySpec(string name, string type, string category, string description, object defaultValue, Type typeConverter, Func<ObjectEntry, object> getMethod, Action<ObjectEntry, object> setMethod) :
+            this(name, Type.GetType(type), category, description, defaultValue, typeConverter, getMethod, setMethod) { }
+
+        /// <summary>
+        /// Initializes a new instance of the PropertySpec class.
+        /// </summary>
+        /// <param name="name">The name of the property displayed in the property grid.</param>
+        /// <param name="type">A Type that represents the type of the property.</param>
+        /// <param name="category">The category under which the property is displayed in the
+        /// property grid.</param>
+        /// <param name="description">A string that is displayed in the help area of the
+        /// property grid.</param>
+        /// <param name="defaultValue">The default value of the property, or null if there is
+        /// no default value.</param>
+        /// <param name="typeConverter">The Type that represents the type of the type
+        /// converter for this property.  This type must derive from TypeConverter.</param>
+        /// <param name="getMethod">The method called to get the value of the property.</param>
+        /// <param name="setMethod">The method called to set the value of the property.</param>
+        public PropertySpec(string name, Type type, string category, string description, object defaultValue, Type typeConverter, Func<ObjectEntry, object> getMethod, Action<ObjectEntry, object> setMethod) :
+            this(name, type, category, description, defaultValue, getMethod, setMethod)
+        {
+            this.typeConverter = typeConverter;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the PropertySpec class.
+        /// </summary>
+        /// <param name="name">The name of the property displayed in the property grid.</param>
+        /// <param name="type">The fully qualified name of the type of the property.</param>
+        /// <param name="category">The category under which the property is displayed in the
+        /// property grid.</param>
+        /// <param name="description">A string that is displayed in the help area of the
+        /// property grid.</param>
+        /// <param name="defaultValue">The default value of the property, or null if there is
+        /// no default value.</param>
+        /// <param name="typeConverter">The fully qualified name of the type of the type
+        /// converter for this property.  This type must derive from TypeConverter.</param>
+        /// <param name="enum">The enumeration used by the property.</param>
+        /// <param name="getMethod">The method called to get the value of the property.</param>
+        /// <param name="setMethod">The method called to set the value of the property.</param>
+        public PropertySpec(string name, string type, string category, string description, object defaultValue, string typeConverter, Dictionary<string, int> @enum, Func<ObjectEntry, object> getMethod, Action<ObjectEntry, object> setMethod)
+            : this(name, Type.GetType(type), category, description, defaultValue, Type.GetType(typeConverter), @enum, getMethod, setMethod) { }
+
+        /// <summary>
+        /// Initializes a new instance of the PropertySpec class.
+        /// </summary>
+        /// <param name="name">The name of the property displayed in the property grid.</param>
+        /// <param name="type">A Type that represents the type of the property.</param>
+        /// <param name="category">The category under which the property is displayed in the
+        /// property grid.</param>
+        /// <param name="description">A string that is displayed in the help area of the
+        /// property grid.</param>
+        /// <param name="defaultValue">The default value of the property, or null if there is
+        /// no default value.</param>
+        /// <param name="typeConverter">The fully qualified name of the type of the type
+        /// converter for this property.  This type must derive from TypeConverter.</param>
+        /// <param name="enum">The enumeration used by the property.</param>
+        /// <param name="getMethod">The method called to get the value of the property.</param>
+        /// <param name="setMethod">The method called to set the value of the property.</param>
+        public PropertySpec(string name, Type type, string category, string description, object defaultValue, string typeConverter, Dictionary<string,int> @enum, Func<ObjectEntry, object> getMethod, Action<ObjectEntry, object> setMethod) :
+            this(name, type, category, description, defaultValue, Type.GetType(typeConverter), @enum, getMethod, setMethod) { }
+
+        /// <summary>
+        /// Initializes a new instance of the PropertySpec class.
+        /// </summary>
+        /// <param name="name">The name of the property displayed in the property grid.</param>
+        /// <param name="type">The fully qualified name of the type of the property.</param>
+        /// <param name="category">The category under which the property is displayed in the
+        /// property grid.</param>
+        /// <param name="description">A string that is displayed in the help area of the
+        /// property grid.</param>
+        /// <param name="defaultValue">The default value of the property, or null if there is
+        /// no default value.</param>
+        /// <param name="typeConverter">The Type that represents the type of the type
+        /// converter for this property.  This type must derive from TypeConverter.</param>
+        /// <param name="enum">The enumeration used by the property.</param>
+        /// <param name="getMethod">The method called to get the value of the property.</param>
+        /// <param name="setMethod">The method called to set the value of the property.</param>
+        public PropertySpec(string name, string type, string category, string description, object defaultValue, Type typeConverter, Dictionary<string, int> @enum, Func<ObjectEntry, object> getMethod, Action<ObjectEntry, object> setMethod) :
+            this(name, Type.GetType(type), category, description, defaultValue, typeConverter, @enum, getMethod, setMethod) { }
+
+        /// <summary>
+        /// Initializes a new instance of the PropertySpec class.
+        /// </summary>
+        /// <param name="name">The name of the property displayed in the property grid.</param>
+        /// <param name="type">A Type that represents the type of the property.</param>
+        /// <param name="category">The category under which the property is displayed in the
+        /// property grid.</param>
+        /// <param name="description">A string that is displayed in the help area of the
+        /// property grid.</param>
+        /// <param name="defaultValue">The default value of the property, or null if there is
+        /// no default value.</param>
+        /// <param name="typeConverter">The Type that represents the type of the type
+        /// converter for this property.  This type must derive from TypeConverter.</param>
+        /// <param name="enum">The enumeration used by the property.</param>
+        /// <param name="getMethod">The method called to get the value of the property.</param>
+        /// <param name="setMethod">The method called to set the value of the property.</param>
+        public PropertySpec(string name, Type type, string category, string description, object defaultValue, Type typeConverter, Dictionary<string, int> @enum, Func<ObjectEntry, object> getMethod, Action<ObjectEntry, object> setMethod) :
+            this(name, type, category, description, defaultValue, typeConverter, getMethod, setMethod)
+        {
+            this.@enum = @enum;
+        }
+
+        /// <summary>
+        /// Gets or sets a collection of additional Attributes for this property.  This can
+        /// be used to specify attributes beyond those supported intrinsically by the
+        /// PropertySpec class, such as ReadOnly and Browsable.
+        /// </summary>
+        public Attribute[] Attributes
+        {
+            get { return attributes; }
+            set { attributes = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the category name of this property.
+        /// </summary>
+        public string Category
+        {
+            get { return category; }
+            set { category = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the default value of this property.
+        /// </summary>
+        public object DefaultValue
+        {
+            get { return defaultValue; }
+            set { defaultValue = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the help text description of this property.
+        /// </summary>
+        public string Description
+        {
+            get { return description; }
+            set { description = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the name of this property.
+        /// </summary>
+        public string Name
+        {
+            get { return name; }
+            set { name = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the type of this property.
+        /// </summary>
+        public Type Type
+        {
+            get { return type; }
+            set { type = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets the type converter
+        /// type for this property.
+        /// </summary>
+        public Type ConverterType
+        {
+            get { return typeConverter; }
+            set { typeConverter = value; }
+        }
+
+        public object GetValue(ObjectEntry item)
+        {
+            return getMethod(item);
+        }
+
+        public void SetValue(ObjectEntry item, object value)
+        {
+            setMethod(item, value);
+        }
+
+        public Dictionary<string, int> Enumeration
+        {
+            get { return @enum; }
+            set { @enum = value; }
+        }
+    }
+
+    internal class PropertySpecDescriptor : PropertyDescriptor
+    {
+        private PropertySpec item;
+
+        public PropertySpecDescriptor(PropertySpec item, string name, Attribute[] attrs) :
+            base(name, attrs)
+        {
+            this.item = item;
+        }
+
+        public override Type ComponentType
+        {
+            get { return item.GetType(); }
+        }
+
+        public override bool IsReadOnly
+        {
+            get { return (Attributes.Matches(ReadOnlyAttribute.Yes)); }
+        }
+
+        public override Type PropertyType
+        {
+            get { return item.Type; }
+        }
+
+        public override bool CanResetValue(object component)
+        {
+            if (item.DefaultValue == null)
+                return false;
+            else
+                return !this.GetValue(component).Equals(item.DefaultValue);
+        }
+
+        public override object GetValue(object component)
+        {
+            return item.GetValue((ObjectEntry)component);
+        }
+
+        public override void ResetValue(object component)
+        {
+            SetValue(component, item.DefaultValue);
+        }
+
+        public override void SetValue(object component, object value)
+        {
+            item.SetValue((ObjectEntry)component, value);
+        }
+
+        public override bool ShouldSerializeValue(object component)
+        {
+            object val = this.GetValue(component);
+
+            if (item.DefaultValue == null && val == null)
+                return false;
+            else
+                return !val.Equals(item.DefaultValue);
+        }
+
+        public override TypeConverter Converter
         {
             get
             {
-                switch (LevelData.Level.ObjectFormat)
-                {
-                    case EngineVersion.S1:
-                        return typeof(S1ObjectEntry);
-                    case EngineVersion.S2:
-                    case EngineVersion.S2NA:
-                    case EngineVersion.SBoom:
-                        return typeof(S2ObjectEntry);
-                    case EngineVersion.S3K:
-                    case EngineVersion.SKC:
-                        return typeof(S3KObjectEntry);
-                    case EngineVersion.SCD:
-                    case EngineVersion.SCDPC:
-                        return typeof(SCDObjectEntry);
-                    default:
-                        return typeof(ObjectEntry);
-                }
+                if (item.ConverterType != null)
+                    return (TypeConverter)Activator.CreateInstance(item.ConverterType);
+                return base.Converter;
             }
         }
+
+        public override string Category { get { return item.Category; } }
+
+        public override string Description { get { return item.Description; } }
+
+        public Dictionary<string, int> Enumeration { get { return item.Enumeration; } }
     }
 
     public class DefaultObjectDefinition : ObjectDefinition
@@ -119,6 +470,7 @@ namespace SonicRetro.SonLVL.API
         private Sprite spr;
         private string name;
         private bool rememberstate;
+        private byte defsub;
         private List<byte> subtypes = new List<byte>();
         bool debug = false;
 
@@ -164,7 +516,7 @@ namespace SonicRetro.SonLVL.API
                 }
                 else if (data.Image != null)
                 {
-                    BitmapBits img = new BitmapBits(new Bitmap(data.Image));
+                    BitmapBits img = new BitmapBits(data.Image);
                     spr = new Sprite(img, new Point(data.Offset));
                     debug = true;
                 }
@@ -183,43 +535,29 @@ namespace SonicRetro.SonLVL.API
                 debug = true;
             }
             rememberstate = data.RememberState;
+            if (!string.IsNullOrEmpty(data.DefaultSubtype))
+                defsub = byte.Parse(data.DefaultSubtype, System.Globalization.NumberStyles.HexNumber);
             debug = debug | data.Debug;
             string[] subs = (data.Subtypes ?? string.Empty).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (string item in subs)
                 subtypes.Add(byte.Parse(item, System.Globalization.NumberStyles.HexNumber));
         }
 
-        public override ReadOnlyCollection<byte> Subtypes()
-        {
-            return new ReadOnlyCollection<byte>(subtypes);
-        }
+        public override ReadOnlyCollection<byte> Subtypes { get { return new ReadOnlyCollection<byte>(subtypes); } }
 
-        public override string Name()
-        {
-            return name;
-        }
+        public override string SubtypeName(byte subtype) { return string.Empty; }
 
-        public override bool RememberState()
-        {
-            return rememberstate;
-        }
+        public override Sprite SubtypeImage(byte subtype) { return Image; }
 
-        public override string SubtypeName(byte subtype)
-        {
-            return string.Empty;
-        }
+        public override string Name { get { return name; } }
 
-        public override BitmapBits Image()
-        {
-            return spr.Image;
-        }
+        public override bool RememberState { get { return rememberstate; } }
 
-        public override BitmapBits Image(byte subtype)
-        {
-            return spr.Image;
-        }
+        public override byte DefaultSubtype { get { return defsub; } }
 
-        public override Rectangle Bounds(ObjectEntry obj, Point camera)
+        public override Sprite Image { get { return spr; } }
+
+        public override Rectangle GetBounds(ObjectEntry obj, Point camera)
         {
             return new Rectangle((obj.X + spr.Offset.X) - camera.X, (obj.Y + spr.Offset.Y) - camera.Y, spr.Image.Width, spr.Image.Height);
         }
@@ -234,13 +572,641 @@ namespace SonicRetro.SonLVL.API
         public override bool Debug { get { return debug; } }
     }
 
+    public class XMLObjectDefinition : ObjectDefinition
+    {
+        class PropertyInfo
+        {
+            private Type type;
+            private Dictionary<string, int> @enum;
+            private Func<ObjectEntry, object> getMethod;
+            private Action<ObjectEntry, object> setMethod;
+
+            /// <summary>
+            /// Initializes a new instance of the PropertyInfo class.
+            /// </summary>
+            /// <param name="type">The fully qualified name of the type of the property.</param>
+            /// <param name="getMethod">The method called to get the value of the property.</param>
+            /// <param name="setMethod">The method called to set the value of the property.</param>
+            public PropertyInfo(string type, Func<ObjectEntry, object> getMethod, Action<ObjectEntry, object> setMethod)
+                : this(Type.GetType(type), getMethod, setMethod) { }
+
+            /// <summary>
+            /// Initializes a new instance of the PropertyInfo class.
+            /// </summary>
+            /// <param name="type">A Type that represents the type of the property.</param>
+            /// <param name="getMethod">The method called to get the value of the property.</param>
+            /// <param name="setMethod">The method called to set the value of the property.</param>
+            public PropertyInfo(Type type, Func<ObjectEntry, object> getMethod, Action<ObjectEntry, object> setMethod)
+            {
+                this.type = type;
+                this.getMethod = getMethod;
+                this.setMethod = setMethod;
+            }
+
+            /// <summary>
+            /// Initializes a new instance of the PropertyInfo class.
+            /// </summary>
+            /// <param name="type">The fully qualified name of the type of the property.</param>
+            /// <param name="enum">The enumeration used by the property.</param>
+            /// <param name="getMethod">The method called to get the value of the property.</param>
+            /// <param name="setMethod">The method called to set the value of the property.</param>
+            public PropertyInfo(string type, Dictionary<string, int> @enum, Func<ObjectEntry, object> getMethod, Action<ObjectEntry, object> setMethod)
+                : this(Type.GetType(type), @enum, getMethod, setMethod) { }
+
+            /// <summary>
+            /// Initializes a new instance of the PropertyInfo class.
+            /// </summary>
+            /// <param name="type">A Type that represents the type of the property.</param>
+            /// <param name="enum">The enumeration used by the property.</param>
+            /// <param name="getMethod">The method called to get the value of the property.</param>
+            /// <param name="setMethod">The method called to set the value of the property.</param>
+            public PropertyInfo(Type type, Dictionary<string, int> @enum, Func<ObjectEntry, object> getMethod, Action<ObjectEntry, object> setMethod)
+                : this(type, getMethod, setMethod)
+            {
+                this.@enum = @enum;
+            }
+
+            /// <summary>
+            /// Gets or sets the type of this property.
+            /// </summary>
+            public Type Type
+            {
+                get { return type; }
+                set { type = value; }
+            }
+
+            public object GetValue(ObjectEntry item)
+            {
+                return getMethod(item);
+            }
+
+            public void SetValue(ObjectEntry item, object value)
+            {
+                setMethod(item, value);
+            }
+
+            public Dictionary<string, int> Enumeration { get { return @enum; } }
+        }
+
+        public class EnumConverter : TypeConverter
+        {
+            public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+            {
+                if (sourceType == typeof(string))
+                    return true;
+                return base.CanConvertFrom(context, sourceType);
+            }
+
+            public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
+            {
+                if (destinationType == typeof(int))
+                    return true;
+                return base.CanConvertTo(context, destinationType);
+            }
+
+            public override object ConvertFrom(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value)
+            {
+                if (value is string)
+                {
+                    Dictionary<string, int> values = ((PropertySpecDescriptor)context.PropertyDescriptor).Enumeration;
+                    if (values.ContainsKey((string)value))
+                        return values[(string)value];
+                    else
+                        return int.Parse((string)value, culture);
+                }
+                return base.ConvertFrom(context, culture, value);
+            }
+
+            public override object ConvertTo(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value, Type destinationType)
+            {
+                if (destinationType == typeof(string) && value is int)
+                {
+                    Dictionary<string, int> values = ((PropertySpecDescriptor)context.PropertyDescriptor).Enumeration;
+                    if (values.ContainsValue((int)value))
+                        return values.GetKey((int)value);
+                    else
+                        return ((int)value).ToString(culture);
+                }
+                return base.ConvertTo(context, culture, value, destinationType);
+            }
+
+            public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+            {
+                return new StandardValuesCollection(((PropertySpecDescriptor)context.PropertyDescriptor).Enumeration.Keys);
+            }
+
+            public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
+            {
+                return true;
+            }
+        }
+
+        XMLDef.ObjDef xmldef;
+        Dictionary<string, Sprite> images = new Dictionary<string, Sprite>();
+        Sprite unkobj;
+        PropertySpec[] customProperties = new PropertySpec[0];
+        Dictionary<string, PropertyInfo> propertyInfo = new Dictionary<string, PropertyInfo>();
+        Dictionary<string, Dictionary<string, int>> enums;
+
+        public override void Init(ObjectData data)
+        {
+            xmldef = XMLDef.ObjDef.Load(data.XMLFile);
+            if (xmldef.Images != null && xmldef.Images.Items != null)
+                foreach (XMLDef.Image item in xmldef.Images.Items)
+                {
+                    Sprite sprite = default(Sprite);
+                    if (item is XMLDef.ImageFromBitmap)
+                    {
+                        XMLDef.ImageFromBitmap bmpimg = (XMLDef.ImageFromBitmap)item;
+                        sprite = new Sprite(new BitmapBits(bmpimg.filename), bmpimg.offset.ToPoint());
+                    }
+                    else if (item is XMLDef.ImageFromMappings)
+                    {
+                        XMLDef.ImageFromMappings mapimg = (XMLDef.ImageFromMappings)item;
+                        MultiFileIndexer<byte> art = new MultiFileIndexer<byte>();
+                        foreach (XMLDef.ArtFile artfile in mapimg.ArtFiles)
+                            art.AddFile(new List<byte>(ObjectHelper.OpenArtFile(artfile.filename,
+                                artfile.compression == CompressionType.Invalid ? CompressionType.Nemesis : artfile.compression)),
+                                artfile.offsetSpecified ? artfile.offset : -1);
+                        XMLDef.MapFile map = mapimg.MapFile;
+                        switch (map.type)
+                        {
+                            case XMLDef.MapFileType.Binary:
+                                if (string.IsNullOrEmpty(map.dplcfile))
+                                    sprite = ObjectHelper.MapToBmp(art.ToArray(), File.ReadAllBytes(map.filename),
+                                        map.frame, map.startpal, map.version);
+                                else
+                                    sprite = ObjectHelper.MapDPLCToBmp(art.ToArray(), File.ReadAllBytes(map.filename),
+                                        File.ReadAllBytes(map.dplcfile), map.frame, map.startpal, map.version);
+                                break;
+                            case XMLDef.MapFileType.ASM:
+                                if (string.IsNullOrEmpty(map.label))
+                                {
+                                    if (string.IsNullOrEmpty(map.dplcfile))
+                                        sprite = ObjectHelper.MapASMToBmp(art.ToArray(), map.filename,
+                                            map.frame, map.startpal, map.version);
+                                    else
+                                        sprite = ObjectHelper.MapASMDPLCToBmp(art.ToArray(), map.filename, map.version,
+                                            map.dplcfile, map.dplcver, map.frame, map.startpal);
+                                }
+                                else
+                                {
+                                    if (string.IsNullOrEmpty(map.dplcfile))
+                                        sprite = ObjectHelper.MapASMToBmp(art.ToArray(), map.filename,
+                                            map.label, map.startpal, map.version);
+                                    else
+                                        sprite = ObjectHelper.MapASMDPLCToBmp(art.ToArray(), map.filename, map.label, map.version,
+                                            map.dplcfile, map.dplclabel, map.dplcver, map.startpal);
+                                }
+                                break;
+                        }
+                        if (!mapimg.offset.IsEmpty)
+                            sprite.Offset = new Point(sprite.X + mapimg.offset.X, sprite.Y + mapimg.offset.Y);
+                    }
+                    else if (item is XMLDef.ImageFromSprite)
+                    {
+                        XMLDef.ImageFromSprite sprimg = (XMLDef.ImageFromSprite)item;
+                        sprite = ObjectHelper.GetSprite(sprimg.frame);
+                        if (!sprimg.offset.IsEmpty)
+                            sprite.Offset = new Point(sprite.X + sprimg.offset.X, sprite.Y + sprimg.offset.Y);
+                    }
+                    images.Add(item.id, sprite);
+                }
+            if (xmldef.Subtypes == null)
+                xmldef.Subtypes = new XMLDef.SubtypeList();
+            if (xmldef.Subtypes.Items == null)
+                xmldef.Subtypes.Items = new XMLDef.Subtype[0];
+            if (xmldef.Enums != null && xmldef.Enums.Items != null)
+            {
+                enums = new Dictionary<string, Dictionary<string, int>>(xmldef.Enums.Items.Length);
+                foreach (XMLDef.Enum item in xmldef.Enums.Items)
+                {
+                    Dictionary<string, int> members = new Dictionary<string, int>(item.Items.Length);
+                    int value = 0;
+                    foreach (XMLDef.EnumMember mem in item.Items)
+                    {
+                        if (mem.valueSpecified)
+                            value = mem.value;
+                        members.Add(mem.name, value++);
+                    }
+                    enums.Add(item.name, members);
+                }
+            }
+            else
+                enums = new Dictionary<string, Dictionary<string, int>>();
+            if (xmldef.Properties != null && xmldef.Properties.Items != null)
+            {
+                List<PropertySpec> custprops = new List<PropertySpec>(xmldef.Properties.Items.Length);
+                Dictionary<string, PropertyInfo> propinf = new Dictionary<string, PropertyInfo>(xmldef.Properties.Items.Length);
+                foreach (XMLDef.Property item in xmldef.Properties.Items)
+                {
+                    XMLDef.BitsProperty property = (XMLDef.BitsProperty)item;
+                    int mask = 0;
+                    for (int i = 0; i < property.length; i++)
+                        mask += (int)Math.Pow(2, property.startbit + i);
+                    Func<ObjectEntry, object> getMethod;
+                    Action<ObjectEntry, object> setMethod;
+                    if (enums.ContainsKey(property.type))
+                    {
+                        getMethod = (obj) => (obj.SubType & mask) >> property.startbit;
+                        setMethod = (obj, val) => obj.SubType = (byte)((obj.SubType & ~mask) | (((int)val << property.startbit) & mask));
+                        custprops.Add(new PropertySpec(property.displayname ?? property.name, typeof(int), "Extended", property.description, null, typeof(EnumConverter), enums[property.type], getMethod, setMethod));
+                        propinf.Add(property.name, new PropertyInfo(typeof(int), enums[property.type], getMethod, setMethod));
+                    }
+                    else
+                    {
+                        Type type = Type.GetType(LevelData.ExpandTypeName(property.type));
+                        if (type != typeof(bool))
+                        {
+                            getMethod = (obj) => (obj.SubType & mask) >> property.startbit;
+                            setMethod = (obj, val) => obj.SubType = (byte)((obj.SubType & ~mask) | (((int)val << property.startbit) & mask));
+                        }
+                        else
+                        {
+                            getMethod = (obj) => ((obj.SubType & mask) >> property.startbit) != 0;
+                            setMethod = (obj, val) => obj.SubType = (byte)((obj.SubType & ~mask) | (((bool)val ? 1 : 0) << property.startbit));
+                        }
+                        custprops.Add(new PropertySpec(property.displayname ?? property.name, type, "Extended", property.description, null, getMethod, setMethod));
+                        propinf.Add(property.name, new PropertyInfo(type, getMethod, setMethod));
+                    }
+                }
+                customProperties = custprops.ToArray();
+                propertyInfo = propinf;
+            }
+            unkobj = ObjectHelper.UnknownObject;
+        }
+
+        private Sprite ReadImageRefs(XMLDef.ImageRef[] refs)
+        {
+            List<Sprite> sprs = new List<Sprite>(refs.Length);
+            foreach (XMLDef.ImageRef img in refs)
+            {
+                int xoff = img.Offset.X;
+                if (img.xflip == XMLDef.FlipType.ReverseFlip | img.xflip == XMLDef.FlipType.AlwaysFlip)
+                    xoff = -xoff;
+                int yoff = img.Offset.Y;
+                if (img.yflip == XMLDef.FlipType.ReverseFlip | img.yflip == XMLDef.FlipType.AlwaysFlip)
+                    yoff = -yoff;
+                BitmapBits bits = new BitmapBits(images[img.image].Image);
+                bool xflip = false;
+                switch (img.xflip)
+                {
+                    case SonicRetro.SonLVL.API.XMLDef.FlipType.ReverseFlip:
+                    case SonicRetro.SonLVL.API.XMLDef.FlipType.AlwaysFlip:
+                        xflip = true;
+                        break;
+                }
+                bool yflip = false;
+                switch (img.yflip)
+                {
+                    case SonicRetro.SonLVL.API.XMLDef.FlipType.ReverseFlip:
+                    case SonicRetro.SonLVL.API.XMLDef.FlipType.AlwaysFlip:
+                        yflip = true;
+                        break;
+                }
+                bits.Flip(xflip, yflip);
+                sprs.Add(new Sprite(bits, new Point(images[img.image].X + xoff, images[img.image].Y + yoff)));
+            }
+            return new Sprite(sprs);
+        }
+
+        public override ReadOnlyCollection<byte> Subtypes
+        {
+            get { return new ReadOnlyCollection<byte>(Array.ConvertAll(xmldef.Subtypes.Items, (a) => a.subtype)); }
+        }
+
+        public override string SubtypeName(byte subtype)
+        {
+            foreach (XMLDef.Subtype item in xmldef.Subtypes.Items)
+                if (item.subtype == subtype)
+                    return item.name;
+            return string.Empty;
+        }
+
+        public override Sprite SubtypeImage(byte subtype)
+        {
+            foreach (XMLDef.Subtype item in xmldef.Subtypes.Items)
+                if (item.subtype == subtype)
+                    if (item.Images != null)
+                        return ReadImageRefs(item.Images);
+                    else
+                        return images[item.image];
+            return unkobj;
+        }
+
+        public override string Name
+        {
+            get { return xmldef.Name; }
+        }
+
+        public override Sprite Image
+        {
+            get
+            {
+                if (xmldef.DefaultImage != null && xmldef.DefaultImage.Images != null)
+                    return ReadImageRefs(xmldef.DefaultImage.Images);
+                else
+                    return images[xmldef.Image];
+            }
+        }
+
+        public override Sprite GetSprite(ObjectEntry obj)
+        {
+            if (xmldef.Display != null && xmldef.Display.DisplayOptions != null)
+            {
+                foreach (XMLDef.DisplayOption option in xmldef.Display.DisplayOptions)
+                {
+                    if (!CheckConditions(obj, option))
+                        continue;
+                    List<Sprite> sprs = new List<Sprite>();
+                    if (option.Images != null)
+                        foreach (XMLDef.ImageRef img in option.Images)
+                        {
+                            int xoff = img.Offset.X;
+                            if (img.xflip == XMLDef.FlipType.ReverseFlip | img.xflip == XMLDef.FlipType.AlwaysFlip)
+                                xoff = -xoff;
+                            if (img.xflip == XMLDef.FlipType.NormalFlip | img.xflip == XMLDef.FlipType.ReverseFlip)
+                                if (obj.XFlip)
+                                    xoff = -xoff;
+                            int yoff = img.Offset.Y;
+                            if (img.yflip == XMLDef.FlipType.ReverseFlip | img.yflip == XMLDef.FlipType.AlwaysFlip)
+                                yoff = -yoff;
+                            if (img.yflip == XMLDef.FlipType.NormalFlip | img.yflip == XMLDef.FlipType.ReverseFlip)
+                                if (obj.YFlip)
+                                    yoff = -yoff;
+                            BitmapBits bits = new BitmapBits(images[img.image].Image);
+                            if (img.xflip != XMLDef.FlipType.NeverFlip | img.yflip != XMLDef.FlipType.NeverFlip)
+                            {
+                                bool xflipex = false;
+                                switch (img.xflip)
+                                {
+                                    case XMLDef.FlipType.NormalFlip:
+                                        xflipex = obj.XFlip;
+                                        break;
+                                    case XMLDef.FlipType.ReverseFlip:
+                                        xflipex = !obj.XFlip;
+                                        break;
+                                    case XMLDef.FlipType.AlwaysFlip:
+                                        xflipex = true;
+                                        break;
+                                }
+                                bool yflipex = false;
+                                switch (img.yflip)
+                                {
+                                    case XMLDef.FlipType.NormalFlip:
+                                        yflipex = obj.YFlip;
+                                        break;
+                                    case XMLDef.FlipType.ReverseFlip:
+                                        yflipex = !obj.YFlip;
+                                        break;
+                                    case XMLDef.FlipType.AlwaysFlip:
+                                        yflipex = true;
+                                        break;
+                                }
+                                bits.Flip(xflipex, yflipex);
+                            }
+                            sprs.Add(new Sprite(bits, new Point(images[img.image].X + xoff, images[img.image].Y + yoff)));
+                        }
+                    Sprite spr = new Sprite(sprs.ToArray());
+                    spr.Offset = new Point(obj.X + spr.X, obj.Y + spr.Y);
+                    return spr;
+                }
+            }
+            else if (xmldef.Subtypes != null && xmldef.Subtypes.Items != null)
+            {
+                foreach (XMLDef.Subtype item in xmldef.Subtypes.Items)
+                {
+                    if (obj.SubType == item.subtype)
+                        if (item.Images != null)
+                        {
+                            List<Sprite> sprs = new List<Sprite>(item.Images.Length);
+                            foreach (XMLDef.ImageRef img in item.Images)
+                            {
+                                int xoff = img.Offset.X;
+                                if (img.xflip == XMLDef.FlipType.ReverseFlip | img.xflip == XMLDef.FlipType.AlwaysFlip)
+                                    xoff = -xoff;
+                                if (img.xflip == XMLDef.FlipType.NormalFlip | img.xflip == XMLDef.FlipType.ReverseFlip)
+                                    if (obj.XFlip)
+                                        xoff = -xoff;
+                                int yoff = img.Offset.Y;
+                                if (img.yflip == XMLDef.FlipType.ReverseFlip | img.yflip == XMLDef.FlipType.AlwaysFlip)
+                                    yoff = -yoff;
+                                if (img.yflip == XMLDef.FlipType.NormalFlip | img.yflip == XMLDef.FlipType.ReverseFlip)
+                                    if (obj.YFlip)
+                                        yoff = -yoff;
+                                BitmapBits bits = new BitmapBits(images[img.image].Image);
+                                if (img.xflip != XMLDef.FlipType.NeverFlip | img.yflip != XMLDef.FlipType.NeverFlip)
+                                {
+                                    bool xflipex = false;
+                                    switch (img.xflip)
+                                    {
+                                        case XMLDef.FlipType.NormalFlip:
+                                            xflipex = obj.XFlip;
+                                            break;
+                                        case XMLDef.FlipType.ReverseFlip:
+                                            xflipex = !obj.XFlip;
+                                            break;
+                                        case XMLDef.FlipType.AlwaysFlip:
+                                            xflipex = true;
+                                            break;
+                                    }
+                                    bool yflipex = false;
+                                    switch (img.yflip)
+                                    {
+                                        case XMLDef.FlipType.NormalFlip:
+                                            yflipex = obj.YFlip;
+                                            break;
+                                        case XMLDef.FlipType.ReverseFlip:
+                                            yflipex = !obj.YFlip;
+                                            break;
+                                        case XMLDef.FlipType.AlwaysFlip:
+                                            yflipex = true;
+                                            break;
+                                    }
+                                    bits.Flip(xflipex, yflipex);
+                                }
+                                sprs.Add(new Sprite(bits, new Point(images[img.image].X + xoff, images[img.image].Y + yoff)));
+                            }
+                            Sprite spr = new Sprite(sprs.ToArray());
+                            spr.Offset = new Point(obj.X + spr.X, obj.Y + spr.Y);
+                            return spr;
+                        }
+                        else
+                        {
+                            BitmapBits bits = new BitmapBits(images[item.image].Image);
+                            bits.Flip(obj.XFlip, obj.YFlip);
+                            return new Sprite(bits, new Point(images[item.image].X + obj.X, images[item.image].Y + obj.Y));
+                        }
+                }
+            }
+            BitmapBits unkbits = new BitmapBits(unkobj.Image);
+            unkbits.Flip(obj.XFlip, obj.YFlip);
+            return new Sprite(unkbits, new Point(unkobj.X + obj.X, unkobj.Y + obj.Y));
+        }
+
+        private bool CheckConditions(ObjectEntry obj, XMLDef.DisplayOption option)
+        {
+            if (option.Conditions != null)
+                foreach (XMLDef.Condition cond in option.Conditions)
+                {
+                    if (propertyInfo.ContainsKey(cond.property))
+                    {
+                        PropertyInfo prop = propertyInfo[cond.property];
+                        object value = prop.GetValue(obj);
+                        if (prop.Enumeration != null)
+                        {
+                            if ((int)value != prop.Enumeration[cond.value])
+                                return false;
+                        }
+                        else
+                        {
+                            if (!object.Equals(value, prop.Type.InvokeMember("Parse", System.Reflection.BindingFlags.DeclaredOnly | System.Reflection.BindingFlags.InvokeMethod | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static, null, null, new[] { cond.value })))
+                                return false;
+                        }
+                    }
+                    else
+                    {
+                        Type basetype;
+                        switch (LevelData.Level.ObjectFormat)
+                        {
+                            case EngineVersion.S1:
+                                basetype = typeof(S1ObjectEntry);
+                                break;
+                            case EngineVersion.S2:
+                            case EngineVersion.S2NA:
+                                basetype = typeof(S2ObjectEntry);
+                                break;
+                            case EngineVersion.S3K:
+                            case EngineVersion.SKC:
+                                basetype = typeof(S3KObjectEntry);
+                                break;
+                            case EngineVersion.SCD:
+                            case EngineVersion.SCDPC:
+                                basetype = typeof(SCDObjectEntry);
+                                break;
+                            default:
+                                basetype = typeof(ObjectEntry);
+                                break;
+                        }
+                        System.Reflection.PropertyInfo prop = basetype.GetProperty(cond.property);
+                        object value = prop.GetValue(obj, null);
+                        if (!object.Equals(value, prop.PropertyType.InvokeMember("Parse", System.Reflection.BindingFlags.DeclaredOnly | System.Reflection.BindingFlags.InvokeMethod | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static, null, null, new[] { cond.value })))
+                            return false;
+                    }
+                }
+            return true;
+        }
+
+        public override Rectangle GetBounds(ObjectEntry obj, Point camera)
+        {
+            if (xmldef.Display != null && xmldef.Display.DisplayOptions != null)
+            {
+                foreach (XMLDef.DisplayOption option in xmldef.Display.DisplayOptions)
+                {
+                    if (!CheckConditions(obj, option))
+                        continue;
+                    Rectangle rect = Rectangle.Empty;
+                    bool first = true;
+                    if (option.Images != null)
+                        foreach (XMLDef.ImageRef img in option.Images)
+                        {
+                            int xoff = img.Offset.X;
+                            if (img.xflip == XMLDef.FlipType.ReverseFlip | img.xflip == XMLDef.FlipType.AlwaysFlip)
+                                xoff = -xoff;
+                            if (img.xflip == XMLDef.FlipType.NormalFlip | img.xflip == XMLDef.FlipType.ReverseFlip)
+                                if (obj.XFlip)
+                                    xoff = -xoff;
+                            xoff -= camera.X;
+                            int yoff = img.Offset.Y;
+                            if (img.yflip == XMLDef.FlipType.ReverseFlip | img.yflip == XMLDef.FlipType.AlwaysFlip)
+                                yoff = -yoff;
+                            if (img.yflip == XMLDef.FlipType.NormalFlip | img.yflip == XMLDef.FlipType.ReverseFlip)
+                                if (obj.YFlip)
+                                    yoff = -yoff;
+                            yoff -= camera.Y;
+                            Rectangle tmp = new Rectangle(images[img.image].X + xoff + obj.X, images[img.image].Y + yoff + obj.Y, images[img.image].Width, images[img.image].Height);
+                            if (first)
+                            {
+                                rect = tmp;
+                                first = false;
+                            }
+                            else
+                                rect.Intersect(tmp);
+                        }
+                    return rect;
+                }
+            }
+            else if (xmldef.Subtypes != null && xmldef.Subtypes.Items != null)
+            {
+                foreach (XMLDef.Subtype item in xmldef.Subtypes.Items)
+                {
+                    if (obj.SubType == item.subtype)
+                        if (item.Images != null)
+                        {
+                            Rectangle rect = Rectangle.Empty;
+                            bool first = true;
+                                foreach (XMLDef.ImageRef img in item.Images)
+                                {
+                                    int xoff = img.Offset.X;
+                                    if (img.xflip == XMLDef.FlipType.ReverseFlip | img.xflip == XMLDef.FlipType.AlwaysFlip)
+                                        xoff = -xoff;
+                                    if (img.xflip == XMLDef.FlipType.NormalFlip | img.xflip == XMLDef.FlipType.ReverseFlip)
+                                        if (obj.XFlip)
+                                            xoff = -xoff;
+                                    xoff -= camera.X;
+                                    int yoff = img.Offset.Y;
+                                    if (img.yflip == XMLDef.FlipType.ReverseFlip | img.yflip == XMLDef.FlipType.AlwaysFlip)
+                                        yoff = -yoff;
+                                    if (img.yflip == XMLDef.FlipType.NormalFlip | img.yflip == XMLDef.FlipType.ReverseFlip)
+                                        if (obj.YFlip)
+                                            yoff = -yoff;
+                                    yoff -= camera.Y;
+                                    Rectangle tmp = new Rectangle(images[img.image].X + xoff + obj.X, images[img.image].Y + yoff + obj.Y, images[img.image].Width, images[img.image].Height);
+                                    if (first)
+                                    {
+                                        rect = tmp;
+                                        first = false;
+                                    }
+                                    else
+                                        rect.Intersect(tmp);
+                                }
+                            return rect;
+                        }
+                        else
+                            return new Rectangle(images[item.image].X + obj.X - camera.X, images[item.image].Y + obj.Y - camera.Y, images[item.image].Width, images[item.image].Height);
+                }
+            }
+            return new Rectangle(unkobj.X + obj.X - camera.X, unkobj.Y + obj.Y - camera.Y, unkobj.Width, unkobj.Height);
+        }
+
+        public override bool Debug
+        {
+            get { return xmldef.Debug; }
+        }
+
+        public override bool RememberState
+        {
+            get { return xmldef.RememberState; }
+        }
+
+        public override byte DefaultSubtype
+        {
+            get { return xmldef.DefaultSubtypeValue; }
+        }
+
+        public override PropertySpec[] CustomProperties
+        {
+            get { return customProperties; }
+        }
+    }
+
     public abstract class S2RingDefinition
     {
         public abstract void Init(ObjectData data);
-        public abstract string Name();
-        public abstract BitmapBits Image();
+        public abstract string Name { get; }
+        public abstract Sprite Image { get; }
         public abstract Sprite GetSprite(S2RingEntry rng);
-        public abstract Rectangle Bounds(S2RingEntry rng, Point camera);
+        public abstract Rectangle GetBounds(S2RingEntry rng, Point camera);
         public virtual bool Debug { get { return false; } }
     }
 
@@ -253,17 +1219,11 @@ namespace SonicRetro.SonLVL.API
             spr = ObjectHelper.UnknownObject;
         }
 
-        public override string Name()
-        {
-            return "Rings";
-        }
+        public override string Name { get { return "Rings"; } }
 
-        public override BitmapBits Image()
-        {
-            return spr.Image;
-        }
+        public override Sprite Image { get { return spr; } }
 
-        public override Rectangle Bounds(S2RingEntry rng, Point camera)
+        public override Rectangle GetBounds(S2RingEntry rng, Point camera)
         {
             return new Rectangle((rng.X + spr.Offset.X) - camera.X, (rng.Y + spr.Offset.Y) - camera.Y, spr.Image.Width, spr.Image.Height);
         }
@@ -327,7 +1287,7 @@ namespace SonicRetro.SonLVL.API
                 }
                 else if (data.Image != null)
                 {
-                    BitmapBits img = new BitmapBits(new Bitmap(data.Image));
+                    BitmapBits img = new BitmapBits(data.Image);
                     spr = new Sprite(img, new Point(data.Offset));
                 }
                 else if (data.Sprite > -1)
@@ -346,12 +1306,9 @@ namespace SonicRetro.SonLVL.API
             }
         }
 
-        public BitmapBits Image()
-        {
-            return spr.Image;
-        }
+        public Sprite Image { get { return spr; } }
 
-        public Rectangle Bounds(S3KRingEntry rng, Point camera)
+        public Rectangle GetBounds(S3KRingEntry rng, Point camera)
         {
             return new Rectangle((rng.X + spr.Offset.X) - camera.X, (rng.Y + spr.Offset.Y) - camera.Y, spr.Image.Width, spr.Image.Height);
         }
@@ -418,7 +1375,7 @@ namespace SonicRetro.SonLVL.API
                 }
                 else if (data.Image != null)
                 {
-                    BitmapBits img = new BitmapBits(new Bitmap(data.Image));
+                    BitmapBits img = new BitmapBits(data.Image);
                     spr = new Sprite(img, new Point(data.Offset));
                 }
                 else if (data.Sprite > -1)
@@ -434,16 +1391,11 @@ namespace SonicRetro.SonLVL.API
             }
         }
 
-        public string Name()
-        {
-            return name;
-        }
-        public BitmapBits Image()
-        {
-            return spr.Image;
-        }
+        public string Name { get { return name; } }
 
-        public Rectangle Bounds(StartPositionEntry st, Point camera)
+        public Sprite Image { get { return spr; } }
+
+        public Rectangle GetBounds(StartPositionEntry st, Point camera)
         {
             return new Rectangle((st.X + spr.Offset.X) - camera.X, (st.Y + spr.Offset.Y) - camera.Y, spr.Image.Width, spr.Image.Height);
         }

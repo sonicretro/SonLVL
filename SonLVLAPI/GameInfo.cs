@@ -8,6 +8,7 @@ namespace SonicRetro.SonLVL.API
 {
     public class GameInfo
     {
+        [IniAlwaysInclude]
         [DefaultValue(EngineVersion.S2)]
         [IniName("version")]
         public EngineVersion EngineVersion;
@@ -16,7 +17,8 @@ namespace SonicRetro.SonLVL.API
         [IniName("levelheightmax")]
         public int LevelHeightMax;
         [IniName("objlst")]
-        public StringList ObjectList;
+        [IniCollection(IniCollectionMode.SingleLine, Format = "|")]
+        public string[] ObjectList;
         [IniName("mapver")]
         public EngineVersion MappingsVersion;
         [IniName("dplcver")]
@@ -80,7 +82,7 @@ namespace SonicRetro.SonLVL.API
         [IniName("useemu")]
         [DefaultValue(true)]
         public bool UseEmulator;
-        [IniCollection]
+        [IniCollection(IniCollectionMode.IndexOnly)]
         public Dictionary<string, LevelInfo> Levels;
 
         public static GameInfo Load(string filename)
@@ -110,11 +112,15 @@ namespace SonicRetro.SonLVL.API
                 levelName = levelName.Substring(levelName.LastIndexOf('\\') + 1);
             LevelInfo result = new LevelInfo();
             result.DisplayName = info.DisplayName ?? levelName;
+            if (info.EngineVersion == EngineVersion.Invalid)
+                result.EngineVersion = EngineVersion;
+            else
+                result.EngineVersion = info.EngineVersion;
             foreach (string item in formatFields)
             {
                 System.Reflection.FieldInfo gam = typeof(GameInfo).GetField(item);
                 System.Reflection.FieldInfo lvl = typeof(LevelInfo).GetField(item);
-                lvl.SetValue(result, EngineVersion);
+                lvl.SetValue(result, result.EngineVersion);
                 if ((EngineVersion)gam.GetValue(this) != EngineVersion.Invalid)
                     lvl.SetValue(result, gam.GetValue(this));
                 if ((EngineVersion)lvl.GetValue(info) != EngineVersion.Invalid)
@@ -127,7 +133,6 @@ namespace SonicRetro.SonLVL.API
                     result.TileCompression = CompressionType.Nemesis;
                     break;
                 case EngineVersion.S2:
-                case EngineVersion.SBoom:
                     result.TileCompression = CompressionType.Kosinski;
                     break;
                 case EngineVersion.S3K:
@@ -154,7 +159,6 @@ namespace SonicRetro.SonLVL.API
                 case EngineVersion.S2:
                 case EngineVersion.S3K:
                 case EngineVersion.SKC:
-                case API.EngineVersion.SBoom:
                     result.BlockCompression = CompressionType.Kosinski;
                     break;
                 default:
@@ -172,7 +176,6 @@ namespace SonicRetro.SonLVL.API
                 case EngineVersion.S2:
                 case EngineVersion.S3K:
                 case EngineVersion.SKC:
-                case API.EngineVersion.SBoom:
                     result.ChunkCompression = CompressionType.Kosinski;
                     break;
                 default:
@@ -187,7 +190,6 @@ namespace SonicRetro.SonLVL.API
             switch (result.LayoutFormat)
             {
                 case EngineVersion.S2:
-                case API.EngineVersion.SBoom:
                     result.LayoutCompression = CompressionType.Kosinski;
                     break;
                 default:
@@ -201,16 +203,10 @@ namespace SonicRetro.SonLVL.API
             result.Layout = info.Layout;
             result.FGLayout = info.FGLayout;
             result.BGLayout = info.BGLayout;
-            result.Palettes = new NamedPaletteList[9];
+            result.Palettes = new NamedPaletteList[info.ExtraPalettes.Length + 1];
             result.Palettes[0] = new NamedPaletteList("Normal", info.Palette);
-            result.Palettes[1] = info.Palette2;
-            result.Palettes[2] = info.Palette3;
-            result.Palettes[3] = info.Palette4;
-            result.Palettes[4] = info.Palette5;
-            result.Palettes[5] = info.Palette6;
-            result.Palettes[6] = info.Palette7;
-            result.Palettes[7] = info.Palette8;
-            result.Palettes[8] = info.Palette9;
+            if (info.ExtraPalettes.Length > 0)
+                info.ExtraPalettes.CopyTo(result.Palettes, 1);
             result.Sprites = info.Sprites;
             result.ObjectList = info.ObjectList;
             result.ObjectCompression = CompressionType.Uncompressed;
@@ -233,7 +229,6 @@ namespace SonicRetro.SonLVL.API
             switch (result.CollisionIndexFormat)
             {
                 case EngineVersion.S2:
-                case API.EngineVersion.SBoom:
                     result.CollisionIndexCompression = CompressionType.Kosinski;
                     break;
                 default:
@@ -270,24 +265,29 @@ namespace SonicRetro.SonLVL.API
     {
         [IniName("displayname")]
         public string DisplayName;
+        [IniName("version")]
+        public EngineVersion EngineVersion;
         [IniName("tilefmt")]
         public EngineVersion TileFormat;
         [IniName("tilecmp")]
         public CompressionType TileCompression;
         [IniName("tiles")]
-        public FileList Tiles;
+        [IniCollection(IniCollectionMode.SingleLine, Format = "|")]
+        public FileInfo[] Tiles;
         [IniName("blockfmt")]
         public EngineVersion BlockFormat;
         [IniName("blockcmp")]
         public CompressionType BlockCompression;
         [IniName("blocks")]
-        public FileList Blocks;
+        [IniCollection(IniCollectionMode.SingleLine, Format = "|")]
+        public FileInfo[] Blocks;
         [IniName("chunkfmt")]
         public EngineVersion ChunkFormat;
         [IniName("chunkcmp")]
         public CompressionType ChunkCompression;
         [IniName("chunks")]
-        public FileList Chunks;
+        [IniCollection(IniCollectionMode.SingleLine, Format = "|")]
+        public FileInfo[] Chunks;
         [IniName("layoutfmt")]
         public EngineVersion LayoutFormat;
         [IniName("layoutcmp")]
@@ -304,22 +304,9 @@ namespace SonicRetro.SonLVL.API
         public NamedPaletteList[] Palettes;
         [IniName("palette")]
         public PaletteList Palette;
-        [IniName("palette2")]
-        public NamedPaletteList Palette2;
-        [IniName("palette3")]
-        public NamedPaletteList Palette3;
-        [IniName("palette4")]
-        public NamedPaletteList Palette4;
-        [IniName("palette5")]
-        public NamedPaletteList Palette5;
-        [IniName("palette6")]
-        public NamedPaletteList Palette6;
-        [IniName("palette7")]
-        public NamedPaletteList Palette7;
-        [IniName("palette8")]
-        public NamedPaletteList Palette8;
-        [IniName("palette9")]
-        public NamedPaletteList Palette9;
+        [IniName("palette")]
+        [IniCollection(IniCollectionMode.NoSquareBrackets, StartIndex = 2)]
+        public NamedPaletteList[] ExtraPalettes;
         [IniName("objectfmt")]
         public EngineVersion ObjectFormat;
         [IniName("objectcmp")]
@@ -337,7 +324,8 @@ namespace SonicRetro.SonLVL.API
         [IniName("bumpers")]
         public string Bumpers;
         [IniName("startpos")]
-        public StartPositionList StartPositions;
+        [IniCollection(IniCollectionMode.SingleLine, Format = "|")]
+        public StartPositionInfo[] StartPositions;
         [IniName("colindfmt")]
         public EngineVersion CollisionIndexFormat;
         [IniName("colindcmp")]
@@ -349,7 +337,6 @@ namespace SonicRetro.SonLVL.API
         [IniName("colind2")]
         public string CollisionIndex2;
         [IniName("colindsz")]
-        [DefaultValue(1)]
         public int CollisionIndexSize;
         [IniName("colarrfmt")]
         public EngineVersion CollisionArrayFormat;
@@ -370,48 +357,11 @@ namespace SonicRetro.SonLVL.API
         [IniName("sprites")]
         public string Sprites;
         [IniName("objlst")]
-        public StringList ObjectList;
+        [IniCollection(IniCollectionMode.SingleLine, Format = "|")]
+        public string[] ObjectList;
     }
 
-    [TypeConverter(typeof(StringConverter<FileList>))]
-    public class FileList : IEnumerable<FileInfo>
-    {
-        public FileInfo[] Collection;
-
-        public FileList(string data)
-        {
-            string[] files = data.Split('|');
-            List<FileInfo> filelist = new List<FileInfo>();
-            foreach (string item in files)
-                filelist.Add(new FileInfo(item));
-            Collection = filelist.ToArray();
-        }
-
-        public override string ToString()
-        {
-            List<string> data = new List<string>(Collection.Length);
-            foreach (FileInfo item in Collection)
-                data.Add(item.ToString());
-            return string.Join("|", data.ToArray());
-        }
-
-        IEnumerator<FileInfo> IEnumerable<FileInfo>.GetEnumerator()
-        {
-            return new List<FileInfo>(Collection).GetEnumerator();
-        }
-
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return Collection.GetEnumerator();
-        }
-
-        public FileInfo this[int index]
-        {
-            get { return Collection[index]; }
-            set { Collection[index] = value; }
-        }
-    }
-
+    [TypeConverter(typeof(StringConverter<FileInfo>))]
     public class FileInfo
     {
         public string Filename;
@@ -541,45 +491,7 @@ namespace SonicRetro.SonLVL.API
         }
     }
 
-    [TypeConverter(typeof(StringConverter<StartPositionList>))]
-    public class StartPositionList : IEnumerable<StartPositionInfo>
-    {
-        public StartPositionInfo[] Collection;
-
-        public StartPositionList(string data)
-        {
-            string[] files = data.Split('|');
-            List<StartPositionInfo> filelist = new List<StartPositionInfo>();
-            foreach (string item in files)
-                filelist.Add(new StartPositionInfo(item));
-            Collection = filelist.ToArray();
-        }
-
-        public override string ToString()
-        {
-            List<string> data = new List<string>(Collection.Length);
-            foreach (StartPositionInfo item in Collection)
-                data.Add(item.ToString());
-            return string.Join("|", data.ToArray());
-        }
-
-        IEnumerator<StartPositionInfo> IEnumerable<StartPositionInfo>.GetEnumerator()
-        {
-            return new List<StartPositionInfo>(Collection).GetEnumerator();
-        }
-
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return Collection.GetEnumerator();
-        }
-
-        public StartPositionInfo this[int index]
-        {
-            get { return Collection[index]; }
-            set { Collection[index] = value; }
-        }
-    }
-
+    [TypeConverter(typeof(StringConverter<StartPositionInfo>))]
     public class StartPositionInfo
     {
         public string Filename, Sprite, Name;
@@ -598,38 +510,6 @@ namespace SonicRetro.SonLVL.API
         public override string ToString()
         {
             return Filename + ":" + Sprite + ":" + Name + (Offset == -1 ? "" : ":" + Offset.ToString("X"));
-        }
-    }
-
-    [TypeConverter(typeof(StringConverter<StringList>))]
-    public class StringList : IEnumerable<string>
-    {
-        public string[] Collection;
-
-        public StringList(string data)
-        {
-            Collection = data.Split('|');
-        }
-
-        public override string ToString()
-        {
-            return string.Join("|", Collection);
-        }
-
-        IEnumerator<string> IEnumerable<string>.GetEnumerator()
-        {
-            return new List<string>(Collection).GetEnumerator();
-        }
-
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return Collection.GetEnumerator();
-        }
-
-        public string this[int index]
-        {
-            get { return Collection[index]; }
-            set { Collection[index] = value; }
         }
     }
 

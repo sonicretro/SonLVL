@@ -90,10 +90,10 @@ namespace SonicRetro.SonLVL.API
             listView1.Items.Clear();
             imageList1.Images.Clear();
             if (LevelData.ObjTypes.ContainsKey(id))
-                foreach (byte item in LevelData.ObjTypes[id].Subtypes())
+                foreach (byte item in LevelData.ObjTypes[id].Subtypes)
                 {
-                    imageList1.Images.Add(LevelData.ObjTypes[id].Image(item).ToBitmap(LevelData.BmpPal).Resize(imageList1.ImageSize));
-                    listView1.Items.Add(LevelData.ObjTypes[id].SubtypeName(item), imageList1.Images.Count - 1);
+                    imageList1.Images.Add(LevelData.ObjTypes[id].SubtypeImage(item).Image.ToBitmap(LevelData.BmpPal).Resize(imageList1.ImageSize));
+                    listView1.Items.Add(new ListViewItem(LevelData.ObjTypes[id].SubtypeName(item), imageList1.Images.Count - 1) { Tag = item, Selected = item == value });
                 }
             listView1.EndUpdate();
             numericUpDown1.Value = value;
@@ -101,18 +101,8 @@ namespace SonicRetro.SonLVL.API
 
         private void listView1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            int sel = listView1.SelectedIndices[0];
-            int i = 0;
-            foreach (byte item in LevelData.ObjTypes[id].Subtypes())
-            {
-                if (i == sel)
-                {
-                    value = item;
-                    break;
-                }
-                i++;
-            }
-            numericUpDown1.Value = value;
+            if (listView1.SelectedIndices.Count == 0) return;
+            numericUpDown1.Value = value = (byte)listView1.SelectedItems[0].Tag;
         }
 
         private void listView1_ItemActivate(object sender, EventArgs e)
@@ -172,7 +162,7 @@ namespace SonicRetro.SonLVL.API
             if (e.Value == null) return;
             if (!LevelData.ObjTypes.ContainsKey(((ObjectEntry)e.Context.Instance).ID)) return;
             byte val = byte.Parse((string)e.Value, System.Globalization.NumberStyles.HexNumber);
-            e.Graphics.DrawImage(LevelData.ObjTypes[((ObjectEntry)e.Context.Instance).ID].Image(val).ToBitmap(LevelData.BmpPal).Resize(e.Bounds.Size), e.Bounds);
+            e.Graphics.DrawImage(LevelData.ObjTypes[((ObjectEntry)e.Context.Instance).ID].SubtypeImage(val).Image.ToBitmap(LevelData.BmpPal).Resize(e.Bounds.Size), e.Bounds);
         }
 
         public override bool IsDropDownResizable { get { return true; } }

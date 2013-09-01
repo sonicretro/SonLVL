@@ -37,19 +37,12 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common\EggPrison.cs" />
-    <Compile Include="Common\Monitor.cs" />
-    <Compile Include="Common\PointBonus.cs" />
+    <Compile Include="Common\InvisibleBlock.cs" />
     <Compile Include="Common\Ring.cs" />
-    <Compile Include="Common\Spikes.cs" />
-    <Compile Include="Common\Spring.cs" />
-    <Compile Include="GHZ\BreakableWall.cs" />
     <Compile Include="GHZ\Bridge.cs" />
-    <Compile Include="GHZ\Newtron.cs" />
-    <Compile Include="GHZ\Platform.cs" />
     <Compile Include="GHZ\SwingingPlatform.cs" />
-    <Compile Include="GHZ\WallBarrier.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SYZ\Block.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SonLVLAPI\SonLVL.API.csproj">

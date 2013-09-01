@@ -89,8 +89,8 @@ namespace SonicRetro.SonLVL.API
             imageList1.Images.Clear();
             foreach (KeyValuePair<byte, ObjectDefinition> item in LevelData.ObjTypes)
             {
-                imageList1.Images.Add(item.Value.Image().ToBitmap(LevelData.BmpPal).Resize(imageList1.ImageSize));
-                listView1.Items.Add(item.Value.Name(), imageList1.Images.Count - 1);
+                imageList1.Images.Add(item.Value.Image.Image.ToBitmap(LevelData.BmpPal).Resize(imageList1.ImageSize));
+                listView1.Items.Add(new ListViewItem(item.Value.Name, imageList1.Images.Count - 1) { Tag = item.Key, Selected = item.Key == value });
             }
             listView1.EndUpdate();
             numericUpDown1.Value = value;
@@ -99,18 +99,7 @@ namespace SonicRetro.SonLVL.API
         private void listView1_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (listView1.SelectedIndices.Count == 0) return;
-            int sel = listView1.SelectedIndices[0];
-            int i = 0;
-            foreach (KeyValuePair<byte, ObjectDefinition> item in LevelData.ObjTypes)
-            {
-                if (i == sel)
-                {
-                    value = item.Key;
-                    break;
-                }
-                i++;
-            }
-            numericUpDown1.Value = value;
+            numericUpDown1.Value = value = (byte)listView1.SelectedItems[0].Tag;
         }
 
         private void listView1_ItemActivate(object sender, EventArgs e)
@@ -169,7 +158,7 @@ namespace SonicRetro.SonLVL.API
             if (e.Value == null) return;
             byte val = byte.Parse((string)e.Value, System.Globalization.NumberStyles.HexNumber);
             if (LevelData.ObjTypes.ContainsKey(val))
-                e.Graphics.DrawImage(LevelData.ObjTypes[val].Image().ToBitmap(LevelData.BmpPal).Resize(e.Bounds.Size), e.Bounds);
+                e.Graphics.DrawImage(LevelData.ObjTypes[val].Image.Image.ToBitmap(LevelData.BmpPal).Resize(e.Bounds.Size), e.Bounds);
             else
                 e.Graphics.DrawImage(LevelData.UnknownImg.Resize(e.Bounds.Size), e.Bounds);
         }

@@ -5,12 +5,16 @@ using System.ComponentModel;
 using System.Reflection;
 using System.Text;
 using IniDictionary = System.Collections.Generic.Dictionary<string, System.Collections.Generic.Dictionary<string, string>>;
+using IniNameGroup = System.Collections.Generic.KeyValuePair<string, System.Collections.Generic.Dictionary<string, string>>;
 using IniGroup = System.Collections.Generic.Dictionary<string, string>;
+using IniNameValue = System.Collections.Generic.KeyValuePair<string, string>;
 
 namespace SonicRetro.SonLVL.API
 {
     public static class IniFile
     {
+        private static readonly IniCollectionSettings defaultCollectionSettings = new IniCollectionSettings(IniCollectionMode.Normal);
+
         public static IniDictionary Load(string filename)
         {
             IniDictionary result = new IniDictionary();
@@ -103,11 +107,11 @@ namespace SonicRetro.SonLVL.API
         public static void Save(IniDictionary INI, string filename)
         {
             List<string> result = new List<string>();
-            foreach (KeyValuePair<string, IniGroup> group in INI)
+            foreach (IniNameGroup group in INI)
             {
                 if (!string.IsNullOrEmpty(group.Key))
                     result.Add("[" + group.Key.Replace(@"\", @"\\").Replace("\n", @"\n").Replace("\r", @"\r").Replace(";", @"\;") + "]");
-                foreach (KeyValuePair<string, string> value in group.Value)
+                foreach (IniNameValue value in group.Value)
                 {
                     string escapedkey = value.Key.Replace(@"\", @"\\").Replace("=", @"\=").Replace("\n", @"\n").Replace("\r", @"\r").Replace(";", @"\;");
                     if (escapedkey.StartsWith("["))
@@ -121,11 +125,11 @@ namespace SonicRetro.SonLVL.API
         public static IniDictionary Combine(IniDictionary dictA, IniDictionary dictB)
         {
             IniDictionary result = new IniDictionary();
-            foreach (KeyValuePair<string, IniGroup> group in dictA)
+            foreach (IniNameGroup group in dictA)
                 result.Add(group.Key, new IniGroup(group.Value));
-            foreach (KeyValuePair<string, IniGroup> group in dictB)
+            foreach (IniNameGroup group in dictB)
                 if (result.ContainsKey(group.Key))
-                    foreach (KeyValuePair<string, string> item in group.Value)
+                    foreach (IniNameValue item in group.Value)
                         result[group.Key][item.Key] = item.Value;
                 else
                     result.Add(group.Key, new IniGroup(group.Value));
@@ -137,16 +141,26 @@ namespace SonicRetro.SonLVL.API
             Save(Serialize(Object), Filename);
         }
 
-        public static Dictionary<string, Dictionary<string, string>> Serialize(object Object)
+        public static void Serialize(object Object, IniCollectionSettings CollectionSettings, string Filename)
         {
-            Dictionary<string, Dictionary<string, string>> ini = new Dictionary<string, Dictionary<string, string>>() { { string.Empty, new Dictionary<string, string>() } };
-            SerializeInternal("value", Object, ini, string.Empty, true, false);
+            Save(Serialize(Object, CollectionSettings), Filename);
+        }
+
+        public static IniDictionary Serialize(object Object)
+        {
+            return Serialize(Object, defaultCollectionSettings);
+        }
+
+        public static IniDictionary Serialize(object Object, IniCollectionSettings CollectionSettings)
+        {
+            IniDictionary ini = new IniDictionary() { { string.Empty, new IniGroup() } };
+            SerializeInternal("value", Object, ini, string.Empty, true, CollectionSettings);
             return ini;
         }
 
-        private static void SerializeInternal(string name, object value, Dictionary<string, Dictionary<string, string>> ini, string groupName, bool rootObject, bool usecollectionname)
+        private static void SerializeInternal(string name, object value, IniDictionary ini, string groupName, bool rootObject, IniCollectionSettings collectionSettings)
         {
-            Dictionary<string, string> group = ini[groupName];
+            IniGroup group = ini[groupName];
             if (value == null || value == DBNull.Value) return;
             if (!value.GetType().IsComplexType())
             {
@@ -155,17 +169,48 @@ namespace SonicRetro.SonLVL.API
             }
             if (value is IList)
             {
-                int i = 0;
-                foreach (object item in (IList)value)
-                    SerializeInternal(usecollectionname ? name + "[" + i++ + "]" : (i++).ToString(), item, ini, groupName, false, false);
-                return;
+                int i = collectionSettings.StartIndex;
+                switch (collectionSettings.Mode)
+                {
+                    case IniCollectionMode.Normal:
+                        foreach (object item in (IList)value)
+                            SerializeInternal(name + "[" + (i++).ToString() + "]", item, ini, groupName, false, defaultCollectionSettings);
+                        return;
+                    case IniCollectionMode.IndexOnly:
+                        foreach (object item in (IList)value)
+                            SerializeInternal((i++).ToString(), item, ini, groupName, false, defaultCollectionSettings);
+                        return;
+                    case IniCollectionMode.NoSquareBrackets:
+                        foreach (object item in (IList)value)
+                            SerializeInternal(name + (i++).ToString(), item, ini, groupName, false, defaultCollectionSettings);
+                        return;
+                    case IniCollectionMode.SingleLine:
+                        List<string> line = new List<string>();
+                        foreach (object item in (IList)value)
+                            line.Add(item.ConvertToString());
+                        group.Add(name, string.Join(collectionSettings.Format, line.ToArray()));
+                        return;
+                }
             }
             if (value is IDictionary)
             {
-                foreach (DictionaryEntry item in (IDictionary)value)
-                    if (!item.Key.GetType().IsComplexType())
-                        SerializeInternal(usecollectionname ? name + "[" + item.Key.ConvertToString() + "]" : item.Key.ConvertToString(), item.Value, ini, groupName, false, true);
-                return;
+                switch (collectionSettings.Mode)
+                {
+                    case IniCollectionMode.Normal:
+                        foreach (DictionaryEntry item in (IDictionary)value)
+                            SerializeInternal(name + "[" + item.Key.ConvertToString() + "]", item.Value, ini, groupName, false, defaultCollectionSettings);
+                        return;
+                    case IniCollectionMode.IndexOnly:
+                        foreach (DictionaryEntry item in (IDictionary)value)
+                            SerializeInternal(item.Key.ConvertToString(), item.Value, ini, groupName, false, defaultCollectionSettings);
+                        return;
+                    case IniCollectionMode.NoSquareBrackets:
+                        foreach (DictionaryEntry item in (IDictionary)value)
+                            SerializeInternal(name + item.Key.ConvertToString(), item.Value, ini, groupName, false, defaultCollectionSettings);
+                        return;
+                    case IniCollectionMode.SingleLine:
+                        throw new InvalidOperationException("Cannot serialize IDictionary with IniCollectionMode.SingleLine!");
+                }
             }
             string newgroup = groupName;
             if (!rootObject)
@@ -205,8 +250,14 @@ namespace SonicRetro.SonLVL.API
                 DefaultValueAttribute defattr = (DefaultValueAttribute)Attribute.GetCustomAttribute(member, typeof(DefaultValueAttribute), true);
                 if (defattr != null)
                     defval = defattr.Value;
-                if (!object.Equals(item, defval))
-                    SerializeInternal(membername, item, ini, newgroup, false, Attribute.GetCustomAttribute(member, typeof(IniCollectionAttribute)) == null);
+                if (Attribute.GetCustomAttribute(member, typeof(IniAlwaysIncludeAttribute), true) != null || !object.Equals(item, defval))
+                {
+                    IniCollectionSettings settings = defaultCollectionSettings;
+                    IniCollectionAttribute attr = (IniCollectionAttribute)Attribute.GetCustomAttribute(member, typeof(IniCollectionAttribute));
+                    if (attr != null)
+                        settings = attr.Settings;
+                    SerializeInternal(membername, item, ini, newgroup, false, settings);
+                }
             }
         }
 
@@ -220,19 +271,41 @@ namespace SonicRetro.SonLVL.API
             return Deserialize(Type, Load(Filename));
         }
 
-        public static T Deserialize<T>(Dictionary<string, Dictionary<string, string>> INI)
+        public static T Deserialize<T>(IniDictionary INI)
         {
             return (T)Deserialize(typeof(T), INI);
         }
 
-        public static object Deserialize(Type Type, Dictionary<string, Dictionary<string, string>> INI)
+        public static object Deserialize(Type Type, IniDictionary INI)
+        {
+            return Deserialize(Type, INI, new IniCollectionSettings(IniCollectionMode.IndexOnly));
+        }
+
+        public static T Deserialize<T>(string filename, IniCollectionSettings CollectionSettings)
+        {
+            return Deserialize<T>(Load(filename), CollectionSettings);
+        }
+
+        public static object Deserialize(Type Type, string Filename, IniCollectionSettings CollectionSettings)
+        {
+            return Deserialize(Type, Load(Filename), CollectionSettings);
+        }
+
+        public static T Deserialize<T>(IniDictionary INI, IniCollectionSettings CollectionSettings)
+        {
+            return (T)Deserialize(typeof(T), INI, CollectionSettings);
+        }
+
+        public static object Deserialize(Type Type, IniDictionary INI, IniCollectionSettings CollectionSettings)
         {
             object Object;
-            Object = DeserializeInternal("value", Type, Type.GetDefaultValue(), INI, string.Empty, true, false);
+            IniDictionary ini = new IniDictionary();
+            ini = Combine(ini, INI);
+            Object = DeserializeInternal("value", Type, Type.GetDefaultValue(), ini, string.Empty, true, CollectionSettings);
             return Object;
         }
 
-        private static object DeserializeInternal(string name, Type type, object defaultvalue, Dictionary<string, Dictionary<string, string>> ini, string groupName, bool rootObject, bool usecollectionname)
+        private static object DeserializeInternal(string name, Type type, object defaultvalue, IniDictionary ini, string groupName, bool rootObject, IniCollectionSettings collectionSettings)
         {
             string fullname = groupName;
             if (!rootObject)
@@ -258,49 +331,131 @@ namespace SonicRetro.SonLVL.API
             if (type.IsArray)
             {
                 Type valuetype = type.GetElementType();
-                int maxind = -1;
+                int maxind = int.MinValue;
                 if (!IsComplexType(valuetype))
                 {
-                    foreach (KeyValuePair<string, string> item in group)
-                        if (!usecollectionname)
-                        {
-                            int key;
-                            if (int.TryParse(item.Key, out key))
-                                maxind = Math.Max(key, maxind);
-                        }
-                        else if (item.Key.StartsWith(name + "["))
-                        {
-                            int key = int.Parse(item.Key.Substring(name.Length + 1, item.Key.Length - (name.Length + 2)));
-                            maxind = Math.Max(key, maxind);
-                        }
+                    switch (collectionSettings.Mode)
+                    {
+                        case IniCollectionMode.Normal:
+                            foreach (IniNameValue item in group)
+                                if (item.Key.StartsWith(name + "["))
+                                {
+                                    int key = int.Parse(item.Key.Substring(name.Length + 1, item.Key.Length - (name.Length + 2)));
+                                    maxind = Math.Max(key, maxind);
+                                }
+                            break;
+                        case IniCollectionMode.IndexOnly:
+                            foreach (IniNameValue item in group)
+                            {
+                                int key;
+                                if (int.TryParse(item.Key, out key))
+                                    maxind = Math.Max(key, maxind);
+                            }
+                            break;
+                        case IniCollectionMode.NoSquareBrackets:
+                            foreach (IniNameValue item in group)
+                                if (item.Key.StartsWith(name))
+                                {
+                                    int key;
+                                    if (int.TryParse(item.Key.Substring(name.Length), out key))
+                                        maxind = Math.Max(key, maxind);
+                                }
+                            break;
+                        case IniCollectionMode.SingleLine:
+                            if (!group.ContainsKey(name)) return Array.CreateInstance(valuetype, 0);
+                            string[] items = group[name].Split(new[] { collectionSettings.Format }, StringSplitOptions.None);
+                            Array _obj = Array.CreateInstance(valuetype, items.Length);
+                            for (int i = 0; i < items.Length; i++)
+                                _obj.SetValue(valuetype.ConvertFromString(items[i]), i);
+                            group.Remove(name);
+                            return _obj;
+                    }
                 }
                 else
-                    foreach (KeyValuePair<string, Dictionary<string, string>> item in ini)
-                        if (!usecollectionname)
-                        {
-                            int key;
-                            if (int.TryParse(item.Key, out key))
-                                maxind = Math.Max(key, maxind);
-                        }
-                        else if (item.Key.StartsWith(fullname + "["))
-                        {
-                            int key = int.Parse(item.Key.Substring(fullname.Length + 1, item.Key.Length - (fullname.Length + 2)));
-                            maxind = Math.Max(key, maxind);
-                        }
-                maxind++;
-                Array obj = Array.CreateInstance(valuetype, maxind);
+                {
+                    switch (collectionSettings.Mode)
+                    {
+                        case IniCollectionMode.Normal:
+                            foreach (IniNameGroup item in ini)
+                                if (item.Key.StartsWith(fullname + "["))
+                                {
+                                    int key = int.Parse(item.Key.Substring(fullname.Length + 1, item.Key.Length - (fullname.Length + 2)));
+                                    maxind = Math.Max(key, maxind);
+                                }
+                            break;
+                        case IniCollectionMode.IndexOnly:
+                            foreach (IniNameGroup item in ini)
+                            {
+                                int key;
+                                if (int.TryParse(item.Key, out key))
+                                    maxind = Math.Max(key, maxind);
+                            }
+                            break;
+                        case IniCollectionMode.NoSquareBrackets:
+                            foreach (IniNameGroup item in ini)
+                                if (item.Key.StartsWith(fullname))
+                                {
+                                    int key = int.Parse(item.Key.Substring(fullname.Length));
+                                    maxind = Math.Max(key, maxind);
+                                }
+                            break;
+                        case IniCollectionMode.SingleLine:
+                            throw new InvalidOperationException("Cannot deserialize type " + valuetype + " with IniCollectionMode.SingleLine!");
+                    }
+                }
+                if (maxind == int.MinValue) return Array.CreateInstance(valuetype, 0);
+                int length = maxind + 1 - (collectionSettings.Mode == IniCollectionMode.SingleLine ? 0 : collectionSettings.StartIndex);
+                Array obj = Array.CreateInstance(valuetype, length);
                 if (!IsComplexType(valuetype))
-                    for (int i = 0; i < maxind; i++)
-                        if (group.ContainsKey(usecollectionname ? name + "[" + i + "]" : i.ToString()))
-                        {
-                            obj.SetValue(ConvertFromString(valuetype, group[usecollectionname ? name + "[" + i + "]" : i.ToString()]), i);
-                            group.Remove(usecollectionname ? name + "[" + i + "]" : i.ToString());
-                        }
-                        else
-                            obj.SetValue(valuetype.GetDefaultValue(), i);
+                    switch (collectionSettings.Mode)
+                    {
+                        case IniCollectionMode.Normal:
+                            for (int i = 0; i < length; i++)
+                                if (group.ContainsKey(name + "[" + (i + collectionSettings.StartIndex).ToString() + "]"))
+                                {
+                                    obj.SetValue(valuetype.ConvertFromString(group[name + "[" + (i + collectionSettings.StartIndex).ToString() + "]"]), i);
+                                    group.Remove(name + "[" + (i + collectionSettings.StartIndex).ToString() + "]");
+                                }
+                                else
+                                    obj.SetValue(valuetype.GetDefaultValue(), i);
+                            break;
+                        case IniCollectionMode.IndexOnly:
+                            for (int i = 0; i < length; i++)
+                                if (group.ContainsKey((i + collectionSettings.StartIndex).ToString()))
+                                {
+                                    obj.SetValue(valuetype.ConvertFromString(group[(i + collectionSettings.StartIndex).ToString()]), i);
+                                    group.Remove((i + collectionSettings.StartIndex).ToString());
+                                }
+                                else
+                                    obj.SetValue(valuetype.GetDefaultValue(), i);
+                            break;
+                        case IniCollectionMode.NoSquareBrackets:
+                            for (int i = 0; i < length; i++)
+                                if (group.ContainsKey(name + (i + collectionSettings.StartIndex).ToString()))
+                                {
+                                    obj.SetValue(valuetype.ConvertFromString(group[name + (i + collectionSettings.StartIndex).ToString()]), i);
+                                    group.Remove(name + (i + collectionSettings.StartIndex).ToString());
+                                }
+                                else
+                                    obj.SetValue(valuetype.GetDefaultValue(), i);
+                            break;
+                    }
                 else
-                    for (int i = 0; i < maxind; i++)
-                        obj.SetValue(DeserializeInternal("value", valuetype, valuetype.GetDefaultValue(), ini, usecollectionname ? fullname + "[" + i + "]" : i.ToString(), true, true), i);
+                    switch (collectionSettings.Mode)
+                    {
+                        case IniCollectionMode.Normal:
+                            for (int i = 0; i < maxind; i++)
+                                obj.SetValue(DeserializeInternal("value", valuetype, valuetype.GetDefaultValue(), ini, fullname + "[" + (i + collectionSettings.StartIndex).ToString() + "]", true, defaultCollectionSettings), i);
+                            break;
+                        case IniCollectionMode.IndexOnly:
+                            for (int i = 0; i < maxind; i++)
+                                obj.SetValue(DeserializeInternal("value", valuetype, valuetype.GetDefaultValue(), ini, (i + collectionSettings.StartIndex).ToString(), true, defaultCollectionSettings), i);
+                            break;
+                        case IniCollectionMode.NoSquareBrackets:
+                            for (int i = 0; i < maxind; i++)
+                                obj.SetValue(DeserializeInternal("value", valuetype, valuetype.GetDefaultValue(), ini, fullname + (i + collectionSettings.StartIndex).ToString(), true, defaultCollectionSettings), i);
+                            break;
+                    }
                 return obj;
             }
             if (ImplementsGenericDefinition(type, typeof(IList<>), out generictype))
@@ -308,7 +463,7 @@ namespace SonicRetro.SonLVL.API
                 object obj = Activator.CreateInstance(type);
                 Type valuetype = generictype.GetGenericArguments()[0];
                 CollectionDeserializer deserializer = (CollectionDeserializer)Activator.CreateInstance(typeof(ListDeserializer<>).MakeGenericType(valuetype));
-                deserializer.Deserialize(obj, group, groupName, usecollectionname, name, ini, fullname);
+                deserializer.Deserialize(obj, group, groupName, collectionSettings, name, ini, fullname);
                 return obj;
             }
             if (type.ImplementsGenericDefinition(typeof(IDictionary<,>), out generictype))
@@ -318,7 +473,7 @@ namespace SonicRetro.SonLVL.API
                 Type valuetype = generictype.GetGenericArguments()[1];
                 if (keytype.IsComplexType()) return obj;
                 CollectionDeserializer deserializer = (CollectionDeserializer)Activator.CreateInstance(typeof(DictionaryDeserializer<,>).MakeGenericType(keytype, valuetype));
-                deserializer.Deserialize(obj, group, groupName, usecollectionname, name, ini, fullname);
+                deserializer.Deserialize(obj, group, groupName, collectionSettings, name, ini, fullname);
                 return obj;
             }
             object result = Activator.CreateInstance(type);
@@ -330,14 +485,17 @@ namespace SonicRetro.SonLVL.API
                 string membername = member.Name;
                 if (Attribute.GetCustomAttribute(member, typeof(IniNameAttribute), true) != null)
                     membername = ((IniNameAttribute)Attribute.GetCustomAttribute(member, typeof(IniNameAttribute), true)).Name;
-                bool collectionattr = Attribute.GetCustomAttribute(member, typeof(IniCollectionAttribute), true) != null;
+                IniCollectionSettings colset = defaultCollectionSettings;
+                IniCollectionAttribute colattr = (IniCollectionAttribute)Attribute.GetCustomAttribute(member, typeof(IniCollectionAttribute), true);
+                if (colattr != null)
+                    colset = colattr.Settings;
                 switch (member.MemberType)
                 {
                     case MemberTypes.Field:
                         FieldInfo field = (FieldInfo)member;
-                        if (collectionattr && typeof(ICollection).IsAssignableFrom(field.FieldType))
+                        if (colset.Mode == IniCollectionMode.IndexOnly && typeof(ICollection).IsAssignableFrom(field.FieldType))
                         {
-                            if (collection != null) throw new Exception("IniCollectionAttribute cannot be used on multiple members of a Type.");
+                            if (collection != null) throw new Exception("IniCollectionMode.IndexOnly cannot be used on multiple members of a Type.");
                             collection = member;
                             continue;
                         }
@@ -345,14 +503,14 @@ namespace SonicRetro.SonLVL.API
                         DefaultValueAttribute defattr = (DefaultValueAttribute)Attribute.GetCustomAttribute(member, typeof(DefaultValueAttribute), true);
                         if (defattr != null)
                             defval = defattr.Value;
-                        field.SetValue(result, DeserializeInternal(membername, field.FieldType, defval, ini, fullname, false, true));
+                        field.SetValue(result, DeserializeInternal(membername, field.FieldType, defval, ini, fullname, false, colset));
                         break;
                     case MemberTypes.Property:
                         PropertyInfo property = (PropertyInfo)member;
                         if (property.GetIndexParameters().Length > 0) continue;
-                        if (collectionattr && typeof(ICollection).IsAssignableFrom(property.PropertyType))
+                        if (colset.Mode == IniCollectionMode.IndexOnly && typeof(ICollection).IsAssignableFrom(property.PropertyType))
                         {
-                            if (collection != null) throw new Exception("IniCollectionAttribute cannot be used on multiple members of a Type.");
+                            if (collection != null) throw new Exception("IniCollectionMode.IndexOnly cannot be used on multiple members of a Type.");
                             collection = member;
                             continue;
                         }
@@ -360,7 +518,7 @@ namespace SonicRetro.SonLVL.API
                         defattr = (DefaultValueAttribute)Attribute.GetCustomAttribute(member, typeof(DefaultValueAttribute), true);
                         if (defattr != null)
                             defval = defattr.Value;
-                        object propval = DeserializeInternal(membername, property.PropertyType, defval, ini, fullname, false, true);
+                        object propval = DeserializeInternal(membername, property.PropertyType, defval, ini, fullname, false, colset);
                         MethodInfo setmethod = property.GetSetMethod();
                         if (setmethod == null) continue;
                         setmethod.Invoke(result, new object[] { propval });
@@ -372,11 +530,11 @@ namespace SonicRetro.SonLVL.API
                 {
                     case MemberTypes.Field:
                         FieldInfo field = (FieldInfo)collection;
-                        field.SetValue(result, DeserializeInternal(collection.Name, field.FieldType, field.FieldType.GetDefaultValue(), ini, fullname, false, false));
+                        field.SetValue(result, DeserializeInternal(collection.Name, field.FieldType, field.FieldType.GetDefaultValue(), ini, fullname, false, ((IniCollectionAttribute)Attribute.GetCustomAttribute(collection, typeof(IniCollectionAttribute), true)).Settings));
                         break;
                     case MemberTypes.Property:
                         PropertyInfo property = (PropertyInfo)collection;
-                        object propval = DeserializeInternal(collection.Name, property.PropertyType, property.PropertyType.GetDefaultValue(), ini, fullname, false, false);
+                        object propval = DeserializeInternal(collection.Name, property.PropertyType, property.PropertyType.GetDefaultValue(), ini, fullname, false, ((IniCollectionAttribute)Attribute.GetCustomAttribute(collection, typeof(IniCollectionAttribute), true)).Settings);
                         MethodInfo setmethod = property.GetSetMethod();
                         if (setmethod == null) break;
                         setmethod.Invoke(result, new object[] { propval });
@@ -516,65 +674,144 @@ namespace SonicRetro.SonLVL.API
 
         private abstract class CollectionDeserializer
         {
-            public abstract void Deserialize(object listObj, Dictionary<string, string> group, string groupName, bool usecollectionname, string name, Dictionary<string, Dictionary<string, string>> ini, string fullname);
+            public abstract void Deserialize(object listObj, IniGroup group, string groupName, IniCollectionSettings collectionSettings, string name, IniDictionary ini, string fullname);
         }
 
         private sealed class ListDeserializer<T> : CollectionDeserializer
         {
-            public override void Deserialize(object listObj, Dictionary<string, string> group, string groupName, bool usecollectionname, string name, Dictionary<string, Dictionary<string, string>> ini, string fullname)
+            public override void Deserialize(object listObj, IniGroup group, string groupName, IniCollectionSettings collectionSettings, string name, IniDictionary ini, string fullname)
             {
                 Type valuetype = typeof(T);
                 IList<T> list = (IList<T>)listObj;
+                int maxind = int.MinValue;
                 if (!IsComplexType(valuetype))
                 {
-                    int maxind = -1;
-                    foreach (KeyValuePair<string, string> item in group)
-                        if (!usecollectionname)
-                        {
-                            int key;
-                            if (int.TryParse(item.Key, out key))
-                                maxind = Math.Max(key, maxind);
-                        }
-                        else if (item.Key.StartsWith(name + "["))
-                        {
-                            int key = int.Parse(item.Key.Substring(name.Length + 1, item.Key.Length - (name.Length + 2)));
-                            maxind = Math.Max(key, maxind);
-                        }
-                    maxind++;
-                    for (int i = 0; i < maxind; i++)
-                        if (group.ContainsKey(usecollectionname ? name + "[" + i + "]" : i.ToString()))
-                        {
-                            list.Add((T)ConvertFromString(valuetype, group[usecollectionname ? name + "[" + i + "]" : i.ToString()]));
-                            group.Remove(usecollectionname ? name + "[" + i + "]" : i.ToString());
-                        }
-                        else
-                            list.Add((T)valuetype.GetDefaultValue());
+                    switch (collectionSettings.Mode)
+                    {
+                        case IniCollectionMode.Normal:
+                            foreach (IniNameValue item in group)
+                                if (item.Key.StartsWith(name + "["))
+                                {
+                                    int key = int.Parse(item.Key.Substring(name.Length + 1, item.Key.Length - (name.Length + 2)));
+                                    maxind = Math.Max(key, maxind);
+                                }
+                            break;
+                        case IniCollectionMode.IndexOnly:
+                            foreach (IniNameValue item in group)
+                            {
+                                int key;
+                                if (int.TryParse(item.Key, out key))
+                                    maxind = Math.Max(key, maxind);
+                            }
+                            break;
+                        case IniCollectionMode.NoSquareBrackets:
+                            foreach (IniNameValue item in group)
+                                if (item.Key.StartsWith(name))
+                                {
+                                    int key;
+                                    if (int.TryParse(item.Key.Substring(name.Length), out key))
+                                        maxind = Math.Max(key, maxind);
+                                }
+                            break;
+                        case IniCollectionMode.SingleLine:
+                            if (!group.ContainsKey(name)) return;
+                            string[] items = group[name].Split(new[] { collectionSettings.Format }, StringSplitOptions.None);
+                            for (int i = 0; i < items.Length; i++)
+                                list.Add((T)valuetype.ConvertFromString(items[i]));
+                            group.Remove(name);
+                            return;
+                    }
                 }
                 else
                 {
-                    int maxind = -1;
-                    foreach (KeyValuePair<string, Dictionary<string, string>> item in ini)
-                        if (!usecollectionname)
-                        {
-                            int key;
-                            if (int.TryParse(item.Key, out key))
-                                maxind = Math.Max(key, maxind);
-                        }
-                        else if (item.Key.StartsWith(fullname + "["))
-                        {
-                            int key = int.Parse(item.Key.Substring(fullname.Length + 1, item.Key.Length - (fullname.Length + 2)));
-                            maxind = Math.Max(key, maxind);
-                        }
-                    maxind++;
-                    for (int i = 0; i < maxind; i++)
-                        list.Add((T)DeserializeInternal("value", valuetype, valuetype.GetDefaultValue(), ini, usecollectionname ? fullname + "[" + i + "]" : i.ToString(), true, true));
+                    switch (collectionSettings.Mode)
+                    {
+                        case IniCollectionMode.Normal:
+                            foreach (IniNameGroup item in ini)
+                                if (item.Key.StartsWith(fullname + "["))
+                                {
+                                    int key = int.Parse(item.Key.Substring(fullname.Length + 1, item.Key.Length - (fullname.Length + 2)));
+                                    maxind = Math.Max(key, maxind);
+                                }
+                            break;
+                        case IniCollectionMode.IndexOnly:
+                            foreach (IniNameGroup item in ini)
+                            {
+                                int key;
+                                if (int.TryParse(item.Key, out key))
+                                    maxind = Math.Max(key, maxind);
+                            }
+                            break;
+                        case IniCollectionMode.NoSquareBrackets:
+                            foreach (IniNameGroup item in ini)
+                                if (item.Key.StartsWith(fullname))
+                                {
+                                    int key = int.Parse(item.Key.Substring(fullname.Length));
+                                    maxind = Math.Max(key, maxind);
+                                }
+                            break;
+                        case IniCollectionMode.SingleLine:
+                            throw new InvalidOperationException("Cannot deserialize type " + valuetype + " with IniCollectionMode.SingleLine!");
+                    }
                 }
+                if (maxind == int.MinValue) return;
+                int length = maxind + 1 - (collectionSettings.Mode == IniCollectionMode.SingleLine ? 0 : collectionSettings.StartIndex);
+                if (!IsComplexType(valuetype))
+                    switch (collectionSettings.Mode)
+                    {
+                        case IniCollectionMode.Normal:
+                            for (int i = 0; i < length; i++)
+                                if (group.ContainsKey(name + "[" + (i + collectionSettings.StartIndex).ToString() + "]"))
+                                {
+                                    list.Add((T)valuetype.ConvertFromString(group[name + "[" + (i + collectionSettings.StartIndex).ToString() + "]"]));
+                                    group.Remove(name + "[" + (i + collectionSettings.StartIndex).ToString() + "]");
+                                }
+                                else
+                                    list.Add((T)valuetype.GetDefaultValue());
+                            break;
+                        case IniCollectionMode.IndexOnly:
+                            for (int i = 0; i < length; i++)
+                                if (group.ContainsKey((i + collectionSettings.StartIndex).ToString()))
+                                {
+                                    list.Add((T)valuetype.ConvertFromString(group[(i + collectionSettings.StartIndex).ToString()]));
+                                    group.Remove((i + collectionSettings.StartIndex).ToString());
+                                }
+                                else
+                                    list.Add((T)valuetype.GetDefaultValue());
+                            break;
+                        case IniCollectionMode.NoSquareBrackets:
+                            for (int i = 0; i < length; i++)
+                                if (group.ContainsKey(name + (i + collectionSettings.StartIndex).ToString()))
+                                {
+                                    list.Add((T)valuetype.ConvertFromString(group[name + (i + collectionSettings.StartIndex).ToString()]));
+                                    group.Remove(name + (i + collectionSettings.StartIndex).ToString());
+                                }
+                                else
+                                    list.Add((T)valuetype.GetDefaultValue());
+                            break;
+                    }
+                else
+                    switch (collectionSettings.Mode)
+                    {
+                        case IniCollectionMode.Normal:
+                            for (int i = 0; i < maxind; i++)
+                                list.Add((T)DeserializeInternal("value", valuetype, valuetype.GetDefaultValue(), ini, fullname + "[" + (i + collectionSettings.StartIndex).ToString() + "]", true, defaultCollectionSettings));
+                            break;
+                        case IniCollectionMode.IndexOnly:
+                            for (int i = 0; i < maxind; i++)
+                                list.Add((T)DeserializeInternal("value", valuetype, valuetype.GetDefaultValue(), ini, (i + collectionSettings.StartIndex).ToString(), true, defaultCollectionSettings));
+                            break;
+                        case IniCollectionMode.NoSquareBrackets:
+                            for (int i = 0; i < maxind; i++)
+                                list.Add((T)DeserializeInternal("value", valuetype, valuetype.GetDefaultValue(), ini, fullname + (i + collectionSettings.StartIndex).ToString(), true, defaultCollectionSettings));
+                            break;
+                    }
             }
         }
 
         private sealed class DictionaryDeserializer<TKey, TValue> : CollectionDeserializer
         {
-            public override void Deserialize(object listObj, Dictionary<string, string> group, string groupName, bool usecollectionname, string name, Dictionary<string, Dictionary<string, string>> ini, string fullname)
+            public override void Deserialize(object listObj, IniGroup group, string groupName, IniCollectionSettings collectionSettings, string name, IniDictionary ini, string fullname)
             {
                 Type keytype = typeof(TKey);
                 Type valuetype = typeof(TValue);
@@ -582,45 +819,156 @@ namespace SonicRetro.SonLVL.API
                 if (!valuetype.IsComplexType())
                 {
                     List<string> items = new List<string>();
-                    foreach (KeyValuePair<string, string> item in group)
-                        if (!usecollectionname)
-                            items.Add(item.Key);
-                        else if (item.Key.StartsWith(name + "["))
-                            items.Add(item.Key.Substring(name.Length + 1, item.Key.Length - (name.Length + 2)));
-                    foreach (string item in items)
+                    switch (collectionSettings.Mode)
                     {
-                        list.Add((TKey)keytype.ConvertFromString(item), (TValue)valuetype.ConvertFromString(group[usecollectionname ? name + "[" + item + "]" : item]));
-                        group.Remove(usecollectionname ? name + "[" + item + "]" : item);
+                        case IniCollectionMode.Normal:
+                            foreach (IniNameValue item in group)
+                                if (item.Key.StartsWith(name + "["))
+                                    items.Add(item.Key.Substring(name.Length + 1, item.Key.Length - (name.Length + 2)));
+                            break;
+                        case IniCollectionMode.IndexOnly:
+                            foreach (IniNameValue item in group)
+                                items.Add(item.Key);
+                            break;
+                        case IniCollectionMode.NoSquareBrackets:
+                            foreach (IniNameValue item in group)
+                                if (item.Key.StartsWith(name))
+                                    items.Add(item.Key.Substring(name.Length));
+                            break;
+                        case IniCollectionMode.SingleLine:
+                            throw new InvalidOperationException("Cannot deserialize IDictionary<TKey, TValue> with IniCollectionMode.SingleLine!");
+                    }
+                    switch (collectionSettings.Mode)
+                    {
+                        case IniCollectionMode.Normal:
+                            foreach (string item in items)
+                            {
+                                list.Add((TKey)keytype.ConvertFromString(item), (TValue)valuetype.ConvertFromString(group[name + "[" + item + "]"]));
+                                group.Remove(name + "[" + item + "]");
+                            }
+                            break;
+                        case IniCollectionMode.IndexOnly:
+                            foreach (string item in items)
+                            {
+                                list.Add((TKey)keytype.ConvertFromString(item), (TValue)valuetype.ConvertFromString(group[item]));
+                                group.Remove(item);
+                            }
+                            break;
+                        case IniCollectionMode.NoSquareBrackets:
+                            foreach (string item in items)
+                            {
+                                list.Add((TKey)keytype.ConvertFromString(item), (TValue)valuetype.ConvertFromString(group[name + item]));
+                                group.Remove(name + item);
+                            }
+                            break;
                     }
                 }
                 else
                 {
                     List<string> items = new List<string>();
-                    foreach (KeyValuePair<string, Dictionary<string, string>> item in ini)
-                        if (!usecollectionname & item.Key != groupName)
-                            items.Add(item.Key);
-                        else if (item.Key.StartsWith(fullname + "["))
-                            items.Add(item.Key.Substring(fullname.Length + 1, item.Key.Length - (fullname.Length + 2)));
-                    foreach (string item in items)
-                        list.Add((TKey)keytype.ConvertFromString(item), (TValue)DeserializeInternal("value", valuetype, valuetype.GetDefaultValue(), ini, usecollectionname ? name + "[" + item + "]" : item, true, true));
+                    switch (collectionSettings.Mode)
+                    {
+                        case IniCollectionMode.Normal:
+                            foreach (IniNameGroup item in ini)
+                                if (item.Key.StartsWith(name + "["))
+                                    items.Add(item.Key.Substring(name.Length + 1, item.Key.Length - (name.Length + 2)));
+                            break;
+                        case IniCollectionMode.IndexOnly:
+                            foreach (IniNameGroup item in ini)
+                                if (item.Key != groupName)
+                                    items.Add(item.Key);
+                            break;
+                        case IniCollectionMode.NoSquareBrackets:
+                            foreach (IniNameGroup item in ini)
+                                if (item.Key.StartsWith(name))
+                                    items.Add(item.Key.Substring(name.Length));
+                            break;
+                        case IniCollectionMode.SingleLine:
+                            throw new InvalidOperationException("Cannot deserialize IDictionary<TKey, TValue> with IniCollectionMode.SingleLine!");
+                    }
+                    switch (collectionSettings.Mode)
+                    {
+                        case IniCollectionMode.Normal:
+                            foreach (string item in items)
+                                list.Add((TKey)keytype.ConvertFromString(item), (TValue)DeserializeInternal("value", valuetype, valuetype.GetDefaultValue(), ini, name + "[" + item + "]", true, defaultCollectionSettings));
+                            break;
+                        case IniCollectionMode.IndexOnly:
+                            foreach (string item in items)
+                                list.Add((TKey)keytype.ConvertFromString(item), (TValue)DeserializeInternal("value", valuetype, valuetype.GetDefaultValue(), ini, item, true, defaultCollectionSettings));
+                            break;
+                        case IniCollectionMode.NoSquareBrackets:
+                            foreach (string item in items)
+                                list.Add((TKey)keytype.ConvertFromString(item), (TValue)DeserializeInternal("value", valuetype, valuetype.GetDefaultValue(), ini, name + item, true, defaultCollectionSettings));
+                            break;
+                    }
                 }
             }
         }
-
     }
 
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
     public sealed class IniIgnoreAttribute : Attribute { }
 
+    public class IniCollectionSettings
+    {
+        public IniCollectionSettings(IniCollectionMode mode)
+        {
+            Mode = mode;
+        }
+
+        public IniCollectionMode Mode { get; private set; }
+
+        public string Format { get; set; }
+
+        public int StartIndex { get; set; }
+    }
+
+    public enum IniCollectionMode
+    {
+        /// <summary>
+        /// The collection is serialized normally.
+        /// </summary>
+        Normal,
+        /// <summary>
+        /// The collection is serialized using only the index in the ini entry's key.
+        /// </summary>
+        IndexOnly,
+        /// <summary>
+        /// The collection is serialized using the collection's name and index in the ini entry's key, with no square brackets.
+        /// </summary>
+        NoSquareBrackets,
+        /// <summary>
+        /// The <paramref name="Format"/> property is used with <seealso cref="String.Join"/> to create the ini entry's value. The key is the collection's name.
+        /// </summary>
+        SingleLine
+    }
+
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
-    public sealed class IniCollectionAttribute : Attribute { }
+    public sealed class IniCollectionAttribute : Attribute
+    {
+        public IniCollectionAttribute(IniCollectionMode mode)
+        {
+            Settings = new IniCollectionSettings(mode);
+        }
+
+        public string Format
+        {
+            get { return Settings.Format; }
+            set { Settings.Format = value; }
+        }
+
+        public int StartIndex
+        {
+            get { return Settings.StartIndex; }
+            set { Settings.StartIndex = value; }
+        }
+
+        public IniCollectionSettings Settings { get; private set; }
+    }
 
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
     public sealed class IniNameAttribute : Attribute
     {
-        // See the attribute guidelines at 
-        //  http://go.microsoft.com/fwlink/?LinkId=85236
-
         public IniNameAttribute(string name)
         {
             Name = name;
@@ -628,4 +976,7 @@ namespace SonicRetro.SonLVL.API
 
         public string Name { get; private set; }
     }
+
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
+    public sealed class IniAlwaysIncludeAttribute : Attribute { }
 }

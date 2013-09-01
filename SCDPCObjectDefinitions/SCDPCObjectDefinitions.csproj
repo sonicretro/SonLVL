@@ -37,9 +37,7 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PPZ1\Monitor.cs" />
     <Compile Include="PPZ1\Ring.cs" />
-    <Compile Include="PPZ1\Spring.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

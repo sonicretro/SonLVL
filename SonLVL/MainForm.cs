@@ -23,7 +23,6 @@ namespace SonicRetro.SonLVL.GUI
                 Log("Mono runtime detected.");
             Log("Operating system: " + Environment.OSVersion.ToString());
             LevelData.LogEvent += new LevelData.LogEventHandler(Log);
-            LevelData.ObjectTypeChangedEvent += new LevelData.ObjectTypeChangedEventHandler(LevelData_ObjectTypeChangedEvent);
             LevelData.PaletteChangedEvent += new Action(LevelData_PaletteChangedEvent);
             InitializeComponent();
             if (Program.IsMonoRuntime)
@@ -43,21 +42,6 @@ namespace SonicRetro.SonLVL.GUI
             LevelImgPalette.Entries[65] = Color.Yellow;
             LevelImgPalette.Entries[66] = Color.Black;
             LevelImgPalette.Entries[67] = Settings.GridColor;
-        }
-
-        void LevelData_ObjectTypeChangedEvent(ObjectEntry old, ObjectEntry @new)
-        {
-            if (SelectedItems != null)
-            {
-                int i = SelectedItems.IndexOf(old);
-                if (i > -1)
-                {
-                    SelectedItems[i] = @new;
-                    ObjectProperties.SelectedObjects = SelectedItems.ToArray();
-                }
-            }
-            if (loaded)
-                AddUndo(new ObjectIDChangedUndoAction(old, @new));
         }
 
         void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
@@ -83,6 +67,9 @@ namespace SonicRetro.SonLVL.GUI
         internal ColorPalette LevelImgPalette;
         double ZoomLevel = 1;
         bool objdrag = false;
+        bool dragdrop = false;
+        byte dragobj;
+        Point dragpoint;
         bool selecting = false;
         Point selpoint;
         List<Point> locs = new List<Point>();
@@ -170,12 +157,14 @@ namespace SonicRetro.SonLVL.GUI
             HUDLetters = new Dictionary<char, BitmapBits>();
             Dictionary<char, string> huditems = IniFile.Deserialize<Dictionary<char, string>>(Path.Combine(HUDpath, "HUD.ini"));
             foreach (KeyValuePair<char, string> item in huditems)
-                HUDLetters.Add(item.Key, new BitmapBits(new Bitmap(Path.Combine(HUDpath, item.Value + ".png"))));
+                HUDLetters.Add(item.Key, new BitmapBits(Path.Combine(HUDpath, item.Value + ".png")));
             HUDNumbers = new Dictionary<char, BitmapBits>();
             huditems = IniFile.Deserialize<Dictionary<char, string>>(Path.Combine(HUDpath, "HUDnum.ini"));
             foreach (KeyValuePair<char, string> item in huditems)
-                HUDNumbers.Add(item.Key, new BitmapBits(new Bitmap(Path.Combine(HUDpath, item.Value + ".png"))));
+                HUDNumbers.Add(item.Key, new BitmapBits(Path.Combine(HUDpath, item.Value + ".png")));
             hUDToolStripMenuItem.Checked = Settings.ShowHUD;
+            enableGridToolStripMenuItem.Checked = Settings.ShowGrid;
+            includeObjectsWithForegroundSelectionToolStripMenuItem.Checked = Settings.IncludeObjectsInForegroundSelection;
             if (System.Diagnostics.Debugger.IsAttached)
                 logToolStripMenuItem_Click(sender, e);
             if (!string.IsNullOrEmpty(Settings.Emulator))
@@ -219,17 +208,15 @@ namespace SonicRetro.SonLVL.GUI
                 {
                     string[] itempath = item.Key.Split('\\');
                     ToolStripMenuItem parent = changeLevelToolStripMenuItem;
+                    string curpath = string.Empty;
                     for (int i = 0; i < itempath.Length - 1; i++)
                     {
-                        string curpath = string.Empty;
                         if (i - 1 >= 0)
-                            curpath = string.Join(@"\", itempath, 0, i - 1);
-                        if (!string.IsNullOrEmpty(curpath))
-                            parent = levelMenuItems[curpath];
+                            curpath += @"\";
                         curpath += itempath[i];
                         if (!levelMenuItems.ContainsKey(curpath))
                         {
-                            ToolStripMenuItem it = new ToolStripMenuItem(itempath[i].Replace("&", "&&")) { Tag = curpath };
+                            ToolStripMenuItem it = new ToolStripMenuItem(itempath[i].Replace("&", "&&"));
                             levelMenuItems.Add(curpath, it);
                             parent.DropDownItems.Add(it);
                             parent = it;
@@ -254,7 +241,6 @@ namespace SonicRetro.SonLVL.GUI
                     break;
                 case EngineVersion.S2:
                 case EngineVersion.S2NA:
-                case EngineVersion.SBoom:
                     Icon = Properties.Resources.Tailsmon2;
                     break;
                 case EngineVersion.S3K:
@@ -327,6 +313,9 @@ namespace SonicRetro.SonLVL.GUI
             Enabled = false;
             Text = "SonLVL - " + LevelData.Game.EngineVersion + " - Loading " + LevelData.Game.GetLevelInfo((string)((ToolStripMenuItem)sender).Tag).DisplayName + "...";
 #if !DEBUG
+            loadingAnimation1.Location = new Point((ClientSize.Width / 2) - (loadingAnimation1.Width / 2), (ClientSize.Height / 2) - (loadingAnimation1.Height / 2));
+            loadingAnimation1.BringToFront();
+            loadingAnimation1.Show();
             backgroundLevelLoader.RunWorkerAsync(((ToolStripMenuItem)sender).Tag);
 #else
             backgroundLevelLoader_DoWork(null, new DoWorkEventArgs(((ToolStripMenuItem)sender).Tag));
@@ -403,7 +392,6 @@ namespace SonicRetro.SonLVL.GUI
                 case EngineVersion.S2NA:
                 case EngineVersion.S3K:
                 case EngineVersion.SKC:
-                case EngineVersion.SBoom:
                     BlockCollision2.Visible = true;
                     button2.Visible = true;
                     path2ToolStripMenuItem.Visible = true;
@@ -417,10 +405,15 @@ namespace SonicRetro.SonLVL.GUI
             }
             ObjectSelect.listView1.Items.Clear();
             ObjectSelect.imageList1.Images.Clear();
+            objectTypeList.Items.Clear();
+            objectTypeImages.Images.Clear();
             foreach (KeyValuePair<byte, ObjectDefinition> item in LevelData.ObjTypes)
             {
-                ObjectSelect.imageList1.Images.Add(item.Value.Image().ToBitmap(LevelData.BmpPal).Resize(ObjectSelect.imageList1.ImageSize));
-                ObjectSelect.listView1.Items.Add(item.Value.Name(), ObjectSelect.imageList1.Images.Count - 1);
+                Bitmap image = item.Value.Image.Image.ToBitmap(LevelData.BmpPal);
+                ObjectSelect.imageList1.Images.Add(image.Resize(ObjectSelect.imageList1.ImageSize));
+                ObjectSelect.listView1.Items.Add(new ListViewItem(item.Value.Name, ObjectSelect.imageList1.Images.Count - 1) { Tag = item.Key });
+                objectTypeImages.Images.Add(image.Resize(objectTypeImages.ImageSize));
+                objectTypeList.Items.Add(new ListViewItem(item.Value.Name, objectTypeImages.Images.Count - 1) { Tag = item.Key });
             }
             ObjectSelect.listView2.Items.Clear();
             ObjectSelect.imageList2.Images.Clear();
@@ -465,6 +458,9 @@ namespace SonicRetro.SonLVL.GUI
             blendAlternatePaletteToolStripMenuItem.Enabled = LevelData.Palette.Count > 1;
             timeZoneToolStripMenuItem.Visible = LevelData.Level.TimeZone != API.TimeZone.None;
             SelectedObjectChanged();
+#if !DEBUG
+            loadingAnimation1.Hide();
+#endif
             Enabled = true;
             DrawLevel();
         }
@@ -620,6 +616,7 @@ namespace SonicRetro.SonLVL.GUI
             ((ToolStripMenuItem)e.ClickedItem).Checked = true;
             LevelData.CurPal = paletteToolStripMenuItem2.DropDownItems.IndexOf(e.ClickedItem);
             LevelData.PaletteChanged();
+            DrawLevel();
         }
 
         private void lowToolStripMenuItem_Click(object sender, EventArgs e)
@@ -681,8 +678,11 @@ namespace SonicRetro.SonLVL.GUI
             if (a.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 Settings.GridColor = a.Color;
-                LevelImgPalette.Entries[67] = a.Color;
-                DrawLevel();
+                if (loaded)
+                {
+                    LevelImgPalette.Entries[67] = a.Color;
+                    DrawLevel();
+                }
             }
             cols = a.CustomColors;
             a.Dispose();
@@ -763,92 +763,122 @@ namespace SonicRetro.SonLVL.GUI
 
         private void blocksToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            FolderBrowserDialog a = new FolderBrowserDialog() { SelectedPath = Environment.CurrentDirectory };
-            if (a.ShowDialog() == DialogResult.OK)
+            if (!highToolStripMenuItem.Checked & !lowToolStripMenuItem.Checked)
             {
-                Color[] palette = new Color[256];
-                for (int i = 0; i < 64; i++)
-                    palette[i] = LevelData.PaletteToColor(i / 16, i % 16, false);
-                for (int i = 64; i < 256; i++)
-                    palette[i] = Color.Black;
-                palette[0] = LevelData.PaletteToColor(2, 0, false);
-                for (int i = 0; i < LevelData.Blocks.Count; i++)
-                    LevelData.CompBlockBmpBits[i].ToBitmap(palette).Save(Path.Combine(a.SelectedPath, i + ".png"));
+                MessageBox.Show(this, "Cannot export blocks with no planes visible.", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
+            using (FolderBrowserDialog a = new FolderBrowserDialog() { SelectedPath = Environment.CurrentDirectory })
+                if (a.ShowDialog() == DialogResult.OK)
+                {
+                    Color[] palette = new Color[256];
+                    for (int i = 0; i < 64; i++)
+                        palette[i] = LevelData.PaletteToColor(i / 16, i % 16, false);
+                    for (int i = 64; i < 256; i++)
+                        palette[i] = Color.Black;
+                    palette[0] = LevelData.PaletteToColor(2, 0, false);
+                    for (int i = 0; i < LevelData.Blocks.Count; i++)
+                    {
+                        BitmapBits bits = null;
+                        if (highToolStripMenuItem.Checked & lowToolStripMenuItem.Checked)
+                            bits = new BitmapBits(LevelData.CompBlockBmpBits[i]);
+                        else if (lowToolStripMenuItem.Checked)
+                            bits = new BitmapBits(LevelData.BlockBmpBits[i][0]);
+                        else
+                            bits = new BitmapBits(LevelData.BlockBmpBits[i][1]);
+                        if (path1ToolStripMenuItem.Checked)
+                            bits.DrawBitmapComposited(LevelData.ColBmpBits[LevelData.ColInds1[i]], 0, 0);
+                        else if (path2ToolStripMenuItem.Checked)
+                            bits.DrawBitmapComposited(LevelData.ColBmpBits[LevelData.ColInds2[i]], 0, 0);
+                        bits.ToBitmap(LevelImgPalette).Save(Path.Combine(a.SelectedPath, i + ".png"));
+                    }
+                }
         }
 
         private void chunksToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            FolderBrowserDialog a = new FolderBrowserDialog() { SelectedPath = Environment.CurrentDirectory };
-            if (a.ShowDialog() == DialogResult.OK)
+            if (!highToolStripMenuItem.Checked & !lowToolStripMenuItem.Checked)
             {
-                Color[] palette = new Color[256];
-                for (int i = 0; i < 64; i++)
-                    palette[i] = LevelData.PaletteToColor(i / 16, i % 16, false);
-                for (int i = 64; i < 256; i++)
-                    palette[i] = Color.Black;
-                palette[0] = LevelData.PaletteToColor(2, 0, false);
-                for (int i = 0; i < LevelData.Chunks.Count; i++)
-                    LevelData.CompChunkBmpBits[i].ToBitmap(palette).Save(Path.Combine(a.SelectedPath, i + ".png"));
+                MessageBox.Show(this, "Cannot export chunks with no planes visible.", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
+            using (FolderBrowserDialog a = new FolderBrowserDialog() { SelectedPath = Environment.CurrentDirectory })
+                if (a.ShowDialog() == DialogResult.OK)
+                {
+                    for (int i = 0; i < LevelData.Chunks.Count; i++)
+                    {
+                        BitmapBits bits = null;
+                        if (highToolStripMenuItem.Checked & lowToolStripMenuItem.Checked)
+                            bits = new BitmapBits(LevelData.CompChunkBmpBits[i]);
+                        else if (lowToolStripMenuItem.Checked)
+                            bits = new BitmapBits(LevelData.ChunkBmpBits[i][0]);
+                        else
+                            bits = new BitmapBits(LevelData.ChunkBmpBits[i][1]);
+                        if (path1ToolStripMenuItem.Checked)
+                            bits.DrawBitmapComposited(LevelData.ChunkColBmpBits[i][0], 0, 0);
+                        else if (path2ToolStripMenuItem.Checked)
+                            bits.DrawBitmapComposited(LevelData.ChunkColBmpBits[i][1], 0, 0);
+                        bits.ToBitmap(LevelImgPalette).Save(Path.Combine(a.SelectedPath, i + ".png"));
+                    }
+                }
         }
 
         private void foregroundToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SaveFileDialog a = new SaveFileDialog()
-            {
-                DefaultExt = "png",
-                Filter = "PNG Files|*.png",
-                RestoreDirectory = true
-            };
-            if (a.ShowDialog() == DialogResult.OK)
-            {
-                BitmapBits bmp = LevelData.DrawForeground(null, includeobjectsWithFGToolStripMenuItem.Checked, !hideDebugObjectsToolStripMenuItem.Checked, objectsAboveHighPlaneToolStripMenuItem.Checked, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked, allToolStripMenuItem.Checked);
-                for (int i = 0; i < bmp.Bits.Length; i++)
-                    if (bmp.Bits[i] == 0)
-                        bmp.Bits[i] = 32;
-                Bitmap res = bmp.ToBitmap();
-                ColorPalette pal = res.Palette;
-                for (int i = 0; i < 64; i++)
-                    pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, transparentBackFGBGToolStripMenuItem.Checked);
-                pal.Entries[64] = Color.White;
-                pal.Entries[65] = Color.Yellow;
-                pal.Entries[66] = Color.Black;
-                for (int i = 67; i < 256; i++)
-                    pal.Entries[i] = Color.Black;
-                pal.Entries[0] = LevelData.PaletteToColor(2, 0, transparentBackFGBGToolStripMenuItem.Checked);
-                res.Palette = pal;
-                res.Save(a.FileName);
-            }
+            using (SaveFileDialog a = new SaveFileDialog()
+                        {
+                            DefaultExt = "png",
+                            Filter = "PNG Files|*.png",
+                            RestoreDirectory = true
+                        })
+                if (a.ShowDialog() == DialogResult.OK)
+                {
+                    BitmapBits bmp = LevelData.DrawForeground(null, includeobjectsWithFGToolStripMenuItem.Checked, !hideDebugObjectsToolStripMenuItem.Checked, objectsAboveHighPlaneToolStripMenuItem.Checked, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked, allToolStripMenuItem.Checked);
+                    for (int i = 0; i < bmp.Bits.Length; i++)
+                        if (bmp.Bits[i] == 0)
+                            bmp.Bits[i] = 32;
+                    Bitmap res = bmp.ToBitmap();
+                    ColorPalette pal = res.Palette;
+                    for (int i = 0; i < 64; i++)
+                        pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, transparentBackFGBGToolStripMenuItem.Checked);
+                    pal.Entries[64] = Color.White;
+                    pal.Entries[65] = Color.Yellow;
+                    pal.Entries[66] = Color.Black;
+                    for (int i = 67; i < 256; i++)
+                        pal.Entries[i] = Color.Black;
+                    pal.Entries[0] = LevelData.PaletteToColor(2, 0, transparentBackFGBGToolStripMenuItem.Checked);
+                    res.Palette = pal;
+                    res.Save(a.FileName);
+                }
         }
 
         private void backgroundToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SaveFileDialog a = new SaveFileDialog()
-            {
-                DefaultExt = "png",
-                Filter = "PNG Files|*.png",
-                RestoreDirectory = true
-            };
-            if (a.ShowDialog() == DialogResult.OK)
-            {
-                BitmapBits bmp = LevelData.DrawBackground(null, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked);
-                for (int i = 0; i < bmp.Bits.Length; i++)
-                    if (bmp.Bits[i] == 0)
-                        bmp.Bits[i] = 32;
-                Bitmap res = bmp.ToBitmap();
-                ColorPalette pal = res.Palette;
-                for (int i = 0; i < 64; i++)
-                    pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, transparentBackFGBGToolStripMenuItem.Checked);
-                pal.Entries[64] = Color.White;
-                pal.Entries[65] = Color.Yellow;
-                pal.Entries[66] = Color.Black;
-                for (int i = 67; i < 256; i++)
-                    pal.Entries[i] = Color.Black;
-                pal.Entries[0] = LevelData.PaletteToColor(2, 0, transparentBackFGBGToolStripMenuItem.Checked);
-                res.Palette = pal;
-                res.Save(a.FileName);
-            }
+            using (SaveFileDialog a = new SaveFileDialog()
+                        {
+                            DefaultExt = "png",
+                            Filter = "PNG Files|*.png",
+                            RestoreDirectory = true
+                        })
+                if (a.ShowDialog() == DialogResult.OK)
+                {
+                    BitmapBits bmp = LevelData.DrawBackground(null, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked);
+                    for (int i = 0; i < bmp.Bits.Length; i++)
+                        if (bmp.Bits[i] == 0)
+                            bmp.Bits[i] = 32;
+                    Bitmap res = bmp.ToBitmap();
+                    ColorPalette pal = res.Palette;
+                    for (int i = 0; i < 64; i++)
+                        pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, transparentBackFGBGToolStripMenuItem.Checked);
+                    pal.Entries[64] = Color.White;
+                    pal.Entries[65] = Color.Yellow;
+                    pal.Entries[66] = Color.Black;
+                    for (int i = 67; i < 256; i++)
+                        pal.Entries[i] = Color.Black;
+                    pal.Entries[0] = LevelData.PaletteToColor(2, 0, transparentBackFGBGToolStripMenuItem.Checked);
+                    res.Palette = pal;
+                    res.Save(a.FileName);
+                }
         }
         #endregion
 
@@ -871,77 +901,43 @@ namespace SonicRetro.SonLVL.GUI
             if (!loaded) return;
             if (ObjectSelect.listView1.SelectedIndices.Count == 0) return;
             if (ObjectSelect.listView2.SelectedIndices.Count == 0) return;
-            int sel = ObjectSelect.listView1.SelectedIndices[0];
-            int i = 0;
-            byte ID = 0;
-            foreach (KeyValuePair<byte, ObjectDefinition> item in LevelData.ObjTypes)
-            {
-                if (i == sel)
-                {
-                    ID = item.Key;
-                    break;
-                }
-                i++;
-            }
-            ObjectSelect.numericUpDown1.Value = ID;
-            sel = ObjectSelect.listView2.SelectedIndices[0];
-            i = 0;
-            byte sub = 0;
-            foreach (byte item in LevelData.ObjTypes[ID].Subtypes())
-            {
-                if (i == sel)
-                {
-                    sub = item;
-                    break;
-                }
-                i++;
-            }
-            ObjectSelect.numericUpDown2.Value = sub;
+            ObjectSelect.numericUpDown2.Value = (byte)ObjectSelect.listView2.SelectedItems[0].Tag;
         }
 
         void ObjectSelect_listView1_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (!loaded) return;
             if (ObjectSelect.listView1.SelectedIndices.Count == 0) return;
-            int sel = ObjectSelect.listView1.SelectedIndices[0];
-            int i = 0;
-            byte ID = 0;
-            foreach (KeyValuePair<byte, ObjectDefinition> item in LevelData.ObjTypes)
-            {
-                if (i == sel)
-                {
-                    ID = item.Key;
-                    break;
-                }
-                i++;
-            }
+            byte ID = (byte)ObjectSelect.listView1.SelectedItems[0].Tag;
             ObjectSelect.numericUpDown1.Value = ID;
-            ObjectSelect.numericUpDown2.Value = 0;
+            ObjectSelect.numericUpDown2.Value = LevelData.ObjTypes[ID].DefaultSubtype;
             ObjectSelect.listView2.Items.Clear();
             ObjectSelect.imageList2.Images.Clear();
-            foreach (byte item in LevelData.ObjTypes[ID].Subtypes())
+            foreach (byte item in LevelData.ObjTypes[ID].Subtypes)
             {
-                ObjectSelect.imageList2.Images.Add(LevelData.ObjTypes[ID].Image(item).ToBitmap(LevelData.BmpPal).Resize(ObjectSelect.imageList2.ImageSize));
-                ObjectSelect.listView2.Items.Add(LevelData.ObjTypes[ID].SubtypeName(item), ObjectSelect.imageList2.Images.Count - 1);
+                ObjectSelect.imageList2.Images.Add(LevelData.ObjTypes[ID].SubtypeImage(item).Image.ToBitmap(LevelData.BmpPal).Resize(ObjectSelect.imageList2.ImageSize));
+                ObjectSelect.listView2.Items.Add(new ListViewItem(LevelData.ObjTypes[ID].SubtypeName(item), ObjectSelect.imageList2.Images.Count - 1) { Tag = item, Selected = item == LevelData.ObjTypes[ID].DefaultSubtype });
             }
         }
 
         List<object> oldvalues;
         void ObjectProperties_SelectedGridItemChanged(object sender, SelectedGridItemChangedEventArgs e)
         {
-            if (e.NewSelection.PropertyDescriptor == null || e.NewSelection.Parent is GridItem) return;
+            /*if (e.NewSelection.PropertyDescriptor == null || e.NewSelection.PropertyDescriptor.IsReadOnly) return;
             oldvalues = new List<object>();
-            foreach (Entry item in SelectedItems)
-                oldvalues.Add(item.GetType().GetProperty(e.NewSelection.PropertyDescriptor.Name).GetValue(item, null));
+            if (SelectedItems.Count > 1)
+                oldvalues.Add(e.NewSelection.PropertyDescriptor.GetValue(SelectedItems.ToArray()));
+            else
+                oldvalues.Add(e.NewSelection.PropertyDescriptor.GetValue(SelectedItems[0]));*/
         }
 
         void ObjectProperties_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
         {
-            AddUndo(new ObjectPropertyChangedUndoAction(new List<Entry>(SelectedItems), oldvalues, e.ChangedItem.PropertyDescriptor.Name, e.ChangedItem.PropertyDescriptor.DisplayName));
-            oldvalues = new List<object>();
+            /*AddUndo(new ObjectPropertyChangedUndoAction(new List<Entry>(SelectedItems), oldvalues, e.ChangedItem.PropertyDescriptor));
+            oldvalues = new List<object>();*/
             foreach (Entry item in SelectedItems)
             {
-                oldvalues.Add(item.GetType().GetProperty(e.ChangedItem.PropertyDescriptor.Name).GetValue(item, null));
+                //oldvalues.Add(e.ChangedItem.PropertyDescriptor.GetValue(item));
                 item.UpdateSprite();
             }
             DrawLevel();
@@ -1000,7 +996,6 @@ namespace SonicRetro.SonLVL.GUI
                             break;
                         case EngineVersion.S2:
                         case EngineVersion.S2NA:
-                        case EngineVersion.SBoom:
                             foreach (RingEntry item in LevelData.Rings)
                                 ringcnt += ((S2RingEntry)item).Count;
                             break;
@@ -1020,6 +1015,8 @@ namespace SonicRetro.SonLVL.GUI
                             "Objects: " + LevelData.Objects.Count + '\n' +
                             "Rings: " + ringcnt));
                     }
+                    if (dragdrop)
+                        LevelImg8bpp.DrawSprite(LevelData.GetObjectDefinition(dragobj).Image, dragpoint);
                     LevelBmp = LevelImg8bpp.ToBitmap(LevelImgPalette).To32bpp();
                     LevelGfx = Graphics.FromImage(LevelBmp);
                     LevelGfx.SetOptions();
@@ -1028,33 +1025,33 @@ namespace SonicRetro.SonLVL.GUI
                         if (item is ObjectEntry)
                         {
                             ObjectEntry objitem = (ObjectEntry)item;
-                            Rectangle objbnd = LevelData.GetObjectDefinition(objitem.ID).Bounds(objitem, camera);
+                            Rectangle objbnd = LevelData.GetObjectDefinition(objitem.ID).GetBounds(objitem, camera);
                             LevelGfx.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.Cyan)), objbnd);
                             LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, objbnd);
                         }
                         else if (item is S2RingEntry)
                         {
                             S2RingEntry rngitem = (S2RingEntry)item;
-                            Rectangle bnd = LevelData.S2RingDef.Bounds(rngitem, camera);
+                            Rectangle bnd = LevelData.S2RingDef.GetBounds(rngitem, camera);
                             LevelGfx.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.Yellow)), bnd);
                             LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, bnd);
                         }
                         else if (item is S3KRingEntry)
                         {
                             S3KRingEntry rngitem = (S3KRingEntry)item;
-                            Rectangle bnd = LevelData.S3KRingDef.Bounds(rngitem, camera);
+                            Rectangle bnd = LevelData.S3KRingDef.GetBounds(rngitem, camera);
                             LevelGfx.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.Yellow)), bnd);
                             LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, bnd);
                         }
                         else if (item is CNZBumperEntry)
                         {
-                            LevelGfx.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.Cyan)), LevelData.unkobj.Bounds(new S2ObjectEntry() { X = item.X, Y = item.Y }, new Point(camera.X, camera.Y)));
-                            LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, LevelData.unkobj.Bounds(new S2ObjectEntry() { X = item.X, Y = item.Y }, new Point(camera.X, camera.Y)));
+                            LevelGfx.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.Cyan)), LevelData.unkobj.GetBounds(new S2ObjectEntry() { X = item.X, Y = item.Y }, new Point(camera.X, camera.Y)));
+                            LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, LevelData.unkobj.GetBounds(new S2ObjectEntry() { X = item.X, Y = item.Y }, new Point(camera.X, camera.Y)));
                         }
                         else if (item is StartPositionEntry)
                         {
                             StartPositionEntry strtitem = (StartPositionEntry)item;
-                            Rectangle bnd = LevelData.StartPosDefs[LevelData.StartPositions.IndexOf(strtitem)].Bounds(strtitem, camera);
+                            Rectangle bnd = LevelData.StartPosDefs[LevelData.StartPositions.IndexOf(strtitem)].GetBounds(strtitem, camera);
                             LevelGfx.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.Red)), bnd);
                             LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, bnd);
                         }
@@ -1097,7 +1094,6 @@ namespace SonicRetro.SonLVL.GUI
                             break;
                         case EngineVersion.S2:
                         case EngineVersion.S2NA:
-                        case EngineVersion.SBoom:
                             foreach (RingEntry item in LevelData.Rings)
                                 ringcnt += ((S2RingEntry)item).Count;
                             break;
@@ -1305,8 +1301,8 @@ namespace SonicRetro.SonLVL.GUI
                     for (int i = 0; i < o; i++)
                     {
                         byte ID = objdefs[rand.Next(objdefs.Count)].Key;
-                        byte sub = 0;
-                        System.Collections.ObjectModel.ReadOnlyCollection<byte> subs = LevelData.ObjTypes[ID].Subtypes();
+                        byte sub = LevelData.ObjTypes[ID].DefaultSubtype;
+                        System.Collections.ObjectModel.ReadOnlyCollection<byte> subs = LevelData.ObjTypes[ID].Subtypes;
                         if (subs.Count > 0)
                             sub = subs[rand.Next(subs.Count)];
                         switch (LevelData.Level.ObjectFormat)
@@ -1317,18 +1313,17 @@ namespace SonicRetro.SonLVL.GUI
                                 ent1.SubType = sub;
                                 ent1.X = (ushort)(rand.Next(w));
                                 ent1.Y = (ushort)(rand.Next(h));
-                                ent1.RememberState = LevelData.GetObjectDefinition(ID).RememberState();
+                                ent1.RememberState = LevelData.GetObjectDefinition(ID).RememberState;
                                 ent1.UpdateSprite();
                                 break;
                             case EngineVersion.S2:
                             case EngineVersion.S2NA:
-                            case EngineVersion.SBoom:
                                 S2ObjectEntry ent = (S2ObjectEntry)LevelData.CreateObject(ID);
                                 LevelData.Objects.Add(ent);
                                 ent.SubType = sub;
                                 ent.X = (ushort)(rand.Next(w));
                                 ent.Y = (ushort)(rand.Next(h));
-                                ent.RememberState = LevelData.GetObjectDefinition(ID).RememberState();
+                                ent.RememberState = LevelData.GetObjectDefinition(ID).RememberState;
                                 ent.UpdateSprite();
                                 break;
                             case EngineVersion.S3K:
@@ -1346,7 +1341,7 @@ namespace SonicRetro.SonLVL.GUI
                                 entcd.SubType = sub;
                                 entcd.X = (ushort)(rand.Next(w));
                                 entcd.Y = (ushort)(rand.Next(h));
-                                entcd.RememberState = LevelData.GetObjectDefinition(ID).RememberState();
+                                entcd.RememberState = LevelData.GetObjectDefinition(ID).RememberState;
                                 entcd.UpdateSprite();
                                 break;
                         }
@@ -1375,15 +1370,6 @@ namespace SonicRetro.SonLVL.GUI
                                 ent3.Y = (ushort)(rand.Next(h));
                                 ent3.UpdateSprite();
                                 LevelData.Rings.Add(ent3);
-                                break;
-                            case EngineVersion.SBoom:
-                                ent = new SonicBoom.SBoomRingEntry();
-                                ent.X = (ushort)(rand.Next(w));
-                                ent.Y = (ushort)(rand.Next(h));
-                                ent.Count = (byte)rand.Next(1, 9);
-                                ent.Direction = (Direction)rand.Next(2);
-                                ent.UpdateSprite();
-                                LevelData.Rings.Add(ent);
                                 break;
                         }
                     }
@@ -1717,7 +1703,6 @@ namespace SonicRetro.SonLVL.GUI
                         case EngineVersion.S2NA:
                         case EngineVersion.S3K:
                         case EngineVersion.SKC:
-                        case EngineVersion.SBoom:
                             angles = anglesToolStripMenuItem.Checked;
                             foreach (ToolStripItem item in collisionToolStripMenuItem.DropDownItems)
                                 if (item is ToolStripMenuItem)
@@ -1829,13 +1814,12 @@ namespace SonicRetro.SonLVL.GUI
                                     {
                                         case EngineVersion.S2:
                                         case EngineVersion.S2NA:
-                                        case EngineVersion.SBoom:
                                             S2ObjectEntry ent = (S2ObjectEntry)LevelData.CreateObject(ID);
                                             LevelData.Objects.Add(ent);
                                             ent.SubType = sub;
                                             ent.X = (ushort)(curx);
                                             ent.Y = (ushort)(e.Y /  ZoomLevel + vScrollBar1.Value);
-                                            ent.RememberState = LevelData.GetObjectDefinition(ID).RememberState();
+                                            ent.RememberState = LevelData.GetObjectDefinition(ID).RememberState;
                                             ent.UpdateSprite();
                                             SelectedItems.Clear();
                                             SelectedItems.Add(ent);
@@ -1848,7 +1832,7 @@ namespace SonicRetro.SonLVL.GUI
                                             ent1.SubType = sub;
                                             ent1.X = (ushort)(curx);
                                             ent1.Y = (ushort)(cury);
-                                            ent1.RememberState = LevelData.GetObjectDefinition(ID).RememberState();
+                                            ent1.RememberState = LevelData.GetObjectDefinition(ID).RememberState;
                                             ent1.UpdateSprite();
                                             SelectedItems.Clear();
                                             SelectedItems.Add(ent1);
@@ -1875,7 +1859,7 @@ namespace SonicRetro.SonLVL.GUI
                                             entcd.SubType = sub;
                                             entcd.X = (ushort)(curx);
                                             entcd.Y = (ushort)(cury);
-                                            entcd.RememberState = LevelData.GetObjectDefinition(ID).RememberState();
+                                            entcd.RememberState = LevelData.GetObjectDefinition(ID).RememberState;
                                             switch (LevelData.Level.TimeZone)
                                             {
                                                 case API.TimeZone.Past:
@@ -1937,7 +1921,7 @@ namespace SonicRetro.SonLVL.GUI
                     foreach (ObjectEntry item in LevelData.Objects)
                     {
                         ObjectDefinition dat = LevelData.GetObjectDefinition(item.ID);
-                        Rectangle bound = dat.Bounds(item, Point.Empty);
+                        Rectangle bound = dat.GetBounds(item, Point.Empty);
                         if (LevelData.ObjectVisible(item, allToolStripMenuItem.Checked) && bound.Contains(curx, cury))
                         {
                             if (ModifierKeys == Keys.Control)
@@ -1964,7 +1948,7 @@ namespace SonicRetro.SonLVL.GUI
                             if (ritem is S2RingEntry)
                             {
                                 S2RingEntry item = ritem as S2RingEntry;
-                                Rectangle bound = LevelData.S2RingDef.Bounds(item, Point.Empty);
+                                Rectangle bound = LevelData.S2RingDef.GetBounds(item, Point.Empty);
                                 if (bound.Contains(curx, cury))
                                 {
                                     if (ModifierKeys == Keys.Control)
@@ -1988,7 +1972,7 @@ namespace SonicRetro.SonLVL.GUI
                             else if (ritem is S3KRingEntry)
                             {
                                 S3KRingEntry item = ritem as S3KRingEntry;
-                                Rectangle bound = LevelData.S3KRingDef.Bounds(item, Point.Empty);
+                                Rectangle bound = LevelData.S3KRingDef.GetBounds(item, Point.Empty);
                                 if (bound.Contains(curx, cury))
                                 {
                                     if (ModifierKeys == Keys.Control)
@@ -2013,7 +1997,7 @@ namespace SonicRetro.SonLVL.GUI
                     if (!objdrag && LevelData.Bumpers != null)
                         foreach (CNZBumperEntry item in LevelData.Bumpers)
                         {
-                            Rectangle bound = LevelData.unkobj.Bounds(new S2ObjectEntry() { X = item.X, Y = item.Y }, Point.Empty);
+                            Rectangle bound = LevelData.unkobj.GetBounds(new S2ObjectEntry() { X = item.X, Y = item.Y }, Point.Empty);
                             if (bound.Contains(curx, cury))
                             {
                                 if (ModifierKeys == Keys.Control)
@@ -2037,7 +2021,7 @@ namespace SonicRetro.SonLVL.GUI
                     if (!objdrag)
                         foreach (StartPositionEntry item in LevelData.StartPositions)
                         {
-                            Rectangle bound = LevelData.StartPosDefs[LevelData.StartPositions.IndexOf(item)].Bounds(item, Point.Empty);
+                            Rectangle bound = LevelData.StartPosDefs[LevelData.StartPositions.IndexOf(item)].GetBounds(item, Point.Empty);
                             if (bound.Contains(curx, cury))
                             {
                                 if (ModifierKeys == Keys.Control)
@@ -2077,7 +2061,7 @@ namespace SonicRetro.SonLVL.GUI
                     foreach (ObjectEntry item in LevelData.Objects)
                     {
                         ObjectDefinition dat = LevelData.GetObjectDefinition(item.ID);
-                        Rectangle bound = dat.Bounds(item, Point.Empty);
+                        Rectangle bound = dat.GetBounds(item, Point.Empty);
                         if (LevelData.ObjectVisible(item, allToolStripMenuItem.Checked) && bound.Contains(curx, cury))
                         {
                             if (!SelectedItems.Contains(item))
@@ -2097,7 +2081,7 @@ namespace SonicRetro.SonLVL.GUI
                             if (ritem is S2RingEntry)
                             {
                                 S2RingEntry item = ritem as S2RingEntry;
-                                Rectangle bound = LevelData.S2RingDef.Bounds(item, Point.Empty);
+                                Rectangle bound = LevelData.S2RingDef.GetBounds(item, Point.Empty);
                                 if (bound.Contains(curx, cury))
                                 {
                                     if (!SelectedItems.Contains(item))
@@ -2114,7 +2098,7 @@ namespace SonicRetro.SonLVL.GUI
                             else if (ritem is S3KRingEntry)
                             {
                                 S3KRingEntry item = ritem as S3KRingEntry;
-                                Rectangle bound = LevelData.S3KRingDef.Bounds(item, Point.Empty);
+                                Rectangle bound = LevelData.S3KRingDef.GetBounds(item, Point.Empty);
                                 if (bound.Contains(curx, cury))
                                 {
                                     if (!SelectedItems.Contains(item))
@@ -2132,7 +2116,7 @@ namespace SonicRetro.SonLVL.GUI
                     if (!objdrag && LevelData.Bumpers != null)
                         foreach (CNZBumperEntry item in LevelData.Bumpers)
                         {
-                            Rectangle bound = LevelData.unkobj.Bounds(new S2ObjectEntry() { X = item.X, Y = item.Y }, Point.Empty);
+                            Rectangle bound = LevelData.unkobj.GetBounds(new S2ObjectEntry() { X = item.X, Y = item.Y }, Point.Empty);
                             if (bound.Contains(curx, cury))
                             {
                                 if (!SelectedItems.Contains(item))
@@ -2149,7 +2133,7 @@ namespace SonicRetro.SonLVL.GUI
                     if (!objdrag)
                         foreach (StartPositionEntry item in LevelData.StartPositions)
                         {
-                            Rectangle bound = LevelData.StartPosDefs[LevelData.StartPositions.IndexOf(item)].Bounds(item, Point.Empty);
+                            Rectangle bound = LevelData.StartPosDefs[LevelData.StartPositions.IndexOf(item)].GetBounds(item, Point.Empty);
                             if (bound.Contains(curx, cury))
                             {
                                 if (!SelectedItems.Contains(item))
@@ -2176,7 +2160,7 @@ namespace SonicRetro.SonLVL.GUI
                         copyToolStripMenuItem.Enabled = false;
                         deleteToolStripMenuItem.Enabled = false;
                     }
-                    pasteToolStripMenuItem.Enabled = Clipboard.GetDataObject().GetDataPresent("SonLVLObjectList");
+                    pasteToolStripMenuItem.Enabled = Clipboard.ContainsData(typeof(List<Entry>).AssemblyQualifiedName);
                     objectContextMenuStrip.Show(panel1, menuLoc);
                     break;
             }
@@ -2215,7 +2199,7 @@ namespace SonicRetro.SonLVL.GUI
                         foreach (ObjectEntry item in LevelData.Objects)
                         {
                             ObjectDefinition dat = LevelData.GetObjectDefinition(item.ID);
-                            Rectangle bound = dat.Bounds(item, Point.Empty);
+                            Rectangle bound = dat.GetBounds(item, Point.Empty);
                             if (LevelData.ObjectVisible(item, allToolStripMenuItem.Checked) && bound.IntersectsWith(selbnds))
                                 SelectedItems.Add(item);
                         }
@@ -2224,14 +2208,14 @@ namespace SonicRetro.SonLVL.GUI
                             if (ritem is S2RingEntry)
                             {
                                 S2RingEntry item = ritem as S2RingEntry;
-                                Rectangle bound = LevelData.S2RingDef.Bounds(item, Point.Empty);
+                                Rectangle bound = LevelData.S2RingDef.GetBounds(item, Point.Empty);
                                 if (bound.IntersectsWith(selbnds))
                                     SelectedItems.Add(item);
                             }
                             else if (ritem is S3KRingEntry)
                             {
                                 S3KRingEntry item = ritem as S3KRingEntry;
-                                Rectangle bound = LevelData.S3KRingDef.Bounds(item, Point.Empty);
+                                Rectangle bound = LevelData.S3KRingDef.GetBounds(item, Point.Empty);
                                 if (bound.IntersectsWith(selbnds))
                                     SelectedItems.Add(item);
                             }
@@ -2239,13 +2223,13 @@ namespace SonicRetro.SonLVL.GUI
                         if (LevelData.Bumpers != null)
                             foreach (CNZBumperEntry item in LevelData.Bumpers)
                             {
-                                Rectangle bound = LevelData.unkobj.Bounds(new S2ObjectEntry() { X = item.X, Y = item.Y }, Point.Empty);
+                                Rectangle bound = LevelData.unkobj.GetBounds(new S2ObjectEntry() { X = item.X, Y = item.Y }, Point.Empty);
                                 if (bound.IntersectsWith(selbnds))
                                     SelectedItems.Add(item);
                             }
                         foreach (StartPositionEntry item in LevelData.StartPositions)
                         {
-                            Rectangle bound = LevelData.StartPosDefs[LevelData.StartPositions.IndexOf(item)].Bounds(item, Point.Empty);
+                            Rectangle bound = LevelData.StartPosDefs[LevelData.StartPositions.IndexOf(item)].GetBounds(item, Point.Empty);
                             if (bound.IntersectsWith(selbnds))
                                 SelectedItems.Add(item);
                         }
@@ -2258,7 +2242,7 @@ namespace SonicRetro.SonLVL.GUI
             foreach (ObjectEntry item in LevelData.Objects)
             {
                 ObjectDefinition dat = LevelData.GetObjectDefinition(item.ID);
-                Rectangle bound = dat.Bounds(item, Point.Empty);
+                Rectangle bound = dat.GetBounds(item, Point.Empty);
                 if (LevelData.ObjectVisible(item, allToolStripMenuItem.Checked) && bound.Contains(mouse))
                 {
                     cur = Cursors.SizeAll;
@@ -2271,8 +2255,7 @@ namespace SonicRetro.SonLVL.GUI
                 {
                     case EngineVersion.S2:
                     case EngineVersion.S2NA:
-                    case EngineVersion.SBoom:
-                        Rectangle bound = LevelData.S2RingDef.Bounds((S2RingEntry)item, Point.Empty);
+                        Rectangle bound = LevelData.S2RingDef.GetBounds((S2RingEntry)item, Point.Empty);
                         if (bound.Contains(mouse))
                         {
                             cur = Cursors.SizeAll;
@@ -2281,7 +2264,7 @@ namespace SonicRetro.SonLVL.GUI
                         break;
                     case EngineVersion.S3K:
                     case EngineVersion.SKC:
-                        bound = LevelData.S3KRingDef.Bounds((S3KRingEntry)item, Point.Empty);
+                        bound = LevelData.S3KRingDef.GetBounds((S3KRingEntry)item, Point.Empty);
                         if (bound.Contains(mouse))
                         {
                             cur = Cursors.SizeAll;
@@ -2293,7 +2276,7 @@ namespace SonicRetro.SonLVL.GUI
             if (LevelData.Bumpers != null)
                 foreach (CNZBumperEntry item in LevelData.Bumpers)
                 {
-                    Rectangle bound = LevelData.unkobj.Bounds(new S2ObjectEntry() { X = item.X, Y = item.Y }, Point.Empty);
+                    Rectangle bound = LevelData.unkobj.GetBounds(new S2ObjectEntry() { X = item.X, Y = item.Y }, Point.Empty);
                     if (bound.Contains(mouse))
                     {
                         cur = Cursors.SizeAll;
@@ -2302,7 +2285,7 @@ namespace SonicRetro.SonLVL.GUI
                 }
             foreach (StartPositionEntry item in LevelData.StartPositions)
             {
-                Rectangle bound = LevelData.StartPosDefs[LevelData.StartPositions.IndexOf(item)].Bounds(item, Point.Empty);
+                Rectangle bound = LevelData.StartPosDefs[LevelData.StartPositions.IndexOf(item)].GetBounds(item, Point.Empty);
                 if (bound.Contains(mouse))
                 {
                     cur = Cursors.SizeAll;
@@ -2393,7 +2376,7 @@ namespace SonicRetro.SonLVL.GUI
                                 FGSelection = new Rectangle(chunkpoint, new Size(1, 1));
                                 DrawLevel();
                             }
-                            pasteToolStripMenuItem1.Enabled = Clipboard.GetDataObject().GetDataPresent("SonLVLLayout");
+                            pasteOnceToolStripMenuItem.Enabled = pasteRepeatingToolStripMenuItem.Enabled = Clipboard.ContainsData(typeof(LayoutSection).AssemblyQualifiedName);
                             layoutContextMenuStrip.Show(panel2, e.Location);
                             break;
                     }
@@ -2498,7 +2481,7 @@ namespace SonicRetro.SonLVL.GUI
                                 BGSelection = new Rectangle(chunkpoint, new Size(1, 1));
                                 DrawLevel();
                             }
-                            pasteToolStripMenuItem1.Enabled = Clipboard.GetDataObject().GetDataPresent("SonLVLLayout");
+                            pasteOnceToolStripMenuItem.Enabled = pasteRepeatingToolStripMenuItem.Enabled = Clipboard.ContainsData(typeof(LayoutSection).AssemblyQualifiedName);
                             layoutContextMenuStrip.Show(panel3, e.Location);
                             break;
                     }
@@ -2587,6 +2570,7 @@ namespace SonicRetro.SonLVL.GUI
             }
             Settings.ShowHUD = hUDToolStripMenuItem.Checked;
             Settings.ShowGrid = enableGridToolStripMenuItem.Checked;
+            Settings.IncludeObjectsInForegroundSelection = includeObjectsWithForegroundSelectionToolStripMenuItem.Checked;
             Settings.Save();
         }
 
@@ -2611,13 +2595,13 @@ namespace SonicRetro.SonLVL.GUI
 
         private void panel_Resize(object sender, EventArgs e)
         {
-            if (!loaded) return;
             Panel1Gfx = panel1.CreateGraphics();
             Panel1Gfx.SetOptions();
             Panel2Gfx = panel2.CreateGraphics();
             Panel2Gfx.SetOptions();
             Panel3Gfx = panel3.CreateGraphics();
             Panel3Gfx.SetOptions();
+            if (!loaded) return;
             loaded = false;
             UpdateScrollBars();
             loaded = true;
@@ -2639,7 +2623,7 @@ namespace SonicRetro.SonLVL.GUI
                         ent1.SubType = sub;
                         ent1.X = (ushort)((menuLoc.X * ZoomLevel) + hScrollBar1.Value);
                         ent1.Y = (ushort)((menuLoc.Y * ZoomLevel) + vScrollBar1.Value);
-                        ent1.RememberState = LevelData.GetObjectDefinition(ID).RememberState();
+                        ent1.RememberState = LevelData.GetObjectDefinition(ID).RememberState;
                         ent1.UpdateSprite();
                         SelectedItems.Clear();
                         SelectedItems.Add(ent1);
@@ -2648,13 +2632,12 @@ namespace SonicRetro.SonLVL.GUI
                         break;
                     case EngineVersion.S2:
                     case EngineVersion.S2NA:
-                    case EngineVersion.SBoom:
                         S2ObjectEntry ent = (S2ObjectEntry)LevelData.CreateObject(ID);
                         LevelData.Objects.Add(ent);
                         ent.SubType = sub;
                         ent.X = (ushort)((menuLoc.X * ZoomLevel) + hScrollBar1.Value);
                         ent.Y = (ushort)((menuLoc.Y * ZoomLevel) + vScrollBar1.Value);
-                        ent.RememberState = LevelData.GetObjectDefinition(ID).RememberState();
+                        ent.RememberState = LevelData.GetObjectDefinition(ID).RememberState;
                         ent.UpdateSprite();
                         SelectedItems.Clear();
                         SelectedItems.Add(ent);
@@ -2680,7 +2663,7 @@ namespace SonicRetro.SonLVL.GUI
                         entcd.SubType = sub;
                         entcd.X = (ushort)((menuLoc.X * ZoomLevel) + hScrollBar1.Value);
                         entcd.Y = (ushort)((menuLoc.Y * ZoomLevel) + vScrollBar1.Value);
-                        entcd.RememberState = LevelData.GetObjectDefinition(ID).RememberState();
+                        entcd.RememberState = LevelData.GetObjectDefinition(ID).RememberState;
                         switch (LevelData.Level.TimeZone)
                         {
                             case API.TimeZone.Present:
@@ -2738,15 +2721,6 @@ namespace SonicRetro.SonLVL.GUI
                     AddUndo(new ObjectAddedUndoAction(LevelData.Rings[LevelData.Rings.Count - 1]));
                     LevelData.Rings.Sort();
                     break;
-                case EngineVersion.SBoom:
-                    LevelData.Rings.Add(new SonicBoom.SBoomRingEntry() { X = (ushort)((menuLoc.X * ZoomLevel) + hScrollBar1.Value), Y = (ushort)((menuLoc.Y * ZoomLevel) + vScrollBar1.Value) });
-                    LevelData.Rings[LevelData.Rings.Count - 1].UpdateSprite();
-                    SelectedItems.Clear();
-                    SelectedItems.Add(LevelData.Rings[LevelData.Rings.Count - 1]);
-                    SelectedObjectChanged();
-                    AddUndo(new ObjectAddedUndoAction(LevelData.Rings[LevelData.Rings.Count - 1]));
-                    LevelData.Rings.Sort();
-                    break;
             }
             DrawLevel();
         }
@@ -2760,8 +2734,8 @@ namespace SonicRetro.SonLVL.GUI
                 using (AddGroupDialog dlg = new AddGroupDialog())
                 {
                     dlg.Text = "Add Group of Objects";
-                    dlg.XDist.Value = LevelData.GetObjectDefinition(ID).Bounds(new S2ObjectEntry() { SubType = sub }, Point.Empty).Width;
-                    dlg.YDist.Value = LevelData.GetObjectDefinition(ID).Bounds(new S2ObjectEntry() { SubType = sub }, Point.Empty).Height;
+                    dlg.XDist.Value = LevelData.GetObjectDefinition(ID).GetBounds(new S2ObjectEntry() { SubType = sub }, Point.Empty).Width;
+                    dlg.YDist.Value = LevelData.GetObjectDefinition(ID).GetBounds(new S2ObjectEntry() { SubType = sub }, Point.Empty).Height;
                     if (dlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
                     {
                         Point pt = new Point((int)(menuLoc.X * ZoomLevel) + hScrollBar1.Value, (int)(menuLoc.Y * ZoomLevel) + vScrollBar1.Value);
@@ -2769,9 +2743,9 @@ namespace SonicRetro.SonLVL.GUI
                         Size xsz = new Size((int)dlg.XDist.Value, 0);
                         Size ysz = new Size(0, (int)dlg.YDist.Value);
                         SelectedItems.Clear();
-                        for (int y = 0; y < dlg.Columns.Value; y++)
+                        for (int y = 0; y < dlg.Rows.Value; y++)
                         {
-                            for (int x = 0; x < dlg.Rows.Value; x++)
+                            for (int x = 0; x < dlg.Columns.Value; x++)
                             {
                                 switch (LevelData.Level.ObjectFormat)
                                 {
@@ -2781,19 +2755,18 @@ namespace SonicRetro.SonLVL.GUI
                                         ent1.SubType = sub;
                                         ent1.X = (ushort)(pt.X);
                                         ent1.Y = (ushort)(pt.Y);
-                                        ent1.RememberState = LevelData.GetObjectDefinition(ID).RememberState();
+                                        ent1.RememberState = LevelData.GetObjectDefinition(ID).RememberState;
                                         ent1.UpdateSprite();
                                         SelectedItems.Add(ent1);
                                         break;
                                     case EngineVersion.S2:
                                     case EngineVersion.S2NA:
-                                    case EngineVersion.SBoom:
                                         S2ObjectEntry ent = (S2ObjectEntry)LevelData.CreateObject(ID);
                                         LevelData.Objects.Add(ent);
                                         ent.SubType = sub;
                                         ent.X = (ushort)(pt.X);
                                         ent.Y = (ushort)(pt.Y);
-                                        ent.RememberState = LevelData.GetObjectDefinition(ID).RememberState();
+                                        ent.RememberState = LevelData.GetObjectDefinition(ID).RememberState;
                                         ent.UpdateSprite();
                                         SelectedItems.Add(ent);
                                         break;
@@ -2813,7 +2786,7 @@ namespace SonicRetro.SonLVL.GUI
                                         entcd.SubType = sub;
                                         entcd.X = (ushort)(pt.X);
                                         entcd.Y = (ushort)(pt.Y);
-                                        entcd.RememberState = LevelData.GetObjectDefinition(ID).RememberState();
+                                        entcd.RememberState = LevelData.GetObjectDefinition(ID).RememberState;
                                         switch (LevelData.Level.TimeZone)
                                         {
                                             case API.TimeZone.Present:
@@ -2852,14 +2825,13 @@ namespace SonicRetro.SonLVL.GUI
                 {
                     case EngineVersion.S2:
                     case EngineVersion.S2NA:
-                    case EngineVersion.SBoom:
-                        dlg.XDist.Value = LevelData.S2RingDef.Bounds(new S2RingEntry(), Point.Empty).Width;
-                        dlg.YDist.Value = LevelData.S2RingDef.Bounds(new S2RingEntry(), Point.Empty).Height;
+                        dlg.XDist.Value = LevelData.S2RingDef.GetBounds(new S2RingEntry(), Point.Empty).Width;
+                        dlg.YDist.Value = LevelData.S2RingDef.GetBounds(new S2RingEntry(), Point.Empty).Height;
                         break;
                     case EngineVersion.S3K:
                     case EngineVersion.SKC:
-                        dlg.XDist.Value = LevelData.S3KRingDef.Bounds(new S3KRingEntry(), Point.Empty).Width;
-                        dlg.YDist.Value = LevelData.S3KRingDef.Bounds(new S3KRingEntry(), Point.Empty).Height;
+                        dlg.XDist.Value = LevelData.S3KRingDef.GetBounds(new S3KRingEntry(), Point.Empty).Width;
+                        dlg.YDist.Value = LevelData.S3KRingDef.GetBounds(new S3KRingEntry(), Point.Empty).Height;
                         break;
                     default:
                         return;
@@ -2871,9 +2843,9 @@ namespace SonicRetro.SonLVL.GUI
                     Size xsz = new Size((int)dlg.XDist.Value, 0);
                     Size ysz = new Size(0, (int)dlg.YDist.Value);
                     SelectedItems.Clear();
-                    for (int y = 0; y < dlg.Columns.Value; y++)
+                    for (int y = 0; y < dlg.Rows.Value; y++)
                     {
-                        for (int x = 0; x < dlg.Rows.Value; x++)
+                        for (int x = 0; x < dlg.Columns.Value; x++)
                         {
                             switch (LevelData.Level.RingFormat)
                             {
@@ -2886,11 +2858,6 @@ namespace SonicRetro.SonLVL.GUI
                                 case EngineVersion.S3K:
                                 case EngineVersion.SKC:
                                     LevelData.Rings.Add(new S3KRingEntry() { X = (ushort)(pt.X), Y = (ushort)(pt.Y) });
-                                    LevelData.Rings[LevelData.Rings.Count - 1].UpdateSprite();
-                                    SelectedItems.Add(LevelData.Rings[LevelData.Rings.Count - 1]);
-                                    break;
-                                case EngineVersion.SBoom:
-                                    LevelData.Rings.Add(new SonicBoom.SBoomRingEntry() { X = (ushort)(pt.X), Y = (ushort)(pt.Y) });
                                     LevelData.Rings[LevelData.Rings.Count - 1].UpdateSprite();
                                     SelectedItems.Add(LevelData.Rings[LevelData.Rings.Count - 1]);
                                     break;
@@ -2915,7 +2882,7 @@ namespace SonicRetro.SonLVL.GUI
                 if (item is ObjectEntry)
                 {
                     LevelData.Objects.Remove((ObjectEntry)item);
-                    selitems.Add(LevelData.GetBaseObjectType((ObjectEntry)item));
+                    selitems.Add(item);
                 }
                 else if (item is RingEntry)
                 {
@@ -2929,7 +2896,7 @@ namespace SonicRetro.SonLVL.GUI
                 }
             }
             if (selitems.Count == 0) return;
-            Clipboard.SetData("SonLVLObjectList", selitems);
+            Clipboard.SetData(typeof(List<Entry>).AssemblyQualifiedName, selitems);
             AddUndo(new ObjectsDeletedUndoAction(selitems));
             SelectedItems.Clear();
             SelectedObjectChanged();
@@ -2942,19 +2909,19 @@ namespace SonicRetro.SonLVL.GUI
             foreach (Entry item in SelectedItems)
             {
                 if (item is ObjectEntry)
-                    selitems.Add(LevelData.GetBaseObjectType((ObjectEntry)item));
+                    selitems.Add(item);
                 else if (item is RingEntry)
                     selitems.Add(item);
                 else if (item is CNZBumperEntry)
                     selitems.Add(item);
             }
             if (selitems.Count == 0) return;
-            Clipboard.SetData("SonLVLObjectList", selitems);
+            Clipboard.SetData(typeof(List<Entry>).AssemblyQualifiedName, selitems);
         }
 
         private void pasteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            List<Entry> objs = Clipboard.GetData("SonLVLObjectList") as List<Entry>;
+            List<Entry> objs = Clipboard.GetData(typeof(List<Entry>).AssemblyQualifiedName) as List<Entry>;
             Point upleft = new Point(int.MaxValue, int.MaxValue);
             foreach (Entry item in objs)
             {
@@ -2967,17 +2934,14 @@ namespace SonicRetro.SonLVL.GUI
             {
                 item.X += (ushort)off.Width;
                 item.Y += (ushort)off.Height;
-                Entry item2 = item;
+                item.ResetPos();
                 if (item is ObjectEntry)
-                {
                     LevelData.Objects.Add((ObjectEntry)item);
-                    item2 = LevelData.ChangeObjectType((ObjectEntry)item);
-                }
                 else if (item is RingEntry)
                     LevelData.Rings.Add((RingEntry)item);
                 else if (item is CNZBumperEntry)
                     LevelData.Bumpers.Add((CNZBumperEntry)item);
-                item2.UpdateSprite();
+                item.UpdateSprite();
             }
             AddUndo(new ObjectsPastedUndoAction(new List<Entry>(SelectedItems)));
             SelectedObjectChanged();
@@ -3117,7 +3081,6 @@ namespace SonicRetro.SonLVL.GUI
                 {
                     case EngineVersion.S2:
                     case EngineVersion.S2NA:
-                    case EngineVersion.SBoom:
                         blockmax = 0x340;
                         break;
                     case EngineVersion.S3K:
@@ -3370,7 +3333,7 @@ namespace SonicRetro.SonLVL.GUI
             if (!loaded) return;
             if (tabControl1.SelectedIndex == 3 & e.Button == System.Windows.Forms.MouseButtons.Right)
             {
-                pasteBeforeToolStripMenuItem.Enabled = Clipboard.GetDataObject().GetDataPresent("SonLVLChunk") & LevelData.Chunks.Count < 256;
+                pasteBeforeToolStripMenuItem.Enabled = Clipboard.ContainsData(typeof(Chunk).AssemblyQualifiedName) & LevelData.Chunks.Count < 256;
                 pasteAfterToolStripMenuItem.Enabled = pasteBeforeToolStripMenuItem.Enabled;
                 importToolStripMenuItem.Enabled = LevelData.Chunks.Count < 256;
                 drawToolStripMenuItem.Enabled = importToolStripMenuItem.Enabled;
@@ -3390,7 +3353,6 @@ namespace SonicRetro.SonLVL.GUI
                 {
                     case EngineVersion.S2:
                     case EngineVersion.S2NA:
-                    case EngineVersion.SBoom:
                         blockmax = 0x340;
                         break;
                     case EngineVersion.S3K:
@@ -3398,7 +3360,7 @@ namespace SonicRetro.SonLVL.GUI
                         blockmax = 0x300;
                         break;
                 }
-                pasteBeforeToolStripMenuItem.Enabled = Clipboard.GetDataObject().GetDataPresent("SonLVLBlock") & LevelData.Blocks.Count < blockmax;
+                pasteBeforeToolStripMenuItem.Enabled = Clipboard.ContainsData(typeof(Block).AssemblyQualifiedName) & LevelData.Blocks.Count < blockmax;
                 pasteAfterToolStripMenuItem.Enabled = pasteBeforeToolStripMenuItem.Enabled;
                 importToolStripMenuItem.Enabled = LevelData.Blocks.Count < blockmax;
                 drawToolStripMenuItem.Enabled = importToolStripMenuItem.Enabled;
@@ -3413,7 +3375,7 @@ namespace SonicRetro.SonLVL.GUI
             if (!loaded) return;
             if (e.Button == System.Windows.Forms.MouseButtons.Right)
             {
-                pasteBeforeToolStripMenuItem.Enabled = Clipboard.GetDataObject().GetDataPresent("SonLVLTile") & LevelData.Tiles.Count < 0x800;
+                pasteBeforeToolStripMenuItem.Enabled = Clipboard.ContainsData("SonLVLTile") & LevelData.Tiles.Count < 0x800;
                 pasteAfterToolStripMenuItem.Enabled = pasteBeforeToolStripMenuItem.Enabled;
                 importToolStripMenuItem.Enabled = LevelData.Tiles.Count < 0x800;
                 drawToolStripMenuItem.Enabled = importToolStripMenuItem.Enabled;
@@ -3428,7 +3390,7 @@ namespace SonicRetro.SonLVL.GUI
             switch (tabControl1.SelectedIndex)
             {
                 case 3: // Chunks
-                    Clipboard.SetData("SonLVLChunk", LevelData.Chunks[SelectedChunk].GetBytes());
+                    Clipboard.SetData(typeof(Chunk).AssemblyQualifiedName, LevelData.Chunks[SelectedChunk].GetBytes());
                     LevelData.Chunks.RemoveAt(SelectedChunk);
                     LevelData.ChunkBmpBits.RemoveAt(SelectedChunk);
                     LevelData.ChunkBmps.RemoveAt(SelectedChunk);
@@ -3448,7 +3410,7 @@ namespace SonicRetro.SonLVL.GUI
                     ChunkSelector.SelectedIndex = Math.Min(ChunkSelector.SelectedIndex, LevelData.Chunks.Count - 1);
                     break;
                 case 4: // Blocks
-                    Clipboard.SetData("SonLVLBlock", LevelData.Blocks[SelectedBlock].GetBytes());
+                    Clipboard.SetData(typeof(Block).AssemblyQualifiedName, LevelData.Blocks[SelectedBlock].GetBytes());
                     LevelData.Blocks.RemoveAt(SelectedBlock);
                     LevelData.BlockBmps.RemoveAt(SelectedBlock);
                     LevelData.BlockBmpBits.RemoveAt(SelectedBlock);
@@ -3499,10 +3461,10 @@ namespace SonicRetro.SonLVL.GUI
             switch (tabControl1.SelectedIndex)
             {
                 case 3: // Chunks
-                    Clipboard.SetData("SonLVLChunk", LevelData.Chunks[SelectedChunk].GetBytes());
+                    Clipboard.SetData(typeof(Chunk).AssemblyQualifiedName, LevelData.Chunks[SelectedChunk].GetBytes());
                     break;
                 case 4: // Blocks
-                    Clipboard.SetData("SonLVLBlock", LevelData.Blocks[SelectedBlock].GetBytes());
+                    Clipboard.SetData(typeof(Block).AssemblyQualifiedName, LevelData.Blocks[SelectedBlock].GetBytes());
                     break;
                 case 5: // Tiles
                     Clipboard.SetData("SonLVLTile", LevelData.Tiles[SelectedTile]);
@@ -3515,7 +3477,7 @@ namespace SonicRetro.SonLVL.GUI
             switch (tabControl1.SelectedIndex)
             {
                 case 3: // Chunks
-                    LevelData.Chunks.InsertBefore(SelectedChunk, new Chunk((byte[])Clipboard.GetData("SonLVLChunk"), 0));
+                    LevelData.Chunks.InsertBefore(SelectedChunk, new Chunk((byte[])Clipboard.GetData(typeof(Chunk).AssemblyQualifiedName), 0));
                     LevelData.ChunkBmpBits.Insert(SelectedChunk, new BitmapBits[2]);
                     LevelData.ChunkBmps.Insert(SelectedChunk, new Bitmap[2]);
                     LevelData.ChunkColBmpBits.Insert(SelectedChunk, new BitmapBits[2]);
@@ -3534,7 +3496,7 @@ namespace SonicRetro.SonLVL.GUI
                     ChunkSelector.SelectedIndex = SelectedChunk;
                     break;
                 case 4: // Blocks
-                    LevelData.Blocks.InsertBefore(SelectedBlock, new Block((byte[])Clipboard.GetData("SonLVLBlock"), 0));
+                    LevelData.Blocks.InsertBefore(SelectedBlock, new Block((byte[])Clipboard.GetData(typeof(Block).AssemblyQualifiedName), 0));
                     LevelData.BlockBmps.Insert(SelectedBlock, new Bitmap[2]);
                     LevelData.BlockBmpBits.Insert(SelectedBlock, new BitmapBits[2]);
                     LevelData.CompBlockBmps.Insert(SelectedBlock, null);
@@ -3571,7 +3533,7 @@ namespace SonicRetro.SonLVL.GUI
             switch (tabControl1.SelectedIndex)
             {
                 case 3: // Chunks
-                    LevelData.Chunks.InsertAfter(SelectedChunk, new Chunk((byte[])Clipboard.GetData("SonLVLChunk"), 0));
+                    LevelData.Chunks.InsertAfter(SelectedChunk, new Chunk((byte[])Clipboard.GetData(typeof(Chunk).AssemblyQualifiedName), 0));
                     SelectedChunk++;
                     LevelData.ChunkBmpBits.Insert(SelectedChunk, new BitmapBits[2]);
                     LevelData.ChunkBmps.Insert(SelectedChunk, new Bitmap[2]);
@@ -3591,7 +3553,7 @@ namespace SonicRetro.SonLVL.GUI
                     ChunkSelector.SelectedIndex = SelectedChunk;
                     break;
                 case 4: // Blocks
-                    LevelData.Blocks.InsertAfter(SelectedBlock, new Block((byte[])Clipboard.GetData("SonLVLBlock"), 0));
+                    LevelData.Blocks.InsertAfter(SelectedBlock, new Block((byte[])Clipboard.GetData(typeof(Block).AssemblyQualifiedName), 0));
                     SelectedBlock++;
                     LevelData.BlockBmps.Insert(SelectedBlock, new Bitmap[2]);
                     LevelData.BlockBmpBits.Insert(SelectedBlock, new BitmapBits[2]);
@@ -4003,13 +3965,11 @@ namespace SonicRetro.SonLVL.GUI
                                 }
                             match = false;
                             for (int i = 0; i < blocks.Count; i++)
-                            {
                                 if (blk.Equals(blocks[i]))
                                 {
                                     match = true;
                                     break;
                                 }
-                            }
                             if (match) continue;
                             blocks.Add(blk);
                             LevelData.Blocks.Add(blk);
@@ -4249,7 +4209,6 @@ namespace SonicRetro.SonLVL.GUI
                                 {
                                     case EngineVersion.S2:
                                     case EngineVersion.S2NA:
-                                    case EngineVersion.SBoom:
                                         blockmax = 0x340;
                                         break;
                                     case EngineVersion.S3K:
@@ -4271,7 +4230,7 @@ namespace SonicRetro.SonLVL.GUI
                             switch (tabControl1.SelectedIndex)
                             {
                                 case 3: // Chunks
-                                    if (Clipboard.GetDataObject().GetDataPresent("SonLVLChunk") & LevelData.Chunks.Count < 0x100)
+                                    if (Clipboard.GetDataObject().GetDataPresent(typeof(Chunk).AssemblyQualifiedName) & LevelData.Chunks.Count < 0x100)
                                         pasteAfterToolStripMenuItem_Click(sender, EventArgs.Empty);
                                     break;
                                 case 4: // Blocks
@@ -4280,7 +4239,6 @@ namespace SonicRetro.SonLVL.GUI
                                     {
                                         case EngineVersion.S2:
                                         case EngineVersion.S2NA:
-                                        case EngineVersion.SBoom:
                                             blockmax = 0x340;
                                             break;
                                         case EngineVersion.S3K:
@@ -4288,7 +4246,7 @@ namespace SonicRetro.SonLVL.GUI
                                             blockmax = 0x300;
                                             break;
                                     }
-                                    if (Clipboard.GetDataObject().GetDataPresent("SonLVLBlock") & LevelData.Blocks.Count < blockmax)
+                                    if (Clipboard.GetDataObject().GetDataPresent(typeof(Block).AssemblyQualifiedName) & LevelData.Blocks.Count < blockmax)
                                         pasteAfterToolStripMenuItem_Click(sender, EventArgs.Empty);
                                     break;
                                 case 5: // Tiles
@@ -4323,7 +4281,6 @@ namespace SonicRetro.SonLVL.GUI
                 case EngineVersion.S2NA:
                 case EngineVersion.S3K:
                 case EngineVersion.SKC:
-                case EngineVersion.SBoom:
                     items = new List<Entry>(LevelData.Rings.Count);
                     for (int i = 0; i < items.Count; i++)
                         items.Add(LevelData.Rings[i]);
@@ -4357,80 +4314,315 @@ namespace SonicRetro.SonLVL.GUI
         private void cutToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             byte[,] layout;
+            bool[,] loop;
             Rectangle selection;
             if (tabControl1.SelectedIndex == 2)
             {
                 layout = LevelData.BGLayout;
+                loop = LevelData.BGLoop;
                 selection = BGSelection;
             }
             else
             {
                 layout = LevelData.FGLayout;
+                loop = LevelData.FGLoop;
                 selection = FGSelection;
             }
             byte[,] layoutsection = new byte[selection.Width, selection.Height];
+            bool[,] loopsection = loop == null ? null : new bool[selection.Width, selection.Height];
             for (int y = 0; y < selection.Height; y++)
                 for (int x = 0; x < selection.Width; x++)
                 {
                     layoutsection[x, y] = layout[x + selection.X, y + selection.Y];
                     layout[x + selection.X, y + selection.Y] = 0;
+                    if (loop != null)
+                    {
+                        loopsection[x, y] = loop[x + selection.X, y + selection.Y];
+                        loop[x + selection.X, y + selection.Y] = false;
+                    }
                 }
-            Clipboard.SetData("SonLVLLayout", layoutsection);
+            List<Entry> objectselection = new List<Entry>();
+            if (includeObjectsWithForegroundSelectionToolStripMenuItem.Checked & tabControl1.SelectedIndex == 1)
+            {
+                if (LevelData.Objects != null)
+                    foreach (ObjectEntry item in LevelData.Objects)
+                        if (item.Y >= selection.Top * LevelData.chunksz & item.Y < selection.Bottom * LevelData.chunksz
+                            & item.X >= selection.Left * LevelData.chunksz & item.X < selection.Right * LevelData.chunksz)
+                            objectselection.Add(item);
+                if (LevelData.Rings != null)
+                    foreach (RingEntry item in LevelData.Rings)
+                        if (item.Y >= selection.Top * LevelData.chunksz & item.Y < selection.Bottom * LevelData.chunksz
+                            & item.X >= selection.Left * LevelData.chunksz & item.X < selection.Right * LevelData.chunksz)
+                            objectselection.Add(item);
+                if (LevelData.Bumpers != null)
+                    foreach (CNZBumperEntry item in LevelData.Bumpers)
+                        if (item.Y >= selection.Top * LevelData.chunksz & item.Y < selection.Bottom * LevelData.chunksz
+                            & item.X >= selection.Left * LevelData.chunksz & item.X < selection.Right * LevelData.chunksz)
+                            objectselection.Add(item);
+                foreach (Entry item in objectselection)
+                {
+                    if (item is ObjectEntry)
+                        LevelData.Objects.Remove((ObjectEntry)item);
+                    if (item is RingEntry)
+                        LevelData.Rings.Remove((RingEntry)item);
+                    if (item is CNZBumperEntry)
+                        LevelData.Bumpers.Remove((CNZBumperEntry)item);
+                    if (SelectedItems.Contains(item))
+                        SelectedItems.Remove(item);
+                }
+                SelectedObjectChanged();
+            }
+            Clipboard.SetData(typeof(LayoutSection).AssemblyQualifiedName, new LayoutSection(layoutsection, loopsection, new Point(selection.X * LevelData.chunksz, selection.Y * LevelData.chunksz), objectselection));
             DrawLevel();
         }
 
         private void copyToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             byte[,] layout;
+            bool[,] loop;
             Rectangle selection;
             if (tabControl1.SelectedIndex == 2)
             {
                 layout = LevelData.BGLayout;
+                loop = LevelData.BGLoop;
                 selection = BGSelection;
             }
             else
             {
                 layout = LevelData.FGLayout;
+                loop = LevelData.FGLoop;
                 selection = FGSelection;
             }
             byte[,] layoutsection = new byte[selection.Width, selection.Height];
+            bool[,] loopsection = loop == null ? null : new bool[selection.Width, selection.Height];
             for (int y = 0; y < selection.Height; y++)
                 for (int x = 0; x < selection.Width; x++)
+                {
                     layoutsection[x, y] = layout[x + selection.X, y + selection.Y];
-            Clipboard.SetData("SonLVLLayout", layoutsection);
+                    if (loop != null)
+                        loopsection[x, y] = loop[x + selection.X, y + selection.Y];
+                }
+            List<Entry> objectselection = new List<Entry>();
+            if (includeObjectsWithForegroundSelectionToolStripMenuItem.Checked & tabControl1.SelectedIndex == 1)
+            {
+                if (LevelData.Objects != null)
+                    foreach (ObjectEntry item in LevelData.Objects)
+                        if (item.Y >= selection.Top * LevelData.chunksz & item.Y < selection.Bottom * LevelData.chunksz
+                            & item.X >= selection.Left * LevelData.chunksz & item.X < selection.Right * LevelData.chunksz)
+                            objectselection.Add(item);
+                if (LevelData.Rings != null)
+                    foreach (RingEntry item in LevelData.Rings)
+                        if (item.Y >= selection.Top * LevelData.chunksz & item.Y < selection.Bottom * LevelData.chunksz
+                            & item.X >= selection.Left * LevelData.chunksz & item.X < selection.Right * LevelData.chunksz)
+                            objectselection.Add(item);
+                if (LevelData.Bumpers != null)
+                    foreach (CNZBumperEntry item in LevelData.Bumpers)
+                        if (item.Y >= selection.Top * LevelData.chunksz & item.Y < selection.Bottom * LevelData.chunksz
+                            & item.X >= selection.Left * LevelData.chunksz & item.X < selection.Right * LevelData.chunksz)
+                            objectselection.Add(item);
+            }
+            Clipboard.SetData(typeof(LayoutSection).AssemblyQualifiedName, new LayoutSection(layoutsection, loopsection, new Point(selection.X * LevelData.chunksz, selection.Y * LevelData.chunksz), objectselection));
         }
 
-        private void pasteToolStripMenuItem1_Click(object sender, EventArgs e)
+        private void pasteOnceToolStripMenuItem_Click(object sender, EventArgs e)
         {
             byte[,] layout;
+            bool[,] loop;
             if (tabControl1.SelectedIndex == 2)
+            {
                 layout = LevelData.BGLayout;
+                loop = LevelData.BGLoop;
+            }
             else
+            {
                 layout = LevelData.FGLayout;
-            byte[,] layoutsection = Clipboard.GetData("SonLVLLayout") as byte[,];
-            for (int y = 0; y < layoutsection.GetLength(1); y++)
-                for (int x = 0; x < layoutsection.GetLength(0); x++)
-                    layout[x + menuLoc.X, y + menuLoc.Y] = layoutsection[x, y];
+                loop = LevelData.FGLoop;
+            }
+            LayoutSection section = (LayoutSection)Clipboard.GetData(typeof(LayoutSection).AssemblyQualifiedName);
+            for (int y = 0; y < section.Layout.GetLength(1); y++)
+                for (int x = 0; x < section.Layout.GetLength(0); x++)
+                {
+                    layout[x + menuLoc.X, y + menuLoc.Y] = section.Layout[x, y];
+                    if (loop != null)
+                    {
+                        if (section.Loop == null)
+                            loop[x + menuLoc.X, y + menuLoc.Y] = false;
+                        else
+                            loop[x + menuLoc.X, y + menuLoc.Y] = section.Loop[x, y];
+                    }
+                }
+            if (includeObjectsWithForegroundSelectionToolStripMenuItem.Checked & tabControl1.SelectedIndex == 1)
+            {
+                Size off = new Size((menuLoc.X * LevelData.chunksz) - section.Position.X, (menuLoc.Y * LevelData.chunksz) - section.Position.Y);
+                foreach (Entry item in section.Objects)
+                {
+                    item.X = (ushort)(item.X + off.Width);
+                    item.Y = (ushort)(item.Y + off.Height);
+                    if (item is ObjectEntry)
+                        LevelData.Objects.Add((ObjectEntry)item);
+                    else if (item is RingEntry)
+                        LevelData.Rings.Add((RingEntry)item);
+                    else if (item is CNZBumperEntry)
+                        LevelData.Bumpers.Add((CNZBumperEntry)item);
+                    item.UpdateSprite();
+                }
+                LevelData.Objects.Sort();
+                LevelData.Rings.Sort();
+                if (LevelData.Bumpers != null)
+                    LevelData.Bumpers.Sort();
+            }
+            DrawLevel();
+        }
+
+        private void pasteRepeatingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            byte[,] layout;
+            bool[,] loop;
+            Rectangle selection;
+            if (tabControl1.SelectedIndex == 2)
+            {
+                layout = LevelData.BGLayout;
+                loop = LevelData.BGLoop;
+                selection = BGSelection;
+            }
+            else
+            {
+                layout = LevelData.FGLayout;
+                loop = LevelData.FGLoop;
+                selection = FGSelection;
+            }
+            LayoutSection section = (LayoutSection)Clipboard.GetData(typeof(LayoutSection).AssemblyQualifiedName);
+            int width = section.Layout.GetLength(0);
+            int height = section.Layout.GetLength(1);
+            for (int y = 0; y < selection.Height; y++)
+                for (int x = 0; x < selection.Width; x++)
+                {
+                    layout[x + selection.X, y + selection.Y] = section.Layout[x % width, y % height];
+                    if (loop != null)
+                    {
+                        if (section.Loop == null)
+                            loop[x + selection.X, y + selection.Y] = false;
+                        else
+                            loop[x + selection.X, y + selection.Y] = section.Loop[x % width, y % height];
+                    }
+                }
+            if (includeObjectsWithForegroundSelectionToolStripMenuItem.Checked & tabControl1.SelectedIndex == 1)
+            {
+                int w = (int)Math.Ceiling(selection.Width / (double)width);
+                int h = (int)Math.Ceiling(selection.Height / (double)height);
+                Point bottomright = new Point(selection.Right * LevelData.chunksz, selection.Bottom * LevelData.chunksz);
+                for (int y = 0; y < h; y++)
+                    for (int x = 0; x < w; x++)
+                    {
+                        Size off = new Size(((selection.X + (x * width)) * LevelData.chunksz) - section.Position.X, ((selection.Y + (y * height)) * LevelData.chunksz) - section.Position.Y);
+                        foreach (Entry item in section.Objects)
+                        {
+                            Entry it2 = (Entry)Activator.CreateInstance(item.GetType());
+                            it2.FromBytes(item.GetBytes());
+                            it2.X = (ushort)(it2.X + off.Width);
+                            it2.Y = (ushort)(it2.Y + off.Height);
+                            if (it2.X < bottomright.X & it2.Y < bottomright.Y)
+                            {
+                                if (it2 is ObjectEntry)
+                                    LevelData.Objects.Add((ObjectEntry)it2);
+                                else if (it2 is RingEntry)
+                                    LevelData.Rings.Add((RingEntry)it2);
+                                else if (it2 is CNZBumperEntry)
+                                    LevelData.Bumpers.Add((CNZBumperEntry)it2);
+                                it2.UpdateSprite();
+                            }
+                        }
+                    }
+                LevelData.Objects.Sort();
+                LevelData.Rings.Sort();
+                if (LevelData.Bumpers != null)
+                    LevelData.Bumpers.Sort();
+            }
             DrawLevel();
         }
 
         private void deleteToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             byte[,] layout;
+            bool[,] loop;
             Rectangle selection;
             if (tabControl1.SelectedIndex == 2)
             {
                 layout = LevelData.BGLayout;
+                loop = LevelData.BGLoop;
                 selection = BGSelection;
             }
             else
             {
                 layout = LevelData.FGLayout;
+                loop = LevelData.FGLoop;
                 selection = FGSelection;
             }
-            for (int y = 0; y < selection.Height; y++)
-                for (int x = 0; x < selection.Width; x++)
-                    layout[x + selection.X, y + selection.Y] = 0;
+            for (int y = selection.Top; y < selection.Bottom; y++)
+                for (int x = selection.Left; x < selection.Right; x++)
+                {
+                    layout[x, y] = 0;
+                    if (loop != null)
+                        loop[x, y] = false;
+                }
+            if (includeObjectsWithForegroundSelectionToolStripMenuItem.Checked & tabControl1.SelectedIndex == 1)
+            {
+                List<Entry> objectselection = new List<Entry>();
+                if (LevelData.Objects != null)
+                    foreach (ObjectEntry item in LevelData.Objects)
+                        if (item.Y >= selection.Top * LevelData.chunksz & item.Y < selection.Bottom * LevelData.chunksz
+                            & item.X >= selection.Left * LevelData.chunksz & item.X < selection.Right * LevelData.chunksz)
+                            objectselection.Add(item);
+                if (LevelData.Rings != null)
+                    foreach (RingEntry item in LevelData.Rings)
+                        if (item.Y >= selection.Top * LevelData.chunksz & item.Y < selection.Bottom * LevelData.chunksz
+                            & item.X >= selection.Left * LevelData.chunksz & item.X < selection.Right * LevelData.chunksz)
+                            objectselection.Add(item);
+                if (LevelData.Bumpers != null)
+                    foreach (CNZBumperEntry item in LevelData.Bumpers)
+                        if (item.Y >= selection.Top * LevelData.chunksz & item.Y < selection.Bottom * LevelData.chunksz
+                            & item.X >= selection.Left * LevelData.chunksz & item.X < selection.Right * LevelData.chunksz)
+                            objectselection.Add(item);
+                foreach (Entry item in objectselection)
+                {
+                    if (item is ObjectEntry)
+                        LevelData.Objects.Remove((ObjectEntry)item);
+                    if (item is RingEntry)
+                        LevelData.Rings.Remove((RingEntry)item);
+                    if (item is CNZBumperEntry)
+                        LevelData.Bumpers.Remove((CNZBumperEntry)item);
+                    if (SelectedItems.Contains(item))
+                        SelectedItems.Remove(item);
+                }
+                SelectedObjectChanged();
+            }
+            DrawLevel();
+        }
+
+        private void fillToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            byte[,] layout;
+            bool[,] loop;
+            Rectangle selection;
+            if (tabControl1.SelectedIndex == 2)
+            {
+                layout = LevelData.BGLayout;
+                loop = LevelData.BGLoop;
+                selection = BGSelection;
+            }
+            else
+            {
+                layout = LevelData.FGLayout;
+                loop = LevelData.FGLoop;
+                selection = FGSelection;
+            }
+            for (int y = selection.Top; y < selection.Bottom; y++)
+                for (int x = selection.Left; x < selection.Right; x++)
+                {
+                    layout[x, y] = SelectedChunk;
+                    if (loop != null)
+                        loop[x, y] = false;
+                }
             DrawLevel();
         }
 
@@ -4452,64 +4644,26 @@ namespace SonicRetro.SonLVL.GUI
         {
             using (ResizeLevelDialog dg = new ResizeLevelDialog(tabControl1.SelectedIndex != 2))
             {
-                bool canResize;
-                switch (LevelData.Level.LayoutFormat)
+                dg.levelWidth.Minimum = 1;
+                dg.levelWidth.Minimum = 1;
+                Size? maxsize = LevelData.LevelSizeLimit();
+                if (maxsize.HasValue)
                 {
-                    case EngineVersion.S1:
-                    case EngineVersion.S2NA:
-                        canResize = true;
-                        dg.levelWidth.Minimum = 1;
-                        dg.levelWidth.Maximum = LevelData.Game.LevelWidthMax;
-                        dg.levelHeight.Minimum = 1;
-                        dg.levelHeight.Maximum = LevelData.Game.LevelHeightMax;
-                        break;
-                    case EngineVersion.S3K:
-                    case EngineVersion.SKC:
-                        canResize = true;
-                        dg.levelWidth.Minimum = 1;
-                        dg.levelWidth.Maximum = 200;
-                        dg.levelHeight.Minimum = 1;
-                        dg.levelHeight.Maximum = 32;
-                        break;
-                    case EngineVersion.SBoom:
-                        canResize = true;
-                        dg.levelWidth.Minimum = SonicBoom.MAX_ROW_LENGTH;
-                        dg.levelWidth.Maximum = SonicBoom.MAX_ROW_LENGTH;
-                        dg.levelWidth.Enabled = false;
-                        dg.levelHeight.Minimum = 1;
-                        dg.levelHeight.Maximum = SonicBoom.MAX_NUMBER_OF_ROWS;
-                        break;
-                    default:
-                        canResize = false;
-                        break;
-                }
-                if (canResize)
-                {
-                    byte[,] layout = tabControl1.SelectedIndex == 2 ? LevelData.BGLayout : LevelData.FGLayout;
-                    bool[,] loop = tabControl1.SelectedIndex == 2 ? LevelData.BGLoop : LevelData.FGLoop;
-                    dg.levelWidth.Value = LevelData.BGLayout.GetLength(0);
-                    dg.levelHeight.Value = LevelData.BGLayout.GetLength(1);
+                    dg.levelWidth.Maximum = maxsize.Value.Width;
+                    dg.levelHeight.Maximum = maxsize.Value.Height;
+                    Size cursize;
+                    if (tabControl1.SelectedIndex == 2)
+                        cursize = LevelData.BGSize;
+                    else
+                        cursize = LevelData.FGSize;
+                    dg.levelWidth.Value = cursize.Width;
+                    dg.levelHeight.Value = cursize.Height;
                     if (dg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
                     {
-                        byte[,] newBG = new byte[(int)dg.levelWidth.Value, (int)dg.levelHeight.Value];
-                        bool[,] newBGLoop = LevelData.Level.LayoutFormat == EngineVersion.S1 ? new bool[(int)dg.levelWidth.Value, (int)dg.levelHeight.Value] : null;
-                        for (int y = 0; y < Math.Min(dg.levelHeight.Value, layout.GetLength(1)); y++)
-                            for (int x = 0; x < Math.Min(dg.levelWidth.Value, layout.GetLength(0)); x++)
-                            {
-                                newBG[x, y] = layout[x, y];
-                                if (LevelData.Level.LayoutFormat == EngineVersion.S1)
-                                    newBGLoop[x, y] = loop[x, y];
-                            }
                         if (tabControl1.SelectedIndex == 2)
-                        {
-                            LevelData.BGLayout = newBG;
-                            LevelData.BGLoop = newBGLoop;
-                        }
+                            LevelData.ResizeBG((int)dg.levelWidth.Value, (int)dg.levelHeight.Value);
                         else
-                        {
-                            LevelData.FGLayout = newBG;
-                            LevelData.FGLoop = newBGLoop;
-                        }
+                            LevelData.ResizeFG((int)dg.levelWidth.Value, (int)dg.levelHeight.Value);
                         loaded = false;
                         UpdateScrollBars();
                         loaded = true;
@@ -4520,9 +4674,636 @@ namespace SonicRetro.SonLVL.GUI
                 }
             }
         }
+
+        private void objectTypeList_ItemDrag(object sender, ItemDragEventArgs e)
+        {
+            objectTypeList.DoDragDrop(new DataObject("SonicRetro.SonLVL.GUI.ObjectDrop", ((ListViewItem)e.Item).Tag), DragDropEffects.Copy);
+        }
+
+        private void panel1_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent("SonicRetro.SonLVL.GUI.ObjectDrop"))
+            {
+                e.Effect = DragDropEffects.All;
+                dragdrop = true;
+                dragobj = (byte)e.Data.GetData("SonicRetro.SonLVL.GUI.ObjectDrop");
+                dragpoint = panel1.PointToClient(new Point(e.X, e.Y));
+                dragpoint = new Point((int)(dragpoint.X / ZoomLevel), (int)(dragpoint.Y / ZoomLevel));
+                DrawLevel();
+            }
+            else
+                dragdrop = false;
+        }
+
+        private void panel1_DragOver(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent("SonicRetro.SonLVL.GUI.ObjectDrop"))
+            {
+                e.Effect = DragDropEffects.All;
+                dragdrop = true;
+                dragobj = (byte)e.Data.GetData("SonicRetro.SonLVL.GUI.ObjectDrop");
+                dragpoint = panel1.PointToClient(new Point(e.X, e.Y));
+                dragpoint = new Point((int)(dragpoint.X / ZoomLevel), (int)(dragpoint.Y / ZoomLevel));
+                DrawLevel();
+            }
+            else
+                dragdrop = false;
+        }
+
+        private void panel1_DragLeave(object sender, EventArgs e)
+        {
+            dragdrop = false;
+            DrawLevel();
+        }
+
+        private void panel1_DragDrop(object sender, DragEventArgs e)
+        {
+            dragdrop = false;
+            if (e.Data.GetDataPresent("SonicRetro.SonLVL.GUI.ObjectDrop"))
+            {
+                Point clientPoint = panel1.PointToClient(new Point(e.X, e.Y));
+                clientPoint = new Point((int)(clientPoint.X / ZoomLevel), (int)(clientPoint.Y / ZoomLevel));
+                ObjectEntry obj = LevelData.CreateObject((byte)e.Data.GetData("SonicRetro.SonLVL.GUI.ObjectDrop"));
+                obj.X = (ushort)(clientPoint.X + hScrollBar1.Value);
+                obj.Y = (ushort)(clientPoint.Y + vScrollBar1.Value);
+                obj.UpdateSprite();
+                LevelData.Objects.Add(obj);
+                LevelData.Objects.Sort();
+                SelectedItems = new List<Entry>(1) { obj };
+                SelectedObjectChanged();
+                DrawLevel();
+            }
+        }
+
+        private void insertLayoutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (InsertDeleteDialog dlg = new InsertDeleteDialog())
+            {
+                dlg.Text = "Insert";
+                dlg.moveObjects.Visible = dlg.moveObjects.Checked = tabControl1.SelectedIndex == 1;
+                if (dlg.ShowDialog(this) != DialogResult.OK) return;
+                Rectangle selection;
+                if (tabControl1.SelectedIndex == 2)
+                    selection = BGSelection;
+                else
+                    selection = FGSelection;
+                Size? maxsize = LevelData.LevelSizeLimit();
+                if (dlg.shiftH.Checked)
+                {
+                    byte[,] layout;
+                    bool[,] loop;
+                    if (tabControl1.SelectedIndex == 2)
+                    {
+                        if (maxsize.HasValue && maxsize.Value.Width > LevelData.BGWidth)
+                            LevelData.ResizeBG(Math.Min(maxsize.Value.Width, LevelData.BGWidth + selection.Width), LevelData.BGHeight);
+                        layout = LevelData.BGLayout;
+                        loop = LevelData.BGLoop;
+                    }
+                    else
+                    {
+                        if (maxsize.HasValue && maxsize.Value.Width > LevelData.FGWidth)
+                            LevelData.ResizeFG(Math.Min(maxsize.Value.Width, LevelData.FGWidth + selection.Width), LevelData.FGHeight);
+                        layout = LevelData.FGLayout;
+                        loop = LevelData.FGLoop;
+                    }
+                    for (int y = selection.Top; y < selection.Bottom; y++)
+                        for (int x = layout.GetLength(0) - selection.Width - 1; x >= selection.Left; x--)
+                        {
+                            layout[x + selection.Width, y] = layout[x, y];
+                            if (loop != null)
+                                loop[x + selection.Width, y] = loop[x, y];
+                        }
+                    for (int y = selection.Top; y < selection.Bottom; y++)
+                        for (int x = selection.Left; x < selection.Right; x++)
+                        {
+                            layout[x, y] = 0;
+                            if (loop != null)
+                                loop[x, y] = false;
+                        }
+                    if (dlg.moveObjects.Checked)
+                    {
+                        if (LevelData.Objects != null)
+                            foreach (ObjectEntry item in LevelData.Objects)
+                                if (item.Y >= selection.Top * LevelData.chunksz & item.Y < selection.Bottom * LevelData.chunksz & item.X >= selection.Left * LevelData.chunksz)
+                                {
+                                    item.X += (ushort)(selection.Width * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                        if (LevelData.Rings != null)
+                            foreach (RingEntry item in LevelData.Rings)
+                                if (item.Y >= selection.Top * LevelData.chunksz & item.Y < selection.Bottom * LevelData.chunksz & item.X >= selection.Left * LevelData.chunksz)
+                                {
+                                    item.X += (ushort)(selection.Width * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                        if (LevelData.Bumpers != null)
+                            foreach (CNZBumperEntry item in LevelData.Bumpers)
+                                if (item.Y >= selection.Top * LevelData.chunksz & item.Y < selection.Bottom * LevelData.chunksz & item.X >= selection.Left * LevelData.chunksz)
+                                {
+                                    item.X += (ushort)(selection.Width * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                        if (LevelData.StartPositions != null)
+                            foreach (StartPositionEntry item in LevelData.StartPositions)
+                                if (item.Y >= selection.Top * LevelData.chunksz & item.Y < selection.Bottom * LevelData.chunksz & item.X >= selection.Left * LevelData.chunksz)
+                                {
+                                    item.X += (ushort)(selection.Width * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                    }
+                }
+                else if (dlg.shiftV.Checked)
+                {
+                    byte[,] layout;
+                    bool[,] loop;
+                    if (tabControl1.SelectedIndex == 2)
+                    {
+                        if (maxsize.HasValue && maxsize.Value.Height > LevelData.BGHeight)
+                            LevelData.ResizeBG(LevelData.BGWidth, Math.Min(maxsize.Value.Height, LevelData.BGHeight + selection.Height));
+                        layout = LevelData.BGLayout;
+                        loop = LevelData.BGLoop;
+                    }
+                    else
+                    {
+                        if (maxsize.HasValue && maxsize.Value.Height > LevelData.FGHeight)
+                            LevelData.ResizeFG(LevelData.FGWidth, Math.Min(maxsize.Value.Height, LevelData.FGHeight + selection.Height));
+                        layout = LevelData.FGLayout;
+                        loop = LevelData.FGLoop;
+                    }
+                    for (int x = selection.Left; x < selection.Right; x++)
+                        for (int y = layout.GetLength(1) - selection.Height - 1; y >= selection.Top; y--)
+                        {
+                            layout[x, y + selection.Height] = layout[x, y];
+                            if (loop != null)
+                                loop[x, y + selection.Height] = loop[x, y];
+                        }
+                    for (int x = selection.Left; x < selection.Right; x++)
+                        for (int y = selection.Top; y < selection.Bottom; y++)
+                        {
+                            layout[x, y] = 0;
+                            if (loop != null)
+                                loop[x, y] = false;
+                        }
+                    if (dlg.moveObjects.Checked)
+                    {
+                        if (LevelData.Objects != null)
+                            foreach (ObjectEntry item in LevelData.Objects)
+                                if (item.X >= selection.Left * LevelData.chunksz & item.X < selection.Right * LevelData.chunksz & item.Y >= selection.Top * LevelData.chunksz)
+                                {
+                                    item.Y += (ushort)(selection.Height * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                        if (LevelData.Rings != null)
+                            foreach (RingEntry item in LevelData.Rings)
+                                if (item.X >= selection.Left * LevelData.chunksz & item.X < selection.Right * LevelData.chunksz & item.Y >= selection.Top * LevelData.chunksz)
+                                {
+                                    item.Y += (ushort)(selection.Height * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                        if (LevelData.Bumpers != null)
+                            foreach (CNZBumperEntry item in LevelData.Bumpers)
+                                if (item.X >= selection.Left * LevelData.chunksz & item.X < selection.Right * LevelData.chunksz & item.Y >= selection.Top * LevelData.chunksz)
+                                {
+                                    item.Y += (ushort)(selection.Height * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                        if (LevelData.StartPositions != null)
+                            foreach (StartPositionEntry item in LevelData.StartPositions)
+                                if (item.X >= selection.Left * LevelData.chunksz & item.X < selection.Right * LevelData.chunksz & item.Y >= selection.Top * LevelData.chunksz)
+                                {
+                                    item.Y += (ushort)(selection.Height * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                    }
+                }
+                else if (dlg.entireRow.Checked)
+                {
+                    byte[,] layout;
+                    bool[,] loop;
+                    if (tabControl1.SelectedIndex == 2)
+                    {
+                        if (maxsize.HasValue && maxsize.Value.Height > LevelData.BGHeight)
+                            LevelData.ResizeBG(LevelData.BGWidth, Math.Min(maxsize.Value.Height, LevelData.BGHeight + selection.Height));
+                        layout = LevelData.BGLayout;
+                        loop = LevelData.BGLoop;
+                    }
+                    else
+                    {
+                        if (maxsize.HasValue && maxsize.Value.Height > LevelData.FGHeight)
+                            LevelData.ResizeFG(LevelData.FGWidth, Math.Min(maxsize.Value.Height, LevelData.FGHeight + selection.Height));
+                        layout = LevelData.FGLayout;
+                        loop = LevelData.FGLoop;
+                    }
+                    for (int x = 0; x < layout.GetLength(0); x++)
+                        for (int y = layout.GetLength(1) - selection.Height - 1; y >= selection.Top; y--)
+                        {
+                            layout[x, y + selection.Height] = layout[x, y];
+                            if (loop != null)
+                                loop[x, y + selection.Height] = loop[x, y];
+                        }
+                    for (int x = 0; x < layout.GetLength(0); x++)
+                        for (int y = selection.Top; y < selection.Bottom; y++)
+                        {
+                            layout[x, y] = 0;
+                            if (loop != null)
+                                loop[x, y] = false;
+                        }
+                    if (dlg.moveObjects.Checked)
+                    {
+                        if (LevelData.Objects != null)
+                            foreach (ObjectEntry item in LevelData.Objects)
+                                if (item.Y >= selection.Top * LevelData.chunksz)
+                                {
+                                    item.Y += (ushort)(selection.Height * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                        if (LevelData.Rings != null)
+                            foreach (RingEntry item in LevelData.Rings)
+                                if (item.Y >= selection.Top * LevelData.chunksz)
+                                {
+                                    item.Y += (ushort)(selection.Height * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                        if (LevelData.Bumpers != null)
+                            foreach (CNZBumperEntry item in LevelData.Bumpers)
+                                if (item.Y >= selection.Top * LevelData.chunksz)
+                                {
+                                    item.Y += (ushort)(selection.Height * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                        if (LevelData.StartPositions != null)
+                            foreach (StartPositionEntry item in LevelData.StartPositions)
+                                if (item.Y >= selection.Top * LevelData.chunksz)
+                                {
+                                    item.Y += (ushort)(selection.Height * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                    }
+                }
+                else if (dlg.entireColumn.Checked)
+                {
+                    byte[,] layout;
+                    bool[,] loop;
+                    if (tabControl1.SelectedIndex == 2)
+                    {
+                        if (maxsize.HasValue && maxsize.Value.Width > LevelData.BGWidth)
+                            LevelData.ResizeBG(Math.Min(maxsize.Value.Width, LevelData.BGWidth + selection.Width), LevelData.BGHeight);
+                        layout = LevelData.BGLayout;
+                        loop = LevelData.BGLoop;
+                    }
+                    else
+                    {
+                        if (maxsize.HasValue && maxsize.Value.Width > LevelData.FGWidth)
+                            LevelData.ResizeFG(Math.Min(maxsize.Value.Width, LevelData.FGWidth + selection.Width), LevelData.FGHeight);
+                        layout = LevelData.FGLayout;
+                        loop = LevelData.FGLoop;
+                    }
+                    for (int y = 0; y < layout.GetLength(1); y++)
+                        for (int x = layout.GetLength(0) - selection.Width - 1; x >= selection.Left; x--)
+                        {
+                            layout[x + selection.Width, y] = layout[x, y];
+                            if (loop != null)
+                                loop[x + selection.Width, y] = loop[x, y];
+                        }
+                    for (int y = 0; y < layout.GetLength(1); y++)
+                        for (int x = selection.Left; x < selection.Right; x++)
+                        {
+                            layout[x, y] = 0;
+                            if (loop != null)
+                                loop[x, y] = false;
+                        }
+                    if (dlg.moveObjects.Checked)
+                    {
+                        if (LevelData.Objects != null)
+                            foreach (ObjectEntry item in LevelData.Objects)
+                                if (item.X >= selection.Left * LevelData.chunksz)
+                                {
+                                    item.X += (ushort)(selection.Width * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                        if (LevelData.Rings != null)
+                            foreach (RingEntry item in LevelData.Rings)
+                                if (item.X >= selection.Left * LevelData.chunksz)
+                                {
+                                    item.X += (ushort)(selection.Width * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                        if (LevelData.Bumpers != null)
+                            foreach (CNZBumperEntry item in LevelData.Bumpers)
+                                if (item.X >= selection.Left * LevelData.chunksz)
+                                {
+                                    item.X += (ushort)(selection.Width * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                        if (LevelData.StartPositions != null)
+                            foreach (StartPositionEntry item in LevelData.StartPositions)
+                                if (item.X >= selection.Left * LevelData.chunksz)
+                                {
+                                    item.X += (ushort)(selection.Width * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                    }
+                }
+            }
+        }
+
+        private void deleteLayoutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (InsertDeleteDialog dlg = new InsertDeleteDialog())
+            {
+                dlg.Text = "Delete";
+                dlg.shiftH.Text = "Shift cells left";
+                dlg.shiftV.Text = "Shift cells up";
+                dlg.moveObjects.Visible = dlg.moveObjects.Checked = tabControl1.SelectedIndex == 1;
+                if (dlg.ShowDialog(this) != DialogResult.OK) return;
+                Rectangle selection;
+                if (tabControl1.SelectedIndex == 2)
+                    selection = BGSelection;
+                else
+                    selection = FGSelection;
+                Size? maxsize = LevelData.LevelSizeLimit();
+                if (dlg.shiftH.Checked)
+                {
+                    byte[,] layout;
+                    bool[,] loop;
+                    if (tabControl1.SelectedIndex == 2)
+                    {
+                        layout = LevelData.BGLayout;
+                        loop = LevelData.BGLoop;
+                    }
+                    else
+                    {
+                        layout = LevelData.FGLayout;
+                        loop = LevelData.FGLoop;
+                    }
+                    for (int y = selection.Top; y < selection.Bottom; y++)
+                        for (int x = selection.Left; x < layout.GetLength(0) - selection.Width; x++)
+                        {
+                            layout[x, y] = layout[x + selection.Width, y];
+                            if (loop != null)
+                                loop[x, y] = loop[x + selection.Width, y];
+                        }
+                    for (int y = selection.Top; y < selection.Bottom; y++)
+                        for (int x = layout.GetLength(0) - selection.Width; x < layout.GetLength(0); x++)
+                        {
+                            layout[x, y] = 0;
+                            if (loop != null)
+                                loop[x, y] = false;
+                        }
+                    if (dlg.moveObjects.Checked)
+                    {
+                        if (LevelData.Objects != null)
+                            foreach (ObjectEntry item in LevelData.Objects)
+                                if (item.Y >= selection.Top * LevelData.chunksz & item.Y < selection.Bottom * LevelData.chunksz & item.X >= selection.Right * LevelData.chunksz)
+                                {
+                                    item.X -= (ushort)(selection.Width * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                        if (LevelData.Rings != null)
+                            foreach (RingEntry item in LevelData.Rings)
+                                if (item.Y >= selection.Top * LevelData.chunksz & item.Y < selection.Bottom * LevelData.chunksz & item.X >= selection.Right * LevelData.chunksz)
+                                {
+                                    item.X -= (ushort)(selection.Width * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                        if (LevelData.Bumpers != null)
+                            foreach (CNZBumperEntry item in LevelData.Bumpers)
+                                if (item.Y >= selection.Top * LevelData.chunksz & item.Y < selection.Bottom * LevelData.chunksz & item.X >= selection.Right * LevelData.chunksz)
+                                {
+                                    item.X -= (ushort)(selection.Width * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                        if (LevelData.StartPositions != null)
+                            foreach (StartPositionEntry item in LevelData.StartPositions)
+                                if (item.Y >= selection.Top * LevelData.chunksz & item.Y < selection.Bottom * LevelData.chunksz & item.X >= selection.Right * LevelData.chunksz)
+                                {
+                                    item.X -= (ushort)(selection.Width * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                    }
+                }
+                else if (dlg.shiftV.Checked)
+                {
+                    byte[,] layout;
+                    bool[,] loop;
+                    if (tabControl1.SelectedIndex == 2)
+                    {
+                        layout = LevelData.BGLayout;
+                        loop = LevelData.BGLoop;
+                    }
+                    else
+                    {
+                        layout = LevelData.FGLayout;
+                        loop = LevelData.FGLoop;
+                    }
+                    for (int x = selection.Left; x < selection.Right; x++)
+                        for (int y = selection.Top; y < layout.GetLength(1) - selection.Height; y++)
+                        {
+                            layout[x, y] = layout[x, y + selection.Height];
+                            if (loop != null)
+                                loop[x, y] = loop[x, y + selection.Height];
+                        }
+                    for (int x = selection.Left; x < selection.Right; x++)
+                        for (int y = layout.GetLength(1) - selection.Height; y < layout.GetLength(1); y++)
+                        {
+                            layout[x, y] = 0;
+                            if (loop != null)
+                                loop[x, y] = false;
+                        }
+                    if (dlg.moveObjects.Checked)
+                    {
+                        if (LevelData.Objects != null)
+                            foreach (ObjectEntry item in LevelData.Objects)
+                                if (item.X >= selection.Left * LevelData.chunksz & item.X < selection.Right * LevelData.chunksz & item.Y >= selection.Bottom * LevelData.chunksz)
+                                {
+                                    item.Y -= (ushort)(selection.Height * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                        if (LevelData.Rings != null)
+                            foreach (RingEntry item in LevelData.Rings)
+                                if (item.X >= selection.Left * LevelData.chunksz & item.X < selection.Right * LevelData.chunksz & item.Y >= selection.Bottom * LevelData.chunksz)
+                                {
+                                    item.Y -= (ushort)(selection.Height * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                        if (LevelData.Bumpers != null)
+                            foreach (CNZBumperEntry item in LevelData.Bumpers)
+                                if (item.X >= selection.Left * LevelData.chunksz & item.X < selection.Right * LevelData.chunksz & item.Y >= selection.Bottom * LevelData.chunksz)
+                                {
+                                    item.Y -= (ushort)(selection.Height * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                        if (LevelData.StartPositions != null)
+                            foreach (StartPositionEntry item in LevelData.StartPositions)
+                                if (item.X >= selection.Left * LevelData.chunksz & item.X < selection.Right * LevelData.chunksz & item.Y >= selection.Bottom * LevelData.chunksz)
+                                {
+                                    item.Y -= (ushort)(selection.Height * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                    }
+                }
+                else if (dlg.entireRow.Checked)
+                {
+                    byte[,] layout;
+                    bool[,] loop;
+                    if (tabControl1.SelectedIndex == 2)
+                    {
+                        layout = LevelData.BGLayout;
+                        loop = LevelData.BGLoop;
+                    }
+                    else
+                    {
+                        layout = LevelData.FGLayout;
+                        loop = LevelData.FGLoop;
+                    }
+                    for (int x = 0; x < layout.GetLength(0); x++)
+                        for (int y = selection.Top; y < layout.GetLength(1) - selection.Height; y++)
+                        {
+                            layout[x, y] = layout[x, y + selection.Height];
+                            if (loop != null)
+                                loop[x, y] = loop[x, y + selection.Height];
+                        }
+                    for (int x = 0; x < layout.GetLength(0); x++)
+                        for (int y = layout.GetLength(1) - selection.Height; y < layout.GetLength(1); y++)
+                        {
+                            layout[x, y] = 0;
+                            if (loop != null)
+                                loop[x, y] = false;
+                        }
+                    if (dlg.moveObjects.Checked)
+                    {
+                        if (LevelData.Objects != null)
+                            foreach (ObjectEntry item in LevelData.Objects)
+                                if (item.Y >= selection.Bottom * LevelData.chunksz)
+                                {
+                                    item.Y -= (ushort)(selection.Height * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                        if (LevelData.Rings != null)
+                            foreach (RingEntry item in LevelData.Rings)
+                                if (item.Y >= selection.Bottom * LevelData.chunksz)
+                                {
+                                    item.Y -= (ushort)(selection.Height * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                        if (LevelData.Bumpers != null)
+                            foreach (CNZBumperEntry item in LevelData.Bumpers)
+                                if (item.Y >= selection.Bottom * LevelData.chunksz)
+                                {
+                                    item.Y -= (ushort)(selection.Height * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                        if (LevelData.StartPositions != null)
+                            foreach (StartPositionEntry item in LevelData.StartPositions)
+                                if (item.Y >= selection.Bottom * LevelData.chunksz)
+                                {
+                                    item.Y -= (ushort)(selection.Height * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                    }
+                    if (tabControl1.SelectedIndex == 2)
+                    {
+                        if (maxsize.HasValue && LevelData.BGHeight > selection.Height)
+                            LevelData.ResizeBG(LevelData.BGHeight - selection.Height, LevelData.BGWidth);
+                    }
+                    else
+                    {
+                        if (maxsize.HasValue && LevelData.FGHeight > selection.Height)
+                            LevelData.ResizeFG(LevelData.FGHeight - selection.Height, LevelData.FGWidth);
+                    }
+                }
+                else if (dlg.entireColumn.Checked)
+                {
+                    byte[,] layout;
+                    bool[,] loop;
+                    if (tabControl1.SelectedIndex == 2)
+                    {
+                        layout = LevelData.BGLayout;
+                        loop = LevelData.BGLoop;
+                    }
+                    else
+                    {
+                        layout = LevelData.FGLayout;
+                        loop = LevelData.FGLoop;
+                    }
+                    for (int y = 0; y < layout.GetLength(1); y++)
+                        for (int x = selection.Left; x < layout.GetLength(0) - selection.Width; x++)
+                        {
+                            layout[x, y] = layout[x + selection.Width, y];
+                            if (loop != null)
+                                loop[x, y] = loop[x + selection.Width, y];
+                        }
+                    for (int y = 0; y < layout.GetLength(1); y++)
+                        for (int x = layout.GetLength(0) - selection.Width; x < layout.GetLength(0); x++)
+                        {
+                            layout[x, y] = 0;
+                            if (loop != null)
+                                loop[x, y] = false;
+                        }
+                    if (dlg.moveObjects.Checked)
+                    {
+                        if (LevelData.Objects != null)
+                            foreach (ObjectEntry item in LevelData.Objects)
+                                if (item.X >= selection.Right * LevelData.chunksz)
+                                {
+                                    item.X -= (ushort)(selection.Width * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                        if (LevelData.Rings != null)
+                            foreach (RingEntry item in LevelData.Rings)
+                                if (item.X >= selection.Right * LevelData.chunksz)
+                                {
+                                    item.X -= (ushort)(selection.Width * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                        if (LevelData.Bumpers != null)
+                            foreach (CNZBumperEntry item in LevelData.Bumpers)
+                                if (item.X >= selection.Right * LevelData.chunksz)
+                                {
+                                    item.X -= (ushort)(selection.Width * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                        if (LevelData.StartPositions != null)
+                            foreach (StartPositionEntry item in LevelData.StartPositions)
+                                if (item.X >= selection.Right * LevelData.chunksz)
+                                {
+                                    item.X -= (ushort)(selection.Width * LevelData.chunksz);
+                                    item.UpdateSprite();
+                                }
+                    }
+                    if (tabControl1.SelectedIndex == 2)
+                    {
+                        if (maxsize.HasValue && LevelData.BGWidth > selection.Width)
+                            LevelData.ResizeBG(LevelData.BGWidth - selection.Width, LevelData.BGHeight);
+                    }
+                    else
+                    {
+                        if (maxsize.HasValue && LevelData.FGWidth > selection.Width)
+                            LevelData.ResizeFG(LevelData.FGWidth - selection.Width, LevelData.FGHeight);
+                    }
+                }
+            }
+        }
     }
 
     internal enum EditingMode { Draw, Select }
+
+    [Serializable]
+    public class LayoutSection
+    {
+        public byte[,] Layout { get; set; }
+        public bool[,] Loop { get; set; }
+        public Point Position { get; set; }
+        public List<Entry> Objects { get; set; }
+
+        public LayoutSection(byte[,] layout, bool[,] loop, Point position, List<Entry> objects)
+        {
+            Layout = layout;
+            Loop = loop;
+            Position = position;
+            Objects = objects;
+        }
+    }
 
     public abstract class UndoAction
     {
@@ -4579,26 +5360,25 @@ namespace SonicRetro.SonLVL.GUI
     {
         private List<Entry> objects;
         private List<object> values;
-        private string propname;
+        private PropertyDescriptor prop;
 
-        public ObjectPropertyChangedUndoAction(List<Entry> Objects, List<object> Values, string PropertyName, string DisplayName)
+        public ObjectPropertyChangedUndoAction(List<Entry> Objects, List<object> Values, PropertyDescriptor Property)
         {
-            Name = "Change of property " + DisplayName + " (" + Objects.Count + " object" + (Objects.Count > 1 ? "s" : "") + ")";
+            Name = "Change of property " + Property.DisplayName + " (" + Objects.Count + " object" + (Objects.Count > 1 ? "s" : "") + ")";
             objects = Objects;
             values = Values;
-            propname = PropertyName;
+            prop = Property;
         }
 
         public override void Undo()
         {
             object val;
-            System.Reflection.PropertyInfo prop;
             for (int i = 0; i < objects.Count; i++)
             {
-                prop = objects[i].GetType().GetProperty(propname);
-                val = prop.GetValue(objects[i], null);
-                prop.SetValue(objects[i], values[i], null);
+                val = prop.GetValue(objects[i]);
+                prop.SetValue(objects[i], values[i]);
                 values[i] = val;
+                objects[i].UpdateSprite();
             }
         }
 
@@ -4629,6 +5409,7 @@ namespace SonicRetro.SonLVL.GUI
                 objects[i].X = (ushort)locations[i].X;
                 objects[i].Y = (ushort)locations[i].Y;
                 locations[i] = pt;
+                objects[i].UpdateSprite();
             }
         }
 
@@ -4777,31 +5558,6 @@ namespace SonicRetro.SonLVL.GUI
                     LevelData.Bumpers.Remove((CNZBumperEntry)item);
                 }
             }
-        }
-    }
-
-    internal class ObjectIDChangedUndoAction : UndoAction
-    {
-        private ObjectEntry oldobj, newobj;
-
-        public ObjectIDChangedUndoAction(ObjectEntry oldobj, ObjectEntry newobj)
-        {
-            Name = "Object ID changed";
-            this.oldobj = oldobj;
-            this.newobj = newobj;
-        }
-
-        public override void Undo()
-        {
-            LevelData.Objects[LevelData.Objects.IndexOf(newobj)] = oldobj;
-            ObjectEntry o = oldobj;
-            oldobj = newobj;
-            newobj = o;
-        }
-
-        public override void Redo()
-        {
-            Undo();
         }
     }
 }

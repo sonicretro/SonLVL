@@ -65,6 +65,7 @@
     </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddGroupDialog.cs">
@@ -98,6 +99,18 @@
       <DependentUpon>BugReportDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Extensions.cs" />
+    <Compile Include="InsertDeleteDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="InsertDeleteDialog.Designer.cs">
+      <DependentUpon>InsertDeleteDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LoadingAnimation.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="LoadingAnimation.Designer.cs">
+      <DependentUpon>LoadingAnimation.cs</DependentUpon>
+    </Compile>
     <Compile Include="LogWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -144,6 +157,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="BugReportDialog.resx">
       <DependentUpon>BugReportDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="InsertDeleteDialog.resx">
+      <DependentUpon>InsertDeleteDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LoadingAnimation.resx">
+      <DependentUpon>LoadingAnimation.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="LogWindow.resx">
       <DependentUpon>LogWindow.cs</DependentUpon>
@@ -239,6 +258,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Tailsmon2.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sonicbored1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sonicbored2.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

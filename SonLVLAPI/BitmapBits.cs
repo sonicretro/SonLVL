@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
+using System.IO;
 
 namespace SonicRetro.SonLVL.API
 {
@@ -42,12 +43,17 @@ namespace SonicRetro.SonLVL.API
             Height = bmpd.Height;
             byte[] tmpbits = new byte[Math.Abs(bmpd.Stride) * bmpd.Height];
             Marshal.Copy(bmpd.Scan0, tmpbits, 0, tmpbits.Length);
-            Bits = new byte[Width * Height];
-            int j = 0;
-            for (int i = 0; i < Bits.Length; i += Width)
+            if (bmpd.Stride == bmpd.Width)
+                Bits = tmpbits;
+            else
             {
-                Array.Copy(tmpbits, j, Bits, i, Width);
-                j += Math.Abs(bmpd.Stride);
+                Bits = new byte[Width * Height];
+                int j = 0;
+                for (int i = 0; i < Bits.Length; i += Width)
+                {
+                    Array.Copy(tmpbits, j, Bits, i, Width);
+                    j += Math.Abs(bmpd.Stride);
+                }
             }
             bmp.UnlockBits(bmpd);
         }
@@ -60,14 +66,47 @@ namespace SonicRetro.SonLVL.API
             Array.Copy(source.Bits, Bits, Bits.Length);
         }
 
+        public BitmapBits(string filename)
+        {
+            using (Bitmap bmp = new Bitmap(filename))
+            {
+                if (bmp.PixelFormat != PixelFormat.Format8bppIndexed)
+                    throw new ArgumentException();
+                BitmapData bmpd = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, bmp.PixelFormat);
+                Width = bmpd.Width;
+                Height = bmpd.Height;
+                byte[] tmpbits = new byte[Math.Abs(bmpd.Stride) * bmpd.Height];
+                Marshal.Copy(bmpd.Scan0, tmpbits, 0, tmpbits.Length);
+                if (bmpd.Stride == bmpd.Width)
+                    Bits = tmpbits;
+                else
+                {
+                    Bits = new byte[Width * Height];
+                    int j = 0;
+                    for (int i = 0; i < Bits.Length; i += Width)
+                    {
+                        Array.Copy(tmpbits, j, Bits, i, Width);
+                        j += Math.Abs(bmpd.Stride);
+                    }
+                }
+                bmp.UnlockBits(bmpd);
+            }
+        }
+
         public Bitmap ToBitmap()
         {
+            if (Size.IsEmpty) return new Bitmap(1, 1, PixelFormat.Format8bppIndexed);
             Bitmap newbmp = new Bitmap(Width, Height, PixelFormat.Format8bppIndexed);
             BitmapData newbmpd = newbmp.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.WriteOnly, PixelFormat.Format8bppIndexed);
-            byte[] bmpbits = new byte[Math.Abs(newbmpd.Stride) * newbmpd.Height];
-            for (int y = 0; y < Height; y++)
-                Array.Copy(Bits, y * Width, bmpbits, y * Math.Abs(newbmpd.Stride), Width);
-            Marshal.Copy(bmpbits, 0, newbmpd.Scan0, bmpbits.Length);
+            if (newbmpd.Stride == newbmpd.Width)
+                Marshal.Copy(Bits, 0, newbmpd.Scan0, Bits.Length);
+            else
+            {
+                byte[] bmpbits = new byte[Math.Abs(newbmpd.Stride) * newbmpd.Height];
+                for (int y = 0; y < Height; y++)
+                    Array.Copy(Bits, y * Width, bmpbits, y * Math.Abs(newbmpd.Stride), Width);
+                Marshal.Copy(bmpbits, 0, newbmpd.Scan0, bmpbits.Length);
+            }
             newbmp.UnlockBits(newbmpd);
             return newbmp;
         }
@@ -125,6 +164,26 @@ namespace SonicRetro.SonLVL.API
         {
             DrawBitmapComposited(source, location.X, location.Y);
         }
+
+        public void DrawBitmapBounded(BitmapBits source, int x, int y)
+        {
+            int srcl = 0;
+            if (x < 0)
+                srcl = -x;
+            int srct = 0;
+            if (y < 0)
+                srct = -y;
+            int srcr = source.Width;
+            if (srcr > Width - x)
+                srcr = Width - x;
+            int srcb = source.Height;
+            if (srcb > Height - y)
+                srcb = Height - y;
+            for (int c = srct; c < srcb; c++)
+                Array.Copy(source.Bits, c * source.Width + srcl, Bits, ((y + c) * Width) + x + srcl, srcr - srcl);
+        }
+
+        public void DrawBitmapBounded(BitmapBits source, Point location) { DrawBitmapComposited(source, location.X, location.Y); }
 
         public void Flip(bool XFlip, bool YFlip)
         {
@@ -319,16 +378,20 @@ namespace SonicRetro.SonLVL.API
             BitmapBits other = obj as BitmapBits;
             if (other == null) return false;
             if (Width != other.Width | Height != other.Height) return false;
-            for (int y = 0; y < Height; y++)
-                for (int x = 0; x < Width; x++)
-                    if (this[x, y] != other[x, y])
-                        return false;
-            return true;
+            return System.Linq.Enumerable.SequenceEqual(Bits, other.Bits);
         }
 
         public override int GetHashCode()
         {
             return base.GetHashCode();
+        }
+
+        public BitmapBits GetSection(int x, int y, int width, int height)
+        {
+            BitmapBits result = new BitmapBits(width, height);
+            for (int v = 0; v < height; v++)
+                Array.Copy(this.Bits, ((y + v) * this.Width) + x, result.Bits, v * width, width);
+            return result;
         }
 
         public void DrawSprite(Sprite sprite, int x, int y)
@@ -339,6 +402,57 @@ namespace SonicRetro.SonLVL.API
         public void DrawSprite(Sprite sprite, Point location)
         {
             DrawBitmapComposited(sprite.Image, location + new Size(sprite.Offset));
+        }
+
+        public void ReplaceColor(byte old, byte @new)
+        {
+            for (int i = 0; i < Bits.Length; i++)
+                if (Bits[i] == old)
+                    Bits[i] = @new;
+        }
+
+        public static BitmapBits ReadPCX(string filename) { Color[] palette; return ReadPCX(filename, out palette); }
+
+        public static BitmapBits ReadPCX(string filename, out Color[] palette)
+        {
+            using (FileStream fs = File.OpenRead(filename))
+                return ReadPCX(fs, out palette);
+        }
+
+        public static BitmapBits ReadPCX(Stream stream) { Color[] palette; return ReadPCX(stream, out palette); }
+
+        public static BitmapBits ReadPCX(Stream stream, out Color[] palette)
+        {
+            BinaryReader br = new BinaryReader(stream);
+            stream.Seek(8, SeekOrigin.Current);
+            BitmapBits pix = new BitmapBits(br.ReadUInt16() + 1, br.ReadUInt16() + 1);
+            stream.Seek(0x36, SeekOrigin.Current);
+            int stride = br.ReadUInt16();
+            byte[] buffer = new byte[stride];
+            stream.Seek(0x3C, SeekOrigin.Current);
+            for (int y = 0; y < pix.Height; y++)
+            {
+                int i = 0;
+                while (i < stride)
+                {
+                    int run = 1;
+                    byte val = br.ReadByte();
+                    if ((val & 0xC0) == 0xC0)
+                    {
+                        run = val & 0x3F;
+                        val = br.ReadByte();
+                    }
+                    for (int r = 0; r < run; r++)
+                        buffer[i++] = val;
+                }
+                for (int x = 0; x < pix.Width; x++)
+                    pix[x, y] = buffer[x];
+            }
+            palette = new Color[256];
+            if (br.ReadByte() != 0xC) return pix;
+            for (int i = 0; i < 256; i++)
+                palette[i] = Color.FromArgb(br.ReadByte(), br.ReadByte(), br.ReadByte());
+            return pix;
         }
     }
 }

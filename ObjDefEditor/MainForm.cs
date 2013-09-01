@@ -209,14 +209,18 @@ namespace ObjDefEditor
                 return;
             }
             objectLists = new List<string>();
-            objectLists.AddRange(LevelData.Game.ObjectList);
-            objectLists.AddRange(LevelData.Level.ObjectList);
+            if (LevelData.Game.ObjectList != null)
+                objectLists.AddRange(LevelData.Game.ObjectList);
+            if (LevelData.Level.ObjectList != null)
+                objectLists.AddRange(LevelData.Level.ObjectList);
             objectListList.Items.Clear();
             objectListList.BeginUpdate();
-            foreach (string item in LevelData.Game.ObjectList)
-                objectListList.Items.Add(item + " (Game)");
-            foreach (string item in LevelData.Level.ObjectList)
-                objectListList.Items.Add(item + " (Level)");
+            if (LevelData.Game.ObjectList != null)
+                foreach (string item in LevelData.Game.ObjectList)
+                    objectListList.Items.Add(item + " (Game)");
+            if (LevelData.Level.ObjectList != null)
+                foreach (string item in LevelData.Level.ObjectList)
+                    objectListList.Items.Add(item + " (Level)");
             objectListList.EndUpdate();
             objectDefinitionList.Items.Clear();
             addDefinitionButton.Enabled = false;
@@ -370,7 +374,29 @@ namespace ObjDefEditor
             conditionProperty.Items.Clear();
             conditionProperty.BeginUpdate();
             List<TypeCode> codes = new List<TypeCode>();
-            foreach (System.Reflection.PropertyInfo info in LevelData.unkobj.ObjectType.GetProperties())
+            Type basetype;
+            switch (LevelData.Level.ObjectFormat)
+            {
+                case EngineVersion.S1:
+                    basetype = typeof(S1ObjectEntry);
+                    break;
+                case EngineVersion.S2:
+                case EngineVersion.S2NA:
+                    basetype = typeof(S2ObjectEntry);
+                    break;
+                case EngineVersion.S3K:
+                case EngineVersion.SKC:
+                    basetype = typeof(S3KObjectEntry);
+                    break;
+                case EngineVersion.SCD:
+                case EngineVersion.SCDPC:
+                    basetype = typeof(SCDObjectEntry);
+                    break;
+                default:
+                    basetype = typeof(ObjectEntry);
+                    break;
+            }
+            foreach (System.Reflection.PropertyInfo info in basetype.GetProperties())
             {
                 if (info.GetGetMethod() == null | info.GetSetMethod() == null) continue;
                 TypeCode code = Type.GetTypeCode(info.PropertyType);
@@ -530,17 +556,16 @@ namespace ObjDefEditor
             try
             {
                 if (item is ImageFromBitmap)
-                    images[index] = new Sprite(new BitmapBits(new Bitmap(((ImageFromBitmap)item).filename)), item.offset.ToPoint());
+                    images[index] = new Sprite(new BitmapBits(((ImageFromBitmap)item).filename), item.offset.ToPoint());
                 else if (item is ImageFromMappings)
                 {
                     ImageFromMappings img = (ImageFromMappings)item;
                     MultiFileIndexer<byte> artfiles = new MultiFileIndexer<byte>();
                     foreach (ArtFile artfile in img.ArtFiles)
-                    {
-                        artfiles.AddFile(new List<byte>(ObjectHelper.OpenArtFile(artfile.filename,
-                            artfile.compression == CompressionType.Invalid ? CompressionType.Nemesis : artfile.compression)),
-                            artfile.offsetSpecified ? artfile.offset : -1);
-                    }
+                        if (!string.IsNullOrEmpty(artfile.filename))
+                            artfiles.AddFile(new List<byte>(ObjectHelper.OpenArtFile(artfile.filename,
+                                artfile.compression == CompressionType.Invalid ? CompressionType.Nemesis : artfile.compression)),
+                                artfile.offsetSpecified ? artfile.offset : -1);
                     Sprite result = ObjectHelper.UnknownObject;
                     switch (img.MapFile.type)
                     {
@@ -680,6 +705,21 @@ namespace ObjDefEditor
                 Definition.Image = Definition.Images.Items[defImage.SelectedIndex].id;
                 ImagePreview(defImagePreview, defImage.SelectedIndex);
             }
+        }
+
+        private void defRemember_CheckedChanged(object sender, EventArgs e)
+        {
+            Definition.RememberState = defRemember.Checked;
+        }
+
+        private void defDebug_CheckedChanged(object sender, EventArgs e)
+        {
+            Definition.Debug = defDebug.Checked;
+        }
+
+        private void defSubtype_ValueChanged(object sender, EventArgs e)
+        {
+            Definition.DefaultSubtypeValue = (byte)defSubtype.Value;
         }
         #endregion
 
@@ -1175,6 +1215,7 @@ namespace ObjDefEditor
 
         private void subtypeImage_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (subtypeImage.SelectedIndex == -1) return;
             Definition.Subtypes.Items[selectedSubtype.SelectedIndex].image = Definition.Images.Items[subtypeImage.SelectedIndex].id;
             ImagePreview(subtypeImagePreview, subtypeImage.SelectedIndex);
         }
@@ -1230,6 +1271,7 @@ namespace ObjDefEditor
 
         private void enumMemberList_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (suppressEvents) return;
             if (enumMemberList.SelectedIndex == -1)
             {
                 enumMemberRemoveButton.Enabled = enumMemberUpButton.Enabled = enumMemberDownButton.Enabled = useLevelArt.Enabled = enumMemberName.Enabled = enumMemberValue.Enabled = enumMemberDefault.Enabled = false;
@@ -1296,9 +1338,10 @@ namespace ObjDefEditor
 
         private void enumMemberName_TextChanged(object sender, EventArgs e)
         {
-            enumMemberName.Text = MakeIdentifier(enumMemberName.Text);
             Definition.Enums.Items[selectedEnum.SelectedIndex].Items[enumMemberList.SelectedIndex].name = enumMemberName.Text;
+            suppressEvents = true;
             enumMemberList.Items[enumMemberList.SelectedIndex] = enumMemberName.Text;
+            suppressEvents = false;
         }
 
         private void enumMemberValue_ValueChanged(object sender, EventArgs e)
@@ -1323,6 +1366,8 @@ namespace ObjDefEditor
             propertyControls.Enabled = deletePropertyButton.Enabled = true;
             Property prop = Definition.Properties.Items[selectedProperty.SelectedIndex];
             propertyName.Text = prop.name;
+            displayName.Text = prop.displayname ?? prop.name;
+            useDisplayName.Checked = !string.IsNullOrEmpty(prop.displayname);
             propertyValueType.SelectedIndex = propertyValueType.Items.IndexOf(prop.type);
             propertyDescription.Text = prop.description;
             if (prop is CustomProperty)
@@ -1343,7 +1388,6 @@ namespace ObjDefEditor
                     CustomProperty cust = (CustomProperty)prop;
                     getMethod.Text = cust.get;
                     setMethod.Text = cust.set;
-                    overrideDefaultProperty.Checked = cust.@override;
                     break;
                 default:
                     customPropertyControls.Visible = false;
@@ -1380,8 +1424,31 @@ namespace ObjDefEditor
         private void propertyName_TextChanged(object sender, EventArgs e)
         {
             propertyName.Text = MakeIdentifier(propertyName.Text);
+            if (!useDisplayName.Checked) displayName.Text = propertyName.Text;
+            string oldname = Definition.Properties.Items[selectedProperty.SelectedIndex].name;
             Definition.Properties.Items[selectedProperty.SelectedIndex].name = propertyName.Text;
             selectedProperty.Items[selectedProperty.SelectedIndex] = propertyName.Text;
+            conditionProperty.Items[selectedProperty.SelectedIndex + propertyTypes.Length] = propertyName.Text;
+            if (Definition.Display != null && Definition.Display.DisplayOptions != null)
+                foreach (DisplayOption option in Definition.Display.DisplayOptions)
+                    if (option.Conditions != null)
+                        foreach (Condition cond in option.Conditions)
+                            if (cond.property == oldname)
+                                cond.property = propertyName.Text;
+        }
+
+        private void useDisplayName_CheckedChanged(object sender, EventArgs e)
+        {
+            if (displayName.Enabled = useDisplayName.Checked)
+                Definition.Properties.Items[selectedProperty.SelectedIndex].displayname = displayName.Text;
+            else
+                Definition.Properties.Items[selectedProperty.SelectedIndex].displayname = null;
+        }
+
+        private void displayName_TextChanged(object sender, EventArgs e)
+        {
+            if (useDisplayName.Checked)
+                Definition.Properties.Items[selectedProperty.SelectedIndex].displayname = displayName.Text;
         }
 
         private void propertyValueType_SelectedIndexChanged(object sender, EventArgs e)
@@ -1440,11 +1507,6 @@ namespace ObjDefEditor
         private void setMethod_TextChanged(object sender, EventArgs e)
         {
             ((CustomProperty)Definition.Properties.Items[selectedProperty.SelectedIndex]).set = setMethod.Text;
-        }
-
-        private void overrideDefaultProperty_CheckedChanged(object sender, EventArgs e)
-        {
-            ((CustomProperty)Definition.Properties.Items[selectedProperty.SelectedIndex]).@override = overrideDefaultProperty.Checked;
         }
         #endregion
         #endregion

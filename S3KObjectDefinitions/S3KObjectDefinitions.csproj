@@ -37,7 +37,6 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common\Monitor.cs" />
     <Compile Include="Common\PathSwapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

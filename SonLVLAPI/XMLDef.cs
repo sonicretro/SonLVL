@@ -4,6 +4,7 @@ using System.Xml.Serialization;
 
 namespace SonicRetro.SonLVL.API.XMLDef
 {
+    [XmlRoot(Namespace="http://www.sonicretro.org")]
     public class ObjDef
     {
         [XmlAttribute]
@@ -20,11 +21,18 @@ namespace SonicRetro.SonLVL.API.XMLDef
         public bool RememberState { get; set; }
         [XmlIgnore]
         public bool RememberStateSpecified { get { return !RememberState; } set { } }
+        [XmlIgnore]
+        public byte DefaultSubtypeValue { get; set; }
+        [XmlAttribute]
+        public string DefaultSubtype { get { return DefaultSubtypeValue.ToString("X2"); } set { DefaultSubtypeValue = byte.Parse(value, NumberStyles.HexNumber); } }
+        [XmlIgnore]
+        public bool DefaultSubtypeSpecified { get { return DefaultSubtypeValue != 0; } set { } }
         [XmlAttribute]
         public bool Debug { get; set; }
         [XmlIgnore]
         public bool DebugSpecified { get { return !Debug; } set { } }
         public ImageList Images { get; set; }
+        public ImageRefList DefaultImage { get; set; }
         public SubtypeList Subtypes { get; set; }
         public PropertyList Properties { get; set; }
         public EnumList Enums { get; set; }
@@ -180,6 +188,8 @@ namespace SonicRetro.SonLVL.API.XMLDef
         public string name { get; set; }
         [XmlAttribute]
         public string image { get; set; }
+        [XmlElement("ImageRef")]
+        public ImageRef[] Images { get; set; }
     }
 
     public class PropertyList
@@ -194,6 +204,10 @@ namespace SonicRetro.SonLVL.API.XMLDef
         [XmlAttribute]
         public string name { get; set; }
         [XmlAttribute]
+        public string displayname { get; set; }
+        [XmlIgnore]
+        public bool displaynameSpecified { get { return !string.IsNullOrEmpty(displayname); } set { } }
+        [XmlAttribute]
         public string type { get; set; }
         [XmlAttribute]
         public string description { get; set; }
@@ -205,10 +219,6 @@ namespace SonicRetro.SonLVL.API.XMLDef
     {
         public string get { get; set; }
         public string set { get; set; }
-        [XmlAttribute]
-        public bool @override { get; set; }
-        [XmlIgnore]
-        public bool overrideSpecified { get { return !@override; } set { } }
     }
 
     public class BitsProperty : Property
@@ -304,5 +314,11 @@ namespace SonicRetro.SonLVL.API.XMLDef
         public int x2 { get; set; }
         [XmlAttribute]
         public int y2 { get; set; }
+    }
+
+    public class ImageRefList
+    {
+        [XmlElement("ImageRef")]
+        public ImageRef[] Images { get; set; }
     }
 }

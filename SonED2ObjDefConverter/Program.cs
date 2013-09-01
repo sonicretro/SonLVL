@@ -32,7 +32,7 @@ namespace SonED2ObjDefConverter
             foreach (string line in File.ReadAllLines(filename))
             {
                 string line2 = line.Split(';')[0].Trim();
-                if (line2.Length == 0) continue;
+                if (line2.Length == 0 | !line2.Contains(":")) continue;
                 data.Add(line2.Substring(line2.IndexOf(':') + 1).Trim());
             }
             int linenum = 0;
@@ -67,7 +67,7 @@ namespace SonED2ObjDefConverter
                     if (!Directory.Exists(Path.Combine(outdir, zonename)))
                         Directory.CreateDirectory(Path.Combine(outdir, zonename));
                     string description = data[linenum++];
-                    string id = MakeIdentifier(description);
+                    string id = description.MakeIdentifier();
                     ObjectData objdata = new ObjectData();
                     ObjDef xmldata = new ObjDef() { Language = "cs", Namespace = "SonED2." + zonename, Image = "Image1" };
                     objdata.XMLFile = zonename + "/" + id + ".xml";
@@ -100,7 +100,7 @@ namespace SonED2ObjDefConverter
                             xmldata.Enums.Items[property] = new SonicRetro.SonLVL.API.XMLDef.Enum() { name = "Enum" + (property + 1).ToString(NumberFormatInfo.InvariantInfo), Items = new EnumMember[numenum] };
                             for (int i = 0; i < numenum; i++)
                             {
-                                string enumnamebase = MakeIdentifier(data[linenum++]);
+                                string enumnamebase = data[linenum++];
                                 string enumname = enumnamebase;
                                 int j = 2;
                                 for (int k = 0; k < i; k++)
@@ -110,7 +110,8 @@ namespace SonED2ObjDefConverter
                             }
                         }
                     }
-                    linenum += 3; // skip DefaultParam, DefaultFlag and DefaultDir
+                    xmldata.DefaultSubtype = data[linenum++];
+                    linenum += 2; // skip DefaultFlag and DefaultDir
                     xmldata.RememberState = int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo) == 1;
                     int numdependents = int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
                     int[] dependents = new int[numdependents];
@@ -137,11 +138,11 @@ namespace SonED2ObjDefConverter
                             {
                                 int sprnum = int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
                                 int sprset = int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
-                                linenum++; // skip Direction
+                                int dir = int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
                                 string sprname = "sprite" + sprset.ToString(NumberFormatInfo.InvariantInfo) + "-" + sprnum.ToString(NumberFormatInfo.InvariantInfo) + ".png";
                                 if (!images.Contains(sprname))
                                     images.Add(sprname);
-                                xmldata.Display.DisplayOptions[type].Images[sprite] = new ImageRef() { image = "Image" + (images.IndexOf(sprname) + 1).ToString(NumberFormatInfo.InvariantInfo), Offset = new XmlPoint() { X = int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo), Y = int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo) } };
+                                xmldata.Display.DisplayOptions[type].Images[sprite] = new ImageRef() { image = "Image" + (images.IndexOf(sprname) + 1).ToString(NumberFormatInfo.InvariantInfo), Offset = new XmlPoint() { X = int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo), Y = int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo) }, xflip = (dir & 1) == 1 ? FlipType.ReverseFlip : FlipType.NormalFlip, yflip = (dir & 2) == 2 ? FlipType.ReverseFlip : FlipType.NormalFlip };
                             }
                         }
                         xmldata.Images = new ImageList() { Items = new SonicRetro.SonLVL.API.XMLDef.Image[images.Count] };
@@ -163,51 +164,8 @@ namespace SonED2ObjDefConverter
 
         public static Bitmap LoadPCXFile(string filename)
         {
-            FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read);
-            BinaryReader br = new BinaryReader(fs);
-            fs.Seek(8, SeekOrigin.Begin);
-            BitmapBits pix = new BitmapBits(br.ReadUInt16() + 1, br.ReadUInt16() + 1);
-            fs.Seek(0x42, SeekOrigin.Begin);
-            int stride = br.ReadUInt16();
-            Color[] palette = new Color[256];
-            fs.Seek(-768, SeekOrigin.End);
-            for (int i = 0; i < 256; i++)
-                palette[i] = Color.FromArgb(br.ReadByte(), br.ReadByte(), br.ReadByte());
-            byte[] buffer = new byte[stride];
-            fs.Seek(128, SeekOrigin.Begin);
-            for (int y = 0; y < pix.Height; y++)
-            {
-                int i = 0;
-                while (i < stride)
-                {
-                    int run = 1;
-                    byte val = br.ReadByte();
-                    if ((val >> 6) == 3)
-                    {
-                        run = val & 0x3F;
-                        val = br.ReadByte();
-                    }
-                    else
-                        val = (byte)(val & 0x3F);
-                    for (int r = 0; r < run; r++)
-                        buffer[i + r] = val;
-                    i += run;
-                }
-                for (int x = 0; x < pix.Width; x++)
-                    pix[x, y] = buffer[x];
-            }
-            return pix.ToBitmap(palette);
-        }
-
-        public static string MakeIdentifier(string name)
-        {
-            StringBuilder result = new StringBuilder();
-            foreach (char item in name)
-                if ((item >= '0' & item <= '9') | (item >= 'A' & item <= 'Z') | (item >= 'a' & item <= 'z'))
-                    result.Append(item);
-            if (result[0] >= '0' & result[0] <= '9')
-                result.Insert(0, '_');
-            return result.ToString();
+            Color[] palette;
+            return BitmapBits.ReadPCX(filename, out palette).ToBitmap(palette);
         }
     }
 }

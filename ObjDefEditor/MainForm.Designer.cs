@@ -75,6 +75,9 @@
             System.Windows.Forms.Label label45;
             System.Windows.Forms.Label label46;
             System.Windows.Forms.Label label47;
+            System.Windows.Forms.Label label48;
+            System.Windows.Forms.Label label49;
+            System.Windows.Forms.Label label50;
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -86,8 +89,11 @@
             this.recentProjectsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.noneToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.reportBugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editorTabs = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.defSubtype = new System.Windows.Forms.NumericUpDown();
             this.defImagePreview = new System.Windows.Forms.PictureBox();
             this.defDebug = new System.Windows.Forms.CheckBox();
             this.defRemember = new System.Windows.Forms.CheckBox();
@@ -158,7 +164,6 @@
             this.tabPage5 = new System.Windows.Forms.TabPage();
             this.propertyControls = new System.Windows.Forms.Panel();
             this.customPropertyControls = new System.Windows.Forms.Panel();
-            this.overrideDefaultProperty = new System.Windows.Forms.CheckBox();
             this.setMethod = new System.Windows.Forms.TextBox();
             this.getMethod = new System.Windows.Forms.TextBox();
             this.bitsPropertyControls = new System.Windows.Forms.Panel();
@@ -200,8 +205,8 @@
             this.listPanel = new System.Windows.Forms.Panel();
             this.deleteDefinitionButton = new System.Windows.Forms.Button();
             this.addDefinitionButton = new System.Windows.Forms.Button();
-            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.reportBugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.useDisplayName = new System.Windows.Forms.CheckBox();
+            this.displayName = new System.Windows.Forms.TextBox();
             label6 = new System.Windows.Forms.Label();
             label5 = new System.Windows.Forms.Label();
             label4 = new System.Windows.Forms.Label();
@@ -249,9 +254,13 @@
             label45 = new System.Windows.Forms.Label();
             label46 = new System.Windows.Forms.Label();
             label47 = new System.Windows.Forms.Label();
+            label48 = new System.Windows.Forms.Label();
+            label49 = new System.Windows.Forms.Label();
+            label50 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.editorTabs.SuspendLayout();
             this.tabPage1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.defSubtype)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.defImagePreview)).BeginInit();
             this.tabPage2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.selectedImagePreview)).BeginInit();
@@ -720,6 +729,33 @@
             label47.TabIndex = 8;
             label47.Text = "Flip Vertically:";
             // 
+            // label48
+            // 
+            label48.AutoSize = true;
+            label48.Location = new System.Drawing.Point(6, 137);
+            label48.Name = "label48";
+            label48.Size = new System.Drawing.Size(86, 13);
+            label48.TabIndex = 13;
+            label48.Text = "Default Subtype:";
+            // 
+            // label49
+            // 
+            label49.AutoSize = true;
+            label49.Location = new System.Drawing.Point(281, 5);
+            label49.Name = "label49";
+            label49.Size = new System.Drawing.Size(101, 13);
+            label49.TabIndex = 10;
+            label49.Text = "obj = Current Object";
+            // 
+            // label50
+            // 
+            label50.AutoSize = true;
+            label50.Location = new System.Drawing.Point(281, 112);
+            label50.Name = "label50";
+            label50.Size = new System.Drawing.Size(111, 26);
+            label50.TabIndex = 11;
+            label50.Text = "obj = Current Object\r\nvalue = Chosen Value";
+            // 
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -802,6 +838,21 @@
             this.exitToolStripMenuItem.Text = "E&xit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
+            // helpToolStripMenuItem
+            // 
+            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.reportBugToolStripMenuItem});
+            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
+            this.helpToolStripMenuItem.Text = "&Help";
+            // 
+            // reportBugToolStripMenuItem
+            // 
+            this.reportBugToolStripMenuItem.Name = "reportBugToolStripMenuItem";
+            this.reportBugToolStripMenuItem.Size = new System.Drawing.Size(142, 22);
+            this.reportBugToolStripMenuItem.Text = "&Report Bug...";
+            this.reportBugToolStripMenuItem.Click += new System.EventHandler(this.reportBugToolStripMenuItem_Click);
+            // 
             // editorTabs
             // 
             this.editorTabs.Controls.Add(this.tabPage1);
@@ -821,6 +872,8 @@
             // tabPage1
             // 
             this.tabPage1.AutoScroll = true;
+            this.tabPage1.Controls.Add(this.defSubtype);
+            this.tabPage1.Controls.Add(label48);
             this.tabPage1.Controls.Add(this.defImagePreview);
             this.tabPage1.Controls.Add(this.defDebug);
             this.tabPage1.Controls.Add(this.defRemember);
@@ -842,6 +895,20 @@
             this.tabPage1.Text = "General";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
+            // defSubtype
+            // 
+            this.defSubtype.Hexadecimal = true;
+            this.defSubtype.Location = new System.Drawing.Point(98, 135);
+            this.defSubtype.Maximum = new decimal(new int[] {
+            255,
+            0,
+            0,
+            0});
+            this.defSubtype.Name = "defSubtype";
+            this.defSubtype.Size = new System.Drawing.Size(41, 20);
+            this.defSubtype.TabIndex = 14;
+            this.defSubtype.ValueChanged += new System.EventHandler(this.defSubtype_ValueChanged);
+            // 
             // defImagePreview
             // 
             this.defImagePreview.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -861,6 +928,7 @@
             this.defDebug.TabIndex = 11;
             this.defDebug.Text = "Debug";
             this.defDebug.UseVisualStyleBackColor = true;
+            this.defDebug.CheckedChanged += new System.EventHandler(this.defDebug_CheckedChanged);
             // 
             // defRemember
             // 
@@ -871,6 +939,7 @@
             this.defRemember.TabIndex = 10;
             this.defRemember.Text = "Remember State";
             this.defRemember.UseVisualStyleBackColor = true;
+            this.defRemember.CheckedChanged += new System.EventHandler(this.defRemember_CheckedChanged);
             // 
             // defImage
             // 
@@ -1712,6 +1781,8 @@
             // 
             this.propertyControls.AutoSize = true;
             this.propertyControls.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.propertyControls.Controls.Add(this.displayName);
+            this.propertyControls.Controls.Add(this.useDisplayName);
             this.propertyControls.Controls.Add(this.customPropertyControls);
             this.propertyControls.Controls.Add(this.bitsPropertyControls);
             this.propertyControls.Controls.Add(this.propertyType);
@@ -1724,34 +1795,24 @@
             this.propertyControls.Controls.Add(label34);
             this.propertyControls.Location = new System.Drawing.Point(6, 33);
             this.propertyControls.Name = "propertyControls";
-            this.propertyControls.Size = new System.Drawing.Size(444, 347);
+            this.propertyControls.Size = new System.Drawing.Size(444, 324);
             this.propertyControls.TabIndex = 12;
             // 
             // customPropertyControls
             // 
             this.customPropertyControls.AutoSize = true;
             this.customPropertyControls.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.customPropertyControls.Controls.Add(this.overrideDefaultProperty);
+            this.customPropertyControls.Controls.Add(label50);
+            this.customPropertyControls.Controls.Add(label49);
             this.customPropertyControls.Controls.Add(this.setMethod);
             this.customPropertyControls.Controls.Add(label41);
             this.customPropertyControls.Controls.Add(this.getMethod);
             this.customPropertyControls.Controls.Add(label40);
             this.customPropertyControls.Location = new System.Drawing.Point(0, 109);
             this.customPropertyControls.Name = "customPropertyControls";
-            this.customPropertyControls.Size = new System.Drawing.Size(278, 235);
+            this.customPropertyControls.Size = new System.Drawing.Size(395, 212);
             this.customPropertyControls.TabIndex = 9;
             this.customPropertyControls.Visible = false;
-            // 
-            // overrideDefaultProperty
-            // 
-            this.overrideDefaultProperty.AutoSize = true;
-            this.overrideDefaultProperty.Location = new System.Drawing.Point(75, 215);
-            this.overrideDefaultProperty.Name = "overrideDefaultProperty";
-            this.overrideDefaultProperty.Size = new System.Drawing.Size(150, 17);
-            this.overrideDefaultProperty.TabIndex = 4;
-            this.overrideDefaultProperty.Text = "Overrides Default Property";
-            this.overrideDefaultProperty.UseVisualStyleBackColor = true;
-            this.overrideDefaultProperty.CheckedChanged += new System.EventHandler(this.overrideDefaultProperty_CheckedChanged);
             // 
             // setMethod
             // 
@@ -2284,20 +2345,25 @@
             this.addDefinitionButton.UseVisualStyleBackColor = true;
             this.addDefinitionButton.Click += new System.EventHandler(this.addDefinitionButton_Click);
             // 
-            // helpToolStripMenuItem
+            // useDisplayName
             // 
-            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.reportBugToolStripMenuItem});
-            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
-            this.helpToolStripMenuItem.Text = "&Help";
+            this.useDisplayName.AutoSize = true;
+            this.useDisplayName.Location = new System.Drawing.Point(173, 5);
+            this.useDisplayName.Name = "useDisplayName";
+            this.useDisplayName.Size = new System.Drawing.Size(94, 17);
+            this.useDisplayName.TabIndex = 10;
+            this.useDisplayName.Text = "Display Name:";
+            this.useDisplayName.UseVisualStyleBackColor = true;
+            this.useDisplayName.CheckedChanged += new System.EventHandler(this.useDisplayName_CheckedChanged);
             // 
-            // reportBugToolStripMenuItem
+            // displayName
             // 
-            this.reportBugToolStripMenuItem.Name = "reportBugToolStripMenuItem";
-            this.reportBugToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.reportBugToolStripMenuItem.Text = "&Report Bug...";
-            this.reportBugToolStripMenuItem.Click += new System.EventHandler(this.reportBugToolStripMenuItem_Click);
+            this.displayName.Enabled = false;
+            this.displayName.Location = new System.Drawing.Point(273, 3);
+            this.displayName.Name = "displayName";
+            this.displayName.Size = new System.Drawing.Size(120, 20);
+            this.displayName.TabIndex = 11;
+            this.displayName.TextChanged += new System.EventHandler(this.displayName_TextChanged);
             // 
             // MainForm
             // 
@@ -2318,6 +2384,7 @@
             this.editorTabs.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.defSubtype)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.defImagePreview)).EndInit();
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
@@ -2486,7 +2553,6 @@
         private System.Windows.Forms.Panel customPropertyControls;
         private System.Windows.Forms.TextBox setMethod;
         private System.Windows.Forms.TextBox getMethod;
-        private System.Windows.Forms.CheckBox overrideDefaultProperty;
         private System.Windows.Forms.TabPage tabPage6;
         private System.Windows.Forms.ComboBox selectedDisplayOption;
         private System.Windows.Forms.Panel displayOptionControls;
@@ -2512,6 +2578,9 @@
         private System.Windows.Forms.ComboBox imageRefYFlip;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem reportBugToolStripMenuItem;
+        private System.Windows.Forms.NumericUpDown defSubtype;
+        private System.Windows.Forms.CheckBox useDisplayName;
+        private System.Windows.Forms.TextBox displayName;
     }
 }
 

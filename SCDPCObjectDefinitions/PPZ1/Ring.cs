@@ -33,19 +33,19 @@ namespace SCDPCObjectDefinitions.PPZ1
             img = ObjectHelper.GetSprite(362);
         }
 
-        public override ReadOnlyCollection<byte> Subtypes()
+        public override ReadOnlyCollection<byte> Subtypes
         {
-            return new ReadOnlyCollection<byte>(new List<byte>());
+            get { return new ReadOnlyCollection<byte>(new List<byte>()); }
         }
 
-        public override string Name()
+        public override string Name
         {
-            return "Ring";
+            get { return "Ring"; }
         }
 
-        public override bool RememberState()
+        public override bool RememberState
         {
-            return true;
+            get { return true; }
         }
 
         public override string SubtypeName(byte subtype)
@@ -53,17 +53,17 @@ namespace SCDPCObjectDefinitions.PPZ1
             return string.Empty;
         }
 
-        public override BitmapBits Image()
+        public override Sprite Image
         {
-            return img.Image;
+            get { return img; }
         }
 
-        public override BitmapBits Image(byte subtype)
+        public override Sprite SubtypeImage(byte subtype)
         {
-            return img.Image;
+            return img;
         }
 
-        public override Rectangle Bounds(ObjectEntry obj, Point camera)
+        public override Rectangle GetBounds(ObjectEntry obj, Point camera)
         {
             int count = Math.Min(6, obj.SubType & 7);
             Size space = Spacing[obj.SubType >> 4];
@@ -86,42 +86,37 @@ namespace SCDPCObjectDefinitions.PPZ1
             return spr;
         }
 
-        public override Type ObjectType
+        private PropertySpec[] customProperties = new PropertySpec[] {
+            new PropertySpec("Count", typeof(int), "Extended", null, null, GetCount, SetCount),
+            new PropertySpec("Direction", typeof(int), "Extended", null, null, GetDirection, SetDirection)
+        };
+
+        public override PropertySpec[] CustomProperties
         {
             get
             {
-                return typeof(RingSCDObjectEntry);
-            }
-        }
-    }
-
-    public class RingSCDObjectEntry : SCDObjectEntry
-    {
-        public RingSCDObjectEntry() : base() { }
-        public RingSCDObjectEntry(byte[] file, int address) : base(file, address) { }
-
-        public int Count
-        {
-            get
-            {
-                return Math.Min(6, SubType & 7) + 1;
-            }
-            set
-            {
-                SubType = (byte)((SubType & ~7) | (Math.Min(value, 7) - 1));
+                return customProperties;
             }
         }
 
-        public int Direction
+        private static object GetCount(ObjectEntry obj)
         {
-            get
-            {
-                return SubType >> 4;
-            }
-            set
-            {
-                SubType = (byte)((SubType & ~0xF0) | ((value & 0xF) << 4));
-            }
+            return Math.Min(6, obj.SubType & 7) + 1;
+        }
+
+        private static void SetCount(ObjectEntry obj, object value)
+        {
+            obj.SubType = (byte)((obj.SubType & ~7) | (Math.Min((int)value, 7) - 1));
+        }
+
+        private static object GetDirection(ObjectEntry obj)
+        {
+            return obj.SubType >> 4;
+        }
+
+        private static void SetDirection(ObjectEntry obj, object value)
+        {
+            obj.SubType = (byte)((obj.SubType & ~0xF0) | (((int)value & 0xF) << 4));
         }
     }
 }

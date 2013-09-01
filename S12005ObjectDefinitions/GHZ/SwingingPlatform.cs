@@ -19,19 +19,19 @@ namespace S12005ObjectDefinitions.GHZ
                 imgs.Add(ObjectHelper.MapASMToBmp(artfile, "../_maps/obj15ghz.asm", labels[i], i == 1 ? 1 : 2));
         }
 
-        public override ReadOnlyCollection<byte> Subtypes()
+        public override ReadOnlyCollection<byte> Subtypes
         {
-            return new ReadOnlyCollection<byte>(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 });
+            get { return new ReadOnlyCollection<byte>(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 }); }
         }
 
-        public override string Name()
+        public override string Name
         {
-            return "Swinging Platform";
+            get { return "Swinging Platform"; }
         }
 
-        public override bool RememberState()
+        public override bool RememberState
         {
-            return false;
+            get { return false; }
         }
 
         public override string SubtypeName(byte subtype)
@@ -39,17 +39,17 @@ namespace S12005ObjectDefinitions.GHZ
             return (subtype & 15) + " links";
         }
 
-        public override BitmapBits Image()
+        public override Sprite Image
         {
-            return img.Image;
+            get { return img; }
         }
 
-        public override BitmapBits Image(byte subtype)
+        public override Sprite SubtypeImage(byte subtype)
         {
-            return img.Image;
+            return img;
         }
 
-        public override Rectangle Bounds(ObjectEntry obj, Point camera)
+        public override Rectangle GetBounds(ObjectEntry obj, Point camera)
         {
             return new Rectangle(obj.X + img.X - camera.X, obj.Y + img.Y - camera.Y, img.Width, img.Height * ((obj.SubType & 15) + 2) - 8);
         }

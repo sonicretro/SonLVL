@@ -17,19 +17,19 @@ namespace S12005ObjectDefinitions.GHZ
             img = ObjectHelper.MapASMToBmp(artfile, "../_maps/obj11.asm", 0, 2);
         }
 
-        public override ReadOnlyCollection<byte> Subtypes()
+        public override ReadOnlyCollection<byte> Subtypes
         {
-            return new ReadOnlyCollection<byte>(new byte[] { 8, 10, 12, 14, 16 });
+            get { return new ReadOnlyCollection<byte>(new byte[] { 8, 10, 12, 14, 16 }); }
         }
 
-        public override string Name()
+        public override string Name
         {
-            return "Bridge";
+            get { return "Bridge"; }
         }
 
-        public override bool RememberState()
+        public override bool RememberState
         {
-            return false;
+            get { return false; }
         }
 
         public override string SubtypeName(byte subtype)
@@ -37,17 +37,17 @@ namespace S12005ObjectDefinitions.GHZ
             return (subtype & 0x1F) + " logs";
         }
 
-        public override BitmapBits Image()
+        public override Sprite Image
         {
-            return img.Image;
+            get { return img; }
         }
 
-        public override BitmapBits Image(byte subtype)
+        public override Sprite SubtypeImage(byte subtype)
         {
-            return img.Image;
+            return img;
         }
 
-        public override Rectangle Bounds(ObjectEntry obj, Point camera)
+        public override Rectangle GetBounds(ObjectEntry obj, Point camera)
         {
             int w = (obj.SubType & 0x1F) * img.Width;
             return new Rectangle(obj.X - (w / 2) + img.X - camera.X, obj.Y + img.Y - camera.Y, w, img.Height);

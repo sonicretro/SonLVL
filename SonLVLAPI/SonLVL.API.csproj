@@ -64,8 +64,15 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="GameInfo.cs" />
     <Compile Include="IniFile.cs" />
+    <Compile Include="KeyboardPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="KeyboardPanel.Designer.cs">
+      <DependentUpon>KeyboardPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="LevelData.cs" />
     <Compile Include="MultiFileIndexer.cs" />
+    <Compile Include="NamedList.cs" />
     <Compile Include="ObjectDefinition.cs" />
     <Compile Include="ObjectHelper.cs" />
     <Compile Include="ObjectIDEditor.cs">
@@ -80,7 +87,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="SonicBoom.cs" />
     <Compile Include="TileList.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -95,6 +101,9 @@
   <ItemGroup>
     <EmbeddedResource Include="BlockSelector.resx">
       <DependentUpon>BlockSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="KeyboardPanel.resx">
+      <DependentUpon>KeyboardPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ObjectIDEditor.resx">
       <DependentUpon>ObjectIDEditor.cs</DependentUpon>

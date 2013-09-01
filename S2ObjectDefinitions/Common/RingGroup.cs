@@ -49,7 +49,7 @@ namespace S2ObjectDefinitions.Common
             }
             else if (data.Image != null)
             {
-                BitmapBits img = new BitmapBits(new Bitmap(data.Image));
+                BitmapBits img = new BitmapBits(data.Image);
                 spr = new Sprite(img, new Point(data.Offset));
             }
             else if (data.Sprite > -1)
@@ -59,17 +59,17 @@ namespace S2ObjectDefinitions.Common
             spacing = int.Parse(data.CustomProperties.GetValueOrDefault("spacing", "24"), System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo);
         }
 
-        public override string Name()
+        public override string Name
         {
-            return "Rings";
+            get { return "Rings"; }
         }
 
-        public override BitmapBits Image()
+        public override Sprite Image
         {
-            return spr.Image;
+            get { return spr; }
         }
 
-        public override System.Drawing.Rectangle Bounds(S2RingEntry rng, Point camera)
+        public override System.Drawing.Rectangle GetBounds(S2RingEntry rng, Point camera)
         {
             switch (rng.Direction)
             {
