@@ -6,6 +6,7 @@ using System.Windows.Forms;
 
 namespace SonicRetro.SonLVL.API
 {
+    [DefaultEvent("SelectedIndexChanged")]
     public partial class TileList : UserControl
     {
         private int selectedIndex = -1;
@@ -18,11 +19,12 @@ namespace SonicRetro.SonLVL.API
                 selectedIndex = value;
                 ScrollToSelected();
                 Invalidate();
-                if (SelectedIndexChanged != null)
-                    SelectedIndexChanged(this, EventArgs.Empty);
+                SelectedIndexChanged(this, EventArgs.Empty);
             }
         }
-        public event EventHandler SelectedIndexChanged;
+        public event EventHandler SelectedIndexChanged = delegate { };
+
+        public event EventHandler ItemDrag = delegate { };
 
         private int imageSize = 8;
         [DefaultValue(8)]
@@ -90,7 +92,6 @@ namespace SonicRetro.SonLVL.API
                     Graphics g = e.Graphics;
                     g.SetOptions();
                     g.Clear(BackColor);
-                    if (Images.Count == 0) return;
                     int i = stc * tilesPerCol;
                     for (int c = stc; c < edc; c++)
                         for (int r = 0; r < tilesPerCol; r++)
@@ -110,7 +111,6 @@ namespace SonicRetro.SonLVL.API
                     g = e.Graphics;
                     g.SetOptions();
                     g.Clear(BackColor);
-                    if (Images.Count == 0) return;
                     i = str * tilesPerRow;
                     for (int r = str; r < edr; r++)
                         for (int c = 0; c < tilesPerRow; c++)
@@ -125,31 +125,76 @@ namespace SonicRetro.SonLVL.API
             }
         }
 
-        private void TileList_MouseDown(object sender, MouseEventArgs e)
+        public int GetItemAtPoint(Point point)
         {
-            if (Images.Count == 0) return;
+            if (Images.Count == 0) return -1;
             int actualImageSize = imageSize + 4;
             switch (Direction)
             {
                 case Direction.Horizontal:
                     int tilesPerCol = Math.Max((Height - hScrollBar1.Height) / actualImageSize, 1);
                     int numCols = (int)Math.Ceiling(Images.Count / (double)tilesPerCol);
-                    int selY = e.Y / actualImageSize;
-                    if (selY >= tilesPerCol) return;
-                    int selX = (e.X + hScrollBar1.Value) / actualImageSize;
+                    int selY = Math.Min(point.Y / actualImageSize, tilesPerCol);
+                    int selX = (point.X + hScrollBar1.Value) / actualImageSize;
                     if (selX * tilesPerCol + selY < Images.Count)
-                        SelectedIndex = selX * tilesPerCol + selY;
+                        return selX * tilesPerCol + selY;
                     break;
                 case Direction.Vertical:
                     int tilesPerRow = Math.Max((Width - vScrollBar1.Width) / actualImageSize, 1);
                     int numRows = (int)Math.Ceiling(Images.Count / (double)tilesPerRow);
-                    selX = e.X / actualImageSize;
-                    if (selX >= tilesPerRow) return;
-                    selY = (e.Y + vScrollBar1.Value) / actualImageSize;
+                    selX = Math.Min(point.X / actualImageSize, tilesPerRow);
+                    selY = (point.Y + vScrollBar1.Value) / actualImageSize;
                     if (selY * tilesPerRow + selX < Images.Count)
-                        SelectedIndex = selY * tilesPerRow + selX;
+                        return selY * tilesPerRow + selX;
                     break;
             }
+            return Images.Count;
+        }
+
+        public Rectangle GetItemBounds(int index)
+        {
+            int actualImageSize = imageSize + 4;
+            switch (Direction)
+            {
+                case Direction.Horizontal:
+                    int tilesPerCol = Math.Max((Height - hScrollBar1.Height) / actualImageSize, 1);
+                    int r = index % tilesPerCol;
+                    int c = index / tilesPerCol;
+                    return new Rectangle((c * actualImageSize) - hScrollBar1.Value, r * actualImageSize, actualImageSize, actualImageSize);
+                case Direction.Vertical:
+                    int tilesPerRow = Math.Max((Width - vScrollBar1.Width) / actualImageSize, 1);
+                    r = index / tilesPerRow;
+                    c = index % tilesPerRow;
+                    return new Rectangle(c * actualImageSize, (r * actualImageSize) - vScrollBar1.Value, actualImageSize, actualImageSize);
+            }
+            return Rectangle.Empty;
+        }
+
+        Rectangle? dragRect;
+        private void TileList_MouseDown(object sender, MouseEventArgs e)
+        {
+            dragRect = null;
+            int index = GetItemAtPoint(e.Location);
+            if (index == -1) return;
+            SelectedIndex = index;
+            dragRect = new Rectangle(new Point(e.X - (SystemInformation.DragSize.Width / 2),
+                e.Y - (SystemInformation.DragSize.Height / 2)), SystemInformation.DragSize);
+        }
+
+        private void TileList_MouseMove(object sender, MouseEventArgs e)
+        {
+            
+            if (e.Button == MouseButtons.Left && dragRect.HasValue)
+                if (!dragRect.Value.Contains(e.Location))
+                {
+                    ItemDrag(this, new EventArgs());
+                    dragRect = null;
+                }
+        }
+
+        private void TileList_MouseUp(object sender, MouseEventArgs e)
+        {
+            dragRect = null;
         }
 
         private void vScrollBar1_Scroll(object sender, ScrollEventArgs e)

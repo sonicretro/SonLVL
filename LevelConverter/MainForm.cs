@@ -138,9 +138,9 @@ namespace SonicRetro.SonLVL.LevelConverter
             {
                 int xend = 0;
                 int yend = 0;
-                for (int y = 0; y < LevelData.FGLayout.GetLength(1); y++)
-                    for (int x = 0; x < LevelData.FGLayout.GetLength(0); x++)
-                        if (LevelData.FGLayout[x, y] > 0)
+                for (int y = 0; y < LevelData.Layout.FGLayout.GetLength(1); y++)
+                    for (int x = 0; x < LevelData.Layout.FGLayout.GetLength(0); x++)
+                        if (LevelData.Layout.FGLayout[x, y] > 0)
                         {
                             xend = Math.Max(xend, x);
                             yend = Math.Max(yend, y);
@@ -150,13 +150,13 @@ namespace SonicRetro.SonLVL.LevelConverter
                 byte[,] tmp = new byte[xend, yend];
                 for (int y = 0; y < yend; y++)
                     for (int x = 0; x < xend; x++)
-                        tmp[x, y] = LevelData.FGLayout[x, y];
-                LevelData.FGLayout = tmp;
+                        tmp[x, y] = LevelData.Layout.FGLayout[x, y];
+                LevelData.Layout.FGLayout = tmp;
                 xend = 0;
                 yend = 0;
-                for (int y = 0; y < LevelData.BGLayout.GetLength(1); y++)
-                    for (int x = 0; x < LevelData.BGLayout.GetLength(0); x++)
-                        if (LevelData.BGLayout[x, y] > 0)
+                for (int y = 0; y < LevelData.Layout.BGLayout.GetLength(1); y++)
+                    for (int x = 0; x < LevelData.Layout.BGLayout.GetLength(0); x++)
+                        if (LevelData.Layout.BGLayout[x, y] > 0)
                         {
                             xend = Math.Max(xend, x);
                             yend = Math.Max(yend, y);
@@ -166,8 +166,8 @@ namespace SonicRetro.SonLVL.LevelConverter
                 tmp = new byte[xend, yend];
                 for (int y = 0; y < yend; y++)
                     for (int x = 0; x < xend; x++)
-                        tmp[x, y] = LevelData.BGLayout[x, y];
-                LevelData.BGLayout = tmp;
+                        tmp[x, y] = LevelData.Layout.BGLayout[x, y];
+                LevelData.Layout.BGLayout = tmp;
             }
             GameInfo Output = new GameInfo() { EngineVersion = OutFmt };
             LevelInfo Level = new LevelInfo();
@@ -214,17 +214,17 @@ namespace SonicRetro.SonLVL.LevelConverter
                 foreach (Block blk in LevelData.Blocks)
                     for (int y = 0; y < 2; y++)
                         for (int x = 0; x < 2; x++)
-                            if (!tilepals[blk.tiles[x, y].Palette].Contains(blk.tiles[x, y].Tile))
-                                tilepals[blk.tiles[x, y].Palette].Add(blk.tiles[x, y].Tile);
+                            if (!tilepals[blk.Tiles[x, y].Palette].Contains(blk.Tiles[x, y].Tile))
+                                tilepals[blk.Tiles[x, y].Palette].Add(blk.Tiles[x, y].Tile);
                 foreach (Block blk in LevelData.Blocks)
                     for (int y = 0; y < 2; y++)
                         for (int x = 0; x < 2; x++)
                         {
-                            byte pal = blk.tiles[x, y].Palette;
+                            byte pal = blk.Tiles[x, y].Palette;
                             int c = 0;
                             for (int i = pal - 1; i >= 0; i--)
                                 c += tilepals[i].Count;
-                            blk.tiles[x, y].Tile = (ushort)(tilepals[pal].IndexOf(blk.tiles[x, y].Tile) + c);
+                            blk.Tiles[x, y].Tile = (ushort)(tilepals[pal].IndexOf(blk.Tiles[x, y].Tile) + c);
                         }
                 List<byte[]> tiles = new List<byte[]>();
                 for (int p = 0; p < 4; p++)
@@ -318,16 +318,16 @@ namespace SonicRetro.SonLVL.LevelConverter
                     tmpchnk = new List<Chunk>() { new Chunk() };
                     List<int> chnks = new List<int>() { 0 };
                     int chnk;
-                    byte[,] newFG1 = new byte[(int)Math.Ceiling(LevelData.FGLayout.GetLength(0) / 2d), (int)Math.Ceiling(LevelData.FGLayout.GetLength(1) / 2d)];
-                    LevelData.FGLoop = new bool[newFG1.GetLength(0), newFG1.GetLength(1)];
-                    for (int y = 0; y < LevelData.FGLayout.GetLength(1); y += 2)
+                    byte[,] newFG1 = new byte[(int)Math.Ceiling(LevelData.Layout.FGLayout.GetLength(0) / 2d), (int)Math.Ceiling(LevelData.Layout.FGLayout.GetLength(1) / 2d)];
+                    LevelData.Layout.FGLoop = new bool[newFG1.GetLength(0), newFG1.GetLength(1)];
+                    for (int y = 0; y < LevelData.Layout.FGLayout.GetLength(1); y += 2)
                     {
-                        for (int x = 0; x < LevelData.FGLayout.GetLength(0); x += 2)
+                        for (int x = 0; x < LevelData.Layout.FGLayout.GetLength(0); x += 2)
                         {
-                            chnk = LevelData.FGLayout[x, y];
-                            chnk |= (x + 1 < LevelData.FGLayout.GetLength(0) ? LevelData.FGLayout[x + 1, y] : 0) << 8;
-                            chnk |= (y + 1 < LevelData.FGLayout.GetLength(1) ? LevelData.FGLayout[x, y + 1] : 0) << 16;
-                            chnk |= (x + 1 < LevelData.FGLayout.GetLength(0) & y + 1 < LevelData.FGLayout.GetLength(1) ? LevelData.FGLayout[x + 1, y + 1] : 0) << 24;
+                            chnk = LevelData.Layout.FGLayout[x, y];
+                            chnk |= (x + 1 < LevelData.Layout.FGLayout.GetLength(0) ? LevelData.Layout.FGLayout[x + 1, y] : 0) << 8;
+                            chnk |= (y + 1 < LevelData.Layout.FGLayout.GetLength(1) ? LevelData.Layout.FGLayout[x, y + 1] : 0) << 16;
+                            chnk |= (x + 1 < LevelData.Layout.FGLayout.GetLength(0) & y + 1 < LevelData.Layout.FGLayout.GetLength(1) ? LevelData.Layout.FGLayout[x + 1, y + 1] : 0) << 24;
                             if (chnks.IndexOf(chnk) > -1)
                                 newFG1[x / 2, y / 2] = (byte)chnks.IndexOf(chnk);
                             else
@@ -338,40 +338,40 @@ namespace SonicRetro.SonLVL.LevelConverter
                                 {
                                     for (int j = 0; j < 8; j++)
                                     {
-                                        newchnk.blocks[i, j].Block = LevelData.Chunks[chnk & 0xFF].blocks[i, j].Block;
-                                        newchnk.blocks[i, j].Solid1 = LevelData.Chunks[chnk & 0xFF].blocks[i, j].Solid1;
-                                        newchnk.blocks[i, j].XFlip = LevelData.Chunks[chnk & 0xFF].blocks[i, j].XFlip;
-                                        newchnk.blocks[i, j].YFlip = LevelData.Chunks[chnk & 0xFF].blocks[i, j].YFlip;
+                                        newchnk.Blocks[i, j].Block = LevelData.Chunks[chnk & 0xFF].Blocks[i, j].Block;
+                                        newchnk.Blocks[i, j].Solid1 = LevelData.Chunks[chnk & 0xFF].Blocks[i, j].Solid1;
+                                        newchnk.Blocks[i, j].XFlip = LevelData.Chunks[chnk & 0xFF].Blocks[i, j].XFlip;
+                                        newchnk.Blocks[i, j].YFlip = LevelData.Chunks[chnk & 0xFF].Blocks[i, j].YFlip;
                                     }
                                 }
                                 for (int i = 0; i < 8; i++)
                                 {
                                     for (int j = 0; j < 8; j++)
                                     {
-                                        newchnk.blocks[i + 8, j].Block = LevelData.Chunks[(chnk >> 8) & 0xFF].blocks[i, j].Block;
-                                        newchnk.blocks[i + 8, j].Solid1 = LevelData.Chunks[(chnk >> 8) & 0xFF].blocks[i, j].Solid1;
-                                        newchnk.blocks[i + 8, j].XFlip = LevelData.Chunks[(chnk >> 8) & 0xFF].blocks[i, j].XFlip;
-                                        newchnk.blocks[i + 8, j].YFlip = LevelData.Chunks[(chnk >> 8) & 0xFF].blocks[i, j].YFlip;
+                                        newchnk.Blocks[i + 8, j].Block = LevelData.Chunks[(chnk >> 8) & 0xFF].Blocks[i, j].Block;
+                                        newchnk.Blocks[i + 8, j].Solid1 = LevelData.Chunks[(chnk >> 8) & 0xFF].Blocks[i, j].Solid1;
+                                        newchnk.Blocks[i + 8, j].XFlip = LevelData.Chunks[(chnk >> 8) & 0xFF].Blocks[i, j].XFlip;
+                                        newchnk.Blocks[i + 8, j].YFlip = LevelData.Chunks[(chnk >> 8) & 0xFF].Blocks[i, j].YFlip;
                                     }
                                 }
                                 for (int i = 0; i < 8; i++)
                                 {
                                     for (int j = 0; j < 8; j++)
                                     {
-                                        newchnk.blocks[i, j + 8].Block = LevelData.Chunks[(chnk >> 16) & 0xFF].blocks[i, j].Block;
-                                        newchnk.blocks[i, j + 8].Solid1 = LevelData.Chunks[(chnk >> 16) & 0xFF].blocks[i, j].Solid1;
-                                        newchnk.blocks[i, j + 8].XFlip = LevelData.Chunks[(chnk >> 16) & 0xFF].blocks[i, j].XFlip;
-                                        newchnk.blocks[i, j + 8].YFlip = LevelData.Chunks[(chnk >> 16) & 0xFF].blocks[i, j].YFlip;
+                                        newchnk.Blocks[i, j + 8].Block = LevelData.Chunks[(chnk >> 16) & 0xFF].Blocks[i, j].Block;
+                                        newchnk.Blocks[i, j + 8].Solid1 = LevelData.Chunks[(chnk >> 16) & 0xFF].Blocks[i, j].Solid1;
+                                        newchnk.Blocks[i, j + 8].XFlip = LevelData.Chunks[(chnk >> 16) & 0xFF].Blocks[i, j].XFlip;
+                                        newchnk.Blocks[i, j + 8].YFlip = LevelData.Chunks[(chnk >> 16) & 0xFF].Blocks[i, j].YFlip;
                                     }
                                 }
                                 for (int i = 0; i < 8; i++)
                                 {
                                     for (int j = 0; j < 8; j++)
                                     {
-                                        newchnk.blocks[i + 8, j + 8].Block = LevelData.Chunks[(chnk >> 24) & 0xFF].blocks[i, j].Block;
-                                        newchnk.blocks[i + 8, j + 8].Solid1 = LevelData.Chunks[(chnk >> 24) & 0xFF].blocks[i, j].Solid1;
-                                        newchnk.blocks[i + 8, j + 8].XFlip = LevelData.Chunks[(chnk >> 24) & 0xFF].blocks[i, j].XFlip;
-                                        newchnk.blocks[i + 8, j + 8].YFlip = LevelData.Chunks[(chnk >> 24) & 0xFF].blocks[i, j].YFlip;
+                                        newchnk.Blocks[i + 8, j + 8].Block = LevelData.Chunks[(chnk >> 24) & 0xFF].Blocks[i, j].Block;
+                                        newchnk.Blocks[i + 8, j + 8].Solid1 = LevelData.Chunks[(chnk >> 24) & 0xFF].Blocks[i, j].Solid1;
+                                        newchnk.Blocks[i + 8, j + 8].XFlip = LevelData.Chunks[(chnk >> 24) & 0xFF].Blocks[i, j].XFlip;
+                                        newchnk.Blocks[i + 8, j + 8].YFlip = LevelData.Chunks[(chnk >> 24) & 0xFF].Blocks[i, j].YFlip;
                                     }
                                 }
                                 tmpchnk.Add(newchnk);
@@ -379,17 +379,17 @@ namespace SonicRetro.SonLVL.LevelConverter
                             }
                         }
                     }
-                    LevelData.FGLayout = newFG1;
-                    byte[,] newBG1 = new byte[(int)Math.Ceiling(LevelData.BGLayout.GetLength(0) / 2d), (int)Math.Ceiling(LevelData.BGLayout.GetLength(1) / 2d)];
-                    LevelData.BGLoop = new bool[newBG1.GetLength(0), newBG1.GetLength(1)];
-                    for (int y = 0; y < LevelData.BGLayout.GetLength(1); y += 2)
+                    LevelData.Layout.FGLayout = newFG1;
+                    byte[,] newBG1 = new byte[(int)Math.Ceiling(LevelData.Layout.BGLayout.GetLength(0) / 2d), (int)Math.Ceiling(LevelData.Layout.BGLayout.GetLength(1) / 2d)];
+                    LevelData.Layout.BGLoop = new bool[newBG1.GetLength(0), newBG1.GetLength(1)];
+                    for (int y = 0; y < LevelData.Layout.BGLayout.GetLength(1); y += 2)
                     {
-                        for (int x = 0; x < LevelData.BGLayout.GetLength(0); x += 2)
+                        for (int x = 0; x < LevelData.Layout.BGLayout.GetLength(0); x += 2)
                         {
-                            chnk = LevelData.BGLayout[x, y];
-                            chnk |= (x + 1 < LevelData.BGLayout.GetLength(0) ? LevelData.BGLayout[x + 1, y] : 0) << 8;
-                            chnk |= (y + 1 < LevelData.BGLayout.GetLength(1) ? LevelData.BGLayout[x, y + 1] : 0) << 16;
-                            chnk |= (x + 1 < LevelData.BGLayout.GetLength(0) & y + 1 < LevelData.BGLayout.GetLength(1) ? LevelData.BGLayout[x + 1, y + 1] : 0) << 24;
+                            chnk = LevelData.Layout.BGLayout[x, y];
+                            chnk |= (x + 1 < LevelData.Layout.BGLayout.GetLength(0) ? LevelData.Layout.BGLayout[x + 1, y] : 0) << 8;
+                            chnk |= (y + 1 < LevelData.Layout.BGLayout.GetLength(1) ? LevelData.Layout.BGLayout[x, y + 1] : 0) << 16;
+                            chnk |= (x + 1 < LevelData.Layout.BGLayout.GetLength(0) & y + 1 < LevelData.Layout.BGLayout.GetLength(1) ? LevelData.Layout.BGLayout[x + 1, y + 1] : 0) << 24;
                             if (chnks.IndexOf(chnk) > -1)
                                 newBG1[x / 2, y / 2] = (byte)chnks.IndexOf(chnk);
                             else
@@ -400,40 +400,40 @@ namespace SonicRetro.SonLVL.LevelConverter
                                 {
                                     for (int j = 0; j < 8; j++)
                                     {
-                                        newchnk.blocks[i, j].Block = LevelData.Chunks[chnk & 0xFF].blocks[i, j].Block;
-                                        newchnk.blocks[i, j].Solid1 = LevelData.Chunks[chnk & 0xFF].blocks[i, j].Solid1;
-                                        newchnk.blocks[i, j].XFlip = LevelData.Chunks[chnk & 0xFF].blocks[i, j].XFlip;
-                                        newchnk.blocks[i, j].YFlip = LevelData.Chunks[chnk & 0xFF].blocks[i, j].YFlip;
+                                        newchnk.Blocks[i, j].Block = LevelData.Chunks[chnk & 0xFF].Blocks[i, j].Block;
+                                        newchnk.Blocks[i, j].Solid1 = LevelData.Chunks[chnk & 0xFF].Blocks[i, j].Solid1;
+                                        newchnk.Blocks[i, j].XFlip = LevelData.Chunks[chnk & 0xFF].Blocks[i, j].XFlip;
+                                        newchnk.Blocks[i, j].YFlip = LevelData.Chunks[chnk & 0xFF].Blocks[i, j].YFlip;
                                     }
                                 }
                                 for (int i = 0; i < 8; i++)
                                 {
                                     for (int j = 0; j < 8; j++)
                                     {
-                                        newchnk.blocks[i + 8, j].Block = LevelData.Chunks[(chnk >> 8) & 0xFF].blocks[i, j].Block;
-                                        newchnk.blocks[i + 8, j].Solid1 = LevelData.Chunks[(chnk >> 8) & 0xFF].blocks[i, j].Solid1;
-                                        newchnk.blocks[i + 8, j].XFlip = LevelData.Chunks[(chnk >> 8) & 0xFF].blocks[i, j].XFlip;
-                                        newchnk.blocks[i + 8, j].YFlip = LevelData.Chunks[(chnk >> 8) & 0xFF].blocks[i, j].YFlip;
+                                        newchnk.Blocks[i + 8, j].Block = LevelData.Chunks[(chnk >> 8) & 0xFF].Blocks[i, j].Block;
+                                        newchnk.Blocks[i + 8, j].Solid1 = LevelData.Chunks[(chnk >> 8) & 0xFF].Blocks[i, j].Solid1;
+                                        newchnk.Blocks[i + 8, j].XFlip = LevelData.Chunks[(chnk >> 8) & 0xFF].Blocks[i, j].XFlip;
+                                        newchnk.Blocks[i + 8, j].YFlip = LevelData.Chunks[(chnk >> 8) & 0xFF].Blocks[i, j].YFlip;
                                     }
                                 }
                                 for (int i = 0; i < 8; i++)
                                 {
                                     for (int j = 0; j < 8; j++)
                                     {
-                                        newchnk.blocks[i, j + 8].Block = LevelData.Chunks[(chnk >> 16) & 0xFF].blocks[i, j].Block;
-                                        newchnk.blocks[i, j + 8].Solid1 = LevelData.Chunks[(chnk >> 16) & 0xFF].blocks[i, j].Solid1;
-                                        newchnk.blocks[i, j + 8].XFlip = LevelData.Chunks[(chnk >> 16) & 0xFF].blocks[i, j].XFlip;
-                                        newchnk.blocks[i, j + 8].YFlip = LevelData.Chunks[(chnk >> 16) & 0xFF].blocks[i, j].YFlip;
+                                        newchnk.Blocks[i, j + 8].Block = LevelData.Chunks[(chnk >> 16) & 0xFF].Blocks[i, j].Block;
+                                        newchnk.Blocks[i, j + 8].Solid1 = LevelData.Chunks[(chnk >> 16) & 0xFF].Blocks[i, j].Solid1;
+                                        newchnk.Blocks[i, j + 8].XFlip = LevelData.Chunks[(chnk >> 16) & 0xFF].Blocks[i, j].XFlip;
+                                        newchnk.Blocks[i, j + 8].YFlip = LevelData.Chunks[(chnk >> 16) & 0xFF].Blocks[i, j].YFlip;
                                     }
                                 }
                                 for (int i = 0; i < 8; i++)
                                 {
                                     for (int j = 0; j < 8; j++)
                                     {
-                                        newchnk.blocks[i + 8, j + 8].Block = LevelData.Chunks[(chnk >> 24) & 0xFF].blocks[i, j].Block;
-                                        newchnk.blocks[i + 8, j + 8].Solid1 = LevelData.Chunks[(chnk >> 24) & 0xFF].blocks[i, j].Solid1;
-                                        newchnk.blocks[i + 8, j + 8].XFlip = LevelData.Chunks[(chnk >> 24) & 0xFF].blocks[i, j].XFlip;
-                                        newchnk.blocks[i + 8, j + 8].YFlip = LevelData.Chunks[(chnk >> 24) & 0xFF].blocks[i, j].YFlip;
+                                        newchnk.Blocks[i + 8, j + 8].Block = LevelData.Chunks[(chnk >> 24) & 0xFF].Blocks[i, j].Block;
+                                        newchnk.Blocks[i + 8, j + 8].Solid1 = LevelData.Chunks[(chnk >> 24) & 0xFF].Blocks[i, j].Solid1;
+                                        newchnk.Blocks[i + 8, j + 8].XFlip = LevelData.Chunks[(chnk >> 24) & 0xFF].Blocks[i, j].XFlip;
+                                        newchnk.Blocks[i + 8, j + 8].YFlip = LevelData.Chunks[(chnk >> 24) & 0xFF].Blocks[i, j].YFlip;
                                     }
                                 }
                                 tmpchnk.Add(newchnk);
@@ -441,7 +441,7 @@ namespace SonicRetro.SonLVL.LevelConverter
                             }
                         }
                     }
-                    LevelData.BGLayout = newBG1;
+                    LevelData.Layout.BGLayout = newBG1;
                     tmpchnk.RemoveAt(0);
                     break;
                 case 2: // S1 -> S2
@@ -456,64 +456,64 @@ namespace SonicRetro.SonLVL.LevelConverter
                         {
                             for (int x = 0; x < chunksz; x++)
                             {
-                                S2ChunkBlock blk = (S2ChunkBlock)newchnk[0].blocks[x, y];
-                                blk.Block = item.blocks[x, y].Block;
-                                blk.Solid1 = item.blocks[x, y].Solid1;
+                                S2ChunkBlock blk = (S2ChunkBlock)newchnk[0].Blocks[x, y];
+                                blk.Block = item.Blocks[x, y].Block;
+                                blk.Solid1 = item.Blocks[x, y].Solid1;
                                 blk.Solid2 = blk.Solid1;
-                                blk.XFlip = item.blocks[x, y].XFlip;
-                                blk.YFlip = item.blocks[x, y].YFlip;
-                                blk = (S2ChunkBlock)newchnk[1].blocks[x, y];
-                                blk.Block = item.blocks[x + chunksz, y].Block;
-                                blk.Solid1 = item.blocks[x + chunksz, y].Solid1;
+                                blk.XFlip = item.Blocks[x, y].XFlip;
+                                blk.YFlip = item.Blocks[x, y].YFlip;
+                                blk = (S2ChunkBlock)newchnk[1].Blocks[x, y];
+                                blk.Block = item.Blocks[x + chunksz, y].Block;
+                                blk.Solid1 = item.Blocks[x + chunksz, y].Solid1;
                                 blk.Solid2 = blk.Solid1;
-                                blk.XFlip = item.blocks[x + chunksz, y].XFlip;
-                                blk.YFlip = item.blocks[x + chunksz, y].YFlip;
-                                blk = (S2ChunkBlock)newchnk[2].blocks[x, y];
-                                blk.Block = item.blocks[x, y + chunksz].Block;
-                                blk.Solid1 = item.blocks[x, y + chunksz].Solid1;
+                                blk.XFlip = item.Blocks[x + chunksz, y].XFlip;
+                                blk.YFlip = item.Blocks[x + chunksz, y].YFlip;
+                                blk = (S2ChunkBlock)newchnk[2].Blocks[x, y];
+                                blk.Block = item.Blocks[x, y + chunksz].Block;
+                                blk.Solid1 = item.Blocks[x, y + chunksz].Solid1;
                                 blk.Solid2 = blk.Solid1;
-                                blk.XFlip = item.blocks[x, y + chunksz].XFlip;
-                                blk.YFlip = item.blocks[x, y + chunksz].YFlip;
-                                blk = (S2ChunkBlock)newchnk[3].blocks[x, y];
-                                blk.Block = item.blocks[x + chunksz, y + chunksz].Block;
-                                blk.Solid1 = item.blocks[x + chunksz, y + chunksz].Solid1;
+                                blk.XFlip = item.Blocks[x, y + chunksz].XFlip;
+                                blk.YFlip = item.Blocks[x, y + chunksz].YFlip;
+                                blk = (S2ChunkBlock)newchnk[3].Blocks[x, y];
+                                blk.Block = item.Blocks[x + chunksz, y + chunksz].Block;
+                                blk.Solid1 = item.Blocks[x + chunksz, y + chunksz].Solid1;
                                 blk.Solid2 = blk.Solid1;
-                                blk.XFlip = item.blocks[x + chunksz, y + chunksz].XFlip;
-                                blk.YFlip = item.blocks[x + chunksz, y + chunksz].YFlip;
+                                blk.XFlip = item.Blocks[x + chunksz, y + chunksz].XFlip;
+                                blk.YFlip = item.Blocks[x + chunksz, y + chunksz].YFlip;
                             }
                         }
                         tmpchnk.AddRange(newchnk);
                     }
-                    byte[,] newFG = new byte[LevelData.FGLayout.GetLength(0) * 2, LevelData.FGLayout.GetLength(1) * 2];
-                    for (int y = 0; y < LevelData.FGLayout.GetLength(1); y++)
+                    byte[,] newFG = new byte[LevelData.Layout.FGLayout.GetLength(0) * 2, LevelData.Layout.FGLayout.GetLength(1) * 2];
+                    for (int y = 0; y < LevelData.Layout.FGLayout.GetLength(1); y++)
                     {
-                        for (int x = 0; x < LevelData.FGLayout.GetLength(0); x++)
+                        for (int x = 0; x < LevelData.Layout.FGLayout.GetLength(0); x++)
                         {
-                            if (LevelData.FGLayout[x, y] != 0)
+                            if (LevelData.Layout.FGLayout[x, y] != 0)
                             {
-                                newFG[x * 2, y * 2] = (byte)((LevelData.FGLayout[x, y] * 4) - 3);
-                                newFG[(x * 2) + 1, y * 2] = (byte)((LevelData.FGLayout[x, y] * 4) - 2);
-                                newFG[x * 2, (y * 2) + 1] = (byte)((LevelData.FGLayout[x, y] * 4) - 1);
-                                newFG[(x * 2) + 1, (y * 2) + 1] = (byte)((LevelData.FGLayout[x, y] * 4));
+                                newFG[x * 2, y * 2] = (byte)((LevelData.Layout.FGLayout[x, y] * 4) - 3);
+                                newFG[(x * 2) + 1, y * 2] = (byte)((LevelData.Layout.FGLayout[x, y] * 4) - 2);
+                                newFG[x * 2, (y * 2) + 1] = (byte)((LevelData.Layout.FGLayout[x, y] * 4) - 1);
+                                newFG[(x * 2) + 1, (y * 2) + 1] = (byte)((LevelData.Layout.FGLayout[x, y] * 4));
                             }
                         }
                     }
-                    LevelData.FGLayout = newFG;
-                    byte[,] newBG = new byte[LevelData.BGLayout.GetLength(0) * 2, LevelData.BGLayout.GetLength(1) * 2];
-                    for (int y = 0; y < LevelData.BGLayout.GetLength(1); y++)
+                    LevelData.Layout.FGLayout = newFG;
+                    byte[,] newBG = new byte[LevelData.Layout.BGLayout.GetLength(0) * 2, LevelData.Layout.BGLayout.GetLength(1) * 2];
+                    for (int y = 0; y < LevelData.Layout.BGLayout.GetLength(1); y++)
                     {
-                        for (int x = 0; x < LevelData.BGLayout.GetLength(0); x++)
+                        for (int x = 0; x < LevelData.Layout.BGLayout.GetLength(0); x++)
                         {
-                            if (LevelData.BGLayout[x, y] != 0)
+                            if (LevelData.Layout.BGLayout[x, y] != 0)
                             {
-                                newBG[x * 2, y * 2] = (byte)((LevelData.BGLayout[x, y] * 4) - 3);
-                                newBG[(x * 2) + 1, y * 2] = (byte)((LevelData.BGLayout[x, y] * 4) - 2);
-                                newBG[x * 2, (y * 2) + 1] = (byte)((LevelData.BGLayout[x, y] * 4) - 1);
-                                newBG[(x * 2) + 1, (y * 2) + 1] = (byte)((LevelData.BGLayout[x, y] * 4));
+                                newBG[x * 2, y * 2] = (byte)((LevelData.Layout.BGLayout[x, y] * 4) - 3);
+                                newBG[(x * 2) + 1, y * 2] = (byte)((LevelData.Layout.BGLayout[x, y] * 4) - 2);
+                                newBG[x * 2, (y * 2) + 1] = (byte)((LevelData.Layout.BGLayout[x, y] * 4) - 1);
+                                newBG[(x * 2) + 1, (y * 2) + 1] = (byte)((LevelData.Layout.BGLayout[x, y] * 4));
                             }
                         }
                     }
-                    LevelData.BGLayout = newBG;
+                    LevelData.Layout.BGLayout = newBG;
                     break;
                 case 3: // S2 -> S2
                     tmpchnk = LevelData.Chunks.ToList();
@@ -542,45 +542,45 @@ namespace SonicRetro.SonLVL.LevelConverter
             }
             Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "Chunks.bin"), cmp);
             Level.Chunks = new[] { new SonicRetro.SonLVL.API.FileInfo("Chunks.bin") };
-            ushort fgw = (ushort)LevelData.FGLayout.GetLength(0);
-            ushort bgw = (ushort)LevelData.BGLayout.GetLength(0);
-            ushort fgh = (ushort)LevelData.FGLayout.GetLength(1);
-            ushort bgh = (ushort)LevelData.BGLayout.GetLength(1);
+            ushort fgw = (ushort)LevelData.Layout.FGLayout.GetLength(0);
+            ushort bgw = (ushort)LevelData.Layout.BGLayout.GetLength(0);
+            ushort fgh = (ushort)LevelData.Layout.FGLayout.GetLength(1);
+            ushort bgh = (ushort)LevelData.Layout.BGLayout.GetLength(1);
             switch (OutFmt)
             {
                 case EngineVersion.S1:
                     tmp2 = new List<byte>();
-                    tmp2.Add((byte)(LevelData.FGLayout.GetLength(0) - 1));
-                    tmp2.Add((byte)(LevelData.FGLayout.GetLength(1) - 1));
-                    for (int lr = 0; lr < LevelData.FGLayout.GetLength(1); lr++)
-                        for (int lc = 0; lc < LevelData.FGLayout.GetLength(0); lc++)
-                            tmp2.Add((byte)(LevelData.FGLayout[lc, lr] | (LevelData.FGLoop[lc, lr] ? 0x80 : 0)));
+                    tmp2.Add((byte)(LevelData.Layout.FGLayout.GetLength(0) - 1));
+                    tmp2.Add((byte)(LevelData.Layout.FGLayout.GetLength(1) - 1));
+                    for (int lr = 0; lr < LevelData.Layout.FGLayout.GetLength(1); lr++)
+                        for (int lc = 0; lc < LevelData.Layout.FGLayout.GetLength(0); lc++)
+                            tmp2.Add((byte)(LevelData.Layout.FGLayout[lc, lr] | (LevelData.Layout.FGLoop[lc, lr] ? 0x80 : 0)));
                     Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "FGLayout.bin"), CompressionType.Uncompressed);
                     Level.FGLayout = "FGLayout.bin";
                     tmp2 = new List<byte>();
-                    tmp2.Add((byte)(LevelData.BGLayout.GetLength(0) - 1));
-                    tmp2.Add((byte)(LevelData.BGLayout.GetLength(1) - 1));
-                    for (int lr = 0; lr < LevelData.BGLayout.GetLength(1); lr++)
-                        for (int lc = 0; lc < LevelData.BGLayout.GetLength(0); lc++)
-                            tmp2.Add((byte)(LevelData.BGLayout[lc, lr] | (LevelData.BGLoop[lc, lr] ? 0x80 : 0)));
+                    tmp2.Add((byte)(LevelData.Layout.BGLayout.GetLength(0) - 1));
+                    tmp2.Add((byte)(LevelData.Layout.BGLayout.GetLength(1) - 1));
+                    for (int lr = 0; lr < LevelData.Layout.BGLayout.GetLength(1); lr++)
+                        for (int lc = 0; lc < LevelData.Layout.BGLayout.GetLength(0); lc++)
+                            tmp2.Add((byte)(LevelData.Layout.BGLayout[lc, lr] | (LevelData.Layout.BGLoop[lc, lr] ? 0x80 : 0)));
                     Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "BGLayout.bin"), CompressionType.Uncompressed);
                     Level.BGLayout = "BGLayout.bin";
                     break;
                 case EngineVersion.S2NA:
                     tmp2 = new List<byte>();
-                    tmp2.Add((byte)(LevelData.FGLayout.GetLength(0) - 1));
-                    tmp2.Add((byte)(LevelData.FGLayout.GetLength(1) - 1));
-                    for (int lr = 0; lr < LevelData.FGLayout.GetLength(1); lr++)
-                        for (int lc = 0; lc < LevelData.FGLayout.GetLength(0); lc++)
-                            tmp2.Add(LevelData.FGLayout[lc, lr]);
+                    tmp2.Add((byte)(LevelData.Layout.FGLayout.GetLength(0) - 1));
+                    tmp2.Add((byte)(LevelData.Layout.FGLayout.GetLength(1) - 1));
+                    for (int lr = 0; lr < LevelData.Layout.FGLayout.GetLength(1); lr++)
+                        for (int lc = 0; lc < LevelData.Layout.FGLayout.GetLength(0); lc++)
+                            tmp2.Add(LevelData.Layout.FGLayout[lc, lr]);
                     Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "FGLayout.bin"), CompressionType.Uncompressed);
                     Level.FGLayout = "FGLayout.bin";
                     tmp2 = new List<byte>();
-                    tmp2.Add((byte)(LevelData.BGLayout.GetLength(0) - 1));
-                    tmp2.Add((byte)(LevelData.BGLayout.GetLength(1) - 1));
-                    for (int lr = 0; lr < LevelData.BGLayout.GetLength(1); lr++)
-                        for (int lc = 0; lc < LevelData.BGLayout.GetLength(0); lc++)
-                            tmp2.Add(LevelData.BGLayout[lc, lr]);
+                    tmp2.Add((byte)(LevelData.Layout.BGLayout.GetLength(0) - 1));
+                    tmp2.Add((byte)(LevelData.Layout.BGLayout.GetLength(1) - 1));
+                    for (int lr = 0; lr < LevelData.Layout.BGLayout.GetLength(1); lr++)
+                        for (int lc = 0; lc < LevelData.Layout.BGLayout.GetLength(0); lc++)
+                            tmp2.Add(LevelData.Layout.BGLayout[lc, lr]);
                     Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "BGLayout.bin"), CompressionType.Uncompressed);
                     Level.BGLayout = "BGLayout.bin";
                     break;
@@ -588,18 +588,18 @@ namespace SonicRetro.SonLVL.LevelConverter
                     tmp2 = new List<byte>();
                     for (int la = 0; la < 16; la++)
                     {
-                        if (LevelData.FGLayout.GetLength(1) > la)
+                        if (LevelData.Layout.FGLayout.GetLength(1) > la)
                             for (int laf = 0; laf < 128; laf++)
-                                if (LevelData.FGLayout.GetLength(0) > laf)
-                                    tmp2.Add(LevelData.FGLayout[laf, la]);
+                                if (LevelData.Layout.FGLayout.GetLength(0) > laf)
+                                    tmp2.Add(LevelData.Layout.FGLayout[laf, la]);
                                 else
                                     tmp2.Add(0);
                         else
                             tmp2.AddRange(new byte[128]);
-                        if (LevelData.BGLayout.GetLength(1) > la)
+                        if (LevelData.Layout.BGLayout.GetLength(1) > la)
                             for (int lab = 0; lab < 128; lab++)
-                                if (LevelData.BGLayout.GetLength(0) > lab)
-                                    tmp2.Add(LevelData.BGLayout[lab, la]);
+                                if (LevelData.Layout.BGLayout.GetLength(0) > lab)
+                                    tmp2.Add(LevelData.Layout.BGLayout[lab, la]);
                                 else
                                     tmp2.Add(0);
                         else
@@ -627,10 +627,10 @@ namespace SonicRetro.SonLVL.LevelConverter
                     }
                     for (int y = 0; y < fgh; y++)
                         for (int x = 0; x < fgw; x++)
-                            tmp2.Add(LevelData.FGLayout[x, y]);
+                            tmp2.Add(LevelData.Layout.FGLayout[x, y]);
                     for (int y = 0; y < bgh; y++)
                         for (int x = 0; x < bgw; x++)
-                            tmp2.Add(LevelData.BGLayout[x, y]);
+                            tmp2.Add(LevelData.Layout.BGLayout[x, y]);
                     Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "Layout.bin"), CompressionType.Uncompressed);
                     Level.Layout = "Layout.bin";
                     break;
@@ -654,10 +654,10 @@ namespace SonicRetro.SonLVL.LevelConverter
                     List<byte> l = new List<byte>();
                     for (int y = 0; y < fgh; y++)
                         for (int x = 0; x < fgw; x++)
-                            l.Add(LevelData.FGLayout[x, y]);
+                            l.Add(LevelData.Layout.FGLayout[x, y]);
                     for (int y = 0; y < bgh; y++)
                         for (int x = 0; x < bgw; x++)
-                            l.Add(LevelData.BGLayout[x, y]);
+                            l.Add(LevelData.Layout.BGLayout[x, y]);
                     for (int i = 0; i < l.Count; i++)
                         tmp2.Add(l[i ^ 1]);
                     Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "Layout.bin"), CompressionType.Uncompressed);
@@ -668,7 +668,7 @@ namespace SonicRetro.SonLVL.LevelConverter
                     for (int lr = 0; lr < 8; lr++)
                         for (int lc = 0; lc < 64; lc++)
                             if (lc < fgw & lr < fgh)
-                                tmp2.Add(LevelData.FGLayout[lc, lr]);
+                                tmp2.Add(LevelData.Layout.FGLayout[lc, lr]);
                             else
                                 tmp2.Add(0);
                     Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "FGLayout.bin"), CompressionType.Uncompressed);
@@ -677,7 +677,7 @@ namespace SonicRetro.SonLVL.LevelConverter
                     for (int lr = 0; lr < 8; lr++)
                         for (int lc = 0; lc < 64; lc++)
                             if (lc < bgw & lr < bgh)
-                                tmp2.Add(LevelData.BGLayout[lc, lr]);
+                                tmp2.Add(LevelData.Layout.BGLayout[lc, lr]);
                             else
                                 tmp2.Add(0);
                     Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "BGLayout.bin"), CompressionType.Uncompressed);

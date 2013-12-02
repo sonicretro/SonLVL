@@ -70,6 +70,7 @@
     <Compile Include="KeyboardPanel.Designer.cs">
       <DependentUpon>KeyboardPanel.cs</DependentUpon>
     </Compile>
+    <Compile Include="LayoutFormat.cs" />
     <Compile Include="LevelData.cs" />
     <Compile Include="MultiFileIndexer.cs" />
     <Compile Include="NamedList.cs" />
@@ -87,6 +88,12 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="S1\Layout.cs" />
+    <Compile Include="S2NA\Layout.cs" />
+    <Compile Include="S2\Layout.cs" />
+    <Compile Include="S3K\Layout.cs" />
+    <Compile Include="SCDPC\Layout.cs" />
+    <Compile Include="SKC\Layout.cs" />
     <Compile Include="TileList.cs">
       <SubType>UserControl</SubType>
     </Compile>

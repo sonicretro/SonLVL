@@ -27,10 +27,8 @@ namespace SonicRetro.SonLVL.API
         public static List<BitmapBits> CompChunkBmpBits;
         public static List<Bitmap[]> ChunkBmps;
         public static List<Bitmap> CompChunkBmps;
-        public static byte[,] FGLayout;
-        public static bool[,] FGLoop;
-        public static byte[,] BGLayout;
-        public static bool[,] BGLoop;
+        public static LayoutData Layout;
+        public static LayoutFormat LayoutFormat;
         public static List<string> PalName;
         public static List<SonLVLColor[,]> Palette;
         public static List<byte[,]> PalNum;
@@ -128,28 +126,20 @@ namespace SonicRetro.SonLVL.API
             switch (Level.EngineVersion)
             {
                 case EngineVersion.S1:
-                    chunksz = 256;
+                case EngineVersion.S2:
+                case EngineVersion.S2NA:
                     UnknownImg = Properties.Resources.UnknownImg.Copy();
                     littleendian = false;
                     break;
                 case EngineVersion.SCDPC:
-                    chunksz = 256;
                     UnknownImg = Properties.Resources.UnknownImg.Copy();
                     littleendian = true;
                     break;
-                case EngineVersion.S2:
-                case EngineVersion.S2NA:
-                    chunksz = 128;
-                    UnknownImg = Properties.Resources.UnknownImg.Copy();
-                    littleendian = false;
-                    break;
                 case EngineVersion.S3K:
-                    chunksz = 128;
                     UnknownImg = Properties.Resources.UnknownImg3K.Copy();
                     littleendian = false;
                     break;
                 case EngineVersion.SKC:
-                    chunksz = 128;
                     UnknownImg = Properties.Resources.UnknownImg3K.Copy();
                     littleendian = true;
                     break;
@@ -289,201 +279,32 @@ namespace SonicRetro.SonLVL.API
             }
             if (Chunks.Count == 0)
                 Chunks.AddFile(new List<Chunk>() { new Chunk() }, -1);
-            int fgw, fgh, bgw, bgh;
-            FGLoop = null;
-            BGLoop = null;
+            Layout = new LayoutData();
             switch (Level.LayoutFormat)
             {
                 case EngineVersion.S1:
-                    if (File.Exists(Level.FGLayout))
-                    {
-                        Log("Loading FG layout from file \"" + Level.FGLayout + "\", using compression " + Level.LayoutCompression.ToString() + "...");
-                        tmp = Compression.Decompress(Level.FGLayout, Level.LayoutCompression);
-                        fgw = tmp[0] + 1;
-                        fgh = tmp[1] + 1;
-                        FGLayout = new byte[fgw, fgh];
-                        FGLoop = new bool[fgw, fgh];
-                        for (int lr = 0; lr < fgh; lr++)
-                            for (int lc = 0; lc < fgw; lc++)
-                            {
-                                if ((lr * fgw) + lc + 2 >= tmp.Length) break;
-                                FGLayout[lc, lr] = (byte)(tmp[(lr * fgw) + lc + 2] & 0x7F);
-                                FGLoop[lc, lr] = (tmp[(lr * fgw) + lc + 2] & 0x80) == 0x80;
-                            }
-                    }
-                    else
-                    {
-                        Log("FG layout file \"" + Level.FGLayout + "\" not found.");
-                        FGLayout = new byte[Game.LevelWidthMax, Game.LevelHeightMax];
-                        FGLoop = new bool[Game.LevelWidthMax, Game.LevelHeightMax];
-                    }
-                    if (File.Exists(Level.BGLayout))
-                    {
-                        Log("Loading BG layout from file \"" + Level.BGLayout + "\", using compression " + Level.LayoutCompression.ToString() + "...");
-                        tmp = Compression.Decompress(Level.BGLayout, Level.LayoutCompression);
-                        bgw = tmp[0] + 1;
-                        bgh = tmp[1] + 1;
-                        BGLayout = new byte[bgw, bgh];
-                        BGLoop = new bool[bgw, bgh];
-                        for (int lr = 0; lr < bgh; lr++)
-                            for (int lc = 0; lc < bgw; lc++)
-                            {
-                                BGLayout[lc, lr] = (byte)(tmp[(lr * bgw) + lc + 2] & 0x7F);
-                                BGLoop[lc, lr] = (tmp[(lr * bgw) + lc + 2] & 0x80) == 0x80;
-                            }
-                    }
-                    else
-                    {
-                        Log("BG layout file \"" + Level.BGLayout + "\" not found.");
-                        BGLayout = new byte[Game.LevelWidthMax, Game.LevelHeightMax];
-                        BGLoop = new bool[Game.LevelWidthMax, Game.LevelHeightMax];
-                    }
+                    LayoutFormat = new S1.Layout();
                     break;
                 case EngineVersion.S2NA:
-                    if (File.Exists(Level.FGLayout))
-                    {
-                        Log("Loading FG layout from file \"" + Level.FGLayout + "\", using compression " + Level.LayoutCompression.ToString() + "...");
-                        tmp = Compression.Decompress(Level.FGLayout, Level.LayoutCompression);
-                        fgw = tmp[0] + 1;
-                        fgh = tmp[1] + 1;
-                        FGLayout = new byte[fgw, fgh];
-                        for (int lr = 0; lr < fgh; lr++)
-                            for (int lc = 0; lc < fgw; lc++)
-                            {
-                                if ((lr * fgw) + lc + 2 >= tmp.Length) break;
-                                FGLayout[lc, lr] = tmp[(lr * fgw) + lc + 2];
-                            }
-                    }
-                    else
-                    {
-                        Log("FG layout file \"" + Level.FGLayout + "\" not found.");
-                        FGLayout = new byte[Game.LevelWidthMax, Game.LevelHeightMax];
-                    }
-                    if (File.Exists(Level.BGLayout))
-                    {
-                        Log("Loading BG layout from file \"" + Level.BGLayout + "\", using compression " + Level.LayoutCompression.ToString() + "...");
-                        tmp = Compression.Decompress(Level.BGLayout, Level.LayoutCompression);
-                        bgw = tmp[0] + 1;
-                        bgh = tmp[1] + 1;
-                        BGLayout = new byte[bgw, bgh];
-                        for (int lr = 0; lr < bgh; lr++)
-                            for (int lc = 0; lc < bgw; lc++)
-                                BGLayout[lc, lr] = tmp[(lr * bgw) + lc + 2];
-                    }
-                    else
-                    {
-                        Log("BG layout file \"" + Level.BGLayout + "\" not found.");
-                        BGLayout = new byte[Game.LevelWidthMax, Game.LevelHeightMax];
-                    }
+                    LayoutFormat = new S2NA.Layout();
                     break;
                 case EngineVersion.S2:
-                    FGLayout = new byte[128, 16];
-                    BGLayout = new byte[128, 16];
-                    if (File.Exists(Level.Layout))
-                    {
-                        Log("Loading layout from file \"" + Level.Layout + "\", using compression " + Level.LayoutCompression.ToString() + "...");
-                        tmp = Compression.Decompress(Level.Layout, Level.LayoutCompression);
-                        for (int la = 0; la < tmp.Length; la += 256)
-                        {
-                            for (int laf = 0; laf < 128; laf++)
-                                FGLayout[laf, la / 256] = tmp[la + laf];
-                            for (int lab = 0; lab < 128; lab++)
-                                BGLayout[lab, la / 256] = tmp[la + lab + 128];
-                        }
-                    }
-                    else
-                        Log("Layout file \"" + Level.Layout + "\" not found.");
+                    LayoutFormat = new S2.Layout();
                     break;
                 case EngineVersion.S3K:
-                    if (File.Exists(Level.Layout))
-                    {
-                        Log("Loading layout from file \"" + Level.Layout + "\", using compression " + Level.LayoutCompression.ToString() + "...");
-                        tmp = Compression.Decompress(Level.Layout, Level.LayoutCompression);
-                        fgw = ByteConverter.ToUInt16(tmp, 0);
-                        bgw = ByteConverter.ToUInt16(tmp, 2);
-                        fgh = Math.Min((int)ByteConverter.ToUInt16(tmp, 4), 32);
-                        bgh = Math.Min((int)ByteConverter.ToUInt16(tmp, 6), 32);
-                        FGLayout = new byte[fgw, fgh];
-                        BGLayout = new byte[bgw, bgh];
-                        for (int la = 0; la < Math.Max(fgh, bgh) * 4; la += 4)
-                        {
-                            ushort lfp = ByteConverter.ToUInt16(tmp, 8 + la);
-                            if (lfp != 0)
-                                for (int laf = 0; laf < fgw; laf++)
-                                    FGLayout[laf, la / 4] = tmp[lfp - 0x8000 + laf];
-                            ushort lbp = ByteConverter.ToUInt16(tmp, 8 + la + 2);
-                            if (lbp != 0)
-                                for (int lab = 0; lab < bgw; lab++)
-                                    BGLayout[lab, la / 4] = tmp[lbp - 0x8000 + lab];
-                        }
-                    }
-                    else
-                    {
-                        Log("Layout file \"" + Level.Layout + "\" not found.");
-                        FGLayout = new byte[128, 16];
-                        BGLayout = new byte[128, 16];
-                    }
+                    LayoutFormat = new S3K.Layout();
                     break;
                 case EngineVersion.SKC:
-                    if (File.Exists(Level.Layout))
-                    {
-                        Log("Loading layout from file \"" + Level.Layout + "\", using compression " + Level.LayoutCompression.ToString() + "...");
-                        tmp = Compression.Decompress(Level.Layout, Level.LayoutCompression);
-                        fgw = ByteConverter.ToUInt16(tmp, 0);
-                        bgw = ByteConverter.ToUInt16(tmp, 2);
-                        fgh = Math.Min((int)ByteConverter.ToUInt16(tmp, 4), 32);
-                        bgh = Math.Min((int)ByteConverter.ToUInt16(tmp, 6), 32);
-                        FGLayout = new byte[fgw, fgh];
-                        BGLayout = new byte[bgw, bgh];
-                        for (int la = 0; la < Math.Max(fgh, bgh) * 4; la += 4)
-                        {
-                            ushort lfp = ByteConverter.ToUInt16(tmp, 8 + la);
-                            if (lfp != 0)
-                                for (int laf = 0; laf < fgw; laf++)
-                                    FGLayout[laf, la / 4] = tmp[(lfp - 0x8000 + laf) ^ 1];
-                            ushort lbp = ByteConverter.ToUInt16(tmp, 8 + la + 2);
-                            if (lbp != 0)
-                                for (int lab = 0; lab < bgw; lab++)
-                                    BGLayout[lab, la / 4] = tmp[(lbp - 0x8000 + lab) ^ 1];
-                        }
-                    }
-                    else
-                    {
-                        Log("Layout file \"" + Level.Layout + "\" not found.");
-                        FGLayout = new byte[128, 16];
-                        BGLayout = new byte[128, 16];
-                    }
+                    LayoutFormat = new SKC.Layout();
                     break;
                 case EngineVersion.SCDPC:
-                    FGLayout = new byte[64, 8];
-                    if (File.Exists(Level.FGLayout))
-                    {
-                        Log("Loading FG layout from file \"" + Level.FGLayout + "\", using compression " + Level.LayoutCompression.ToString() + "...");
-                        tmp = Compression.Decompress(Level.FGLayout, Level.LayoutCompression);
-                        for (int lr = 0; lr < 8; lr++)
-                            for (int lc = 0; lc < 64; lc++)
-                            {
-                                if ((lr * 64) + lc >= tmp.Length) break;
-                                FGLayout[lc, lr] = tmp[(lr * 64) + lc];
-                            }
-                    }
-                    else
-                        Log("FG layout file \"" + Level.FGLayout + "\" not found.");
-                    BGLayout = new byte[64, 8];
-                    if (File.Exists(Level.BGLayout))
-                    {
-                        Log("Loading BG layout from file \"" + Level.BGLayout + "\", using compression " + Level.LayoutCompression.ToString() + "...");
-                        tmp = Compression.Decompress(Level.BGLayout, Level.LayoutCompression);
-                        for (int lr = 0; lr < 8; lr++)
-                            for (int lc = 0; lc < 64; lc++)
-                            {
-                                BGLayout[lc, lr] = tmp[(lr * 64) + lc];
-                            }
-                    }
-                    else
-                        Log("BG layout file \"" + Level.BGLayout + "\" not found.");
+                    LayoutFormat = new SCDPC.Layout();
                     break;
             }
+            if (LayoutFormat.IsCombinedLayout)
+                ((LayoutFormatCombined)LayoutFormat).TryReadLayout(Level.Layout, Level.LayoutCompression, Layout);
+            else
+                ((LayoutFormatSeparate)LayoutFormat).TryReadLayout(Level.FGLayout, Level.BGLayout, Level.LayoutCompression, Layout);
             PalName = new List<string>();
             Palette = new List<SonLVLColor[,]>();
             PalNum = new List<byte[,]>();
@@ -859,17 +680,17 @@ namespace SonicRetro.SonLVL.API
                 foreach (Block blk in Blocks)
                     for (int y = 0; y < 2; y++)
                         for (int x = 0; x < 2; x++)
-                            if (!tilepals[blk.tiles[x, y].Palette].Contains(blk.tiles[x, y].Tile))
-                                tilepals[blk.tiles[x, y].Palette].Add(blk.tiles[x, y].Tile);
+                            if (!tilepals[blk.Tiles[x, y].Palette].Contains(blk.Tiles[x, y].Tile))
+                                tilepals[blk.Tiles[x, y].Palette].Add(blk.Tiles[x, y].Tile);
                 foreach (Block blk in Blocks)
                     for (int y = 0; y < 2; y++)
                         for (int x = 0; x < 2; x++)
                         {
-                            byte pal = blk.tiles[x, y].Palette;
+                            byte pal = blk.Tiles[x, y].Palette;
                             int c = 0;
                             for (int i = pal - 1; i >= 0; i--)
                                 c += tilepals[i].Count;
-                            blk.tiles[x, y].Tile = (ushort)(tilepals[pal].IndexOf(blk.tiles[x, y].Tile) + c);
+                            blk.Tiles[x, y].Tile = (ushort)(tilepals[pal].IndexOf(blk.Tiles[x, y].Tile) + c);
                         }
                 List<byte[]> tiles = new List<byte[]>();
                 for (int p = 0; p < 4; p++)
@@ -936,125 +757,10 @@ namespace SonicRetro.SonLVL.API
                     }
                 Compression.Compress(tmp.ToArray(), tileent.Filename, Level.ChunkCompression);
             }
-            switch (Level.LayoutFormat)
-            {
-                case EngineVersion.S1:
-                    tmp = new List<byte>();
-                    tmp.Add((byte)(FGLayout.GetLength(0) - 1));
-                    tmp.Add((byte)(FGLayout.GetLength(1) - 1));
-                    for (int lr = 0; lr < FGLayout.GetLength(1); lr++)
-                        for (int lc = 0; lc < FGLayout.GetLength(0); lc++)
-                            tmp.Add((byte)(FGLayout[lc, lr] | (FGLoop[lc, lr] ? 0x80 : 0)));
-                    Compression.Compress(tmp.ToArray(), Level.FGLayout, Level.LayoutCompression);
-                    tmp = new List<byte>();
-                    tmp.Add((byte)(BGLayout.GetLength(0) - 1));
-                    tmp.Add((byte)(BGLayout.GetLength(1) - 1));
-                    for (int lr = 0; lr < BGLayout.GetLength(1); lr++)
-                        for (int lc = 0; lc < BGLayout.GetLength(0); lc++)
-                            tmp.Add((byte)(BGLayout[lc, lr] | (BGLoop[lc, lr] ? 0x80 : 0)));
-                    Compression.Compress(tmp.ToArray(), Level.BGLayout, Level.LayoutCompression);
-                    break;
-                case EngineVersion.S2NA:
-                    tmp = new List<byte>();
-                    tmp.Add((byte)(FGLayout.GetLength(0) - 1));
-                    tmp.Add((byte)(FGLayout.GetLength(1) - 1));
-                    for (int lr = 0; lr < FGLayout.GetLength(1); lr++)
-                        for (int lc = 0; lc < FGLayout.GetLength(0); lc++)
-                            tmp.Add(FGLayout[lc, lr]);
-                    Compression.Compress(tmp.ToArray(), Level.FGLayout, Level.LayoutCompression);
-                    tmp = new List<byte>();
-                    tmp.Add((byte)(BGLayout.GetLength(0) - 1));
-                    tmp.Add((byte)(BGLayout.GetLength(1) - 1));
-                    for (int lr = 0; lr < BGLayout.GetLength(1); lr++)
-                        for (int lc = 0; lc < BGLayout.GetLength(0); lc++)
-                            tmp.Add(BGLayout[lc, lr]);
-                    Compression.Compress(tmp.ToArray(), Level.BGLayout, Level.LayoutCompression);
-                    break;
-                case EngineVersion.S2:
-                    tmp = new List<byte>();
-                    for (int la = 0; la < 16; la++)
-                    {
-                        for (int laf = 0; laf < 128; laf++)
-                            tmp.Add(FGLayout[laf, la]);
-                        for (int lab = 0; lab < 128; lab++)
-                            tmp.Add(BGLayout[lab, la]);
-                    }
-                    Compression.Compress(tmp.ToArray(), Level.Layout, Level.LayoutCompression);
-                    break;
-                case EngineVersion.S3K:
-                    tmp = new List<byte>();
-                    ushort fgw = (ushort)FGLayout.GetLength(0);
-                    ushort bgw = (ushort)BGLayout.GetLength(0);
-                    ushort fgh = (ushort)FGLayout.GetLength(1);
-                    ushort bgh = (ushort)BGLayout.GetLength(1);
-                    tmp.AddRange(ByteConverter.GetBytes(fgw));
-                    tmp.AddRange(ByteConverter.GetBytes(bgw));
-                    tmp.AddRange(ByteConverter.GetBytes(fgh));
-                    tmp.AddRange(ByteConverter.GetBytes(bgh));
-                    for (int la = 0; la < 32; la++)
-                    {
-                        if (la < fgh)
-                            tmp.AddRange(ByteConverter.GetBytes((ushort)(0x8088 + (la * fgw))));
-                        else
-                            tmp.AddRange(new byte[2]);
-                        if (la < bgh)
-                            tmp.AddRange(ByteConverter.GetBytes((ushort)(0x8088 + (fgh * fgw) + (la * bgw))));
-                        else
-                            tmp.AddRange(new byte[2]);
-                    }
-                    for (int y = 0; y < fgh; y++)
-                        for (int x = 0; x < fgw; x++)
-                            tmp.Add(FGLayout[x, y]);
-                    for (int y = 0; y < bgh; y++)
-                        for (int x = 0; x < bgw; x++)
-                            tmp.Add(BGLayout[x, y]);
-                    Compression.Compress(tmp.ToArray(), Level.Layout, Level.LayoutCompression);
-                    break;
-                case EngineVersion.SKC:
-                    tmp = new List<byte>();
-                    fgw = (ushort)FGLayout.GetLength(0);
-                    bgw = (ushort)BGLayout.GetLength(0);
-                    fgh = (ushort)FGLayout.GetLength(1);
-                    bgh = (ushort)BGLayout.GetLength(1);
-                    tmp.AddRange(ByteConverter.GetBytes(fgw));
-                    tmp.AddRange(ByteConverter.GetBytes(bgw));
-                    tmp.AddRange(ByteConverter.GetBytes(fgh));
-                    tmp.AddRange(ByteConverter.GetBytes(bgh));
-                    for (int la = 0; la < 32; la++)
-                    {
-                        if (la < fgh)
-                            tmp.AddRange(ByteConverter.GetBytes((ushort)(0x8088 + (la * fgw))));
-                        else
-                            tmp.AddRange(new byte[2]);
-                        if (la < bgh)
-                            tmp.AddRange(ByteConverter.GetBytes((ushort)(0x8088 + (fgh * fgw) + (la * bgw))));
-                        else
-                            tmp.AddRange(new byte[2]);
-                    }
-                    List<byte> l = new List<byte>();
-                    for (int y = 0; y < fgh; y++)
-                        for (int x = 0; x < fgw; x++)
-                            l.Add(FGLayout[x, y]);
-                    for (int y = 0; y < bgh; y++)
-                        for (int x = 0; x < bgw; x++)
-                            l.Add(BGLayout[x, y]);
-                    for (int i = 0; i < l.Count; i++)
-                        tmp.Add(l[i ^ 1]);
-                    Compression.Compress(tmp.ToArray(), Level.Layout, Level.LayoutCompression);
-                    break;
-                case EngineVersion.SCDPC:
-                    tmp = new List<byte>();
-                    for (int lr = 0; lr < 8; lr++)
-                        for (int lc = 0; lc < 64; lc++)
-                            tmp.Add(FGLayout[lc, lr]);
-                    Compression.Compress(tmp.ToArray(), Level.FGLayout, Level.LayoutCompression);
-                    tmp = new List<byte>();
-                    for (int lr = 0; lr < 8; lr++)
-                        for (int lc = 0; lc < 64; lc++)
-                            tmp.Add(BGLayout[lc, lr]);
-                    Compression.Compress(tmp.ToArray(), Level.BGLayout, Level.LayoutCompression);
-                    break;
-            }
+            if (LayoutFormat.IsCombinedLayout)
+                ((LayoutFormatCombined)LayoutFormat).WriteLayout(Layout, Level.LayoutCompression, Level.Layout);
+            else
+                ((LayoutFormatSeparate)LayoutFormat).WriteLayout(Layout, Level.LayoutCompression, Level.FGLayout, Level.BGLayout);
             if (Level.PaletteFormat != EngineVersion.SCDPC)
             {
                 byte[] paltmp;
@@ -1262,9 +968,9 @@ namespace SonicRetro.SonLVL.API
             {
                 int xend = 0;
                 int yend = 0;
-                for (int y = 0; y < FGLayout.GetLength(1); y++)
-                    for (int x = 0; x < FGLayout.GetLength(0); x++)
-                        if (FGLayout[x, y] > 0)
+                for (int y = 0; y < Layout.FGLayout.GetLength(1); y++)
+                    for (int x = 0; x < Layout.FGLayout.GetLength(0); x++)
+                        if (Layout.FGLayout[x, y] > 0)
                         {
                             xend = Math.Max(xend, x);
                             yend = Math.Max(yend, y);
@@ -1274,20 +980,20 @@ namespace SonicRetro.SonLVL.API
                 bounds = new Rectangle(0, 0, xend * chunksz, yend * chunksz);
             }
             BitmapBits LevelImg8bpp = new BitmapBits(bounds.Size);
-            for (int y = Math.Max(bounds.Y / chunksz, 0); y <= Math.Min((bounds.Bottom - 1) / chunksz, FGLayout.GetLength(1) - 1); y++)
-                for (int x = Math.Max(bounds.X / chunksz, 0); x <= Math.Min((bounds.Right - 1) / chunksz, FGLayout.GetLength(0) - 1); x++)
+            for (int y = Math.Max(bounds.Y / chunksz, 0); y <= Math.Min((bounds.Bottom - 1) / chunksz, Layout.FGLayout.GetLength(1) - 1); y++)
+                for (int x = Math.Max(bounds.X / chunksz, 0); x <= Math.Min((bounds.Right - 1) / chunksz, Layout.FGLayout.GetLength(0) - 1); x++)
                 {
-                    if (FGLayout[x, y] < Chunks.Count & lowPlane)
-                        LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[FGLayout[x, y]][0], x * chunksz - bounds.X, y * chunksz - bounds.Y);
+                    if (Layout.FGLayout[x, y] < Chunks.Count & lowPlane)
+                        LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[Layout.FGLayout[x, y]][0], x * chunksz - bounds.X, y * chunksz - bounds.Y);
                     if (objectsAboveHighPlane)
-                        if (FGLayout[x, y] < Chunks.Count)
+                        if (Layout.FGLayout[x, y] < Chunks.Count)
                         {
                             if (highPlane)
-                                LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[FGLayout[x, y]][1], x * chunksz - bounds.X, y * chunksz - bounds.Y);
+                                LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[Layout.FGLayout[x, y]][1], x * chunksz - bounds.X, y * chunksz - bounds.Y);
                             if (collisionPath1)
-                                LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[FGLayout[x, y]][0], x * chunksz - bounds.X, y * chunksz - bounds.Y);
+                                LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][0], x * chunksz - bounds.X, y * chunksz - bounds.Y);
                             else if (collisionPath2)
-                                LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[FGLayout[x, y]][1], x * chunksz - bounds.X, y * chunksz - bounds.Y);
+                                LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][1], x * chunksz - bounds.X, y * chunksz - bounds.Y);
                         }
                 }
             if (includeObjects)
@@ -1315,16 +1021,16 @@ namespace SonicRetro.SonLVL.API
                     LevelImg8bpp.DrawSprite(item.Sprite, -bounds.X, -bounds.Y);
             }
             if (!objectsAboveHighPlane)
-                for (int y = Math.Max(bounds.Y / chunksz, 0); y <= Math.Min(bounds.Bottom / chunksz, FGLayout.GetLength(1) - 1); y++)
-                    for (int x = Math.Max(bounds.X / chunksz, 0); x <= Math.Min(bounds.Right / chunksz, FGLayout.GetLength(0) - 1); x++)
-                        if (FGLayout[x, y] < Chunks.Count)
+                for (int y = Math.Max(bounds.Y / chunksz, 0); y <= Math.Min(bounds.Bottom / chunksz, Layout.FGLayout.GetLength(1) - 1); y++)
+                    for (int x = Math.Max(bounds.X / chunksz, 0); x <= Math.Min(bounds.Right / chunksz, Layout.FGLayout.GetLength(0) - 1); x++)
+                        if (Layout.FGLayout[x, y] < Chunks.Count)
                         {
                             if (highPlane)
-                                LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[FGLayout[x, y]][1], x * chunksz - bounds.X, y * chunksz - bounds.Y);
+                                LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[Layout.FGLayout[x, y]][1], x * chunksz - bounds.X, y * chunksz - bounds.Y);
                             if (collisionPath1)
-                                LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[FGLayout[x, y]][0], x * chunksz - bounds.X, y * chunksz - bounds.Y);
+                                LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][0], x * chunksz - bounds.X, y * chunksz - bounds.Y);
                             else if (collisionPath2)
-                                LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[FGLayout[x, y]][1], x * chunksz - bounds.X, y * chunksz - bounds.Y);
+                                LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][1], x * chunksz - bounds.X, y * chunksz - bounds.Y);
                         }
             return LevelImg8bpp;
         }
@@ -1338,9 +1044,9 @@ namespace SonicRetro.SonLVL.API
             {
                 int xend = 0;
                 int yend = 0;
-                for (int y = 0; y < BGLayout.GetLength(1); y++)
-                    for (int x = 0; x < BGLayout.GetLength(0); x++)
-                        if (BGLayout[x, y] > 0)
+                for (int y = 0; y < Layout.BGLayout.GetLength(1); y++)
+                    for (int x = 0; x < Layout.BGLayout.GetLength(0); x++)
+                        if (Layout.BGLayout[x, y] > 0)
                         {
                             xend = Math.Max(xend, x);
                             yend = Math.Max(yend, y);
@@ -1350,18 +1056,18 @@ namespace SonicRetro.SonLVL.API
                 bounds = new Rectangle(0, 0, xend * chunksz, yend * chunksz);
             }
             BitmapBits LevelImg8bpp = new BitmapBits(bounds.Size);
-            for (int y = Math.Max(bounds.Y / chunksz, 0); y <= Math.Min((bounds.Bottom - 1) / chunksz, BGLayout.GetLength(1) - 1); y++)
-                for (int x = Math.Max(bounds.X / chunksz, 0); x <= Math.Min((bounds.Right - 1) / chunksz, BGLayout.GetLength(0) - 1); x++)
-                    if (BGLayout[x, y] < Chunks.Count)
+            for (int y = Math.Max(bounds.Y / chunksz, 0); y <= Math.Min((bounds.Bottom - 1) / chunksz, Layout.BGLayout.GetLength(1) - 1); y++)
+                for (int x = Math.Max(bounds.X / chunksz, 0); x <= Math.Min((bounds.Right - 1) / chunksz, Layout.BGLayout.GetLength(0) - 1); x++)
+                    if (Layout.BGLayout[x, y] < Chunks.Count)
                     {
                         if (lowPlane)
-                            LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[BGLayout[x, y]][0], x * chunksz - bounds.X, y * chunksz - bounds.Y);
+                            LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[Layout.BGLayout[x, y]][0], x * chunksz - bounds.X, y * chunksz - bounds.Y);
                         if (highPlane)
-                            LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[BGLayout[x, y]][1], x * chunksz - bounds.X, y * chunksz - bounds.Y);
+                            LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[Layout.BGLayout[x, y]][1], x * chunksz - bounds.X, y * chunksz - bounds.Y);
                         if (collisionPath1)
-                            LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[BGLayout[x, y]][0], x * chunksz - bounds.X, y * chunksz - bounds.Y);
+                            LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.BGLayout[x, y]][0], x * chunksz - bounds.X, y * chunksz - bounds.Y);
                         else if (collisionPath2)
-                            LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[BGLayout[x, y]][1], x * chunksz - bounds.X, y * chunksz - bounds.Y);
+                            LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.BGLayout[x, y]][1], x * chunksz - bounds.X, y * chunksz - bounds.Y);
                     }
             return LevelImg8bpp;
         }
@@ -2951,7 +2657,7 @@ namespace SonicRetro.SonLVL.API
             {
                 for (int bx = 0; bx < 2; bx++)
                 {
-                    PatternIndex pt = Blocks[block].tiles[bx, by];
+                    PatternIndex pt = Blocks[block].Tiles[bx, by];
                     int pr = pt.Priority ? 1 : 0;
                     BitmapBits tile = TileToBmp8bpp(Tiles[pt.Tile], 0, pt.Palette);
                     tile.Flip(pt.XFlip, pt.YFlip);
@@ -2973,7 +2679,7 @@ namespace SonicRetro.SonLVL.API
                     bool dr = false;
                     for (int k = 0; k < 8; k++)
                         for (int j = 0; j < 8; j++)
-                            if (Chunks[i].blocks[j, k].Block == block)
+                            if (Chunks[i].Blocks[j, k].Block == block)
                                 dr = true;
                     if (dr)
                         RedrawChunk(i);
@@ -2992,7 +2698,7 @@ namespace SonicRetro.SonLVL.API
             {
                 for (int bx = 0; bx < chunksz / 16; bx++)
                 {
-                    ChunkBlock blk = Chunks[chunk].blocks[bx, by];
+                    ChunkBlock blk = Chunks[chunk].Blocks[bx, by];
                     if (blk.Block < BlockBmpBits.Count)
                     {
                         BitmapBits bmp = new BitmapBits(BlockBmpBits[blk.Block][0]);
@@ -3127,7 +2833,7 @@ namespace SonicRetro.SonLVL.API
                     bool dr = false;
                     for (int k = 0; k < 8; k++)
                         for (int j = 0; j < 8; j++)
-                            if (ColInds1[Chunks[i].blocks[j, k].Block] == block | ColInds2[Chunks[i].blocks[j, k].Block] == block)
+                            if (ColInds1[Chunks[i].Blocks[j, k].Block] == block | ColInds2[Chunks[i].Blocks[j, k].Block] == block)
                                 dr = true;
                     if (dr)
                         RedrawChunk(i);
@@ -3387,58 +3093,32 @@ namespace SonicRetro.SonLVL.API
             Array.Resize(ref array, array.Length + (multiple - off));
         }
 
-        public static Size? LevelSizeLimit()
-        {
-            switch (Level.LayoutFormat)
-            {
-                case EngineVersion.S1:
-                case EngineVersion.S2NA:
-                    return new Size(Game.LevelWidthMax, Game.LevelHeightMax);
-                case EngineVersion.S3K:
-                case EngineVersion.SKC:
-                    return new Size(200, 32);
-            }
-            return null;
-        }
+        public static Size FGSize { get { return new Size(FGWidth, FGHeight); } }
 
-        public static Size FGSize
-        {
-            get
-            {
-                return new Size(FGLayout.GetLength(0), FGLayout.GetLength(1));
-            }
-        }
+        public static int FGWidth { get { return Layout.FGLayout.GetLength(0); } }
+        public static int FGHeight { get { return Layout.FGLayout.GetLength(1); } }
 
-        public static int FGWidth { get { return FGLayout.GetLength(0); } }
-        public static int FGHeight { get { return FGLayout.GetLength(1); } }
+        public static Size BGSize { get { return new Size(BGWidth, BGHeight); } }
 
-        public static Size BGSize
-        {
-            get
-            {
-                return new Size(BGLayout.GetLength(0), BGLayout.GetLength(1));
-            }
-        }
-
-        public static int BGWidth { get { return BGLayout.GetLength(0); } }
-        public static int BGHeight { get { return BGLayout.GetLength(1); } }
+        public static int BGWidth { get { return Layout.BGLayout.GetLength(0); } }
+        public static int BGHeight { get { return Layout.BGLayout.GetLength(1); } }
 
         public static void ResizeFG(Size newSize) { ResizeFG(newSize.Width, newSize.Height); }
 
         public static void ResizeFG(int width, int height)
         {
             byte[,] newFG = new byte[width, height];
-            bool[,] newFGLoop = FGLoop != null ? new bool[width, height] : null;
+            bool[,] newFGLoop = Layout.FGLoop != null ? new bool[width, height] : null;
             Size oldsize = FGSize;
             for (int y = 0; y < Math.Min(height, oldsize.Height); y++)
                 for (int x = 0; x < Math.Min(width, oldsize.Width); x++)
                 {
-                    newFG[x, y] = FGLayout[x, y];
+                    newFG[x, y] = Layout.FGLayout[x, y];
                     if (newFGLoop != null)
-                        newFGLoop[x, y] = FGLoop[x, y];
+                        newFGLoop[x, y] = Layout.FGLoop[x, y];
                 }
-            FGLayout = newFG;
-            FGLoop = newFGLoop;
+            Layout.FGLayout = newFG;
+            Layout.FGLoop = newFGLoop;
         }
 
         public static void ResizeBG(Size newSize) { ResizeBG(newSize.Width, newSize.Height); }
@@ -3446,18 +3126,26 @@ namespace SonicRetro.SonLVL.API
         public static void ResizeBG(int width, int height)
         {
             byte[,] newBG = new byte[width, height];
-            bool[,] newBGLoop = BGLoop != null ? new bool[width, height] : null;
+            bool[,] newBGLoop = Layout.BGLoop != null ? new bool[width, height] : null;
             Size oldsize = BGSize;
             for (int y = 0; y < Math.Min(height, oldsize.Height); y++)
                 for (int x = 0; x < Math.Min(width, oldsize.Width); x++)
                 {
-                    newBG[x, y] = BGLayout[x, y];
+                    newBG[x, y] = Layout.BGLayout[x, y];
                     if (newBGLoop != null)
-                        newBGLoop[x, y] = BGLoop[x, y];
+                        newBGLoop[x, y] = Layout.BGLoop[x, y];
                 }
-            BGLayout = newBG;
-            BGLoop = newBGLoop;
+            Layout.BGLayout = newBG;
+            Layout.BGLoop = newBGLoop;
         }
+    }
+
+    public class LayoutData
+    {
+        public byte[,] FGLayout;
+        public bool[,] FGLoop;
+        public byte[,] BGLayout;
+        public bool[,] BGLoop;
     }
 
     public enum EngineVersion

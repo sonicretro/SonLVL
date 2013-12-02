@@ -1131,7 +1131,7 @@ namespace SonicRetro.SonLVL.API
                                 first = false;
                             }
                             else
-                                rect.Intersect(tmp);
+                                rect = Rectangle.Union(tmp, rect);
                         }
                     return rect;
                 }
@@ -1168,7 +1168,7 @@ namespace SonicRetro.SonLVL.API
                                         first = false;
                                     }
                                     else
-                                        rect.Intersect(tmp);
+                                        rect = Rectangle.Union(tmp, rect);
                                 }
                             return rect;
                         }

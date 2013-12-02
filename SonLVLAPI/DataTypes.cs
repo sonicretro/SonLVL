@@ -193,24 +193,24 @@ namespace SonicRetro.SonLVL.API
 
     public class Block
     {
-        public PatternIndex[,] tiles { get; set; }
+        public PatternIndex[,] Tiles { get; set; }
 
         public static int Size { get { return PatternIndex.Size * 4; } }
 
         public Block()
         {
-            tiles = new PatternIndex[2, 2];
+            Tiles = new PatternIndex[2, 2];
             for (int y = 0; y < 2; y++)
                 for (int x = 0; x < 2; x++)
-                    tiles[x, y] = new PatternIndex();
+                    Tiles[x, y] = new PatternIndex();
         }
 
         public Block(byte[] file, int address)
         {
-            tiles = new PatternIndex[2, 2];
+            Tiles = new PatternIndex[2, 2];
             for (int y = 0; y < 2; y++)
                 for (int x = 0; x < 2; x++)
-                    tiles[x, y] = new PatternIndex(file, address + ((x + (y * 2)) * PatternIndex.Size));
+                    Tiles[x, y] = new PatternIndex(file, address + ((x + (y * 2)) * PatternIndex.Size));
         }
 
         public byte[] GetBytes()
@@ -218,7 +218,7 @@ namespace SonicRetro.SonLVL.API
             List<byte> val = new List<byte>();
             for (int y = 0; y < 2; y++)
                 for (int x = 0; x < 2; x++)
-                    val.AddRange(tiles[x, y].GetBytes());
+                    val.AddRange(Tiles[x, y].GetBytes());
             return val.ToArray();
         }
 
@@ -228,7 +228,7 @@ namespace SonicRetro.SonLVL.API
             Block other = (Block)obj;
             for (int y = 0; y < 2; y++)
                 for (int x = 0; x < 2; x++)
-                    if (tiles[x, y] != other.tiles[x, y]) return false;
+                    if (Tiles[x, y] != other.Tiles[x, y]) return false;
             return true;
         }
 
@@ -400,7 +400,7 @@ namespace SonicRetro.SonLVL.API
 
     public class Chunk
     {
-        public ChunkBlock[,] blocks { get; set; }
+        public ChunkBlock[,] Blocks { get; set; }
 
         private int size;
 
@@ -409,7 +409,7 @@ namespace SonicRetro.SonLVL.API
         public Chunk()
         {
             size = LevelData.chunksz / 16;
-            blocks = new ChunkBlock[size, size];
+            Blocks = new ChunkBlock[size, size];
             switch (LevelData.Level.ChunkFormat)
             {
                 case EngineVersion.S1:
@@ -417,7 +417,7 @@ namespace SonicRetro.SonLVL.API
                 case EngineVersion.SCDPC:
                     for (int y = 0; y < size; y++)
                         for (int x = 0; x < size; x++)
-                            blocks[x, y] = new S1ChunkBlock();
+                            Blocks[x, y] = new S1ChunkBlock();
                     break;
                 case EngineVersion.S2:
                 case EngineVersion.S2NA:
@@ -425,7 +425,7 @@ namespace SonicRetro.SonLVL.API
                 case EngineVersion.SKC:
                     for (int y = 0; y < size; y++)
                         for (int x = 0; x < size; x++)
-                            blocks[x, y] = new S2ChunkBlock();
+                            Blocks[x, y] = new S2ChunkBlock();
                     break;
             }
         }
@@ -433,7 +433,7 @@ namespace SonicRetro.SonLVL.API
         public Chunk(byte[] file, int address)
         {
             size = LevelData.chunksz / 16;
-            blocks = new ChunkBlock[size, size];
+            Blocks = new ChunkBlock[size, size];
             switch (LevelData.Level.ChunkFormat)
             {
                 case EngineVersion.S1:
@@ -441,7 +441,7 @@ namespace SonicRetro.SonLVL.API
                 case EngineVersion.SCDPC:
                     for (int y = 0; y < size; y++)
                         for (int x = 0; x < size; x++)
-                            blocks[x, y] = new S1ChunkBlock(file, address + ((x + (y * size)) * ChunkBlock.Size));
+                            Blocks[x, y] = new S1ChunkBlock(file, address + ((x + (y * size)) * ChunkBlock.Size));
                     break;
                 case EngineVersion.S2:
                 case EngineVersion.S2NA:
@@ -449,7 +449,7 @@ namespace SonicRetro.SonLVL.API
                 case EngineVersion.SKC:
                     for (int y = 0; y < size; y++)
                         for (int x = 0; x < size; x++)
-                            blocks[x, y] = new S2ChunkBlock(file, address + ((x + (y * size)) * ChunkBlock.Size));
+                            Blocks[x, y] = new S2ChunkBlock(file, address + ((x + (y * size)) * ChunkBlock.Size));
                     break;
             }
         }
@@ -459,7 +459,7 @@ namespace SonicRetro.SonLVL.API
             List<byte> val = new List<byte>();
             for (int y = 0; y < size; y++)
                 for (int x = 0; x < size; x++)
-                    val.AddRange(blocks[x, y].GetBytes());
+                    val.AddRange(Blocks[x, y].GetBytes());
             return val.ToArray();
         }
 
@@ -469,7 +469,7 @@ namespace SonicRetro.SonLVL.API
             Chunk other = (Chunk)obj;
             for (int y = 0; y < size; y++)
                 for (int x = 0; x < size; x++)
-                    if (blocks[x, y] != other.blocks[x, y]) return false;
+                    if (Blocks[x, y] != other.Blocks[x, y]) return false;
             return true;
         }
 
@@ -1663,10 +1663,10 @@ namespace SonicRetro.SonLVL.API
             {
                 case EngineVersion.S1:
                 case EngineVersion.S2:
-                    return ByteConverter.GetBytes((ushort)(((TileCount & 0xF) << 12) | (TileNum & 0xFFF)));
+                    return ByteConverter.GetBytes((ushort)((((TileCount - 1) & 0xF) << 12) | (TileNum & 0xFFF)));
                 case EngineVersion.S3K:
                 case EngineVersion.SKC:
-                    return ByteConverter.GetBytes((ushort)(((TileNum & 0xFFF) << 4) | (TileCount & 0xF)));
+                    return ByteConverter.GetBytes((ushort)(((TileNum & 0xFFF) << 4) | ((TileCount - 1) & 0xF)));
             }
             throw new ArgumentOutOfRangeException("version");
         }

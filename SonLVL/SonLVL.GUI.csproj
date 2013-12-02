@@ -99,6 +99,18 @@
       <DependentUpon>BugReportDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Extensions.cs" />
+    <Compile Include="FindChunksDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FindChunksDialog.Designer.cs">
+      <DependentUpon>FindChunksDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FindObjectsDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FindObjectsDialog.Designer.cs">
+      <DependentUpon>FindObjectsDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="InsertDeleteDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -158,6 +170,12 @@
     <EmbeddedResource Include="BugReportDialog.resx">
       <DependentUpon>BugReportDialog.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="FindChunksDialog.resx">
+      <DependentUpon>FindChunksDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FindObjectsDialog.resx">
+      <DependentUpon>FindObjectsDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="InsertDeleteDialog.resx">
       <DependentUpon>InsertDeleteDialog.cs</DependentUpon>
     </EmbeddedResource>
@@ -169,6 +187,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="ResizeLevelDialog.resx">
       <DependentUpon>ResizeLevelDialog.cs</DependentUpon>

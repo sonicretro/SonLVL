@@ -187,15 +187,6 @@ namespace SonicRetro.SonLVL.API
             if (info.ChunkCompression != CompressionType.Invalid)
                 result.ChunkCompression = info.ChunkCompression;
             result.Chunks = info.Chunks;
-            switch (result.LayoutFormat)
-            {
-                case EngineVersion.S2:
-                    result.LayoutCompression = CompressionType.Kosinski;
-                    break;
-                default:
-                    result.LayoutCompression = CompressionType.Uncompressed;
-                    break;
-            }
             if (LayoutCompression != CompressionType.Invalid)
                 result.LayoutCompression = LayoutCompression;
             if (info.LayoutCompression != CompressionType.Invalid)

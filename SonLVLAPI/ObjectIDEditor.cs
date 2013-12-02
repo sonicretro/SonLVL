@@ -7,19 +7,37 @@ using System.Windows.Forms.Design;
 
 namespace SonicRetro.SonLVL.API
 {
+    [DefaultEvent("ValueChanged")]
+    [DefaultProperty("Value")]
     public class IDControl : UserControl
     {
         internal ImageList imageList1;
         private IContainer components;
         internal ListView listView1;
         private NumericUpDown numericUpDown1;
-    
-        public byte value { get; private set; }
+
+        public event EventHandler ValueChanged = delegate { };
+
+        private byte _value;
+        public byte Value
+        {
+            get { return _value; }
+            private set
+            {
+                _value = value;
+                ValueChanged(this, new EventArgs());
+            }
+        }
         private IWindowsFormsEditorService edSvc;
+
+        public IDControl()
+        {
+            InitializeComponent();
+        }
 
         public IDControl(byte val, IWindowsFormsEditorService edSvc)
         {
-            value = val;
+            Value = val;
             this.edSvc = edSvc;
             InitializeComponent();
         }
@@ -87,34 +105,36 @@ namespace SonicRetro.SonLVL.API
             listView1.BeginUpdate();
             listView1.Items.Clear();
             imageList1.Images.Clear();
-            foreach (KeyValuePair<byte, ObjectDefinition> item in LevelData.ObjTypes)
-            {
-                imageList1.Images.Add(item.Value.Image.Image.ToBitmap(LevelData.BmpPal).Resize(imageList1.ImageSize));
-                listView1.Items.Add(new ListViewItem(item.Value.Name, imageList1.Images.Count - 1) { Tag = item.Key, Selected = item.Key == value });
-            }
+            if (LevelData.ObjTypes != null)
+                foreach (KeyValuePair<byte, ObjectDefinition> item in LevelData.ObjTypes)
+                {
+                    imageList1.Images.Add(item.Value.Image.Image.ToBitmap(LevelData.BmpPal).Resize(imageList1.ImageSize));
+                    listView1.Items.Add(new ListViewItem(item.Value.Name, imageList1.Images.Count - 1) { Tag = item.Key, Selected = item.Key == Value });
+                }
             listView1.EndUpdate();
-            numericUpDown1.Value = value;
+            numericUpDown1.Value = Value;
         }
 
         private void listView1_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (listView1.SelectedIndices.Count == 0) return;
-            numericUpDown1.Value = value = (byte)listView1.SelectedItems[0].Tag;
+            numericUpDown1.Value = Value = (byte)listView1.SelectedItems[0].Tag;
         }
 
         private void listView1_ItemActivate(object sender, EventArgs e)
         {
-            edSvc.CloseDropDown();
+            if (edSvc != null)
+                edSvc.CloseDropDown();
         }
 
         private void IDControl_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter) edSvc.CloseDropDown();
+            if (edSvc != null && e.KeyCode == Keys.Enter) edSvc.CloseDropDown();
         }
 
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)
         {
-            value = (byte)numericUpDown1.Value;
+            Value = (byte)numericUpDown1.Value;
         }
     }
 
@@ -143,7 +163,7 @@ namespace SonicRetro.SonLVL.API
                 // Display an angle selection control and retrieve the value.
                 IDControl idControl = new IDControl(byte.Parse((string)value, System.Globalization.NumberStyles.HexNumber), edSvc);
                 edSvc.DropDownControl(idControl);
-                return idControl.value.ToString("X2");
+                return idControl.Value.ToString("X2");
             }
             return value;
         }

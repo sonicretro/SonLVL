@@ -29,9 +29,9 @@ namespace SonicRetro.SonLVL.GUI
             if (LevelData.Level.LayoutFormat == EngineVersion.S3K || LevelData.Level.LayoutFormat == EngineVersion.SKC)
             {
                 if (fg)
-                    levelWidth.Maximum = Math.Floor((3960 - (LevelData.BGLayout.Length)) / levelHeight.Value);
+                    levelWidth.Maximum = Math.Floor((3960 - (LevelData.Layout.BGLayout.Length)) / levelHeight.Value);
                 else
-                    levelWidth.Maximum = Math.Floor((3960 - (LevelData.FGLayout.Length)) / levelHeight.Value);
+                    levelWidth.Maximum = Math.Floor((3960 - (LevelData.Layout.FGLayout.Length)) / levelHeight.Value);
             }
         }
     }

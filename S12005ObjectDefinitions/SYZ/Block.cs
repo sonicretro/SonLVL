@@ -51,14 +51,14 @@ namespace S12005ObjectDefinitions.SYZ
 
         public override Rectangle GetBounds(ObjectEntry obj, Point camera)
         {
-            return new Rectangle(obj.X + imgs[(obj.SubType & 0xE) << 1].X - camera.X, obj.Y + imgs[(obj.SubType & 0xE) << 1].Y - camera.Y, imgs[(obj.SubType & 0xE) << 1].Width, imgs[(obj.SubType & 0xE) << 1].Height);
+            return new Rectangle(obj.X + SubtypeImage(obj.SubType).X - camera.X, obj.Y + SubtypeImage(obj.SubType).Y - camera.Y, SubtypeImage(obj.SubType).Width, SubtypeImage(obj.SubType).Height);
         }
 
         public override Sprite GetSprite(ObjectEntry obj)
         {
-            BitmapBits bits = new BitmapBits(imgs[(obj.SubType & 0xE) << 1].Image);
+            BitmapBits bits = new BitmapBits(SubtypeImage(obj.SubType).Image);
             bits.Flip(obj.XFlip, obj.YFlip);
-            return new Sprite(bits, new Point(obj.X + imgs[(obj.SubType & 0xE) << 1].X, obj.Y + imgs[(obj.SubType & 0xE) << 1].Y));
+            return new Sprite(bits, new Point(obj.X + SubtypeImage(obj.SubType).X, obj.Y + SubtypeImage(obj.SubType).Y));
         }
 
         private static readonly PropertySpec[] customProperties = new PropertySpec[] {
