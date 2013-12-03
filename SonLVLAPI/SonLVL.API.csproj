@@ -94,6 +94,7 @@
     <Compile Include="S3K\Layout.cs" />
     <Compile Include="SCDPC\Layout.cs" />
     <Compile Include="SKC\Layout.cs" />
+    <Compile Include="TileFormat.cs" />
     <Compile Include="TileList.cs">
       <SubType>UserControl</SubType>
     </Compile>

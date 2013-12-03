@@ -286,6 +286,22 @@ namespace SonicRetro.SonLVL.API
             }
         }
 
+        [Browsable(false)]
+        public int ScrollValue
+        {
+            get
+            {
+                return direction == API.Direction.Horizontal ? hScrollBar1.Value : vScrollBar1.Value;
+            }
+            set
+            {
+                if (direction == API.Direction.Horizontal)
+                    hScrollBar1.Value = Math.Min(hScrollBar1.Maximum, Math.Max(0, value));
+                else
+                    vScrollBar1.Value = Math.Min(vScrollBar1.Maximum, Math.Max(0, value));
+            }
+        }
+
         private void ScrollToSelected()
         {
             if (selectedIndex == -1) return;
