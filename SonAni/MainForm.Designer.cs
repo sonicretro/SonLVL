@@ -60,6 +60,9 @@
             this.animationName = new System.Windows.Forms.TextBox();
             this.animationSpeed = new System.Windows.Forms.NumericUpDown();
             this.endTypeBox = new System.Windows.Forms.GroupBox();
+            this.endTypeFA = new System.Windows.Forms.RadioButton();
+            this.endTypeFB = new System.Windows.Forms.RadioButton();
+            this.endTypeFC = new System.Windows.Forms.RadioButton();
             this.endAnimBox = new System.Windows.Forms.ComboBox();
             this.endAnimNum = new System.Windows.Forms.NumericUpDown();
             this.endTypeFD = new System.Windows.Forms.RadioButton();
@@ -140,14 +143,14 @@
             this.animationListBox.Enabled = false;
             this.animationListBox.Location = new System.Drawing.Point(3, 16);
             this.animationListBox.Name = "animationListBox";
-            this.animationListBox.Size = new System.Drawing.Size(120, 485);
+            this.animationListBox.Size = new System.Drawing.Size(120, 490);
             this.animationListBox.TabIndex = 1;
             this.animationListBox.SelectedIndexChanged += new System.EventHandler(this.animationListBox_SelectedIndexChanged);
             // 
             // label1
             // 
-            label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)));
+            label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             label1.AutoSize = true;
             tableLayoutPanel1.SetColumnSpan(label1, 2);
             label1.Location = new System.Drawing.Point(3, 0);
@@ -198,8 +201,8 @@
             // 
             // tableLayoutPanel3
             // 
-            tableLayoutPanel3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            tableLayoutPanel3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             tableLayoutPanel3.ColumnCount = 1;
             tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             tableLayoutPanel3.Controls.Add(label5, 0, 0);
@@ -214,8 +217,8 @@
             // 
             // label5
             // 
-            label5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)));
+            label5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             label5.AutoSize = true;
             label5.Location = new System.Drawing.Point(3, 0);
             label5.Name = "label5";
@@ -239,11 +242,11 @@
             this.animationFrameList.Size = new System.Drawing.Size(540, 100);
             this.animationFrameList.TabIndex = 1;
             this.animationFrameList.ItemDrag += new System.EventHandler(this.animationFrameList_ItemDrag);
-            this.animationFrameList.Paint += new System.Windows.Forms.PaintEventHandler(this.animationFrameList_Paint);
-            this.animationFrameList.DragOver += new System.Windows.Forms.DragEventHandler(this.animationFrameList_DragOver);
             this.animationFrameList.DragDrop += new System.Windows.Forms.DragEventHandler(this.animationFrameList_DragDrop);
-            this.animationFrameList.DragLeave += new System.EventHandler(this.animationFrameList_DragLeave);
             this.animationFrameList.DragEnter += new System.Windows.Forms.DragEventHandler(this.animationFrameList_DragEnter);
+            this.animationFrameList.DragOver += new System.Windows.Forms.DragEventHandler(this.animationFrameList_DragOver);
+            this.animationFrameList.DragLeave += new System.EventHandler(this.animationFrameList_DragLeave);
+            this.animationFrameList.Paint += new System.Windows.Forms.PaintEventHandler(this.animationFrameList_Paint);
             this.animationFrameList.KeyDown += new System.Windows.Forms.KeyEventHandler(this.animationFrameList_KeyDown);
             // 
             // menuStrip1
@@ -315,8 +318,8 @@
             // 
             // playButton
             // 
-            this.playButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.playButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.playButton.AutoSize = true;
             this.playButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.playButton.Font = new System.Drawing.Font("Webdings", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(2)));
@@ -360,9 +363,9 @@
             // 
             // previewPanel
             // 
-            this.previewPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.previewPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.previewPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.previewPanel.Location = new System.Drawing.Point(6, 19);
             this.previewPanel.Name = "previewPanel";
@@ -390,7 +393,7 @@
             // 
             // previewTimer
             // 
-            this.previewTimer.Interval = 16.6666;
+            this.previewTimer.Interval = 16.6666D;
             this.previewTimer.SynchronizingObject = this;
             this.previewTimer.Elapsed += new System.Timers.ElapsedEventHandler(this.previewTimer_Elapsed);
             // 
@@ -434,6 +437,9 @@
             // 
             this.endTypeBox.AutoSize = true;
             this.endTypeBox.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.endTypeBox.Controls.Add(this.endTypeFA);
+            this.endTypeBox.Controls.Add(this.endTypeFB);
+            this.endTypeBox.Controls.Add(this.endTypeFC);
             this.endTypeBox.Controls.Add(this.endAnimBox);
             this.endTypeBox.Controls.Add(this.endAnimNum);
             this.endTypeBox.Controls.Add(this.endTypeFD);
@@ -444,10 +450,46 @@
             this.endTypeBox.Location = new System.Drawing.Point(132, 204);
             this.endTypeBox.Name = "endTypeBox";
             this.endTypeBox.Padding = new System.Windows.Forms.Padding(3, 3, 3, 0);
-            this.endTypeBox.Size = new System.Drawing.Size(306, 104);
+            this.endTypeBox.Size = new System.Drawing.Size(306, 173);
             this.endTypeBox.TabIndex = 14;
             this.endTypeBox.TabStop = false;
             this.endTypeBox.Text = "End Type";
+            // 
+            // endTypeFA
+            // 
+            this.endTypeFA.AutoSize = true;
+            this.endTypeFA.Location = new System.Drawing.Point(6, 140);
+            this.endTypeFA.Name = "endTypeFA";
+            this.endTypeFA.Size = new System.Drawing.Size(192, 17);
+            this.endTypeFA.TabIndex = 19;
+            this.endTypeFA.TabStop = true;
+            this.endTypeFA.Text = "Increment Second Routine Counter";
+            this.endTypeFA.UseVisualStyleBackColor = true;
+            this.endTypeFA.CheckedChanged += new System.EventHandler(this.endTypeFA_CheckedChanged);
+            // 
+            // endTypeFB
+            // 
+            this.endTypeFB.AutoSize = true;
+            this.endTypeFB.Location = new System.Drawing.Point(6, 117);
+            this.endTypeFB.Name = "endTypeFB";
+            this.endTypeFB.Size = new System.Drawing.Size(243, 17);
+            this.endTypeFB.TabIndex = 18;
+            this.endTypeFB.TabStop = true;
+            this.endTypeFB.Text = "Reset Animation and Second Routine Counter";
+            this.endTypeFB.UseVisualStyleBackColor = true;
+            this.endTypeFB.CheckedChanged += new System.EventHandler(this.endTypeFB_CheckedChanged);
+            // 
+            // endTypeFC
+            // 
+            this.endTypeFC.AutoSize = true;
+            this.endTypeFC.Location = new System.Drawing.Point(6, 94);
+            this.endTypeFC.Name = "endTypeFC";
+            this.endTypeFC.Size = new System.Drawing.Size(152, 17);
+            this.endTypeFC.TabIndex = 17;
+            this.endTypeFC.TabStop = true;
+            this.endTypeFC.Text = "Increment Routine Counter";
+            this.endTypeFC.UseVisualStyleBackColor = true;
+            this.endTypeFC.CheckedChanged += new System.EventHandler(this.endTypeFC_CheckedChanged);
             // 
             // endAnimBox
             // 
@@ -524,6 +566,7 @@
             this.endTypeFF.TabStop = true;
             this.endTypeFF.Text = "Loop Entire Animation";
             this.endTypeFF.UseVisualStyleBackColor = true;
+            this.endTypeFF.CheckedChanged += new System.EventHandler(this.endTypeFF_CheckedChanged);
             // 
             // mappingFrameList
             // 
@@ -558,8 +601,8 @@
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainForm";
             this.Text = "SonAni";
-            this.Load += new System.EventHandler(this.MainForm_Load);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
+            this.Load += new System.EventHandler(this.MainForm_Load);
             tableLayoutPanel1.ResumeLayout(false);
             tableLayoutPanel1.PerformLayout();
             tableLayoutPanel3.ResumeLayout(false);
@@ -610,6 +653,9 @@
         private System.Windows.Forms.NumericUpDown endAnimNum;
         private System.Windows.Forms.RadioButton endTypeFD;
         private System.Windows.Forms.ComboBox endAnimBox;
+        private System.Windows.Forms.RadioButton endTypeFA;
+        private System.Windows.Forms.RadioButton endTypeFB;
+        private System.Windows.Forms.RadioButton endTypeFC;
     }
 }
 

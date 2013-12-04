@@ -362,6 +362,15 @@ namespace SonAni
                         endTypeFD.Checked = true;
                         endAnimNum.Value = curanim.ExtraParam.Value;
                         break;
+                    case 0xFC:
+                        endTypeFC.Checked = true;
+                        break;
+                    case 0xFB:
+                        endTypeFB.Checked = true;
+                        break;
+                    case 0xFA:
+                        endTypeFA.Checked = true;
+                        break;
                 }
                 endTypeBox.Enabled = true;
             }
@@ -435,6 +444,7 @@ namespace SonAni
                 switch (curanim.EndType)
                 {
                     case 0xFF:
+                    case 0xFB:
                         PreviewFrame = 0;
                         break;
                     case 0xFE:
@@ -469,7 +479,7 @@ namespace SonAni
                         file = filebase + "_intro" + fileext;
                     AnimatedGifEncoder gif = new AnimatedGifEncoder();
                     gif.Start(file);
-                    if (anim.EndType == 0xFF)
+                    if (anim.EndType == 0xFF || anim.EndType == 0xFB)
                         gif.SetRepeat(0);
                     else
                         gif.SetRepeat(-1);
@@ -671,14 +681,36 @@ namespace SonAni
             DoDragDrop(new DataObject("SonAniAnimFrame", animationFrameList.SelectedIndex), DragDropEffects.Copy);
         }
 
-        private void endTypeFE_CheckedChanged(object sender, EventArgs e)
+        private void endTypeFF_CheckedChanged(object sender, EventArgs e)
+        {
+            if (endTypeFF.Checked) curanim.EndType = 0xFF;
+        }
+ 
+       private void endTypeFE_CheckedChanged(object sender, EventArgs e)
         {
             endFrameNum.Enabled = endTypeFE.Checked;
+            if (endTypeFE.Checked) curanim.EndType = 0xFE;
         }
 
         private void endTypeFD_CheckedChanged(object sender, EventArgs e)
         {
             endAnimNum.Enabled = endAnimBox.Enabled = endTypeFD.Checked;
+            if (endTypeFD.Checked) curanim.EndType = 0xFD;
+        }
+
+        private void endTypeFC_CheckedChanged(object sender, EventArgs e)
+        {
+            if (endTypeFC.Checked) curanim.EndType = 0xFC;
+        }
+
+        private void endTypeFB_CheckedChanged(object sender, EventArgs e)
+        {
+            if (endTypeFB.Checked) curanim.EndType = 0xFB;
+        }
+
+        private void endTypeFA_CheckedChanged(object sender, EventArgs e)
+        {
+            if (endTypeFA.Checked) curanim.EndType = 0xFA;
         }
 
         private void endAnimBox_SelectedIndexChanged(object sender, EventArgs e)
