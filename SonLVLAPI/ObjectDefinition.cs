@@ -1073,8 +1073,10 @@ namespace SonicRetro.SonLVL.API
                                 basetype = typeof(S1ObjectEntry);
                                 break;
                             case EngineVersion.S2:
-                            case EngineVersion.S2NA:
                                 basetype = typeof(S2ObjectEntry);
+                                break;
+                            case EngineVersion.S2NA:
+                                basetype = typeof(S2NAObjectEntry);
                                 break;
                             case EngineVersion.S3K:
                             case EngineVersion.SKC:

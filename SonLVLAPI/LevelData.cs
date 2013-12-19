@@ -417,11 +417,17 @@ namespace SonicRetro.SonLVL.API
                             }
                             break;
                         case EngineVersion.S2:
-                        case EngineVersion.S2NA:
                             for (int oa = 0; oa < tmp.Length; oa += S2ObjectEntry.Size)
                             {
                                 if (ByteConverter.ToUInt16(tmp, oa) == 0xFFFF) break;
                                 Objects.Add(new S2ObjectEntry(tmp, oa));
+                            }
+                            break;
+                        case EngineVersion.S2NA:
+                            for (int oa = 0; oa < tmp.Length; oa += S2NAObjectEntry.Size)
+                            {
+                                if (ByteConverter.ToUInt16(tmp, oa) == 0xFFFF) break;
+                                Objects.Add(new S2NAObjectEntry(tmp, oa));
                             }
                             break;
                         case EngineVersion.S3K:
@@ -827,11 +833,17 @@ namespace SonicRetro.SonLVL.API
                             tmp.Add(0);
                         break;
                     case EngineVersion.S2:
-                    case EngineVersion.S2NA:
                         for (int oi = 0; oi < Objects.Count; oi++)
                             tmp.AddRange(((S2ObjectEntry)Objects[oi]).GetBytes());
                         tmp.AddRange(new byte[] { 0xFF, 0xFF });
                         while (tmp.Count % S2ObjectEntry.Size > 0)
+                            tmp.Add(0);
+                        break;
+                    case EngineVersion.S2NA:
+                        for (int oi = 0; oi < Objects.Count; oi++)
+                            tmp.AddRange(((S2NAObjectEntry)Objects[oi]).GetBytes());
+                        tmp.AddRange(new byte[] { 0xFF, 0xFF });
+                        while (tmp.Count % S2NAObjectEntry.Size > 0)
                             tmp.Add(0);
                         break;
                     case EngineVersion.S3K:
@@ -1273,8 +1285,10 @@ namespace SonicRetro.SonLVL.API
                                         basetype = typeof(S1ObjectEntry);
                                         break;
                                     case EngineVersion.S2:
-                                    case EngineVersion.S2NA:
                                         basetype = typeof(S2ObjectEntry);
+                                        break;
+                                    case EngineVersion.S2NA:
+                                        basetype = typeof(S2NAObjectEntry);
                                         break;
                                     case EngineVersion.S3K:
                                     case EngineVersion.SKC:
@@ -2218,9 +2232,21 @@ namespace SonicRetro.SonLVL.API
 
         public static byte[] ASMToBin(string file, int sti, EngineVersion version) { Dictionary<string, int> labels; return ASMToBin(file, sti, version, out labels); }
 
+        public static readonly Dictionary<string, int> asmlabels = new Dictionary<string, int>() {
+            { "afEnd", 0xFF }, // return to beginning of animation
+            { "afBack", 0xFE },// go back (specified number) bytes
+            { "afChange", 0xFD }, // run specified animation
+            { "afRoutine", 0xFC }, // increment routine counter
+            { "afReset", 0xFB }, // reset animation and 2nd object routine counter
+            { "af2ndRoutine", 0xFA } // increment 2nd routine counter
+        };
+
         public static byte[] ASMToBin(string file, int sti, EngineVersion version, out Dictionary<string, int> labels)
         {
             labels = GetASMLabels(file, sti, version);
+            foreach (KeyValuePair<string, int> item in asmlabels)
+                if (!labels.ContainsKey(item.Key))
+                    labels.Add(item.Key, item.Value);
             string[] fc = System.IO.File.ReadAllLines(file);
             List<byte> result = new List<byte>();
             string lastlabel = string.Empty;
@@ -2765,8 +2791,10 @@ namespace SonicRetro.SonLVL.API
                     oe = new S1ObjectEntry();
                     break;
                 case EngineVersion.S2:
-                case EngineVersion.S2NA:
                     oe = new S2ObjectEntry();
+                    break;
+                case EngineVersion.S2NA:
+                    oe = new S2NAObjectEntry();
                     break;
                 case EngineVersion.S3K:
                 case EngineVersion.SKC:

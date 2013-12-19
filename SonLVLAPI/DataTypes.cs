@@ -885,6 +885,61 @@ namespace SonicRetro.SonLVL.API
 
     [DefaultProperty("ID")]
     [Serializable]
+    public class S2NAObjectEntry : S2ObjectEntry
+    {
+        public S2NAObjectEntry() { pos = new Position(this); isLoaded = true; }
+
+        public S2NAObjectEntry(byte[] file, int address)
+        {
+            byte[] bytes = new byte[Size];
+            Array.Copy(file, address, bytes, 0, Size);
+            FromBytes(bytes);
+            pos = new Position(this);
+            isLoaded = true;
+        }
+
+        public override byte ID
+        {
+            get
+            {
+                return base.ID;
+            }
+            set
+            {
+                base.ID = (byte)(value & 0x7F);
+            }
+        }
+
+        public override byte[] GetBytes()
+        {
+            List<byte> ret = new List<byte>();
+            ret.AddRange(ByteConverter.GetBytes(X));
+            ushort val = (ushort)(Y & 0xFFF);
+            if (LongDistance) val |= 0x2000;
+            if (XFlip) val |= 0x4000;
+            if (YFlip) val |= 0x8000;
+            ret.AddRange(ByteConverter.GetBytes(val));
+            ret.Add((byte)(ID | (RememberState ? 0x80 : 0)));
+            ret.Add(SubType);
+            return ret.ToArray();
+        }
+
+        public override void FromBytes(byte[] bytes)
+        {
+            X = ByteConverter.ToUInt16(bytes, 0);
+            ushort val = ByteConverter.ToUInt16(bytes, 2);
+            YFlip = (val & 0x8000) == 0x8000;
+            XFlip = (val & 0x4000) == 0x4000;
+            LongDistance = (val & 0x2000) == 0x2000;
+            Y = (ushort)(val & 0xFFF);
+            ID = bytes[4];
+            RememberState = (bytes[4] & 0x80) == 0x80;
+            SubType = bytes[5];
+        }
+    }
+
+    [DefaultProperty("ID")]
+    [Serializable]
     public class S1ObjectEntry : ObjectEntry
     {
         [DefaultValue(false)]
@@ -1333,7 +1388,7 @@ namespace SonicRetro.SonLVL.API
         public PatternIndex Tile2 { get; set; }
         public short X { get; set; }
 
-        public static int Size(EngineVersion version) { switch (version) { case EngineVersion.S1: return 5; case EngineVersion.S2: return 8; default: return 6; } }
+        public static int Size(EngineVersion version) { switch (version) { case EngineVersion.S1: return 5; case EngineVersion.S2: case EngineVersion.S2NA: return 8; default: return 6; } }
 
         public MappingsTile(short xpos, short ypos, byte width, byte height, ushort tile, bool xflip, bool yflip, byte pal, bool pri)
         {
@@ -1365,6 +1420,7 @@ namespace SonicRetro.SonLVL.API
                     X = unchecked((sbyte)file[address + 4]);
                     break;
                 case EngineVersion.S2:
+                case EngineVersion.S2NA:
                     Tile2 = new PatternIndex(file, address + 4);
                     X = ByteConverter.ToInt16(file, address + 6);
                     break;
@@ -1387,6 +1443,7 @@ namespace SonicRetro.SonLVL.API
                     result.Add(unchecked((byte)((sbyte)X)));
                     break;
                 case EngineVersion.S2:
+                case EngineVersion.S2NA:
                     result.AddRange(Tile2.GetBytes());
                     goto case EngineVersion.S3K;
                 case EngineVersion.S3K:
@@ -1545,6 +1602,7 @@ namespace SonicRetro.SonLVL.API
                                         writer.Write("b " + string.Join(", ", Array.ConvertAll(data, (a) => a.ToHex68k())));
                                         break;
                                     case EngineVersion.S2:
+                                    case EngineVersion.S2NA:
                                         writer.Write("w " + ByteConverter.ToUInt16(data, 0).ToHex68k());
                                         for (int j = 1; j < 4; j++)
                                             writer.Write(", " + ByteConverter.ToUInt16(data, j * 2).ToHex68k());
@@ -1644,6 +1702,7 @@ namespace SonicRetro.SonLVL.API
             {
                 case EngineVersion.S1:
                 case EngineVersion.S2:
+                case EngineVersion.S2NA:
                     TileNum = ByteConverter.ToUInt16(file, address);
                     TileCount = (byte)((TileNum >> 12) + 1);
                     TileNum &= 0xFFF;
@@ -1663,6 +1722,7 @@ namespace SonicRetro.SonLVL.API
             {
                 case EngineVersion.S1:
                 case EngineVersion.S2:
+                case EngineVersion.S2NA:
                     return ByteConverter.GetBytes((ushort)((((TileCount - 1) & 0xF) << 12) | (TileNum & 0xFFF)));
                 case EngineVersion.S3K:
                 case EngineVersion.SKC:
@@ -1867,6 +1927,7 @@ namespace SonicRetro.SonLVL.API
                     result.Add((byte)Count);
                     break;
                 case EngineVersion.S2:
+                case EngineVersion.S2NA:
                     result.AddRange(ByteConverter.GetBytes((ushort)Count));
                     break;
                 case EngineVersion.S3K:

@@ -148,7 +148,7 @@ namespace SonicRetro.SonLVL.API
                         return selY * tilesPerRow + selX;
                     break;
             }
-            return Images.Count;
+            return Images.Count - 1;
         }
 
         public Rectangle GetItemBounds(int index)

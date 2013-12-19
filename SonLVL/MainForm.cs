@@ -1333,7 +1333,6 @@ namespace SonicRetro.SonLVL.GUI
                                 ent1.UpdateSprite();
                                 break;
                             case EngineVersion.S2:
-                            case EngineVersion.S2NA:
                                 S2ObjectEntry ent = (S2ObjectEntry)LevelData.CreateObject(ID);
                                 LevelData.Objects.Add(ent);
                                 ent.SubType = sub;
@@ -1341,6 +1340,15 @@ namespace SonicRetro.SonLVL.GUI
                                 ent.Y = (ushort)(rand.Next(h));
                                 ent.RememberState = LevelData.GetObjectDefinition(ID).RememberState;
                                 ent.UpdateSprite();
+                                break;
+                            case EngineVersion.S2NA:
+                                S2NAObjectEntry entna = (S2NAObjectEntry)LevelData.CreateObject(ID);
+                                LevelData.Objects.Add(entna);
+                                entna.SubType = sub;
+                                entna.X = (ushort)(rand.Next(w));
+                                entna.Y = (ushort)(rand.Next(h));
+                                entna.RememberState = LevelData.GetObjectDefinition(ID).RememberState;
+                                entna.UpdateSprite();
                                 break;
                             case EngineVersion.S3K:
                             case EngineVersion.SKC:
@@ -1825,7 +1833,6 @@ namespace SonicRetro.SonLVL.GUI
                                     switch (LevelData.Level.ObjectFormat)
                                     {
                                         case EngineVersion.S2:
-                                        case EngineVersion.S2NA:
                                             S2ObjectEntry ent = (S2ObjectEntry)LevelData.CreateObject(ID);
                                             LevelData.Objects.Add(ent);
                                             ent.SubType = sub;
@@ -1837,6 +1844,19 @@ namespace SonicRetro.SonLVL.GUI
                                             SelectedItems.Add(ent);
                                             SelectedObjectChanged();
                                             AddUndo(new ObjectAddedUndoAction(ent));
+                                            break;
+                                        case EngineVersion.S2NA:
+                                            S2NAObjectEntry entna = (S2NAObjectEntry)LevelData.CreateObject(ID);
+                                            LevelData.Objects.Add(entna);
+                                            entna.SubType = sub;
+                                            entna.X = (ushort)(curx);
+                                            entna.Y = (ushort)(e.Y / ZoomLevel + vScrollBar1.Value);
+                                            entna.RememberState = LevelData.GetObjectDefinition(ID).RememberState;
+                                            entna.UpdateSprite();
+                                            SelectedItems.Clear();
+                                            SelectedItems.Add(entna);
+                                            SelectedObjectChanged();
+                                            AddUndo(new ObjectAddedUndoAction(entna));
                                             break;
                                         case EngineVersion.S1:
                                             S1ObjectEntry ent1 = (S1ObjectEntry)LevelData.CreateObject(ID);
@@ -2648,7 +2668,6 @@ namespace SonicRetro.SonLVL.GUI
                         AddUndo(new ObjectAddedUndoAction(ent1));
                         break;
                     case EngineVersion.S2:
-                    case EngineVersion.S2NA:
                         S2ObjectEntry ent = (S2ObjectEntry)LevelData.CreateObject(ID);
                         LevelData.Objects.Add(ent);
                         ent.SubType = sub;
@@ -2660,6 +2679,19 @@ namespace SonicRetro.SonLVL.GUI
                         SelectedItems.Add(ent);
                         SelectedObjectChanged();
                         AddUndo(new ObjectAddedUndoAction(ent));
+                        break;
+                    case EngineVersion.S2NA:
+                        S2NAObjectEntry entna = (S2NAObjectEntry)LevelData.CreateObject(ID);
+                        LevelData.Objects.Add(entna);
+                        entna.SubType = sub;
+                        entna.X = (ushort)((menuLoc.X * ZoomLevel) + hScrollBar1.Value);
+                        entna.Y = (ushort)((menuLoc.Y * ZoomLevel) + vScrollBar1.Value);
+                        entna.RememberState = LevelData.GetObjectDefinition(ID).RememberState;
+                        entna.UpdateSprite();
+                        SelectedItems.Clear();
+                        SelectedItems.Add(entna);
+                        SelectedObjectChanged();
+                        AddUndo(new ObjectAddedUndoAction(entna));
                         break;
                     case EngineVersion.S3K:
                     case EngineVersion.SKC:
@@ -2777,7 +2809,6 @@ namespace SonicRetro.SonLVL.GUI
                                         SelectedItems.Add(ent1);
                                         break;
                                     case EngineVersion.S2:
-                                    case EngineVersion.S2NA:
                                         S2ObjectEntry ent = (S2ObjectEntry)LevelData.CreateObject(ID);
                                         LevelData.Objects.Add(ent);
                                         ent.SubType = sub;
@@ -2786,6 +2817,16 @@ namespace SonicRetro.SonLVL.GUI
                                         ent.RememberState = LevelData.GetObjectDefinition(ID).RememberState;
                                         ent.UpdateSprite();
                                         SelectedItems.Add(ent);
+                                        break;
+                                    case EngineVersion.S2NA:
+                                        S2NAObjectEntry entna = (S2NAObjectEntry)LevelData.CreateObject(ID);
+                                        LevelData.Objects.Add(entna);
+                                        entna.SubType = sub;
+                                        entna.X = (ushort)(pt.X);
+                                        entna.Y = (ushort)(pt.Y);
+                                        entna.RememberState = LevelData.GetObjectDefinition(ID).RememberState;
+                                        entna.UpdateSprite();
+                                        SelectedItems.Add(entna);
                                         break;
                                     case EngineVersion.S3K:
                                     case EngineVersion.SKC:
