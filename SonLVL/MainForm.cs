@@ -13,7 +13,7 @@ namespace SonicRetro.SonLVL.GUI
     public partial class MainForm : Form
     {
         public static MainForm Instance { get; private set; }
-        Properties.Settings Settings = Properties.Settings.Default;
+        Settings Settings;
 
         public MainForm()
         {
@@ -102,6 +102,7 @@ namespace SonicRetro.SonLVL.GUI
             [IniName("file")]
             public string File { get; set; }
         }
+
         private void MainForm_Load(object sender, EventArgs e)
         {
             if (File.Exists("SonLVL Updater.exe"))
@@ -153,6 +154,7 @@ namespace SonicRetro.SonLVL.GUI
                 }
 #endif
             }
+            Settings = Settings.Load();
             System.Drawing.Imaging.ColorMatrix x = new System.Drawing.Imaging.ColorMatrix();
             x.Matrix33 = 0.75f;
             imageTransparency.SetColorMatrix(x, System.Drawing.Imaging.ColorMatrixFlag.Default, System.Drawing.Imaging.ColorAdjustType.Bitmap);
@@ -178,8 +180,8 @@ namespace SonicRetro.SonLVL.GUI
                     Settings.Emulator = null;
             }
             if (Settings.MRUList == null)
-                Settings.MRUList = new System.Collections.Specialized.StringCollection();
-            System.Collections.Specialized.StringCollection mru = new System.Collections.Specialized.StringCollection();
+                Settings.MRUList = new List<string>();
+            List<string> mru = new List<string>();
             foreach (string item in Settings.MRUList)
             {
                 if (File.Exists(item))
@@ -193,8 +195,8 @@ namespace SonicRetro.SonLVL.GUI
             findObjectsDialog = new FindObjectsDialog();
             findFGChunksDialog = new FindChunksDialog();
             findBGChunksDialog = new FindChunksDialog();
-            if (Program.args.Length > 0)
-                LoadINI(Program.args[0]);
+            if (Program.Arguments.Length > 0)
+                LoadINI(Program.Arguments[0]);
         }
 
         private void LoadINI(string filename)

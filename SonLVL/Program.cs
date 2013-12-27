@@ -5,9 +5,18 @@ namespace SonicRetro.SonLVL.GUI
 {
     static class Program
     {
-        internal static string[] args;
+        /// <summary>
+        /// The command-line arguments passed to the program.
+        /// </summary>
+        internal static string[] Arguments;
+        /// <summary>
+        /// Indicates whether the program is running on the Mono runtime.
+        /// </summary>
         internal static readonly bool IsMonoRuntime = Type.GetType("Mono.Runtime") != null;
-        internal static readonly bool IsWindows = !(Environment.OSVersion.Platform == PlatformID.MacOSX | Environment.OSVersion.Platform == PlatformID.Unix | Environment.OSVersion.Platform == PlatformID.Xbox);
+        /// <summary>
+        /// Indicates whether the program is running on Windows.
+        /// </summary>
+        internal static readonly bool IsWindows = !(Environment.OSVersion.Platform == PlatformID.MacOSX || Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.Xbox);
 
         /// <summary>
         /// The main entry point for the application.
@@ -16,7 +25,7 @@ namespace SonicRetro.SonLVL.GUI
         static void Main(string[] args)
         {
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
-            Program.args = args;
+            Program.Arguments = args;
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainForm());

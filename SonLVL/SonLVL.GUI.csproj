@@ -155,6 +155,7 @@
     <Compile Include="AlternatePaletteDialog.Designer.cs">
       <DependentUpon>AlternatePaletteDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="Settings.cs" />
     <EmbeddedResource Include="AddGroupDialog.resx">
       <DependentUpon>AddGroupDialog.cs</DependentUpon>
     </EmbeddedResource>
