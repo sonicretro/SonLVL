@@ -7,6 +7,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Windows.Forms;
 using SonicRetro.SonLVL.API;
+using System.Linq;
 
 namespace SonicRetro.SonLVL.GUI
 {
@@ -167,9 +168,54 @@ namespace SonicRetro.SonLVL.GUI
             huditems = IniFile.Deserialize<Dictionary<char, string>>(Path.Combine(HUDpath, "HUDnum.ini"));
             foreach (KeyValuePair<char, string> item in huditems)
                 HUDNumbers.Add(item.Key, new BitmapBits(Path.Combine(HUDpath, item.Value + ".png")));
+            objectsAboveHighPlaneToolStripMenuItem.Checked = Settings.ObjectsAboveHighPlane;
             hUDToolStripMenuItem.Checked = Settings.ShowHUD;
+            lowToolStripMenuItem.Checked = Settings.ViewLowPlane;
+            highToolStripMenuItem.Checked = Settings.ViewHighPlane;
+            switch (Settings.ViewCollision)
+            {
+                case CollisionPath.Path1:
+                    noneToolStripMenuItem1.Checked = false;
+                    path1ToolStripMenuItem.Checked = true;
+                    break;
+                case CollisionPath.Path2:
+                    noneToolStripMenuItem1.Checked = false;
+                    path2ToolStripMenuItem.Checked = true;
+                    break;
+            }
+            anglesToolStripMenuItem.Checked = Settings.ViewAngles;
+            if (Settings.ViewAllTimeZones)
+            {
+                currentOnlyToolStripMenuItem.Checked = false;
+                allToolStripMenuItem.Checked = true;
+            }
             enableGridToolStripMenuItem.Checked = Settings.ShowGrid;
+            foreach (ToolStripMenuItem item in zoomToolStripMenuItem.DropDownItems)
+                if (item.Text == Settings.ZoomLevel)
+                {
+                    zoomToolStripMenuItem_DropDownItemClicked(this, new ToolStripItemClickedEventArgs(item));
+                    break;
+                }
             includeObjectsWithForegroundSelectionToolStripMenuItem.Checked = Settings.IncludeObjectsInForegroundSelection;
+            transparentBackFGBGToolStripMenuItem.Checked = Settings.TransparentBackFGBGExport;
+            includeobjectsWithFGToolStripMenuItem.Checked = Settings.IncludeObjectsFGExport;
+            hideDebugObjectsToolStripMenuItem.Checked = Settings.HideDebugObjectsExport;
+            tabControl1.SelectedIndex = (int)Settings.CurrentTab;
+            switch (Settings.WindowMode)
+            {
+                case WindowMode.Maximized:
+                    WindowState = FormWindowState.Maximized;
+                    break;
+                case WindowMode.Fullscreen:
+                    prevbnds = Bounds;
+                    prevstate = WindowState;
+                    TopMost = true;
+                    WindowState = FormWindowState.Normal;
+                    FormBorderStyle = FormBorderStyle.None;
+                    Bounds = Screen.FromControl(this).Bounds;
+                    break;
+            }
+            menuStrip1.Visible = Settings.ShowMenu;
             if (System.Diagnostics.Debugger.IsAttached)
                 logToolStripMenuItem_Click(sender, e);
             if (!string.IsNullOrEmpty(Settings.Emulator))
@@ -197,6 +243,43 @@ namespace SonicRetro.SonLVL.GUI
             findBGChunksDialog = new FindChunksDialog();
             if (Program.Arguments.Length > 0)
                 LoadINI(Program.Arguments[0]);
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (loaded)
+            {
+                switch (MessageBox.Show(this, "Do you want to save?", Text, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question))
+                {
+                    case DialogResult.Yes:
+                        saveToolStripMenuItem_Click(this, EventArgs.Empty);
+                        break;
+                    case DialogResult.Cancel:
+                        e.Cancel = true;
+                        break;
+                }
+            }
+            Settings.ShowHUD = hUDToolStripMenuItem.Checked;
+            if (path1ToolStripMenuItem.Checked)
+                Settings.ViewCollision = CollisionPath.Path1;
+            else if (path2ToolStripMenuItem.Checked)
+                Settings.ViewCollision = CollisionPath.Path2;
+            else
+                Settings.ViewCollision = CollisionPath.None;
+            Settings.ViewAngles = anglesToolStripMenuItem.Checked;
+            Settings.ViewAllTimeZones = allToolStripMenuItem.Checked;
+            Settings.ShowGrid = enableGridToolStripMenuItem.Checked;
+            Settings.ZoomLevel = zoomToolStripMenuItem.DropDownItems.Cast<ToolStripMenuItem>().Single((a) => a.Checked).Text;
+            Settings.IncludeObjectsInForegroundSelection = includeObjectsWithForegroundSelectionToolStripMenuItem.Checked;
+            Settings.CurrentTab = (Tab)tabControl1.SelectedIndex;
+            if (TopMost)
+                Settings.WindowMode = WindowMode.Fullscreen;
+            else if (WindowState == FormWindowState.Maximized)
+                Settings.WindowMode = WindowMode.Maximized;
+            else
+                Settings.WindowMode = WindowMode.Normal;
+            Settings.ShowMenu = menuStrip1.Visible;
+            Settings.Save();
         }
 
         private void LoadINI(string filename)
@@ -395,6 +478,8 @@ namespace SonicRetro.SonLVL.GUI
                     BlockCollision2.Visible = false;
                     button2.Visible = false;
                     path2ToolStripMenuItem.Visible = false;
+                    if (path2ToolStripMenuItem.Checked)
+                        path2ToolStripMenuItem.Checked = !(path1ToolStripMenuItem.Checked = true);
                     break;
                 case EngineVersion.S2:
                 case EngineVersion.S2NA:
@@ -768,25 +853,20 @@ namespace SonicRetro.SonLVL.GUI
             using (FolderBrowserDialog a = new FolderBrowserDialog() { SelectedPath = Environment.CurrentDirectory })
                 if (a.ShowDialog() == DialogResult.OK)
                     for (int i = 0; i < LevelData.Tiles.Count; i++)
-                        LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, tilesToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem)).Save(Path.Combine(a.SelectedPath, i + ".png"));
+                        LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, tilesToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem))
+                            .Save(Path.Combine(a.SelectedPath,
+                            (useHexadecimalIndexesToolStripMenuItem.Checked ? i.ToString("X2") : i.ToString()) + ".png"));
         }
 
         private void blocksToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!highToolStripMenuItem.Checked & !lowToolStripMenuItem.Checked)
+            if (!highToolStripMenuItem.Checked && !lowToolStripMenuItem.Checked && !path1ToolStripMenuItem.Checked && !path2ToolStripMenuItem.Checked)
             {
-                MessageBox.Show(this, "Cannot export blocks with no planes visible.", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(this, "Cannot export blocks with nothing visible.", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
             using (FolderBrowserDialog a = new FolderBrowserDialog() { SelectedPath = Environment.CurrentDirectory })
                 if (a.ShowDialog() == DialogResult.OK)
-                {
-                    Color[] palette = new Color[256];
-                    for (int i = 0; i < 64; i++)
-                        palette[i] = LevelData.PaletteToColor(i / 16, i % 16, false);
-                    for (int i = 64; i < 256; i++)
-                        palette[i] = Color.Black;
-                    palette[0] = LevelData.PaletteToColor(2, 0, false);
                     for (int i = 0; i < LevelData.Blocks.Count; i++)
                     {
                         BitmapBits bits = null;
@@ -794,27 +874,36 @@ namespace SonicRetro.SonLVL.GUI
                             bits = new BitmapBits(LevelData.CompBlockBmpBits[i]);
                         else if (lowToolStripMenuItem.Checked)
                             bits = new BitmapBits(LevelData.BlockBmpBits[i][0]);
-                        else
+                        else if (highToolStripMenuItem.Checked)
                             bits = new BitmapBits(LevelData.BlockBmpBits[i][1]);
+                        else
+                            bits = new BitmapBits(16, 16);
                         if (path1ToolStripMenuItem.Checked)
-                            bits.DrawBitmapComposited(LevelData.ColBmpBits[LevelData.ColInds1[i]], 0, 0);
+                        {
+                            BitmapBits bmp = new BitmapBits(LevelData.ColBmpBits[LevelData.ColInds1[i]]);
+                            bmp.IncrementIndexes(LevelData.ColorWhite - 1);
+                            bits.DrawBitmapComposited(bmp, 0, 0);
+                        }
                         else if (path2ToolStripMenuItem.Checked)
-                            bits.DrawBitmapComposited(LevelData.ColBmpBits[LevelData.ColInds2[i]], 0, 0);
-                        bits.ToBitmap(LevelImgPalette).Save(Path.Combine(a.SelectedPath, i + ".png"));
+                        {
+                            BitmapBits bmp = new BitmapBits(LevelData.ColBmpBits[LevelData.ColInds2[i]]);
+                            bmp.IncrementIndexes(LevelData.ColorWhite - 1);
+                            bits.DrawBitmapComposited(bmp, 0, 0);
+                        }
+                        bits.ToBitmap(LevelImgPalette).Save(Path.Combine(a.SelectedPath,
+                            (useHexadecimalIndexesToolStripMenuItem.Checked ? i.ToString("X2") : i.ToString()) + ".png"));
                     }
-                }
         }
 
         private void chunksToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!highToolStripMenuItem.Checked & !lowToolStripMenuItem.Checked)
+            if (!highToolStripMenuItem.Checked && !lowToolStripMenuItem.Checked && !path1ToolStripMenuItem.Checked && !path2ToolStripMenuItem.Checked)
             {
-                MessageBox.Show(this, "Cannot export chunks with no planes visible.", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(this, "Cannot export chunks with nothing visible.", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
             using (FolderBrowserDialog a = new FolderBrowserDialog() { SelectedPath = Environment.CurrentDirectory })
                 if (a.ShowDialog() == DialogResult.OK)
-                {
                     for (int i = 0; i < LevelData.Chunks.Count; i++)
                     {
                         BitmapBits bits = null;
@@ -822,15 +911,26 @@ namespace SonicRetro.SonLVL.GUI
                             bits = new BitmapBits(LevelData.CompChunkBmpBits[i]);
                         else if (lowToolStripMenuItem.Checked)
                             bits = new BitmapBits(LevelData.ChunkBmpBits[i][0]);
-                        else
+                        else if (highToolStripMenuItem.Checked)
                             bits = new BitmapBits(LevelData.ChunkBmpBits[i][1]);
+                        else
+                            bits = new BitmapBits(LevelData.chunksz, LevelData.chunksz);
                         if (path1ToolStripMenuItem.Checked)
                             bits.DrawBitmapComposited(LevelData.ChunkColBmpBits[i][0], 0, 0);
                         else if (path2ToolStripMenuItem.Checked)
                             bits.DrawBitmapComposited(LevelData.ChunkColBmpBits[i][1], 0, 0);
-                        bits.ToBitmap(LevelImgPalette).Save(Path.Combine(a.SelectedPath, i + ".png"));
+                        bits.ToBitmap(LevelImgPalette).Save(Path.Combine(a.SelectedPath,
+                            (useHexadecimalIndexesToolStripMenuItem.Checked ? i.ToString("X2") : i.ToString()) + ".png"));
                     }
-                }
+        }
+
+        private void solidityMapsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (FolderBrowserDialog a = new FolderBrowserDialog() { SelectedPath = Environment.CurrentDirectory })
+                if (a.ShowDialog() == DialogResult.OK)
+                    for (int i = 0; i < LevelData.ColBmpBits.Length; i++)
+                        LevelData.ColBmpBits[i].ToBitmap(Color.Transparent, Color.White).Save(Path.Combine(a.SelectedPath,
+                            (useHexadecimalIndexesToolStripMenuItem.Checked ? i.ToString("X2") : i.ToString()) + ".png"));
         }
 
         private void foregroundToolStripMenuItem_Click(object sender, EventArgs e)
@@ -889,6 +989,26 @@ namespace SonicRetro.SonLVL.GUI
                     res.Palette = pal;
                     res.Save(a.FileName);
                 }
+        }
+
+        private void transparentBackFGBGToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+        {
+            Settings.TransparentBackFGBGExport = transparentBackFGBGToolStripMenuItem.Checked;
+        }
+
+        private void includeObjectsWithFGToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+        {
+            Settings.IncludeObjectsFGExport = includeobjectsWithFGToolStripMenuItem.Checked;
+        }
+
+        private void hideDebugObjectsToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+        {
+            Settings.HideDebugObjectsExport = hideDebugObjectsToolStripMenuItem.Checked;
+        }
+
+        private void useHexadecimalIndexesToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+        {
+            Settings.UseHexadecimalIndexesExport = useHexadecimalIndexesToolStripMenuItem.Checked;
         }
         #endregion
 
@@ -2591,26 +2711,6 @@ namespace SonicRetro.SonLVL.GUI
             alignBottomsToolStripButton.Enabled = alignCentersToolStripButton.Enabled = alignLeftsToolStripButton.Enabled =
                 alignMiddlesToolStripButton.Enabled = alignRightsToolStripButton.Enabled = alignTopsToolStripButton.Enabled =
                 SelectedItems.Count > 1;
-        }
-
-        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (loaded)
-            {
-                switch (MessageBox.Show(this, "Do you want to save?", Text, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question))
-                {
-                    case DialogResult.Yes:
-                        saveToolStripMenuItem_Click(this, EventArgs.Empty);
-                        break;
-                    case DialogResult.Cancel:
-                        e.Cancel = true;
-                        break;
-                }
-            }
-            Settings.ShowHUD = hUDToolStripMenuItem.Checked;
-            Settings.ShowGrid = enableGridToolStripMenuItem.Checked;
-            Settings.IncludeObjectsInForegroundSelection = includeObjectsWithForegroundSelectionToolStripMenuItem.Checked;
-            Settings.Save();
         }
 
         private void ScrollBar_ValueChanged(object sender, EventArgs e)
@@ -5362,6 +5462,8 @@ namespace SonicRetro.SonLVL.GUI
                 return LevelData.S2RingDef.GetBounds((S2RingEntry)item, Point.Empty);
             else if (item is S3KRingEntry)
                 return LevelData.S3KRingDef.GetBounds((S3KRingEntry)item, Point.Empty);
+            else if (item is StartPositionEntry)
+                return LevelData.StartPosDefs[LevelData.StartPositions.IndexOf((StartPositionEntry)item)].GetBounds((StartPositionEntry)item, Point.Empty);
             else
                 return LevelData.unkobj.GetBounds(new S2ObjectEntry() { X = item.X, Y = item.Y }, Point.Empty);
         }
@@ -5915,6 +6017,21 @@ namespace SonicRetro.SonLVL.GUI
                     findNextToolStripMenuItem.Enabled = false;
                     break;
             }
+        }
+
+        private void objectsAboveHighPlaneToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+        {
+            Settings.ObjectsAboveHighPlane = objectsAboveHighPlaneToolStripMenuItem.Checked;
+        }
+
+        private void lowToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+        {
+            Settings.ViewLowPlane = lowToolStripMenuItem.Checked;
+        }
+
+        private void highToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+        {
+            Settings.ViewHighPlane = highToolStripMenuItem.Checked;
         }
     }
 

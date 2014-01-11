@@ -544,7 +544,7 @@ namespace SonicRetro.SonLVL.API
             return result;
         }
 
-        private static object GetDefaultValue(this Type type)
+        internal static object GetDefaultValue(this Type type)
         {
             if (type.IsEnum)
                 return Activator.CreateInstance(type);

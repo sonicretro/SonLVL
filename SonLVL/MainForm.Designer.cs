@@ -95,12 +95,14 @@
             this.paletteLine3ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.blocksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.chunksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.solidityMapsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.foregroundToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.backgroundToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.transparentBackFGBGToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.includeobjectsWithFGToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.hideDebugObjectsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.useHexadecimalIndexesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewReadmeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reportBugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -477,6 +479,7 @@
             this.objectsAboveHighPlaneToolStripMenuItem.ShortcutKeyDisplayString = "T";
             this.objectsAboveHighPlaneToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
             this.objectsAboveHighPlaneToolStripMenuItem.Text = "&Objects above high plane";
+            this.objectsAboveHighPlaneToolStripMenuItem.CheckedChanged += new System.EventHandler(this.objectsAboveHighPlaneToolStripMenuItem_CheckedChanged);
             this.objectsAboveHighPlaneToolStripMenuItem.Click += new System.EventHandler(this.objectsAboveHighPlaneToolStripMenuItem_Click);
             // 
             // hUDToolStripMenuItem
@@ -513,8 +516,9 @@
             this.lowToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.lowToolStripMenuItem.Name = "lowToolStripMenuItem";
             this.lowToolStripMenuItem.ShortcutKeyDisplayString = "Y";
-            this.lowToolStripMenuItem.Size = new System.Drawing.Size(115, 22);
+            this.lowToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.lowToolStripMenuItem.Text = "&Low";
+            this.lowToolStripMenuItem.CheckedChanged += new System.EventHandler(this.lowToolStripMenuItem_CheckedChanged);
             this.lowToolStripMenuItem.Click += new System.EventHandler(this.lowToolStripMenuItem_Click);
             // 
             // highToolStripMenuItem
@@ -524,8 +528,9 @@
             this.highToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.highToolStripMenuItem.Name = "highToolStripMenuItem";
             this.highToolStripMenuItem.ShortcutKeyDisplayString = "U";
-            this.highToolStripMenuItem.Size = new System.Drawing.Size(115, 22);
+            this.highToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.highToolStripMenuItem.Text = "&High";
+            this.highToolStripMenuItem.CheckedChanged += new System.EventHandler(this.highToolStripMenuItem_CheckedChanged);
             this.highToolStripMenuItem.Click += new System.EventHandler(this.highToolStripMenuItem_Click);
             // 
             // collisionToolStripMenuItem
@@ -547,33 +552,33 @@
             this.noneToolStripMenuItem1.CheckState = System.Windows.Forms.CheckState.Checked;
             this.noneToolStripMenuItem1.Name = "noneToolStripMenuItem1";
             this.noneToolStripMenuItem1.ShortcutKeyDisplayString = "Q";
-            this.noneToolStripMenuItem1.Size = new System.Drawing.Size(125, 22);
+            this.noneToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
             this.noneToolStripMenuItem1.Text = "&None";
             // 
             // path1ToolStripMenuItem
             // 
             this.path1ToolStripMenuItem.Name = "path1ToolStripMenuItem";
             this.path1ToolStripMenuItem.ShortcutKeyDisplayString = "W";
-            this.path1ToolStripMenuItem.Size = new System.Drawing.Size(125, 22);
+            this.path1ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.path1ToolStripMenuItem.Text = "Path &1";
             // 
             // path2ToolStripMenuItem
             // 
             this.path2ToolStripMenuItem.Name = "path2ToolStripMenuItem";
             this.path2ToolStripMenuItem.ShortcutKeyDisplayString = "E";
-            this.path2ToolStripMenuItem.Size = new System.Drawing.Size(125, 22);
+            this.path2ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.path2ToolStripMenuItem.Text = "Path &2";
             // 
             // toolStripSeparator6
             // 
             this.toolStripSeparator6.Name = "toolStripSeparator6";
-            this.toolStripSeparator6.Size = new System.Drawing.Size(122, 6);
+            this.toolStripSeparator6.Size = new System.Drawing.Size(149, 6);
             // 
             // anglesToolStripMenuItem
             // 
             this.anglesToolStripMenuItem.Name = "anglesToolStripMenuItem";
             this.anglesToolStripMenuItem.ShortcutKeyDisplayString = "R";
-            this.anglesToolStripMenuItem.Size = new System.Drawing.Size(125, 22);
+            this.anglesToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.anglesToolStripMenuItem.Text = "Angles";
             // 
             // timeZoneToolStripMenuItem
@@ -699,12 +704,14 @@
             this.tilesToolStripMenuItem,
             this.blocksToolStripMenuItem,
             this.chunksToolStripMenuItem,
+            this.solidityMapsToolStripMenuItem,
             this.foregroundToolStripMenuItem,
             this.backgroundToolStripMenuItem,
             this.toolStripSeparator1,
             this.transparentBackFGBGToolStripMenuItem,
             this.includeobjectsWithFGToolStripMenuItem,
-            this.hideDebugObjectsToolStripMenuItem});
+            this.hideDebugObjectsToolStripMenuItem,
+            this.useHexadecimalIndexesToolStripMenuItem});
             this.exportToolStripMenuItem.Enabled = false;
             this.exportToolStripMenuItem.Name = "exportToolStripMenuItem";
             this.exportToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
@@ -809,6 +816,13 @@
             this.chunksToolStripMenuItem.Text = "&Chunks";
             this.chunksToolStripMenuItem.Click += new System.EventHandler(this.chunksToolStripMenuItem_Click);
             // 
+            // solidityMapsToolStripMenuItem
+            // 
+            this.solidityMapsToolStripMenuItem.Name = "solidityMapsToolStripMenuItem";
+            this.solidityMapsToolStripMenuItem.Size = new System.Drawing.Size(210, 22);
+            this.solidityMapsToolStripMenuItem.Text = "&Solidity Maps";
+            this.solidityMapsToolStripMenuItem.Click += new System.EventHandler(this.solidityMapsToolStripMenuItem_Click);
+            // 
             // foregroundToolStripMenuItem
             // 
             this.foregroundToolStripMenuItem.Name = "foregroundToolStripMenuItem";
@@ -836,6 +850,7 @@
             this.transparentBackFGBGToolStripMenuItem.Name = "transparentBackFGBGToolStripMenuItem";
             this.transparentBackFGBGToolStripMenuItem.Size = new System.Drawing.Size(210, 22);
             this.transparentBackFGBGToolStripMenuItem.Text = "T&ransparent back (FG/BG)";
+            this.transparentBackFGBGToolStripMenuItem.CheckedChanged += new System.EventHandler(this.transparentBackFGBGToolStripMenuItem_CheckedChanged);
             // 
             // includeobjectsWithFGToolStripMenuItem
             // 
@@ -843,6 +858,7 @@
             this.includeobjectsWithFGToolStripMenuItem.Name = "includeobjectsWithFGToolStripMenuItem";
             this.includeobjectsWithFGToolStripMenuItem.Size = new System.Drawing.Size(210, 22);
             this.includeobjectsWithFGToolStripMenuItem.Text = "Include &objects with FG";
+            this.includeobjectsWithFGToolStripMenuItem.CheckedChanged += new System.EventHandler(this.includeObjectsWithFGToolStripMenuItem_CheckedChanged);
             // 
             // hideDebugObjectsToolStripMenuItem
             // 
@@ -850,6 +866,15 @@
             this.hideDebugObjectsToolStripMenuItem.Name = "hideDebugObjectsToolStripMenuItem";
             this.hideDebugObjectsToolStripMenuItem.Size = new System.Drawing.Size(210, 22);
             this.hideDebugObjectsToolStripMenuItem.Text = "&Hide debug objects";
+            this.hideDebugObjectsToolStripMenuItem.CheckedChanged += new System.EventHandler(this.hideDebugObjectsToolStripMenuItem_CheckedChanged);
+            // 
+            // useHexadecimalIndexesToolStripMenuItem
+            // 
+            this.useHexadecimalIndexesToolStripMenuItem.CheckOnClick = true;
+            this.useHexadecimalIndexesToolStripMenuItem.Name = "useHexadecimalIndexesToolStripMenuItem";
+            this.useHexadecimalIndexesToolStripMenuItem.Size = new System.Drawing.Size(210, 22);
+            this.useHexadecimalIndexesToolStripMenuItem.Text = "Use he&xadecimal indexes";
+            this.useHexadecimalIndexesToolStripMenuItem.CheckedChanged += new System.EventHandler(this.useHexadecimalIndexesToolStripMenuItem_CheckedChanged);
             // 
             // helpToolStripMenuItem
             // 
@@ -1411,6 +1436,7 @@
             this.ChunkSelector.Location = new System.Drawing.Point(0, 0);
             this.ChunkSelector.Margin = new System.Windows.Forms.Padding(0);
             this.ChunkSelector.Name = "ChunkSelector";
+            this.ChunkSelector.ScrollValue = 0;
             this.ChunkSelector.SelectedIndex = -1;
             this.ChunkSelector.Size = new System.Drawing.Size(262, 477);
             this.ChunkSelector.TabIndex = 1;
@@ -1663,6 +1689,7 @@
             this.BlockSelector.ImageSize = 16;
             this.BlockSelector.Location = new System.Drawing.Point(405, 3);
             this.BlockSelector.Name = "BlockSelector";
+            this.BlockSelector.ScrollValue = 0;
             this.BlockSelector.SelectedIndex = -1;
             this.BlockSelector.Size = new System.Drawing.Size(242, 471);
             this.BlockSelector.TabIndex = 2;
@@ -1853,6 +1880,7 @@
             this.TileSelector.ImageSize = 64;
             this.TileSelector.Location = new System.Drawing.Point(143, 137);
             this.TileSelector.Name = "TileSelector";
+            this.TileSelector.ScrollValue = 0;
             this.TileSelector.SelectedIndex = -1;
             this.TileSelector.Size = new System.Drawing.Size(504, 337);
             this.TileSelector.TabIndex = 2;
@@ -1946,6 +1974,7 @@
             this.CollisionSelector.ImageSize = 16;
             this.CollisionSelector.Location = new System.Drawing.Point(127, 3);
             this.CollisionSelector.Name = "CollisionSelector";
+            this.CollisionSelector.ScrollValue = 0;
             this.CollisionSelector.SelectedIndex = -1;
             this.CollisionSelector.Size = new System.Drawing.Size(520, 471);
             this.CollisionSelector.TabIndex = 2;
@@ -2462,6 +2491,8 @@
         private System.Windows.Forms.ToolStripButton alignBottomsToolStripButton;
         private System.Windows.Forms.ToolStripMenuItem findToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem findNextToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem useHexadecimalIndexesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem solidityMapsToolStripMenuItem;
 
     }
 }

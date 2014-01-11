@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 
 namespace SonicRetro.SonLVL.API
 {
@@ -11,79 +12,79 @@ namespace SonicRetro.SonLVL.API
         [IniAlwaysInclude]
         [DefaultValue(EngineVersion.S2)]
         [IniName("version")]
-        public EngineVersion EngineVersion;
-        [IniName("levelwidthmax")]
-        public int LevelWidthMax;
-        [IniName("levelheightmax")]
-        public int LevelHeightMax;
+        public EngineVersion EngineVersion { get; set; }
         [IniName("objlst")]
         [IniCollection(IniCollectionMode.SingleLine, Format = "|")]
-        public string[] ObjectList;
+        public string[] ObjectList { get; set; }
         [IniName("mapver")]
-        public EngineVersion MappingsVersion;
+        public EngineVersion MappingsVersion { get; set; }
         [IniName("dplcver")]
-        public EngineVersion DPLCVersion;
+        public EngineVersion DPLCVersion { get; set; }
         [IniName("tilefmt")]
-        public EngineVersion TileFormat;
+        public EngineVersion TileFormat { get; set; }
         [IniName("tilecmp")]
-        public CompressionType TileCompression;
+        public CompressionType TileCompression { get; set; }
         [IniName("blockfmt")]
-        public EngineVersion BlockFormat;
+        public EngineVersion BlockFormat { get; set; }
         [IniName("blockcmp")]
-        public CompressionType BlockCompression;
+        public CompressionType BlockCompression { get; set; }
         [IniName("chunkfmt")]
-        public EngineVersion ChunkFormat;
+        public EngineVersion ChunkFormat { get; set; }
         [IniName("chunkcmp")]
-        public CompressionType ChunkCompression;
+        public CompressionType ChunkCompression { get; set; }
         [IniName("layoutfmt")]
-        public EngineVersion LayoutFormat;
+        public EngineVersion LayoutFormat { get; set; }
         [IniName("layoutcmp")]
-        public CompressionType LayoutCompression;
+        public CompressionType LayoutCompression { get; set; }
+        [IniName("layoutcodefile")]
+        public string LayoutCodeFile { get; set; }
+        [IniName("layoutcodetype")]
+        public string LayoutCodeType { get; set; }
         [IniName("palettefmt")]
-        public EngineVersion PaletteFormat;
+        public EngineVersion PaletteFormat { get; set; }
         [IniName("objectfmt")]
-        public EngineVersion ObjectFormat;
+        public EngineVersion ObjectFormat { get; set; }
         [IniName("objectcmp")]
-        public CompressionType ObjectCompression;
+        public CompressionType ObjectCompression { get; set; }
         [IniName("ringfmt")]
-        public EngineVersion RingFormat;
+        public EngineVersion RingFormat { get; set; }
         [IniName("ringcmp")]
-        public CompressionType RingCompression;
+        public CompressionType RingCompression { get; set; }
         [IniName("colindfmt")]
-        public EngineVersion CollisionIndexFormat;
+        public EngineVersion CollisionIndexFormat { get; set; }
         [IniName("colindcmp")]
-        public CompressionType CollisionIndexCompression;
+        public CompressionType CollisionIndexCompression { get; set; }
         [IniName("colind")]
-        public string CollisionIndex;
+        public string CollisionIndex { get; set; }
         [IniName("colind1")]
-        public string CollisionIndex1;
+        public string CollisionIndex1 { get; set; }
         [IniName("colind2")]
-        public string CollisionIndex2;
+        public string CollisionIndex2 { get; set; }
         [IniName("colarrfmt")]
-        public EngineVersion CollisionArrayFormat;
+        public EngineVersion CollisionArrayFormat { get; set; }
         [IniName("colarrcmp")]
-        public CompressionType CollisionArrayCompression;
+        public CompressionType CollisionArrayCompression { get; set; }
         [IniName("colarr1")]
-        public string CollisionArray1;
+        public string CollisionArray1 { get; set; }
         [IniName("colarr2")]
-        public string CollisionArray2;
+        public string CollisionArray2 { get; set; }
         [IniName("anglefmt")]
-        public EngineVersion AngleFormat;
+        public EngineVersion AngleFormat { get; set; }
         [IniName("anglecmp")]
-        public CompressionType AngleCompression;
+        public CompressionType AngleCompression { get; set; }
         [IniName("angles")]
-        public string Angles;
+        public string Angles { get; set; }
         [IniName("buildscr")]
-        public string BuildScript;
+        public string BuildScript { get; set; }
         [IniName("romfile")]
-        public string ROMFile;
+        public string ROMFile { get; set; }
         [IniName("runcmd")]
-        public string RunCommand;
+        public string RunCommand { get; set; }
         [IniName("useemu")]
         [DefaultValue(true)]
-        public bool UseEmulator;
+        public bool UseEmulator { get; set; }
         [IniCollection(IniCollectionMode.IndexOnly)]
-        public Dictionary<string, LevelInfo> Levels;
+        public Dictionary<string, LevelInfo> Levels { get; set; }
 
         public static GameInfo Load(string filename)
         {
@@ -104,150 +105,102 @@ namespace SonicRetro.SonLVL.API
             IniFile.Serialize(this, filename);
         }
 
-        private string[] formatFields = { "TileFormat", "BlockFormat", "ChunkFormat", "LayoutFormat", "PaletteFormat", "ObjectFormat", "RingFormat", "CollisionIndexFormat", "CollisionArrayFormat", "AngleFormat" };
         public LevelInfo GetLevelInfo(string levelName)
         {
             LevelInfo info = Levels[levelName];
             if (levelName.Contains("\\"))
                 levelName = levelName.Substring(levelName.LastIndexOf('\\') + 1);
             LevelInfo result = new LevelInfo();
-            result.DisplayName = info.DisplayName ?? levelName;
-            if (info.EngineVersion == EngineVersion.Invalid)
-                result.EngineVersion = EngineVersion;
-            else
-                result.EngineVersion = info.EngineVersion;
-            foreach (string item in formatFields)
+            foreach (System.Reflection.PropertyInfo prop in typeof(LevelInfo).GetProperties())
             {
-                System.Reflection.FieldInfo gam = typeof(GameInfo).GetField(item);
-                System.Reflection.FieldInfo lvl = typeof(LevelInfo).GetField(item);
-                lvl.SetValue(result, result.EngineVersion);
-                if ((EngineVersion)gam.GetValue(this) != EngineVersion.Invalid)
-                    lvl.SetValue(result, gam.GetValue(this));
-                if ((EngineVersion)lvl.GetValue(info) != EngineVersion.Invalid)
-                    lvl.SetValue(result, lvl.GetValue(info));
+                if (prop.PropertyType == typeof(EngineVersion))
+                    prop.SetValue(result, EngineVersion, null);
+                object val;
+                PropertyInfo gam = typeof(GameInfo).GetProperty(prop.Name, prop.PropertyType);
+                if (gam != null)
+                {
+                    val = gam.GetValue(this, null);
+                    if (!object.Equals(val, prop.PropertyType.GetDefaultValue()))
+                        prop.SetValue(result, val, null);
+                }
+                val = prop.GetValue(info, null);
+                if (!object.Equals(val, prop.PropertyType.GetDefaultValue()))
+                    prop.SetValue(result, val, null);
             }
-            switch (result.TileFormat)
-            {
-                case EngineVersion.S1:
-                case EngineVersion.S2NA:
-                    result.TileCompression = CompressionType.Nemesis;
-                    break;
-                case EngineVersion.S2:
-                    result.TileCompression = CompressionType.Kosinski;
-                    break;
-                case EngineVersion.S3K:
-                case EngineVersion.SKC:
-                    result.TileCompression = CompressionType.KosinskiM;
-                    break;
-                case EngineVersion.SCDPC:
-                    result.TileCompression = CompressionType.SZDD;
-                    break;
-                default:
-                    result.TileCompression = CompressionType.Uncompressed;
-                    break;
-            }
-            if (TileCompression != CompressionType.Invalid)
-                result.TileCompression = TileCompression;
-            if (info.TileCompression != CompressionType.Invalid)
-                result.TileCompression = info.TileCompression;
-            result.Tiles = info.Tiles;
-            switch (result.BlockFormat)
-            {
-                case EngineVersion.S1:
-                    result.BlockCompression = CompressionType.Enigma;
-                    break;
-                case EngineVersion.S2:
-                case EngineVersion.S3K:
-                case EngineVersion.SKC:
-                    result.BlockCompression = CompressionType.Kosinski;
-                    break;
-                default:
-                    result.BlockCompression = CompressionType.Uncompressed;
-                    break;
-            }
-            if (BlockCompression != CompressionType.Invalid)
-                result.BlockCompression = BlockCompression;
-            if (info.BlockCompression != CompressionType.Invalid)
-                result.BlockCompression = info.BlockCompression;
-            result.Blocks = info.Blocks;
-            switch (result.ChunkFormat)
-            {
-                case EngineVersion.S1:
-                case EngineVersion.S2:
-                case EngineVersion.S3K:
-                case EngineVersion.SKC:
-                    result.ChunkCompression = CompressionType.Kosinski;
-                    break;
-                default:
-                    result.ChunkCompression = CompressionType.Uncompressed;
-                    break;
-            }
-            if (ChunkCompression != CompressionType.Invalid)
-                result.ChunkCompression = ChunkCompression;
-            if (info.ChunkCompression != CompressionType.Invalid)
-                result.ChunkCompression = info.ChunkCompression;
-            result.Chunks = info.Chunks;
-            if (LayoutCompression != CompressionType.Invalid)
-                result.LayoutCompression = LayoutCompression;
-            if (info.LayoutCompression != CompressionType.Invalid)
-                result.LayoutCompression = info.LayoutCompression;
-            result.Layout = info.Layout;
-            result.FGLayout = info.FGLayout;
-            result.BGLayout = info.BGLayout;
+            if (result.DisplayName == null) result.DisplayName = levelName;
+            if (result.TileCompression == CompressionType.Invalid)
+                switch (result.TileFormat)
+                {
+                    case EngineVersion.S1:
+                    case EngineVersion.S2NA:
+                        result.TileCompression = CompressionType.Nemesis;
+                        break;
+                    case EngineVersion.S2:
+                        result.TileCompression = CompressionType.Kosinski;
+                        break;
+                    case EngineVersion.S3K:
+                    case EngineVersion.SKC:
+                        result.TileCompression = CompressionType.KosinskiM;
+                        break;
+                    case EngineVersion.SCDPC:
+                        result.TileCompression = CompressionType.SZDD;
+                        break;
+                    default:
+                        result.TileCompression = CompressionType.Uncompressed;
+                        break;
+                }
+            if (result.BlockCompression == CompressionType.Invalid)
+                switch (result.BlockFormat)
+                {
+                    case EngineVersion.S1:
+                        result.BlockCompression = CompressionType.Enigma;
+                        break;
+                    case EngineVersion.S2:
+                    case EngineVersion.S3K:
+                    case EngineVersion.SKC:
+                        result.BlockCompression = CompressionType.Kosinski;
+                        break;
+                    default:
+                        result.BlockCompression = CompressionType.Uncompressed;
+                        break;
+                }
+            if (result.ChunkCompression == CompressionType.Invalid)
+                switch (result.ChunkFormat)
+                {
+                    case EngineVersion.S1:
+                    case EngineVersion.S2:
+                    case EngineVersion.S3K:
+                    case EngineVersion.SKC:
+                        result.ChunkCompression = CompressionType.Kosinski;
+                        break;
+                    default:
+                        result.ChunkCompression = CompressionType.Uncompressed;
+                        break;
+                }
             result.Palettes = new NamedPaletteList[info.ExtraPalettes.Length + 1];
             result.Palettes[0] = new NamedPaletteList("Normal", info.Palette);
             if (info.ExtraPalettes.Length > 0)
                 info.ExtraPalettes.CopyTo(result.Palettes, 1);
-            result.Sprites = info.Sprites;
-            result.ObjectList = info.ObjectList;
-            result.ObjectCompression = CompressionType.Uncompressed;
-            if (ObjectCompression != CompressionType.Invalid)
-                result.ObjectCompression = ObjectCompression;
-            if (info.ObjectCompression != CompressionType.Invalid)
-                result.ObjectCompression = info.ObjectCompression;
-            result.Objects = info.Objects;
-            result.RingCompression = CompressionType.Uncompressed;
-            if (RingCompression != CompressionType.Invalid)
-                result.RingCompression = RingCompression;
-            if (info.RingCompression != CompressionType.Invalid)
-                result.RingCompression = info.RingCompression;
-            result.Rings = info.Rings;
-            result.BumperCompression = CompressionType.Uncompressed;
-            if (info.BumperCompression != CompressionType.Invalid)
-                result.BumperCompression = info.BumperCompression;
-            result.Bumpers = info.Bumpers;
-            result.StartPositions = info.StartPositions;
-            switch (result.CollisionIndexFormat)
-            {
-                case EngineVersion.S2:
-                    result.CollisionIndexCompression = CompressionType.Kosinski;
-                    break;
-                default:
-                    result.CollisionIndexCompression = CompressionType.Uncompressed;
-                    break;
-            }
-            if (CollisionIndexCompression != CompressionType.Invalid)
-                result.CollisionIndexCompression = CollisionIndexCompression;
-            if (info.CollisionIndexCompression != CompressionType.Invalid)
-                result.CollisionIndexCompression = info.CollisionIndexCompression;
-            result.CollisionIndex = info.CollisionIndex ?? CollisionIndex;
-            result.CollisionIndex1 = info.CollisionIndex1 ?? CollisionIndex1;
-            result.CollisionIndex2 = info.CollisionIndex2 ?? CollisionIndex2;
-            result.CollisionIndexSize = info.CollisionIndexSize;
-            result.CollisionArrayCompression = CompressionType.Uncompressed;
-            if (CollisionArrayCompression != CompressionType.Invalid)
-                result.CollisionArrayCompression = CollisionArrayCompression;
-            if (info.CollisionArrayCompression != CompressionType.Invalid)
-                result.CollisionArrayCompression = info.CollisionArrayCompression;
-            result.CollisionArray1 = info.CollisionArray1 ?? CollisionArray1;
-            result.CollisionArray2 = info.CollisionArray2 ?? CollisionArray2;
-            result.AngleCompression = CompressionType.Uncompressed;
-            if (AngleCompression != CompressionType.Invalid)
-                result.AngleCompression = AngleCompression;
-            if (info.AngleCompression != CompressionType.Invalid)
-                result.AngleCompression = info.AngleCompression;
-            result.Angles = info.Angles ?? Angles;
-            result.TimeZone = info.TimeZone;
+            if (result.ObjectCompression == CompressionType.Invalid)
+                result.ObjectCompression = CompressionType.Uncompressed;
+            if (result.RingCompression == CompressionType.Invalid)
+                result.RingCompression = CompressionType.Uncompressed;
+            if (result.BumperCompression == CompressionType.Invalid)
+                result.BumperCompression = CompressionType.Uncompressed;
+            if (result.CollisionIndexCompression == CompressionType.Invalid)
+                switch (result.CollisionIndexFormat)
+                {
+                    case EngineVersion.S2:
+                        result.CollisionIndexCompression = CompressionType.Kosinski;
+                        break;
+                    default:
+                        result.CollisionIndexCompression = CompressionType.Uncompressed;
+                        break;
+                }
+            if (result.CollisionArrayCompression == CompressionType.Invalid)
+                result.CollisionArrayCompression = CompressionType.Uncompressed;
+            if (result.AngleCompression == CompressionType.Invalid)
+                result.AngleCompression = CompressionType.Uncompressed;
             return result;
         }
     }
@@ -255,101 +208,105 @@ namespace SonicRetro.SonLVL.API
     public class LevelInfo
     {
         [IniName("displayname")]
-        public string DisplayName;
+        public string DisplayName { get; set; }
         [IniName("version")]
-        public EngineVersion EngineVersion;
+        public EngineVersion EngineVersion { get; set; }
         [IniName("tilefmt")]
-        public EngineVersion TileFormat;
+        public EngineVersion TileFormat { get; set; }
         [IniName("tilecmp")]
-        public CompressionType TileCompression;
+        public CompressionType TileCompression { get; set; }
         [IniName("tiles")]
         [IniCollection(IniCollectionMode.SingleLine, Format = "|")]
-        public FileInfo[] Tiles;
+        public FileInfo[] Tiles { get; set; }
         [IniName("blockfmt")]
-        public EngineVersion BlockFormat;
+        public EngineVersion BlockFormat { get; set; }
         [IniName("blockcmp")]
-        public CompressionType BlockCompression;
+        public CompressionType BlockCompression { get; set; }
         [IniName("blocks")]
         [IniCollection(IniCollectionMode.SingleLine, Format = "|")]
-        public FileInfo[] Blocks;
+        public FileInfo[] Blocks { get; set; }
         [IniName("chunkfmt")]
-        public EngineVersion ChunkFormat;
+        public EngineVersion ChunkFormat { get; set; }
         [IniName("chunkcmp")]
-        public CompressionType ChunkCompression;
+        public CompressionType ChunkCompression { get; set; }
         [IniName("chunks")]
         [IniCollection(IniCollectionMode.SingleLine, Format = "|")]
-        public FileInfo[] Chunks;
+        public FileInfo[] Chunks { get; set; }
         [IniName("layoutfmt")]
-        public EngineVersion LayoutFormat;
+        public EngineVersion LayoutFormat { get; set; }
         [IniName("layoutcmp")]
-        public CompressionType LayoutCompression;
+        public CompressionType LayoutCompression { get; set; }
+        [IniName("layoutcodefile")]
+        public string LayoutCodeFile { get; set; }
+        [IniName("layoutcodetype")]
+        public string LayoutCodeType { get; set; }
         [IniName("layout")]
-        public string Layout;
+        public string Layout { get; set; }
         [IniName("fglayout")]
-        public string FGLayout;
+        public string FGLayout { get; set; }
         [IniName("bglayout")]
-        public string BGLayout;
+        public string BGLayout { get; set; }
         [IniName("palettefmt")]
-        public EngineVersion PaletteFormat;
+        public EngineVersion PaletteFormat { get; set; }
         [IniIgnore]
-        public NamedPaletteList[] Palettes;
+        public NamedPaletteList[] Palettes { get; set; }
         [IniName("palette")]
-        public PaletteList Palette;
+        public PaletteList Palette { get; set; }
         [IniName("palette")]
         [IniCollection(IniCollectionMode.NoSquareBrackets, StartIndex = 2)]
-        public NamedPaletteList[] ExtraPalettes;
+        public NamedPaletteList[] ExtraPalettes { get; set; }
         [IniName("objectfmt")]
-        public EngineVersion ObjectFormat;
+        public EngineVersion ObjectFormat { get; set; }
         [IniName("objectcmp")]
-        public CompressionType ObjectCompression;
+        public CompressionType ObjectCompression { get; set; }
         [IniName("objects")]
-        public string Objects;
+        public string Objects { get; set; }
         [IniName("ringfmt")]
-        public EngineVersion RingFormat;
+        public EngineVersion RingFormat { get; set; }
         [IniName("ringcmp")]
-        public CompressionType RingCompression;
+        public CompressionType RingCompression { get; set; }
         [IniName("rings")]
-        public string Rings;
+        public string Rings { get; set; }
         [IniName("bumpercmp")]
-        public CompressionType BumperCompression;
+        public CompressionType BumperCompression { get; set; }
         [IniName("bumpers")]
-        public string Bumpers;
+        public string Bumpers { get; set; }
         [IniName("startpos")]
         [IniCollection(IniCollectionMode.SingleLine, Format = "|")]
-        public StartPositionInfo[] StartPositions;
+        public StartPositionInfo[] StartPositions { get; set; }
         [IniName("colindfmt")]
-        public EngineVersion CollisionIndexFormat;
+        public EngineVersion CollisionIndexFormat { get; set; }
         [IniName("colindcmp")]
-        public CompressionType CollisionIndexCompression;
+        public CompressionType CollisionIndexCompression { get; set; }
         [IniName("colind")]
-        public string CollisionIndex;
+        public string CollisionIndex { get; set; }
         [IniName("colind1")]
-        public string CollisionIndex1;
+        public string CollisionIndex1 { get; set; }
         [IniName("colind2")]
-        public string CollisionIndex2;
+        public string CollisionIndex2 { get; set; }
         [IniName("colindsz")]
-        public int CollisionIndexSize;
+        public int CollisionIndexSize { get; set; }
         [IniName("colarrfmt")]
-        public EngineVersion CollisionArrayFormat;
+        public EngineVersion CollisionArrayFormat { get; set; }
         [IniName("colarrcmp")]
-        public CompressionType CollisionArrayCompression;
+        public CompressionType CollisionArrayCompression { get; set; }
         [IniName("colarr1")]
-        public string CollisionArray1;
+        public string CollisionArray1 { get; set; }
         [IniName("colarr2")]
-        public string CollisionArray2;
+        public string CollisionArray2 { get; set; }
         [IniName("anglefmt")]
-        public EngineVersion AngleFormat;
+        public EngineVersion AngleFormat { get; set; }
         [IniName("anglecmp")]
-        public CompressionType AngleCompression;
+        public CompressionType AngleCompression { get; set; }
         [IniName("angles")]
-        public string Angles;
+        public string Angles { get; set; }
         [IniName("timezone")]
-        public TimeZone TimeZone;
+        public TimeZone TimeZone { get; set; }
         [IniName("sprites")]
-        public string Sprites;
+        public string Sprites { get; set; }
         [IniName("objlst")]
         [IniCollection(IniCollectionMode.SingleLine, Format = "|")]
-        public string[] ObjectList;
+        public string[] ObjectList { get; set; }
     }
 
     [TypeConverter(typeof(StringConverter<FileInfo>))]

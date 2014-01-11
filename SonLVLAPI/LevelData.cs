@@ -300,6 +300,58 @@ namespace SonicRetro.SonLVL.API
                 case EngineVersion.SCDPC:
                     LayoutFormat = new SCDPC.Layout();
                     break;
+                case EngineVersion.Custom:
+                    string dllfile = System.IO.Path.Combine("dllcache", Level.LayoutCodeType + ".dll");
+                    DateTime modDate = DateTime.MinValue;
+                    if (System.IO.File.Exists(dllfile))
+                        modDate = System.IO.File.GetLastWriteTime(dllfile);
+                    string fp = Level.LayoutCodeFile.Replace('/', System.IO.Path.DirectorySeparatorChar);
+                    Log("Loading layout format type " + Level.LayoutCodeType + " from \"" + fp + "\"...");
+                    if (modDate >= File.GetLastWriteTime(fp) & modDate > File.GetLastWriteTime(Application.ExecutablePath))
+                    {
+                        Log("Loading type from cached assembly \"" + dllfile + "\"...");
+                        LayoutFormat = (LayoutFormat)Activator.CreateInstance(System.Reflection.Assembly.LoadFile(Path.Combine(Environment.CurrentDirectory, dllfile)).GetType(Level.LayoutCodeType));
+                    }
+                    else
+                    {
+                        Log("Compiling code file...");
+                        string ext = System.IO.Path.GetExtension(fp);
+                        CodeDomProvider pr = null;
+                        switch (ext.ToLowerInvariant())
+                        {
+                            case ".cs":
+                                pr = new Microsoft.CSharp.CSharpCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v3.5" } });
+                                break;
+                            case ".vb":
+                                pr = new Microsoft.VisualBasic.VBCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v3.5" } });
+                                break;
+#if false
+                                    case ".js":
+                                        pr = new Microsoft.JScript.JScriptCodeProvider();
+                                        break;
+#endif
+                        }
+                        CompilerParameters para = new CompilerParameters(new string[] { "System.dll", "System.Core.dll", "System.Drawing.dll", System.Reflection.Assembly.GetExecutingAssembly().Location });
+                        para.GenerateExecutable = false;
+                        para.GenerateInMemory = false;
+                        para.IncludeDebugInformation = true;
+                        para.OutputAssembly = System.IO.Path.Combine(Environment.CurrentDirectory, dllfile);
+                        CompilerResults res = pr.CompileAssemblyFromFile(para, fp);
+                        if (res.Errors.HasErrors)
+                        {
+                            Log("Compile failed.", "Errors:");
+                            foreach (CompilerError item in res.Errors)
+                                Log(item.ToString());
+                            Log(string.Empty);
+                            throw new Exception("Failed compiling layout format.");
+                        }
+                        else
+                        {
+                            Log("Compile succeeded.");
+                            LayoutFormat = (LayoutFormat)Activator.CreateInstance(res.CompiledAssembly.GetType(Level.LayoutCodeType));
+                        }
+                    }
+                    break;
             }
             if (LayoutFormat.IsCombinedLayout)
                 ((LayoutFormatCombined)LayoutFormat).TryReadLayout(Level.Layout, Level.LayoutCompression, Layout);
@@ -3185,7 +3237,8 @@ namespace SonicRetro.SonLVL.API
         S3K,
         SCD,
         SCDPC,
-        SKC
+        SKC,
+        Custom
     }
 
     public enum TimeZone
