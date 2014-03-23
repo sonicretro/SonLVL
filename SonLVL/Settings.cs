@@ -48,6 +48,7 @@ namespace SonicRetro.SonLVL
         public WindowMode WindowMode { get; set; }
         [DefaultValue(true)]
         public bool ShowMenu { get; set; }
+        public bool RemoveFlicker { get; set; }
 
         public static Settings Load()
         {

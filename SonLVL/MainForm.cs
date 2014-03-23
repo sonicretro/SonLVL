@@ -216,6 +216,9 @@ namespace SonicRetro.SonLVL.GUI
                     break;
             }
             menuStrip1.Visible = Settings.ShowMenu;
+            if (Settings.RemoveFlicker) {
+                typeof(Panel).GetProperty("DoubleBuffered", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(ChunkPicture, true, null);
+            }
             if (System.Diagnostics.Debugger.IsAttached)
                 logToolStripMenuItem_Click(sender, e);
             if (!string.IsNullOrEmpty(Settings.Emulator))
@@ -3190,10 +3193,43 @@ namespace SonicRetro.SonLVL.GUI
 
         private void ChunkPicture_MouseClick(object sender, MouseEventArgs e)
         {
-            if (!loaded) return;
+            if (!loaded || e.Button != MouseButtons.Left) return;
             SelectedChunkBlock = new Point(e.X / 16, e.Y / 16);
             ChunkBlockPropertyGrid.SelectedObject = LevelData.Chunks[SelectedChunk].Blocks[e.X / 16, e.Y / 16];
             ChunkPicture.Invalidate();
+        }
+
+        private void ChunkPicture_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (loaded && e.Button == MouseButtons.Right) {
+                try {
+                    ChunkBlock srcBlock = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
+                    ChunkBlock destBlock = LevelData.Chunks[SelectedChunk].Blocks[e.X / 16, e.Y / 16];
+                    destBlock.Block = srcBlock.Block;
+                    destBlock.Solid1 = srcBlock.Solid1;
+                    destBlock.XFlip = srcBlock.XFlip;
+                    destBlock.YFlip = srcBlock.YFlip;
+                    LevelData.RedrawChunk(SelectedChunk);
+                    ChunkPicture.Invalidate();
+                } catch (IndexOutOfRangeException ex) {
+                    // This will happen if the user moves the cursor out of the chunk while holding the button.
+                    // Nothing extra needs to be done to handle the exception; just stop trying to access the array until the cursor moves again.
+                    // Do write to the log though, for debugging purposes.
+                    Log(ex.Message + String.Format("({0} -> {1})", SelectedChunkBlock, e.Location));
+                }
+            }
+        }
+
+        private void ChunkPicture_MouseDown(object sender, MouseEventArgs e)
+        {
+            ChunkPicture_MouseMove(sender, e);
+        }
+
+        private void ChunkPicture_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (loaded && e.Button == MouseButtons.Right) {
+                DrawLevel();
+            }
         }
 
         private void ChunkBlockPropertyGrid_PropertyValueChanged(object sender, PropertyValueChangedEventArgs e)
