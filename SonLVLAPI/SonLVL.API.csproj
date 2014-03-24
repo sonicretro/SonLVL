@@ -33,16 +33,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="SonicRetro.KensSharp.Common">
-      <HintPath>D:\Users\Flarn\Desktop\ROM stuff\s1disasm_git-master\SonicRetro.KensSharp.Common.dll</HintPath>
+      <HintPath>..\..\KENSSharp\Frontend\bin\Release\SonicRetro.KensSharp.Common.dll</HintPath>
     </Reference>
     <Reference Include="SonicRetro.KensSharp.Enigma">
-      <HintPath>D:\Users\Flarn\Desktop\ROM stuff\s1disasm_git-master\SonicRetro.KensSharp.Enigma.dll</HintPath>
+      <HintPath>..\..\KENSSharp\Frontend\bin\Release\SonicRetro.KensSharp.Enigma.dll</HintPath>
     </Reference>
     <Reference Include="SonicRetro.KensSharp.Kosinski">
-      <HintPath>D:\Users\Flarn\Desktop\ROM stuff\s1disasm_git-master\SonicRetro.KensSharp.Kosinski.dll</HintPath>
+      <HintPath>..\..\KENSSharp\Frontend\bin\Release\SonicRetro.KensSharp.Kosinski.dll</HintPath>
     </Reference>
     <Reference Include="SonicRetro.KensSharp.Nemesis">
-      <HintPath>D:\Users\Flarn\Desktop\ROM stuff\s1disasm_git-master\SonicRetro.KensSharp.Nemesis.dll</HintPath>
+      <HintPath>..\..\KENSSharp\Frontend\bin\Release\SonicRetro.KensSharp.Nemesis.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -138,7 +138,7 @@
     <None Include="Resources\UnknownImg3K.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
