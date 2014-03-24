@@ -3234,68 +3234,63 @@ namespace SonicRetro.SonLVL.GUI
             if (!loaded || e.Button != MouseButtons.Left) return;
             SelectedChunkBlock = new Point(e.X / 16, e.Y / 16);
             ChunkBlockPropertyGrid.SelectedObject = LevelData.Chunks[SelectedChunk].Blocks[e.X / 16, e.Y / 16];
-            ChunkPicture.Invalidate();
-        }
+			DrawChunkPicture();
+		}
 
-        private void ChunkPicture_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (loaded && e.Button == MouseButtons.Right) {
-                int maxX = LevelData.Chunks[SelectedChunk].Blocks.GetLength(0) - 1;
-                int maxY = LevelData.Chunks[SelectedChunk].Blocks.GetLength(1) - 1;
-                if (e.X / 16 <= maxX && e.Y / 16 <= maxY) {
-                    ChunkBlock srcBlock = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
-                    ChunkBlock destBlock = LevelData.Chunks[SelectedChunk].Blocks[e.X / 16, e.Y / 16];
-                    destBlock.Block = srcBlock.Block;
-                    destBlock.Solid1 = srcBlock.Solid1;
-                    destBlock.XFlip = srcBlock.XFlip;
-                    destBlock.YFlip = srcBlock.YFlip;
-
-                    Bitmap bmp = (Bitmap)LevelData.CompBlockBmps[srcBlock.Block].Clone();
-                    if (srcBlock.XFlip) bmp.RotateFlip(RotateFlipType.RotateNoneFlipX);
-                    if (srcBlock.YFlip) bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
-
-                    Graphics gfx = ChunkPicture.CreateGraphics();
-                    Point pt = new Point(e.X / 16 * 16, e.Y / 16 * 16); //round to previous multiple of 16
-                    gfx.FillRectangle(new SolidBrush(LevelData.PaletteToColor(2, 0, false)), new Rectangle(pt, new Size(16, 16)));
-                    gfx.DrawImage(bmp, e.X / 16 * 16, e.Y / 16 * 16);
-                }
-            }
-        }
+		private void ChunkPicture_MouseMove(object sender, MouseEventArgs e)
+		{
+			if (loaded && e.Button == MouseButtons.Right)
+				if (e.X > 0 && e.Y > 0 && e.X < LevelData.chunksz && e.Y < LevelData.chunksz)
+				{
+					LevelData.Chunks[SelectedChunk].Blocks[e.X / 16, e.Y / 16]
+						= LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
+					DrawChunkPicture();
+				}
+		}
 
         private void ChunkPicture_MouseDown(object sender, MouseEventArgs e)
         {
             ChunkPicture_MouseMove(sender, e);
         }
 
-        private void ChunkPicture_MouseUp(object sender, MouseEventArgs e)
-        {
-            if (loaded && e.Button == MouseButtons.Right) {
-                LevelData.RedrawChunk(SelectedChunk);
-                DrawLevel();
-                ChunkPicture.Invalidate();
-            }
-        }
+		private void ChunkPicture_MouseUp(object sender, MouseEventArgs e)
+		{
+			if (loaded && e.Button == MouseButtons.Right)
+			{
+				LevelData.RedrawChunk(SelectedChunk);
+				DrawLevel();
+				DrawChunkPicture();
+			}
+		}
 
         private void ChunkBlockPropertyGrid_PropertyValueChanged(object sender, PropertyValueChangedEventArgs e)
         {
             LevelData.RedrawChunk(SelectedChunk);
             DrawLevel();
-            ChunkPicture.Invalidate();
+			DrawChunkPicture();
         }
+
+		private void DrawChunkPicture()
+		{
+			if (!loaded) return;
+			BitmapBits bmp = new BitmapBits(LevelData.chunksz, LevelData.chunksz);
+			bmp.FillRectangle(0x20, 0, 0, LevelData.chunksz, LevelData.chunksz);
+			if (lowToolStripMenuItem.Checked)
+				bmp.DrawBitmap(LevelData.ChunkBmpBits[SelectedChunk][0], 0, 0);
+			if (highToolStripMenuItem.Checked)
+				bmp.DrawBitmapComposited(LevelData.ChunkBmpBits[SelectedChunk][1], 0, 0);
+			if (path1ToolStripMenuItem.Checked)
+				bmp.DrawBitmapComposited(LevelData.ChunkColBmpBits[SelectedChunk][0], 0, 0);
+			if (path2ToolStripMenuItem.Checked)
+				bmp.DrawBitmapComposited(LevelData.ChunkColBmpBits[SelectedChunk][1], 0, 0);
+			bmp.DrawRectangle(LevelData.ColorWhite, SelectedChunkBlock.X * 16 - 1, SelectedChunkBlock.Y * 16 - 1, 18, 18);
+			using (Graphics gfx = ChunkPicture.CreateGraphics())
+				gfx.DrawImage(bmp.ToBitmap(LevelData.BmpPal), 0, 0, LevelData.chunksz, LevelData.chunksz);
+		}
 
         private void ChunkPicture_Paint(object sender, PaintEventArgs e)
         {
-            if (!loaded) return;
-            e.Graphics.Clear(LevelData.PaletteToColor(2, 0, false));
-            if (lowToolStripMenuItem.Checked)
-                e.Graphics.DrawImage(LevelData.ChunkBmps[SelectedChunk][0], 0, 0, LevelData.chunksz, LevelData.chunksz);
-            if (highToolStripMenuItem.Checked)
-                e.Graphics.DrawImage(LevelData.ChunkBmps[SelectedChunk][1], 0, 0, LevelData.chunksz, LevelData.chunksz);
-            if (path1ToolStripMenuItem.Checked)
-                e.Graphics.DrawImage(LevelData.ChunkColBmps[SelectedChunk][0], 0, 0, LevelData.chunksz, LevelData.chunksz);
-            if (path2ToolStripMenuItem.Checked)
-                e.Graphics.DrawImage(LevelData.ChunkColBmps[SelectedChunk][1], 0, 0, LevelData.chunksz, LevelData.chunksz);
-            e.Graphics.DrawRectangle(Pens.White, SelectedChunkBlock.X * 16 - 1, SelectedChunkBlock.Y * 16 - 1, 18, 18);
+			DrawChunkPicture();
         }
 
         private void BlockPicture_MouseClick(object sender, MouseEventArgs e)

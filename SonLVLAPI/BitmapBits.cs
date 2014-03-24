@@ -292,7 +292,37 @@ namespace SonicRetro.SonLVL.API
 
         public void DrawLine(byte index, int x1, int y1, int x2, int y2)
         {
-            bool steep = Math.Abs(y2 - y1) > Math.Abs(x2 - x1);
+			if (y1 == y2)
+			{
+				if (y1 >= Height || y1 < 0)
+					return;
+				if (x1 > x2)
+				{
+					int tmp = x1;
+					x1 = x2;
+					x2 = tmp;
+				}
+				int end = y1 * Width + Math.Min(x2, Width - 1);
+				for (int i = y1 * Width + Math.Max(x1, 0); i <= end; i++)
+					Bits[i] = index;
+				return;
+			}
+			if (x1 == x2)
+			{
+				if (x1 >= Height || x1 < 0)
+					return;
+				if (y1 > y2)
+				{
+					int tmp = y1;
+					y1 = y2;
+					y2 = tmp;
+				}
+				int end = Math.Min(y2, Height - 1) * Width + x1;
+				for (int i = Math.Max(y1, 0) * Width + x1; i <= end; i += Width)
+					Bits[i] = index;
+				return;
+			}
+			bool steep = Math.Abs(y2 - y1) > Math.Abs(x2 - x1);
             if (steep)
             {
                 int tmp = x1;
