@@ -163,6 +163,7 @@
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.panel4 = new System.Windows.Forms.Panel();
+            this.label1 = new System.Windows.Forms.Label();
             this.ChunkCount = new System.Windows.Forms.Label();
             this.ChunkID = new System.Windows.Forms.TextBox();
             this.ChunkPicture = new System.Windows.Forms.Panel();
@@ -1598,6 +1599,7 @@
             // 
             this.panel4.AutoSize = true;
             this.panel4.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.panel4.Controls.Add(this.label1);
             this.panel4.Controls.Add(this.ChunkCount);
             this.panel4.Controls.Add(this.ChunkID);
             this.panel4.Controls.Add(this.ChunkPicture);
@@ -1605,6 +1607,16 @@
             this.panel4.Name = "panel4";
             this.panel4.Size = new System.Drawing.Size(262, 301);
             this.panel4.TabIndex = 0;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(109, 275);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(149, 26);
+            this.label1.TabIndex = 4;
+            this.label1.Text = "LMB: Select block\r\nRMB: Paint w/ selected block";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // ChunkCount
             // 
@@ -1632,6 +1644,9 @@
             this.ChunkPicture.TabIndex = 1;
             this.ChunkPicture.Paint += new System.Windows.Forms.PaintEventHandler(this.ChunkPicture_Paint);
             this.ChunkPicture.MouseClick += new System.Windows.Forms.MouseEventHandler(this.ChunkPicture_MouseClick);
+            this.ChunkPicture.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ChunkPicture_MouseDown);
+            this.ChunkPicture.MouseMove += new System.Windows.Forms.MouseEventHandler(this.ChunkPicture_MouseMove);
+            this.ChunkPicture.MouseUp += new System.Windows.Forms.MouseEventHandler(this.ChunkPicture_MouseUp);
             // 
             // ChunkBlockPropertyGrid
             // 
@@ -2494,6 +2509,7 @@
         private System.Windows.Forms.ToolStripMenuItem findNextToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem useHexadecimalIndexesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem solidityMapsToolStripMenuItem;
+        private System.Windows.Forms.Label label1;
 
     }
 }
