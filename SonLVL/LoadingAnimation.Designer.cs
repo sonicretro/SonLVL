@@ -28,31 +28,38 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.Label1 = new System.Windows.Forms.Label();
-            this.PictureBox1 = new System.Windows.Forms.PictureBox();
-            ((System.ComponentModel.ISupportInitialize)(this.PictureBox1)).BeginInit();
+            this.label1 = new System.Windows.Forms.Label();
+            this.previewPanel = new System.Windows.Forms.Panel();
+            this.anitimer = new System.Timers.Timer();
+            ((System.ComponentModel.ISupportInitialize)(this.anitimer)).BeginInit();
             this.SuspendLayout();
             // 
-            // Label1
+            // label1
             // 
-            this.Label1.AutoSize = true;
-            this.Label1.Location = new System.Drawing.Point(0, 14);
-            this.Label1.Name = "Label1";
-            this.Label1.Size = new System.Drawing.Size(113, 13);
-            this.Label1.TabIndex = 2;
-            this.Label1.Text = "Loading, please wait...";
-            this.Label1.UseWaitCursor = true;
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(0, 14);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(113, 13);
+            this.label1.TabIndex = 2;
+            this.label1.Text = "Loading, please wait...";
+            this.label1.UseWaitCursor = true;
             // 
-            // PictureBox1
+            // previewPanel
             // 
-            this.PictureBox1.Image = global::SonicRetro.SonLVL.Properties.Resources.sonicbored1;
-            this.PictureBox1.Location = new System.Drawing.Point(119, 3);
-            this.PictureBox1.Name = "PictureBox1";
-            this.PictureBox1.Size = new System.Drawing.Size(40, 32);
-            this.PictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.PictureBox1.TabIndex = 3;
-            this.PictureBox1.TabStop = false;
-            this.PictureBox1.UseWaitCursor = true;
+            this.previewPanel.Location = new System.Drawing.Point(119, 3);
+            this.previewPanel.Name = "previewPanel";
+            this.previewPanel.Size = new System.Drawing.Size(40, 32);
+            this.previewPanel.TabIndex = 3;
+            this.previewPanel.UseWaitCursor = true;
+            this.previewPanel.Paint += new System.Windows.Forms.PaintEventHandler(this.previewPanel_Paint);
+            // 
+            // anitimer
+            // 
+            this.anitimer.Interval = 16.666666666666668D;
+            this.anitimer.SynchronizingObject = this;
+            this.anitimer.Elapsed += new System.Timers.ElapsedEventHandler(this.anitimer_Elapsed);
             // 
             // LoadingAnimation
             // 
@@ -60,14 +67,14 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.Controls.Add(this.PictureBox1);
-            this.Controls.Add(this.Label1);
+            this.Controls.Add(this.previewPanel);
+            this.Controls.Add(this.label1);
             this.Name = "LoadingAnimation";
             this.Size = new System.Drawing.Size(162, 38);
             this.UseWaitCursor = true;
-            this.Load += new System.EventHandler(this.LoadingAnimation_Load);
+            this.SizeChanged += new System.EventHandler(this.LoadingAnimation_SizeChanged);
             this.VisibleChanged += new System.EventHandler(this.LoadingAnimation_VisibleChanged);
-            ((System.ComponentModel.ISupportInitialize)(this.PictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.anitimer)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -75,7 +82,8 @@
 
         #endregion
 
-        internal System.Windows.Forms.Label Label1;
-        private System.Windows.Forms.PictureBox PictureBox1;
+        internal System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Panel previewPanel;
+        private System.Timers.Timer anitimer;
     }
 }

@@ -74,6 +74,7 @@
     <Compile Include="AddGroupDialog.Designer.cs">
       <DependentUpon>AddGroupDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="AnimationInfo.cs" />
     <Compile Include="CollisionSelector.cs">
       <SubType>Form</SubType>
     </Compile>

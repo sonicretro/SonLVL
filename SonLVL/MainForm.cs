@@ -403,8 +403,49 @@ namespace SonicRetro.SonLVL.GUI
             ((ToolStripMenuItem)sender).Checked = true;
             Enabled = false;
             Text = "SonLVL - " + LevelData.Game.EngineVersion + " - Loading " + LevelData.Game.GetLevelInfo((string)((ToolStripMenuItem)sender).Tag).DisplayName + "...";
+            string anipath = Path.Combine(Application.StartupPath, "loadanim");
+            Dictionary<string, AnimationInfo> animini = AnimationInfo.Load(Path.Combine(anipath, "anims.ini"));
+            AnimationInfo[] anims = animini.Where((item) => item.Value.Game == LevelData.Game.EngineVersion)
+                .Select((item) => item.Value).ToArray();
+            AnimationInfo anim = animini["Default"];
+            if (anims.Length > 0)
+            {
+                Random r = new Random();
+                anim = anims[r.Next(anims.Length)];
+            }
+            MultiFileIndexer<byte> tiles = new MultiFileIndexer<byte>();
+            foreach (SonicRetro.SonLVL.API.FileInfo tileent in anim.Art)
+            {
+                byte[] tmp = Compression.Decompress(Path.Combine(anipath, tileent.Filename), anim.ArtCompression);
+                LevelData.Pad(ref tmp, 32);
+                tiles.AddFile(new List<byte>(tmp), tileent.Offset == -1 ? tileent.Offset : tileent.Offset / 32);
+            }
+            List<MappingsFrame> map;
+            if (anim.MappingsFormat == MappingsFormat.Binary)
+                map = MappingsFrame.Load(File.ReadAllBytes(Path.Combine(anipath, anim.MappingsFile)), anim.MappingsGame);
+            else
+                map = MappingsFrame.LoadASM(Path.Combine(anipath, anim.MappingsFile), anim.MappingsGame);
+            DPLCFrame[] dplc;
+            if (anim.DPLCFormat == MappingsFormat.Binary)
+                dplc = DPLCFrame.Load(File.ReadAllBytes(Path.Combine(anipath, anim.DPLCFile)), anim.DPLCGame);
+            else
+                dplc = DPLCFrame.LoadASM(Path.Combine(anipath, anim.DPLCFile), anim.DPLCGame).ToArray();
+            Animation ani;
+            if (anim.AnimationFormat == MappingsFormat.Binary)
+                ani = new Animation(File.ReadAllBytes(Path.Combine(anipath, anim.AnimationFile)), 0, "Animation");
+            else
+                ani = new Animation(LevelData.ASMToBin(Path.Combine(anipath, anim.AnimationFile), anim.Game), 0, "Animation");
+            Color[] pal = new Color[64];
+            foreach (PaletteInfo item in anim.Palette)
+            {
+                SonLVLColor[] c = SonLVLColor.Load(File.ReadAllBytes(Path.Combine(anipath, item.Filename)), item.Source,
+                    item.Length, anim.Game);
+                for (int i = 0; i < item.Length; i++)
+                    pal[item.Destination + i] = c[i].RGBColor;
+            }
+            pal[0] = Color.Transparent;
+            loadingAnimation1.ChangeAnimation(tiles.ToArray(), map.ToArray(), dplc, ani, pal);
 #if !DEBUG
-            loadingAnimation1.Location = new Point((ClientSize.Width / 2) - (loadingAnimation1.Width / 2), (ClientSize.Height / 2) - (loadingAnimation1.Height / 2));
             loadingAnimation1.BringToFront();
             loadingAnimation1.Show();
             backgroundLevelLoader.RunWorkerAsync(((ToolStripMenuItem)sender).Tag);
@@ -6032,6 +6073,11 @@ namespace SonicRetro.SonLVL.GUI
         private void highToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
             Settings.ViewHighPlane = highToolStripMenuItem.Checked;
+        }
+
+        private void loadingAnimation1_SizeChanged(object sender, EventArgs e)
+        {
+            loadingAnimation1.Location = new Point((ClientSize.Width / 2) - (loadingAnimation1.Width / 2), (ClientSize.Height / 2) - loadingAnimation1.Height / 2);
         }
     }
 

@@ -26,6 +26,7 @@ namespace SonicRetro.SonLVL.API
                 B = value.B;
             }
         }
+
         public ushort MDColor
         {
             get
@@ -90,6 +91,18 @@ namespace SonicRetro.SonLVL.API
                 }
             }
             return result;
+        }
+
+        public static SonLVLColor[] Load(byte[] file, int address, int length, EngineVersion game)
+        {
+            SonLVLColor[] palfile = new SonLVLColor[length];
+            if (game != EngineVersion.SCDPC)
+                for (int pi = 0; pi < length; pi++)
+                    palfile[pi] = new SonLVLColor(ByteConverter.ToUInt16(file, address + (pi * 2)));
+            else
+                for (int pi = 0; pi < length; pi++)
+                    palfile[pi] = new SonLVLColor(file[address + (pi * 4)], file[address + (pi * 4) + 1], file[address + (pi * 4) + 2]);
+            return palfile;
         }
     }
 

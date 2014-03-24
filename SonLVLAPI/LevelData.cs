@@ -2442,7 +2442,7 @@ namespace SonicRetro.SonLVL.API
                     for (int i = 1; i < ln.Length; i++)
                         d += ln[i];
                     string[] dats = d.Split(',');
-                    unchecked { result.AddRange(new DPLCEntry((byte)(ParseASMByte(dats[0]) - 1), ParseASMWord(dats[1])).GetBytes(version)); }
+                    unchecked { result.AddRange(new DPLCEntry((byte)(ParseASMByte(dats[0])), ParseASMWord(dats[1])).GetBytes(version)); }
                 }
                 else if (ln[0].Equals("s3kPlayerDplcEntry"))
                 {
@@ -2450,7 +2450,7 @@ namespace SonicRetro.SonLVL.API
                     for (int i = 1; i < ln.Length; i++)
                         d += ln[i];
                     string[] dats = d.Split(',');
-                    unchecked { result.AddRange(new DPLCEntry((byte)(ParseASMByte(dats[0]) - 1), ParseASMWord(dats[1])).GetBytes(EngineVersion.S2)); }
+                    unchecked { result.AddRange(new DPLCEntry((byte)(ParseASMByte(dats[0])), ParseASMWord(dats[1])).GetBytes(EngineVersion.S2)); }
                 }
                 else if (ln[0].Equals("obj1E67Size"))
                     result.AddRange(ByteConverter.GetBytes((short)(LabelSubtract(lastlabel + "_End", lastlabel, labels) - 2)));

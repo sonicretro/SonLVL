@@ -516,7 +516,7 @@
             this.lowToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.lowToolStripMenuItem.Name = "lowToolStripMenuItem";
             this.lowToolStripMenuItem.ShortcutKeyDisplayString = "Y";
-            this.lowToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.lowToolStripMenuItem.Size = new System.Drawing.Size(115, 22);
             this.lowToolStripMenuItem.Text = "&Low";
             this.lowToolStripMenuItem.CheckedChanged += new System.EventHandler(this.lowToolStripMenuItem_CheckedChanged);
             this.lowToolStripMenuItem.Click += new System.EventHandler(this.lowToolStripMenuItem_Click);
@@ -528,7 +528,7 @@
             this.highToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.highToolStripMenuItem.Name = "highToolStripMenuItem";
             this.highToolStripMenuItem.ShortcutKeyDisplayString = "U";
-            this.highToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.highToolStripMenuItem.Size = new System.Drawing.Size(115, 22);
             this.highToolStripMenuItem.Text = "&High";
             this.highToolStripMenuItem.CheckedChanged += new System.EventHandler(this.highToolStripMenuItem_CheckedChanged);
             this.highToolStripMenuItem.Click += new System.EventHandler(this.highToolStripMenuItem_Click);
@@ -552,33 +552,33 @@
             this.noneToolStripMenuItem1.CheckState = System.Windows.Forms.CheckState.Checked;
             this.noneToolStripMenuItem1.Name = "noneToolStripMenuItem1";
             this.noneToolStripMenuItem1.ShortcutKeyDisplayString = "Q";
-            this.noneToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+            this.noneToolStripMenuItem1.Size = new System.Drawing.Size(125, 22);
             this.noneToolStripMenuItem1.Text = "&None";
             // 
             // path1ToolStripMenuItem
             // 
             this.path1ToolStripMenuItem.Name = "path1ToolStripMenuItem";
             this.path1ToolStripMenuItem.ShortcutKeyDisplayString = "W";
-            this.path1ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.path1ToolStripMenuItem.Size = new System.Drawing.Size(125, 22);
             this.path1ToolStripMenuItem.Text = "Path &1";
             // 
             // path2ToolStripMenuItem
             // 
             this.path2ToolStripMenuItem.Name = "path2ToolStripMenuItem";
             this.path2ToolStripMenuItem.ShortcutKeyDisplayString = "E";
-            this.path2ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.path2ToolStripMenuItem.Size = new System.Drawing.Size(125, 22);
             this.path2ToolStripMenuItem.Text = "Path &2";
             // 
             // toolStripSeparator6
             // 
             this.toolStripSeparator6.Name = "toolStripSeparator6";
-            this.toolStripSeparator6.Size = new System.Drawing.Size(149, 6);
+            this.toolStripSeparator6.Size = new System.Drawing.Size(122, 6);
             // 
             // anglesToolStripMenuItem
             // 
             this.anglesToolStripMenuItem.Name = "anglesToolStripMenuItem";
             this.anglesToolStripMenuItem.ShortcutKeyDisplayString = "R";
-            this.anglesToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.anglesToolStripMenuItem.Size = new System.Drawing.Size(125, 22);
             this.anglesToolStripMenuItem.Text = "Angles";
             // 
             // timeZoneToolStripMenuItem
@@ -2219,6 +2219,7 @@
             this.loadingAnimation1.TabIndex = 4;
             this.loadingAnimation1.UseWaitCursor = true;
             this.loadingAnimation1.Visible = false;
+            this.loadingAnimation1.SizeChanged += new System.EventHandler(this.loadingAnimation1_SizeChanged);
             // 
             // MainForm
             // 
