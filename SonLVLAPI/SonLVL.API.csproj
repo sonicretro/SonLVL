@@ -33,16 +33,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="SonicRetro.KensSharp.Common">
-      <HintPath>..\..\KENSSharp\Frontend\bin\Release\SonicRetro.KensSharp.Common.dll</HintPath>
+      <HintPath>D:\Users\Flarn\Desktop\ROM stuff\s1disasm_git-master\SonicRetro.KensSharp.Common.dll</HintPath>
     </Reference>
     <Reference Include="SonicRetro.KensSharp.Enigma">
-      <HintPath>..\..\KENSSharp\Frontend\bin\Release\SonicRetro.KensSharp.Enigma.dll</HintPath>
+      <HintPath>D:\Users\Flarn\Desktop\ROM stuff\s1disasm_git-master\SonicRetro.KensSharp.Enigma.dll</HintPath>
     </Reference>
     <Reference Include="SonicRetro.KensSharp.Kosinski">
-      <HintPath>..\..\KENSSharp\Frontend\bin\Release\SonicRetro.KensSharp.Kosinski.dll</HintPath>
+      <HintPath>D:\Users\Flarn\Desktop\ROM stuff\s1disasm_git-master\SonicRetro.KensSharp.Kosinski.dll</HintPath>
     </Reference>
     <Reference Include="SonicRetro.KensSharp.Nemesis">
-      <HintPath>..\..\KENSSharp\Frontend\bin\Release\SonicRetro.KensSharp.Nemesis.dll</HintPath>
+      <HintPath>D:\Users\Flarn\Desktop\ROM stuff\s1disasm_git-master\SonicRetro.KensSharp.Nemesis.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

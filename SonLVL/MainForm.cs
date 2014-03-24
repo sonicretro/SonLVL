@@ -216,9 +216,6 @@ namespace SonicRetro.SonLVL.GUI
                     break;
             }
             menuStrip1.Visible = Settings.ShowMenu;
-            if (Settings.RemoveFlicker) {
-                typeof(Panel).GetProperty("DoubleBuffered", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(ChunkPicture, true, null);
-            }
             if (System.Diagnostics.Debugger.IsAttached)
                 logToolStripMenuItem_Click(sender, e);
             if (!string.IsNullOrEmpty(Settings.Emulator))
@@ -3202,20 +3199,24 @@ namespace SonicRetro.SonLVL.GUI
         private void ChunkPicture_MouseMove(object sender, MouseEventArgs e)
         {
             if (loaded && e.Button == MouseButtons.Right) {
-                try {
+                int maxX = LevelData.Chunks[SelectedChunk].Blocks.GetLength(0) - 1;
+                int maxY = LevelData.Chunks[SelectedChunk].Blocks.GetLength(1) - 1;
+                if (e.X / 16 <= maxX && e.Y / 16 <= maxY) {
                     ChunkBlock srcBlock = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
                     ChunkBlock destBlock = LevelData.Chunks[SelectedChunk].Blocks[e.X / 16, e.Y / 16];
                     destBlock.Block = srcBlock.Block;
                     destBlock.Solid1 = srcBlock.Solid1;
                     destBlock.XFlip = srcBlock.XFlip;
                     destBlock.YFlip = srcBlock.YFlip;
-                    LevelData.RedrawChunk(SelectedChunk);
-                    ChunkPicture.Invalidate();
-                } catch (IndexOutOfRangeException ex) {
-                    // This will happen if the user moves the cursor out of the chunk while holding the button.
-                    // Nothing extra needs to be done to handle the exception; just stop trying to access the array until the cursor moves again.
-                    // Do write to the log though, for debugging purposes.
-                    Log(ex.Message + String.Format("({0} -> {1})", SelectedChunkBlock, e.Location));
+
+                    Bitmap bmp = (Bitmap)LevelData.CompBlockBmps[srcBlock.Block].Clone();
+                    if (srcBlock.XFlip) bmp.RotateFlip(RotateFlipType.RotateNoneFlipX);
+                    if (srcBlock.YFlip) bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
+
+                    Graphics gfx = ChunkPicture.CreateGraphics();
+                    Point pt = new Point(e.X / 16 * 16, e.Y / 16 * 16); //round to previous multiple of 16
+                    gfx.FillRectangle(new SolidBrush(LevelData.PaletteToColor(2, 0, false)), new Rectangle(pt, new Size(16, 16)));
+                    gfx.DrawImage(bmp, e.X / 16 * 16, e.Y / 16 * 16);
                 }
             }
         }
@@ -3228,7 +3229,9 @@ namespace SonicRetro.SonLVL.GUI
         private void ChunkPicture_MouseUp(object sender, MouseEventArgs e)
         {
             if (loaded && e.Button == MouseButtons.Right) {
+                LevelData.RedrawChunk(SelectedChunk);
                 DrawLevel();
+                ChunkPicture.Invalidate();
             }
         }
 
