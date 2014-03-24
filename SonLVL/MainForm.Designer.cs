@@ -163,6 +163,7 @@
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
             this.panel4 = new System.Windows.Forms.Panel();
+            this.label1 = new System.Windows.Forms.Label();
             this.ChunkCount = new System.Windows.Forms.Label();
             this.ChunkID = new System.Windows.Forms.TextBox();
             this.ChunkPicture = new System.Windows.Forms.Panel();
@@ -516,7 +517,7 @@
             this.lowToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.lowToolStripMenuItem.Name = "lowToolStripMenuItem";
             this.lowToolStripMenuItem.ShortcutKeyDisplayString = "Y";
-            this.lowToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.lowToolStripMenuItem.Size = new System.Drawing.Size(115, 22);
             this.lowToolStripMenuItem.Text = "&Low";
             this.lowToolStripMenuItem.CheckedChanged += new System.EventHandler(this.lowToolStripMenuItem_CheckedChanged);
             this.lowToolStripMenuItem.Click += new System.EventHandler(this.lowToolStripMenuItem_Click);
@@ -528,7 +529,7 @@
             this.highToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.highToolStripMenuItem.Name = "highToolStripMenuItem";
             this.highToolStripMenuItem.ShortcutKeyDisplayString = "U";
-            this.highToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.highToolStripMenuItem.Size = new System.Drawing.Size(115, 22);
             this.highToolStripMenuItem.Text = "&High";
             this.highToolStripMenuItem.CheckedChanged += new System.EventHandler(this.highToolStripMenuItem_CheckedChanged);
             this.highToolStripMenuItem.Click += new System.EventHandler(this.highToolStripMenuItem_Click);
@@ -552,33 +553,33 @@
             this.noneToolStripMenuItem1.CheckState = System.Windows.Forms.CheckState.Checked;
             this.noneToolStripMenuItem1.Name = "noneToolStripMenuItem1";
             this.noneToolStripMenuItem1.ShortcutKeyDisplayString = "Q";
-            this.noneToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+            this.noneToolStripMenuItem1.Size = new System.Drawing.Size(125, 22);
             this.noneToolStripMenuItem1.Text = "&None";
             // 
             // path1ToolStripMenuItem
             // 
             this.path1ToolStripMenuItem.Name = "path1ToolStripMenuItem";
             this.path1ToolStripMenuItem.ShortcutKeyDisplayString = "W";
-            this.path1ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.path1ToolStripMenuItem.Size = new System.Drawing.Size(125, 22);
             this.path1ToolStripMenuItem.Text = "Path &1";
             // 
             // path2ToolStripMenuItem
             // 
             this.path2ToolStripMenuItem.Name = "path2ToolStripMenuItem";
             this.path2ToolStripMenuItem.ShortcutKeyDisplayString = "E";
-            this.path2ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.path2ToolStripMenuItem.Size = new System.Drawing.Size(125, 22);
             this.path2ToolStripMenuItem.Text = "Path &2";
             // 
             // toolStripSeparator6
             // 
             this.toolStripSeparator6.Name = "toolStripSeparator6";
-            this.toolStripSeparator6.Size = new System.Drawing.Size(149, 6);
+            this.toolStripSeparator6.Size = new System.Drawing.Size(122, 6);
             // 
             // anglesToolStripMenuItem
             // 
             this.anglesToolStripMenuItem.Name = "anglesToolStripMenuItem";
             this.anglesToolStripMenuItem.ShortcutKeyDisplayString = "R";
-            this.anglesToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.anglesToolStripMenuItem.Size = new System.Drawing.Size(125, 22);
             this.anglesToolStripMenuItem.Text = "Angles";
             // 
             // timeZoneToolStripMenuItem
@@ -1598,6 +1599,7 @@
             // 
             this.panel4.AutoSize = true;
             this.panel4.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.panel4.Controls.Add(this.label1);
             this.panel4.Controls.Add(this.ChunkCount);
             this.panel4.Controls.Add(this.ChunkID);
             this.panel4.Controls.Add(this.ChunkPicture);
@@ -1605,6 +1607,16 @@
             this.panel4.Name = "panel4";
             this.panel4.Size = new System.Drawing.Size(262, 301);
             this.panel4.TabIndex = 0;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(109, 275);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(149, 26);
+            this.label1.TabIndex = 4;
+            this.label1.Text = "LMB: Select block\r\nRMB: Paint w/ selected block";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.TopRight;
             // 
             // ChunkCount
             // 
@@ -1632,6 +1644,9 @@
             this.ChunkPicture.TabIndex = 1;
             this.ChunkPicture.Paint += new System.Windows.Forms.PaintEventHandler(this.ChunkPicture_Paint);
             this.ChunkPicture.MouseClick += new System.Windows.Forms.MouseEventHandler(this.ChunkPicture_MouseClick);
+            this.ChunkPicture.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ChunkPicture_MouseDown);
+            this.ChunkPicture.MouseMove += new System.Windows.Forms.MouseEventHandler(this.ChunkPicture_MouseMove);
+            this.ChunkPicture.MouseUp += new System.Windows.Forms.MouseEventHandler(this.ChunkPicture_MouseUp);
             // 
             // ChunkBlockPropertyGrid
             // 
@@ -2493,6 +2508,7 @@
         private System.Windows.Forms.ToolStripMenuItem findNextToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem useHexadecimalIndexesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem solidityMapsToolStripMenuItem;
+        private System.Windows.Forms.Label label1;
 
     }
 }

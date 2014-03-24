@@ -3190,10 +3190,49 @@ namespace SonicRetro.SonLVL.GUI
 
         private void ChunkPicture_MouseClick(object sender, MouseEventArgs e)
         {
-            if (!loaded) return;
+            if (!loaded || e.Button != MouseButtons.Left) return;
             SelectedChunkBlock = new Point(e.X / 16, e.Y / 16);
             ChunkBlockPropertyGrid.SelectedObject = LevelData.Chunks[SelectedChunk].Blocks[e.X / 16, e.Y / 16];
             ChunkPicture.Invalidate();
+        }
+
+        private void ChunkPicture_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (loaded && e.Button == MouseButtons.Right) {
+                int maxX = LevelData.Chunks[SelectedChunk].Blocks.GetLength(0) - 1;
+                int maxY = LevelData.Chunks[SelectedChunk].Blocks.GetLength(1) - 1;
+                if (e.X / 16 <= maxX && e.Y / 16 <= maxY) {
+                    ChunkBlock srcBlock = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
+                    ChunkBlock destBlock = LevelData.Chunks[SelectedChunk].Blocks[e.X / 16, e.Y / 16];
+                    destBlock.Block = srcBlock.Block;
+                    destBlock.Solid1 = srcBlock.Solid1;
+                    destBlock.XFlip = srcBlock.XFlip;
+                    destBlock.YFlip = srcBlock.YFlip;
+
+                    Bitmap bmp = (Bitmap)LevelData.CompBlockBmps[srcBlock.Block].Clone();
+                    if (srcBlock.XFlip) bmp.RotateFlip(RotateFlipType.RotateNoneFlipX);
+                    if (srcBlock.YFlip) bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
+
+                    Graphics gfx = ChunkPicture.CreateGraphics();
+                    Point pt = new Point(e.X / 16 * 16, e.Y / 16 * 16); //round to previous multiple of 16
+                    gfx.FillRectangle(new SolidBrush(LevelData.PaletteToColor(2, 0, false)), new Rectangle(pt, new Size(16, 16)));
+                    gfx.DrawImage(bmp, e.X / 16 * 16, e.Y / 16 * 16);
+                }
+            }
+        }
+
+        private void ChunkPicture_MouseDown(object sender, MouseEventArgs e)
+        {
+            ChunkPicture_MouseMove(sender, e);
+        }
+
+        private void ChunkPicture_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (loaded && e.Button == MouseButtons.Right) {
+                LevelData.RedrawChunk(SelectedChunk);
+                DrawLevel();
+                ChunkPicture.Invalidate();
+            }
         }
 
         private void ChunkBlockPropertyGrid_PropertyValueChanged(object sender, PropertyValueChangedEventArgs e)
