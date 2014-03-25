@@ -3242,8 +3242,14 @@ namespace SonicRetro.SonLVL.GUI
 			if (loaded && e.Button == MouseButtons.Right)
 				if (e.X > 0 && e.Y > 0 && e.X < LevelData.chunksz && e.Y < LevelData.chunksz)
 				{
-					LevelData.Chunks[SelectedChunk].Blocks[e.X / 16, e.Y / 16]
-						= LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
+					ChunkBlock srcBlock = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
+					ChunkBlock destBlock = LevelData.Chunks[SelectedChunk].Blocks[e.X / 16, e.Y / 16];
+					destBlock.Block = srcBlock.Block;
+					destBlock.Solid1 = srcBlock.Solid1;
+					destBlock.XFlip = srcBlock.XFlip;
+					destBlock.YFlip = srcBlock.YFlip;
+					if (srcBlock is S2ChunkBlock)
+						((S2ChunkBlock)destBlock).Solid2 = ((S2ChunkBlock)srcBlock).Solid2;
 					DrawChunkPicture();
 				}
 		}
