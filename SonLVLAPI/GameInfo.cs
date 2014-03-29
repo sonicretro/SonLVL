@@ -28,6 +28,14 @@ namespace SonicRetro.SonLVL.API
         public EngineVersion BlockFormat { get; set; }
         [IniName("blockcmp")]
         public CompressionType BlockCompression { get; set; }
+		[IniName("blockmax")]
+		public string BlockMaxString
+		{
+			get { return BlockMax.HasValue ? BlockMax.Value.ToString("X") : null; }
+			set { BlockMax = value == null ? null : (ushort?)ushort.Parse(value, NumberStyles.HexNumber); }
+		}
+		[IniIgnore]
+		public ushort? BlockMax { get; set; }
         [IniName("chunkfmt")]
         public EngineVersion ChunkFormat { get; set; }
         [IniName("chunkcmp")]

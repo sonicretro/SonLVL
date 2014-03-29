@@ -3611,6 +3611,8 @@ namespace SonicRetro.SonLVL.GUI
                         blockmax = 0x300;
                         break;
                 }
+				if (LevelData.Game.BlockMax.HasValue)
+					blockmax = LevelData.Game.BlockMax.Value;
                 pasteBeforeToolStripMenuItem.Enabled = Clipboard.ContainsData(typeof(Block).AssemblyQualifiedName) & LevelData.Blocks.Count < blockmax;
                 pasteAfterToolStripMenuItem.Enabled = pasteBeforeToolStripMenuItem.Enabled;
                 importToolStripMenuItem.Enabled = LevelData.Blocks.Count < blockmax;

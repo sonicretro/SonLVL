@@ -22,11 +22,11 @@ namespace SonicRetro.SonLVL.API.SKC
                 ushort lfp = ByteConverter.ToUInt16(rawdata, 8 + la);
                 if (lfp != 0)
                     for (int laf = 0; laf < fgw; laf++)
-                        layout.FGLayout[laf, la / 4] = rawdata[(lfp - 0x8000 + laf) ^ 1];
+                        layout.FGLayout[laf, la / 4] = rawdata[(lfp - StartAddress + laf) ^ 1];
                 ushort lbp = ByteConverter.ToUInt16(rawdata, 8 + la + 2);
                 if (lbp != 0)
                     for (int lab = 0; lab < bgw; lab++)
-                        layout.BGLayout[lab, la / 4] = rawdata[(lbp - 0x8000 + lab) ^ 1];
+                        layout.BGLayout[lab, la / 4] = rawdata[(lbp - StartAddress + lab) ^ 1];
             }
         }
 
@@ -44,11 +44,11 @@ namespace SonicRetro.SonLVL.API.SKC
             for (int la = 0; la < MaxSize.Height; la++)
             {
                 if (la < fgh)
-                    tmp.AddRange(ByteConverter.GetBytes((ushort)(0x8088 + (la * fgw))));
+                    tmp.AddRange(ByteConverter.GetBytes((ushort)(StartAddress + 0x88 + (la * fgw))));
                 else
                     tmp.AddRange(new byte[2]);
                 if (la < bgh)
-                    tmp.AddRange(ByteConverter.GetBytes((ushort)(0x8088 + (fgh * fgw) + (la * bgw))));
+                    tmp.AddRange(ByteConverter.GetBytes((ushort)(StartAddress + 0x88 + (fgh * fgw) + (la * bgw))));
                 else
                     tmp.AddRange(new byte[2]);
             }
@@ -67,5 +67,7 @@ namespace SonicRetro.SonLVL.API.SKC
         public override System.Drawing.Size MaxSize { get { return new System.Drawing.Size(200, 32); } }
 
         public override System.Drawing.Size DefaultSize { get { return new System.Drawing.Size(128, 16); } }
-    }
+
+		public virtual ushort StartAddress { get { return 0x8000; } }
+	}
 }
