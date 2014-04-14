@@ -245,42 +245,45 @@ namespace SonicRetro.SonLVL.GUI
                 LoadINI(Program.Arguments[0]);
         }
 
-        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (loaded)
-            {
-                switch (MessageBox.Show(this, "Do you want to save?", Text, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question))
-                {
-                    case DialogResult.Yes:
-                        saveToolStripMenuItem_Click(this, EventArgs.Empty);
-                        break;
-                    case DialogResult.Cancel:
-                        e.Cancel = true;
-                        break;
-                }
-            }
-            Settings.ShowHUD = hUDToolStripMenuItem.Checked;
-            if (path1ToolStripMenuItem.Checked)
-                Settings.ViewCollision = CollisionPath.Path1;
-            else if (path2ToolStripMenuItem.Checked)
-                Settings.ViewCollision = CollisionPath.Path2;
-            else
-                Settings.ViewCollision = CollisionPath.None;
-            Settings.ViewAngles = anglesToolStripMenuItem.Checked;
-            Settings.ViewAllTimeZones = allToolStripMenuItem.Checked;
-            Settings.ShowGrid = enableGridToolStripMenuItem.Checked;
-            Settings.ZoomLevel = zoomToolStripMenuItem.DropDownItems.Cast<ToolStripMenuItem>().Single((a) => a.Checked).Text;
-            Settings.IncludeObjectsInForegroundSelection = includeObjectsWithForegroundSelectionToolStripMenuItem.Checked;
-            Settings.CurrentTab = (Tab)tabControl1.SelectedIndex;
-            if (TopMost)
-                Settings.WindowMode = WindowMode.Fullscreen;
-            else if (WindowState == FormWindowState.Maximized)
-                Settings.WindowMode = WindowMode.Maximized;
-            else
-                Settings.WindowMode = WindowMode.Normal;
-            Settings.ShowMenu = menuStrip1.Visible;
-            Settings.Save();
-        }
+		private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+		{
+			if (loaded)
+			{
+				switch (MessageBox.Show(this, "Do you want to save?", Text, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question))
+				{
+					case DialogResult.Yes:
+						saveToolStripMenuItem_Click(this, EventArgs.Empty);
+						break;
+					case DialogResult.Cancel:
+						e.Cancel = true;
+						break;
+				}
+			}
+			if (Settings != null)
+			{
+				Settings.ShowHUD = hUDToolStripMenuItem.Checked;
+				if (path1ToolStripMenuItem.Checked)
+					Settings.ViewCollision = CollisionPath.Path1;
+				else if (path2ToolStripMenuItem.Checked)
+					Settings.ViewCollision = CollisionPath.Path2;
+				else
+					Settings.ViewCollision = CollisionPath.None;
+				Settings.ViewAngles = anglesToolStripMenuItem.Checked;
+				Settings.ViewAllTimeZones = allToolStripMenuItem.Checked;
+				Settings.ShowGrid = enableGridToolStripMenuItem.Checked;
+				Settings.ZoomLevel = zoomToolStripMenuItem.DropDownItems.Cast<ToolStripMenuItem>().Single((a) => a.Checked).Text;
+				Settings.IncludeObjectsInForegroundSelection = includeObjectsWithForegroundSelectionToolStripMenuItem.Checked;
+				Settings.CurrentTab = (Tab)tabControl1.SelectedIndex;
+				if (TopMost)
+					Settings.WindowMode = WindowMode.Fullscreen;
+				else if (WindowState == FormWindowState.Maximized)
+					Settings.WindowMode = WindowMode.Maximized;
+				else
+					Settings.WindowMode = WindowMode.Normal;
+				Settings.ShowMenu = menuStrip1.Visible;
+				Settings.Save();
+			}
+		}
 
         private void LoadINI(string filename)
         {
