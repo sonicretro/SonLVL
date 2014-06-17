@@ -37,37 +37,45 @@ namespace GetArt.NET
                 img.Dispose();
                 img = dest;
             }
-            if ((img.PixelFormat & PixelFormat.Indexed) == PixelFormat.Indexed)
-                LevelData.BmpPal = img.Palette;
-            else
-            {
-                bmpfile = null;
-                foreach (string extension in filetypes)
-                    if (File.Exists("Palette." + extension))
-                    {
-                        bmpfile = "Palette." + extension;
-                        break;
-                    }
-                if (bmpfile == null)
-                {
-                    Console.WriteLine("Palette file could not be found! Valid extensions are " + string.Join(", ", filetypes));
-                    return;
-                }
-                using (Bitmap palbmp = new Bitmap(1, 1, PixelFormat.Format8bppIndexed))
-                    LevelData.BmpPal = palbmp.Palette;
-                for (int i = 0; i < 256; i++)
-                    LevelData.BmpPal.Entries[i] = Color.Black;
-                using (Bitmap palbmp = new Bitmap(bmpfile))
-                {
-                    int i = 0;
-                    for (int y = 0; y < palbmp.Height; y += 8)
-                        for (int x = 0; x < palbmp.Width; x += 8)
-                            LevelData.BmpPal.Entries[i++] = palbmp.GetPixel(x, y);
-                }
-            }
+			SonLVLColor[] palette = new SonLVLColor[64];
+			if ((img.PixelFormat & PixelFormat.Indexed) == PixelFormat.Indexed)
+			{
+				for (int i = 0; i < Math.Min(64, img.Palette.Entries.Length); i++)
+					palette[i] = new SonLVLColor(img.Palette.Entries[i]);
+			}
+			else
+			{
+				bmpfile = null;
+				foreach (string extension in filetypes)
+					if (File.Exists("Palette." + extension))
+					{
+						bmpfile = "Palette." + extension;
+						break;
+					}
+				if (bmpfile == null)
+				{
+					Console.WriteLine("Palette file could not be found! Valid extensions are " + string.Join(", ", filetypes));
+					return;
+				}
+				using (Bitmap palbmp = new Bitmap(bmpfile))
+				{
+					int i = 0;
+					for (int y = 0; y < palbmp.Height; y += 8)
+					{
+						for (int x = 0; x < palbmp.Width; x += 8)
+						{
+							palette[i++] = new SonLVLColor(palbmp.GetPixel(x, y));
+							if (i == 64)
+								break;
+						}
+						if (i == 64)
+							break;
+					}
+				}
+			}
             using (FileStream palfile = File.Create("Palette.bin"))
                 for (int i = 0; i < 64; i++)
-                    palfile.Write(ByteConverter.GetBytes(new SonLVLColor(LevelData.BmpPal.Entries[i]).MDColor), 0, 2);
+                    palfile.Write(ByteConverter.GetBytes(palette[i].MDColor), 0, 2);
             int w = img.Width;
             int h = img.Height;
             int pal = 0;
