@@ -2840,13 +2840,13 @@ namespace SonicRetro.SonLVL.API
             switch (Level.ObjectFormat)
             {
                 case EngineVersion.S1:
-                    oe = new S1ObjectEntry();
+					oe = new S1ObjectEntry() { RememberState = def.RememberState };
                     break;
                 case EngineVersion.S2:
-                    oe = new S2ObjectEntry();
+					oe = new S2ObjectEntry() { RememberState = def.RememberState };
                     break;
                 case EngineVersion.S2NA:
-                    oe = new S2NAObjectEntry();
+					oe = new S2NAObjectEntry() { RememberState = def.RememberState };
                     break;
                 case EngineVersion.S3K:
                 case EngineVersion.SKC:
@@ -2854,7 +2854,7 @@ namespace SonicRetro.SonLVL.API
                     break;
                 case EngineVersion.SCD:
                 case EngineVersion.SCDPC:
-                    oe = new SCDObjectEntry();
+					oe = new SCDObjectEntry() { RememberState = def.RememberState };
                     break;
                 default:
                     oe = null;
