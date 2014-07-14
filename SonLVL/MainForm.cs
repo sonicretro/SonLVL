@@ -3118,6 +3118,42 @@ namespace SonicRetro.SonLVL.GUI
 			DrawChunkPicture();
 		}
 
+		private void flipChunkHButton_Click(object sender, EventArgs e)
+		{
+			Chunk newcnk = new Chunk();
+			Chunk oldcnk = LevelData.Chunks[SelectedChunk];
+			int blkcnt = LevelData.chunksz / 16;
+			for (int y = 0; y < blkcnt; y++)
+				for (int x = 0; x < blkcnt; x++)
+				{
+					ChunkBlock blk = oldcnk.Blocks[(blkcnt - 1) - x, y];
+					blk.XFlip = !blk.XFlip;
+					newcnk.Blocks[x, y] = blk;
+				}
+			LevelData.Chunks[SelectedChunk] = newcnk;
+			LevelData.RedrawChunk(SelectedChunk);
+			ChunkBlockPropertyGrid.SelectedObject = newcnk.Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
+			DrawChunkPicture();
+		}
+
+		private void flipChunkVButton_Click(object sender, EventArgs e)
+		{
+			Chunk newcnk = new Chunk();
+			Chunk oldcnk = LevelData.Chunks[SelectedChunk];
+			int blkcnt = LevelData.chunksz / 16;
+			for (int y = 0; y < blkcnt; y++)
+				for (int x = 0; x < blkcnt; x++)
+				{
+					ChunkBlock blk = oldcnk.Blocks[x, (blkcnt - 1) - y];
+					blk.XFlip = !blk.XFlip;
+					newcnk.Blocks[x, y] = blk;
+				}
+			LevelData.Chunks[SelectedChunk] = newcnk;
+			LevelData.RedrawChunk(SelectedChunk);
+			ChunkBlockPropertyGrid.SelectedObject = newcnk.Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
+			DrawChunkPicture();
+		}
+
 		private void BlockPicture_MouseClick(object sender, MouseEventArgs e)
 		{
 			if (!loaded) return;
