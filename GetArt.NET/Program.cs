@@ -73,9 +73,16 @@ namespace GetArt.NET
 					}
 				}
 			}
+			using (Bitmap palbmp = new Bitmap(1, 1, PixelFormat.Format8bppIndexed))
+				LevelData.BmpPal = palbmp.Palette;
             using (FileStream palfile = File.Create("Palette.bin"))
-                for (int i = 0; i < 64; i++)
-                    palfile.Write(ByteConverter.GetBytes(palette[i].MDColor), 0, 2);
+				for (int i = 0; i < 64; i++)
+				{
+					palfile.Write(ByteConverter.GetBytes(palette[i].MDColor), 0, 2);
+					LevelData.BmpPal.Entries[i] = palette[i].RGBColor;
+				}
+			for (int i = 64; i < 256; i++)
+				LevelData.BmpPal.Entries[i] = Color.Transparent;
             int w = img.Width;
             int h = img.Height;
             int pal = 0;
