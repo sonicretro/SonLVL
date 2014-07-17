@@ -2743,7 +2743,10 @@ namespace SonicRetro.SonLVL.GUI
 			switch (LevelData.Level.RingFormat)
 			{
 				case EngineVersion.S1:
-					LevelData.Objects.Add(new S1ObjectEntry() { X = (ushort)((menuLoc.X * ZoomLevel) + hScrollBar1.Value), Y = (ushort)((menuLoc.Y * ZoomLevel) + vScrollBar1.Value), ID = 0x25 });
+					ObjectEntry obj = LevelData.CreateObject(0x25);
+					obj.X = (ushort)((menuLoc.X * ZoomLevel) + hScrollBar1.Value);
+					obj.Y = (ushort)((menuLoc.Y * ZoomLevel) + vScrollBar1.Value);
+					LevelData.Objects.Add(obj);
 					LevelData.Objects[LevelData.Objects.Count - 1].UpdateSprite();
 					SelectedItems.Clear();
 					SelectedItems.Add(LevelData.Objects[LevelData.Objects.Count - 1]);
