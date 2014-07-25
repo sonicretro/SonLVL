@@ -479,7 +479,7 @@ namespace SonicRetro.SonLVL.API
             name = data.Name ?? "Unknown";
             try
             {
-                if (data.Art != null)
+                if (data.Art != null && data.Art.Length > 0)
                 {
                     MultiFileIndexer<byte> art = new MultiFileIndexer<byte>();
                     foreach (FileInfo file in data.Art)
