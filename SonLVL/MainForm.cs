@@ -2841,21 +2841,25 @@ namespace SonicRetro.SonLVL.GUI
 			using (AddGroupDialog dlg = new AddGroupDialog())
 			{
 				dlg.Text = "Add Group of Rings";
+				Size sz = new Size();
 				switch (LevelData.Level.RingFormat)
 				{
+					case EngineVersion.S1:
+						sz = LevelData.GetObjectDefinition(0x25).GetBounds(LevelData.CreateObject(0x25), Point.Empty).Size;
+						break;
 					case EngineVersion.S2:
 					case EngineVersion.S2NA:
-						dlg.XDist.Value = LevelData.S2RingDef.GetBounds(new S2RingEntry(), Point.Empty).Width;
-						dlg.YDist.Value = LevelData.S2RingDef.GetBounds(new S2RingEntry(), Point.Empty).Height;
+						sz = LevelData.S2RingDef.GetBounds(new S2RingEntry(), Point.Empty).Size;
 						break;
 					case EngineVersion.S3K:
 					case EngineVersion.SKC:
-						dlg.XDist.Value = LevelData.S3KRingDef.GetBounds(new S3KRingEntry(), Point.Empty).Width;
-						dlg.YDist.Value = LevelData.S3KRingDef.GetBounds(new S3KRingEntry(), Point.Empty).Height;
+						sz = LevelData.S3KRingDef.GetBounds(new S3KRingEntry(), Point.Empty).Size;
 						break;
 					default:
 						return;
 				}
+				dlg.XDist.Value = sz.Width;
+				dlg.YDist.Value = sz.Height;
 				if (dlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
 				{
 					Point pt = new Point((int)(menuLoc.X * ZoomLevel) + hScrollBar1.Value, (int)(menuLoc.Y * ZoomLevel) + vScrollBar1.Value);
@@ -2869,15 +2873,23 @@ namespace SonicRetro.SonLVL.GUI
 						{
 							switch (LevelData.Level.RingFormat)
 							{
+								case EngineVersion.S1:
+									ObjectEntry obj = LevelData.CreateObject(0x25);
+									obj.X = (ushort)pt.X;
+									obj.Y = (ushort)pt.Y;
+									LevelData.Objects.Add(obj);
+									LevelData.Objects[LevelData.Objects.Count - 1].UpdateSprite();
+									SelectedItems.Add(LevelData.Objects[LevelData.Objects.Count - 1]);
+									break;
 								case EngineVersion.S2:
 								case EngineVersion.S2NA:
-									LevelData.Rings.Add(new S2RingEntry() { X = (ushort)(pt.X), Y = (ushort)(pt.Y) });
+									LevelData.Rings.Add(new S2RingEntry() { X = (ushort)pt.X, Y = (ushort)pt.Y });
 									LevelData.Rings[LevelData.Rings.Count - 1].UpdateSprite();
 									SelectedItems.Add(LevelData.Rings[LevelData.Rings.Count - 1]);
 									break;
 								case EngineVersion.S3K:
 								case EngineVersion.SKC:
-									LevelData.Rings.Add(new S3KRingEntry() { X = (ushort)(pt.X), Y = (ushort)(pt.Y) });
+									LevelData.Rings.Add(new S3KRingEntry() { X = (ushort)pt.X, Y = (ushort)pt.Y });
 									LevelData.Rings[LevelData.Rings.Count - 1].UpdateSprite();
 									SelectedItems.Add(LevelData.Rings[LevelData.Rings.Count - 1]);
 									break;
@@ -2888,7 +2900,18 @@ namespace SonicRetro.SonLVL.GUI
 						pt += ysz;
 					}
 					SelectedObjectChanged();
-					LevelData.Rings.Sort();
+					switch (LevelData.Level.RingFormat)
+					{
+						case EngineVersion.S1:
+							LevelData.Objects.Sort();
+							break;
+						case EngineVersion.S2NA:
+						case EngineVersion.S2:
+						case EngineVersion.S3K:
+						case EngineVersion.SKC:
+							LevelData.Rings.Sort();
+							break;
+					}
 					DrawLevel();
 				}
 			}

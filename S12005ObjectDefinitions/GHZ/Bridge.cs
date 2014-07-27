@@ -32,6 +32,8 @@ namespace S12005ObjectDefinitions.GHZ
             get { return false; }
         }
 
+		public override byte DefaultSubtype { get { return 8; } }
+
         public override string SubtypeName(byte subtype)
         {
             return (subtype & 0x1F) + " logs";
