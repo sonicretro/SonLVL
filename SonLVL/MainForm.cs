@@ -4805,7 +4805,7 @@ namespace SonicRetro.SonLVL.GUI
 					}
 				}
 				else
-					MessageBox.Show(this, Text, "The current game does not allow you to resize levels!");
+					MessageBox.Show(this, "The current game does not allow you to resize levels!", Text);
 			}
 		}
 

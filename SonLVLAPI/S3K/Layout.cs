@@ -57,7 +57,9 @@ namespace SonicRetro.SonLVL.API.S3K
             rawdata = tmp.ToArray();
         }
 
-        public override System.Drawing.Size MaxSize { get { return new System.Drawing.Size(200, 32); } }
+		public override bool IsResizable { get { return true; } }
+
+		public override System.Drawing.Size MaxSize { get { return new System.Drawing.Size(200, 32); } }
 
         public override System.Drawing.Size DefaultSize { get { return new System.Drawing.Size(128, 16); } }
 
