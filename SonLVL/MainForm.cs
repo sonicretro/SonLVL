@@ -1262,6 +1262,28 @@ namespace SonicRetro.SonLVL.GUI
 								LevelImg8bpp.DrawLine(67, x * LevelData.chunksz - camera.X, y * LevelData.chunksz - camera.Y, x * LevelData.chunksz - camera.X + LevelData.chunksz - 1, y * LevelData.chunksz - camera.Y);
 								LevelImg8bpp.DrawLine(67, x * LevelData.chunksz - camera.X, y * LevelData.chunksz - camera.Y, x * LevelData.chunksz - camera.X, y * LevelData.chunksz - camera.Y + LevelData.chunksz - 1);
 							}
+					if (anglesToolStripMenuItem.Checked & !noneToolStripMenuItem1.Checked)
+						for (int y = Math.Max(camera.Y / LevelData.chunksz, 0); y <= Math.Min(((camera.Y + (foregroundPanel.Height - 1) / ZoomLevel)) / LevelData.chunksz, LevelData.Layout.FGLayout.GetLength(1) - 1); y++)
+							for (int x = Math.Max(camera.X / LevelData.chunksz, 0); x <= Math.Min(((camera.X + (foregroundPanel.Width - 1) / ZoomLevel)) / LevelData.chunksz, LevelData.Layout.FGLayout.GetLength(0) - 1); x++)
+								for (int b = 0; b < LevelData.chunksz / 16; b++)
+									for (int a = 0; a < LevelData.chunksz / 16; a++)
+									{
+										ChunkBlock blk = LevelData.Chunks[LevelData.Layout.FGLayout[x, y]].Blocks[a, b];
+										Solidity solid;
+										if (path2ToolStripMenuItem.Checked)
+											solid = ((S2ChunkBlock)blk).Solid2;
+										else
+											solid = blk.Solid1;
+										if (solid == Solidity.NotSolid) continue;
+										{
+											byte coli;
+											if (path2ToolStripMenuItem.Checked)
+												coli = LevelData.ColInds2[blk.Block];
+											else
+												coli = LevelData.ColInds1[blk.Block];
+											DrawHUDNum(x * LevelData.chunksz + a * 16 - camera.X, y * LevelData.chunksz + b * 16 - camera.Y, LevelData.Angles[coli].ToString("X2"));
+										}
+									}
 					ringcnt = 0;
 					switch (LevelData.Level.RingFormat)
 					{
@@ -1337,6 +1359,28 @@ namespace SonicRetro.SonLVL.GUI
 								LevelImg8bpp.DrawLine(67, x * LevelData.chunksz - camera.X, y * LevelData.chunksz - camera.Y, x * LevelData.chunksz - camera.X + LevelData.chunksz - 1, y * LevelData.chunksz - camera.Y);
 								LevelImg8bpp.DrawLine(67, x * LevelData.chunksz - camera.X, y * LevelData.chunksz - camera.Y, x * LevelData.chunksz - camera.X, y * LevelData.chunksz - camera.Y + LevelData.chunksz - 1);
 							}
+					if (anglesToolStripMenuItem.Checked & !noneToolStripMenuItem1.Checked)
+						for (int y = Math.Max(camera.Y / LevelData.chunksz, 0); y <= Math.Min(((camera.Y + (backgroundPanel.Height - 1) / ZoomLevel)) / LevelData.chunksz, LevelData.Layout.BGLayout.GetLength(1) - 1); y++)
+							for (int x = Math.Max(camera.X / LevelData.chunksz, 0); x <= Math.Min(((camera.X + (backgroundPanel.Width - 1) / ZoomLevel)) / LevelData.chunksz, LevelData.Layout.BGLayout.GetLength(0) - 1); x++)
+								for (int b = 0; b < LevelData.chunksz / 16; b++)
+									for (int a = 0; a < LevelData.chunksz / 16; a++)
+									{
+										ChunkBlock blk = LevelData.Chunks[LevelData.Layout.BGLayout[x, y]].Blocks[a, b];
+										Solidity solid;
+										if (path2ToolStripMenuItem.Checked)
+											solid = ((S2ChunkBlock)blk).Solid2;
+										else
+											solid = blk.Solid1;
+										if (solid == Solidity.NotSolid) continue;
+										{
+											byte coli;
+											if (path2ToolStripMenuItem.Checked)
+												coli = LevelData.ColInds2[blk.Block];
+											else
+												coli = LevelData.ColInds1[blk.Block];
+											DrawHUDNum(x * LevelData.chunksz + a * 16 - camera.X, y * LevelData.chunksz + b * 16 - camera.Y, LevelData.Angles[coli].ToString("X2"));
+										}
+									}
 					if (hUDToolStripMenuItem.Checked)
 					{
 						tmpbnd = hudbnd = DrawHUDStr(8, 8, "Screen Pos: ");
