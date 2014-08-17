@@ -71,7 +71,7 @@ namespace SonicRetro.SonLVL.API
             using (Bitmap bmp = new Bitmap(filename))
             {
                 if (bmp.PixelFormat != PixelFormat.Format8bppIndexed)
-                    throw new ArgumentException();
+                    throw new ArgumentException("Only 8bpp (256 color) images are supported.\nFile: \"" + filename + "\"");
                 BitmapData bmpd = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, bmp.PixelFormat);
                 Width = bmpd.Width;
                 Height = bmpd.Height;
