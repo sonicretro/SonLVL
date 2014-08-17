@@ -3229,32 +3229,15 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			if (!loaded) return;
 			SelectedBlockTile = new Point(e.X / 32, e.Y / 32);
-			BlockTilePropertyGrid.SelectedObject = LevelData.Blocks[SelectedBlock].Tiles[e.X / 32, e.Y / 32];
+			blockTileEditor.SelectedObject = LevelData.Blocks[SelectedBlock].Tiles[e.X / 32, e.Y / 32];
 			BlockPicture.Invalidate();
 		}
 
-		private void BlockTilePropertyGrid_PropertyValueChanged(object sender, PropertyValueChangedEventArgs e)
+		private void blockTileEditor_PropertyValueChanged(object sender, EventArgs e)
 		{
 			LevelData.RedrawBlock(SelectedBlock, true);
 			DrawLevel();
 			BlockPicture.Invalidate();
-		}
-
-		private int GetBlockMax()
-		{
-			int blockmax = 0x400;
-			switch (LevelData.Game.EngineVersion)
-			{
-				case EngineVersion.S2:
-				case EngineVersion.S2NA:
-				case EngineVersion.S3K:
-				case EngineVersion.SKC:
-					blockmax = 0x300;
-					break;
-			}
-			if (LevelData.Game.BlockMax.HasValue)
-				blockmax = LevelData.Game.BlockMax.Value;
-			return blockmax;
 		}
 
 		private void BlockSelector_SelectedIndexChanged(object sender, EventArgs e)
@@ -3263,14 +3246,14 @@ namespace SonicRetro.SonLVL.GUI
 			{
 				SelectedBlock = BlockSelector.SelectedIndex;
 				SelectedBlockTile = new Point();
-				BlockTilePropertyGrid.SelectedObject = LevelData.Blocks[SelectedBlock].Tiles[0, 0];
+				blockTileEditor.SelectedObject = LevelData.Blocks[SelectedBlock].Tiles[0, 0];
 				if (LevelData.ColInds1.Count > 0)
 				{
 					BlockCollision1.Value = LevelData.ColInds1[SelectedBlock];
 					BlockCollision2.Value = LevelData.ColInds2[SelectedBlock];
 				}
 				BlockID.Text = SelectedBlock.ToString("X3");
-				int blockmax = GetBlockMax();
+				int blockmax = LevelData.GetBlockMax();
 				BlockCount.Text = LevelData.Blocks.Count.ToString("X") + " / " + blockmax.ToString("X");
 				BlockPicture.Invalidate();
 			}
@@ -3531,7 +3514,7 @@ namespace SonicRetro.SonLVL.GUI
 			if (!loaded) return;
 			if (e.Button == System.Windows.Forms.MouseButtons.Right)
 			{
-				int blockmax = GetBlockMax();
+				int blockmax = LevelData.GetBlockMax();
 				pasteBeforeToolStripMenuItem.Enabled = Clipboard.ContainsData(typeof(Block).AssemblyQualifiedName) & LevelData.Blocks.Count < blockmax;
 				pasteAfterToolStripMenuItem.Enabled = pasteBeforeToolStripMenuItem.Enabled;
 				importToolStripMenuItem.Enabled = LevelData.Blocks.Count < blockmax;
@@ -4376,7 +4359,7 @@ namespace SonicRetro.SonLVL.GUI
 									insertBeforeToolStripMenuItem_Click(sender, EventArgs.Empty);
 								break;
 							case 4: // Blocks
-								if (LevelData.Blocks.Count < GetBlockMax())
+								if (LevelData.Blocks.Count < LevelData.GetBlockMax())
 									insertBeforeToolStripMenuItem_Click(sender, EventArgs.Empty);
 								break;
 							case 5: // Tiles
@@ -4394,7 +4377,7 @@ namespace SonicRetro.SonLVL.GUI
 										pasteAfterToolStripMenuItem_Click(sender, EventArgs.Empty);
 									break;
 								case 4: // Blocks
-									if (Clipboard.GetDataObject().GetDataPresent(typeof(Block).AssemblyQualifiedName) & LevelData.Blocks.Count < GetBlockMax())
+									if (Clipboard.GetDataObject().GetDataPresent(typeof(Block).AssemblyQualifiedName) & LevelData.Blocks.Count < LevelData.GetBlockMax())
 										pasteAfterToolStripMenuItem_Click(sender, EventArgs.Empty);
 									break;
 								case 5: // Tiles

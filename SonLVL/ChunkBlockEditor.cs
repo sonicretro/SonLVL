@@ -45,9 +45,11 @@ namespace SonicRetro.SonLVL
 					}
 					else
 						solidity2.Visible = false;
+					block.Maximum = LevelData.GetBlockMax();
+					block.Value = value.Block;
 					blockList.Images = LevelData.CompBlockBmps;
 					blockList.ChangeSize();
-					blockList.SelectedIndex = value.Block;
+					blockList.SelectedIndex = value.Block >= LevelData.Blocks.Count ? -1 : value.Block;
 				}
 				initializing = false;
 			}
@@ -67,7 +69,7 @@ namespace SonicRetro.SonLVL
 			if (!initializing)
 			{
 				selectedObject.YFlip = yFlip.Checked;
-				PropertyValueChanged(xFlip, EventArgs.Empty);
+				PropertyValueChanged(yFlip, EventArgs.Empty);
 			}
 		}
 
@@ -76,7 +78,7 @@ namespace SonicRetro.SonLVL
 			if (!initializing)
 			{
 				selectedObject.Solid1 = (Solidity)solidity1.SelectedIndex;
-				PropertyValueChanged(xFlip, EventArgs.Empty);
+				PropertyValueChanged(solidity1, EventArgs.Empty);
 			}
 		}
 
@@ -85,17 +87,26 @@ namespace SonicRetro.SonLVL
 			if (!initializing)
 			{
 				((S2ChunkBlock)selectedObject).Solid2 = (Solidity)solidity2.SelectedIndex;
-				PropertyValueChanged(xFlip, EventArgs.Empty);
+				PropertyValueChanged(solidity2, EventArgs.Empty);
+			}
+		}
+
+		private void block_ValueChanged(object sender, EventArgs e)
+		{
+			if (!initializing)
+			{
+				selectedObject.Block = (ushort)block.Value;
+				PropertyValueChanged(block, EventArgs.Empty);
+				initializing = true;
+				blockList.SelectedIndex = block.Value >= LevelData.Blocks.Count ? -1 : (int)block.Value;
+				initializing = false;
 			}
 		}
 
 		private void blockList_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			if (!initializing)
-			{
-				selectedObject.Block = (ushort)blockList.SelectedIndex;
-				PropertyValueChanged(xFlip, EventArgs.Empty);
-			}
+			if (!initializing && blockList.SelectedIndex > -1)
+				block.Value = blockList.SelectedIndex;
 		}
 	}
 }

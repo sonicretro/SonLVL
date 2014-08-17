@@ -3218,7 +3218,24 @@ namespace SonicRetro.SonLVL.API
             Layout.BGLayout = newBG;
             Layout.BGLoop = newBGLoop;
         }
-    }
+
+		public static int GetBlockMax()
+		{
+			int blockmax = 0x400;
+			switch (Game.EngineVersion)
+			{
+				case EngineVersion.S2:
+				case EngineVersion.S2NA:
+				case EngineVersion.S3K:
+				case EngineVersion.SKC:
+					blockmax = 0x300;
+					break;
+			}
+			if (Game.BlockMax.HasValue)
+				blockmax = Game.BlockMax.Value;
+			return blockmax;
+		}
+	}
 
     public class LayoutData
     {

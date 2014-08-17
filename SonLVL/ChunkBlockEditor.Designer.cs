@@ -29,13 +29,17 @@
 		private void InitializeComponent()
 		{
 			System.Windows.Forms.GroupBox groupBox1;
+			System.Windows.Forms.Label label2;
 			this.solidity2 = new System.Windows.Forms.ComboBox();
 			this.solidity1 = new System.Windows.Forms.ComboBox();
 			this.xFlip = new System.Windows.Forms.CheckBox();
 			this.yFlip = new System.Windows.Forms.CheckBox();
 			this.blockList = new SonicRetro.SonLVL.API.TileList();
+			this.block = new System.Windows.Forms.NumericUpDown();
 			groupBox1 = new System.Windows.Forms.GroupBox();
+			label2 = new System.Windows.Forms.Label();
 			groupBox1.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.block)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// groupBox1
@@ -111,18 +115,43 @@
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.blockList.BackColor = System.Drawing.SystemColors.Window;
 			this.blockList.ImageSize = 16;
-			this.blockList.Location = new System.Drawing.Point(3, 115);
+			this.blockList.Location = new System.Drawing.Point(3, 141);
 			this.blockList.Name = "blockList";
 			this.blockList.ScrollValue = 0;
 			this.blockList.SelectedIndex = -1;
-			this.blockList.Size = new System.Drawing.Size(138, 166);
+			this.blockList.Size = new System.Drawing.Size(138, 140);
 			this.blockList.TabIndex = 3;
 			this.blockList.SelectedIndexChanged += new System.EventHandler(this.blockList_SelectedIndexChanged);
+			// 
+			// block
+			// 
+			this.block.Hexadecimal = true;
+			this.block.Location = new System.Drawing.Point(46, 115);
+			this.block.Maximum = new decimal(new int[] {
+            2047,
+            0,
+            0,
+            0});
+			this.block.Name = "block";
+			this.block.Size = new System.Drawing.Size(53, 20);
+			this.block.TabIndex = 10;
+			this.block.ValueChanged += new System.EventHandler(this.block_ValueChanged);
+			// 
+			// label2
+			// 
+			label2.AutoSize = true;
+			label2.Location = new System.Drawing.Point(3, 117);
+			label2.Name = "label2";
+			label2.Size = new System.Drawing.Size(37, 13);
+			label2.TabIndex = 9;
+			label2.Text = "Block:";
 			// 
 			// ChunkBlockEditor
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.Controls.Add(this.block);
+			this.Controls.Add(label2);
 			this.Controls.Add(this.blockList);
 			this.Controls.Add(groupBox1);
 			this.Controls.Add(this.yFlip);
@@ -131,6 +160,7 @@
 			this.Size = new System.Drawing.Size(144, 284);
 			this.Load += new System.EventHandler(this.ChunkBlockEditor_Load);
 			groupBox1.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.block)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -143,5 +173,6 @@
 		private System.Windows.Forms.ComboBox solidity1;
 		private System.Windows.Forms.ComboBox solidity2;
 		private API.TileList blockList;
+		private System.Windows.Forms.NumericUpDown block;
 	}
 }
