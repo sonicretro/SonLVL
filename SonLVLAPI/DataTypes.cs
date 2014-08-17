@@ -276,7 +276,7 @@ namespace SonicRetro.SonLVL.API
 
         public bool XFlip { get; set; }
         public bool YFlip { get; set; }
-        public ushort _ind;
+        protected ushort _ind;
         [Browsable(false)]
         public ushort Block
         {

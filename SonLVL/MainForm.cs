@@ -508,6 +508,7 @@ namespace SonicRetro.SonLVL.GUI
 			CollisionSelector.ChangeSize();
 			ChunkSelector.SelectedIndex = 0;
 			ChunkPicture.Size = new Size(LevelData.chunksz, LevelData.chunksz);
+			flipChunkHButton.Enabled = flipChunkVButton.Enabled = true;
 			BlockSelector.SelectedIndex = 0;
 			TileSelector.Images.Clear();
 			for (int i = 0; i < LevelData.Tiles.Count; i++)
@@ -2693,7 +2694,7 @@ namespace SonicRetro.SonLVL.GUI
 			if (ChunkSelector.SelectedIndex == -1 | ChunkSelector.SelectedIndex >= LevelData.Chunks.Count) return;
 			SelectedChunk = (byte)ChunkSelector.SelectedIndex;
 			SelectedChunkBlock = new Point();
-			ChunkBlockPropertyGrid.SelectedObject = LevelData.Chunks[SelectedChunk].Blocks[0, 0];
+			chunkBlockEditor.SelectedObject = LevelData.Chunks[SelectedChunk].Blocks[0, 0];
 			ChunkPicture.Invalidate();
 			ChunkID.Text = SelectedChunk.ToString("X2");
 			ChunkCount.Text = LevelData.Chunks.Count.ToString("X") + " / 100";
@@ -3119,7 +3120,7 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			if (!loaded || e.Button != MouseButtons.Left) return;
 			SelectedChunkBlock = new Point(e.X / 16, e.Y / 16);
-			ChunkBlockPropertyGrid.SelectedObject = LevelData.Chunks[SelectedChunk].Blocks[e.X / 16, e.Y / 16];
+			chunkBlockEditor.SelectedObject = LevelData.Chunks[SelectedChunk].Blocks[e.X / 16, e.Y / 16];
 			DrawChunkPicture();
 		}
 
@@ -3155,7 +3156,7 @@ namespace SonicRetro.SonLVL.GUI
 			}
 		}
 
-		private void ChunkBlockPropertyGrid_PropertyValueChanged(object sender, PropertyValueChangedEventArgs e)
+		private void chunkBlockEditor_PropertyValueChanged(object sender, EventArgs e)
 		{
 			LevelData.RedrawChunk(SelectedChunk);
 			DrawLevel();
@@ -3202,7 +3203,7 @@ namespace SonicRetro.SonLVL.GUI
 				}
 			LevelData.Chunks[SelectedChunk] = newcnk;
 			LevelData.RedrawChunk(SelectedChunk);
-			ChunkBlockPropertyGrid.SelectedObject = newcnk.Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
+			chunkBlockEditor.SelectedObject = newcnk.Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
 			DrawChunkPicture();
 		}
 
@@ -3220,7 +3221,7 @@ namespace SonicRetro.SonLVL.GUI
 				}
 			LevelData.Chunks[SelectedChunk] = newcnk;
 			LevelData.RedrawChunk(SelectedChunk);
-			ChunkBlockPropertyGrid.SelectedObject = newcnk.Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
+			chunkBlockEditor.SelectedObject = newcnk.Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
 			DrawChunkPicture();
 		}
 
@@ -6014,6 +6015,11 @@ namespace SonicRetro.SonLVL.GUI
 		private void loadingAnimation1_SizeChanged(object sender, EventArgs e)
 		{
 			loadingAnimation1.Location = new Point((ClientSize.Width / 2) - (loadingAnimation1.Width / 2), (ClientSize.Height / 2) - loadingAnimation1.Height / 2);
+		}
+
+		private void ChunkBlockPropertyGrid_PropertyValueChanged(object sender, EventArgs e)
+		{
+
 		}
 	}
 
