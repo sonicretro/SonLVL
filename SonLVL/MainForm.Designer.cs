@@ -31,6 +31,9 @@
 			this.components = new System.ComponentModel.Container();
 			System.Windows.Forms.ToolStripSeparator toolStripSeparator8;
 			System.Windows.Forms.ToolStripSeparator toolStripSeparator9;
+			System.Windows.Forms.Label label4;
+			System.Windows.Forms.Label label3;
+			System.Windows.Forms.Label label2;
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
 			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -169,7 +172,6 @@
 			this.ChunkCount = new System.Windows.Forms.Label();
 			this.ChunkID = new System.Windows.Forms.TextBox();
 			this.ChunkPicture = new SonicRetro.SonLVL.API.KeyboardPanel();
-			this.chunkBlockEditor = new SonicRetro.SonLVL.ChunkBlockEditor();
 			this.panel10 = new System.Windows.Forms.Panel();
 			this.tabPage5 = new System.Windows.Forms.TabPage();
 			this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
@@ -179,7 +181,6 @@
 			this.BlockID = new System.Windows.Forms.TextBox();
 			this.BlockPicture = new SonicRetro.SonLVL.API.KeyboardPanel();
 			this.panel6 = new System.Windows.Forms.Panel();
-			this.blockTileEditor = new SonicRetro.SonLVL.PatternIndexEditor();
 			this.ColIndBox = new System.Windows.Forms.GroupBox();
 			this.button2 = new System.Windows.Forms.Button();
 			this.button1 = new System.Windows.Forms.Button();
@@ -187,14 +188,19 @@
 			this.BlockCollision1 = new System.Windows.Forms.NumericUpDown();
 			this.tabPage6 = new System.Windows.Forms.TabPage();
 			this.tableLayoutPanel6 = new System.Windows.Forms.TableLayoutPanel();
-			this.panel8 = new System.Windows.Forms.Panel();
-			this.PalettePanel = new System.Windows.Forms.Panel();
 			this.TileSelector = new SonicRetro.SonLVL.API.TileList();
 			this.panel7 = new System.Windows.Forms.Panel();
 			this.button3 = new System.Windows.Forms.Button();
 			this.TileCount = new System.Windows.Forms.Label();
 			this.TileID = new System.Windows.Forms.TextBox();
 			this.TilePicture = new System.Windows.Forms.Panel();
+			this.tableLayoutPanel8 = new System.Windows.Forms.TableLayoutPanel();
+			this.panel8 = new System.Windows.Forms.Panel();
+			this.PalettePanel = new System.Windows.Forms.Panel();
+			this.colorEditingPanel = new System.Windows.Forms.Panel();
+			this.colorBlue = new System.Windows.Forms.NumericUpDown();
+			this.colorGreen = new System.Windows.Forms.NumericUpDown();
+			this.colorRed = new System.Windows.Forms.NumericUpDown();
 			this.tabPage7 = new System.Windows.Forms.TabPage();
 			this.tableLayoutPanel7 = new System.Windows.Forms.TableLayoutPanel();
 			this.CollisionSelector = new SonicRetro.SonLVL.API.TileList();
@@ -224,9 +230,14 @@
 			this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
 			this.insertLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.deleteLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.chunkBlockEditor = new SonicRetro.SonLVL.ChunkBlockEditor();
+			this.blockTileEditor = new SonicRetro.SonLVL.PatternIndexEditor();
 			this.loadingAnimation1 = new SonicRetro.SonLVL.LoadingAnimation();
 			toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
 			toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
+			label4 = new System.Windows.Forms.Label();
+			label3 = new System.Windows.Forms.Label();
+			label2 = new System.Windows.Forms.Label();
 			this.menuStrip1.SuspendLayout();
 			this.objectContextMenuStrip.SuspendLayout();
 			this.tableLayoutPanel1.SuspendLayout();
@@ -262,8 +273,13 @@
 			((System.ComponentModel.ISupportInitialize)(this.BlockCollision1)).BeginInit();
 			this.tabPage6.SuspendLayout();
 			this.tableLayoutPanel6.SuspendLayout();
-			this.panel8.SuspendLayout();
 			this.panel7.SuspendLayout();
+			this.tableLayoutPanel8.SuspendLayout();
+			this.panel8.SuspendLayout();
+			this.colorEditingPanel.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.colorBlue)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.colorGreen)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.colorRed)).BeginInit();
 			this.tabPage7.SuspendLayout();
 			this.tableLayoutPanel7.SuspendLayout();
 			this.panel9.SuspendLayout();
@@ -282,6 +298,33 @@
 			// 
 			toolStripSeparator9.Name = "toolStripSeparator9";
 			toolStripSeparator9.Size = new System.Drawing.Size(6, 25);
+			// 
+			// label4
+			// 
+			label4.AutoSize = true;
+			label4.Location = new System.Drawing.Point(5, 57);
+			label4.Name = "label4";
+			label4.Size = new System.Drawing.Size(31, 13);
+			label4.TabIndex = 4;
+			label4.Text = "Blue:";
+			// 
+			// label3
+			// 
+			label3.AutoSize = true;
+			label3.Location = new System.Drawing.Point(5, 31);
+			label3.Name = "label3";
+			label3.Size = new System.Drawing.Size(39, 13);
+			label3.TabIndex = 2;
+			label3.Text = "Green:";
+			// 
+			// label2
+			// 
+			label2.AutoSize = true;
+			label2.Location = new System.Drawing.Point(5, 5);
+			label2.Name = "label2";
+			label2.Size = new System.Drawing.Size(30, 13);
+			label2.TabIndex = 0;
+			label2.Text = "Red:";
 			// 
 			// fileToolStripMenuItem
 			// 
@@ -1676,16 +1719,6 @@
 			this.ChunkPicture.MouseMove += new System.Windows.Forms.MouseEventHandler(this.ChunkPicture_MouseMove);
 			this.ChunkPicture.MouseUp += new System.Windows.Forms.MouseEventHandler(this.ChunkPicture_MouseUp);
 			// 
-			// chunkBlockEditor
-			// 
-			this.chunkBlockEditor.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.chunkBlockEditor.Location = new System.Drawing.Point(271, 3);
-			this.chunkBlockEditor.Name = "chunkBlockEditor";
-			this.chunkBlockEditor.SelectedObject = null;
-			this.chunkBlockEditor.Size = new System.Drawing.Size(157, 471);
-			this.chunkBlockEditor.TabIndex = 3;
-			this.chunkBlockEditor.PropertyValueChanged += new System.EventHandler(this.chunkBlockEditor_PropertyValueChanged);
-			// 
 			// panel10
 			// 
 			this.panel10.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -1787,16 +1820,6 @@
 			this.panel6.Size = new System.Drawing.Size(224, 471);
 			this.panel6.TabIndex = 3;
 			// 
-			// blockTileEditor
-			// 
-			this.blockTileEditor.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.blockTileEditor.Location = new System.Drawing.Point(0, 0);
-			this.blockTileEditor.Name = "blockTileEditor";
-			this.blockTileEditor.SelectedObject = null;
-			this.blockTileEditor.Size = new System.Drawing.Size(224, 421);
-			this.blockTileEditor.TabIndex = 3;
-			this.blockTileEditor.PropertyValueChanged += new System.EventHandler(this.blockTileEditor_PropertyValueChanged);
-			// 
 			// ColIndBox
 			// 
 			this.ColIndBox.Controls.Add(this.button2);
@@ -1879,9 +1902,9 @@
 			this.tableLayoutPanel6.ColumnCount = 2;
 			this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
 			this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tableLayoutPanel6.Controls.Add(this.panel8, 0, 0);
 			this.tableLayoutPanel6.Controls.Add(this.TileSelector, 1, 1);
 			this.tableLayoutPanel6.Controls.Add(this.panel7, 0, 1);
+			this.tableLayoutPanel6.Controls.Add(this.tableLayoutPanel8, 0, 0);
 			this.tableLayoutPanel6.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tableLayoutPanel6.Location = new System.Drawing.Point(0, 0);
 			this.tableLayoutPanel6.Name = "tableLayoutPanel6";
@@ -1890,28 +1913,6 @@
 			this.tableLayoutPanel6.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
 			this.tableLayoutPanel6.Size = new System.Drawing.Size(650, 477);
 			this.tableLayoutPanel6.TabIndex = 2;
-			// 
-			// panel8
-			// 
-			this.panel8.AutoScroll = true;
-			this.tableLayoutPanel6.SetColumnSpan(this.panel8, 2);
-			this.panel8.Controls.Add(this.PalettePanel);
-			this.panel8.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.panel8.Location = new System.Drawing.Point(3, 3);
-			this.panel8.Name = "panel8";
-			this.panel8.Size = new System.Drawing.Size(644, 128);
-			this.panel8.TabIndex = 3;
-			// 
-			// PalettePanel
-			// 
-			this.PalettePanel.Location = new System.Drawing.Point(0, 0);
-			this.PalettePanel.Margin = new System.Windows.Forms.Padding(0);
-			this.PalettePanel.Name = "PalettePanel";
-			this.PalettePanel.Size = new System.Drawing.Size(512, 128);
-			this.PalettePanel.TabIndex = 0;
-			this.PalettePanel.Paint += new System.Windows.Forms.PaintEventHandler(this.PalettePanel_Paint);
-			this.PalettePanel.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.PalettePanel_MouseDoubleClick);
-			this.PalettePanel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.PalettePanel_MouseDown);
 			// 
 			// TileSelector
 			// 
@@ -1980,6 +1981,85 @@
 			this.TilePicture.MouseDown += new System.Windows.Forms.MouseEventHandler(this.TilePicture_MouseDown);
 			this.TilePicture.MouseMove += new System.Windows.Forms.MouseEventHandler(this.TilePicture_MouseMove);
 			this.TilePicture.MouseUp += new System.Windows.Forms.MouseEventHandler(this.TilePicture_MouseUp);
+			// 
+			// tableLayoutPanel8
+			// 
+			this.tableLayoutPanel8.ColumnCount = 2;
+			this.tableLayoutPanel6.SetColumnSpan(this.tableLayoutPanel8, 2);
+			this.tableLayoutPanel8.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+			this.tableLayoutPanel8.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+			this.tableLayoutPanel8.Controls.Add(this.panel8, 1, 0);
+			this.tableLayoutPanel8.Controls.Add(this.colorEditingPanel, 0, 0);
+			this.tableLayoutPanel8.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.tableLayoutPanel8.Location = new System.Drawing.Point(0, 0);
+			this.tableLayoutPanel8.Margin = new System.Windows.Forms.Padding(0);
+			this.tableLayoutPanel8.Name = "tableLayoutPanel8";
+			this.tableLayoutPanel8.RowCount = 1;
+			this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+			this.tableLayoutPanel8.Size = new System.Drawing.Size(650, 134);
+			this.tableLayoutPanel8.TabIndex = 4;
+			// 
+			// panel8
+			// 
+			this.panel8.AutoScroll = true;
+			this.panel8.Controls.Add(this.PalettePanel);
+			this.panel8.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.panel8.Location = new System.Drawing.Point(109, 3);
+			this.panel8.Name = "panel8";
+			this.panel8.Size = new System.Drawing.Size(538, 128);
+			this.panel8.TabIndex = 3;
+			// 
+			// PalettePanel
+			// 
+			this.PalettePanel.Location = new System.Drawing.Point(0, 0);
+			this.PalettePanel.Margin = new System.Windows.Forms.Padding(0);
+			this.PalettePanel.Name = "PalettePanel";
+			this.PalettePanel.Size = new System.Drawing.Size(512, 128);
+			this.PalettePanel.TabIndex = 0;
+			this.PalettePanel.Paint += new System.Windows.Forms.PaintEventHandler(this.PalettePanel_Paint);
+			this.PalettePanel.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.PalettePanel_MouseDoubleClick);
+			this.PalettePanel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.PalettePanel_MouseDown);
+			// 
+			// colorEditingPanel
+			// 
+			this.colorEditingPanel.AutoSize = true;
+			this.colorEditingPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.colorEditingPanel.Controls.Add(this.colorBlue);
+			this.colorEditingPanel.Controls.Add(label4);
+			this.colorEditingPanel.Controls.Add(this.colorGreen);
+			this.colorEditingPanel.Controls.Add(label3);
+			this.colorEditingPanel.Controls.Add(this.colorRed);
+			this.colorEditingPanel.Controls.Add(label2);
+			this.colorEditingPanel.Enabled = false;
+			this.colorEditingPanel.Location = new System.Drawing.Point(0, 0);
+			this.colorEditingPanel.Margin = new System.Windows.Forms.Padding(0);
+			this.colorEditingPanel.Name = "colorEditingPanel";
+			this.colorEditingPanel.Size = new System.Drawing.Size(106, 78);
+			this.colorEditingPanel.TabIndex = 5;
+			// 
+			// colorBlue
+			// 
+			this.colorBlue.Location = new System.Drawing.Point(50, 55);
+			this.colorBlue.Name = "colorBlue";
+			this.colorBlue.Size = new System.Drawing.Size(53, 20);
+			this.colorBlue.TabIndex = 5;
+			this.colorBlue.ValueChanged += new System.EventHandler(this.color_ValueChanged);
+			// 
+			// colorGreen
+			// 
+			this.colorGreen.Location = new System.Drawing.Point(50, 29);
+			this.colorGreen.Name = "colorGreen";
+			this.colorGreen.Size = new System.Drawing.Size(53, 20);
+			this.colorGreen.TabIndex = 3;
+			this.colorGreen.ValueChanged += new System.EventHandler(this.color_ValueChanged);
+			// 
+			// colorRed
+			// 
+			this.colorRed.Location = new System.Drawing.Point(50, 3);
+			this.colorRed.Name = "colorRed";
+			this.colorRed.Size = new System.Drawing.Size(53, 20);
+			this.colorRed.TabIndex = 1;
+			this.colorRed.ValueChanged += new System.EventHandler(this.color_ValueChanged);
 			// 
 			// tabPage7
 			// 
@@ -2249,6 +2329,26 @@
 			this.deleteLayoutToolStripMenuItem.Text = "&Delete...";
 			this.deleteLayoutToolStripMenuItem.Click += new System.EventHandler(this.deleteLayoutToolStripMenuItem_Click);
 			// 
+			// chunkBlockEditor
+			// 
+			this.chunkBlockEditor.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.chunkBlockEditor.Location = new System.Drawing.Point(271, 3);
+			this.chunkBlockEditor.Name = "chunkBlockEditor";
+			this.chunkBlockEditor.SelectedObject = null;
+			this.chunkBlockEditor.Size = new System.Drawing.Size(157, 471);
+			this.chunkBlockEditor.TabIndex = 3;
+			this.chunkBlockEditor.PropertyValueChanged += new System.EventHandler(this.chunkBlockEditor_PropertyValueChanged);
+			// 
+			// blockTileEditor
+			// 
+			this.blockTileEditor.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.blockTileEditor.Location = new System.Drawing.Point(0, 0);
+			this.blockTileEditor.Name = "blockTileEditor";
+			this.blockTileEditor.SelectedObject = null;
+			this.blockTileEditor.Size = new System.Drawing.Size(224, 421);
+			this.blockTileEditor.TabIndex = 3;
+			this.blockTileEditor.PropertyValueChanged += new System.EventHandler(this.blockTileEditor_PropertyValueChanged);
+			// 
 			// loadingAnimation1
 			// 
 			this.loadingAnimation1.AutoSize = true;
@@ -2325,9 +2425,16 @@
 			this.tabPage6.ResumeLayout(false);
 			this.tableLayoutPanel6.ResumeLayout(false);
 			this.tableLayoutPanel6.PerformLayout();
-			this.panel8.ResumeLayout(false);
 			this.panel7.ResumeLayout(false);
 			this.panel7.PerformLayout();
+			this.tableLayoutPanel8.ResumeLayout(false);
+			this.tableLayoutPanel8.PerformLayout();
+			this.panel8.ResumeLayout(false);
+			this.colorEditingPanel.ResumeLayout(false);
+			this.colorEditingPanel.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.colorBlue)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.colorGreen)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.colorRed)).EndInit();
 			this.tabPage7.ResumeLayout(false);
 			this.tableLayoutPanel7.ResumeLayout(false);
 			this.tableLayoutPanel7.PerformLayout();
@@ -2537,6 +2644,11 @@
         private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.Button flipChunkHButton;
 		private System.Windows.Forms.Button flipChunkVButton;
+		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel8;
+		private System.Windows.Forms.Panel colorEditingPanel;
+		private System.Windows.Forms.NumericUpDown colorBlue;
+		private System.Windows.Forms.NumericUpDown colorGreen;
+		private System.Windows.Forms.NumericUpDown colorRed;
 
     }
 }

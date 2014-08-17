@@ -582,6 +582,25 @@ namespace SonicRetro.SonLVL.GUI
 			vScrollBar3.LargeChange = 128;
 			hScrollBar3.Enabled = true;
 			vScrollBar3.Enabled = true;
+			switch (LevelData.Level.PaletteFormat)
+			{
+				case EngineVersion.SCDPC:
+					colorRed.Maximum = colorGreen.Maximum = colorBlue.Maximum = 255;
+					colorRed.Increment = colorGreen.Increment = colorBlue.Increment = 1;
+					colorRed.Hexadecimal = colorGreen.Hexadecimal = colorBlue.Hexadecimal = false;
+					break;
+				case EngineVersion.SKC:
+					colorRed.Maximum = colorGreen.Maximum = colorBlue.Maximum = 0xF;
+					colorRed.Increment = colorGreen.Increment = colorBlue.Increment = 1;
+					colorRed.Hexadecimal = colorGreen.Hexadecimal = colorBlue.Hexadecimal = true;
+					break;
+				default:
+					colorRed.Maximum = colorGreen.Maximum = colorBlue.Maximum = 0xE;
+					colorRed.Increment = colorGreen.Increment = colorBlue.Increment = 2;
+					colorRed.Hexadecimal = colorGreen.Hexadecimal = colorBlue.Hexadecimal = true;
+					break;
+			}
+			colorEditingPanel.Enabled = true;
 			loaded = true;
 			SelectedItems = new List<Entry>();
 			undoCtrlZToolStripMenuItem.DropDownItems.Clear();
@@ -3416,12 +3435,12 @@ namespace SonicRetro.SonLVL.GUI
 			if (!loaded) return;
 			int line = e.Y / 32;
 			int index = e.X / 32;
+			SelectedColor = new Point(index, line);
 			ColorDialog a = new ColorDialog
 			{
 				AllowFullOpen = true,
 				AnyColor = true,
 				FullOpen = true,
-				SolidColorOnly = true,
 				Color = LevelData.PaletteToColor(line, index, false)
 			};
 			if (cols != null)
@@ -3439,6 +3458,38 @@ namespace SonicRetro.SonLVL.GUI
 				TilePicture.Invalidate();
 			}
 			cols = a.CustomColors;
+			loaded = false;
+			if (LevelData.Level.PaletteFormat == EngineVersion.SCDPC)
+			{
+				colorRed.Value = LevelData.Palette[LevelData.CurPal][line, index].R;
+				colorGreen.Value = LevelData.Palette[LevelData.CurPal][line, index].G;
+				colorBlue.Value = LevelData.Palette[LevelData.CurPal][line, index].B;
+			}
+			else
+			{
+				ushort md = LevelData.Palette[LevelData.CurPal][line, index].MDColor;
+				colorRed.Value = md & 0xF;
+				colorGreen.Value = (md >> 4) & 0xF;
+				colorBlue.Value = (md >> 8) & 0xF;
+			}
+			loaded = true;
+		}
+
+		private void color_ValueChanged(object sender, EventArgs e)
+		{
+			if (!loaded) return;
+			if (LevelData.Level.PaletteFormat == EngineVersion.SCDPC)
+				LevelData.Palette[LevelData.CurPal][SelectedColor.Y, SelectedColor.X] = new SonLVLColor((byte)colorRed.Value, (byte)colorGreen.Value, (byte)colorBlue.Value);
+			else
+				LevelData.Palette[LevelData.CurPal][SelectedColor.Y, SelectedColor.X] = new SonLVLColor((ushort)((int)colorRed.Value | (int)colorGreen.Value << 4 | (int)colorBlue.Value << 8));
+			PalettePanel.Invalidate();
+			LevelData.PaletteChanged();
+			ChunkSelector.Invalidate();
+			ChunkPicture.Invalidate();
+			BlockSelector.Invalidate();
+			BlockPicture.Invalidate();
+			TileSelector.Invalidate();
+			TilePicture.Invalidate();
 		}
 
 		private void BlockCollision1_ValueChanged(object sender, EventArgs e)
@@ -3494,6 +3545,21 @@ namespace SonicRetro.SonLVL.GUI
 				TileSelector.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, SelectedColor.Y));
 			TileSelector.SelectedIndex = SelectedTile;
 			TileSelector.Invalidate();
+			loaded = false;
+			if (LevelData.Level.PaletteFormat == EngineVersion.SCDPC)
+			{
+				colorRed.Value = LevelData.Palette[LevelData.CurPal][SelectedColor.Y, SelectedColor.X].R;
+				colorGreen.Value = LevelData.Palette[LevelData.CurPal][SelectedColor.Y, SelectedColor.X].G;
+				colorBlue.Value = LevelData.Palette[LevelData.CurPal][SelectedColor.Y, SelectedColor.X].B;
+			}
+			else
+			{
+				ushort md = LevelData.Palette[LevelData.CurPal][SelectedColor.Y, SelectedColor.X].MDColor;
+				colorRed.Value = md & 0xF;
+				colorGreen.Value = (md >> 4) & 0xF;
+				colorBlue.Value = (md >> 8) & 0xF;
+			}
+			loaded = true;
 		}
 
 		private void importToolStripMenuItem1_Click(object sender, EventArgs e)
