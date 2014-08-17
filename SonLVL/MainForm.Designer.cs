@@ -121,7 +121,7 @@
 			this.selectAllRingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.hScrollBar1 = new System.Windows.Forms.HScrollBar();
 			this.vScrollBar1 = new System.Windows.Forms.VScrollBar();
-			this.objectPanel = new System.Windows.Forms.UserControl();
+			this.objectPanel = new SonicRetro.SonLVL.API.KeyboardPanel();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.ObjectProperties = new System.Windows.Forms.PropertyGrid();
 			this.tabControl1 = new System.Windows.Forms.TabControl();
@@ -144,7 +144,7 @@
 			this.tabPage2 = new System.Windows.Forms.TabPage();
 			this.splitContainer2 = new System.Windows.Forms.SplitContainer();
 			this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-			this.foregroundPanel = new System.Windows.Forms.UserControl();
+			this.foregroundPanel = new SonicRetro.SonLVL.API.KeyboardPanel();
 			this.vScrollBar2 = new System.Windows.Forms.VScrollBar();
 			this.hScrollBar2 = new System.Windows.Forms.HScrollBar();
 			this.fgToolStrip = new System.Windows.Forms.ToolStrip();
@@ -157,7 +157,7 @@
 			this.bgToolStrip = new System.Windows.Forms.ToolStrip();
 			this.bgDrawToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.bgSelectToolStripButton = new System.Windows.Forms.ToolStripButton();
-			this.backgroundPanel = new System.Windows.Forms.UserControl();
+			this.backgroundPanel = new SonicRetro.SonLVL.API.KeyboardPanel();
 			this.vScrollBar3 = new System.Windows.Forms.VScrollBar();
 			this.hScrollBar3 = new System.Windows.Forms.HScrollBar();
 			this.tabPage4 = new System.Windows.Forms.TabPage();
@@ -168,7 +168,7 @@
 			this.label1 = new System.Windows.Forms.Label();
 			this.ChunkCount = new System.Windows.Forms.Label();
 			this.ChunkID = new System.Windows.Forms.TextBox();
-			this.ChunkPicture = new System.Windows.Forms.Panel();
+			this.ChunkPicture = new SonicRetro.SonLVL.API.KeyboardPanel();
 			this.chunkBlockEditor = new SonicRetro.SonLVL.ChunkBlockEditor();
 			this.panel10 = new System.Windows.Forms.Panel();
 			this.tabPage5 = new System.Windows.Forms.TabPage();
@@ -177,7 +177,7 @@
 			this.panel5 = new System.Windows.Forms.Panel();
 			this.BlockCount = new System.Windows.Forms.Label();
 			this.BlockID = new System.Windows.Forms.TextBox();
-			this.BlockPicture = new System.Windows.Forms.Panel();
+			this.BlockPicture = new SonicRetro.SonLVL.API.KeyboardPanel();
 			this.panel6 = new System.Windows.Forms.Panel();
 			this.blockTileEditor = new SonicRetro.SonLVL.PatternIndexEditor();
 			this.ColIndBox = new System.Windows.Forms.GroupBox();
@@ -1056,7 +1056,6 @@
 			this.objectPanel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.objectPanel_MouseDown);
 			this.objectPanel.MouseMove += new System.Windows.Forms.MouseEventHandler(this.objectPanel_MouseMove);
 			this.objectPanel.MouseUp += new System.Windows.Forms.MouseEventHandler(this.objectPanel_MouseUp);
-			this.objectPanel.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.panel_PreviewKeyDown);
 			this.objectPanel.Resize += new System.EventHandler(this.panel_Resize);
 			// 
 			// tableLayoutPanel1
@@ -1367,7 +1366,6 @@
 			this.foregroundPanel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.foregroundPanel_MouseDown);
 			this.foregroundPanel.MouseMove += new System.Windows.Forms.MouseEventHandler(this.foregroundPanel_MouseMove);
 			this.foregroundPanel.MouseUp += new System.Windows.Forms.MouseEventHandler(this.foregroundPanel_MouseUp);
-			this.foregroundPanel.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.panel_PreviewKeyDown);
 			this.foregroundPanel.Resize += new System.EventHandler(this.panel_Resize);
 			// 
 			// vScrollBar2
@@ -1538,7 +1536,6 @@
 			this.backgroundPanel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.backgroundPanel_MouseDown);
 			this.backgroundPanel.MouseMove += new System.Windows.Forms.MouseEventHandler(this.backgroundPanel_MouseMove);
 			this.backgroundPanel.MouseUp += new System.Windows.Forms.MouseEventHandler(this.backgroundPanel_MouseUp);
-			this.backgroundPanel.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.panel_PreviewKeyDown);
 			this.backgroundPanel.Resize += new System.EventHandler(this.panel_Resize);
 			// 
 			// vScrollBar3
@@ -1673,6 +1670,7 @@
 			this.ChunkPicture.Size = new System.Drawing.Size(256, 256);
 			this.ChunkPicture.TabIndex = 1;
 			this.ChunkPicture.Paint += new System.Windows.Forms.PaintEventHandler(this.ChunkPicture_Paint);
+			this.ChunkPicture.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ChunkPicture_KeyDown);
 			this.ChunkPicture.MouseClick += new System.Windows.Forms.MouseEventHandler(this.ChunkPicture_MouseClick);
 			this.ChunkPicture.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ChunkPicture_MouseDown);
 			this.ChunkPicture.MouseMove += new System.Windows.Forms.MouseEventHandler(this.ChunkPicture_MouseMove);
@@ -1776,6 +1774,7 @@
 			this.BlockPicture.Size = new System.Drawing.Size(64, 64);
 			this.BlockPicture.TabIndex = 1;
 			this.BlockPicture.Paint += new System.Windows.Forms.PaintEventHandler(this.BlockPicture_Paint);
+			this.BlockPicture.KeyDown += new System.Windows.Forms.KeyEventHandler(this.BlockPicture_KeyDown);
 			this.BlockPicture.MouseClick += new System.Windows.Forms.MouseEventHandler(this.BlockPicture_MouseClick);
 			// 
 			// panel6
@@ -1793,6 +1792,7 @@
 			this.blockTileEditor.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.blockTileEditor.Location = new System.Drawing.Point(0, 0);
 			this.blockTileEditor.Name = "blockTileEditor";
+			this.blockTileEditor.SelectedObject = null;
 			this.blockTileEditor.Size = new System.Drawing.Size(224, 421);
 			this.blockTileEditor.TabIndex = 3;
 			this.blockTileEditor.PropertyValueChanged += new System.EventHandler(this.blockTileEditor_PropertyValueChanged);
@@ -2407,18 +2407,18 @@
         private System.Windows.Forms.ToolStripMenuItem setupEmulatorToolStripMenuItem;
         private System.Windows.Forms.HScrollBar hScrollBar1;
         private System.Windows.Forms.VScrollBar vScrollBar1;
-        private System.Windows.Forms.UserControl objectPanel;
+        private SonicRetro.SonLVL.API.KeyboardPanel objectPanel;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.TabPage tabPage3;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
-        private System.Windows.Forms.UserControl foregroundPanel;
+        private SonicRetro.SonLVL.API.KeyboardPanel foregroundPanel;
         private System.Windows.Forms.VScrollBar vScrollBar2;
         private System.Windows.Forms.HScrollBar hScrollBar2;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
-        private System.Windows.Forms.UserControl backgroundPanel;
+        private SonicRetro.SonLVL.API.KeyboardPanel backgroundPanel;
         private System.Windows.Forms.VScrollBar vScrollBar3;
         private System.Windows.Forms.HScrollBar hScrollBar3;
         private System.Windows.Forms.TabPage tabPage4;
@@ -2435,14 +2435,14 @@
         private System.Windows.Forms.Panel panel4;
         private System.Windows.Forms.Label ChunkCount;
         private System.Windows.Forms.TextBox ChunkID;
-        internal System.Windows.Forms.Panel ChunkPicture;
+        internal SonicRetro.SonLVL.API.KeyboardPanel ChunkPicture;
         private ChunkBlockEditor chunkBlockEditor;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel5;
         internal SonicRetro.SonLVL.API.TileList BlockSelector;
         private System.Windows.Forms.Panel panel5;
         private System.Windows.Forms.Label BlockCount;
         private System.Windows.Forms.TextBox BlockID;
-        internal System.Windows.Forms.Panel BlockPicture;
+        internal SonicRetro.SonLVL.API.KeyboardPanel BlockPicture;
         private System.Windows.Forms.Panel panel6;
         private PatternIndexEditor blockTileEditor;
         private System.Windows.Forms.GroupBox ColIndBox;

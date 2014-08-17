@@ -34,6 +34,7 @@ namespace SonicRetro.SonLVL
 					xFlip.Checked = value.XFlip;
 					yFlip.Checked = value.YFlip;
 					priority.Checked = value.Priority;
+					palette.Value = value.Palette;
 					tile.Value = value.Tile;
 					tileList.Images.Clear();
 					for (int i = 0; i < LevelData.Tiles.Count; i++)

@@ -195,11 +195,15 @@ namespace SonicRetro.SonLVL.API
 
         public static bool operator ==(PatternIndex a, PatternIndex b)
         {
-            return a.Equals(b);
+			if (object.ReferenceEquals(a, null))
+				return object.ReferenceEquals(b, null);
+			return a.Equals(b);
         }
 
         public static bool operator !=(PatternIndex a, PatternIndex b)
         {
+			if (object.ReferenceEquals(a, null))
+				return !object.ReferenceEquals(b, null);
             return !a.Equals(b);
         }
     }

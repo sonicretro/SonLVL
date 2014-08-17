@@ -3067,19 +3067,6 @@ namespace SonicRetro.SonLVL.GUI
 			DrawLevel();
 		}
 
-		private void panel_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
-		{
-			switch (e.KeyCode)
-			{
-				case Keys.Down:
-				case Keys.Left:
-				case Keys.Right:
-				case Keys.Up:
-					e.IsInputKey = true;
-					break;
-			}
-		}
-
 		private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			selecting = false;
@@ -3154,6 +3141,75 @@ namespace SonicRetro.SonLVL.GUI
 				DrawLevel();
 				DrawChunkPicture();
 			}
+		}
+
+		private void ChunkPicture_KeyDown(object sender, KeyEventArgs e)
+		{
+			if (!loaded) return;
+			ChunkBlock current = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
+			switch (e.KeyCode)
+			{
+				case Keys.B:
+					current.Block = (ushort)((current.Block + 1) % LevelData.Blocks.Count);
+					break;
+				case Keys.Down:
+					if (SelectedChunkBlock.Y < (LevelData.chunksz / 16) - 1)
+					{
+						SelectedChunkBlock = new Point(SelectedChunkBlock.X, SelectedChunkBlock.Y + 1);
+						current = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
+					}
+					else
+						return;
+					break;
+				case Keys.Left:
+					if (SelectedChunkBlock.X > 0)
+					{
+						SelectedChunkBlock = new Point(SelectedChunkBlock.X - 1, SelectedChunkBlock.Y);
+						current = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
+					}
+					else
+						return;
+					break;
+				case Keys.Right:
+					if (SelectedChunkBlock.X < (LevelData.chunksz / 16) - 1)
+					{
+						SelectedChunkBlock = new Point(SelectedChunkBlock.X + 1, SelectedChunkBlock.Y);
+						current = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
+					}
+					else
+						return;
+					break;
+				case Keys.S:
+					current.Solid1++;
+					break;
+				case Keys.T:
+					if (!(current is S2ChunkBlock))
+						return;
+					S2ChunkBlock cur2 = (S2ChunkBlock)current;
+					cur2.Solid2++;
+					break;
+				case Keys.Up:
+					if (SelectedChunkBlock.Y > 0)
+					{
+						SelectedChunkBlock = new Point(SelectedChunkBlock.X, SelectedChunkBlock.Y - 1);
+						current = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
+					}
+					else
+						return;
+					break;
+				case Keys.X:
+					current.XFlip = !current.XFlip;
+					break;
+				case Keys.Y:
+					current.YFlip = !current.YFlip;
+					break;
+				default:
+					return;
+			}
+			LevelData.RedrawChunk(SelectedChunk);
+			DrawLevel();
+			DrawChunkPicture();
+			chunkBlockEditor.SelectedObject = current;
 		}
 
 		private void chunkBlockEditor_PropertyValueChanged(object sender, EventArgs e)
@@ -3273,6 +3329,72 @@ namespace SonicRetro.SonLVL.GUI
 			if (path2ToolStripMenuItem.Checked)
 				e.Graphics.DrawImage(LevelData.ColBmpBits[LevelData.ColInds2[SelectedBlock]].Scale(4).ToBitmap(Color.Transparent, Color.White), 0, 0, 64, 64);
 			e.Graphics.DrawRectangle(Pens.White, SelectedBlockTile.X * 32, SelectedBlockTile.Y * 32, 31, 31);
+		}
+
+		private void BlockPicture_KeyDown(object sender, KeyEventArgs e)
+		{
+			if (!loaded) return;
+			PatternIndex current = LevelData.Blocks[SelectedBlock].Tiles[SelectedBlockTile.X, SelectedBlockTile.Y];
+			switch (e.KeyCode)
+			{
+				case Keys.C:
+					current.Palette++;
+					break;
+				case Keys.Down:
+					if (SelectedBlockTile.Y < 1)
+					{
+						SelectedBlockTile = new Point(SelectedBlockTile.X, SelectedBlockTile.Y + 1);
+						current = LevelData.Blocks[SelectedBlock].Tiles[SelectedBlockTile.X, SelectedBlockTile.Y];
+					}
+					else
+						return;
+					break;
+				case Keys.Left:
+					if (SelectedBlockTile.X > 0)
+					{
+						SelectedBlockTile = new Point(SelectedBlockTile.X - 1, SelectedBlockTile.Y);
+						current = LevelData.Blocks[SelectedBlock].Tiles[SelectedBlockTile.X, SelectedBlockTile.Y];
+					}
+					else
+						return;
+					break;
+				case Keys.P:
+					current.Priority = !current.Priority;
+					break;
+				case Keys.Right:
+					if (SelectedBlockTile.X < 1)
+					{
+						SelectedBlockTile = new Point(SelectedBlockTile.X + 1, SelectedBlockTile.Y);
+						current = LevelData.Blocks[SelectedBlock].Tiles[SelectedBlockTile.X, SelectedBlockTile.Y];
+					}
+					else
+						return;
+					break;
+				case Keys.T:
+					current.Tile = (ushort)((current.Tile + 1) % LevelData.Tiles.Count);
+					break;
+				case Keys.Up:
+					if (SelectedBlockTile.Y > 0)
+					{
+						SelectedBlockTile = new Point(SelectedBlockTile.X, SelectedBlockTile.Y - 1);
+						current = LevelData.Blocks[SelectedBlock].Tiles[SelectedBlockTile.X, SelectedBlockTile.Y];
+					}
+					else
+						return;
+					break;
+				case Keys.X:
+					current.XFlip = !current.XFlip;
+					break;
+				case Keys.Y:
+					current.YFlip = !current.YFlip;
+					break;
+				default:
+					return;
+			}
+			LevelData.RedrawBlock(SelectedBlock, true);
+			DrawLevel();
+			BlockPicture.Invalidate();
+			blockTileEditor.SelectedObject = current;
 		}
 
 		private void PalettePanel_Paint(object sender, PaintEventArgs e)
@@ -5998,11 +6120,6 @@ namespace SonicRetro.SonLVL.GUI
 		private void loadingAnimation1_SizeChanged(object sender, EventArgs e)
 		{
 			loadingAnimation1.Location = new Point((ClientSize.Width / 2) - (loadingAnimation1.Width / 2), (ClientSize.Height / 2) - loadingAnimation1.Height / 2);
-		}
-
-		private void ChunkBlockPropertyGrid_PropertyValueChanged(object sender, EventArgs e)
-		{
-
 		}
 	}
 
