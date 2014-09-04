@@ -1628,6 +1628,41 @@ namespace SonicRetro.SonLVL.GUI
 				case Keys.F5:
 					menuStrip1.ShowHide();
 					break;
+				case Keys.D1:
+				case Keys.NumPad1:
+					if (e.Control)
+						tabControl1.SelectedIndex = 0;
+					break;
+				case Keys.D2:
+				case Keys.NumPad2:
+					if (e.Control)
+						tabControl1.SelectedIndex = 1;
+					break;
+				case Keys.D3:
+				case Keys.NumPad3:
+					if (e.Control)
+						tabControl1.SelectedIndex = 2;
+					break;
+				case Keys.D4:
+				case Keys.NumPad4:
+					if (e.Control)
+						tabControl1.SelectedIndex = 3;
+					break;
+				case Keys.D5:
+				case Keys.NumPad5:
+					if (e.Control)
+						tabControl1.SelectedIndex = 4;
+					break;
+				case Keys.D6:
+				case Keys.NumPad6:
+					if (e.Control)
+						tabControl1.SelectedIndex = 5;
+					break;
+				case Keys.D7:
+				case Keys.NumPad7:
+					if (e.Control)
+						tabControl1.SelectedIndex = 6;
+					break;
 			}
 		}
 
