@@ -3070,7 +3070,7 @@ namespace SonicRetro.SonLVL.GUI
 				upleft.X = Math.Min(upleft.X, item.X);
 				upleft.Y = Math.Min(upleft.Y, item.Y);
 			}
-			Size off = new Size((menuLoc.X + hScrollBar1.Value) - upleft.X, (menuLoc.Y + vScrollBar1.Value) - upleft.Y);
+			Size off = new Size(((int)(menuLoc.X / ZoomLevel) + hScrollBar1.Value) - upleft.X, ((int)(menuLoc.Y / ZoomLevel) + vScrollBar1.Value) - upleft.Y);
 			SelectedItems = new List<Entry>(objs);
 			foreach (Entry item in objs)
 			{
