@@ -309,7 +309,7 @@ namespace SonicRetro.SonLVL.API
 			}
 			if (x1 == x2)
 			{
-				if (x1 >= Height || x1 < 0)
+				if (x1 >= Width || x1 < 0)
 					return;
 				if (y1 > y2)
 				{

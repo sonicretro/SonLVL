@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Windows.Forms;
 using SonicRetro.SonLVL.API;
-using System.ComponentModel;
 
 namespace SonicRetro.SonLVL
 {
@@ -27,6 +27,17 @@ namespace SonicRetro.SonLVL
             get { return GridColor; }
             set { GridColor = value ?? Color.Red; }
         }
+		[IniName("ObjectGridSize")]
+		public int ObjectGridSizeInternal
+		{
+			get { return 1 << ObjectGridSize; }
+			set
+			{
+				ObjectGridSize = (byte)Math.Max(0, Math.Min(8, Math.Log(2, value)));
+			}
+		}
+		[IniIgnore]
+		public byte ObjectGridSize { get; set; }
         public string Username { get; set; }
         public bool IncludeObjectsInForegroundSelection { get; set; }
         [DefaultValue(true)]

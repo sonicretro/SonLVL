@@ -34,6 +34,7 @@
 			System.Windows.Forms.Label label4;
 			System.Windows.Forms.Label label3;
 			System.Windows.Forms.Label label2;
+			System.Windows.Forms.ToolStripSeparator toolStripSeparator10;
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
 			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -134,6 +135,16 @@
 			this.objectTypeList = new System.Windows.Forms.ListView();
 			this.objectTypeImages = new System.Windows.Forms.ImageList(this.components);
 			this.objToolStrip = new System.Windows.Forms.ToolStrip();
+			this.objGridSizeDropDownButton = new System.Windows.Forms.ToolStripDropDownButton();
+			this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripMenuItem6 = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripMenuItem7 = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripMenuItem8 = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripMenuItem9 = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripMenuItem10 = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripMenuItem11 = new System.Windows.Forms.ToolStripMenuItem();
 			this.alignLeftWallToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.alignGroundToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.alignRightWallToolStripButton = new System.Windows.Forms.ToolStripButton();
@@ -172,6 +183,7 @@
 			this.ChunkCount = new System.Windows.Forms.Label();
 			this.ChunkID = new System.Windows.Forms.TextBox();
 			this.ChunkPicture = new SonicRetro.SonLVL.API.KeyboardPanel();
+			this.chunkBlockEditor = new SonicRetro.SonLVL.ChunkBlockEditor();
 			this.panel10 = new System.Windows.Forms.Panel();
 			this.tabPage5 = new System.Windows.Forms.TabPage();
 			this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
@@ -181,6 +193,7 @@
 			this.BlockID = new System.Windows.Forms.TextBox();
 			this.BlockPicture = new SonicRetro.SonLVL.API.KeyboardPanel();
 			this.panel6 = new System.Windows.Forms.Panel();
+			this.blockTileEditor = new SonicRetro.SonLVL.PatternIndexEditor();
 			this.ColIndBox = new System.Windows.Forms.GroupBox();
 			this.button2 = new System.Windows.Forms.Button();
 			this.button1 = new System.Windows.Forms.Button();
@@ -230,14 +243,13 @@
 			this.toolStripSeparator7 = new System.Windows.Forms.ToolStripSeparator();
 			this.insertLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.deleteLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.chunkBlockEditor = new SonicRetro.SonLVL.ChunkBlockEditor();
-			this.blockTileEditor = new SonicRetro.SonLVL.PatternIndexEditor();
 			this.loadingAnimation1 = new SonicRetro.SonLVL.LoadingAnimation();
 			toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
 			toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
 			label4 = new System.Windows.Forms.Label();
 			label3 = new System.Windows.Forms.Label();
 			label2 = new System.Windows.Forms.Label();
+			toolStripSeparator10 = new System.Windows.Forms.ToolStripSeparator();
 			this.menuStrip1.SuspendLayout();
 			this.objectContextMenuStrip.SuspendLayout();
 			this.tableLayoutPanel1.SuspendLayout();
@@ -325,6 +337,11 @@
 			label2.Size = new System.Drawing.Size(30, 13);
 			label2.TabIndex = 0;
 			label2.Text = "Red:";
+			// 
+			// toolStripSeparator10
+			// 
+			toolStripSeparator10.Name = "toolStripSeparator10";
+			toolStripSeparator10.Size = new System.Drawing.Size(6, 25);
 			// 
 			// fileToolStripMenuItem
 			// 
@@ -1219,6 +1236,8 @@
 			// objToolStrip
 			// 
 			this.objToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.objGridSizeDropDownButton,
+            toolStripSeparator10,
             this.alignLeftWallToolStripButton,
             this.alignGroundToolStripButton,
             this.alignRightWallToolStripButton,
@@ -1236,6 +1255,80 @@
 			this.objToolStrip.Size = new System.Drawing.Size(348, 25);
 			this.objToolStrip.TabIndex = 4;
 			this.objToolStrip.Text = "toolStrip1";
+			// 
+			// objGridSizeDropDownButton
+			// 
+			this.objGridSizeDropDownButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.objGridSizeDropDownButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenuItem2,
+            this.toolStripMenuItem4,
+            this.toolStripMenuItem5,
+            this.toolStripMenuItem6,
+            this.toolStripMenuItem7,
+            this.toolStripMenuItem8,
+            this.toolStripMenuItem9,
+            this.toolStripMenuItem10,
+            this.toolStripMenuItem11});
+			this.objGridSizeDropDownButton.Image = ((System.Drawing.Image)(resources.GetObject("objGridSizeDropDownButton.Image")));
+			this.objGridSizeDropDownButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.objGridSizeDropDownButton.Name = "objGridSizeDropDownButton";
+			this.objGridSizeDropDownButton.Size = new System.Drawing.Size(77, 22);
+			this.objGridSizeDropDownButton.Text = "Grid Size: 1";
+			this.objGridSizeDropDownButton.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.objGridSizeDropDownButton_DropDownItemClicked);
+			// 
+			// toolStripMenuItem2
+			// 
+			this.toolStripMenuItem2.Name = "toolStripMenuItem2";
+			this.toolStripMenuItem2.Size = new System.Drawing.Size(152, 22);
+			this.toolStripMenuItem2.Text = "1";
+			// 
+			// toolStripMenuItem4
+			// 
+			this.toolStripMenuItem4.Name = "toolStripMenuItem4";
+			this.toolStripMenuItem4.Size = new System.Drawing.Size(152, 22);
+			this.toolStripMenuItem4.Text = "2";
+			// 
+			// toolStripMenuItem5
+			// 
+			this.toolStripMenuItem5.Name = "toolStripMenuItem5";
+			this.toolStripMenuItem5.Size = new System.Drawing.Size(152, 22);
+			this.toolStripMenuItem5.Text = "4";
+			// 
+			// toolStripMenuItem6
+			// 
+			this.toolStripMenuItem6.Name = "toolStripMenuItem6";
+			this.toolStripMenuItem6.Size = new System.Drawing.Size(152, 22);
+			this.toolStripMenuItem6.Text = "8";
+			// 
+			// toolStripMenuItem7
+			// 
+			this.toolStripMenuItem7.Name = "toolStripMenuItem7";
+			this.toolStripMenuItem7.Size = new System.Drawing.Size(152, 22);
+			this.toolStripMenuItem7.Text = "16";
+			// 
+			// toolStripMenuItem8
+			// 
+			this.toolStripMenuItem8.Name = "toolStripMenuItem8";
+			this.toolStripMenuItem8.Size = new System.Drawing.Size(152, 22);
+			this.toolStripMenuItem8.Text = "32";
+			// 
+			// toolStripMenuItem9
+			// 
+			this.toolStripMenuItem9.Name = "toolStripMenuItem9";
+			this.toolStripMenuItem9.Size = new System.Drawing.Size(152, 22);
+			this.toolStripMenuItem9.Text = "64";
+			// 
+			// toolStripMenuItem10
+			// 
+			this.toolStripMenuItem10.Name = "toolStripMenuItem10";
+			this.toolStripMenuItem10.Size = new System.Drawing.Size(152, 22);
+			this.toolStripMenuItem10.Text = "128";
+			// 
+			// toolStripMenuItem11
+			// 
+			this.toolStripMenuItem11.Name = "toolStripMenuItem11";
+			this.toolStripMenuItem11.Size = new System.Drawing.Size(152, 22);
+			this.toolStripMenuItem11.Text = "256";
 			// 
 			// alignLeftWallToolStripButton
 			// 
@@ -1343,7 +1436,7 @@
 			this.alignBottomsToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("alignBottomsToolStripButton.Image")));
 			this.alignBottomsToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.alignBottomsToolStripButton.Name = "alignBottomsToolStripButton";
-			this.alignBottomsToolStripButton.Size = new System.Drawing.Size(23, 22);
+			this.alignBottomsToolStripButton.Size = new System.Drawing.Size(23, 20);
 			this.alignBottomsToolStripButton.Text = "Align Bottoms";
 			this.alignBottomsToolStripButton.Click += new System.EventHandler(this.alignBottomsToolStripButton_Click);
 			// 
@@ -1719,6 +1812,16 @@
 			this.ChunkPicture.MouseMove += new System.Windows.Forms.MouseEventHandler(this.ChunkPicture_MouseMove);
 			this.ChunkPicture.MouseUp += new System.Windows.Forms.MouseEventHandler(this.ChunkPicture_MouseUp);
 			// 
+			// chunkBlockEditor
+			// 
+			this.chunkBlockEditor.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.chunkBlockEditor.Location = new System.Drawing.Point(271, 3);
+			this.chunkBlockEditor.Name = "chunkBlockEditor";
+			this.chunkBlockEditor.SelectedObject = null;
+			this.chunkBlockEditor.Size = new System.Drawing.Size(157, 471);
+			this.chunkBlockEditor.TabIndex = 3;
+			this.chunkBlockEditor.PropertyValueChanged += new System.EventHandler(this.chunkBlockEditor_PropertyValueChanged);
+			// 
 			// panel10
 			// 
 			this.panel10.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -1819,6 +1922,16 @@
 			this.panel6.Name = "panel6";
 			this.panel6.Size = new System.Drawing.Size(224, 471);
 			this.panel6.TabIndex = 3;
+			// 
+			// blockTileEditor
+			// 
+			this.blockTileEditor.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.blockTileEditor.Location = new System.Drawing.Point(0, 0);
+			this.blockTileEditor.Name = "blockTileEditor";
+			this.blockTileEditor.SelectedObject = null;
+			this.blockTileEditor.Size = new System.Drawing.Size(224, 421);
+			this.blockTileEditor.TabIndex = 3;
+			this.blockTileEditor.PropertyValueChanged += new System.EventHandler(this.blockTileEditor_PropertyValueChanged);
 			// 
 			// ColIndBox
 			// 
@@ -2329,26 +2442,6 @@
 			this.deleteLayoutToolStripMenuItem.Text = "&Delete...";
 			this.deleteLayoutToolStripMenuItem.Click += new System.EventHandler(this.deleteLayoutToolStripMenuItem_Click);
 			// 
-			// chunkBlockEditor
-			// 
-			this.chunkBlockEditor.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.chunkBlockEditor.Location = new System.Drawing.Point(271, 3);
-			this.chunkBlockEditor.Name = "chunkBlockEditor";
-			this.chunkBlockEditor.SelectedObject = null;
-			this.chunkBlockEditor.Size = new System.Drawing.Size(157, 471);
-			this.chunkBlockEditor.TabIndex = 3;
-			this.chunkBlockEditor.PropertyValueChanged += new System.EventHandler(this.chunkBlockEditor_PropertyValueChanged);
-			// 
-			// blockTileEditor
-			// 
-			this.blockTileEditor.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.blockTileEditor.Location = new System.Drawing.Point(0, 0);
-			this.blockTileEditor.Name = "blockTileEditor";
-			this.blockTileEditor.SelectedObject = null;
-			this.blockTileEditor.Size = new System.Drawing.Size(224, 421);
-			this.blockTileEditor.TabIndex = 3;
-			this.blockTileEditor.PropertyValueChanged += new System.EventHandler(this.blockTileEditor_PropertyValueChanged);
-			// 
 			// loadingAnimation1
 			// 
 			this.loadingAnimation1.AutoSize = true;
@@ -2649,6 +2742,16 @@
 		private System.Windows.Forms.NumericUpDown colorBlue;
 		private System.Windows.Forms.NumericUpDown colorGreen;
 		private System.Windows.Forms.NumericUpDown colorRed;
+		private System.Windows.Forms.ToolStripDropDownButton objGridSizeDropDownButton;
+		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2;
+		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem4;
+		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem5;
+		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem6;
+		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem7;
+		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem8;
+		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem9;
+		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem10;
+		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem11;
 
     }
 }
