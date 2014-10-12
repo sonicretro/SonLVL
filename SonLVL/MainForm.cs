@@ -3355,7 +3355,7 @@ namespace SonicRetro.SonLVL.GUI
 				for (int x = 0; x < blkcnt; x++)
 				{
 					ChunkBlock blk = oldcnk.Blocks[x, (blkcnt - 1) - y];
-					blk.XFlip = !blk.XFlip;
+					blk.YFlip = !blk.YFlip;
 					newcnk.Blocks[x, y] = blk;
 				}
 			LevelData.Chunks[SelectedChunk] = newcnk;
