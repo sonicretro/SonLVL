@@ -5796,7 +5796,7 @@ namespace SonicRetro.SonLVL.GUI
 						coly++;
 					y++;
 				}
-				item.Y = (ushort)(y - 1 + (item.Y - bounds.Bottom));
+				item.Y = (ushort)(y + (item.Y - bounds.Bottom));
 				item.UpdateSprite();
 			}
 			DrawLevel();
@@ -5856,7 +5856,7 @@ namespace SonicRetro.SonLVL.GUI
 						colx++;
 					x++;
 				}
-				item.X = (ushort)(x - 1 + (item.X - bounds.Right));
+				item.X = (ushort)(x + (item.X - bounds.Right));
 				item.UpdateSprite();
 			}
 			DrawLevel();
