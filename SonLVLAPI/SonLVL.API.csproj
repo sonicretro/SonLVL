@@ -88,10 +88,14 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="RingFormat.cs" />
     <Compile Include="S1\Layout.cs" />
+    <Compile Include="S1\Ring.cs" />
     <Compile Include="S2NA\Layout.cs" />
     <Compile Include="S2\Layout.cs" />
+    <Compile Include="S2\Ring.cs" />
     <Compile Include="S3K\Layout.cs" />
+    <Compile Include="S3K\Ring.cs" />
     <Compile Include="SCDPC\Layout.cs" />
     <Compile Include="SKC\Layout.cs" />
     <Compile Include="TileFormat.cs" />

@@ -1117,7 +1117,7 @@ namespace SonicRetro.SonLVL.GUI
 			}
 		}
 
-		List<object> oldvalues;
+		//List<object> oldvalues;
 		void ObjectProperties_SelectedGridItemChanged(object sender, SelectedGridItemChangedEventArgs e)
 		{
 			/*if (e.NewSelection.PropertyDescriptor == null || e.NewSelection.PropertyDescriptor.IsReadOnly) return;
@@ -1184,24 +1184,11 @@ namespace SonicRetro.SonLVL.GUI
 									}
 					Rectangle hudbnd = Rectangle.Empty;
 					Rectangle tmpbnd;
-					int ringcnt = 0;
-					switch (LevelData.Level.RingFormat)
-					{
-						case EngineVersion.S1:
-							foreach (ObjectEntry item in LevelData.Objects)
-								if (item.ID == 0x25)
-									ringcnt += Math.Min(6, item.SubType & 7) + 1;
-							break;
-						case EngineVersion.S2:
-						case EngineVersion.S2NA:
-							foreach (RingEntry item in LevelData.Rings)
-								ringcnt += ((S2RingEntry)item).Count;
-							break;
-						case EngineVersion.S3K:
-						case EngineVersion.SKC:
-							ringcnt = LevelData.Rings.Count;
-							break;
-					}
+					int ringcnt;
+					if (LevelData.RingFormat is RingLayoutFormat)
+						ringcnt = ((RingLayoutFormat)LevelData.RingFormat).CountRings(LevelData.Rings);
+					else
+						ringcnt = ((RingObjectFormat)LevelData.RingFormat).CountRings(LevelData.Objects);
 					if (hUDToolStripMenuItem.Checked)
 					{
 						tmpbnd = hudbnd = DrawHUDStr(8, 8, "Screen Pos: ");
@@ -1231,17 +1218,10 @@ namespace SonicRetro.SonLVL.GUI
 							LevelGfx.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.Cyan)), objbnd);
 							LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, objbnd);
 						}
-						else if (item is S2RingEntry)
+						else if (item is RingEntry)
 						{
-							S2RingEntry rngitem = (S2RingEntry)item;
-							Rectangle bnd = LevelData.S2RingDef.GetBounds(rngitem, camera);
-							LevelGfx.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.Yellow)), bnd);
-							LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, bnd);
-						}
-						else if (item is S3KRingEntry)
-						{
-							S3KRingEntry rngitem = (S3KRingEntry)item;
-							Rectangle bnd = LevelData.S3KRingDef.GetBounds(rngitem, camera);
+							RingEntry rngitem = (RingEntry)item;
+							Rectangle bnd = ((RingLayoutFormat)LevelData.RingFormat).GetBounds(rngitem, camera);
 							LevelGfx.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.Yellow)), bnd);
 							LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, bnd);
 						}
@@ -1308,24 +1288,10 @@ namespace SonicRetro.SonLVL.GUI
 											DrawHUDNum(x * LevelData.chunksz + a * 16 - camera.X, y * LevelData.chunksz + b * 16 - camera.Y, LevelData.Angles[coli].ToString("X2"));
 										}
 									}
-					ringcnt = 0;
-					switch (LevelData.Level.RingFormat)
-					{
-						case EngineVersion.S1:
-							foreach (ObjectEntry item in LevelData.Objects)
-								if (item.ID == 0x25)
-									ringcnt += Math.Min(6, item.SubType & 7) + 1;
-							break;
-						case EngineVersion.S2:
-						case EngineVersion.S2NA:
-							foreach (RingEntry item in LevelData.Rings)
-								ringcnt += ((S2RingEntry)item).Count;
-							break;
-						case EngineVersion.S3K:
-						case EngineVersion.SKC:
-							ringcnt = LevelData.Rings.Count;
-							break;
-					}
+					if (LevelData.RingFormat is RingLayoutFormat)
+						ringcnt = ((RingLayoutFormat)LevelData.RingFormat).CountRings(LevelData.Rings);
+					else
+						ringcnt = ((RingObjectFormat)LevelData.RingFormat).CountRings(LevelData.Objects);
 					if (hUDToolStripMenuItem.Checked)
 					{
 						tmpbnd = hudbnd = DrawHUDStr(8, 8, "Screen Pos: ");
@@ -1533,71 +1499,6 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			switch (e.KeyCode)
 			{
-				case Keys.R:
-					if (!loaded | !(e.Control & e.Alt)) return;
-					if (MessageBox.Show(this, "Do you really want to randomize this level? This action cannot be undone.", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button2) != DialogResult.Yes) return;
-					Random rand = new Random();
-					int w = LevelData.Layout.FGLayout.GetLength(0);
-					int h = LevelData.Layout.FGLayout.GetLength(1);
-					for (int y = 0; y < h; y++)
-						for (int x = 0; x < w; x++)
-							LevelData.Layout.FGLayout[x, y] = (byte)rand.Next(LevelData.Chunks.Count);
-					if (LevelData.Layout.FGLoop != null) Array.Clear(LevelData.Layout.FGLoop, 0, LevelData.Layout.FGLoop.Length);
-					for (int y = 0; y < LevelData.Layout.BGLayout.GetLength(1); y++)
-						for (int x = 0; x < LevelData.Layout.BGLayout.GetLength(0); x++)
-							LevelData.Layout.BGLayout[x, y] = (byte)rand.Next(LevelData.Chunks.Count);
-					if (LevelData.Layout.BGLoop != null) Array.Clear(LevelData.Layout.BGLoop, 0, LevelData.Layout.BGLoop.Length);
-					w *= LevelData.chunksz;
-					h *= LevelData.chunksz;
-					LevelData.Objects.Clear();
-					List<KeyValuePair<byte, ObjectDefinition>> objdefs = new List<KeyValuePair<byte, ObjectDefinition>>();
-					foreach (KeyValuePair<byte, ObjectDefinition> item in LevelData.ObjTypes)
-						objdefs.Add(item);
-					int o = rand.Next(256);
-					for (int i = 0; i < o; i++)
-					{
-						byte ID = objdefs[rand.Next(objdefs.Count)].Key;
-						byte sub = LevelData.ObjTypes[ID].DefaultSubtype;
-						System.Collections.ObjectModel.ReadOnlyCollection<byte> subs = LevelData.ObjTypes[ID].Subtypes;
-						if (subs.Count > 0)
-							sub = subs[rand.Next(subs.Count)];
-						ObjectEntry ent = LevelData.CreateObject(ID);
-						LevelData.Objects.Add(ent);
-						ent.SubType = sub;
-						ent.X = (ushort)(rand.Next(w));
-						ent.Y = (ushort)(rand.Next(h));
-						ent.UpdateSprite();
-					}
-					LevelData.Objects.Sort();
-					LevelData.Rings.Clear();
-					o = rand.Next(256);
-					for (int i = 0; i < o; i++)
-					{
-						switch (LevelData.Level.RingFormat)
-						{
-							case EngineVersion.S2:
-							case EngineVersion.S2NA:
-								S2RingEntry ent = new S2RingEntry();
-								ent.X = (ushort)(rand.Next(w));
-								ent.Y = (ushort)(rand.Next(h));
-								ent.Count = (byte)rand.Next(1, 9);
-								ent.Direction = (Direction)rand.Next(2);
-								ent.UpdateSprite();
-								LevelData.Rings.Add(ent);
-								break;
-							case EngineVersion.S3K:
-							case EngineVersion.SKC:
-								S3KRingEntry ent3 = new S3KRingEntry();
-								ent3.X = (ushort)(rand.Next(w));
-								ent3.Y = (ushort)(rand.Next(h));
-								ent3.UpdateSprite();
-								LevelData.Rings.Add(ent3);
-								break;
-						}
-					}
-					LevelData.Rings.Sort();
-					DrawLevel();
-					break;
 				case Keys.Y:
 					if (!loaded) return;
 					if (e.Control && RedoList.Count > 0)
@@ -1719,20 +1620,6 @@ namespace SonicRetro.SonLVL.GUI
 							oi.ID = (byte)(oi.ID == 0 ? 255 : oi.ID - 1);
 							SelectedItems[i].UpdateSprite();
 						}
-						else if (SelectedItems[i] is S2RingEntry)
-						{
-							S2RingEntry ri = SelectedItems[i] as S2RingEntry;
-							if (ri.Count == 1)
-							{
-								ri.Direction = (ri.Direction == Direction.Vertical ? Direction.Horizontal : Direction.Vertical);
-								ri.Count = 8;
-							}
-							else
-							{
-								ri.Count -= 1;
-							}
-							ri.UpdateSprite();
-						}
 						else if (SelectedItems[i] is CNZBumperEntry)
 						{
 							CNZBumperEntry ci = SelectedItems[i] as CNZBumperEntry;
@@ -1825,20 +1712,6 @@ namespace SonicRetro.SonLVL.GUI
 								ObjectEntry oi = SelectedItems[i] as ObjectEntry;
 								oi.ID = (byte)(oi.ID == 255 ? 0 : oi.ID + 1);
 								SelectedItems[i].UpdateSprite();
-							}
-							else if (SelectedItems[i] is S2RingEntry)
-							{
-								S2RingEntry ri = SelectedItems[i] as S2RingEntry;
-								if (ri.Count == 8)
-								{
-									ri.Direction = (ri.Direction == Direction.Vertical ? Direction.Horizontal : Direction.Vertical);
-									ri.Count = 1;
-								}
-								else
-								{
-									ri.Count += 1;
-								}
-								ri.UpdateSprite();
 							}
 							else if (SelectedItems[i] is CNZBumperEntry)
 							{
@@ -2117,26 +1990,26 @@ namespace SonicRetro.SonLVL.GUI
 								DrawLevel();
 							}
 						}
-						else if (LevelData.Level.RingFormat == EngineVersion.S2 | LevelData.Level.RingFormat == EngineVersion.S2NA)
+						else
 						{
-							LevelData.Rings.Add(new S2RingEntry() { X = (ushort)gridx, Y = (ushort)gridy });
-							LevelData.Rings[LevelData.Rings.Count - 1].UpdateSprite();
+							Entry ent = LevelData.RingFormat.CreateRing();
+							ent.X = gridx;
+							ent.Y = gridy;
+							if (ent is ObjectEntry)
+							{
+								LevelData.Objects.Add((ObjectEntry)ent);
+								LevelData.Objects.Sort();
+							}
+							else
+							{
+								LevelData.Rings.Add((RingEntry)ent);
+								LevelData.Rings.Sort();
+							}
+							ent.UpdateSprite();
 							SelectedItems.Clear();
-							SelectedItems.Add(LevelData.Rings[LevelData.Rings.Count - 1]);
+							SelectedItems.Add(ent);
 							SelectedObjectChanged();
-							AddUndo(new ObjectAddedUndoAction(LevelData.Rings[LevelData.Rings.Count - 1]));
-							LevelData.Rings.Sort();
-							DrawLevel();
-						}
-						else if (LevelData.Level.RingFormat == EngineVersion.S3K | LevelData.Level.RingFormat == EngineVersion.SKC)
-						{
-							LevelData.Rings.Add(new S3KRingEntry() { X = (ushort)gridx, Y = (ushort)gridy });
-							LevelData.Rings[LevelData.Rings.Count - 1].UpdateSprite();
-							SelectedItems.Clear();
-							SelectedItems.Add(LevelData.Rings[LevelData.Rings.Count - 1]);
-							SelectedObjectChanged();
-							AddUndo(new ObjectAddedUndoAction(LevelData.Rings[LevelData.Rings.Count - 1]));
-							LevelData.Rings.Sort();
+							AddUndo(new ObjectAddedUndoAction(ent));
 							DrawLevel();
 						}
 					}
@@ -2165,55 +2038,26 @@ namespace SonicRetro.SonLVL.GUI
 						}
 					}
 					if (!objdrag)
-						foreach (RingEntry ritem in LevelData.Rings)
+						foreach (RingEntry item in LevelData.Rings)
 						{
-							if (ritem is S2RingEntry)
+							if (((RingLayoutFormat)LevelData.RingFormat).GetBounds(item, Point.Empty).Contains(curx, cury))
 							{
-								S2RingEntry item = ritem as S2RingEntry;
-								Rectangle bound = LevelData.S2RingDef.GetBounds(item, Point.Empty);
-								if (bound.Contains(curx, cury))
+								if (ModifierKeys == Keys.Control)
 								{
-									if (ModifierKeys == Keys.Control)
-									{
-										if (SelectedItems.Contains(item))
-											SelectedItems.Remove(item);
-										else
-											SelectedItems.Add(item);
-									}
-									else if (!SelectedItems.Contains(item))
-									{
-										SelectedItems.Clear();
+									if (SelectedItems.Contains(item))
+										SelectedItems.Remove(item);
+									else
 										SelectedItems.Add(item);
-									}
-									SelectedObjectChanged();
-									objdrag = true;
-									DrawLevel();
-									break;
 								}
-							}
-							else if (ritem is S3KRingEntry)
-							{
-								S3KRingEntry item = ritem as S3KRingEntry;
-								Rectangle bound = LevelData.S3KRingDef.GetBounds(item, Point.Empty);
-								if (bound.Contains(curx, cury))
+								else if (!SelectedItems.Contains(item))
 								{
-									if (ModifierKeys == Keys.Control)
-									{
-										if (SelectedItems.Contains(item))
-											SelectedItems.Remove(item);
-										else
-											SelectedItems.Add(item);
-									}
-									else if (!SelectedItems.Contains(item))
-									{
-										SelectedItems.Clear();
-										SelectedItems.Add(item);
-									}
-									SelectedObjectChanged();
-									objdrag = true;
-									DrawLevel();
-									break;
+									SelectedItems.Clear();
+									SelectedItems.Add(item);
 								}
+								SelectedObjectChanged();
+								objdrag = true;
+								DrawLevel();
+								break;
 							}
 						}
 					if (!objdrag && LevelData.Bumpers != null)
@@ -2298,41 +2142,19 @@ namespace SonicRetro.SonLVL.GUI
 						}
 					}
 					if (!objdrag)
-						foreach (RingEntry ritem in LevelData.Rings)
+						foreach (RingEntry item in LevelData.Rings)
 						{
-							if (ritem is S2RingEntry)
+							if (((RingLayoutFormat)LevelData.RingFormat).GetBounds(item, Point.Empty).Contains(curx, cury))
 							{
-								S2RingEntry item = ritem as S2RingEntry;
-								Rectangle bound = LevelData.S2RingDef.GetBounds(item, Point.Empty);
-								if (bound.Contains(curx, cury))
+								if (!SelectedItems.Contains(item))
 								{
-									if (!SelectedItems.Contains(item))
-									{
-										SelectedItems.Clear();
-										SelectedItems.Add(item);
-									}
-									SelectedObjectChanged();
-									objdrag = true;
-									DrawLevel();
-									break;
+									SelectedItems.Clear();
+									SelectedItems.Add(item);
 								}
-							}
-							else if (ritem is S3KRingEntry)
-							{
-								S3KRingEntry item = ritem as S3KRingEntry;
-								Rectangle bound = LevelData.S3KRingDef.GetBounds(item, Point.Empty);
-								if (bound.Contains(curx, cury))
-								{
-									if (!SelectedItems.Contains(item))
-									{
-										SelectedItems.Clear();
-										SelectedItems.Add(item);
-									}
-									SelectedObjectChanged();
-									objdrag = true;
-									DrawLevel();
-									break;
-								}
+								SelectedObjectChanged();
+								objdrag = true;
+								DrawLevel();
+								break;
 							}
 						}
 					if (!objdrag && LevelData.Bumpers != null)
@@ -2425,23 +2247,9 @@ namespace SonicRetro.SonLVL.GUI
 							if (LevelData.ObjectVisible(item, allToolStripMenuItem.Checked) && bound.IntersectsWith(selbnds))
 								SelectedItems.Add(item);
 						}
-						foreach (RingEntry ritem in LevelData.Rings)
-						{
-							if (ritem is S2RingEntry)
-							{
-								S2RingEntry item = ritem as S2RingEntry;
-								Rectangle bound = LevelData.S2RingDef.GetBounds(item, Point.Empty);
-								if (bound.IntersectsWith(selbnds))
+						foreach (RingEntry item in LevelData.Rings)
+							if (((RingLayoutFormat)LevelData.RingFormat).GetBounds(item, Point.Empty).IntersectsWith(selbnds))
 									SelectedItems.Add(item);
-							}
-							else if (ritem is S3KRingEntry)
-							{
-								S3KRingEntry item = ritem as S3KRingEntry;
-								Rectangle bound = LevelData.S3KRingDef.GetBounds(item, Point.Empty);
-								if (bound.IntersectsWith(selbnds))
-									SelectedItems.Add(item);
-							}
-						}
 						if (LevelData.Bumpers != null)
 							foreach (CNZBumperEntry item in LevelData.Bumpers)
 							{
@@ -2472,29 +2280,11 @@ namespace SonicRetro.SonLVL.GUI
 				}
 			}
 			foreach (RingEntry item in LevelData.Rings)
-			{
-				switch (LevelData.Level.RingFormat)
+				if (((RingLayoutFormat)LevelData.RingFormat).GetBounds(item, Point.Empty).Contains(mouse))
 				{
-					case EngineVersion.S2:
-					case EngineVersion.S2NA:
-						Rectangle bound = LevelData.S2RingDef.GetBounds((S2RingEntry)item, Point.Empty);
-						if (bound.Contains(mouse))
-						{
-							cur = Cursors.SizeAll;
-							break;
-						}
-						break;
-					case EngineVersion.S3K:
-					case EngineVersion.SKC:
-						bound = LevelData.S3KRingDef.GetBounds((S3KRingEntry)item, Point.Empty);
-						if (bound.Contains(mouse))
-						{
-							cur = Cursors.SizeAll;
-							break;
-						}
-						break;
+					cur = Cursors.SizeAll;
+					break;
 				}
-			}
 			if (LevelData.Bumpers != null)
 				foreach (CNZBumperEntry item in LevelData.Bumpers)
 				{
@@ -2855,43 +2645,24 @@ namespace SonicRetro.SonLVL.GUI
 		private void addRingToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			double gs = 1 << ObjGrid;
-			ushort x = (ushort)(Math.Round((menuLoc.X * ZoomLevel + hScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs);
-			ushort y = (ushort)(Math.Round((menuLoc.Y * ZoomLevel + vScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs);
-			switch (LevelData.Level.RingFormat)
+			Entry ent = LevelData.RingFormat.CreateRing();
+			ent.X = (ushort)(Math.Round((menuLoc.X * ZoomLevel + hScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs);
+			ent.Y = (ushort)(Math.Round((menuLoc.Y * ZoomLevel + vScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs);
+			if (ent is ObjectEntry)
 			{
-				case EngineVersion.S1:
-					ObjectEntry obj = LevelData.CreateObject(0x25);
-					obj.X = x;
-					obj.Y = y;
-					LevelData.Objects.Add(obj);
-					LevelData.Objects[LevelData.Objects.Count - 1].UpdateSprite();
-					SelectedItems.Clear();
-					SelectedItems.Add(LevelData.Objects[LevelData.Objects.Count - 1]);
-					SelectedObjectChanged();
-					AddUndo(new ObjectAddedUndoAction(LevelData.Objects[LevelData.Objects.Count - 1]));
-					LevelData.Objects.Sort();
-					break;
-				case EngineVersion.S2:
-				case EngineVersion.S2NA:
-					LevelData.Rings.Add(new S2RingEntry() { X = x, Y = y });
-					LevelData.Rings[LevelData.Rings.Count - 1].UpdateSprite();
-					SelectedItems.Clear();
-					SelectedItems.Add(LevelData.Rings[LevelData.Rings.Count - 1]);
-					SelectedObjectChanged();
-					AddUndo(new ObjectAddedUndoAction(LevelData.Rings[LevelData.Rings.Count - 1]));
-					LevelData.Rings.Sort();
-					break;
-				case EngineVersion.S3K:
-				case EngineVersion.SKC:
-					LevelData.Rings.Add(new S3KRingEntry() { X = x, Y = y });
-					LevelData.Rings[LevelData.Rings.Count - 1].UpdateSprite();
-					SelectedItems.Clear();
-					SelectedItems.Add(LevelData.Rings[LevelData.Rings.Count - 1]);
-					SelectedObjectChanged();
-					AddUndo(new ObjectAddedUndoAction(LevelData.Rings[LevelData.Rings.Count - 1]));
-					LevelData.Rings.Sort();
-					break;
+				LevelData.Objects.Add((ObjectEntry)ent);
+				LevelData.Objects.Sort();
 			}
+			else
+			{
+				LevelData.Rings.Add((RingEntry)ent);
+				LevelData.Rings.Sort();
+			}
+			ent.UpdateSprite();
+			SelectedItems.Clear();
+			SelectedItems.Add(ent);
+			SelectedObjectChanged();
+			AddUndo(new ObjectAddedUndoAction(ent));
 			DrawLevel();
 		}
 
@@ -2962,25 +2733,8 @@ namespace SonicRetro.SonLVL.GUI
 			using (AddGroupDialog dlg = new AddGroupDialog())
 			{
 				dlg.Text = "Add Group of Rings";
-				Size sz = new Size();
-				switch (LevelData.Level.RingFormat)
-				{
-					case EngineVersion.S1:
-						sz = LevelData.GetObjectDefinition(0x25).GetBounds(LevelData.CreateObject(0x25), Point.Empty).Size;
-						break;
-					case EngineVersion.S2:
-					case EngineVersion.S2NA:
-						sz = LevelData.S2RingDef.GetBounds(new S2RingEntry(), Point.Empty).Size;
-						break;
-					case EngineVersion.S3K:
-					case EngineVersion.SKC:
-						sz = LevelData.S3KRingDef.GetBounds(new S3KRingEntry(), Point.Empty).Size;
-						break;
-					default:
-						return;
-				}
-				dlg.XDist.Value = sz.Width;
-				dlg.YDist.Value = sz.Height;
+				dlg.XDist.Value = 24;
+				dlg.YDist.Value = 24;
 				if (dlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
 				{
 					double gs = 1 << ObjGrid;
@@ -2996,47 +2750,25 @@ namespace SonicRetro.SonLVL.GUI
 					{
 						for (int x = 0; x < dlg.Columns.Value; x++)
 						{
-							switch (LevelData.Level.RingFormat)
-							{
-								case EngineVersion.S1:
-									ObjectEntry obj = LevelData.CreateObject(0x25);
-									obj.X = (ushort)pt.X;
-									obj.Y = (ushort)pt.Y;
-									LevelData.Objects.Add(obj);
-									LevelData.Objects[LevelData.Objects.Count - 1].UpdateSprite();
-									SelectedItems.Add(LevelData.Objects[LevelData.Objects.Count - 1]);
-									break;
-								case EngineVersion.S2:
-								case EngineVersion.S2NA:
-									LevelData.Rings.Add(new S2RingEntry() { X = (ushort)pt.X, Y = (ushort)pt.Y });
-									LevelData.Rings[LevelData.Rings.Count - 1].UpdateSprite();
-									SelectedItems.Add(LevelData.Rings[LevelData.Rings.Count - 1]);
-									break;
-								case EngineVersion.S3K:
-								case EngineVersion.SKC:
-									LevelData.Rings.Add(new S3KRingEntry() { X = (ushort)pt.X, Y = (ushort)pt.Y });
-									LevelData.Rings[LevelData.Rings.Count - 1].UpdateSprite();
-									SelectedItems.Add(LevelData.Rings[LevelData.Rings.Count - 1]);
-									break;
-							}
+							Entry ent = LevelData.RingFormat.CreateRing();
+							ent.X = (ushort)pt.X;
+							ent.Y = (ushort)pt.Y;
+							if (ent is ObjectEntry)
+								LevelData.Objects.Add((ObjectEntry)ent);
+							else
+								LevelData.Rings.Add((RingEntry)ent);
+							ent.UpdateSprite();
+							SelectedItems.Add(ent);
 							pt += xsz;
 						}
 						pt.X = xst;
 						pt += ysz;
 					}
 					SelectedObjectChanged();
-					switch (LevelData.Level.RingFormat)
-					{
-						case EngineVersion.S1:
-							LevelData.Objects.Sort();
-							break;
-						case EngineVersion.S2NA:
-						case EngineVersion.S2:
-						case EngineVersion.S3K:
-						case EngineVersion.SKC:
-							LevelData.Rings.Sort();
-							break;
-					}
+					if (LevelData.RingFormat is RingObjectFormat)
+						LevelData.Objects.Sort();
+					else
+						LevelData.Rings.Sort();
 					DrawLevel();
 				}
 			}
@@ -4648,34 +4380,17 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void selectAllObjectsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			Entry[] items = new Entry[LevelData.Objects.Count];
-			for (int i = 0; i < items.Length; i++)
-				items[i] = LevelData.Objects[i];
-			SelectedItems = new List<Entry>(items);
+			SelectedItems = new List<Entry>(LevelData.Objects.Cast<Entry>());
 			SelectedObjectChanged();
 		}
 
 		private void selectAllRingsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			List<Entry> items = new List<Entry>();
-			switch (LevelData.Level.RingFormat)
-			{
-				case EngineVersion.S2:
-				case EngineVersion.S2NA:
-				case EngineVersion.S3K:
-				case EngineVersion.SKC:
-					items = new List<Entry>(LevelData.Rings.Count);
-					for (int i = 0; i < items.Count; i++)
-						items.Add(LevelData.Rings[i]);
-					break;
-				case EngineVersion.S1:
-				case EngineVersion.SCD:
-				case EngineVersion.SCDPC:
-					foreach (ObjectEntry item in LevelData.Objects)
-						if (item.ID == 0x25)
-							items.Add(item);
-					break;
-			}
+			if (LevelData.RingFormat is RingLayoutFormat)
+				items.AddRange(LevelData.Rings.Cast<Entry>());
+			else
+				items.AddRange(LevelData.Objects.Where(a => a.ID == ((RingObjectFormat)LevelData.RingFormat).ObjectID).Cast<Entry>());
 			SelectedItems = items;
 			SelectedObjectChanged();
 		}
@@ -5672,10 +5387,8 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			if (item is ObjectEntry)
 				return LevelData.GetObjectDefinition(((ObjectEntry)item).ID).GetBounds((ObjectEntry)item, Point.Empty);
-			else if (item is S2RingEntry)
-				return LevelData.S2RingDef.GetBounds((S2RingEntry)item, Point.Empty);
-			else if (item is S3KRingEntry)
-				return LevelData.S3KRingDef.GetBounds((S3KRingEntry)item, Point.Empty);
+			else if (item is RingEntry)
+				return ((RingLayoutFormat)LevelData.RingFormat).GetBounds((RingEntry)item, Point.Empty);
 			else if (item is StartPositionEntry)
 				return LevelData.StartPosDefs[LevelData.StartPositions.IndexOf((StartPositionEntry)item)].GetBounds((StartPositionEntry)item, Point.Empty);
 			else
@@ -6024,10 +5737,9 @@ namespace SonicRetro.SonLVL.GUI
 					{
 						case DialogResult.Cancel:
 							SelectedItems.Clear();
-							foreach (ObjectEntry item in LevelData.Objects)
-								if (item.ID == findObjectsDialog.idSelect.Value)
-									if (!findObjectsDialog.findSubtype.Checked || item.SubType == findObjectsDialog.subtypeSelect.Value)
-										SelectedItems.Add(item);
+							foreach (ObjectEntry item in LevelData.Objects.Where(a => a.ID == findObjectsDialog.idSelect.Value))
+								if (!findObjectsDialog.findSubtype.Checked || item.SubType == findObjectsDialog.subtypeSelect.Value)
+									SelectedItems.Add(item);
 							if (SelectedItems.Count > 0)
 								MessageBox.Show(this, SelectedItems.Count + " object" + (SelectedItems.Count > 1 ? "s" : "") + " found.",
 									"SonLVL");

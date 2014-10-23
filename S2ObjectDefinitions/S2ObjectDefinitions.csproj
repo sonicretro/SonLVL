@@ -39,7 +39,6 @@
   <ItemGroup>
     <Compile Include="Common\InvisibleBlock.cs" />
     <Compile Include="Common\PathSwapper.cs" />
-    <Compile Include="Common\RingGroup.cs" />
     <Compile Include="EHZ\Bridge.cs" />
     <Compile Include="EHZ\TwistingPathway.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

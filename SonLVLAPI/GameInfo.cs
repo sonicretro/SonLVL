@@ -58,7 +58,11 @@ namespace SonicRetro.SonLVL.API
         public EngineVersion RingFormat { get; set; }
         [IniName("ringcmp")]
         public CompressionType RingCompression { get; set; }
-        [IniName("colindfmt")]
+		[IniName("ringcodefile")]
+		public string RingCodeFile { get; set; }
+		[IniName("ringcodetype")]
+		public string RingCodeType { get; set; }
+		[IniName("colindfmt")]
         public EngineVersion CollisionIndexFormat { get; set; }
         [IniName("colindcmp")]
         public CompressionType CollisionIndexCompression { get; set; }
@@ -273,7 +277,11 @@ namespace SonicRetro.SonLVL.API
         public EngineVersion RingFormat { get; set; }
         [IniName("ringcmp")]
         public CompressionType RingCompression { get; set; }
-        [IniName("rings")]
+		[IniName("ringcodefile")]
+		public string RingCodeFile { get; set; }
+		[IniName("ringcodetype")]
+		public string RingCodeType { get; set; }
+		[IniName("rings")]
         public string Rings { get; set; }
         [IniName("bumpercmp")]
         public CompressionType BumperCompression { get; set; }

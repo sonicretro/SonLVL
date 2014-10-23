@@ -37,13 +37,12 @@ namespace SonicRetro.SonLVL.API
         public static ColorPalette BmpPal;
         public static List<ObjectEntry> Objects;
         public static List<RingEntry> Rings;
+		public static RingFormat RingFormat;
         public static List<CNZBumperEntry> Bumpers;
         public static List<StartPositionEntry> StartPositions;
         public static Dictionary<string, ObjectData> INIObjDefs;
         public static Dictionary<byte, ObjectDefinition> ObjTypes;
         public static ObjectDefinition unkobj;
-        public static S2RingDefinition S2RingDef;
-        public static S3KRingDefinition S3KRingDef;
         public static List<StartPositionDefinition> StartPosDefs;
         public static int chunksz;
         public static bool littleendian;
@@ -410,7 +409,74 @@ namespace SonicRetro.SonLVL.API
                 for (int i = 67; i < 256; i++)
                     BmpPal.Entries[i] = Color.Black;
                 UnknownImg.Palette = BmpPal;
-                if (Level.Sprites != null)
+				switch (Level.RingFormat)
+				{
+					case EngineVersion.S1:
+					case EngineVersion.SCDPC:
+						RingFormat = new S1.Ring();
+						break;
+					case EngineVersion.S2:
+					case EngineVersion.S2NA:
+						RingFormat = new S2.Ring();
+						break;
+					case EngineVersion.S3K:
+					case EngineVersion.SKC:
+						RingFormat = new S3K.Ring();
+						break;
+					case EngineVersion.Custom:
+						string dllfile = System.IO.Path.Combine("dllcache", Level.RingCodeType + ".dll");
+						DateTime modDate = DateTime.MinValue;
+						if (System.IO.File.Exists(dllfile))
+							modDate = System.IO.File.GetLastWriteTime(dllfile);
+						string fp = Level.RingCodeFile.Replace('/', System.IO.Path.DirectorySeparatorChar);
+						Log("Loading ring format type " + Level.RingCodeType + " from \"" + fp + "\"...");
+						if (modDate >= File.GetLastWriteTime(fp) & modDate > File.GetLastWriteTime(Application.ExecutablePath))
+						{
+							Log("Loading type from cached assembly \"" + dllfile + "\"...");
+							RingFormat = (RingFormat)Activator.CreateInstance(System.Reflection.Assembly.LoadFile(Path.Combine(Environment.CurrentDirectory, dllfile)).GetType(Level.RingCodeType));
+						}
+						else
+						{
+							Log("Compiling code file...");
+							string ext = System.IO.Path.GetExtension(fp);
+							CodeDomProvider pr = null;
+							switch (ext.ToLowerInvariant())
+							{
+								case ".cs":
+									pr = new Microsoft.CSharp.CSharpCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v3.5" } });
+									break;
+								case ".vb":
+									pr = new Microsoft.VisualBasic.VBCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v3.5" } });
+									break;
+#if false
+                                    case ".js":
+                                        pr = new Microsoft.JScript.JScriptCodeProvider();
+                                        break;
+#endif
+							}
+							CompilerParameters para = new CompilerParameters(new string[] { "System.dll", "System.Core.dll", "System.Drawing.dll", System.Reflection.Assembly.GetExecutingAssembly().Location });
+							para.GenerateExecutable = false;
+							para.GenerateInMemory = false;
+							para.IncludeDebugInformation = true;
+							para.OutputAssembly = System.IO.Path.Combine(Environment.CurrentDirectory, dllfile);
+							CompilerResults res = pr.CompileAssemblyFromFile(para, fp);
+							if (res.Errors.HasErrors)
+							{
+								Log("Compile failed.", "Errors:");
+								foreach (CompilerError item in res.Errors)
+									Log(item.ToString());
+								Log(string.Empty);
+								throw new Exception("Failed compiling ring format.");
+							}
+							else
+							{
+								Log("Compile succeeded.");
+								RingFormat = (RingFormat)Activator.CreateInstance(res.CompiledAssembly.GetType(Level.RingCodeType));
+							}
+						}
+						break;
+				}
+				if (Level.Sprites != null)
                 {
                     tmp = Compression.Decompress(Level.Sprites, CompressionType.SZDD);
                     int numspr = ByteConverter.ToInt32(tmp, 8);
@@ -441,9 +507,6 @@ namespace SonicRetro.SonLVL.API
                     System.IO.DirectoryInfo dir = System.IO.Directory.CreateDirectory("dllcache");
                     dir.Attributes |= System.IO.FileAttributes.Hidden;
                 }
-                S2RingDef = new DefS2RingDef();
-                S2RingDef.Init(new ObjectData());
-                S3KRingDef = new S3KRingDefinition();
                 if (Game.ObjectList != null)
                     foreach (string item in Game.ObjectList)
                         LoadObjectDefinitionFile(item);
@@ -505,47 +568,14 @@ namespace SonicRetro.SonLVL.API
                 else
                     Log("Object file \"" + Level.Objects + "\" not found.");
             }
-            Rings = new List<RingEntry>();
-            if (Level.Rings != null)
-            {
-                switch (Level.RingFormat)
-                {
-                    case EngineVersion.S2:
-                    case EngineVersion.S2NA:
-                        if (File.Exists(Level.Rings))
-                        {
-                            Log("Loading rings from file \"" + Level.Rings + "\", using compression " + Level.RingCompression + "...");
-                            tmp = Compression.Decompress(Level.Rings, Level.RingCompression);
-                            for (int oa = 0; oa < tmp.Length; oa += S2RingEntry.Size)
-                            {
-                                if (ByteConverter.ToUInt16(tmp, oa) == 0xFFFF) break;
-                                S2RingEntry ent = new S2RingEntry(tmp, oa);
-                                Rings.Add(ent);
-                                if (loadGraphics) ent.UpdateSprite();
-                            }
-                        }
-                        else
-                            Log("Ring file \"" + Level.Rings + "\" not found.");
-                        break;
-                    case EngineVersion.S3K:
-                    case EngineVersion.SKC:
-                        if (File.Exists(Level.Rings))
-                        {
-                            Log("Loading rings from file \"" + Level.Rings + "\", using compression " + Level.RingCompression + "...");
-                            tmp = Compression.Decompress(Level.Rings, Level.RingCompression);
-                            for (int oa = 4; oa < tmp.Length; oa += S3KRingEntry.Size)
-                            {
-                                if (ByteConverter.ToUInt16(tmp, oa) == 0xFFFF) break;
-                                S3KRingEntry ent = new S3KRingEntry(tmp, oa);
-                                Rings.Add(ent);
-                                if (loadGraphics) ent.UpdateSprite();
-                            }
-                        }
-                        else
-                            Log("Ring file \"" + Level.Rings + "\" not found.");
-                        break;
-                }
-            }
+			if (Level.Rings != null && RingFormat is RingLayoutFormat)
+			{
+				Rings = ((RingLayoutFormat)RingFormat).TryReadLayout(Level.Rings, Level.RingCompression);
+				foreach (RingEntry ring in Rings)
+					ring.UpdateSprite();
+			}
+			else
+				Rings = new List<RingEntry>();
             if (Level.Bumpers != null)
             {
                 Bumpers = new List<CNZBumperEntry>();
@@ -916,29 +946,10 @@ namespace SonicRetro.SonLVL.API
                 }
                 Compression.Compress(tmp.ToArray(), Level.Objects, Level.ObjectCompression);
             }
-            if (Level.Rings != null)
+			if (Level.Rings != null && RingFormat is RingLayoutFormat)
             {
                 Rings.Sort();
-                switch (Level.RingFormat)
-                {
-                    case EngineVersion.S2:
-                    case EngineVersion.S2NA:
-                        tmp = new List<byte>();
-                        for (int ri = 0; ri < Rings.Count; ri++)
-                            tmp.AddRange(((S2RingEntry)Rings[ri]).GetBytes());
-                        tmp.AddRange(new byte[] { 0xFF, 0xFF });
-                        Compression.Compress(tmp.ToArray(), Level.Rings, Level.RingCompression);
-                        break;
-                    case EngineVersion.S3K:
-                    case EngineVersion.SKC:
-                        tmp = new List<byte>();
-                        tmp.AddRange(new byte[] { 0, 0, 0, 0 });
-                        for (int ri = 0; ri < Rings.Count; ri++)
-                            tmp.AddRange(((S3KRingEntry)Rings[ri]).GetBytes());
-                        tmp.AddRange(new byte[] { 0xFF, 0xFF });
-                        Compression.Compress(tmp.ToArray(), Level.Rings, Level.RingCompression);
-                        break;
-                }
+				((RingLayoutFormat)RingFormat).WriteLayout(Rings, Level.RingCompression, Level.Rings);
             }
             if (Bumpers != null)
             {
@@ -1174,73 +1185,8 @@ namespace SonicRetro.SonLVL.API
             foreach (KeyValuePair<string, ObjectData> group in INIObjDefs)
             {
                 byte ID;
-                if (group.Key == "Ring")
-                {
-                    switch (Level.RingFormat)
-                    {
-                        case EngineVersion.S2:
-                        case EngineVersion.S2NA:
-                            string ty = group.Value.CodeType;
-                            string dllfile = System.IO.Path.Combine("dllcache", ty + ".dll");
-                            DateTime modDate = DateTime.MinValue;
-                            if (System.IO.File.Exists(dllfile))
-                                modDate = System.IO.File.GetLastWriteTime(dllfile);
-                            string fp = group.Value.CodeFile.Replace('/', System.IO.Path.DirectorySeparatorChar);
-                            Log("Loading S2RingDefinition type " + ty + " from \"" + fp + "\"...");
-                            if (modDate >= File.GetLastWriteTime(fp) & modDate > File.GetLastWriteTime(Application.ExecutablePath))
-                            {
-                                Log("Loading type from cached assembly \"" + dllfile + "\"...");
-                                S2RingDef = (S2RingDefinition)Activator.CreateInstance(System.Reflection.Assembly.LoadFile(System.IO.Path.Combine(Environment.CurrentDirectory, dllfile)).GetType(ty));
-                            }
-                            else
-                            {
-                                Log("Compiling code file...");
-                                string ext = System.IO.Path.GetExtension(fp);
-                                CodeDomProvider pr = null;
-                                switch (ext.ToLowerInvariant())
-                                {
-                                    case ".cs":
-                                        pr = new Microsoft.CSharp.CSharpCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v3.5" } });
-                                        break;
-                                    case ".vb":
-                                        pr = new Microsoft.VisualBasic.VBCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v3.5" } });
-                                        break;
-#if false
-                                    case ".js":
-                                        pr = new Microsoft.JScript.JScriptCodeProvider();
-                                        break;
-#endif
-                                }
-                                CompilerParameters para = new CompilerParameters(new string[] { "System.dll", "System.Core.dll", "System.Drawing.dll", System.Reflection.Assembly.GetExecutingAssembly().Location });
-                                para.GenerateExecutable = false;
-                                para.GenerateInMemory = false;
-                                para.IncludeDebugInformation = true;
-                                para.OutputAssembly = System.IO.Path.Combine(Environment.CurrentDirectory, dllfile);
-                                CompilerResults res = pr.CompileAssemblyFromFile(para, fp);
-                                if (res.Errors.HasErrors)
-                                {
-                                    Log("Compile failed.", "Errors:");
-                                    foreach (CompilerError item in res.Errors)
-                                        Log(item.ToString());
-                                    Log(string.Empty);
-                                    S2RingDef = new DefS2RingDef();
-                                }
-                                else
-                                {
-                                    Log("Compile succeeded.");
-                                    S2RingDef = (S2RingDefinition)Activator.CreateInstance(res.CompiledAssembly.GetType(ty));
-                                }
-                            }
-                            S2RingDef.Init(group.Value);
-                            Log("S2 Ring Definition loaded.");
-                            break;
-                        case EngineVersion.S3K:
-                        case EngineVersion.SKC:
-                            Log("Loading S3K Ring Definition...");
-                            S3KRingDef = new S3KRingDefinition(group.Value);
-                            break;
-                    }
-                }
+                if (group.Key == "Ring" && RingFormat is RingLayoutFormat)
+					((RingLayoutFormat)RingFormat).Init(group.Value);
                 else if (byte.TryParse(group.Key, System.Globalization.NumberStyles.HexNumber, System.Globalization.NumberFormatInfo.InvariantInfo, out ID))
                 {
                     ObjectDefinition def = null;

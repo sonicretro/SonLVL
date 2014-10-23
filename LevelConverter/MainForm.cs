@@ -846,21 +846,12 @@ namespace SonicRetro.SonLVL.LevelConverter
 				{
 					case EngineVersion.S2:
 					case EngineVersion.S2NA:
-						tmp2 = new List<byte>();
-						for (int ri = 0; ri < LevelData.Rings.Count; ri++)
-							tmp2.AddRange(((S2RingEntry)LevelData.Rings[ri]).GetBytes());
-						tmp2.AddRange(new byte[] { 0xFF, 0xFF });
-						Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "Rings.bin"), CompressionType.Uncompressed);
+						new API.S2.Ring().WriteLayout(LevelData.Rings, Path.Combine(OutDir, "Rings.bin"));
 						Level.Rings = "Rings.bin";
 						break;
 					case EngineVersion.S3K:
 					case EngineVersion.SKC:
-						tmp2 = new List<byte>();
-						tmp2.AddRange(new byte[] { 0, 0, 0, 0 });
-						for (int ri = 0; ri < LevelData.Rings.Count; ri++)
-							tmp2.AddRange(((S3KRingEntry)LevelData.Rings[ri]).GetBytes());
-						tmp2.AddRange(new byte[] { 0xFF, 0xFF });
-						Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "Rings.bin"), CompressionType.Uncompressed);
+						new API.S3K.Ring().WriteLayout(LevelData.Rings, Path.Combine(OutDir, "Rings.bin"));
 						Level.Rings = "Rings.bin";
 						break;
 				}
@@ -960,16 +951,16 @@ namespace SonicRetro.SonLVL.LevelConverter
 						switch (rtyp)
 						{
 							case 1:
-								LevelData.Rings.Add(new S2RingEntry() { Direction = Direction.Horizontal, Count = rcnt, X = item1.X, Y = item1.Y });
+								LevelData.Rings.Add(new API.S2.S2RingEntry() { Direction = Direction.Horizontal, Count = rcnt, X = item1.X, Y = item1.Y });
 								break;
 							case 4:
-								LevelData.Rings.Add(new S2RingEntry() { Direction = Direction.Vertical, Count = rcnt, X = item1.X, Y = item1.Y });
+								LevelData.Rings.Add(new API.S2.S2RingEntry() { Direction = Direction.Vertical, Count = rcnt, X = item1.X, Y = item1.Y });
 								break;
 							default:
 								Point rpos = new Point(item1.X, item1.Y);
 								for (int r = 0; r < rcnt; r++)
 								{
-									LevelData.Rings.Add(new S2RingEntry() { X = (ushort)rpos.X, Y = (ushort)rpos.Y });
+									LevelData.Rings.Add(new API.S2.S2RingEntry() { X = (ushort)rpos.X, Y = (ushort)rpos.Y });
 									rpos += RingSpacing[rtyp];
 								}
 								break;
@@ -1115,7 +1106,7 @@ namespace SonicRetro.SonLVL.LevelConverter
 						Point rpos = new Point(item1.X, item1.Y);
 						for (int r = 0; r < rcnt; r++)
 						{
-							LevelData.Rings.Add(new S3KRingEntry() { X = (ushort)rpos.X, Y = (ushort)rpos.Y });
+							LevelData.Rings.Add(new API.S3K.S3KRingEntry() { X = (ushort)rpos.X, Y = (ushort)rpos.Y });
 							rpos += RingSpacing[rtyp];
 						}
 					}
@@ -1303,7 +1294,7 @@ namespace SonicRetro.SonLVL.LevelConverter
 			{
 				foreach (RingEntry item in LevelData.Rings)
 				{
-					S2RingEntry ring = item as S2RingEntry;
+					API.S2.S2RingEntry ring = item as API.S2.S2RingEntry;
 					Point rpos = new Point(ring.X, ring.Y);
 					int rtyp = 0;
 					switch (ring.Direction)
@@ -1392,7 +1383,7 @@ namespace SonicRetro.SonLVL.LevelConverter
 				List<RingEntry> Rngs = new List<RingEntry>();
 				foreach (RingEntry item in LevelData.Rings)
 				{
-					S2RingEntry ring = item as S2RingEntry;
+					API.S2.S2RingEntry ring = item as API.S2.S2RingEntry;
 					Point rpos = new Point(ring.X, ring.Y);
 					int rtyp = 0;
 					switch (ring.Direction)
@@ -1406,7 +1397,7 @@ namespace SonicRetro.SonLVL.LevelConverter
 					}
 					for (int r = 0; r < ring.Count; r++)
 					{
-						Rngs.Add(new S3KRingEntry() { X = (ushort)rpos.X, Y = (ushort)rpos.Y });
+						Rngs.Add(new API.S3K.S3KRingEntry() { X = (ushort)rpos.X, Y = (ushort)rpos.Y });
 						rpos += RingSpacing[rtyp];
 					}
 				}
@@ -1594,7 +1585,7 @@ namespace SonicRetro.SonLVL.LevelConverter
 				List<RingEntry> Rngs = new List<RingEntry>();
 				foreach (RingEntry item in LevelData.Rings)
 				{
-					Rngs.Add(new S2RingEntry() { X = item.X, Y = item.Y });
+					Rngs.Add(new API.S2.S2RingEntry() { X = item.X, Y = item.Y });
 				}
 				LevelData.Rings = Rngs;
 			}
