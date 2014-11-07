@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SonED2ProjectConverter", "S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SonAni", "SonAni\SonAni.csproj", "{022D16B9-9D49-4C96-BBA7-F598E6E42E6E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectLayoutDiff", "ObjectLayoutDiff\ObjectLayoutDiff.csproj", "{1A15F5D8-5539-414F-9BB9-2E823FCDEFFE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -85,6 +87,10 @@ Global
 		{022D16B9-9D49-4C96-BBA7-F598E6E42E6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{022D16B9-9D49-4C96-BBA7-F598E6E42E6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{022D16B9-9D49-4C96-BBA7-F598E6E42E6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A15F5D8-5539-414F-9BB9-2E823FCDEFFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A15F5D8-5539-414F-9BB9-2E823FCDEFFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A15F5D8-5539-414F-9BB9-2E823FCDEFFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A15F5D8-5539-414F-9BB9-2E823FCDEFFE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
