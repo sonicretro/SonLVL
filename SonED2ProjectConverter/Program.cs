@@ -14,314 +14,322 @@ namespace SonED2ProjectConverter
     {
         static void Main(string[] args)
         {
-            string folder;
-            if (args.Length > 0)
-            {
-                folder = args[0];
-                Console.WriteLine("Folder: " + folder);
-            }
-            else
-            {
-                Console.Write("Folder: ");
-                folder = Console.ReadLine();
-            }
-            Environment.CurrentDirectory = Path.Combine(Environment.CurrentDirectory, folder);
-            string outdir = Path.Combine(Environment.CurrentDirectory, "Converted");
-            if (!Directory.Exists(outdir)) Directory.CreateDirectory(outdir);
-            GameInfo output = new GameInfo() { Levels = new Dictionary<string, LevelInfo>() };
-            foreach (string filename in Directory.GetFiles(Environment.CurrentDirectory, "*.sep"))
-            {
-                List<string> data = new List<string>();
-                foreach (string line in File.ReadAllLines(filename))
-                {
-                    string line2 = line.Split(';')[0].Trim();
-                    if (line2.Length == 0 | !line2.Contains(":")) continue;
-                    data.Add(line2.Substring(line2.IndexOf(':') + 1).Trim());
-                }
-                int linenum = 0;
-                int gamenum;
-                if (int.TryParse(data[linenum], NumberStyles.Integer, NumberFormatInfo.InvariantInfo, out gamenum)) // Old format
-                {
-                    LevelInfo info = new LevelInfo();
-                    switch (gamenum)
-                    {
-                        case 1: // Sonic 1
-                            output.EngineVersion = info.EngineVersion = EngineVersion.S1;
-                            break;
-                        case 2: // Sonic 2
-                            output.EngineVersion = info.EngineVersion = EngineVersion.S2;
-                            break;
-                    }
-                    linenum++;
-                    string zoneid = data[linenum++];
-                    linenum++;
-                    string objdef = data[linenum++];
-                    ReadObjectDefinition(objdef);
-                    if (File.Exists(Path.Combine(outdir, Path.GetFileName(objdef) + zoneid + ".ini")))
-                        info.ObjectList = new[] { Path.GetFileName(objdef) + ".ini", Path.GetFileName(objdef) + zoneid + ".ini" };
-                    else
-                        info.ObjectList = new[] { Path.GetFileName(objdef) + ".ini" };
-                    info.Tiles = new[] { new SonicRetro.SonLVL.API.FileInfo(data[linenum++]) };
-                    info.Blocks = new[] { new SonicRetro.SonLVL.API.FileInfo(data[linenum++]) };
-                    info.Chunks = new[] { new SonicRetro.SonLVL.API.FileInfo(data[linenum++]) };
-                    switch (gamenum)
-                    {
-                        case 1: // Sonic 1
-                            info.FGLayout = data[linenum++];
-                            info.BGLayout = data[linenum++];
-                            break;
-                        case 2: // Sonic 2
-                            info.Layout = data[linenum++];
-                            break;
-                    }
-                    info.Objects = data[linenum++];
-                    if (gamenum == 2)
-                    {
-                        info.Rings = data[linenum++];
-                        if (!data[linenum].Equals("NONE", StringComparison.OrdinalIgnoreCase))
-                            info.Bumpers = data[linenum];
-                        linenum++;
-                    }
-                    int numpal = int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
-                    string pal1 = string.Empty;
-                    string pal2 = null;
-                    for (int i = 0; i < numpal; i++)
-                    {
-                        int palstart = int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
-                        string pallen = data[linenum++];
-                        string palfile = data[linenum++];
-                        if (palstart >= 64)
-                        {
-                            if (pal2 == null)
-                                pal2 = "Secondary";
-                            pal2 += "|" + palfile + ":0:" + (palstart - 64) + ":" + pallen;
-                        }
-                        else
-                        {
-                            if (pal1 != string.Empty)
-                                pal1 += "|";
-                            pal1 += palfile + ":0:" + palstart + ":" + pallen;
-                        }
-                    }
-                    info.Palette = new PaletteList(pal1);
-                    if (pal2 != null)
-                        info.ExtraPalettes = new[] { new NamedPaletteList(pal2) };
-                    info.Angles = data[linenum++];
-                    info.CollisionArray1 = data[linenum++];
-                    info.CollisionArray2 = data[linenum++];
-                    switch (gamenum)
-                    {
-                        case 1: // Sonic 1
-                            info.CollisionIndex = data[linenum++];
-                            break;
-                        case 2: // Sonic 2
-                            info.CollisionIndex1 = data[linenum++];
-                            info.CollisionIndex2 = data[linenum++];
-                            break;
-                    }
-                    output.Levels.Add(Path.GetFileNameWithoutExtension(filename), info);
-                }
-                else if (data[linenum++] == "Level") // New format
-                {
-                    LevelInfo info = new LevelInfo();
-                    string zoneid = data[linenum++];
-                    linenum++;
-                    string objdef = data[linenum++];
-                    int numsprites = ReadObjectDefinition(objdef);
-                    if (File.Exists(Path.Combine(outdir, Path.GetFileName(objdef) + zoneid + ".ini")))
-                        info.ObjectList = new[] { Path.GetFileName(objdef) + ".ini", Path.GetFileName(objdef) + zoneid + ".ini" };
-                    else
-                        info.ObjectList = new[] { Path.GetFileName(objdef) + ".ini" };
-                    linenum++;
-                    info.TileCompression = compressionTypes[int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo)];
-                    int cnt = int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
-                    List<SonicRetro.SonLVL.API.FileInfo> filelist = new List<SonicRetro.SonLVL.API.FileInfo>(cnt);
-                    for (int i = 0; i < cnt; i++)
-                        filelist.Add(new SonicRetro.SonLVL.API.FileInfo(data[linenum++]));
-                    info.Tiles = filelist.ToArray();
-                    info.BlockCompression = compressionTypes[int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo)];
-                    cnt = int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
-                    filelist = new List<SonicRetro.SonLVL.API.FileInfo>(cnt);
-                    for (int i = 0; i < cnt; i++)
-                    {
-                        linenum++;
-                        filelist.Add(new SonicRetro.SonLVL.API.FileInfo(data[linenum++]));
-                    }
-                    info.Blocks = filelist.ToArray();
-                    switch (int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo))
-                    {
-                        case 128:
-                            info.ChunkFormat = EngineVersion.S2;
-                            break;
-                        case 256:
-                            info.ChunkFormat = EngineVersion.S1;
-                            break;
-                    }
-                    info.ChunkCompression = compressionTypes[int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo)];
-                    cnt = int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
-                    filelist = new List<SonicRetro.SonLVL.API.FileInfo>(cnt);
-                    for (int i = 0; i < cnt; i++)
-                    {
-                        linenum++;
-                        filelist.Add(new SonicRetro.SonLVL.API.FileInfo(data[linenum++]));
-                    }
-                    info.Chunks = filelist.ToArray();
-                    switch (int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo))
-                    {
-                        case 0:
-                            info.LayoutFormat = EngineVersion.S1;
-                            break;
-                        case 1:
-                            info.LayoutFormat = EngineVersion.S2;
-                            break;
-                        case 2:
-                            info.LayoutFormat = EngineVersion.S3K;
-                            break;
-                    }
-                    info.LayoutCompression = compressionTypes[int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo)];
-                    switch (info.LayoutFormat)
-                    {
-                        case EngineVersion.S1:
-                            info.FGLayout = data[linenum++];
-                            linenum++;
-                            info.BGLayout = data[linenum++];
-                            break;
-                        case EngineVersion.S2:
-                        case EngineVersion.S3K:
-                            linenum++;
-                            info.Layout = data[linenum++];
-                            break;
-                    }
-                    switch (int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo))
-                    {
-                        case 1:
-                            info.ObjectFormat = EngineVersion.S1;
-                            info.Objects = data[linenum++];
-                            break;
-                        case 2:
-                            info.ObjectFormat = EngineVersion.SCD;
-                            switch (data[linenum++])
-                            {
-                                case "A":
-                                    info.TimeZone = SonicRetro.SonLVL.API.TimeZone.Present;
-                                    break;
-                                case "B":
-                                    info.TimeZone = SonicRetro.SonLVL.API.TimeZone.Past;
-                                    break;
-                                case "C":
-                                case "D":
-                                    info.TimeZone = SonicRetro.SonLVL.API.TimeZone.Future;
-                                    break;
-                            }
-                            info.Objects = data[linenum++];
-                            break;
-                        case 3:
-                            info.ObjectFormat = EngineVersion.S2;
-                            info.Objects = data[linenum++];
-                            break;
-                        case 4:
-                            info.ObjectFormat = EngineVersion.S3K;
-                            info.Objects = data[linenum++];
-                            break;
-                    }
-                    switch (int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo))
-                    {
-                        case 1:
-                            info.RingFormat = EngineVersion.S2;
-                            info.Rings = data[linenum++];
-                            break;
-                        case 2:
-                            info.RingFormat = EngineVersion.S3K;
-                            info.Rings = data[linenum++];
-                            break;
-                    }
-                    if (int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo) == 1)
-                        info.Bumpers = data[linenum++];
-                    cnt = int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
-                    List<StartPositionInfo> startlist = new List<StartPositionInfo>(cnt);
-                    for (int i = 0; i < cnt; i++)
-                        startlist.Add(new StartPositionInfo(data[linenum++] + ":Sprite" + (numsprites - cnt + i) + ":Start Position " + i));
-                    info.StartPositions = startlist.ToArray();
-                    int numpal = int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
-                    string pal1 = string.Empty;
-                    string pal2 = null;
-                    for (int i = 0; i < numpal; i++)
-                    {
-                        int palstart = int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
-                        string pallen = data[linenum++];
-                        string palfile = data[linenum++];
-                        if (palstart >= 64)
-                        {
-                            if (pal2 == null)
-                                pal2 = "Secondary";
-                            pal2 += "|" + palfile + ":0:" + (palstart - 64) + ":" + pallen;
-                        }
-                        else
-                        {
-                            if (pal1 != string.Empty)
-                                pal1 += "|";
-                            pal1 += palfile + ":0:" + palstart + ":" + pallen;
-                        }
-                    }
-                    info.Palette = new PaletteList(pal1);
-                    if (pal2 != null)
-                        info.ExtraPalettes = new[] { new NamedPaletteList(pal2) };
-                    linenum++;
-                    info.CollisionArray1 = data[linenum++];
-                    info.CollisionArray2 = data[linenum++];
-                    info.Angles = data[linenum++];
-                    switch (int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo))
-                    {
-                        case 0:
-                            info.CollisionIndexFormat = EngineVersion.S1;
-                            break;
-                        case 1:
-                            info.CollisionIndexFormat = EngineVersion.S2;
-                            break;
-                        case 2:
-                            info.CollisionIndexFormat = EngineVersion.S3K;
-                            info.CollisionIndexSize = 2;
-                            break;
-                        case 3:
-                            info.CollisionIndexFormat = EngineVersion.S3K;
-                            info.CollisionIndexSize = 1;
-                            break;
-                    }
-                    info.CollisionIndexCompression = compressionTypes[int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo)];
-                    switch (info.CollisionIndexFormat)
-                    {
-                        case EngineVersion.S1:
-                        case EngineVersion.S3K:
-                            info.CollisionIndex = data[linenum++];
-                            break;
-                        case EngineVersion.S2:
-                            info.CollisionIndex1 = data[linenum++];
-                            info.CollisionIndex2 = data[linenum++];
-                            break;
-                    }
-                    switch (data[linenum++])
-                    {
-                        case "Sonic 1":
-                            output.EngineVersion = info.EngineVersion = EngineVersion.S1;
-                            break;
-                        case "Sonic CD":
-                            output.EngineVersion = info.EngineVersion = EngineVersion.SCD;
-                            break;
-                        case "Sonic 2":
-                            output.EngineVersion = info.EngineVersion = EngineVersion.S2;
-                            break;
-                        case "Sonic 3":
-                            output.EngineVersion = info.EngineVersion = EngineVersion.S3K;
-                            break;
-                    }
-                    output.Levels.Add(Path.GetFileNameWithoutExtension(filename), info);
-                }
-                else
-                    Console.WriteLine(Path.GetFileName(filename) + " not a level project, skipping.");
-            }
-            if (output.EngineVersion == EngineVersion.Invalid)
-                output.EngineVersion = EngineVersion.S1;
-            output.Save(Path.Combine(outdir, "SonLVL.ini"));
+			try
+			{
+				string folder;
+				if (args.Length > 0)
+				{
+					folder = args[0];
+					Console.WriteLine("Folder: " + folder);
+				}
+				else
+				{
+					Console.Write("Folder: ");
+					folder = Console.ReadLine();
+				}
+				Environment.CurrentDirectory = Path.Combine(Environment.CurrentDirectory, folder);
+				string outdir = Path.Combine(Environment.CurrentDirectory, "Converted");
+				if (!Directory.Exists(outdir)) Directory.CreateDirectory(outdir);
+				GameInfo output = new GameInfo() { Levels = new Dictionary<string, LevelInfo>() };
+				foreach (string filename in Directory.GetFiles(Environment.CurrentDirectory, "*.sep"))
+				{
+					List<string> data = new List<string>();
+					foreach (string line in File.ReadAllLines(filename))
+					{
+						string line2 = line.Split(';')[0].Trim();
+						if (line2.Length == 0 | !line2.Contains(":")) continue;
+						data.Add(line2.Substring(line2.IndexOf(':') + 1).Trim());
+					}
+					int linenum = 0;
+					int gamenum;
+					if (int.TryParse(data[linenum], NumberStyles.Integer, NumberFormatInfo.InvariantInfo, out gamenum)) // Old format
+					{
+						LevelInfo info = new LevelInfo();
+						switch (gamenum)
+						{
+							case 1: // Sonic 1
+								output.EngineVersion = info.EngineVersion = EngineVersion.S1;
+								break;
+							case 2: // Sonic 2
+								output.EngineVersion = info.EngineVersion = EngineVersion.S2;
+								break;
+						}
+						linenum++;
+						string zoneid = data[linenum++];
+						linenum++;
+						string objdef = data[linenum++];
+						ReadObjectDefinition(objdef);
+						if (File.Exists(Path.Combine(outdir, Path.GetFileName(objdef) + zoneid + ".ini")))
+							info.ObjectList = new[] { Path.GetFileName(objdef) + ".ini", Path.GetFileName(objdef) + zoneid + ".ini" };
+						else
+							info.ObjectList = new[] { Path.GetFileName(objdef) + ".ini" };
+						info.Tiles = new[] { new SonicRetro.SonLVL.API.FileInfo(data[linenum++]) };
+						info.Blocks = new[] { new SonicRetro.SonLVL.API.FileInfo(data[linenum++]) };
+						info.Chunks = new[] { new SonicRetro.SonLVL.API.FileInfo(data[linenum++]) };
+						switch (gamenum)
+						{
+							case 1: // Sonic 1
+								info.FGLayout = data[linenum++];
+								info.BGLayout = data[linenum++];
+								break;
+							case 2: // Sonic 2
+								info.Layout = data[linenum++];
+								break;
+						}
+						info.Objects = data[linenum++];
+						if (gamenum == 2)
+						{
+							info.Rings = data[linenum++];
+							if (!data[linenum].Equals("NONE", StringComparison.OrdinalIgnoreCase))
+								info.Bumpers = data[linenum];
+							linenum++;
+						}
+						int numpal = int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
+						string pal1 = string.Empty;
+						string pal2 = null;
+						for (int i = 0; i < numpal; i++)
+						{
+							int palstart = int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
+							string pallen = data[linenum++];
+							string palfile = data[linenum++];
+							if (palstart >= 64)
+							{
+								if (pal2 == null)
+									pal2 = "Secondary";
+								pal2 += "|" + palfile + ":0:" + (palstart - 64) + ":" + pallen;
+							}
+							else
+							{
+								if (pal1 != string.Empty)
+									pal1 += "|";
+								pal1 += palfile + ":0:" + palstart + ":" + pallen;
+							}
+						}
+						info.Palette = new PaletteList(pal1);
+						if (pal2 != null)
+							info.ExtraPalettes = new[] { new NamedPaletteList(pal2) };
+						info.Angles = data[linenum++];
+						info.CollisionArray1 = data[linenum++];
+						info.CollisionArray2 = data[linenum++];
+						switch (gamenum)
+						{
+							case 1: // Sonic 1
+								info.CollisionIndex = data[linenum++];
+								break;
+							case 2: // Sonic 2
+								info.CollisionIndex1 = data[linenum++];
+								info.CollisionIndex2 = data[linenum++];
+								break;
+						}
+						output.Levels.Add(Path.GetFileNameWithoutExtension(filename), info);
+					}
+					else if (data[linenum++] == "Level") // New format
+					{
+						LevelInfo info = new LevelInfo();
+						string zoneid = data[linenum++];
+						linenum++;
+						string objdef = data[linenum++];
+						int numsprites = ReadObjectDefinition(objdef);
+						if (File.Exists(Path.Combine(outdir, Path.GetFileName(objdef) + zoneid + ".ini")))
+							info.ObjectList = new[] { Path.GetFileName(objdef) + ".ini", Path.GetFileName(objdef) + zoneid + ".ini" };
+						else
+							info.ObjectList = new[] { Path.GetFileName(objdef) + ".ini" };
+						linenum++;
+						info.TileCompression = compressionTypes[int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo)];
+						int cnt = int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
+						List<SonicRetro.SonLVL.API.FileInfo> filelist = new List<SonicRetro.SonLVL.API.FileInfo>(cnt);
+						for (int i = 0; i < cnt; i++)
+							filelist.Add(new SonicRetro.SonLVL.API.FileInfo(data[linenum++]));
+						info.Tiles = filelist.ToArray();
+						info.BlockCompression = compressionTypes[int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo)];
+						cnt = int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
+						filelist = new List<SonicRetro.SonLVL.API.FileInfo>(cnt);
+						for (int i = 0; i < cnt; i++)
+						{
+							linenum++;
+							filelist.Add(new SonicRetro.SonLVL.API.FileInfo(data[linenum++]));
+						}
+						info.Blocks = filelist.ToArray();
+						switch (int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo))
+						{
+							case 128:
+								info.ChunkFormat = EngineVersion.S2;
+								break;
+							case 256:
+								info.ChunkFormat = EngineVersion.S1;
+								break;
+						}
+						info.ChunkCompression = compressionTypes[int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo)];
+						cnt = int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
+						filelist = new List<SonicRetro.SonLVL.API.FileInfo>(cnt);
+						for (int i = 0; i < cnt; i++)
+						{
+							linenum++;
+							filelist.Add(new SonicRetro.SonLVL.API.FileInfo(data[linenum++]));
+						}
+						info.Chunks = filelist.ToArray();
+						switch (int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo))
+						{
+							case 0:
+								info.LayoutFormat = EngineVersion.S1;
+								break;
+							case 1:
+								info.LayoutFormat = EngineVersion.S2;
+								break;
+							case 2:
+								info.LayoutFormat = EngineVersion.S3K;
+								break;
+						}
+						info.LayoutCompression = compressionTypes[int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo)];
+						switch (info.LayoutFormat)
+						{
+							case EngineVersion.S1:
+								info.FGLayout = data[linenum++];
+								linenum++;
+								info.BGLayout = data[linenum++];
+								break;
+							case EngineVersion.S2:
+							case EngineVersion.S3K:
+								linenum++;
+								info.Layout = data[linenum++];
+								break;
+						}
+						switch (int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo))
+						{
+							case 1:
+								info.ObjectFormat = EngineVersion.S1;
+								info.Objects = data[linenum++];
+								break;
+							case 2:
+								info.ObjectFormat = EngineVersion.SCD;
+								switch (data[linenum++])
+								{
+									case "A":
+										info.TimeZone = SonicRetro.SonLVL.API.TimeZone.Present;
+										break;
+									case "B":
+										info.TimeZone = SonicRetro.SonLVL.API.TimeZone.Past;
+										break;
+									case "C":
+									case "D":
+										info.TimeZone = SonicRetro.SonLVL.API.TimeZone.Future;
+										break;
+								}
+								info.Objects = data[linenum++];
+								break;
+							case 3:
+								info.ObjectFormat = EngineVersion.S2;
+								info.Objects = data[linenum++];
+								break;
+							case 4:
+								info.ObjectFormat = EngineVersion.S3K;
+								info.Objects = data[linenum++];
+								break;
+						}
+						switch (int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo))
+						{
+							case 1:
+								info.RingFormat = EngineVersion.S2;
+								info.Rings = data[linenum++];
+								break;
+							case 2:
+								info.RingFormat = EngineVersion.S3K;
+								info.Rings = data[linenum++];
+								break;
+						}
+						if (int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo) == 1)
+							info.Bumpers = data[linenum++];
+						cnt = int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
+						List<StartPositionInfo> startlist = new List<StartPositionInfo>(cnt);
+						for (int i = 0; i < cnt; i++)
+							startlist.Add(new StartPositionInfo(data[linenum++] + ":Sprite" + (numsprites - cnt + i) + ":Start Position " + i));
+						info.StartPositions = startlist.ToArray();
+						int numpal = int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
+						string pal1 = string.Empty;
+						string pal2 = null;
+						for (int i = 0; i < numpal; i++)
+						{
+							int palstart = int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
+							string pallen = data[linenum++];
+							string palfile = data[linenum++];
+							if (palstart >= 64)
+							{
+								if (pal2 == null)
+									pal2 = "Secondary";
+								pal2 += "|" + palfile + ":0:" + (palstart - 64) + ":" + pallen;
+							}
+							else
+							{
+								if (pal1 != string.Empty)
+									pal1 += "|";
+								pal1 += palfile + ":0:" + palstart + ":" + pallen;
+							}
+						}
+						info.Palette = new PaletteList(pal1);
+						if (pal2 != null)
+							info.ExtraPalettes = new[] { new NamedPaletteList(pal2) };
+						linenum++;
+						info.CollisionArray1 = data[linenum++];
+						info.CollisionArray2 = data[linenum++];
+						info.Angles = data[linenum++];
+						switch (int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo))
+						{
+							case 0:
+								info.CollisionIndexFormat = EngineVersion.S1;
+								break;
+							case 1:
+								info.CollisionIndexFormat = EngineVersion.S2;
+								break;
+							case 2:
+								info.CollisionIndexFormat = EngineVersion.S3K;
+								info.CollisionIndexSize = 2;
+								break;
+							case 3:
+								info.CollisionIndexFormat = EngineVersion.S3K;
+								info.CollisionIndexSize = 1;
+								break;
+						}
+						info.CollisionIndexCompression = compressionTypes[int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo)];
+						switch (info.CollisionIndexFormat)
+						{
+							case EngineVersion.S1:
+							case EngineVersion.S3K:
+								info.CollisionIndex = data[linenum++];
+								break;
+							case EngineVersion.S2:
+								info.CollisionIndex1 = data[linenum++];
+								info.CollisionIndex2 = data[linenum++];
+								break;
+						}
+						switch (data[linenum++])
+						{
+							case "Sonic 1":
+								output.EngineVersion = info.EngineVersion = EngineVersion.S1;
+								break;
+							case "Sonic CD":
+								output.EngineVersion = info.EngineVersion = EngineVersion.SCD;
+								break;
+							case "Sonic 2":
+								output.EngineVersion = info.EngineVersion = EngineVersion.S2;
+								break;
+							case "Sonic 3":
+								output.EngineVersion = info.EngineVersion = EngineVersion.S3K;
+								break;
+						}
+						output.Levels.Add(Path.GetFileNameWithoutExtension(filename), info);
+					}
+					else
+						Console.WriteLine(Path.GetFileName(filename) + " not a level project, skipping.");
+				}
+				if (output.EngineVersion == EngineVersion.Invalid)
+					output.EngineVersion = EngineVersion.S1;
+				output.Save(Path.Combine(outdir, "SonLVL.ini"));
+			}
+			catch (Exception ex)
+			{
+				File.WriteAllText("SonED2ProjectConverter.log", ex.ToString());
+				throw;
+			}
         }
 
         static readonly Dictionary<int, CompressionType> compressionTypes = new Dictionary<int, CompressionType>()
