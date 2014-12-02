@@ -355,7 +355,7 @@ namespace SonicRetro.SonLVL.API
             if (LayoutFormat.IsCombinedLayout)
                 ((LayoutFormatCombined)LayoutFormat).TryReadLayout(Level.Layout, Level.LayoutCompression, Layout);
             else
-                ((LayoutFormatSeparate)LayoutFormat).TryReadLayout(Level.FGLayout, Level.BGLayout, Level.LayoutCompression, Layout);
+                ((LayoutFormatSeparate)LayoutFormat).TryReadLayout(Level.FGLayout, Level.BGLayout, Level.FGLayoutCompression, Level.BGLayoutCompression, Layout);
             PalName = new List<string>();
             Palette = new List<SonLVLColor[,]>();
             PalNum = new List<byte[,]>();
@@ -848,7 +848,7 @@ namespace SonicRetro.SonLVL.API
             if (LayoutFormat.IsCombinedLayout)
                 ((LayoutFormatCombined)LayoutFormat).WriteLayout(Layout, Level.LayoutCompression, Level.Layout);
             else
-                ((LayoutFormatSeparate)LayoutFormat).WriteLayout(Layout, Level.LayoutCompression, Level.FGLayout, Level.BGLayout);
+                ((LayoutFormatSeparate)LayoutFormat).WriteLayout(Layout, Level.FGLayoutCompression, Level.BGLayoutCompression, Level.FGLayout, Level.BGLayout);
             if (Level.PaletteFormat != EngineVersion.SCDPC)
             {
                 byte[] paltmp;

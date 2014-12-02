@@ -44,7 +44,11 @@ namespace SonicRetro.SonLVL.API
         public EngineVersion LayoutFormat { get; set; }
         [IniName("layoutcmp")]
         public CompressionType LayoutCompression { get; set; }
-        [IniName("layoutcodefile")]
+		[IniName("fglayoutcmp")]
+		public CompressionType FGLayoutCompression { get; set; }
+		[IniName("bglayoutcmp")]
+		public CompressionType BGLayoutCompression { get; set; }
+		[IniName("layoutcodefile")]
         public string LayoutCodeFile { get; set; }
         [IniName("layoutcodetype")]
         public string LayoutCodeType { get; set; }
@@ -189,7 +193,11 @@ namespace SonicRetro.SonLVL.API
                         result.ChunkCompression = CompressionType.Uncompressed;
                         break;
                 }
-            result.Palettes = new NamedPaletteList[info.ExtraPalettes.Length + 1];
+			if (result.FGLayoutCompression == CompressionType.Invalid)
+				result.FGLayoutCompression = result.LayoutCompression;
+			if (result.BGLayoutCompression == CompressionType.Invalid)
+				result.BGLayoutCompression = result.LayoutCompression;
+			result.Palettes = new NamedPaletteList[info.ExtraPalettes.Length + 1];
             result.Palettes[0] = new NamedPaletteList("Normal", info.Palette);
             if (info.ExtraPalettes.Length > 0)
                 info.ExtraPalettes.CopyTo(result.Palettes, 1);
@@ -246,9 +254,13 @@ namespace SonicRetro.SonLVL.API
         public FileInfo[] Chunks { get; set; }
         [IniName("layoutfmt")]
         public EngineVersion LayoutFormat { get; set; }
-        [IniName("layoutcmp")]
-        public CompressionType LayoutCompression { get; set; }
-        [IniName("layoutcodefile")]
+		[IniName("layoutcmp")]
+		public CompressionType LayoutCompression { get; set; }
+		[IniName("fglayoutcmp")]
+		public CompressionType FGLayoutCompression { get; set; }
+		[IniName("bglayoutcmp")]
+		public CompressionType BGLayoutCompression { get; set; }
+		[IniName("layoutcodefile")]
         public string LayoutCodeFile { get; set; }
         [IniName("layoutcodetype")]
         public string LayoutCodeType { get; set; }

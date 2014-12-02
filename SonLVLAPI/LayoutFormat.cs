@@ -94,21 +94,21 @@ namespace SonicRetro.SonLVL.API
 
         public void ReadFG(string filename, CompressionType compression, LayoutData layout)
         {
-            if (compression == CompressionType.Invalid) compression = DefaultCompression;
+            if (compression == CompressionType.Invalid) compression = DefaultBGCompression;
             LevelData.Log("Loading FG layout from file \"" + filename + "\", using compression " + compression + "...");
             ReadFG(Compression.Decompress(filename, compression), layout);
         }
 
         public void ReadBG(string filename, CompressionType compression, LayoutData layout)
         {
-            if (compression == CompressionType.Invalid) compression = DefaultCompression;
+            if (compression == CompressionType.Invalid) compression = DefaultBGCompression;
             LevelData.Log("Loading BG layout from file \"" + filename + "\", using compression " + compression + "...");
             ReadBG(Compression.Decompress(filename, compression), layout);
         }
 
-        public void ReadFG(string filename, LayoutData layout) { ReadFG(filename, DefaultCompression, layout); }
+        public void ReadFG(string filename, LayoutData layout) { ReadFG(filename, DefaultFGCompression, layout); }
 
-        public void ReadBG(string filename, LayoutData layout) { ReadBG(filename, DefaultCompression, layout); }
+        public void ReadBG(string filename, LayoutData layout) { ReadBG(filename, DefaultBGCompression, layout); }
 
         public void TryReadFG(string filename, CompressionType compression, LayoutData layout)
         {
@@ -136,9 +136,9 @@ namespace SonicRetro.SonLVL.API
             }
         }
 
-        public void TryReadFG(string filename, LayoutData layout) { TryReadFG(filename, DefaultCompression, layout); }
+        public void TryReadFG(string filename, LayoutData layout) { TryReadFG(filename, DefaultFGCompression, layout); }
 
-        public void TryReadBG(string filename, LayoutData layout) { TryReadBG(filename, DefaultCompression, layout); }
+        public void TryReadBG(string filename, LayoutData layout) { TryReadBG(filename, DefaultBGCompression, layout); }
 
         public void ReadLayout(byte[] rawfg, byte[] rawbg, LayoutData layout)
         {
@@ -146,21 +146,41 @@ namespace SonicRetro.SonLVL.API
             ReadBG(rawbg, layout);
         }
 
-        public void ReadLayout(string fgfilename, string bgfilename, CompressionType compression, LayoutData layout)
+		public void ReadLayout(string fgfilename, string bgfilename, CompressionType fgcompression, CompressionType bgcompression, LayoutData layout)
+		{
+			ReadFG(fgfilename, fgcompression, layout);
+			ReadBG(bgfilename, bgcompression, layout);
+		}
+
+		public void ReadLayout(string fgfilename, string bgfilename, CompressionType compression, LayoutData layout)
         {
             ReadFG(fgfilename, compression, layout);
             ReadBG(bgfilename, compression, layout);
         }
 
-        public void ReadLayout(string fgfilename, string bgfilename, LayoutData layout) { ReadLayout(fgfilename, bgfilename, DefaultCompression, layout); }
+        public void ReadLayout(string fgfilename, string bgfilename, LayoutData layout)
+		{
+			ReadFG(fgfilename, layout);
+			ReadBG(bgfilename, layout);
+		}
 
-        public void TryReadLayout(string fgfilename, string bgfilename, CompressionType compression, LayoutData layout)
+		public void TryReadLayout(string fgfilename, string bgfilename, CompressionType fgcompression, CompressionType bgcompression, LayoutData layout)
+		{
+			TryReadFG(fgfilename, fgcompression, layout);
+			TryReadBG(bgfilename, bgcompression, layout);
+		}
+
+		public void TryReadLayout(string fgfilename, string bgfilename, CompressionType compression, LayoutData layout)
         {
             TryReadFG(fgfilename, compression, layout);
             TryReadBG(bgfilename, compression, layout);
         }
 
-        public void TryReadLayout(string fgfilename, string bgfilename, LayoutData layout) { TryReadLayout(fgfilename, bgfilename, DefaultCompression, layout); }
+        public void TryReadLayout(string fgfilename, string bgfilename, LayoutData layout)
+		{
+			TryReadFG(fgfilename, layout);
+			TryReadBG(bgfilename, layout);
+		}
 
         public abstract void WriteFG(LayoutData layout, out byte[] rawdata);
 
@@ -168,7 +188,7 @@ namespace SonicRetro.SonLVL.API
 
         public void WriteFG(LayoutData layout, CompressionType compression, string filename)
         {
-            if (compression == CompressionType.Invalid) compression = DefaultCompression;
+            if (compression == CompressionType.Invalid) compression = DefaultFGCompression;
             byte[] data;
             WriteFG(layout, out data);
             Compression.Compress(data, filename, compression);
@@ -176,15 +196,15 @@ namespace SonicRetro.SonLVL.API
 
         public void WriteBG(LayoutData layout, CompressionType compression, string filename)
         {
-            if (compression == CompressionType.Invalid) compression = DefaultCompression;
+            if (compression == CompressionType.Invalid) compression = DefaultBGCompression;
             byte[] data;
             WriteBG(layout, out data);
             Compression.Compress(data, filename, compression);
         }
 
-        public void WriteFG(LayoutData layout, string filename) { WriteFG(layout, DefaultCompression, filename); }
+        public void WriteFG(LayoutData layout, string filename) { WriteFG(layout, DefaultFGCompression, filename); }
 
-        public void WriteBG(LayoutData layout, string filename) { WriteBG(layout, DefaultCompression, filename); }
+        public void WriteBG(LayoutData layout, string filename) { WriteBG(layout, DefaultBGCompression, filename); }
 
         public void WriteLayout(LayoutData layout, out byte[] rawfg, out byte[] rawbg)
         {
@@ -192,17 +212,28 @@ namespace SonicRetro.SonLVL.API
             WriteBG(layout, out rawbg);
         }
 
-        public void WriteLayout(LayoutData layout, CompressionType compression, string fgfilename, string bgfilename)
-        {
-            if (compression == CompressionType.Invalid) compression = DefaultCompression;
-            byte[] fgdata, bgdata;
-            WriteLayout(layout, out fgdata, out bgdata);
-            Compression.Compress(fgdata, fgfilename, compression);
-            Compression.Compress(bgdata, bgfilename, compression);
-        }
+		public void WriteLayout(LayoutData layout, CompressionType fgcompression, CompressionType bgcompression, string fgfilename, string bgfilename)
+		{
+			WriteFG(layout, fgcompression, fgfilename);
+			WriteBG(layout, bgcompression, bgfilename);
+		}
 
-        public void WriteLayout(LayoutData layout, string fgfilename, string bgfilename) { WriteLayout(layout, DefaultCompression, fgfilename, bgfilename); }
+		public void WriteLayout(LayoutData layout, CompressionType compression, string fgfilename, string bgfilename)
+		{
+			WriteFG(layout, compression, fgfilename);
+			WriteBG(layout, compression, bgfilename);
+		}
+
+		public void WriteLayout(LayoutData layout, string fgfilename, string bgfilename)
+		{
+			WriteFG(layout, fgfilename);
+			WriteBG(layout, bgfilename);
+		}
 
         public override bool IsCombinedLayout { get { return false; } }
-    }
+
+		public virtual CompressionType DefaultFGCompression { get { return DefaultCompression; } }
+
+		public virtual CompressionType DefaultBGCompression { get { return DefaultCompression; } }
+	}
 }
