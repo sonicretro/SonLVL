@@ -1238,7 +1238,7 @@ namespace SonicRetro.SonLVL.GUI
 							LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, bnd);
 						}
 					}
-					if (LevelData.Level.LayoutFormat == EngineVersion.S1)
+					if (LevelData.LayoutFormat.HasLoopFlag)
 						for (int y = Math.Max(camera.Y / LevelData.chunksz, 0); y <= Math.Min(((camera.Y + (objectPanel.Height - 1) / ZoomLevel)) / LevelData.chunksz, LevelData.Layout.FGLayout.GetLength(1) - 1); y++)
 							for (int x = Math.Max(camera.X / LevelData.chunksz, 0); x <= Math.Min(((camera.X + (objectPanel.Width - 1) / ZoomLevel)) / LevelData.chunksz, LevelData.Layout.FGLayout.GetLength(0) - 1); x++)
 								if (LevelData.Layout.FGLoop[x, y])
@@ -1313,7 +1313,7 @@ namespace SonicRetro.SonLVL.GUI
 					LevelBmp = LevelImg8bpp.ToBitmap(LevelImgPalette).To32bpp();
 					LevelGfx = Graphics.FromImage(LevelBmp);
 					LevelGfx.SetOptions();
-					if (LevelData.Level.LayoutFormat == EngineVersion.S1)
+					if (LevelData.LayoutFormat.HasLoopFlag)
 						for (int y = Math.Max(camera.Y / LevelData.chunksz, 0); y <= Math.Min(((camera.Y + (foregroundPanel.Height - 1) / ZoomLevel)) / LevelData.chunksz, LevelData.Layout.FGLayout.GetLength(1) - 1); y++)
 							for (int x = Math.Max(camera.X / LevelData.chunksz, 0); x <= Math.Min(((camera.X + (foregroundPanel.Width - 1) / ZoomLevel)) / LevelData.chunksz, LevelData.Layout.FGLayout.GetLength(0) - 1); x++)
 								if (LevelData.Layout.FGLoop[x, y])
@@ -1389,7 +1389,7 @@ namespace SonicRetro.SonLVL.GUI
 					LevelBmp = LevelImg8bpp.ToBitmap(LevelImgPalette).To32bpp();
 					LevelGfx = Graphics.FromImage(LevelBmp);
 					LevelGfx.SetOptions();
-					if (LevelData.Level.LayoutFormat == EngineVersion.S1)
+					if (LevelData.LayoutFormat.HasLoopFlag)
 						for (int y = Math.Max(camera.Y / LevelData.chunksz, 0); y <= Math.Min(((camera.Y + (backgroundPanel.Height - 1) / ZoomLevel)) / LevelData.chunksz, LevelData.Layout.BGLayout.GetLength(1) - 1); y++)
 							for (int x = Math.Max(camera.X / LevelData.chunksz, 0); x <= Math.Min(((camera.X + (backgroundPanel.Width - 1) / ZoomLevel)) / LevelData.chunksz, LevelData.Layout.BGLayout.GetLength(0) - 1); x++)
 								if (LevelData.Layout.BGLoop[x, y])
@@ -2347,7 +2347,7 @@ namespace SonicRetro.SonLVL.GUI
 					switch (e.Button)
 					{
 						case MouseButtons.Left:
-							if (LevelData.Level.LayoutFormat == EngineVersion.S1 && e.Clicks >= 2)
+							if (LevelData.LayoutFormat.HasLoopFlag && e.Clicks >= 2)
 								LevelData.Layout.FGLoop[chunkpoint.X, chunkpoint.Y] = !LevelData.Layout.FGLoop[chunkpoint.X, chunkpoint.Y];
 							else
 							{
@@ -2452,7 +2452,7 @@ namespace SonicRetro.SonLVL.GUI
 					switch (e.Button)
 					{
 						case MouseButtons.Left:
-							if (LevelData.Level.LayoutFormat == EngineVersion.S1 && e.Clicks >= 2)
+							if (LevelData.LayoutFormat.HasLoopFlag && e.Clicks >= 2)
 								LevelData.Layout.BGLoop[chunkpoint.X, chunkpoint.Y] = !LevelData.Layout.BGLoop[chunkpoint.X, chunkpoint.Y];
 							else
 							{
