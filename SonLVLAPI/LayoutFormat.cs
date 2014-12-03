@@ -94,7 +94,7 @@ namespace SonicRetro.SonLVL.API
 
         public void ReadFG(string filename, CompressionType compression, LayoutData layout)
         {
-            if (compression == CompressionType.Invalid) compression = DefaultBGCompression;
+            if (compression == CompressionType.Invalid) compression = DefaultFGCompression;
             LevelData.Log("Loading FG layout from file \"" + filename + "\", using compression " + compression + "...");
             ReadFG(Compression.Decompress(filename, compression), layout);
         }
