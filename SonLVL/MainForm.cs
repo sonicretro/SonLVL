@@ -3489,6 +3489,8 @@ namespace SonicRetro.SonLVL.GUI
 				drawToolStripMenuItem.Enabled = importToolStripMenuItem.Enabled;
 				insertAfterToolStripMenuItem.Enabled = importToolStripMenuItem.Enabled;
 				insertBeforeToolStripMenuItem.Enabled = importToolStripMenuItem.Enabled;
+				deleteTilesToolStripMenuItem.Enabled = LevelData.Chunks.Count > 1;
+				cutTilesToolStripMenuItem.Enabled = deleteTilesToolStripMenuItem.Enabled;
 				tileContextMenuStrip.Show(ChunkSelector, e.Location);
 			}
 		}
@@ -3505,6 +3507,8 @@ namespace SonicRetro.SonLVL.GUI
 				drawToolStripMenuItem.Enabled = importToolStripMenuItem.Enabled;
 				insertAfterToolStripMenuItem.Enabled = importToolStripMenuItem.Enabled;
 				insertBeforeToolStripMenuItem.Enabled = importToolStripMenuItem.Enabled;
+				deleteTilesToolStripMenuItem.Enabled = LevelData.Blocks.Count > 1;
+				cutTilesToolStripMenuItem.Enabled = deleteTilesToolStripMenuItem.Enabled;
 				tileContextMenuStrip.Show(BlockSelector, e.Location);
 			}
 		}
@@ -3520,6 +3524,8 @@ namespace SonicRetro.SonLVL.GUI
 				drawToolStripMenuItem.Enabled = importToolStripMenuItem.Enabled;
 				insertAfterToolStripMenuItem.Enabled = importToolStripMenuItem.Enabled;
 				insertBeforeToolStripMenuItem.Enabled = importToolStripMenuItem.Enabled;
+				deleteTilesToolStripMenuItem.Enabled = LevelData.Tiles.Count > 1;
+				cutTilesToolStripMenuItem.Enabled = deleteTilesToolStripMenuItem.Enabled;
 				tileContextMenuStrip.Show(TileSelector, e.Location);
 			}
 		}
@@ -4278,7 +4284,7 @@ namespace SonicRetro.SonLVL.GUI
 			}
 		}
 
-		private void ColPicture_MouseUp(object sender, KeyEventArgs e)
+		private void ColPicture_MouseUp(object sender, MouseEventArgs e)
 		{
 			if (CollisionSelector.SelectedIndex == -1) return;
 			LevelData.RedrawCol(SelectedCol, true);
@@ -4368,7 +4374,21 @@ namespace SonicRetro.SonLVL.GUI
 							copyTilesToolStripMenuItem_Click(sender, EventArgs.Empty);
 						break;
 					case Keys.Delete:
-						deleteTilesToolStripMenuItem_Click(sender, EventArgs.Empty);
+						switch (tabControl1.SelectedIndex)
+						{
+							case 3: // Chunks
+								if (LevelData.Chunks.Count > 1)
+									deleteTilesToolStripMenuItem_Click(sender, EventArgs.Empty);
+								break;
+							case 4: // Blocks
+								if (LevelData.Blocks.Count > 1)
+									deleteTilesToolStripMenuItem_Click(sender, EventArgs.Empty);
+								break;
+							case 5: // Tiles
+								if (LevelData.Tiles.Count > 1)
+									deleteTilesToolStripMenuItem_Click(sender, EventArgs.Empty);
+								break;
+						}
 						break;
 					case Keys.Insert:
 						switch (tabControl1.SelectedIndex)
