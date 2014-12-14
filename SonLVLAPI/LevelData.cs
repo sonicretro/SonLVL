@@ -396,7 +396,74 @@ namespace SonicRetro.SonLVL.API
                 }
             }
             CurPal = 0;
-            Sprites = new List<Sprite>();
+			switch (Level.RingFormat)
+			{
+				case EngineVersion.S1:
+				case EngineVersion.SCDPC:
+					RingFormat = new S1.Ring();
+					break;
+				case EngineVersion.S2:
+				case EngineVersion.S2NA:
+					RingFormat = new S2.Ring();
+					break;
+				case EngineVersion.S3K:
+				case EngineVersion.SKC:
+					RingFormat = new S3K.Ring();
+					break;
+				case EngineVersion.Custom:
+					string dllfile = System.IO.Path.Combine("dllcache", Level.RingCodeType + ".dll");
+					DateTime modDate = DateTime.MinValue;
+					if (System.IO.File.Exists(dllfile))
+						modDate = System.IO.File.GetLastWriteTime(dllfile);
+					string fp = Level.RingCodeFile.Replace('/', System.IO.Path.DirectorySeparatorChar);
+					Log("Loading ring format type " + Level.RingCodeType + " from \"" + fp + "\"...");
+					if (modDate >= File.GetLastWriteTime(fp) & modDate > File.GetLastWriteTime(Application.ExecutablePath))
+					{
+						Log("Loading type from cached assembly \"" + dllfile + "\"...");
+						RingFormat = (RingFormat)Activator.CreateInstance(System.Reflection.Assembly.LoadFile(Path.Combine(Environment.CurrentDirectory, dllfile)).GetType(Level.RingCodeType));
+					}
+					else
+					{
+						Log("Compiling code file...");
+						string ext = System.IO.Path.GetExtension(fp);
+						CodeDomProvider pr = null;
+						switch (ext.ToLowerInvariant())
+						{
+							case ".cs":
+								pr = new Microsoft.CSharp.CSharpCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v3.5" } });
+								break;
+							case ".vb":
+								pr = new Microsoft.VisualBasic.VBCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v3.5" } });
+								break;
+#if false
+                                    case ".js":
+                                        pr = new Microsoft.JScript.JScriptCodeProvider();
+                                        break;
+#endif
+						}
+						CompilerParameters para = new CompilerParameters(new string[] { "System.dll", "System.Core.dll", "System.Drawing.dll", System.Reflection.Assembly.GetExecutingAssembly().Location });
+						para.GenerateExecutable = false;
+						para.GenerateInMemory = false;
+						para.IncludeDebugInformation = true;
+						para.OutputAssembly = System.IO.Path.Combine(Environment.CurrentDirectory, dllfile);
+						CompilerResults res = pr.CompileAssemblyFromFile(para, fp);
+						if (res.Errors.HasErrors)
+						{
+							Log("Compile failed.", "Errors:");
+							foreach (CompilerError item in res.Errors)
+								Log(item.ToString());
+							Log(string.Empty);
+							throw new Exception("Failed compiling ring format.");
+						}
+						else
+						{
+							Log("Compile succeeded.");
+							RingFormat = (RingFormat)Activator.CreateInstance(res.CompiledAssembly.GetType(Level.RingCodeType));
+						}
+					}
+					break;
+			}
+			Sprites = new List<Sprite>();
             if (loadGraphics)
             {
                 Bitmap palbmp = new Bitmap(1, 1, PixelFormat.Format8bppIndexed);
@@ -501,73 +568,6 @@ namespace SonicRetro.SonLVL.API
                 else
                     Log("Object file \"" + Level.Objects + "\" not found.");
             }
-			switch (Level.RingFormat)
-			{
-				case EngineVersion.S1:
-				case EngineVersion.SCDPC:
-					RingFormat = new S1.Ring();
-					break;
-				case EngineVersion.S2:
-				case EngineVersion.S2NA:
-					RingFormat = new S2.Ring();
-					break;
-				case EngineVersion.S3K:
-				case EngineVersion.SKC:
-					RingFormat = new S3K.Ring();
-					break;
-				case EngineVersion.Custom:
-					string dllfile = System.IO.Path.Combine("dllcache", Level.RingCodeType + ".dll");
-					DateTime modDate = DateTime.MinValue;
-					if (System.IO.File.Exists(dllfile))
-						modDate = System.IO.File.GetLastWriteTime(dllfile);
-					string fp = Level.RingCodeFile.Replace('/', System.IO.Path.DirectorySeparatorChar);
-					Log("Loading ring format type " + Level.RingCodeType + " from \"" + fp + "\"...");
-					if (modDate >= File.GetLastWriteTime(fp) & modDate > File.GetLastWriteTime(Application.ExecutablePath))
-					{
-						Log("Loading type from cached assembly \"" + dllfile + "\"...");
-						RingFormat = (RingFormat)Activator.CreateInstance(System.Reflection.Assembly.LoadFile(Path.Combine(Environment.CurrentDirectory, dllfile)).GetType(Level.RingCodeType));
-					}
-					else
-					{
-						Log("Compiling code file...");
-						string ext = System.IO.Path.GetExtension(fp);
-						CodeDomProvider pr = null;
-						switch (ext.ToLowerInvariant())
-						{
-							case ".cs":
-								pr = new Microsoft.CSharp.CSharpCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v3.5" } });
-								break;
-							case ".vb":
-								pr = new Microsoft.VisualBasic.VBCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v3.5" } });
-								break;
-#if false
-                                    case ".js":
-                                        pr = new Microsoft.JScript.JScriptCodeProvider();
-                                        break;
-#endif
-						}
-						CompilerParameters para = new CompilerParameters(new string[] { "System.dll", "System.Core.dll", "System.Drawing.dll", System.Reflection.Assembly.GetExecutingAssembly().Location });
-						para.GenerateExecutable = false;
-						para.GenerateInMemory = false;
-						para.IncludeDebugInformation = true;
-						para.OutputAssembly = System.IO.Path.Combine(Environment.CurrentDirectory, dllfile);
-						CompilerResults res = pr.CompileAssemblyFromFile(para, fp);
-						if (res.Errors.HasErrors)
-						{
-							Log("Compile failed.", "Errors:");
-							foreach (CompilerError item in res.Errors)
-								Log(item.ToString());
-							Log(string.Empty);
-							throw new Exception("Failed compiling ring format.");
-						}
-						else
-						{
-							Log("Compile succeeded.");
-							RingFormat = (RingFormat)Activator.CreateInstance(res.CompiledAssembly.GetType(Level.RingCodeType));
-						}
-					}
-					break;
-			}
 			if (Level.Rings != null && RingFormat is RingLayoutFormat)
 			{
 				Rings = ((RingLayoutFormat)RingFormat).TryReadLayout(Level.Rings, Level.RingCompression);
