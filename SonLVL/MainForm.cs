@@ -857,11 +857,17 @@ namespace SonicRetro.SonLVL.GUI
 			((ToolStripMenuItem)e.ClickedItem).Checked = true;
 			switch (zoomToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem))
 			{
-				case 0: // 1/2x
+				case 0: // 1/8x
+					ZoomLevel = 0.125;
+					break;
+				case 1: // 1/4x
+					ZoomLevel = 0.25;
+					break;
+				case 2: // 1/2x
 					ZoomLevel = 0.5;
 					break;
 				default:
-					ZoomLevel = zoomToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem);
+					ZoomLevel = zoomToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem) - 2;
 					break;
 			}
 			if (!loaded) return;
