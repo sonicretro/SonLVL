@@ -80,6 +80,7 @@ namespace SonicRetro.SonLVL.API.S2
 
 		public override byte[] WriteLayout(List<RingEntry> rings)
 		{
+			rings.Sort();
 			List<byte> tmp = new List<byte>(S2RingEntry.Size * (rings.Count + 1));
 			foreach (RingEntry item in rings)
 				tmp.AddRange(item.GetBytes());

@@ -29,6 +29,7 @@ namespace SonicRetro.SonLVL.API.S3K
 
 		public override byte[] WriteLayout(List<RingEntry> rings)
 		{
+			rings.Sort();
 			List<byte> tmp = new List<byte>(S3KRingEntry.Size * (rings.Count + 1));
 			foreach (RingEntry item in rings)
 				tmp.AddRange(item.GetBytes());
