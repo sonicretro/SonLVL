@@ -1654,14 +1654,16 @@ namespace SonicRetro.SonLVL.GUI
 					if (!loaded) return;
 					if (!e.Control)
 					{
-						foreach (Entry item in SelectedItems)
+						foreach (ObjectEntry item in SelectedItems.OfType<ObjectEntry>())
 						{
-							if (item is ObjectEntry)
+							unchecked
 							{
-								ObjectEntry oi = item as ObjectEntry;
-								oi.SubType = (byte)(oi.SubType == 0 ? 255 : oi.SubType - 1);
-								oi.UpdateSprite();
+								if (item is ChaotixObjectEntry)
+									--((ChaotixObjectEntry)item).FullSubType;
+								else
+									--item.SubType;
 							}
+							item.UpdateSprite();
 						}
 						DrawLevel();
 					}
@@ -1683,14 +1685,13 @@ namespace SonicRetro.SonLVL.GUI
 					}
 					else
 					{
-						foreach (Entry item in SelectedItems)
+						foreach (ObjectEntry item in SelectedItems.OfType<ObjectEntry>())
 						{
-							if (item is ObjectEntry)
-							{
-								ObjectEntry oi = item as ObjectEntry;
-								oi.SubType = (byte)(oi.SubType == 255 ? 0 : oi.SubType + 1);
-								oi.UpdateSprite();
-							}
+							if (item is ChaotixObjectEntry)
+								++((ChaotixObjectEntry)item).FullSubType;
+							else
+								++item.SubType;
+							item.UpdateSprite();
 						}
 						DrawLevel();
 					}
@@ -1950,13 +1951,18 @@ namespace SonicRetro.SonLVL.GUI
 						{
 							if (ModifierKeys != Keys.Control || LevelData.Bumpers == null)
 							{
+								if (LevelData.Level.ObjectFormat == EngineVersion.Chaotix)
+									ObjectSelect.numericUpDown2.Maximum = 0x1FFF;
+								else
+									ObjectSelect.numericUpDown2.Maximum = 0xFF;
 								if (ObjectSelect.ShowDialog(this) == DialogResult.OK)
 								{
-									byte ID = (byte)ObjectSelect.numericUpDown1.Value;
-									byte sub = (byte)ObjectSelect.numericUpDown2.Value;
-									ObjectEntry ent = LevelData.CreateObject(ID);
+									ObjectEntry ent = LevelData.CreateObject((byte)ObjectSelect.numericUpDown1.Value);
 									LevelData.Objects.Add(ent);
-									ent.SubType = sub;
+									if (ent is ChaotixObjectEntry)
+										((ChaotixObjectEntry)ent).FullSubType = (ushort)ObjectSelect.numericUpDown2.Value;
+									else
+										ent.SubType = (byte)ObjectSelect.numericUpDown2.Value;
 									ent.X = (ushort)gridx;
 									ent.Y = (ushort)gridy;
 									if (ent is SCDObjectEntry)
@@ -2612,13 +2618,18 @@ namespace SonicRetro.SonLVL.GUI
 		Point menuLoc;
 		private void addObjectToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+			if (LevelData.Level.ObjectFormat == EngineVersion.Chaotix)
+				ObjectSelect.numericUpDown2.Maximum = 0x1FFF;
+			else
+				ObjectSelect.numericUpDown2.Maximum = 0xFF;
 			if (ObjectSelect.ShowDialog(this) == DialogResult.OK)
 			{
-				byte ID = (byte)ObjectSelect.numericUpDown1.Value;
-				byte sub = (byte)ObjectSelect.numericUpDown2.Value;
-				ObjectEntry ent = LevelData.CreateObject(ID);
+				ObjectEntry ent = LevelData.CreateObject((byte)ObjectSelect.numericUpDown1.Value);
 				LevelData.Objects.Add(ent);
-				ent.SubType = sub;
+				if (ent is ChaotixObjectEntry)
+					((ChaotixObjectEntry)ent).FullSubType = (ushort)ObjectSelect.numericUpDown2.Value;
+				else
+					ent.SubType = (byte)ObjectSelect.numericUpDown2.Value;
 				double gs = 1 << ObjGrid;
 				ent.X = (ushort)(Math.Round((menuLoc.X * ZoomLevel + hScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs);
 				ent.Y = (ushort)(Math.Round((menuLoc.Y * ZoomLevel + vScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs);

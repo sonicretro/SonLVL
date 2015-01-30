@@ -560,7 +560,14 @@ namespace SonicRetro.SonLVL.API
                                 Objects.Add(new SCDObjectEntry(tmp, oa));
                             }
                             break;
-                    }
+						case EngineVersion.Chaotix:
+							for (int oa = 0; oa < tmp.Length; oa += ChaotixObjectEntry.Size)
+							{
+								if (ByteConverter.ToUInt16(tmp, oa) == 0xFFFF) break;
+								Objects.Add(new ChaotixObjectEntry(tmp, oa));
+							}
+							break;
+					}
                     if (loadGraphics)
                         for (int i = 0; i < Objects.Count; i++)
                             Objects[i].UpdateSprite();
@@ -905,45 +912,40 @@ namespace SonicRetro.SonLVL.API
             {
                 Objects.Sort();
                 tmp = new List<byte>();
-                switch (Level.ObjectFormat)
+				for (int oi = 0; oi < Objects.Count; oi++)
+					tmp.AddRange(Objects[oi].GetBytes());
+				switch (Level.ObjectFormat)
                 {
                     case EngineVersion.S1:
-                        for (int oi = 0; oi < Objects.Count; oi++)
-                            tmp.AddRange(((S1ObjectEntry)Objects[oi]).GetBytes());
                         tmp.AddRange(new byte[] { 0xFF, 0xFF });
                         while (tmp.Count % S1ObjectEntry.Size > 0)
                             tmp.Add(0);
                         break;
                     case EngineVersion.S2:
-                        for (int oi = 0; oi < Objects.Count; oi++)
-                            tmp.AddRange(((S2ObjectEntry)Objects[oi]).GetBytes());
                         tmp.AddRange(new byte[] { 0xFF, 0xFF });
                         while (tmp.Count % S2ObjectEntry.Size > 0)
                             tmp.Add(0);
                         break;
                     case EngineVersion.S2NA:
-                        for (int oi = 0; oi < Objects.Count; oi++)
-                            tmp.AddRange(((S2NAObjectEntry)Objects[oi]).GetBytes());
                         tmp.AddRange(new byte[] { 0xFF, 0xFF });
                         while (tmp.Count % S2NAObjectEntry.Size > 0)
                             tmp.Add(0);
                         break;
                     case EngineVersion.S3K:
                     case EngineVersion.SKC:
-                        for (int oi = 0; oi < Objects.Count; oi++)
-                            tmp.AddRange(((S3KObjectEntry)Objects[oi]).GetBytes());
                         tmp.AddRange(new byte[] { 0xFF, 0xFF });
                         while (tmp.Count % S3KObjectEntry.Size > 0)
                             tmp.Add(0);
                         break;
                     case EngineVersion.SCDPC:
-                        for (int oi = 0; oi < Objects.Count; oi++)
-                            tmp.AddRange(((SCDObjectEntry)Objects[oi]).GetBytes());
                         tmp.Add(0xFF);
                         while (tmp.Count % SCDObjectEntry.Size > 0)
                             tmp.Add(0xFF);
                         break;
-                }
+					case EngineVersion.Chaotix:
+						tmp.AddRange(new byte[] { 0xFF, 0xFF });
+						break;
+				}
                 Compression.Compress(tmp.ToArray(), Level.Objects, Level.ObjectCompression);
             }
 			if (Level.Rings != null && RingFormat is RingLayoutFormat)
@@ -1296,6 +1298,9 @@ namespace SonicRetro.SonLVL.API
                                     case EngineVersion.SCDPC:
                                         basetype = typeof(SCDObjectEntry);
                                         break;
+									case EngineVersion.Chaotix:
+										basetype = typeof(ChaotixObjectEntry);
+										break;
                                     default:
                                         basetype = typeof(ObjectEntry);
                                         break;
@@ -2802,6 +2807,9 @@ namespace SonicRetro.SonLVL.API
                 case EngineVersion.SCDPC:
 					oe = new SCDObjectEntry() { RememberState = def.RememberState };
                     break;
+				case EngineVersion.Chaotix:
+					oe = new ChaotixObjectEntry();
+					break;
                 default:
                     oe = null;
                     break;
@@ -3201,6 +3209,7 @@ namespace SonicRetro.SonLVL.API
         SCD,
         SCDPC,
         SKC,
+		Chaotix,
         Custom
     }
 

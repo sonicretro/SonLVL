@@ -1086,6 +1086,9 @@ namespace SonicRetro.SonLVL.API
                             case EngineVersion.SCDPC:
                                 basetype = typeof(SCDObjectEntry);
                                 break;
+							case EngineVersion.Chaotix:
+								basetype = typeof(ChaotixObjectEntry);
+								break;
                             default:
                                 basetype = typeof(ObjectEntry);
                                 break;

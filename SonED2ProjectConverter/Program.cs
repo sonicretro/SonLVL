@@ -14,8 +14,8 @@ namespace SonED2ProjectConverter
     {
         static void Main(string[] args)
         {
-			try
-			{
+			//try
+			//{
 				string folder;
 				if (args.Length > 0)
 				{
@@ -179,6 +179,8 @@ namespace SonED2ProjectConverter
 							case 2:
 								info.LayoutFormat = EngineVersion.S3K;
 								break;
+							default:
+								throw new ArgumentOutOfRangeException("Unsupported layout format.");
 						}
 						info.LayoutCompression = compressionTypes[int.Parse(data[linenum++], NumberStyles.Integer, NumberFormatInfo.InvariantInfo)];
 						switch (info.LayoutFormat)
@@ -223,6 +225,10 @@ namespace SonED2ProjectConverter
 								break;
 							case 4:
 								info.ObjectFormat = EngineVersion.S3K;
+								info.Objects = data[linenum++];
+								break;
+							case 5:
+								info.ObjectFormat = EngineVersion.Chaotix;
 								info.Objects = data[linenum++];
 								break;
 						}
@@ -324,12 +330,12 @@ namespace SonED2ProjectConverter
 				if (output.EngineVersion == EngineVersion.Invalid)
 					output.EngineVersion = EngineVersion.S1;
 				output.Save(Path.Combine(outdir, "SonLVL.ini"));
-			}
+			/*}
 			catch (Exception ex)
 			{
 				File.WriteAllText("SonED2ProjectConverter.log", ex.ToString());
 				throw;
-			}
+			}*/
         }
 
         static readonly Dictionary<int, CompressionType> compressionTypes = new Dictionary<int, CompressionType>()
