@@ -5,7 +5,7 @@ using System.Collections.ObjectModel;
 
 namespace SonicRetro.SonLVL.API
 {
-    public class MultiFileIndexer<T> : IEnumerable<T>
+    public class MultiFileIndexer<T> : IList<T>
     {
         private List<List<T>> filedata = new List<List<T>>();
         private List<int> fileoffs = new List<int>();
@@ -68,13 +68,15 @@ namespace SonicRetro.SonLVL.API
                     fileoffs[i]++;
         }
 
-        public void Remove(T item)
+        public bool Remove(T item)
         {
             int i = GetContainingFile(ToList().IndexOf(item));
+			if (i == -1) return false;
             filedata[i].Remove(item);
             for (i++; i < FileCount; i++)
                 if (!fixedoff[i])
                     fileoffs[i]--;
+			return true;
         }
 
         public void RemoveAt(int index)
@@ -180,5 +182,30 @@ namespace SonicRetro.SonLVL.API
                 current = -1;
             }
         }
-    }
+
+		public int IndexOf(T item)
+		{
+			return ToList().IndexOf(item);
+		}
+
+		public void Insert(int index, T item)
+		{
+			InsertBefore(index, item);
+		}
+
+		public bool Contains(T item)
+		{
+			return ToList().Contains(item);
+		}
+
+		public void CopyTo(T[] array, int arrayIndex)
+		{
+			ToList().CopyTo(array, arrayIndex);
+		}
+
+		public bool IsReadOnly
+		{
+			get { return false; }
+		}
+	}
 }

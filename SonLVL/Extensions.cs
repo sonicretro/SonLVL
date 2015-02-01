@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Collections.Generic;
+using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 
@@ -72,5 +73,19 @@ namespace SonicRetro.SonLVL.GUI
         {
             return new Rectangle(r.X * factor, r.Y * factor, r.Width * factor, r.Height * factor);
         }
+
+		public static void Swap<T>(this IList<T> list, int a, int b)
+		{
+			T tmp = list[a];
+			list[a] = list[b];
+			list[b] = tmp;
+		}
+
+		public static void Move<T>(this IList<T> list, int src, int dst)
+		{
+			T tmp = list[src];
+			list.Insert(dst, tmp);
+			list.RemoveAt(src);
+		}
     }
 }

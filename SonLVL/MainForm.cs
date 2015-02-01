@@ -15,22 +15,24 @@ namespace SonicRetro.SonLVL.GUI
 	{
 		public static MainForm Instance { get; private set; }
 		Settings Settings;
+		int pid;
 
 		public MainForm()
 		{
-			Application.ThreadException += new System.Threading.ThreadExceptionEventHandler(Application_ThreadException);
+			Application.ThreadException += Application_ThreadException;
 			Instance = this;
+			pid = System.Diagnostics.Process.GetCurrentProcess().Id;
 			if (Program.IsMonoRuntime)
 				Log("Mono runtime detected.");
 			Log("Operating system: " + Environment.OSVersion.ToString());
-			LevelData.LogEvent += new LevelData.LogEventHandler(Log);
-			LevelData.PaletteChangedEvent += new Action(LevelData_PaletteChangedEvent);
+			LevelData.LogEvent += Log;
+			LevelData.PaletteChangedEvent += LevelData_PaletteChangedEvent;
 			InitializeComponent();
 			if (Program.IsMonoRuntime)
 			{
-				BlockCollision1.TextChanged += new EventHandler(BlockCollision1_TextChanged);
-				BlockCollision2.TextChanged += new EventHandler(BlockCollision2_TextChanged);
-				ColAngle.TextChanged += new EventHandler(ColAngle_TextChanged);
+				BlockCollision1.TextChanged += BlockCollision1_TextChanged;
+				BlockCollision2.TextChanged += BlockCollision2_TextChanged;
+				ColAngle.TextChanged += ColAngle_TextChanged;
 			}
 		}
 
@@ -2261,7 +2263,7 @@ namespace SonicRetro.SonLVL.GUI
 						}
 						foreach (RingEntry item in LevelData.Rings)
 							if (((RingLayoutFormat)LevelData.RingFormat).GetBounds(item, Point.Empty).IntersectsWith(selbnds))
-									SelectedItems.Add(item);
+								SelectedItems.Add(item);
 						if (LevelData.Bumpers != null)
 							foreach (CNZBumperEntry item in LevelData.Bumpers)
 							{
@@ -2902,28 +2904,31 @@ namespace SonicRetro.SonLVL.GUI
 		private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			selecting = false;
-			switch (tabControl1.SelectedIndex)
+			switch ((Tab)tabControl1.SelectedIndex)
 			{
-				case 0:
+				case Tab.Objects:
 					findToolStripMenuItem.Enabled = true;
 					findNextToolStripMenuItem.Enabled = lastfoundobj != null;
 					objectPanel.Focus();
 					break;
-				case 1:
+				case Tab.Foreground:
 					findToolStripMenuItem.Enabled = true;
 					findNextToolStripMenuItem.Enabled = lastfoundfgchunk.HasValue;
 					splitContainer2.Panel2.Controls.Add(ChunkSelector);
+					ChunkSelector.AllowDrop = true;
 					foregroundPanel.Focus();
 					break;
-				case 2:
+				case Tab.Background:
 					findToolStripMenuItem.Enabled = true;
 					findNextToolStripMenuItem.Enabled = lastfoundbgchunk.HasValue;
 					splitContainer3.Panel2.Controls.Add(ChunkSelector);
+					ChunkSelector.AllowDrop = true;
 					backgroundPanel.Focus();
 					break;
-				case 3:
+				case Tab.Chunks:
 					findToolStripMenuItem.Enabled = findNextToolStripMenuItem.Enabled = false;
 					panel10.Controls.Add(ChunkSelector);
+					ChunkSelector.AllowDrop = true;
 					break;
 				default:
 					findToolStripMenuItem.Enabled = findNextToolStripMenuItem.Enabled = false;
@@ -6045,6 +6050,412 @@ namespace SonicRetro.SonLVL.GUI
 			objGridSizeDropDownButton.Text = "Grid Size: " + (1 << (ObjGrid = (byte)objGridSizeDropDownButton.DropDownItems.IndexOf(e.ClickedItem)));
 			if (!loaded) return;
 			DrawLevel();
+		}
+
+		private void ChunkSelector_ItemDrag(object sender, EventArgs e)
+		{
+			if (tabControl1.SelectedIndex == (int)Tab.Chunks)
+				DoDragDrop(new DataObject("SonLVLChunkIndex_" + pid, ChunkSelector.SelectedIndex), DragDropEffects.Move);
+		}
+
+		bool chunk_dragdrop;
+		int chunk_dragobj;
+		Point chunk_dragpoint;
+		private void ChunkSelector_DragEnter(object sender, DragEventArgs e)
+		{
+			if (e.Data.GetDataPresent("SonLVLChunkIndex_" + pid))
+			{
+				e.Effect = DragDropEffects.Move;
+				chunk_dragdrop = true;
+				chunk_dragobj = (int)e.Data.GetData("SonLVLChunkIndex_" + pid);
+				chunk_dragpoint = ChunkSelector.PointToClient(new Point(e.X, e.Y));
+				ChunkSelector.Invalidate();
+			}
+			else
+				chunk_dragdrop = false;
+		}
+
+		private void ChunkSelector_DragOver(object sender, DragEventArgs e)
+		{
+			if (e.Data.GetDataPresent("SonLVLChunkIndex_" + pid))
+			{
+				e.Effect = DragDropEffects.Move;
+				chunk_dragdrop = true;
+				chunk_dragobj = (int)e.Data.GetData("SonLVLChunkIndex_" + pid);
+				chunk_dragpoint = ChunkSelector.PointToClient(new Point(e.X, e.Y));
+				if (chunk_dragpoint.Y < 8)
+					ChunkSelector.ScrollValue -= 8 - dragpoint.Y;
+				else if (dragpoint.Y > ChunkSelector.Height - 8)
+					ChunkSelector.ScrollValue += dragpoint.Y - (ChunkSelector.Height - 8);
+				ChunkSelector.Invalidate();
+			}
+			else
+				chunk_dragdrop = false;
+		}
+
+		private void ChunkSelector_DragLeave(object sender, EventArgs e)
+		{
+			chunk_dragdrop = false;
+			ChunkSelector.Invalidate();
+		}
+
+		private void ChunkSelector_Paint(object sender, PaintEventArgs e)
+		{
+			if (chunk_dragdrop)
+			{
+				e.Graphics.DrawImage(ChunkSelector.Images[chunk_dragobj], chunk_dragpoint.X - (ChunkSelector.ImageSize / 2),
+					chunk_dragpoint.Y - (ChunkSelector.ImageSize / 2), ChunkSelector.ImageSize, ChunkSelector.ImageSize);
+				Rectangle r = ChunkSelector.GetItemBounds(ChunkSelector.GetItemAtPoint(chunk_dragpoint));
+				if ((ModifierKeys & Keys.Control) == Keys.Control)
+					e.Graphics.DrawRectangle(new Pen(Color.Black, 2), r);
+				else
+					e.Graphics.DrawLine(new Pen(Color.Black, 2), r.Left + 1, r.Top, r.Left + 1, r.Bottom);
+			}
+		}
+
+		private void ChunkSelector_DragDrop(object sender, DragEventArgs e)
+		{
+			chunk_dragdrop = false;
+			if (e.Data.GetDataPresent("SonLVLChunkIndex_" + pid))
+			{
+				Point clientPoint = ChunkSelector.PointToClient(new Point(e.X, e.Y));
+				byte newindex = (byte)ChunkSelector.GetItemAtPoint(clientPoint);
+				byte oldindex = (byte)(int)e.Data.GetData("SonLVLChunkIndex_" + pid);
+				if (newindex == oldindex) return;
+				if ((ModifierKeys & Keys.Control) == Keys.Control)
+				{
+					if (newindex == LevelData.Chunks.Count) return;
+					LevelData.Chunks.Swap(oldindex, newindex);
+					LevelData.ChunkBmpBits.Swap(oldindex, newindex);
+					LevelData.ChunkBmps.Swap(oldindex, newindex);
+					LevelData.ChunkColBmpBits.Swap(oldindex, newindex);
+					LevelData.ChunkColBmps.Swap(oldindex, newindex);
+					LevelData.CompChunkBmpBits.Swap(oldindex, newindex);
+					LevelData.CompChunkBmps.Swap(oldindex, newindex);
+					for (int y = 0; y < LevelData.FGHeight; y++)
+						for (int x = 0; x < LevelData.FGWidth; x++)
+						{
+							if (LevelData.Layout.FGLayout[x, y] == newindex)
+								LevelData.Layout.FGLayout[x, y] = oldindex;
+							else if (LevelData.Layout.FGLayout[x, y] == oldindex)
+								LevelData.Layout.FGLayout[x, y] = newindex;
+						}
+					for (int y = 0; y < LevelData.BGHeight; y++)
+						for (int x = 0; x < LevelData.BGWidth; x++)
+						{
+							if (LevelData.Layout.BGLayout[x, y] == newindex)
+								LevelData.Layout.BGLayout[x, y] = oldindex;
+							else if (LevelData.Layout.BGLayout[x, y] == oldindex)
+								LevelData.Layout.BGLayout[x, y] = newindex;
+						}
+					ChunkSelector.SelectedIndex = newindex;
+				}
+				else
+				{
+					if (newindex == oldindex + 1) return;
+					LevelData.Chunks.Move(oldindex, newindex);
+					LevelData.ChunkBmpBits.Move(oldindex, newindex);
+					LevelData.ChunkBmps.Move(oldindex, newindex);
+					LevelData.ChunkColBmpBits.Move(oldindex, newindex);
+					LevelData.ChunkColBmps.Move(oldindex, newindex);
+					LevelData.CompChunkBmpBits.Move(oldindex, newindex);
+					LevelData.CompChunkBmps.Move(oldindex, newindex);
+					for (int y = 0; y < LevelData.FGHeight; y++)
+						for (int x = 0; x < LevelData.FGWidth; x++)
+						{
+							byte c = LevelData.Layout.FGLayout[x, y];
+							if (newindex > oldindex)
+							{
+								if (c == oldindex)
+									LevelData.Layout.FGLayout[x, y] = (byte)(newindex - 1);
+								else if (c > oldindex && c < newindex)
+									LevelData.Layout.FGLayout[x, y] = (byte)(c - 1);
+							}
+							else
+							{
+								if (c == oldindex)
+									LevelData.Layout.FGLayout[x, y] = newindex;
+								else if (c >= newindex && c < oldindex)
+									LevelData.Layout.FGLayout[x, y] = (byte)(c + 1);
+							}
+						}
+					for (int y = 0; y < LevelData.BGHeight; y++)
+						for (int x = 0; x < LevelData.BGWidth; x++)
+						{
+							byte c = LevelData.Layout.BGLayout[x, y];
+							if (newindex > oldindex)
+							{
+								if (c == oldindex)
+									LevelData.Layout.BGLayout[x, y] = (byte)(newindex - 1);
+								else if (c > oldindex && c < newindex)
+									LevelData.Layout.BGLayout[x, y] = (byte)(c - 1);
+							}
+							else
+							{
+								if (c == oldindex)
+									LevelData.Layout.BGLayout[x, y] = newindex;
+								else if (c >= newindex && c < oldindex)
+									LevelData.Layout.BGLayout[x, y] = (byte)(c + 1);
+							}
+						}
+					if (newindex > oldindex)
+						ChunkSelector.SelectedIndex = newindex - 1;
+					else
+						ChunkSelector.SelectedIndex = newindex;
+				}
+			}
+		}
+
+		private void BlockSelector_ItemDrag(object sender, EventArgs e)
+		{
+			DoDragDrop(new DataObject("SonLVLBlockIndex_" + pid, BlockSelector.SelectedIndex), DragDropEffects.Move);
+		}
+
+		bool block_dragdrop;
+		int block_dragobj;
+		Point block_dragpoint;
+		private void BlockSelector_DragEnter(object sender, DragEventArgs e)
+		{
+			if (e.Data.GetDataPresent("SonLVLBlockIndex_" + pid))
+			{
+				e.Effect = DragDropEffects.Move;
+				block_dragdrop = true;
+				block_dragobj = (int)e.Data.GetData("SonLVLBlockIndex_" + pid);
+				block_dragpoint = BlockSelector.PointToClient(new Point(e.X, e.Y));
+				BlockSelector.Invalidate();
+			}
+			else
+				block_dragdrop = false;
+		}
+
+		private void BlockSelector_DragOver(object sender, DragEventArgs e)
+		{
+			if (e.Data.GetDataPresent("SonLVLBlockIndex_" + pid))
+			{
+				e.Effect = DragDropEffects.Move;
+				block_dragdrop = true;
+				block_dragobj = (int)e.Data.GetData("SonLVLBlockIndex_" + pid);
+				block_dragpoint = BlockSelector.PointToClient(new Point(e.X, e.Y));
+				if (block_dragpoint.Y < 8)
+					BlockSelector.ScrollValue -= 8 - dragpoint.Y;
+				else if (dragpoint.Y > BlockSelector.Height - 8)
+					BlockSelector.ScrollValue += dragpoint.Y - (BlockSelector.Height - 8);
+				BlockSelector.Invalidate();
+			}
+			else
+				block_dragdrop = false;
+		}
+
+		private void BlockSelector_DragLeave(object sender, EventArgs e)
+		{
+			block_dragdrop = false;
+			BlockSelector.Invalidate();
+		}
+
+		private void BlockSelector_Paint(object sender, PaintEventArgs e)
+		{
+			if (block_dragdrop)
+			{
+				e.Graphics.DrawImage(BlockSelector.Images[block_dragobj], block_dragpoint.X - (BlockSelector.ImageSize / 2),
+					block_dragpoint.Y - (BlockSelector.ImageSize / 2), BlockSelector.ImageSize, BlockSelector.ImageSize);
+				Rectangle r = BlockSelector.GetItemBounds(BlockSelector.GetItemAtPoint(block_dragpoint));
+				if ((ModifierKeys & Keys.Control) == Keys.Control)
+					e.Graphics.DrawRectangle(new Pen(Color.Black, 2), r);
+				else
+					e.Graphics.DrawLine(new Pen(Color.Black, 2), r.Left + 1, r.Top, r.Left + 1, r.Bottom);
+			}
+		}
+
+		private void BlockSelector_DragDrop(object sender, DragEventArgs e)
+		{
+			block_dragdrop = false;
+			if (e.Data.GetDataPresent("SonLVLBlockIndex_" + pid))
+			{
+				Point clientPoint = BlockSelector.PointToClient(new Point(e.X, e.Y));
+				ushort newindex = (ushort)BlockSelector.GetItemAtPoint(clientPoint);
+				ushort oldindex = (ushort)(int)e.Data.GetData("SonLVLBlockIndex_" + pid);
+				if (newindex == oldindex) return;
+				if ((ModifierKeys & Keys.Control) == Keys.Control)
+				{
+					if (newindex == LevelData.Blocks.Count) return;
+					LevelData.Blocks.Swap(oldindex, newindex);
+					LevelData.BlockBmpBits.Swap(oldindex, newindex);
+					LevelData.BlockBmps.Swap(oldindex, newindex);
+					LevelData.CompBlockBmpBits.Swap(oldindex, newindex);
+					LevelData.CompBlockBmps.Swap(oldindex, newindex);
+					if (LevelData.ColInds1 != null)
+						LevelData.ColInds1.Swap(oldindex, newindex);
+					if (LevelData.ColInds2 != null && LevelData.ColInds2 != LevelData.ColInds1)
+						LevelData.ColInds2.Swap(oldindex, newindex);
+					for (int i = 0; i < LevelData.Chunks.Count; i++)
+						for (int y = 0; y < LevelData.chunksz / 16; y++)
+							for (int x = 0; x < LevelData.chunksz / 16; x++)
+							{
+								if (LevelData.Chunks[i].Blocks[x, y].Block == newindex)
+									LevelData.Chunks[i].Blocks[x, y].Block = oldindex;
+								else if (LevelData.Chunks[i].Blocks[x, y].Block == oldindex)
+									LevelData.Chunks[i].Blocks[x, y].Block = newindex;
+							}
+					BlockSelector.SelectedIndex = newindex;
+				}
+				else
+				{
+					if (newindex == oldindex + 1) return;
+					LevelData.Blocks.Move(oldindex, newindex);
+					LevelData.BlockBmpBits.Move(oldindex, newindex);
+					LevelData.BlockBmps.Move(oldindex, newindex);
+					LevelData.CompBlockBmpBits.Move(oldindex, newindex);
+					LevelData.CompBlockBmps.Move(oldindex, newindex);
+					if (LevelData.ColInds1 != null)
+						LevelData.ColInds1.Move(oldindex, newindex);
+					if (LevelData.ColInds2 != null && LevelData.ColInds2 != LevelData.ColInds1)
+						LevelData.ColInds2.Move(oldindex, newindex);
+					for (int i = 0; i < LevelData.Chunks.Count; i++)
+						for (int y = 0; y < LevelData.chunksz / 16; y++)
+							for (int x = 0; x < LevelData.chunksz / 16; x++)
+							{
+								ushort b = LevelData.Chunks[i].Blocks[x, y].Block;
+								if (newindex > oldindex)
+								{
+									if (b == oldindex)
+										LevelData.Chunks[i].Blocks[x, y].Block = (ushort)(newindex - 1);
+									else if (b > oldindex && b < newindex)
+										LevelData.Chunks[i].Blocks[x, y].Block = (ushort)(b - 1);
+								}
+								else
+								{
+									if (b == oldindex)
+										LevelData.Chunks[i].Blocks[x, y].Block = newindex;
+									else if (b >= newindex && b < oldindex)
+										LevelData.Chunks[i].Blocks[x, y].Block = (ushort)(b + 1);
+								}
+							}
+					if (newindex > oldindex)
+						BlockSelector.SelectedIndex = newindex - 1;
+					else
+						BlockSelector.SelectedIndex = newindex;
+				}
+			}
+		}
+
+		private void TileSelector_ItemDrag(object sender, EventArgs e)
+		{
+			DoDragDrop(new DataObject("SonLVLTileIndex_" + pid, TileSelector.SelectedIndex), DragDropEffects.Move);
+		}
+
+		bool tile_dragdrop;
+		int tile_dragobj;
+		Point tile_dragpoint;
+		private void TileSelector_DragEnter(object sender, DragEventArgs e)
+		{
+			if (e.Data.GetDataPresent("SonLVLTileIndex_" + pid))
+			{
+				e.Effect = DragDropEffects.Move;
+				tile_dragdrop = true;
+				tile_dragobj = (int)e.Data.GetData("SonLVLTileIndex_" + pid);
+				tile_dragpoint = TileSelector.PointToClient(new Point(e.X, e.Y));
+				TileSelector.Invalidate();
+			}
+			else
+				tile_dragdrop = false;
+		}
+
+		private void TileSelector_DragOver(object sender, DragEventArgs e)
+		{
+			if (e.Data.GetDataPresent("SonLVLTileIndex_" + pid))
+			{
+				e.Effect = DragDropEffects.Move;
+				tile_dragdrop = true;
+				tile_dragobj = (int)e.Data.GetData("SonLVLTileIndex_" + pid);
+				tile_dragpoint = TileSelector.PointToClient(new Point(e.X, e.Y));
+				if (tile_dragpoint.Y < 8)
+					TileSelector.ScrollValue -= 8 - dragpoint.Y;
+				else if (dragpoint.Y > TileSelector.Height - 8)
+					TileSelector.ScrollValue += dragpoint.Y - (TileSelector.Height - 8);
+				TileSelector.Invalidate();
+			}
+			else
+				tile_dragdrop = false;
+		}
+
+		private void TileSelector_DragLeave(object sender, EventArgs e)
+		{
+			tile_dragdrop = false;
+			TileSelector.Invalidate();
+		}
+
+		private void TileSelector_Paint(object sender, PaintEventArgs e)
+		{
+			if (tile_dragdrop)
+			{
+				e.Graphics.DrawImage(TileSelector.Images[tile_dragobj], tile_dragpoint.X - (TileSelector.ImageSize / 2),
+					tile_dragpoint.Y - (TileSelector.ImageSize / 2), TileSelector.ImageSize, TileSelector.ImageSize);
+				Rectangle r = TileSelector.GetItemBounds(TileSelector.GetItemAtPoint(tile_dragpoint));
+				if ((ModifierKeys & Keys.Control) == Keys.Control)
+					e.Graphics.DrawRectangle(new Pen(Color.Black, 2), r);
+				else
+					e.Graphics.DrawLine(new Pen(Color.Black, 2), r.Left + 1, r.Top, r.Left + 1, r.Bottom);
+			}
+		}
+
+		private void TileSelector_DragDrop(object sender, DragEventArgs e)
+		{
+			tile_dragdrop = false;
+			if (e.Data.GetDataPresent("SonLVLTileIndex_" + pid))
+			{
+				Point clientPoint = TileSelector.PointToClient(new Point(e.X, e.Y));
+				ushort newindex = (ushort)TileSelector.GetItemAtPoint(clientPoint);
+				ushort oldindex = (ushort)(int)e.Data.GetData("SonLVLTileIndex_" + pid);
+				if (newindex == oldindex) return;
+				if ((ModifierKeys & Keys.Control) == Keys.Control)
+				{
+					if (newindex == LevelData.Tiles.Count) return;
+					LevelData.Tiles.Swap(oldindex, newindex);
+					TileSelector.Images.Swap(oldindex, newindex);
+					LevelData.UpdateTileArray();
+					for (int i = 0; i < LevelData.Blocks.Count; i++)
+						for (int y = 0; y < 2; y++)
+							for (int x = 0; x < 2; x++)
+							{
+								if (LevelData.Blocks[i].Tiles[x, y].Tile == newindex)
+									LevelData.Blocks[i].Tiles[x, y].Tile = oldindex;
+								else if (LevelData.Blocks[i].Tiles[x, y].Tile == oldindex)
+									LevelData.Blocks[i].Tiles[x, y].Tile = newindex;
+							}
+					TileSelector.SelectedIndex = newindex;
+				}
+				else
+				{
+					if (newindex == oldindex + 1) return;
+					LevelData.Tiles.Move(oldindex, newindex);
+					TileSelector.Images.Move(oldindex, newindex);
+					LevelData.UpdateTileArray();
+					for (int i = 0; i < LevelData.Blocks.Count; i++)
+						for (int y = 0; y < 2; y++)
+							for (int x = 0; x < 2; x++)
+							{
+								ushort t = LevelData.Blocks[i].Tiles[x, y].Tile;
+								if (newindex > oldindex)
+								{
+									if (t == oldindex)
+										LevelData.Blocks[i].Tiles[x, y].Tile = (ushort)(newindex - 1);
+									else if (t > oldindex && t < newindex)
+										LevelData.Blocks[i].Tiles[x, y].Tile = (ushort)(t - 1);
+								}
+								else
+								{
+									if (t == oldindex)
+										LevelData.Blocks[i].Tiles[x, y].Tile = newindex;
+									else if (t >= newindex && t < oldindex)
+										LevelData.Blocks[i].Tiles[x, y].Tile = (ushort)(t + 1);
+								}
+							}
+					if (newindex > oldindex)
+						TileSelector.SelectedIndex = newindex - 1;
+					else
+						TileSelector.SelectedIndex = newindex;
+				}
+			}
 		}
 	}
 
