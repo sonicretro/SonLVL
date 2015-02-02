@@ -85,7 +85,7 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			T tmp = list[src];
 			list.Insert(dst, tmp);
-			list.RemoveAt(src);
+			list.RemoveAt(src > dst ? src + 1 : src);
 		}
     }
 }
