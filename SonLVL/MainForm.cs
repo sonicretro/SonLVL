@@ -514,6 +514,7 @@ namespace SonicRetro.SonLVL.GUI
 			ChunkSelector.SelectedIndex = 0;
 			ChunkPicture.Size = new Size(LevelData.chunksz, LevelData.chunksz);
 			flipChunkHButton.Enabled = flipChunkVButton.Enabled = true;
+			remapChunksButton.Enabled = remapBlocksButton.Enabled = remapTilesButton.Enabled = true;
 			BlockSelector.SelectedIndex = 0;
 			TileSelector.Images.Clear();
 			for (int i = 0; i < LevelData.Tiles.Count; i++)
@@ -6456,6 +6457,124 @@ namespace SonicRetro.SonLVL.GUI
 						TileSelector.SelectedIndex = newindex;
 				}
 			}
+		}
+
+		private void remapChunksButton_Click(object sender, EventArgs e)
+		{
+			using (TileRemappingDialog dlg = new TileRemappingDialog("Chunks", LevelData.CompChunkBmps, ChunkSelector.ImageSize))
+				if (dlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+				{
+					List<Chunk> oldchunks = LevelData.Chunks.ToList();
+					List<BitmapBits[]> oldchunkbmpbits = new List<BitmapBits[]>(LevelData.ChunkBmpBits);
+					List<Bitmap[]> oldchunkbmps = new List<Bitmap[]>(LevelData.ChunkBmps);
+					List<BitmapBits[]> oldchunkcolbmpbits = new List<BitmapBits[]>(LevelData.ChunkColBmpBits);
+					List<Bitmap[]> oldchunkcolbmps = new List<Bitmap[]>(LevelData.ChunkColBmps);
+					List<BitmapBits> oldcompchunkbmpbits = new List<BitmapBits>(LevelData.CompChunkBmpBits);
+					List<Bitmap> oldcompchunkbmps = new List<Bitmap>(LevelData.CompChunkBmps);
+					Dictionary<byte, byte> bytedict = new Dictionary<byte, byte>(dlg.TileMap.Count);
+					foreach (KeyValuePair<int, int> item in dlg.TileMap)
+					{
+						LevelData.Chunks[item.Value] = oldchunks[item.Key];
+						LevelData.ChunkBmpBits[item.Value] = oldchunkbmpbits[item.Key];
+						LevelData.ChunkBmps[item.Value] = oldchunkbmps[item.Key];
+						LevelData.ChunkColBmpBits[item.Value] = oldchunkcolbmpbits[item.Key];
+						LevelData.ChunkColBmps[item.Value] = oldchunkcolbmps[item.Key];
+						LevelData.CompChunkBmpBits[item.Value] = oldcompchunkbmpbits[item.Key];
+						LevelData.CompChunkBmps[item.Value] = oldcompchunkbmps[item.Key];
+						bytedict.Add((byte)item.Key, (byte)item.Value);
+					}
+					for (int y = 0; y < LevelData.FGHeight; y++)
+						for (int x = 0; x < LevelData.FGWidth; x++)
+							if (bytedict.ContainsKey(LevelData.Layout.FGLayout[x, y]))
+								LevelData.Layout.FGLayout[x, y] = bytedict[LevelData.Layout.FGLayout[x, y]];
+					for (int y = 0; y < LevelData.BGHeight; y++)
+						for (int x = 0; x < LevelData.BGWidth; x++)
+							if (bytedict.ContainsKey(LevelData.Layout.BGLayout[x, y]))
+								LevelData.Layout.BGLayout[x, y] = bytedict[LevelData.Layout.BGLayout[x, y]];
+					ChunkSelector.ChangeSize();
+					ChunkSelector_SelectedIndexChanged(this, EventArgs.Empty);
+				}
+		}
+
+		private void remapBlocksButton_Click(object sender, EventArgs e)
+		{
+			using (TileRemappingDialog dlg = new TileRemappingDialog("Blocks", LevelData.CompBlockBmps, BlockSelector.ImageSize))
+				if (dlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+				{
+					List<Block> oldblocks = LevelData.Blocks.ToList();
+					List<BitmapBits[]> oldblockbmpbits = new List<BitmapBits[]>(LevelData.BlockBmpBits);
+					List<Bitmap[]> oldblockbmps = new List<Bitmap[]>(LevelData.BlockBmps);
+					List<BitmapBits> oldcompblockbmpbits = new List<BitmapBits>(LevelData.CompBlockBmpBits);
+					List<Bitmap> oldcompblockbmps = new List<Bitmap>(LevelData.CompBlockBmps);
+					List<byte> oldcolinds1 = null;
+					if (LevelData.ColInds1 != null)
+						oldcolinds1 = new List<byte>(LevelData.ColInds1);
+					List<byte> oldcolinds2 = null;
+					if (LevelData.ColInds2 != null && LevelData.ColInds2 != LevelData.ColInds1)
+						oldcolinds2 = new List<byte>(LevelData.ColInds2);
+					Dictionary<ushort, ushort> ushortdict = new Dictionary<ushort, ushort>(dlg.TileMap.Count);
+					foreach (KeyValuePair<int, int> item in dlg.TileMap)
+					{
+						LevelData.Blocks[item.Value] = oldblocks[item.Key];
+						LevelData.BlockBmpBits[item.Value] = oldblockbmpbits[item.Key];
+						LevelData.BlockBmps[item.Value] = oldblockbmps[item.Key];
+						LevelData.CompBlockBmpBits[item.Value] = oldcompblockbmpbits[item.Key];
+						LevelData.CompBlockBmps[item.Value] = oldcompblockbmps[item.Key];
+						if (oldcolinds1 != null)
+							LevelData.ColInds1[item.Value] = oldcolinds1[item.Key];
+						if (oldcolinds2 != null)
+							LevelData.ColInds2[item.Value] = oldcolinds2[item.Key];
+						ushortdict.Add((ushort)item.Key, (ushort)item.Value);
+					}
+					for (int c = 0; c < LevelData.Chunks.Count; c++)
+					{
+						bool redraw = false;
+						for (int y = 0; y < LevelData.chunksz / 16; y++)
+							for (int x = 0; x < LevelData.chunksz / 16; x++)
+								if (ushortdict.ContainsKey(LevelData.Chunks[c].Blocks[x, y].Block))
+								{
+									redraw = true;
+									LevelData.Chunks[c].Blocks[x, y].Block = ushortdict[LevelData.Chunks[c].Blocks[x, y].Block];
+								}
+						if (redraw)
+							LevelData.RedrawChunk(c);
+					}
+					BlockSelector.ChangeSize();
+					BlockSelector_SelectedIndexChanged(this, EventArgs.Empty);
+				}
+		}
+
+		private void remapTilesButton_Click(object sender, EventArgs e)
+		{
+			using (TileRemappingDialog dlg = new TileRemappingDialog("Tiles", TileSelector.Images, TileSelector.ImageSize))
+				if (dlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+				{
+					List<byte[]> oldtiles = LevelData.Tiles.ToList();
+					List<Bitmap> oldimages = new List<Bitmap>(TileSelector.Images);
+					Dictionary<ushort, ushort> ushortdict = new Dictionary<ushort, ushort>(dlg.TileMap.Count);
+					foreach (KeyValuePair<int, int> item in dlg.TileMap)
+					{
+						LevelData.Tiles[item.Value] = oldtiles[item.Key];
+						TileSelector.Images[item.Value] = oldimages[item.Key];
+						ushortdict.Add((ushort)item.Key, (ushort)item.Value);
+					}
+					LevelData.UpdateTileArray();
+					for (int b = 0; b < LevelData.Blocks.Count; b++)
+					{
+						bool redraw = false;
+						for (int y = 0; y < 2; y++)
+							for (int x = 0; x < 2; x++)
+								if (ushortdict.ContainsKey(LevelData.Blocks[b].Tiles[x, y].Tile))
+								{
+									redraw = true;
+									LevelData.Blocks[b].Tiles[x, y].Tile = ushortdict[LevelData.Blocks[b].Tiles[x, y].Tile];
+								}
+						if (redraw)
+							LevelData.RedrawBlock(b, true);
+					}
+					TileSelector.ChangeSize();
+					TileSelector_SelectedIndexChanged(this, EventArgs.Empty);
+				}
 		}
 	}
 

@@ -16,10 +16,12 @@ namespace SonicRetro.SonLVL.API
             get { return selectedIndex; }
             set
             {
+				bool changed = value != selectedIndex;
                 selectedIndex = value;
                 ScrollToSelected();
                 Invalidate();
-                SelectedIndexChanged(this, EventArgs.Empty);
+				if (changed)
+					SelectedIndexChanged(this, EventArgs.Empty);
             }
         }
         public event EventHandler SelectedIndexChanged = delegate { };

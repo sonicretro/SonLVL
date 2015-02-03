@@ -35,7 +35,19 @@
 			System.Windows.Forms.Label label3;
 			System.Windows.Forms.Label label2;
 			System.Windows.Forms.ToolStripSeparator toolStripSeparator10;
+			System.Windows.Forms.ToolStrip toolStrip1;
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
+			System.Windows.Forms.Panel panel1;
+			System.Windows.Forms.Panel panel2;
+			System.Windows.Forms.ToolStrip toolStrip2;
+			System.Windows.Forms.Panel panel3;
+			System.Windows.Forms.ToolStrip toolStrip3;
+			this.remapChunksButton = new System.Windows.Forms.ToolStripButton();
+			this.panel10 = new System.Windows.Forms.Panel();
+			this.BlockSelector = new SonicRetro.SonLVL.API.TileList();
+			this.remapBlocksButton = new System.Windows.Forms.ToolStripButton();
+			this.TileSelector = new SonicRetro.SonLVL.API.TileList();
+			this.remapTilesButton = new System.Windows.Forms.ToolStripButton();
 			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.changeLevelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -186,10 +198,8 @@
 			this.ChunkID = new System.Windows.Forms.TextBox();
 			this.ChunkPicture = new SonicRetro.SonLVL.API.KeyboardPanel();
 			this.chunkBlockEditor = new SonicRetro.SonLVL.ChunkBlockEditor();
-			this.panel10 = new System.Windows.Forms.Panel();
 			this.tabPage5 = new System.Windows.Forms.TabPage();
 			this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
-			this.BlockSelector = new SonicRetro.SonLVL.API.TileList();
 			this.panel5 = new System.Windows.Forms.Panel();
 			this.BlockCount = new System.Windows.Forms.Label();
 			this.BlockID = new System.Windows.Forms.TextBox();
@@ -203,7 +213,6 @@
 			this.BlockCollision1 = new System.Windows.Forms.NumericUpDown();
 			this.tabPage6 = new System.Windows.Forms.TabPage();
 			this.tableLayoutPanel6 = new System.Windows.Forms.TableLayoutPanel();
-			this.TileSelector = new SonicRetro.SonLVL.API.TileList();
 			this.panel7 = new System.Windows.Forms.Panel();
 			this.button3 = new System.Windows.Forms.Button();
 			this.TileCount = new System.Windows.Forms.Label();
@@ -252,6 +261,18 @@
 			label3 = new System.Windows.Forms.Label();
 			label2 = new System.Windows.Forms.Label();
 			toolStripSeparator10 = new System.Windows.Forms.ToolStripSeparator();
+			toolStrip1 = new System.Windows.Forms.ToolStrip();
+			panel1 = new System.Windows.Forms.Panel();
+			panel2 = new System.Windows.Forms.Panel();
+			toolStrip2 = new System.Windows.Forms.ToolStrip();
+			panel3 = new System.Windows.Forms.Panel();
+			toolStrip3 = new System.Windows.Forms.ToolStrip();
+			toolStrip1.SuspendLayout();
+			panel1.SuspendLayout();
+			panel2.SuspendLayout();
+			toolStrip2.SuspendLayout();
+			panel3.SuspendLayout();
+			toolStrip3.SuspendLayout();
 			this.menuStrip1.SuspendLayout();
 			this.objectContextMenuStrip.SuspendLayout();
 			this.tableLayoutPanel1.SuspendLayout();
@@ -344,6 +365,155 @@
 			// 
 			toolStripSeparator10.Name = "toolStripSeparator10";
 			toolStripSeparator10.Size = new System.Drawing.Size(6, 25);
+			// 
+			// toolStrip1
+			// 
+			toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+			toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.remapChunksButton});
+			toolStrip1.Location = new System.Drawing.Point(0, 0);
+			toolStrip1.Name = "toolStrip1";
+			toolStrip1.Size = new System.Drawing.Size(219, 25);
+			toolStrip1.TabIndex = 0;
+			toolStrip1.Text = "toolStrip1";
+			// 
+			// remapChunksButton
+			// 
+			this.remapChunksButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.remapChunksButton.Enabled = false;
+			this.remapChunksButton.Image = ((System.Drawing.Image)(resources.GetObject("remapChunksButton.Image")));
+			this.remapChunksButton.Name = "remapChunksButton";
+			this.remapChunksButton.Size = new System.Drawing.Size(137, 22);
+			this.remapChunksButton.Text = "Advanced Remapping...";
+			this.remapChunksButton.Click += new System.EventHandler(this.remapChunksButton_Click);
+			// 
+			// panel1
+			// 
+			panel1.Controls.Add(this.panel10);
+			panel1.Controls.Add(toolStrip1);
+			panel1.Dock = System.Windows.Forms.DockStyle.Fill;
+			panel1.Location = new System.Drawing.Point(431, 0);
+			panel1.Margin = new System.Windows.Forms.Padding(0);
+			panel1.Name = "panel1";
+			panel1.Size = new System.Drawing.Size(219, 477);
+			panel1.TabIndex = 4;
+			// 
+			// panel10
+			// 
+			this.panel10.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.panel10.Location = new System.Drawing.Point(0, 25);
+			this.panel10.Margin = new System.Windows.Forms.Padding(0);
+			this.panel10.Name = "panel10";
+			this.panel10.Size = new System.Drawing.Size(219, 452);
+			this.panel10.TabIndex = 4;
+			// 
+			// panel2
+			// 
+			panel2.Controls.Add(this.BlockSelector);
+			panel2.Controls.Add(toolStrip2);
+			panel2.Dock = System.Windows.Forms.DockStyle.Fill;
+			panel2.Location = new System.Drawing.Point(342, 0);
+			panel2.Margin = new System.Windows.Forms.Padding(0);
+			panel2.Name = "panel2";
+			panel2.Size = new System.Drawing.Size(308, 477);
+			panel2.TabIndex = 4;
+			// 
+			// BlockSelector
+			// 
+			this.BlockSelector.AllowDrop = true;
+			this.BlockSelector.BackColor = System.Drawing.SystemColors.Window;
+			this.BlockSelector.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.BlockSelector.ImageSize = 16;
+			this.BlockSelector.Location = new System.Drawing.Point(0, 25);
+			this.BlockSelector.Name = "BlockSelector";
+			this.BlockSelector.ScrollValue = 0;
+			this.BlockSelector.SelectedIndex = -1;
+			this.BlockSelector.Size = new System.Drawing.Size(308, 452);
+			this.BlockSelector.TabIndex = 2;
+			this.BlockSelector.SelectedIndexChanged += new System.EventHandler(this.BlockSelector_SelectedIndexChanged);
+			this.BlockSelector.ItemDrag += new System.EventHandler(this.BlockSelector_ItemDrag);
+			this.BlockSelector.DragDrop += new System.Windows.Forms.DragEventHandler(this.BlockSelector_DragDrop);
+			this.BlockSelector.DragEnter += new System.Windows.Forms.DragEventHandler(this.BlockSelector_DragEnter);
+			this.BlockSelector.DragOver += new System.Windows.Forms.DragEventHandler(this.BlockSelector_DragOver);
+			this.BlockSelector.DragLeave += new System.EventHandler(this.BlockSelector_DragLeave);
+			this.BlockSelector.Paint += new System.Windows.Forms.PaintEventHandler(this.BlockSelector_Paint);
+			this.BlockSelector.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TileList_KeyDown);
+			this.BlockSelector.MouseDown += new System.Windows.Forms.MouseEventHandler(this.BlockSelector_MouseDown);
+			// 
+			// toolStrip2
+			// 
+			toolStrip2.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+			toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.remapBlocksButton});
+			toolStrip2.Location = new System.Drawing.Point(0, 0);
+			toolStrip2.Name = "toolStrip2";
+			toolStrip2.Size = new System.Drawing.Size(308, 25);
+			toolStrip2.TabIndex = 1;
+			toolStrip2.Text = "toolStrip2";
+			// 
+			// remapBlocksButton
+			// 
+			this.remapBlocksButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.remapBlocksButton.Enabled = false;
+			this.remapBlocksButton.Image = ((System.Drawing.Image)(resources.GetObject("remapBlocksButton.Image")));
+			this.remapBlocksButton.Name = "remapBlocksButton";
+			this.remapBlocksButton.Size = new System.Drawing.Size(137, 22);
+			this.remapBlocksButton.Text = "Advanced Remapping...";
+			this.remapBlocksButton.Click += new System.EventHandler(this.remapBlocksButton_Click);
+			// 
+			// panel3
+			// 
+			panel3.Controls.Add(this.TileSelector);
+			panel3.Controls.Add(toolStrip3);
+			panel3.Dock = System.Windows.Forms.DockStyle.Fill;
+			panel3.Location = new System.Drawing.Point(140, 134);
+			panel3.Margin = new System.Windows.Forms.Padding(0);
+			panel3.Name = "panel3";
+			panel3.Size = new System.Drawing.Size(510, 343);
+			panel3.TabIndex = 5;
+			// 
+			// TileSelector
+			// 
+			this.TileSelector.AllowDrop = true;
+			this.TileSelector.BackColor = System.Drawing.SystemColors.Window;
+			this.TileSelector.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.TileSelector.ImageSize = 64;
+			this.TileSelector.Location = new System.Drawing.Point(0, 25);
+			this.TileSelector.Name = "TileSelector";
+			this.TileSelector.ScrollValue = 0;
+			this.TileSelector.SelectedIndex = -1;
+			this.TileSelector.Size = new System.Drawing.Size(510, 318);
+			this.TileSelector.TabIndex = 2;
+			this.TileSelector.SelectedIndexChanged += new System.EventHandler(this.TileSelector_SelectedIndexChanged);
+			this.TileSelector.ItemDrag += new System.EventHandler(this.TileSelector_ItemDrag);
+			this.TileSelector.DragDrop += new System.Windows.Forms.DragEventHandler(this.TileSelector_DragDrop);
+			this.TileSelector.DragEnter += new System.Windows.Forms.DragEventHandler(this.TileSelector_DragEnter);
+			this.TileSelector.DragOver += new System.Windows.Forms.DragEventHandler(this.TileSelector_DragOver);
+			this.TileSelector.DragLeave += new System.EventHandler(this.TileSelector_DragLeave);
+			this.TileSelector.Paint += new System.Windows.Forms.PaintEventHandler(this.TileSelector_Paint);
+			this.TileSelector.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TileList_KeyDown);
+			this.TileSelector.MouseDown += new System.Windows.Forms.MouseEventHandler(this.TileSelector_MouseDown);
+			// 
+			// toolStrip3
+			// 
+			toolStrip3.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+			toolStrip3.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.remapTilesButton});
+			toolStrip3.Location = new System.Drawing.Point(0, 0);
+			toolStrip3.Name = "toolStrip3";
+			toolStrip3.Size = new System.Drawing.Size(510, 25);
+			toolStrip3.TabIndex = 2;
+			toolStrip3.Text = "toolStrip3";
+			// 
+			// remapTilesButton
+			// 
+			this.remapTilesButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.remapTilesButton.Enabled = false;
+			this.remapTilesButton.Image = ((System.Drawing.Image)(resources.GetObject("remapTilesButton.Image")));
+			this.remapTilesButton.Name = "remapTilesButton";
+			this.remapTilesButton.Size = new System.Drawing.Size(137, 22);
+			this.remapTilesButton.Text = "Advanced Remapping...";
+			this.remapTilesButton.Click += new System.EventHandler(this.remapTilesButton_Click);
 			// 
 			// fileToolStripMenuItem
 			// 
@@ -1743,7 +1913,7 @@
 			this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 57.14286F));
 			this.tableLayoutPanel4.Controls.Add(this.panel4, 0, 0);
 			this.tableLayoutPanel4.Controls.Add(this.chunkBlockEditor, 1, 0);
-			this.tableLayoutPanel4.Controls.Add(this.panel10, 2, 0);
+			this.tableLayoutPanel4.Controls.Add(panel1, 2, 0);
 			this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tableLayoutPanel4.Location = new System.Drawing.Point(0, 0);
 			this.tableLayoutPanel4.Name = "tableLayoutPanel4";
@@ -1844,15 +2014,6 @@
 			this.chunkBlockEditor.TabIndex = 3;
 			this.chunkBlockEditor.PropertyValueChanged += new System.EventHandler(this.chunkBlockEditor_PropertyValueChanged);
 			// 
-			// panel10
-			// 
-			this.panel10.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.panel10.Location = new System.Drawing.Point(431, 0);
-			this.panel10.Margin = new System.Windows.Forms.Padding(0);
-			this.panel10.Name = "panel10";
-			this.panel10.Size = new System.Drawing.Size(219, 477);
-			this.panel10.TabIndex = 4;
-			// 
 			// tabPage5
 			// 
 			this.tabPage5.Controls.Add(this.tableLayoutPanel5);
@@ -1870,9 +2031,9 @@
 			this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
 			this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 42.85714F));
 			this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 57.14286F));
-			this.tableLayoutPanel5.Controls.Add(this.BlockSelector, 2, 0);
 			this.tableLayoutPanel5.Controls.Add(this.panel5, 0, 0);
 			this.tableLayoutPanel5.Controls.Add(this.panel6, 1, 0);
+			this.tableLayoutPanel5.Controls.Add(panel2, 2, 0);
 			this.tableLayoutPanel5.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tableLayoutPanel5.Location = new System.Drawing.Point(0, 0);
 			this.tableLayoutPanel5.Name = "tableLayoutPanel5";
@@ -1880,28 +2041,6 @@
 			this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
 			this.tableLayoutPanel5.Size = new System.Drawing.Size(650, 477);
 			this.tableLayoutPanel5.TabIndex = 2;
-			// 
-			// BlockSelector
-			// 
-			this.BlockSelector.AllowDrop = true;
-			this.BlockSelector.BackColor = System.Drawing.SystemColors.Window;
-			this.BlockSelector.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.BlockSelector.ImageSize = 16;
-			this.BlockSelector.Location = new System.Drawing.Point(345, 3);
-			this.BlockSelector.Name = "BlockSelector";
-			this.BlockSelector.ScrollValue = 0;
-			this.BlockSelector.SelectedIndex = -1;
-			this.BlockSelector.Size = new System.Drawing.Size(302, 471);
-			this.BlockSelector.TabIndex = 2;
-			this.BlockSelector.SelectedIndexChanged += new System.EventHandler(this.BlockSelector_SelectedIndexChanged);
-			this.BlockSelector.ItemDrag += new System.EventHandler(this.BlockSelector_ItemDrag);
-			this.BlockSelector.DragDrop += new System.Windows.Forms.DragEventHandler(this.BlockSelector_DragDrop);
-			this.BlockSelector.DragEnter += new System.Windows.Forms.DragEventHandler(this.BlockSelector_DragEnter);
-			this.BlockSelector.DragOver += new System.Windows.Forms.DragEventHandler(this.BlockSelector_DragOver);
-			this.BlockSelector.DragLeave += new System.EventHandler(this.BlockSelector_DragLeave);
-			this.BlockSelector.Paint += new System.Windows.Forms.PaintEventHandler(this.BlockSelector_Paint);
-			this.BlockSelector.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TileList_KeyDown);
-			this.BlockSelector.MouseDown += new System.Windows.Forms.MouseEventHandler(this.BlockSelector_MouseDown);
 			// 
 			// panel5
 			// 
@@ -2045,9 +2184,9 @@
 			this.tableLayoutPanel6.ColumnCount = 2;
 			this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
 			this.tableLayoutPanel6.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tableLayoutPanel6.Controls.Add(this.TileSelector, 1, 1);
 			this.tableLayoutPanel6.Controls.Add(this.panel7, 0, 1);
 			this.tableLayoutPanel6.Controls.Add(this.tableLayoutPanel8, 0, 0);
+			this.tableLayoutPanel6.Controls.Add(panel3, 1, 1);
 			this.tableLayoutPanel6.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tableLayoutPanel6.Location = new System.Drawing.Point(0, 0);
 			this.tableLayoutPanel6.Name = "tableLayoutPanel6";
@@ -2056,28 +2195,6 @@
 			this.tableLayoutPanel6.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
 			this.tableLayoutPanel6.Size = new System.Drawing.Size(650, 477);
 			this.tableLayoutPanel6.TabIndex = 2;
-			// 
-			// TileSelector
-			// 
-			this.TileSelector.AllowDrop = true;
-			this.TileSelector.BackColor = System.Drawing.SystemColors.Window;
-			this.TileSelector.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.TileSelector.ImageSize = 64;
-			this.TileSelector.Location = new System.Drawing.Point(143, 137);
-			this.TileSelector.Name = "TileSelector";
-			this.TileSelector.ScrollValue = 0;
-			this.TileSelector.SelectedIndex = -1;
-			this.TileSelector.Size = new System.Drawing.Size(504, 337);
-			this.TileSelector.TabIndex = 2;
-			this.TileSelector.SelectedIndexChanged += new System.EventHandler(this.TileSelector_SelectedIndexChanged);
-			this.TileSelector.ItemDrag += new System.EventHandler(this.TileSelector_ItemDrag);
-			this.TileSelector.DragDrop += new System.Windows.Forms.DragEventHandler(this.TileSelector_DragDrop);
-			this.TileSelector.DragEnter += new System.Windows.Forms.DragEventHandler(this.TileSelector_DragEnter);
-			this.TileSelector.DragOver += new System.Windows.Forms.DragEventHandler(this.TileSelector_DragOver);
-			this.TileSelector.DragLeave += new System.EventHandler(this.TileSelector_DragLeave);
-			this.TileSelector.Paint += new System.Windows.Forms.PaintEventHandler(this.TileSelector_Paint);
-			this.TileSelector.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TileList_KeyDown);
-			this.TileSelector.MouseDown += new System.Windows.Forms.MouseEventHandler(this.TileSelector_MouseDown);
 			// 
 			// panel7
 			// 
@@ -2509,6 +2626,18 @@
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
 			this.Load += new System.EventHandler(this.MainForm_Load);
 			this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MainForm_KeyDown);
+			toolStrip1.ResumeLayout(false);
+			toolStrip1.PerformLayout();
+			panel1.ResumeLayout(false);
+			panel1.PerformLayout();
+			panel2.ResumeLayout(false);
+			panel2.PerformLayout();
+			toolStrip2.ResumeLayout(false);
+			toolStrip2.PerformLayout();
+			panel3.ResumeLayout(false);
+			panel3.PerformLayout();
+			toolStrip3.ResumeLayout(false);
+			toolStrip3.PerformLayout();
 			this.menuStrip1.ResumeLayout(false);
 			this.menuStrip1.PerformLayout();
 			this.objectContextMenuStrip.ResumeLayout(false);
@@ -2793,6 +2922,9 @@
 		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem11;
 		private System.Windows.Forms.ToolStripMenuItem xToolStripMenuItem7;
 		private System.Windows.Forms.ToolStripMenuItem xToolStripMenuItem6;
+		private System.Windows.Forms.ToolStripButton remapChunksButton;
+		private System.Windows.Forms.ToolStripButton remapBlocksButton;
+		private System.Windows.Forms.ToolStripButton remapTilesButton;
 
     }
 }
