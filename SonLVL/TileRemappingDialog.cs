@@ -22,26 +22,6 @@ namespace SonicRetro.SonLVL
 			TileMap = new Dictionary<int, int>();
 		}
 
-		private void okButton_Click(object sender, EventArgs e)
-		{
-			bool warn = false;
-			foreach (int item in TileMap.Keys)
-				if (!TileMap.ContainsValue(item))
-				{
-					warn = true;
-					break;
-				}
-			if (warn)
-				if (MessageBox.Show(this, "Not all source items are replaced in the destination. All source items that are not replaced in the destination will be duplicated in both positions. Is this OK?", Text, MessageBoxButtons.OKCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) != System.Windows.Forms.DialogResult.OK)
-					return;
-			Close();
-		}
-
-		private void cancelButton_Click(object sender, EventArgs e)
-		{
-			Close();
-		}
-
 		public Dictionary<int, int> TileMap { get; private set; }
 
 		private void SourceTileList_SelectedIndexChanged(object sender, EventArgs e)
@@ -105,6 +85,21 @@ namespace SonicRetro.SonLVL
 		private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			button2.Enabled = listBox1.SelectedIndex != -1;
+		}
+
+		private void TileRemappingDialog_FormClosing(object sender, FormClosingEventArgs e)
+		{
+			if (DialogResult != System.Windows.Forms.DialogResult.OK) return;
+			bool warn = false;
+			foreach (int item in TileMap.Keys)
+				if (!TileMap.ContainsValue(item))
+				{
+					warn = true;
+					break;
+				}
+			if (warn)
+				if (MessageBox.Show(this, "Not all source items are replaced in the destination. All source items that are not replaced in the destination will be duplicated in both positions. Is this OK?", Text, MessageBoxButtons.OKCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) != System.Windows.Forms.DialogResult.OK)
+					e.Cancel = true;
 		}
 	}
 }
