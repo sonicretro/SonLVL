@@ -16,7 +16,7 @@ namespace SonicRetro.SonLVL
 			Text += title;
 			SourceTileList.Images = images;
 			DestinationTileList.Images = new List<Bitmap>(images);
-			SourceTile.Maximum = DestinationTile.Maximum = images.Count;
+			SourceTile.Maximum = DestinationTile.Maximum = images.Count - 1;
 			SourceTileList.ImageSize = DestinationTileList.ImageSize = imageSize;
 			SourceTileList.SelectedIndex = DestinationTileList.SelectedIndex = 0;
 			TileMap = new Dictionary<int, int>();
