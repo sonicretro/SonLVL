@@ -578,8 +578,9 @@ namespace SonicRetro.SonLVL.API
 			if (Level.Rings != null && RingFormat is RingLayoutFormat)
 			{
 				Rings = ((RingLayoutFormat)RingFormat).TryReadLayout(Level.Rings, Level.RingCompression);
-				foreach (RingEntry ring in Rings)
-					ring.UpdateSprite();
+				if (loadGraphics)
+					foreach (RingEntry ring in Rings)
+						ring.UpdateSprite();
 			}
 			else
 				Rings = new List<RingEntry>();
