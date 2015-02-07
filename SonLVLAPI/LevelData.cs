@@ -1082,16 +1082,9 @@ namespace SonicRetro.SonLVL.API
                     if (ObjectVisible(oe, allTimeZones))
                         LevelImg8bpp.DrawSprite(oe.Sprite, -bounds.X, -bounds.Y);
                 }
-                for (int ri = 0; ri < Rings.Count; ri++)
-                    switch (Level.RingFormat)
-                    {
-                        case EngineVersion.S2:
-                        case EngineVersion.S2NA:
-                        case EngineVersion.S3K:
-                        case EngineVersion.SKC:
-                            LevelImg8bpp.DrawSprite(Rings[ri].Sprite, -bounds.X, -bounds.Y);
-                            break;
-                    }
+				if (RingFormat is RingLayoutFormat)
+					for (int ri = 0; ri < Rings.Count; ri++)
+						LevelImg8bpp.DrawSprite(Rings[ri].Sprite, -bounds.X, -bounds.Y);
                 if (Bumpers != null)
                     foreach (CNZBumperEntry item in Bumpers)
                         LevelImg8bpp.DrawSprite(item.Sprite, -bounds.X, -bounds.Y);
