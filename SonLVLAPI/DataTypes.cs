@@ -1231,7 +1231,7 @@ namespace SonicRetro.SonLVL.API
 			List<byte> ret = new List<byte>();
 			ret.AddRange(ByteConverter.GetBytes(X));
 			ret.AddRange(ByteConverter.GetBytes(Y));
-			ret.AddRange(ByteConverter.GetBytes(ID << 2));
+			ret.AddRange(ByteConverter.GetBytes((ushort)(ID << 2)));
 			ushort val = fullSubType;
 			if (XFlip) val |= 0x2000;
 			if (YFlip) val |= 0x4000;
