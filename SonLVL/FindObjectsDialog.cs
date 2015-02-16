@@ -52,7 +52,7 @@ namespace SonicRetro.SonLVL
         private void subtypeList_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (subtypeList.SelectedIndices.Count > 0)
-                subtypeSelect.Value = subtypeList.SelectedIndices[0];
+                subtypeSelect.Value = (byte)subtypeList.SelectedItems[0].Tag;
         }
     }
 }
