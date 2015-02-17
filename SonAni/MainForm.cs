@@ -244,7 +244,7 @@ namespace SonAni
                         break;
                 }
                 animations = Animation.Load(tmp, labels);
-                string maplabel = Path.GetFileNameWithoutExtension(animInfo.AnimationFile).MakeIdentifier();
+                animlabel = Path.GetFileNameWithoutExtension(animInfo.AnimationFile).MakeIdentifier();
                 foreach (KeyValuePair<string, int> label in labels)
                     if (label.Value == 0)
                     {
