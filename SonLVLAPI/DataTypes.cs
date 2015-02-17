@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Text;
+using System.Linq;
 
 namespace SonicRetro.SonLVL.API
 {
@@ -2042,9 +2043,17 @@ namespace SonicRetro.SonLVL.API
                     {
                         if (writtenFrames.Contains(anim.Name)) continue;
                         writtenFrames.Add(anim.Name);
-                        writer.Write(anim.Name + ":\tdc.b ");
-                        writer.WriteLine(string.Join(", ", Array.ConvertAll(anim.GetBytes(), (a) => a.ToHex68k())));
-                        writer.WriteLine();
+                        writer.Write(anim.Name + ":");
+						List<byte> bytes = new List<byte>(anim.GetBytes());
+						while (bytes.Count > 20)
+						{
+							writer.Write("\tdc.b ");
+							writer.WriteLine(string.Join(", ", bytes.Take(20).Select(a => a.ToHex68k()).ToArray()));
+							bytes.RemoveRange(0, 20);
+						}
+						writer.Write("\tdc.b ");
+						writer.WriteLine(string.Join(", ", bytes.Select(a => a.ToHex68k()).ToArray()));
+						writer.WriteLine();
                     }
                 }
                 writer.WriteLine("\teven");
