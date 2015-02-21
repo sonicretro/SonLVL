@@ -1161,8 +1161,8 @@ namespace SonicRetro.SonLVL.API
             RememberState = (bytes[4] & 0x80) == 0x80;
             SubType = bytes[5];
             ShowPresent = (bytes[6] & 0x40) == 0x40;
-            ShowPast = (bytes[6] & 0x80) == 0x20;
-            ShowFuture = (bytes[6] & 0x20) == 0x80;
+            ShowPast = (bytes[6] & 0x20) == 0x20;
+            ShowFuture = (bytes[6] & 0x80) == 0x80;
 			SubType2 = bytes[7];
         }
     }
