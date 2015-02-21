@@ -334,6 +334,7 @@ namespace SonicRetro.SonLVL.GUI
 				case EngineVersion.S1:
 					Icon = Properties.Resources.gogglemon;
 					break;
+				case EngineVersion.SCD:
 				case EngineVersion.SCDPC:
 					Icon = Properties.Resources.clockmon;
 					timeZoneToolStripMenuItem.Visible = true;

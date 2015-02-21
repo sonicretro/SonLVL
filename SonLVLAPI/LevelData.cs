@@ -91,6 +91,7 @@ namespace SonicRetro.SonLVL.API
             switch (Game.EngineVersion)
             {
                 case EngineVersion.S1:
+				case EngineVersion.SCD:
                     chunksz = 256;
                     UnknownImg = Properties.Resources.UnknownImg.Copy();
                     break;
@@ -125,6 +126,7 @@ namespace SonicRetro.SonLVL.API
             switch (Level.EngineVersion)
             {
                 case EngineVersion.S1:
+				case EngineVersion.SCD:
                 case EngineVersion.S2:
                 case EngineVersion.S2NA:
                     UnknownImg = Properties.Resources.UnknownImg.Copy();
@@ -149,6 +151,7 @@ namespace SonicRetro.SonLVL.API
             switch (Level.ChunkFormat)
             {
                 case EngineVersion.S1:
+				case EngineVersion.SCD:
                 case EngineVersion.SCDPC:
                     chunksz = 256;
                     break;
@@ -282,6 +285,7 @@ namespace SonicRetro.SonLVL.API
             switch (Level.LayoutFormat)
             {
                 case EngineVersion.S1:
+				case EngineVersion.SCD:
                     LayoutFormat = new S1.Layout();
                     break;
                 case EngineVersion.S2NA:
@@ -399,6 +403,7 @@ namespace SonicRetro.SonLVL.API
 			switch (Level.RingFormat)
 			{
 				case EngineVersion.S1:
+				case EngineVersion.SCD:
 				case EngineVersion.SCDPC:
 					RingFormat = new S1.Ring();
 					break;
@@ -553,6 +558,7 @@ namespace SonicRetro.SonLVL.API
                                 Objects.Add(new S3KObjectEntry(tmp, oa));
                             }
                             break;
+						case EngineVersion.SCD:
                         case EngineVersion.SCDPC:
                             for (int oa = 0; oa < tmp.Length; oa += SCDObjectEntry.Size)
                             {
@@ -938,6 +944,7 @@ namespace SonicRetro.SonLVL.API
                         while (tmp.Count % S3KObjectEntry.Size > 0)
                             tmp.Add(0);
                         break;
+					case EngineVersion.SCD:
                     case EngineVersion.SCDPC:
                         tmp.Add(0xFF);
                         while (tmp.Count % SCDObjectEntry.Size > 0)

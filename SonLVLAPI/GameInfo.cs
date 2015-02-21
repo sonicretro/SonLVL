@@ -148,6 +148,7 @@ namespace SonicRetro.SonLVL.API
                 switch (result.TileFormat)
                 {
                     case EngineVersion.S1:
+					case EngineVersion.SCD:
                     case EngineVersion.S2NA:
                         result.TileCompression = CompressionType.Nemesis;
                         break;
@@ -171,6 +172,9 @@ namespace SonicRetro.SonLVL.API
                     case EngineVersion.S1:
                         result.BlockCompression = CompressionType.Enigma;
                         break;
+					case EngineVersion.SCD:
+						result.BlockCompression = CompressionType.Nemesis;
+						break;
                     case EngineVersion.S2:
                     case EngineVersion.S3K:
                     case EngineVersion.SKC:

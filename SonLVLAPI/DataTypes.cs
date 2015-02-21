@@ -1096,18 +1096,6 @@ namespace SonicRetro.SonLVL.API
         [DisplayName("Show in Future")]
         public virtual bool ShowFuture { get; set; }
 
-        public override string _ID
-        {
-            get
-            {
-                return ID.ToString("X2");
-            }
-            set
-            {
-                ID = byte.Parse(value, System.Globalization.NumberStyles.HexNumber);
-            }
-        }
-
         public override byte ID
         {
             get
@@ -1119,6 +1107,16 @@ namespace SonicRetro.SonLVL.API
                 base.ID = (byte)(value & 0x7F);
             }
         }
+
+		[Browsable(false)]
+		public byte SubType2 { get; set; }
+
+		[DisplayName("SubType2")]
+		public string _SubType2
+		{
+			get { return SubType2.ToString("X2"); }
+			set { SubType2 = byte.Parse(value, System.Globalization.NumberStyles.HexNumber); }
+		}
 
         public static int Size { get { return 8; } }
 
@@ -1145,10 +1143,10 @@ namespace SonicRetro.SonLVL.API
             ret.Add(SubType);
             byte b = 0;
             if (ShowPresent) b |= 0x40;
-            if (ShowPast) b |= 0x80;
-            if (ShowFuture) b |= 0x20;
+            if (ShowPast) b |= 0x20;
+            if (ShowFuture) b |= 0x80;
             ret.Add(b);
-            ret.Add(0);
+            ret.Add(SubType2);
             return ret.ToArray();
         }
 
@@ -1163,8 +1161,9 @@ namespace SonicRetro.SonLVL.API
             RememberState = (bytes[4] & 0x80) == 0x80;
             SubType = bytes[5];
             ShowPresent = (bytes[6] & 0x40) == 0x40;
-            ShowPast = (bytes[6] & 0x80) == 0x80;
-            ShowFuture = (bytes[6] & 0x20) == 0x20;
+            ShowPast = (bytes[6] & 0x80) == 0x20;
+            ShowFuture = (bytes[6] & 0x20) == 0x80;
+			SubType2 = bytes[7];
         }
     }
 
@@ -1394,7 +1393,20 @@ namespace SonicRetro.SonLVL.API
         public PatternIndex Tile2 { get; set; }
         public short X { get; set; }
 
-        public static int Size(EngineVersion version) { switch (version) { case EngineVersion.S1: return 5; case EngineVersion.S2: case EngineVersion.S2NA: return 8; default: return 6; } }
+		public static int Size(EngineVersion version)
+		{
+			switch (version)
+			{
+				case EngineVersion.S1:
+				case EngineVersion.SCD:
+					return 5;
+				case EngineVersion.S2:
+				case EngineVersion.S2NA:
+					return 8;
+				default:
+					return 6;
+			}
+		}
 
         public MappingsTile(short xpos, short ypos, byte width, byte height, ushort tile, bool xflip, bool yflip, byte pal, bool pri)
         {
@@ -1423,6 +1435,7 @@ namespace SonicRetro.SonLVL.API
             switch (version)
             {
                 case EngineVersion.S1:
+				case EngineVersion.SCD:
                     X = unchecked((sbyte)file[address + 4]);
                     break;
                 case EngineVersion.S2:
@@ -1446,6 +1459,7 @@ namespace SonicRetro.SonLVL.API
             switch (version)
             {
                 case EngineVersion.S1:
+				case EngineVersion.SCD:
                     result.Add(unchecked((byte)((sbyte)X)));
                     break;
                 case EngineVersion.S2:
@@ -1488,7 +1502,7 @@ namespace SonicRetro.SonLVL.API
 
         public int TileCount { get { return Tiles.Count; } }
 
-        public int Size(EngineVersion version) { return (TileCount * MappingsTile.Size(version)) + (version == EngineVersion.S1 ? 1 : 2); }
+        public int Size(EngineVersion version) { return (TileCount * MappingsTile.Size(version)) + (version == EngineVersion.S1 || version == EngineVersion.SCD ? 1 : 2); }
 
         public static NamedList<MappingsFrame> LoadASM(string file, EngineVersion version)
         {
@@ -1522,13 +1536,20 @@ namespace SonicRetro.SonLVL.API
         {
             Name = name;
             int tileCount;
-            if (version == EngineVersion.S1)
-                tileCount = file[address];
-            else
-                tileCount = ByteConverter.ToUInt16(file, address);
+			switch (version)
+			{
+				case EngineVersion.S1:
+				case EngineVersion.SCD:
+					tileCount = file[address++];
+					break;
+				default:
+					tileCount = ByteConverter.ToUInt16(file, address);
+					address += 2;
+					break;
+			}
             Tiles = new List<MappingsTile>(tileCount);
             for (int i = 0; i < tileCount; i++)
-                Tiles.Add(new MappingsTile(file, (i * MappingsTile.Size(version)) + address + (version == EngineVersion.S1 ? 1 : 2), version));
+                Tiles.Add(new MappingsTile(file, (i * MappingsTile.Size(version)) + address, version));
         }
 
         public static void ToASM(string file, NamedList<MappingsFrame> frames, EngineVersion version, bool macros)
@@ -1597,7 +1618,7 @@ namespace SonicRetro.SonLVL.API
                         {
                             if (writtenFrames.Contains(frame.Name)) continue;
                             writtenFrames.Add(frame.Name);
-                            writer.WriteLine(frame.Name + ":\tdc." + (version == EngineVersion.S1 ? "b " + ((byte)frame.TileCount).ToHex68k() : "w " + ((ushort)frame.TileCount).ToHex68k()));
+                            writer.WriteLine(frame.Name + ":\tdc." + (version == EngineVersion.S1 || version == EngineVersion.SCD ? "b " + ((byte)frame.TileCount).ToHex68k() : "w " + ((ushort)frame.TileCount).ToHex68k()));
                             for (int i = 0; i < frame.TileCount; i++)
                             {
                                 byte[] data = frame[i].GetBytes(version);
@@ -1605,6 +1626,7 @@ namespace SonicRetro.SonLVL.API
                                 switch (version)
                                 {
                                     case EngineVersion.S1:
+									case EngineVersion.SCD:
                                         writer.Write("b " + string.Join(", ", Array.ConvertAll(data, (a) => a.ToHex68k())));
                                         break;
                                     case EngineVersion.S2:
@@ -1664,10 +1686,16 @@ namespace SonicRetro.SonLVL.API
         public byte[] GetBytes(EngineVersion version)
         {
             List<byte> result = new List<byte>(Size(version));
-            if (version == EngineVersion.S1)
-                result.Add((byte)TileCount);
-            else
-                result.AddRange(ByteConverter.GetBytes((ushort)TileCount));
+			switch (version)
+			{
+				case EngineVersion.S1:
+				case EngineVersion.SCD:
+					result.Add((byte)TileCount);
+					break;
+				default:
+					result.AddRange(ByteConverter.GetBytes((ushort)TileCount));
+					break;
+			}
             foreach (MappingsTile tile in Tiles)
                 result.AddRange(tile.GetBytes(version));
             return result.ToArray();
@@ -1707,6 +1735,7 @@ namespace SonicRetro.SonLVL.API
             switch (version)
             {
                 case EngineVersion.S1:
+				case EngineVersion.SCD:
                 case EngineVersion.S2:
                 case EngineVersion.S2NA:
                     TileNum = ByteConverter.ToUInt16(file, address);
@@ -1727,6 +1756,7 @@ namespace SonicRetro.SonLVL.API
             switch (version)
             {
                 case EngineVersion.S1:
+				case EngineVersion.SCD:
                 case EngineVersion.S2:
                 case EngineVersion.S2NA:
                     return ByteConverter.GetBytes((ushort)((((TileCount - 1) & 0xF) << 12) | (TileNum & 0xFFF)));
@@ -1788,6 +1818,7 @@ namespace SonicRetro.SonLVL.API
                     case EngineVersion.S1:
                         tileCount = file[address];
                         break;
+					case EngineVersion.SCD:
                     case EngineVersion.S2NA:
                     case EngineVersion.S2:
                         tileCount = ByteConverter.ToUInt16(file, address);
@@ -1862,6 +1893,8 @@ namespace SonicRetro.SonLVL.API
                                 case EngineVersion.S1:
                                     writer.WriteLine("b " + ((byte)frame.Count).ToHex68k());
                                     break;
+								case EngineVersion.SCD:
+								case EngineVersion.S2NA:
                                 case EngineVersion.S2:
                                     writer.WriteLine("w " + ((ushort)frame.Count).ToHex68k());
                                     break;
@@ -1878,6 +1911,8 @@ namespace SonicRetro.SonLVL.API
                                     case EngineVersion.S1:
                                         writer.Write("b " + data[0].ToHex68k() + ", " + data[1].ToHex68k());
                                         break;
+									case EngineVersion.SCD:
+									case EngineVersion.S2NA:
                                     case EngineVersion.S2:
                                     case EngineVersion.S3K:
                                         writer.Write("w " + ByteConverter.ToUInt16(data, 0).ToHex68k());
@@ -1932,6 +1967,7 @@ namespace SonicRetro.SonLVL.API
                 case EngineVersion.S1:
                     result.Add((byte)Count);
                     break;
+				case EngineVersion.SCD:
                 case EngineVersion.S2:
                 case EngineVersion.S2NA:
                     result.AddRange(ByteConverter.GetBytes((ushort)Count));
