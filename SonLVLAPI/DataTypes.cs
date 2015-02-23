@@ -1532,6 +1532,12 @@ namespace SonicRetro.SonLVL.API
             return result;
         }
 
+		public MappingsFrame(string name)
+		{
+			Name = name;
+			Tiles = new List<MappingsTile>();
+		}
+
         public MappingsFrame(byte[] file, int address, EngineVersion version, string name)
         {
             Name = name;
@@ -1807,6 +1813,12 @@ namespace SonicRetro.SonLVL.API
             return result.ToArray();
         }
 
+		public DPLCFrame(string name)
+		{
+			Name = name;
+			Tiles = new List<DPLCEntry>();
+		}
+
         public DPLCFrame(byte[] file, int address, EngineVersion version, string name)
         {
             try
@@ -2028,6 +2040,12 @@ namespace SonicRetro.SonLVL.API
             }
             return result;
         }
+
+		public Animation(string name)
+		{
+			Name = name;
+			Frames = new List<byte>();
+		}
 
         public Animation(byte[] file, int address, string name)
         {
