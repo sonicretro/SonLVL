@@ -1053,8 +1053,8 @@ namespace SonicRetro.SonLVL.API
             {
                 int xend = 0;
                 int yend = 0;
-                for (int y = 0; y < Layout.FGLayout.GetLength(1); y++)
-                    for (int x = 0; x < Layout.FGLayout.GetLength(0); x++)
+                for (int y = 0; y < FGHeight; y++)
+                    for (int x = 0; x < FGWidth; x++)
                         if (Layout.FGLayout[x, y] > 0)
                         {
                             xend = Math.Max(xend, x);
@@ -1065,8 +1065,8 @@ namespace SonicRetro.SonLVL.API
                 bounds = new Rectangle(0, 0, xend * chunksz, yend * chunksz);
             }
             BitmapBits LevelImg8bpp = new BitmapBits(bounds.Size);
-            for (int y = Math.Max(bounds.Y / chunksz, 0); y <= Math.Min((bounds.Bottom - 1) / chunksz, Layout.FGLayout.GetLength(1) - 1); y++)
-                for (int x = Math.Max(bounds.X / chunksz, 0); x <= Math.Min((bounds.Right - 1) / chunksz, Layout.FGLayout.GetLength(0) - 1); x++)
+            for (int y = Math.Max(bounds.Y / chunksz, 0); y <= Math.Min((bounds.Bottom - 1) / chunksz, FGHeight - 1); y++)
+                for (int x = Math.Max(bounds.X / chunksz, 0); x <= Math.Min((bounds.Right - 1) / chunksz, FGWidth - 1); x++)
                 {
                     if (Layout.FGLayout[x, y] < Chunks.Count & lowPlane)
                         LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[Layout.FGLayout[x, y]][0], x * chunksz - bounds.X, y * chunksz - bounds.Y);
