@@ -124,6 +124,12 @@
     <Compile Include="InsertDeleteDialog.Designer.cs">
       <DependentUpon>InsertDeleteDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="LayoutSectionNameDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LayoutSectionNameDialog.Designer.cs">
+      <DependentUpon>LayoutSectionNameDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="LoadingAnimation.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -201,6 +207,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="InsertDeleteDialog.resx">
       <DependentUpon>InsertDeleteDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LayoutSectionNameDialog.resx">
+      <DependentUpon>LayoutSectionNameDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="LoadingAnimation.resx">
       <DependentUpon>LoadingAnimation.cs</DependentUpon>
