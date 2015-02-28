@@ -682,6 +682,13 @@ namespace SonicRetro.SonLVL.API
 
         public void ResetPos() { pos = new Position(this); }
 
+		public Entry Clone()
+		{
+			Entry result = (Entry)MemberwiseClone();
+			result.pos = new Position(result);
+			return result;
+		}
+
         int IComparable<Entry>.CompareTo(Entry other)
         {
             int c = X.CompareTo(other.X);
