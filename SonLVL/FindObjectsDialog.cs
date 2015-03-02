@@ -16,16 +16,6 @@ namespace SonicRetro.SonLVL
             InitializeComponent();
         }
 
-        private void okButton_Click(object sender, EventArgs e)
-        {
-            Close();
-        }
-
-        private void cancelButton_Click(object sender, EventArgs e)
-        {
-            Close();
-        }
-
         private void findSubtype_CheckedChanged(object sender, EventArgs e)
         {
             panel1.Enabled = findSubtype.Checked;

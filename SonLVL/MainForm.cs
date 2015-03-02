@@ -5918,7 +5918,7 @@ namespace SonicRetro.SonLVL.GUI
 				case Tab.Objects:
 					switch (findObjectsDialog.ShowDialog(this))
 					{
-						case DialogResult.Cancel:
+						case DialogResult.Yes:
 							SelectedItems.Clear();
 							foreach (ObjectEntry item in LevelData.Objects.Where(a => a.ID == findObjectsDialog.idSelect.Value))
 								if (!findObjectsDialog.findSubtype.Checked || item.SubType == findObjectsDialog.subtypeSelect.Value)
@@ -5960,7 +5960,7 @@ namespace SonicRetro.SonLVL.GUI
 				case Tab.Foreground:
 					switch (findFGChunksDialog.ShowDialog(this))
 					{
-						case DialogResult.Cancel:
+						case DialogResult.Yes:
 							int count = 0;
 							for (int x = 0; x < LevelData.FGWidth; x++)
 								for (int y = 0; y < LevelData.FGHeight; y++)
@@ -5996,7 +5996,7 @@ namespace SonicRetro.SonLVL.GUI
 				case Tab.Background:
 					switch (findBGChunksDialog.ShowDialog(this))
 					{
-						case DialogResult.Cancel:
+						case DialogResult.Yes:
 							int count = 0;
 							for (int x = 0; x < LevelData.BGWidth; x++)
 								for (int y = 0; y < LevelData.BGHeight; y++)

@@ -13,16 +13,6 @@ namespace SonicRetro.SonLVL
             InitializeComponent();
         }
 
-        private void okButton_Click(object sender, EventArgs e)
-        {
-            Close();
-        }
-
-        private void cancelButton_Click(object sender, EventArgs e)
-        {
-            Close();
-        }
-
         private void tileList1_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (tileList1.SelectedIndex != -1)
