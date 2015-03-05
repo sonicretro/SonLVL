@@ -27,7 +27,7 @@ namespace SonAni
         byte[] tiles;
         ColorPalette palette;
         List<MappingsFrame> mappings;
-        DPLCFrame[] dplc;
+        List<DPLCFrame> dplc;
         string animlabel;
         List<Animation> animations;
         List<Sprite> sprites;

@@ -443,11 +443,11 @@ namespace SonicRetro.SonLVL.GUI
 				map = MappingsFrame.Load(File.ReadAllBytes(Path.Combine(anipath, anim.MappingsFile)), anim.MappingsGame);
 			else
 				map = MappingsFrame.LoadASM(Path.Combine(anipath, anim.MappingsFile), anim.MappingsGame);
-			DPLCFrame[] dplc;
+			List<DPLCFrame> dplc;
 			if (anim.DPLCFormat == MappingsFormat.Binary)
 				dplc = DPLCFrame.Load(File.ReadAllBytes(Path.Combine(anipath, anim.DPLCFile)), anim.DPLCGame);
 			else
-				dplc = DPLCFrame.LoadASM(Path.Combine(anipath, anim.DPLCFile), anim.DPLCGame).ToArray();
+				dplc = DPLCFrame.LoadASM(Path.Combine(anipath, anim.DPLCFile), anim.DPLCGame);
 			Animation ani;
 			if (anim.AnimationFormat == MappingsFormat.Binary)
 				ani = new Animation(File.ReadAllBytes(Path.Combine(anipath, anim.AnimationFile)), 0, "Animation");
@@ -462,7 +462,7 @@ namespace SonicRetro.SonLVL.GUI
 					pal[item.Destination + i] = c[i].RGBColor;
 			}
 			pal[0] = Color.Transparent;
-			loadingAnimation1.ChangeAnimation(tiles.ToArray(), map.ToArray(), dplc, ani, pal);
+			loadingAnimation1.ChangeAnimation(tiles.ToArray(), map.ToArray(), dplc.ToArray(), ani, pal);
 #if !DEBUG
 			loadingAnimation1.BringToFront();
 			loadingAnimation1.Show();

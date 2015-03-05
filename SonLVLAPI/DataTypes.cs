@@ -1570,7 +1570,7 @@ namespace SonicRetro.SonLVL.API
             ToASM(file, frames.Name, frames, version, macros);
         }
 
-        public static void ToASM(string file, string name, List<MappingsFrame> frames, EngineVersion version, bool macros)
+        public static void ToASM(string file, string name, IList<MappingsFrame> frames, EngineVersion version, bool macros)
         {
             using (FileStream stream = new FileStream(file, FileMode.Create, FileAccess.Write))
             using (StreamWriter writer = new StreamWriter(stream, Encoding.ASCII))
@@ -1666,12 +1666,12 @@ namespace SonicRetro.SonLVL.API
 
         }
 
-        public static byte[] GetBytes(MappingsFrame[] maps, EngineVersion version)
+        public static byte[] GetBytes(IList<MappingsFrame> maps, EngineVersion version)
         {
-            int off = maps.Length * 2;
-            List<short> offs = new List<short>(maps.Length);
+            int off = maps.Count * 2;
+            List<short> offs = new List<short>(maps.Count);
             List<byte> mapbytes = new List<byte>();
-            for (int i = 0; i < maps.Length; i++)
+            for (int i = 0; i < maps.Count; i++)
                 if (i == 0 & maps[i].TileCount == 0)
                     offs.Add(0);
                 else
@@ -1687,9 +1687,9 @@ namespace SonicRetro.SonLVL.API
                     if (found) continue;
                     offs.Add((short)off);
                     mapbytes.AddRange(maps[i].GetBytes(version));
-                    off = maps.Length * 2 + mapbytes.Count;
+                    off = maps.Count * 2 + mapbytes.Count;
                 }
-            List<byte> result = new List<byte>(maps.Length * 2 + mapbytes.Count);
+            List<byte> result = new List<byte>(maps.Count * 2 + mapbytes.Count);
             foreach (short item in offs)
                 result.AddRange(ByteConverter.GetBytes(item));
             result.AddRange(mapbytes);
@@ -1799,12 +1799,12 @@ namespace SonicRetro.SonLVL.API
             return new NamedList<DPLCFrame>(labels.GetKeyOrDefault(0, Path.GetFileNameWithoutExtension(file).MakeIdentifier()), Load(bin, version, labels));
         }
 
-        public static DPLCFrame[] Load(byte[] file, EngineVersion version)
+        public static List<DPLCFrame> Load(byte[] file, EngineVersion version)
         {
             return Load(file, version, null);
         }
 
-        public static DPLCFrame[] Load(byte[] file, EngineVersion version, Dictionary<string, int> labels)
+        public static List<DPLCFrame> Load(byte[] file, EngineVersion version, Dictionary<string, int> labels)
         {
             int[] addresses = LevelData.GetOffsetList(file);
             List<DPLCFrame> result = new List<DPLCFrame>();
@@ -1817,7 +1817,7 @@ namespace SonicRetro.SonLVL.API
                             name = label.Key;
                 result.Add(new DPLCFrame(file, item, version, name));
             }
-            return result.ToArray();
+            return result;
         }
 
 		public DPLCFrame(string name)
@@ -1859,7 +1859,7 @@ namespace SonicRetro.SonLVL.API
             ToASM(file, frames.Name, frames, version, macros, s3kp);
         }
 
-        public static void ToASM(string file, string name, List<DPLCFrame> frames, EngineVersion version, bool macros, bool s3kp)
+        public static void ToASM(string file, string name, IList<DPLCFrame> frames, EngineVersion version, bool macros, bool s3kp)
         {
             using (FileStream stream = new FileStream(file, FileMode.Create, FileAccess.Write))
             using (StreamWriter writer = new StreamWriter(stream, Encoding.ASCII))
@@ -1895,6 +1895,7 @@ namespace SonicRetro.SonLVL.API
                 }
                 else
                 {
+					if (s3kp) version = EngineVersion.S2;
                     List<string> writtenFrames = new List<string>();
                     writer.WriteLine(name + ":");
                     foreach (DPLCFrame frame in frames)
@@ -1948,12 +1949,12 @@ namespace SonicRetro.SonLVL.API
             }
         }
 
-        public static byte[] GetBytes(DPLCFrame[] dplcs, EngineVersion version)
+        public static byte[] GetBytes(IList<DPLCFrame> dplcs, EngineVersion version)
         {
-            int off = dplcs.Length * 2;
-            List<short> offs = new List<short>(dplcs.Length);
+            int off = dplcs.Count * 2;
+            List<short> offs = new List<short>(dplcs.Count);
             List<byte> mapbytes = new List<byte>();
-            for (int i = 0; i < dplcs.Length; i++)
+            for (int i = 0; i < dplcs.Count; i++)
                 if (i == 0 & dplcs[i].Count == 0 & version != EngineVersion.S3K & version != EngineVersion.SKC)
                     offs.Add(0);
                 else
@@ -1969,9 +1970,9 @@ namespace SonicRetro.SonLVL.API
                     if (found) continue;
                     offs.Add((short)off);
                     mapbytes.AddRange(dplcs[i].GetBytes(version));
-                    off = dplcs.Length * 2 + mapbytes.Count;
+                    off = dplcs.Count * 2 + mapbytes.Count;
                 }
-            List<byte> result = new List<byte>(dplcs.Length * 2 + mapbytes.Count);
+            List<byte> result = new List<byte>(dplcs.Count * 2 + mapbytes.Count);
             foreach (short item in offs)
                 result.AddRange(ByteConverter.GetBytes(item));
             result.AddRange(mapbytes);
