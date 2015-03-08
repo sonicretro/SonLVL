@@ -466,6 +466,7 @@ namespace SonicRetro.SonLVL.GUI
 #if !DEBUG
 			loadingAnimation1.BringToFront();
 			loadingAnimation1.Show();
+			initerror = null;
 			backgroundLevelLoader.RunWorkerAsync(((ToolStripMenuItem)sender).Tag);
 #else
             backgroundLevelLoader_DoWork(null, new DoWorkEventArgs(((ToolStripMenuItem)sender).Tag));
@@ -511,7 +512,9 @@ namespace SonicRetro.SonLVL.GUI
 				System.IO.File.WriteAllLines("SonLVL.log", LogFile.ToArray());
 				using (ErrorDialog ed = new ErrorDialog(initerror.GetType().Name + ": " + initerror.Message + "\nLog file has been saved to " + System.IO.Path.Combine(Environment.CurrentDirectory, "SonLVL.log") + ".\nSend this to MainMemory on the Sonic Retro forums.", true))
 					if (ed.ShowDialog(this) == System.Windows.Forms.DialogResult.Cancel) Close();
+				Text = "SonLVL - " + LevelData.Game.EngineVersion.ToString();
 				Enabled = true;
+				loadingAnimation1.Hide();
 				return;
 			}
 			Log("Load completed.");
