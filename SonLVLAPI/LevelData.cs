@@ -2281,7 +2281,7 @@ namespace SonicRetro.SonLVL.API
                 }
                 else if (ln[0].Equals("align"))
                 {
-                    uint alignment = ParseASMLong(ln[1]);
+                    uint alignment = (uint)ParseASMNum(ln[1], labels);
                     if (result.Count % alignment != 0)
                         result.AddRange(new byte[alignment - (result.Count % alignment)]);
                 }
@@ -2309,34 +2309,25 @@ namespace SonicRetro.SonLVL.API
                     switch (ln[0].Split('.')[1])
                     {
                         case "b":
-                            foreach (string item in dats)
-                                if (item.Contains("-"))
-                                    if (item.StartsWith("-"))
-                                        result.Add(ParseASMByte(item));
-                                    else
-                                        result.Add(unchecked((byte)ParseASMOffset(item, labels)));
-                                else
-                                    result.Add(ParseASMByte(item));
+							foreach (string item in dats)
+								if (!item.StartsWith("-") && item.Contains("-"))
+									result.Add(unchecked((byte)ParseASMOffset(item, labels)));
+								else
+									result.Add((byte)ParseASMNum(item, labels));
                             break;
                         case "w":
                             foreach (string item in dats)
-                                if (item.Contains("-"))
-                                    if (item.StartsWith("-"))
-                                        result.AddRange(ByteConverter.GetBytes(ParseASMWord(item)));
-                                    else
-                                        result.AddRange(ByteConverter.GetBytes((short)ParseASMOffset(item, labels)));
+								if (!item.StartsWith("-") && item.Contains("-"))
+									result.AddRange(ByteConverter.GetBytes((short)ParseASMOffset(item, labels)));
                                 else
-                                    result.AddRange(ByteConverter.GetBytes(ParseASMWord(item)));
+                                    result.AddRange(ByteConverter.GetBytes((ushort)ParseASMNum(item, labels)));
                             break;
                         case "l":
                             foreach (string item in dats)
-                                if (item.Contains("-"))
-                                    if (item.StartsWith("-"))
-                                        result.AddRange(ByteConverter.GetBytes(ParseASMLong(item)));
-                                    else
-                                        result.AddRange(ByteConverter.GetBytes(ParseASMOffset(item, labels)));
+								if (!item.StartsWith("-") && item.Contains("-"))
+									result.AddRange(ByteConverter.GetBytes(ParseASMOffset(item, labels)));
                                 else
-                                    result.AddRange(ByteConverter.GetBytes(ParseASMLong(item)));
+                                    result.AddRange(ByteConverter.GetBytes((uint)ParseASMNum(item, labels)));
                             break;
                     }
                 }
@@ -2361,7 +2352,7 @@ namespace SonicRetro.SonLVL.API
                     for (int i = 1; i < ln.Length; i++)
                         d += ln[i];
                     string[] dats = d.Split(',');
-                    unchecked { result.AddRange(new MappingsTile((short)ParseASMWord(dats[0]), (short)ParseASMWord(dats[1]), ParseASMByte(dats[2]), ParseASMByte(dats[3]), ParseASMWord(dats[4]), ParseASMByte(dats[5]) == 1, ParseASMByte(dats[6]) == 1, ParseASMByte(dats[7]), ParseASMByte(dats[8]) == 1).GetBytes(version)); }
+                    unchecked { result.AddRange(new MappingsTile((short)ParseASMNum(dats[0], labels), (short)ParseASMNum(dats[1], labels), (byte)ParseASMNum(dats[2], labels), (byte)ParseASMNum(dats[3], labels), (ushort)ParseASMNum(dats[4], labels), (byte)ParseASMNum(dats[5], labels) == 1, (byte)ParseASMNum(dats[6], labels) == 1, (byte)ParseASMNum(dats[7], labels), (byte)ParseASMNum(dats[8], labels) == 1).GetBytes(version)); }
                 }
                 else if (ln[0].Equals("spritePiece2P"))
                 {
@@ -2369,7 +2360,7 @@ namespace SonicRetro.SonLVL.API
                     for (int i = 1; i < ln.Length; i++)
                         d += ln[i];
                     string[] dats = d.Split(',');
-                    unchecked { result.AddRange(new MappingsTile((short)ParseASMWord(dats[0]), (short)ParseASMWord(dats[1]), ParseASMByte(dats[2]), ParseASMByte(dats[3]), ParseASMWord(dats[4]), ParseASMByte(dats[5]) == 1, ParseASMByte(dats[6]) == 1, ParseASMByte(dats[7]), ParseASMByte(dats[8]) == 1, ParseASMWord(dats[9]), ParseASMByte(dats[10]) == 1, ParseASMByte(dats[11]) == 1, ParseASMByte(dats[12]), ParseASMByte(dats[13]) == 1).GetBytes(version)); }
+                    unchecked { result.AddRange(new MappingsTile((short)ParseASMNum(dats[0], labels), (short)ParseASMNum(dats[1], labels), (byte)ParseASMNum(dats[2], labels), (byte)ParseASMNum(dats[3], labels), (ushort)ParseASMNum(dats[4], labels), (byte)ParseASMNum(dats[5], labels) == 1, (byte)ParseASMNum(dats[6], labels) == 1, (byte)ParseASMNum(dats[7], labels), (byte)ParseASMNum(dats[8], labels) == 1, (ushort)ParseASMNum(dats[9], labels), (byte)ParseASMNum(dats[10], labels) == 1, (byte)ParseASMNum(dats[11], labels) == 1, (byte)ParseASMNum(dats[12], labels), (byte)ParseASMNum(dats[13], labels) == 1).GetBytes(version)); }
                 }
                 else if (ln[0].Equals("dplcHeader"))
                 {
@@ -2394,7 +2385,7 @@ namespace SonicRetro.SonLVL.API
                     for (int i = 1; i < ln.Length; i++)
                         d += ln[i];
                     string[] dats = d.Split(',');
-                    unchecked { result.AddRange(new DPLCEntry((byte)(ParseASMByte(dats[0])), ParseASMWord(dats[1])).GetBytes(version)); }
+                    unchecked { result.AddRange(new DPLCEntry((byte)ParseASMNum(dats[0], labels), (ushort)ParseASMNum(dats[1], labels)).GetBytes(version)); }
                 }
                 else if (ln[0].Equals("s3kPlayerDplcEntry"))
                 {
@@ -2402,7 +2393,7 @@ namespace SonicRetro.SonLVL.API
                     for (int i = 1; i < ln.Length; i++)
                         d += ln[i];
                     string[] dats = d.Split(',');
-                    unchecked { result.AddRange(new DPLCEntry((byte)(ParseASMByte(dats[0])), ParseASMWord(dats[1])).GetBytes(EngineVersion.S2)); }
+                    unchecked { result.AddRange(new DPLCEntry((byte)ParseASMNum(dats[0], labels), (ushort)ParseASMNum(dats[1], labels)).GetBytes(EngineVersion.S2)); }
                 }
                 else if (ln[0].Equals("obj1E67Size"))
                     result.AddRange(ByteConverter.GetBytes((short)(LabelSubtract(lastlabel + "_End", lastlabel, labels) - 2)));
@@ -2412,61 +2403,27 @@ namespace SonicRetro.SonLVL.API
             return result.ToArray();
         }
 
-        public static byte ParseASMByte(string data)
-        {
-            if (data.StartsWith("-"))
-            {
-                if (data.StartsWith("-$"))
-                    return unchecked((byte)-sbyte.Parse(data.Substring(2), System.Globalization.NumberStyles.HexNumber));
-                else
-                    return unchecked((byte)sbyte.Parse(data, System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo));
-            }
-            else
-            {
-                if (data.StartsWith("$"))
-                    return byte.Parse(data.Substring(1), System.Globalization.NumberStyles.HexNumber);
-                else
-                    return byte.Parse(data, System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo);
-            }
-        }
+		public static long ParseASMNum(string data, Dictionary<string, int> labels)
+		{
+			bool neg = false;
+			if (data.StartsWith("-"))
+			{
+				neg = true;
+				data = data.Substring(1);
+			}
+			long result;
+			if (labels.ContainsKey(data))
+				result = labels[data];
+			else if (data.StartsWith("$"))
+				result = long.Parse(data.Substring(1), System.Globalization.NumberStyles.HexNumber);
+			else
+				result = long.Parse(data, System.Globalization.NumberStyles.None, System.Globalization.NumberFormatInfo.InvariantInfo);
+			if (neg)
+				return -result;
+			return result;
+		}
 
-        public static ushort ParseASMWord(string data)
-        {
-            if (data.StartsWith("-"))
-            {
-                if (data.StartsWith("-$"))
-                    return unchecked((ushort)-short.Parse(data.Substring(2), System.Globalization.NumberStyles.HexNumber));
-                else
-                    return unchecked((ushort)short.Parse(data, System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo));
-            }
-            else
-            {
-                if (data.StartsWith("$"))
-                    return ushort.Parse(data.Substring(1), System.Globalization.NumberStyles.HexNumber);
-                else
-                    return ushort.Parse(data, System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo);
-            }
-        }
-
-        public static uint ParseASMLong(string data)
-        {
-            if (data.StartsWith("-"))
-            {
-                if (data.StartsWith("-$"))
-                    return unchecked((uint)-int.Parse(data.Substring(2), System.Globalization.NumberStyles.HexNumber));
-                else
-                    return unchecked((uint)int.Parse(data, System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo));
-            }
-            else
-            {
-                if (data.StartsWith("$"))
-                    return uint.Parse(data.Substring(1), System.Globalization.NumberStyles.HexNumber);
-                else
-                    return uint.Parse(data, System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo);
-            }
-        }
-
-        public static int ParseASMOffset(string data, Dictionary<string, int> labels)
+		public static int ParseASMOffset(string data, Dictionary<string, int> labels)
         {
             return LabelSubtract(data.Split('-')[0], data.Split('-')[1], labels);
         }
@@ -2533,7 +2490,7 @@ namespace SonicRetro.SonLVL.API
                 }
                 else if (ln[0].Equals("align"))
                 {
-                    uint alignment = ParseASMLong(ln[1]);
+                    uint alignment = (uint)ParseASMNum(ln[1], labels);
                     if (curaddr % alignment != 0)
                         curaddr += (int)(alignment - (curaddr % alignment));
                 }
