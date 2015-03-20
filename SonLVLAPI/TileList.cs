@@ -329,5 +329,11 @@ namespace SonicRetro.SonLVL.API
                     break;
             }
         }
-    }
+
+		void TileList_MouseWheel(object sender, System.Windows.Forms.MouseEventArgs e)
+		{
+			ScrollValue -= e.Delta / SystemInformation.MouseWheelScrollDelta * SystemInformation.MouseWheelScrollLines * 16;
+			Invalidate();
+		}
+	}
 }

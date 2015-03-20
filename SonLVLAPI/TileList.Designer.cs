@@ -69,6 +69,7 @@
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.TileList_MouseDown);
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(TileList_MouseMove);
             this.MouseUp += new System.Windows.Forms.MouseEventHandler(TileList_MouseUp);
+			this.MouseWheel += new System.Windows.Forms.MouseEventHandler(TileList_MouseWheel);
             this.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.TileList_PreviewKeyDown);
             this.Resize += new System.EventHandler(this.TileList_Resize);
             this.ResumeLayout(false);
