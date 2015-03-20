@@ -6163,7 +6163,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void ChunkSelector_ItemDrag(object sender, EventArgs e)
 		{
-			if (CurrentTab == Tab.Chunks)
+			if (CurrentTab == Tab.Chunks && enableDraggingChunksButton.Checked)
 				DoDragDrop(new DataObject("SonLVLChunkIndex_" + pid, ChunkSelector.SelectedIndex), DragDropEffects.Move);
 		}
 
@@ -6317,7 +6317,8 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void BlockSelector_ItemDrag(object sender, EventArgs e)
 		{
-			DoDragDrop(new DataObject("SonLVLBlockIndex_" + pid, BlockSelector.SelectedIndex), DragDropEffects.Move);
+			if (enableDraggingBlocksButton.Checked)
+				DoDragDrop(new DataObject("SonLVLBlockIndex_" + pid, BlockSelector.SelectedIndex), DragDropEffects.Move);
 		}
 
 		bool block_dragdrop;
@@ -6449,7 +6450,8 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void TileSelector_ItemDrag(object sender, EventArgs e)
 		{
-			DoDragDrop(new DataObject("SonLVLTileIndex_" + pid, TileSelector.SelectedIndex), DragDropEffects.Move);
+			if (enableDraggingTilesButton.Checked)
+				DoDragDrop(new DataObject("SonLVLTileIndex_" + pid, TileSelector.SelectedIndex), DragDropEffects.Move);
 		}
 
 		bool tile_dragdrop;

@@ -44,11 +44,14 @@
 			System.Windows.Forms.ToolStrip toolStrip3;
 			System.Windows.Forms.TabControl tabControl2;
 			this.remapChunksButton = new System.Windows.Forms.ToolStripButton();
+			this.enableDraggingChunksButton = new System.Windows.Forms.ToolStripButton();
 			this.panel10 = new System.Windows.Forms.Panel();
 			this.BlockSelector = new SonicRetro.SonLVL.API.TileList();
 			this.remapBlocksButton = new System.Windows.Forms.ToolStripButton();
+			this.enableDraggingBlocksButton = new System.Windows.Forms.ToolStripButton();
 			this.TileSelector = new SonicRetro.SonLVL.API.TileList();
 			this.remapTilesButton = new System.Windows.Forms.ToolStripButton();
+			this.enableDraggingTilesButton = new System.Windows.Forms.ToolStripButton();
 			this.tabPage8 = new System.Windows.Forms.TabPage();
 			this.ChunkSelector = new SonicRetro.SonLVL.API.TileList();
 			this.tabPage9 = new System.Windows.Forms.TabPage();
@@ -394,7 +397,8 @@
 			// 
 			toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.remapChunksButton});
+            this.remapChunksButton,
+            this.enableDraggingChunksButton});
 			toolStrip1.Location = new System.Drawing.Point(0, 0);
 			toolStrip1.Name = "toolStrip1";
 			toolStrip1.Size = new System.Drawing.Size(219, 25);
@@ -410,6 +414,17 @@
 			this.remapChunksButton.Size = new System.Drawing.Size(137, 22);
 			this.remapChunksButton.Text = "Advanced Remapping...";
 			this.remapChunksButton.Click += new System.EventHandler(this.remapChunksButton_Click);
+			// 
+			// enableDraggingChunksButton
+			// 
+			this.enableDraggingChunksButton.Checked = true;
+			this.enableDraggingChunksButton.CheckOnClick = true;
+			this.enableDraggingChunksButton.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.enableDraggingChunksButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.enableDraggingChunksButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.enableDraggingChunksButton.Name = "enableDraggingChunksButton";
+			this.enableDraggingChunksButton.Size = new System.Drawing.Size(98, 19);
+			this.enableDraggingChunksButton.Text = "Enable Dragging";
 			// 
 			// panel1
 			// 
@@ -468,7 +483,8 @@
 			// 
 			toolStrip2.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.remapBlocksButton});
+            this.remapBlocksButton,
+            this.enableDraggingBlocksButton});
 			toolStrip2.Location = new System.Drawing.Point(0, 0);
 			toolStrip2.Name = "toolStrip2";
 			toolStrip2.Size = new System.Drawing.Size(308, 25);
@@ -484,6 +500,17 @@
 			this.remapBlocksButton.Size = new System.Drawing.Size(137, 22);
 			this.remapBlocksButton.Text = "Advanced Remapping...";
 			this.remapBlocksButton.Click += new System.EventHandler(this.remapBlocksButton_Click);
+			// 
+			// enableDraggingBlocksButton
+			// 
+			this.enableDraggingBlocksButton.Checked = true;
+			this.enableDraggingBlocksButton.CheckOnClick = true;
+			this.enableDraggingBlocksButton.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.enableDraggingBlocksButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.enableDraggingBlocksButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.enableDraggingBlocksButton.Name = "enableDraggingBlocksButton";
+			this.enableDraggingBlocksButton.Size = new System.Drawing.Size(98, 22);
+			this.enableDraggingBlocksButton.Text = "Enable Dragging";
 			// 
 			// panel3
 			// 
@@ -522,7 +549,8 @@
 			// 
 			toolStrip3.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			toolStrip3.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.remapTilesButton});
+            this.remapTilesButton,
+            this.enableDraggingTilesButton});
 			toolStrip3.Location = new System.Drawing.Point(0, 0);
 			toolStrip3.Name = "toolStrip3";
 			toolStrip3.Size = new System.Drawing.Size(510, 25);
@@ -538,6 +566,17 @@
 			this.remapTilesButton.Size = new System.Drawing.Size(137, 22);
 			this.remapTilesButton.Text = "Advanced Remapping...";
 			this.remapTilesButton.Click += new System.EventHandler(this.remapTilesButton_Click);
+			// 
+			// enableDraggingTilesButton
+			// 
+			this.enableDraggingTilesButton.Checked = true;
+			this.enableDraggingTilesButton.CheckOnClick = true;
+			this.enableDraggingTilesButton.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.enableDraggingTilesButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.enableDraggingTilesButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.enableDraggingTilesButton.Name = "enableDraggingTilesButton";
+			this.enableDraggingTilesButton.Size = new System.Drawing.Size(98, 22);
+			this.enableDraggingTilesButton.Text = "Enable Dragging";
 			// 
 			// tabControl2
 			// 
@@ -3115,6 +3154,9 @@
 		private System.Windows.Forms.ToolStripMenuItem saveSectionToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem pasteSectionOnceToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem pasteSectionRepeatingToolStripMenuItem;
+		private System.Windows.Forms.ToolStripButton enableDraggingChunksButton;
+		private System.Windows.Forms.ToolStripButton enableDraggingBlocksButton;
+		private System.Windows.Forms.ToolStripButton enableDraggingTilesButton;
 
     }
 }
