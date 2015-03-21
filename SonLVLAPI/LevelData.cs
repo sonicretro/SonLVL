@@ -2405,6 +2405,7 @@ namespace SonicRetro.SonLVL.API
 
 		public static long ParseASMNum(string data, Dictionary<string, int> labels)
 		{
+			data = data.Trim();
 			bool neg = false;
 			if (data.StartsWith("-"))
 			{
