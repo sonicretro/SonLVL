@@ -213,6 +213,8 @@
 			this.tabPage5 = new System.Windows.Forms.TabPage();
 			this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
 			this.panel5 = new System.Windows.Forms.Panel();
+			this.flipBlockVButton = new System.Windows.Forms.Button();
+			this.flipBlockHButton = new System.Windows.Forms.Button();
 			this.BlockCount = new System.Windows.Forms.Label();
 			this.BlockID = new System.Windows.Forms.TextBox();
 			this.BlockPicture = new SonicRetro.SonLVL.API.KeyboardPanel();
@@ -226,7 +228,9 @@
 			this.tabPage6 = new System.Windows.Forms.TabPage();
 			this.tableLayoutPanel6 = new System.Windows.Forms.TableLayoutPanel();
 			this.panel7 = new System.Windows.Forms.Panel();
-			this.button3 = new System.Windows.Forms.Button();
+			this.flipTileVButton = new System.Windows.Forms.Button();
+			this.rotateTileRightButton = new System.Windows.Forms.Button();
+			this.flipTileHButton = new System.Windows.Forms.Button();
 			this.TileCount = new System.Windows.Forms.Label();
 			this.TileID = new System.Windows.Forms.TextBox();
 			this.TilePicture = new System.Windows.Forms.Panel();
@@ -247,6 +251,7 @@
 			this.tileContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.cutTilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.copyTilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.deepCopyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.pasteBeforeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.pasteAfterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.insertBeforeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -272,7 +277,6 @@
 			this.insertLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.deleteLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.loadingAnimation1 = new SonicRetro.SonLVL.LoadingAnimation();
-			this.deepCopyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
 			toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
 			label4 = new System.Windows.Forms.Label();
@@ -452,10 +456,10 @@
 			panel2.Controls.Add(this.BlockSelector);
 			panel2.Controls.Add(toolStrip2);
 			panel2.Dock = System.Windows.Forms.DockStyle.Fill;
-			panel2.Location = new System.Drawing.Point(342, 0);
+			panel2.Location = new System.Drawing.Point(384, 0);
 			panel2.Margin = new System.Windows.Forms.Padding(0);
 			panel2.Name = "panel2";
-			panel2.Size = new System.Drawing.Size(308, 477);
+			panel2.Size = new System.Drawing.Size(266, 477);
 			panel2.TabIndex = 4;
 			// 
 			// BlockSelector
@@ -468,7 +472,7 @@
 			this.BlockSelector.Name = "BlockSelector";
 			this.BlockSelector.ScrollValue = 0;
 			this.BlockSelector.SelectedIndex = -1;
-			this.BlockSelector.Size = new System.Drawing.Size(308, 452);
+			this.BlockSelector.Size = new System.Drawing.Size(266, 452);
 			this.BlockSelector.TabIndex = 2;
 			this.BlockSelector.SelectedIndexChanged += new System.EventHandler(this.BlockSelector_SelectedIndexChanged);
 			this.BlockSelector.ItemDrag += new System.EventHandler(this.BlockSelector_ItemDrag);
@@ -488,7 +492,7 @@
             this.enableDraggingBlocksButton});
 			toolStrip2.Location = new System.Drawing.Point(0, 0);
 			toolStrip2.Name = "toolStrip2";
-			toolStrip2.Size = new System.Drawing.Size(308, 25);
+			toolStrip2.Size = new System.Drawing.Size(266, 25);
 			toolStrip2.TabIndex = 1;
 			toolStrip2.Text = "toolStrip2";
 			// 
@@ -518,10 +522,10 @@
 			panel3.Controls.Add(this.TileSelector);
 			panel3.Controls.Add(toolStrip3);
 			panel3.Dock = System.Windows.Forms.DockStyle.Fill;
-			panel3.Location = new System.Drawing.Point(140, 134);
+			panel3.Location = new System.Drawing.Point(186, 134);
 			panel3.Margin = new System.Windows.Forms.Padding(0);
 			panel3.Name = "panel3";
-			panel3.Size = new System.Drawing.Size(510, 343);
+			panel3.Size = new System.Drawing.Size(464, 343);
 			panel3.TabIndex = 5;
 			// 
 			// TileSelector
@@ -534,7 +538,7 @@
 			this.TileSelector.Name = "TileSelector";
 			this.TileSelector.ScrollValue = 0;
 			this.TileSelector.SelectedIndex = -1;
-			this.TileSelector.Size = new System.Drawing.Size(510, 318);
+			this.TileSelector.Size = new System.Drawing.Size(464, 318);
 			this.TileSelector.TabIndex = 2;
 			this.TileSelector.SelectedIndexChanged += new System.EventHandler(this.TileSelector_SelectedIndexChanged);
 			this.TileSelector.ItemDrag += new System.EventHandler(this.TileSelector_ItemDrag);
@@ -554,7 +558,7 @@
             this.enableDraggingTilesButton});
 			toolStrip3.Location = new System.Drawing.Point(0, 0);
 			toolStrip3.Name = "toolStrip3";
-			toolStrip3.Size = new System.Drawing.Size(510, 25);
+			toolStrip3.Size = new System.Drawing.Size(464, 25);
 			toolStrip3.TabIndex = 2;
 			toolStrip3.Text = "toolStrip3";
 			// 
@@ -2216,18 +2220,46 @@
 			// 
 			this.panel5.AutoSize = true;
 			this.panel5.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.panel5.Controls.Add(this.flipBlockVButton);
+			this.panel5.Controls.Add(this.flipBlockHButton);
 			this.panel5.Controls.Add(this.BlockCount);
 			this.panel5.Controls.Add(this.BlockID);
 			this.panel5.Controls.Add(this.BlockPicture);
 			this.panel5.Location = new System.Drawing.Point(3, 3);
 			this.panel5.Name = "panel5";
-			this.panel5.Size = new System.Drawing.Size(106, 113);
+			this.panel5.Size = new System.Drawing.Size(180, 138);
 			this.panel5.TabIndex = 0;
+			// 
+			// flipBlockVButton
+			// 
+			this.flipBlockVButton.AutoSize = true;
+			this.flipBlockVButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.flipBlockVButton.Enabled = false;
+			this.flipBlockVButton.Location = new System.Drawing.Point(99, 73);
+			this.flipBlockVButton.Name = "flipBlockVButton";
+			this.flipBlockVButton.Size = new System.Drawing.Size(78, 23);
+			this.flipBlockVButton.TabIndex = 8;
+			this.flipBlockVButton.Text = "Flip Vertically";
+			this.flipBlockVButton.UseVisualStyleBackColor = true;
+			this.flipBlockVButton.Click += new System.EventHandler(this.flipBlockVButton_Click);
+			// 
+			// flipBlockHButton
+			// 
+			this.flipBlockHButton.AutoSize = true;
+			this.flipBlockHButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.flipBlockHButton.Enabled = false;
+			this.flipBlockHButton.Location = new System.Drawing.Point(3, 73);
+			this.flipBlockHButton.Name = "flipBlockHButton";
+			this.flipBlockHButton.Size = new System.Drawing.Size(90, 23);
+			this.flipBlockHButton.TabIndex = 7;
+			this.flipBlockHButton.Text = "Flip Horizontally";
+			this.flipBlockHButton.UseVisualStyleBackColor = true;
+			this.flipBlockHButton.Click += new System.EventHandler(this.flipBlockHButton_Click);
 			// 
 			// BlockCount
 			// 
 			this.BlockCount.AutoSize = true;
-			this.BlockCount.Location = new System.Drawing.Point(4, 100);
+			this.BlockCount.Location = new System.Drawing.Point(3, 125);
 			this.BlockCount.Name = "BlockCount";
 			this.BlockCount.Size = new System.Drawing.Size(42, 13);
 			this.BlockCount.TabIndex = 3;
@@ -2235,7 +2267,7 @@
 			// 
 			// BlockID
 			// 
-			this.BlockID.Location = new System.Drawing.Point(3, 73);
+			this.BlockID.Location = new System.Drawing.Point(3, 102);
 			this.BlockID.Name = "BlockID";
 			this.BlockID.ReadOnly = true;
 			this.BlockID.Size = new System.Drawing.Size(100, 20);
@@ -2257,9 +2289,9 @@
 			this.panel6.Controls.Add(this.blockTileEditor);
 			this.panel6.Controls.Add(this.ColIndBox);
 			this.panel6.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.panel6.Location = new System.Drawing.Point(115, 3);
+			this.panel6.Location = new System.Drawing.Point(189, 3);
 			this.panel6.Name = "panel6";
-			this.panel6.Size = new System.Drawing.Size(224, 471);
+			this.panel6.Size = new System.Drawing.Size(192, 471);
 			this.panel6.TabIndex = 3;
 			// 
 			// blockTileEditor
@@ -2268,7 +2300,7 @@
 			this.blockTileEditor.Location = new System.Drawing.Point(0, 0);
 			this.blockTileEditor.Name = "blockTileEditor";
 			this.blockTileEditor.SelectedObject = null;
-			this.blockTileEditor.Size = new System.Drawing.Size(224, 421);
+			this.blockTileEditor.Size = new System.Drawing.Size(192, 421);
 			this.blockTileEditor.TabIndex = 3;
 			this.blockTileEditor.PropertyValueChanged += new System.EventHandler(this.blockTileEditor_PropertyValueChanged);
 			// 
@@ -2281,7 +2313,7 @@
 			this.ColIndBox.Dock = System.Windows.Forms.DockStyle.Bottom;
 			this.ColIndBox.Location = new System.Drawing.Point(0, 421);
 			this.ColIndBox.Name = "ColIndBox";
-			this.ColIndBox.Size = new System.Drawing.Size(224, 50);
+			this.ColIndBox.Size = new System.Drawing.Size(192, 50);
 			this.ColIndBox.TabIndex = 4;
 			this.ColIndBox.TabStop = false;
 			this.ColIndBox.Text = "Collision Index";
@@ -2370,31 +2402,60 @@
 			// 
 			this.panel7.AutoSize = true;
 			this.panel7.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-			this.panel7.Controls.Add(this.button3);
+			this.panel7.Controls.Add(this.flipTileVButton);
+			this.panel7.Controls.Add(this.rotateTileRightButton);
+			this.panel7.Controls.Add(this.flipTileHButton);
 			this.panel7.Controls.Add(this.TileCount);
 			this.panel7.Controls.Add(this.TileID);
 			this.panel7.Controls.Add(this.TilePicture);
 			this.panel7.Location = new System.Drawing.Point(3, 137);
 			this.panel7.Name = "panel7";
-			this.panel7.Size = new System.Drawing.Size(134, 202);
+			this.panel7.Size = new System.Drawing.Size(180, 231);
 			this.panel7.TabIndex = 0;
 			// 
-			// button3
+			// flipTileVButton
 			// 
-			this.button3.AutoSize = true;
-			this.button3.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-			this.button3.Location = new System.Drawing.Point(3, 137);
-			this.button3.Name = "button3";
-			this.button3.Size = new System.Drawing.Size(77, 23);
-			this.button3.TabIndex = 5;
-			this.button3.Text = "Rotate Right";
-			this.button3.UseVisualStyleBackColor = true;
-			this.button3.Click += new System.EventHandler(this.button3_Click);
+			this.flipTileVButton.AutoSize = true;
+			this.flipTileVButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.flipTileVButton.Enabled = false;
+			this.flipTileVButton.Location = new System.Drawing.Point(99, 137);
+			this.flipTileVButton.Name = "flipTileVButton";
+			this.flipTileVButton.Size = new System.Drawing.Size(78, 23);
+			this.flipTileVButton.TabIndex = 10;
+			this.flipTileVButton.Text = "Flip Vertically";
+			this.flipTileVButton.UseVisualStyleBackColor = true;
+			this.flipTileVButton.Click += new System.EventHandler(this.flipTileVButton_Click);
+			// 
+			// rotateTileRightButton
+			// 
+			this.rotateTileRightButton.AutoSize = true;
+			this.rotateTileRightButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.rotateTileRightButton.Enabled = false;
+			this.rotateTileRightButton.Location = new System.Drawing.Point(3, 166);
+			this.rotateTileRightButton.Name = "rotateTileRightButton";
+			this.rotateTileRightButton.Size = new System.Drawing.Size(77, 23);
+			this.rotateTileRightButton.TabIndex = 5;
+			this.rotateTileRightButton.Text = "Rotate Right";
+			this.rotateTileRightButton.UseVisualStyleBackColor = true;
+			this.rotateTileRightButton.Click += new System.EventHandler(this.rotateTileRightButton_Click);
+			// 
+			// flipTileHButton
+			// 
+			this.flipTileHButton.AutoSize = true;
+			this.flipTileHButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.flipTileHButton.Enabled = false;
+			this.flipTileHButton.Location = new System.Drawing.Point(3, 137);
+			this.flipTileHButton.Name = "flipTileHButton";
+			this.flipTileHButton.Size = new System.Drawing.Size(90, 23);
+			this.flipTileHButton.TabIndex = 9;
+			this.flipTileHButton.Text = "Flip Horizontally";
+			this.flipTileHButton.UseVisualStyleBackColor = true;
+			this.flipTileHButton.Click += new System.EventHandler(this.flipTileHButton_Click);
 			// 
 			// TileCount
 			// 
 			this.TileCount.AutoSize = true;
-			this.TileCount.Location = new System.Drawing.Point(3, 189);
+			this.TileCount.Location = new System.Drawing.Point(3, 218);
 			this.TileCount.Name = "TileCount";
 			this.TileCount.Size = new System.Drawing.Size(42, 13);
 			this.TileCount.TabIndex = 4;
@@ -2402,7 +2463,7 @@
 			// 
 			// TileID
 			// 
-			this.TileID.Location = new System.Drawing.Point(3, 166);
+			this.TileID.Location = new System.Drawing.Point(3, 195);
 			this.TileID.Name = "TileID";
 			this.TileID.ReadOnly = true;
 			this.TileID.Size = new System.Drawing.Size(100, 20);
@@ -2604,7 +2665,7 @@
             this.importToolStripMenuItem,
             this.drawToolStripMenuItem});
 			this.tileContextMenuStrip.Name = "contextMenuStrip1";
-			this.tileContextMenuStrip.Size = new System.Drawing.Size(153, 246);
+			this.tileContextMenuStrip.Size = new System.Drawing.Size(141, 224);
 			// 
 			// cutTilesToolStripMenuItem
 			// 
@@ -2621,6 +2682,14 @@
 			this.copyTilesToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
 			this.copyTilesToolStripMenuItem.Text = "&Copy";
 			this.copyTilesToolStripMenuItem.Click += new System.EventHandler(this.copyTilesToolStripMenuItem_Click);
+			// 
+			// deepCopyToolStripMenuItem
+			// 
+			this.deepCopyToolStripMenuItem.Image = global::SonicRetro.SonLVL.Properties.Resources.copy;
+			this.deepCopyToolStripMenuItem.Name = "deepCopyToolStripMenuItem";
+			this.deepCopyToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+			this.deepCopyToolStripMenuItem.Text = "Deep Co&py";
+			this.deepCopyToolStripMenuItem.Click += new System.EventHandler(this.deepCopyToolStripMenuItem_Click);
 			// 
 			// pasteBeforeToolStripMenuItem
 			// 
@@ -2818,14 +2887,6 @@
 			this.loadingAnimation1.UseWaitCursor = true;
 			this.loadingAnimation1.Visible = false;
 			this.loadingAnimation1.SizeChanged += new System.EventHandler(this.loadingAnimation1_SizeChanged);
-			// 
-			// deepCopyToolStripMenuItem
-			// 
-			this.deepCopyToolStripMenuItem.Image = global::SonicRetro.SonLVL.Properties.Resources.copy;
-			this.deepCopyToolStripMenuItem.Name = "deepCopyToolStripMenuItem";
-			this.deepCopyToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-			this.deepCopyToolStripMenuItem.Text = "Deep Co&py";
-			this.deepCopyToolStripMenuItem.Click += new System.EventHandler(this.deepCopyToolStripMenuItem_Click);
 			// 
 			// MainForm
 			// 
@@ -3047,7 +3108,7 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel6;
         internal SonicRetro.SonLVL.API.TileList TileSelector;
         private System.Windows.Forms.Panel panel7;
-        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button rotateTileRightButton;
         private System.Windows.Forms.Label TileCount;
         private System.Windows.Forms.TextBox TileID;
         internal System.Windows.Forms.Panel TilePicture;
@@ -3168,6 +3229,10 @@
 		private System.Windows.Forms.ToolStripButton enableDraggingBlocksButton;
 		private System.Windows.Forms.ToolStripButton enableDraggingTilesButton;
 		private System.Windows.Forms.ToolStripMenuItem deepCopyToolStripMenuItem;
+		private System.Windows.Forms.Button flipBlockVButton;
+		private System.Windows.Forms.Button flipBlockHButton;
+		private System.Windows.Forms.Button flipTileVButton;
+		private System.Windows.Forms.Button flipTileHButton;
 
     }
 }

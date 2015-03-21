@@ -3193,6 +3193,7 @@ namespace SonicRetro.SonLVL.GUI
 			if (BlockSelector.SelectedIndex > -1)
 			{
 				SelectedBlock = BlockSelector.SelectedIndex;
+				flipBlockHButton.Enabled = flipBlockVButton.Enabled = true;
 				SelectedBlockTile = new Point();
 				blockTileEditor.SelectedObject = LevelData.Blocks[SelectedBlock].Tiles[0, 0];
 				if (LevelData.ColInds1.Count > 0)
@@ -3205,6 +3206,8 @@ namespace SonicRetro.SonLVL.GUI
 				BlockCount.Text = LevelData.Blocks.Count.ToString("X") + " / " + blockmax.ToString("X");
 				BlockPicture.Invalidate();
 			}
+			else
+				flipBlockHButton.Enabled = flipBlockVButton.Enabled = false;
 		}
 
 		private void BlockPicture_Paint(object sender, PaintEventArgs e)
@@ -3503,11 +3506,14 @@ namespace SonicRetro.SonLVL.GUI
 			if (TileSelector.SelectedIndex > -1)
 			{
 				SelectedTile = TileSelector.SelectedIndex;
+				rotateTileRightButton.Enabled = flipTileHButton.Enabled = flipTileVButton.Enabled = true;
 				tile = BitmapBits.FromTile(LevelData.Tiles[SelectedTile], 0);
 				TileID.Text = SelectedTile.ToString("X3");
 				TileCount.Text = LevelData.Tiles.Count.ToString("X") + " / 800";
 				TilePicture.Invalidate();
 			}
+			else
+				rotateTileRightButton.Enabled = flipTileHButton.Enabled = flipTileVButton.Enabled = false;
 		}
 
 		private void TilePicture_Paint(object sender, PaintEventArgs e)
@@ -4639,9 +4645,8 @@ namespace SonicRetro.SonLVL.GUI
 			BlockCollision2.Value = sel.Selection;
 		}
 
-		private void button3_Click(object sender, EventArgs e)
+		private void rotateTileRightButton_Click(object sender, EventArgs e)
 		{
-			if (TileSelector.SelectedIndex == -1) return;
 			tile.Rotate(3);
 			LevelData.Tiles[SelectedTile] = tile.ToTile();
 			LevelData.Tiles[SelectedTile].CopyTo(LevelData.TileArray, SelectedTile * 32);
@@ -4656,6 +4661,7 @@ namespace SonicRetro.SonLVL.GUI
 					LevelData.RedrawBlock(i, true);
 			}
 			TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y);
+			blockTileEditor.SelectedObject = blockTileEditor.SelectedObject;
 			TilePicture.Invalidate();
 		}
 
@@ -6994,6 +7000,80 @@ namespace SonicRetro.SonLVL.GUI
 					Clipboard.SetData(typeof(BlockCopyData).AssemblyQualifiedName, new BlockCopyData(LevelData.Blocks[SelectedBlock]));
 					break;
 			}
+		}
+
+		private void flipBlockHButton_Click(object sender, EventArgs e)
+		{
+			Block newblk = new Block();
+			Block oldblk = LevelData.Blocks[SelectedBlock];
+			for (int y = 0; y < 2; y++)
+				for (int x = 0; x < 2; x++)
+				{
+					PatternIndex tile = oldblk.Tiles[1 - x, y];
+					tile.XFlip = !tile.XFlip;
+					newblk.Tiles[x, y] = tile;
+				}
+			LevelData.Blocks[SelectedBlock] = newblk;
+			LevelData.RedrawBlock(SelectedBlock, true);
+			blockTileEditor.SelectedObject = newblk.Tiles[SelectedBlockTile.X, SelectedBlockTile.Y];
+			BlockPicture.Invalidate();
+		}
+
+		private void flipBlockVButton_Click(object sender, EventArgs e)
+		{
+			Block newblk = new Block();
+			Block oldblk = LevelData.Blocks[SelectedBlock];
+			for (int y = 0; y < 2; y++)
+				for (int x = 0; x < 2; x++)
+				{
+					PatternIndex tile = oldblk.Tiles[x, 1 - y];
+					tile.YFlip = !tile.YFlip;
+					newblk.Tiles[x, y] = tile;
+				}
+			LevelData.Blocks[SelectedBlock] = newblk;
+			LevelData.RedrawBlock(SelectedBlock, true);
+			blockTileEditor.SelectedObject = newblk.Tiles[SelectedBlockTile.X, SelectedBlockTile.Y];
+			BlockPicture.Invalidate();
+		}
+
+		private void flipTileHButton_Click(object sender, EventArgs e)
+		{
+			tile.Flip(true, false);
+			LevelData.Tiles[SelectedTile] = tile.ToTile();
+			LevelData.Tiles[SelectedTile].CopyTo(LevelData.TileArray, SelectedTile * 32);
+			for (int i = 0; i < LevelData.Blocks.Count; i++)
+			{
+				bool dr = false;
+				for (int y = 0; y < 2; y++)
+					for (int x = 0; x < 2; x++)
+						if (LevelData.Blocks[i].Tiles[x, y].Tile == SelectedTile)
+							dr = true;
+				if (dr)
+					LevelData.RedrawBlock(i, true);
+			}
+			TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y);
+			blockTileEditor.SelectedObject = blockTileEditor.SelectedObject;
+			TilePicture.Invalidate();
+		}
+
+		private void flipTileVButton_Click(object sender, EventArgs e)
+		{
+			tile.Flip(false, true);
+			LevelData.Tiles[SelectedTile] = tile.ToTile();
+			LevelData.Tiles[SelectedTile].CopyTo(LevelData.TileArray, SelectedTile * 32);
+			for (int i = 0; i < LevelData.Blocks.Count; i++)
+			{
+				bool dr = false;
+				for (int y = 0; y < 2; y++)
+					for (int x = 0; x < 2; x++)
+						if (LevelData.Blocks[i].Tiles[x, y].Tile == SelectedTile)
+							dr = true;
+				if (dr)
+					LevelData.RedrawBlock(i, true);
+			}
+			TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y);
+			blockTileEditor.SelectedObject = blockTileEditor.SelectedObject;
+			TilePicture.Invalidate();
 		}
 	}
 
