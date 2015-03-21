@@ -143,7 +143,7 @@ namespace SonicRetro.SonLVL.API
             }
             catch
             {
-                LevelData.Log("Unable to write file \"" + file + "\" with compression " + cmp.ToString() + ":");
+                LevelData.Log("Unable to write file \"" + destination + "\" with compression " + cmp.ToString() + ":");
                 throw;
             }
         }
