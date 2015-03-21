@@ -272,6 +272,7 @@
 			this.insertLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.deleteLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.loadingAnimation1 = new SonicRetro.SonLVL.LoadingAnimation();
+			this.deepCopyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
 			toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
 			label4 = new System.Windows.Forms.Label();
@@ -2594,6 +2595,7 @@
 			this.tileContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.cutTilesToolStripMenuItem,
             this.copyTilesToolStripMenuItem,
+            this.deepCopyToolStripMenuItem,
             this.pasteBeforeToolStripMenuItem,
             this.pasteAfterToolStripMenuItem,
             this.insertBeforeToolStripMenuItem,
@@ -2602,7 +2604,7 @@
             this.importToolStripMenuItem,
             this.drawToolStripMenuItem});
 			this.tileContextMenuStrip.Name = "contextMenuStrip1";
-			this.tileContextMenuStrip.Size = new System.Drawing.Size(141, 202);
+			this.tileContextMenuStrip.Size = new System.Drawing.Size(153, 246);
 			// 
 			// cutTilesToolStripMenuItem
 			// 
@@ -2816,6 +2818,14 @@
 			this.loadingAnimation1.UseWaitCursor = true;
 			this.loadingAnimation1.Visible = false;
 			this.loadingAnimation1.SizeChanged += new System.EventHandler(this.loadingAnimation1_SizeChanged);
+			// 
+			// deepCopyToolStripMenuItem
+			// 
+			this.deepCopyToolStripMenuItem.Image = global::SonicRetro.SonLVL.Properties.Resources.copy;
+			this.deepCopyToolStripMenuItem.Name = "deepCopyToolStripMenuItem";
+			this.deepCopyToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.deepCopyToolStripMenuItem.Text = "Deep Co&py";
+			this.deepCopyToolStripMenuItem.Click += new System.EventHandler(this.deepCopyToolStripMenuItem_Click);
 			// 
 			// MainForm
 			// 
@@ -3157,6 +3167,7 @@
 		private System.Windows.Forms.ToolStripButton enableDraggingChunksButton;
 		private System.Windows.Forms.ToolStripButton enableDraggingBlocksButton;
 		private System.Windows.Forms.ToolStripButton enableDraggingTilesButton;
+		private System.Windows.Forms.ToolStripMenuItem deepCopyToolStripMenuItem;
 
     }
 }

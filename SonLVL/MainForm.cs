@@ -3560,7 +3560,7 @@ namespace SonicRetro.SonLVL.GUI
 			if (!loaded) return;
 			if (CurrentTab == Tab.Chunks & e.Button == System.Windows.Forms.MouseButtons.Right)
 			{
-				pasteBeforeToolStripMenuItem.Enabled = Clipboard.ContainsData(typeof(Chunk).AssemblyQualifiedName) & LevelData.Chunks.Count < 256;
+				pasteBeforeToolStripMenuItem.Enabled = LevelData.Chunks.Count < 256 && (Clipboard.ContainsData(typeof(Chunk).AssemblyQualifiedName) || Clipboard.ContainsData(typeof(ChunkCopyData).AssemblyQualifiedName));
 				pasteAfterToolStripMenuItem.Enabled = pasteBeforeToolStripMenuItem.Enabled;
 				importToolStripMenuItem.Enabled = LevelData.Chunks.Count < 256;
 				drawToolStripMenuItem.Enabled = importToolStripMenuItem.Enabled;
@@ -3568,6 +3568,7 @@ namespace SonicRetro.SonLVL.GUI
 				insertBeforeToolStripMenuItem.Enabled = importToolStripMenuItem.Enabled;
 				deleteTilesToolStripMenuItem.Enabled = LevelData.Chunks.Count > 1;
 				cutTilesToolStripMenuItem.Enabled = deleteTilesToolStripMenuItem.Enabled;
+				deepCopyToolStripMenuItem.Visible = true;
 				tileContextMenuStrip.Show(ChunkSelector, e.Location);
 			}
 		}
@@ -3578,7 +3579,7 @@ namespace SonicRetro.SonLVL.GUI
 			if (e.Button == System.Windows.Forms.MouseButtons.Right)
 			{
 				int blockmax = LevelData.GetBlockMax();
-				pasteBeforeToolStripMenuItem.Enabled = Clipboard.ContainsData(typeof(Block).AssemblyQualifiedName) & LevelData.Blocks.Count < blockmax;
+				pasteBeforeToolStripMenuItem.Enabled = LevelData.Blocks.Count < blockmax && (Clipboard.ContainsData(typeof(Block).AssemblyQualifiedName) || Clipboard.ContainsData(typeof(BlockCopyData).AssemblyQualifiedName));
 				pasteAfterToolStripMenuItem.Enabled = pasteBeforeToolStripMenuItem.Enabled;
 				importToolStripMenuItem.Enabled = LevelData.Blocks.Count < blockmax;
 				drawToolStripMenuItem.Enabled = importToolStripMenuItem.Enabled;
@@ -3586,6 +3587,7 @@ namespace SonicRetro.SonLVL.GUI
 				insertBeforeToolStripMenuItem.Enabled = importToolStripMenuItem.Enabled;
 				deleteTilesToolStripMenuItem.Enabled = LevelData.Blocks.Count > 1;
 				cutTilesToolStripMenuItem.Enabled = deleteTilesToolStripMenuItem.Enabled;
+				deepCopyToolStripMenuItem.Visible = true;
 				tileContextMenuStrip.Show(BlockSelector, e.Location);
 			}
 		}
@@ -3603,6 +3605,7 @@ namespace SonicRetro.SonLVL.GUI
 				insertBeforeToolStripMenuItem.Enabled = importToolStripMenuItem.Enabled;
 				deleteTilesToolStripMenuItem.Enabled = LevelData.Tiles.Count > 1;
 				cutTilesToolStripMenuItem.Enabled = deleteTilesToolStripMenuItem.Enabled;
+				deepCopyToolStripMenuItem.Visible = false;
 				tileContextMenuStrip.Show(TileSelector, e.Location);
 			}
 		}
@@ -3699,7 +3702,85 @@ namespace SonicRetro.SonLVL.GUI
 			switch (CurrentTab)
 			{
 				case Tab.Chunks:
-					LevelData.Chunks.InsertBefore(SelectedChunk, new Chunk((byte[])Clipboard.GetData(typeof(Chunk).AssemblyQualifiedName), 0));
+					if (Clipboard.ContainsData(typeof(ChunkCopyData).AssemblyQualifiedName))
+					{
+						ChunkCopyData cnkcpy = (ChunkCopyData)Clipboard.GetData(typeof(ChunkCopyData).AssemblyQualifiedName);
+						bool isS2 = false;
+						switch (LevelData.Level.ChunkFormat)
+						{
+							case EngineVersion.S2NA:
+							case EngineVersion.S2:
+							case EngineVersion.S3K:
+							case EngineVersion.SKC:
+								isS2 = true;
+								break;
+						}
+						if (cnkcpy.IsS2 != isS2)
+						{
+							MessageBox.Show(this, "Copied chunk data does not match current level's format.", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+							return;
+						}
+						if (LevelData.Blocks.Count + cnkcpy.Blocks.Count > LevelData.GetBlockMax())
+						{
+							MessageBox.Show(this, "Level does not have enough free blocks.", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+							return;
+						}
+						if (LevelData.Tiles.Count + cnkcpy.Tiles.Count > 0x8000)
+						{
+							MessageBox.Show(this, "Level does not have enough free tiles.", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+							return;
+						}
+						List<ushort> tiles = new List<ushort>(cnkcpy.Tiles.Count);
+						foreach (byte[] tile in cnkcpy.Tiles)
+						{
+							ushort ti = (ushort)LevelData.Tiles.Count;
+							for (ushort j = 0; j < LevelData.Tiles.Count; j++)
+								if (tile.SequenceEqual(LevelData.Tiles[j]))
+								{
+									ti = j;
+									break;
+								}
+							if (ti == LevelData.Tiles.Count)
+								LevelData.Tiles.Add(tile);
+							tiles.Add(ti);
+						}
+						List<ushort> blocks = new List<ushort>(cnkcpy.Blocks.Count);
+						for (int i = 0; i < cnkcpy.Blocks.Count; i++)
+						{
+							Block block = cnkcpy.Blocks[i];
+							for (int y = 0; y < 2; y++)
+								for (int x = 0; x < 2; x++)
+									block.Tiles[x, y].Tile = tiles[block.Tiles[x, y].Tile];
+							ushort bi = (ushort)LevelData.Blocks.Count;
+							for (ushort j = 0; j < LevelData.Blocks.Count; j++)
+								if (block.Equals(LevelData.Blocks[j]))
+								{
+									bi = j;
+									break;
+								}
+							if (bi == LevelData.Blocks.Count)
+							{
+								LevelData.Blocks.Add(block);
+								LevelData.ColInds1.Add(cnkcpy.ColInds1[i]);
+								if (LevelData.ColInds2 != null && LevelData.ColInds2 != LevelData.ColInds1)
+									LevelData.ColInds2.Add(cnkcpy.ColInds2[i]);
+								LevelData.BlockBmps.Add(new Bitmap[2]);
+								LevelData.BlockBmpBits.Add(new BitmapBits[2]);
+								LevelData.CompBlockBmps.Add(null);
+								LevelData.CompBlockBmpBits.Add(null);
+								LevelData.RedrawBlock(bi, false);
+							}
+							blocks.Add(bi);
+						}
+						for (int y = 0; y < LevelData.chunksz / 16; y++)
+							for (int x = 0; x < LevelData.chunksz / 16; x++)
+								cnkcpy.Chunk.Blocks[x, y].Block = blocks[cnkcpy.Chunk.Blocks[x, y].Block];
+						LevelData.Chunks.InsertBefore(SelectedChunk, cnkcpy.Chunk);
+					}
+					else
+					{
+						LevelData.Chunks.InsertBefore(SelectedChunk, new Chunk((byte[])Clipboard.GetData(typeof(Chunk).AssemblyQualifiedName), 0));
+					}
 					LevelData.ChunkBmpBits.Insert(SelectedChunk, new BitmapBits[2]);
 					LevelData.ChunkBmps.Insert(SelectedChunk, new Bitmap[2]);
 					LevelData.ChunkColBmpBits.Insert(SelectedChunk, new BitmapBits[2]);
@@ -3718,7 +3799,37 @@ namespace SonicRetro.SonLVL.GUI
 					ChunkSelector.SelectedIndex = SelectedChunk;
 					break;
 				case Tab.Blocks:
-					LevelData.Blocks.InsertBefore(SelectedBlock, new Block((byte[])Clipboard.GetData(typeof(Block).AssemblyQualifiedName), 0));
+					if (Clipboard.ContainsData(typeof(BlockCopyData).AssemblyQualifiedName))
+					{
+						BlockCopyData blkcpy = (BlockCopyData)Clipboard.GetData(typeof(BlockCopyData).AssemblyQualifiedName);
+						if (LevelData.Tiles.Count + blkcpy.Tiles.Count > 0x8000)
+						{
+							MessageBox.Show(this, "Level does not have enough free tiles.", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+							return;
+						}
+						List<ushort> tiles = new List<ushort>(blkcpy.Tiles.Count);
+						foreach (byte[] tile in blkcpy.Tiles)
+						{
+							ushort ti = (ushort)LevelData.Tiles.Count;
+							for (ushort j = 0; j < LevelData.Tiles.Count; j++)
+								if (tile.SequenceEqual(LevelData.Tiles[j]))
+								{
+									ti = j;
+									break;
+								}
+							if (ti == LevelData.Tiles.Count)
+								LevelData.Tiles.Add(tile);
+							tiles.Add(ti);
+						}
+						for (int y = 0; y < 2; y++)
+							for (int x = 0; x < 2; x++)
+								blkcpy.Block.Tiles[x, y].Tile = tiles[blkcpy.Block.Tiles[x, y].Tile];
+						LevelData.Blocks.InsertBefore(SelectedBlock, blkcpy.Block);
+					}
+					else
+					{
+						LevelData.Blocks.InsertBefore(SelectedBlock, new Block((byte[])Clipboard.GetData(typeof(Block).AssemblyQualifiedName), 0));
+					}
 					LevelData.BlockBmps.Insert(SelectedBlock, new Bitmap[2]);
 					LevelData.BlockBmpBits.Insert(SelectedBlock, new BitmapBits[2]);
 					LevelData.CompBlockBmps.Insert(SelectedBlock, null);
@@ -3755,7 +3866,85 @@ namespace SonicRetro.SonLVL.GUI
 			switch (CurrentTab)
 			{
 				case Tab.Chunks:
-					LevelData.Chunks.InsertAfter(SelectedChunk, new Chunk((byte[])Clipboard.GetData(typeof(Chunk).AssemblyQualifiedName), 0));
+					if (Clipboard.ContainsData(typeof(ChunkCopyData).AssemblyQualifiedName))
+					{
+						ChunkCopyData cnkcpy = (ChunkCopyData)Clipboard.GetData(typeof(ChunkCopyData).AssemblyQualifiedName);
+						bool isS2 = false;
+						switch (LevelData.Level.ChunkFormat)
+						{
+							case EngineVersion.S2NA:
+							case EngineVersion.S2:
+							case EngineVersion.S3K:
+							case EngineVersion.SKC:
+								isS2 = true;
+								break;
+						}
+						if (cnkcpy.IsS2 != isS2)
+						{
+							MessageBox.Show(this, "Copied chunk data does not match current level's format.", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+							return;
+						}
+						if (LevelData.Blocks.Count + cnkcpy.Blocks.Count > LevelData.GetBlockMax())
+						{
+							MessageBox.Show(this, "Level does not have enough free blocks.", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+							return;
+						}
+						if (LevelData.Tiles.Count + cnkcpy.Tiles.Count > 0x8000)
+						{
+							MessageBox.Show(this, "Level does not have enough free tiles.", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+							return;
+						}
+						List<ushort> tiles = new List<ushort>(cnkcpy.Tiles.Count);
+						foreach (byte[] tile in cnkcpy.Tiles)
+						{
+							ushort ti = (ushort)LevelData.Tiles.Count;
+							for (ushort j = 0; j < LevelData.Tiles.Count; j++)
+								if (tile.SequenceEqual(LevelData.Tiles[j]))
+								{
+									ti = j;
+									break;
+								}
+							if (ti == LevelData.Tiles.Count)
+								LevelData.Tiles.Add(tile);
+							tiles.Add(ti);
+						}
+						List<ushort> blocks = new List<ushort>(cnkcpy.Blocks.Count);
+						for (int i = 0; i < cnkcpy.Blocks.Count; i++)
+						{
+							Block block = cnkcpy.Blocks[i];
+							for (int y = 0; y < 2; y++)
+								for (int x = 0; x < 2; x++)
+									block.Tiles[x, y].Tile = tiles[block.Tiles[x, y].Tile];
+							ushort bi = (ushort)LevelData.Blocks.Count;
+							for (ushort j = 0; j < LevelData.Blocks.Count; j++)
+								if (block.Equals(LevelData.Blocks[j]))
+								{
+									bi = j;
+									break;
+								}
+							if (bi == LevelData.Blocks.Count)
+							{
+								LevelData.Blocks.Add(block);
+								LevelData.ColInds1.Add(cnkcpy.ColInds1[i]);
+								if (LevelData.ColInds2 != null && LevelData.ColInds2 != LevelData.ColInds1)
+									LevelData.ColInds2.Add(cnkcpy.ColInds2[i]);
+								LevelData.BlockBmps.Add(new Bitmap[2]);
+								LevelData.BlockBmpBits.Add(new BitmapBits[2]);
+								LevelData.CompBlockBmps.Add(null);
+								LevelData.CompBlockBmpBits.Add(null);
+								LevelData.RedrawBlock(bi, false);
+							}
+							blocks.Add(bi);
+						}
+						for (int y = 0; y < LevelData.chunksz / 16; y++)
+							for (int x = 0; x < LevelData.chunksz / 16; x++)
+								cnkcpy.Chunk.Blocks[x, y].Block = blocks[cnkcpy.Chunk.Blocks[x, y].Block];
+						LevelData.Chunks.InsertAfter(SelectedChunk, cnkcpy.Chunk);
+					}
+					else
+					{
+						LevelData.Chunks.InsertAfter(SelectedChunk, new Chunk((byte[])Clipboard.GetData(typeof(Chunk).AssemblyQualifiedName), 0));
+					}
 					SelectedChunk++;
 					LevelData.ChunkBmpBits.Insert(SelectedChunk, new BitmapBits[2]);
 					LevelData.ChunkBmps.Insert(SelectedChunk, new Bitmap[2]);
@@ -3775,7 +3964,37 @@ namespace SonicRetro.SonLVL.GUI
 					ChunkSelector.SelectedIndex = SelectedChunk;
 					break;
 				case Tab.Blocks:
-					LevelData.Blocks.InsertAfter(SelectedBlock, new Block((byte[])Clipboard.GetData(typeof(Block).AssemblyQualifiedName), 0));
+					if (Clipboard.ContainsData(typeof(BlockCopyData).AssemblyQualifiedName))
+					{
+						BlockCopyData blkcpy = (BlockCopyData)Clipboard.GetData(typeof(BlockCopyData).AssemblyQualifiedName);
+						if (LevelData.Tiles.Count + blkcpy.Tiles.Count > 0x8000)
+						{
+							MessageBox.Show(this, "Level does not have enough free tiles.", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+							return;
+						}
+						List<ushort> tiles = new List<ushort>(blkcpy.Tiles.Count);
+						foreach (byte[] tile in blkcpy.Tiles)
+						{
+							ushort ti = (ushort)LevelData.Tiles.Count;
+							for (ushort j = 0; j < LevelData.Tiles.Count; j++)
+								if (tile.SequenceEqual(LevelData.Tiles[j]))
+								{
+									ti = j;
+									break;
+								}
+							if (ti == LevelData.Tiles.Count)
+								LevelData.Tiles.Add(tile);
+							tiles.Add(ti);
+						}
+						for (int y = 0; y < 2; y++)
+							for (int x = 0; x < 2; x++)
+								blkcpy.Block.Tiles[x, y].Tile = tiles[blkcpy.Block.Tiles[x, y].Tile];
+						LevelData.Blocks.InsertAfter(SelectedBlock, blkcpy.Block);
+					}
+					else
+					{
+						LevelData.Blocks.InsertAfter(SelectedBlock, new Block((byte[])Clipboard.GetData(typeof(Block).AssemblyQualifiedName), 0));
+					}
 					SelectedBlock++;
 					LevelData.BlockBmps.Insert(SelectedBlock, new Bitmap[2]);
 					LevelData.BlockBmpBits.Insert(SelectedBlock, new BitmapBits[2]);
@@ -6742,6 +6961,19 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			PasteLayoutSectionRepeating(savedLayoutSections[layoutSectionListBox.SelectedIndex]);
 		}
+
+		private void deepCopyToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			switch (CurrentTab)
+			{
+				case Tab.Chunks:
+					Clipboard.SetData(typeof(ChunkCopyData).AssemblyQualifiedName, new ChunkCopyData(LevelData.Chunks[SelectedChunk]));
+					break;
+				case Tab.Blocks:
+					Clipboard.SetData(typeof(BlockCopyData).AssemblyQualifiedName, new BlockCopyData(LevelData.Blocks[SelectedBlock]));
+					break;
+			}
+		}
 	}
 
 	internal enum EditingMode { Draw, Select }
@@ -6759,6 +6991,103 @@ namespace SonicRetro.SonLVL.GUI
 			Layout = layout;
 			Loop = loop;
 			Objects = objects;
+		}
+	}
+
+	[Serializable]
+	public class ChunkCopyData
+	{
+		public List<byte[]> Tiles { get; set; }
+		public List<Block> Blocks { get; set; }
+		public List<byte> ColInds1 { get; set; }
+		public List<byte> ColInds2 { get; set; }
+		public Chunk Chunk { get; set; }
+		public bool IsS2 { get; set; }
+
+		public ChunkCopyData(Chunk chunk)
+		{
+			switch (LevelData.Level.ChunkFormat)
+			{
+				case EngineVersion.S2NA:
+				case EngineVersion.S2:
+				case EngineVersion.S3K:
+				case EngineVersion.SKC:
+					IsS2 = true;
+					break;
+			}
+			Chunk = new Chunk(chunk.GetBytes(), 0);
+			List<ushort> blocks = new List<ushort>();
+			if (LevelData.ColInds1 != null)
+			{
+				ColInds1 = new List<byte>();
+				if (LevelData.ColInds2 != null && LevelData.ColInds2 != LevelData.ColInds1)
+					ColInds2 = new List<byte>();
+			}
+			for (int y = 0; y < LevelData.chunksz / 16; y++)
+				for (int x = 0; x < LevelData.chunksz / 16; x++)
+				{
+					int i = blocks.IndexOf(chunk.Blocks[x, y].Block);
+					if (i == -1)
+					{
+						i = blocks.Count;
+						blocks.Add(chunk.Blocks[x, y].Block);
+						if (ColInds1 != null)
+						{
+							ColInds1.Add(LevelData.ColInds1[chunk.Blocks[x, y].Block]);
+							if (ColInds2 != null)
+								ColInds2.Add(LevelData.ColInds2[chunk.Blocks[x, y].Block]);
+						}
+					}
+					Chunk.Blocks[x, y].Block = (ushort)i;
+				}
+			Blocks = new List<Block>(blocks.Count);
+			List<ushort> tiles = new List<ushort>();
+			foreach (ushort blkind in blocks)
+			{
+				Block block = new Block(LevelData.Blocks[blkind].GetBytes(), 0);
+				for (int y = 0; y < 2; y++)
+					for (int x = 0; x < 2; x++)
+					{
+						int i = tiles.IndexOf(block.Tiles[x, y].Tile);
+						if (i == -1)
+						{
+							i = tiles.Count;
+							tiles.Add(block.Tiles[x, y].Tile);
+						}
+						block.Tiles[x, y].Tile = (ushort)i;
+					}
+				Blocks.Add(block);
+			}
+			Tiles = new List<byte[]>(tiles.Count);
+			for (int i = 0; i < tiles.Count; i++)
+				Tiles.Add(LevelData.Tiles[tiles[i]]);
+		}
+	}
+
+	[Serializable]
+	public class BlockCopyData
+	{
+		public List<byte[]> Tiles { get; set; }
+		public Block Block { get; set; }
+
+		public BlockCopyData(Block block)
+		{
+			Block = new Block(block.GetBytes(), 0);
+			List<ushort> tiles = new List<ushort>();
+			for (int y = 0; y < 2; y++)
+				for (int x = 0; x < 2; x++)
+				{
+					int i = tiles.IndexOf(block.Tiles[x, y].Tile);
+					if (i == -1)
+					{
+						i = tiles.Count;
+						tiles.Add(block.Tiles[x, y].Tile);
+					}
+					Block.Tiles[x, y].Tile = (ushort)i;
+				}
+			Tiles = new List<byte[]>(tiles.Count);
+			for (int i = 0; i < tiles.Count; i++)
+				Tiles.Add(LevelData.Tiles[tiles[i]]);
 		}
 	}
 

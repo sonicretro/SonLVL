@@ -107,6 +107,7 @@ namespace SonicRetro.SonLVL.API
         }
     }
 
+	[Serializable]
     public class PatternIndex
     {
         public bool Priority { get; set; }
@@ -209,6 +210,7 @@ namespace SonicRetro.SonLVL.API
         }
     }
 
+	[Serializable]
     public class Block
     {
         public PatternIndex[,] Tiles { get; set; }
@@ -264,6 +266,7 @@ namespace SonicRetro.SonLVL.API
         AllSolid = 3
     }
 
+	[Serializable]
     public abstract class ChunkBlock
     {
         protected byte _so1;
@@ -330,6 +333,7 @@ namespace SonicRetro.SonLVL.API
         }
     }
 
+	[Serializable]
     public class S2ChunkBlock : ChunkBlock
     {
         private byte _so2;
@@ -382,6 +386,7 @@ namespace SonicRetro.SonLVL.API
         }
     }
 
+	[Serializable]
     public class S1ChunkBlock : ChunkBlock
     {
         public S1ChunkBlock() { }
@@ -416,6 +421,7 @@ namespace SonicRetro.SonLVL.API
         }
     }
 
+	[Serializable]
     public class Chunk
     {
         public ChunkBlock[,] Blocks { get; set; }
