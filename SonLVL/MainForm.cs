@@ -3664,6 +3664,7 @@ namespace SonicRetro.SonLVL.GUI
 					LevelData.Tiles.RemoveAt(SelectedTile);
 					LevelData.UpdateTileArray();
 					TileSelector.Images.RemoveAt(SelectedTile);
+					blockTileEditor.SelectedObject = blockTileEditor.SelectedObject;
 					for (int i = 0; i < LevelData.Blocks.Count; i++)
 					{
 						bool dr = false;
@@ -3741,9 +3742,13 @@ namespace SonicRetro.SonLVL.GUI
 									break;
 								}
 							if (ti == LevelData.Tiles.Count)
+							{
 								LevelData.Tiles.Add(tile);
+								TileSelector.Images.Add(LevelData.TileToBmp4bpp(tile, 0, SelectedColor.Y));
+							}
 							tiles.Add(ti);
 						}
+						blockTileEditor.SelectedObject = blockTileEditor.SelectedObject;
 						List<ushort> blocks = new List<ushort>(cnkcpy.Blocks.Count);
 						for (int i = 0; i < cnkcpy.Blocks.Count; i++)
 						{
@@ -3818,7 +3823,10 @@ namespace SonicRetro.SonLVL.GUI
 									break;
 								}
 							if (ti == LevelData.Tiles.Count)
+							{
 								LevelData.Tiles.Add(tile);
+								TileSelector.Images.Add(LevelData.TileToBmp4bpp(tile, 0, SelectedColor.Y));
+							}
 							tiles.Add(ti);
 						}
 						for (int y = 0; y < 2; y++)
@@ -3851,6 +3859,7 @@ namespace SonicRetro.SonLVL.GUI
 					LevelData.Tiles.InsertBefore(SelectedTile, t);
 					LevelData.UpdateTileArray();
 					TileSelector.Images.Insert(SelectedTile, LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y));
+					blockTileEditor.SelectedObject = blockTileEditor.SelectedObject;
 					for (int i = 0; i < LevelData.Blocks.Count; i++)
 						for (int y = 0; y < 2; y++)
 							for (int x = 0; x < 2; x++)
@@ -3905,9 +3914,13 @@ namespace SonicRetro.SonLVL.GUI
 									break;
 								}
 							if (ti == LevelData.Tiles.Count)
+							{
 								LevelData.Tiles.Add(tile);
+								TileSelector.Images.Add(LevelData.TileToBmp4bpp(tile, 0, SelectedColor.Y));
+							}
 							tiles.Add(ti);
 						}
+						blockTileEditor.SelectedObject = blockTileEditor.SelectedObject;
 						List<ushort> blocks = new List<ushort>(cnkcpy.Blocks.Count);
 						for (int i = 0; i < cnkcpy.Blocks.Count; i++)
 						{
@@ -3983,7 +3996,10 @@ namespace SonicRetro.SonLVL.GUI
 									break;
 								}
 							if (ti == LevelData.Tiles.Count)
+							{
 								LevelData.Tiles.Add(tile);
+								TileSelector.Images.Add(LevelData.TileToBmp4bpp(tile, 0, SelectedColor.Y));
+							}
 							tiles.Add(ti);
 						}
 						for (int y = 0; y < 2; y++)
@@ -4018,6 +4034,7 @@ namespace SonicRetro.SonLVL.GUI
 					SelectedTile++;
 					LevelData.UpdateTileArray();
 					TileSelector.Images.Insert(SelectedTile, LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y));
+					blockTileEditor.SelectedObject = blockTileEditor.SelectedObject;
 					for (int i = 0; i < LevelData.Blocks.Count; i++)
 						for (int y = 0; y < 2; y++)
 							for (int x = 0; x < 2; x++)
@@ -4080,6 +4097,7 @@ namespace SonicRetro.SonLVL.GUI
 					LevelData.Tiles.InsertBefore(SelectedTile, new byte[32]);
 					LevelData.UpdateTileArray();
 					TileSelector.Images.Insert(SelectedTile, LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y));
+					blockTileEditor.SelectedObject = blockTileEditor.SelectedObject;
 					for (int i = 0; i < LevelData.Blocks.Count; i++)
 						for (int y = 0; y < 2; y++)
 							for (int x = 0; x < 2; x++)
@@ -4146,6 +4164,7 @@ namespace SonicRetro.SonLVL.GUI
 					SelectedTile++;
 					LevelData.UpdateTileArray();
 					TileSelector.Images.Insert(SelectedTile, LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y));
+					blockTileEditor.SelectedObject = blockTileEditor.SelectedObject;
 					for (int i = 0; i < LevelData.Blocks.Count; i++)
 						for (int y = 0; y < 2; y++)
 							for (int x = 0; x < 2; x++)
@@ -4214,6 +4233,7 @@ namespace SonicRetro.SonLVL.GUI
 					LevelData.Tiles.RemoveAt(SelectedTile);
 					LevelData.UpdateTileArray();
 					TileSelector.Images.RemoveAt(SelectedTile);
+					blockTileEditor.SelectedObject = blockTileEditor.SelectedObject;
 					for (int i = 0; i < LevelData.Blocks.Count; i++)
 					{
 						bool dr = false;
@@ -4507,6 +4527,7 @@ namespace SonicRetro.SonLVL.GUI
 							TileSelector.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y));
 						}
 					TileSelector.SelectedIndex = SelectedTile;
+					blockTileEditor.SelectedObject = blockTileEditor.SelectedObject;
 					break;
 			}
 			bmp.Dispose();
