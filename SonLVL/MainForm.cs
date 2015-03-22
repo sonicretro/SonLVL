@@ -3180,7 +3180,7 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			if (!loaded || e.Button != MouseButtons.Right) return;
 			SelectedBlockTile = new Point(e.X / 32, e.Y / 32);
-			blockTileEditor.SelectedObject = LevelData.Blocks[SelectedBlock].Tiles[e.X / 32, e.Y / 32];
+			copiedBlockTile = blockTileEditor.SelectedObject = LevelData.Blocks[SelectedBlock].Tiles[e.X / 32, e.Y / 32];
 			DrawBlockPicture();
 		}
 
