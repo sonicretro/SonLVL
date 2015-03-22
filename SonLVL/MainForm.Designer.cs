@@ -43,6 +43,7 @@
 			System.Windows.Forms.Panel panel3;
 			System.Windows.Forms.ToolStrip toolStrip3;
 			System.Windows.Forms.TabControl tabControl2;
+			System.Windows.Forms.Label label1;
 			this.remapChunksButton = new System.Windows.Forms.ToolStripButton();
 			this.enableDraggingChunksButton = new System.Windows.Forms.ToolStripButton();
 			this.panel10 = new System.Windows.Forms.Panel();
@@ -205,7 +206,6 @@
 			this.panel4 = new System.Windows.Forms.Panel();
 			this.flipChunkVButton = new System.Windows.Forms.Button();
 			this.flipChunkHButton = new System.Windows.Forms.Button();
-			this.label1 = new System.Windows.Forms.Label();
 			this.ChunkCount = new System.Windows.Forms.Label();
 			this.ChunkID = new System.Windows.Forms.TextBox();
 			this.ChunkPicture = new SonicRetro.SonLVL.API.KeyboardPanel();
@@ -277,6 +277,7 @@
 			this.insertLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.deleteLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.loadingAnimation1 = new SonicRetro.SonLVL.LoadingAnimation();
+			this.showBlockBehindCollisionCheckBox = new System.Windows.Forms.CheckBox();
 			toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
 			toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
 			label4 = new System.Windows.Forms.Label();
@@ -290,6 +291,7 @@
 			panel3 = new System.Windows.Forms.Panel();
 			toolStrip3 = new System.Windows.Forms.ToolStrip();
 			tabControl2 = new System.Windows.Forms.TabControl();
+			label1 = new System.Windows.Forms.Label();
 			toolStrip1.SuspendLayout();
 			panel1.SuspendLayout();
 			panel2.SuspendLayout();
@@ -677,6 +679,16 @@
 			this.layoutSectionPreview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
 			this.layoutSectionPreview.TabIndex = 0;
 			this.layoutSectionPreview.TabStop = false;
+			// 
+			// label1
+			// 
+			label1.AutoSize = true;
+			label1.Location = new System.Drawing.Point(110, 294);
+			label1.Name = "label1";
+			label1.Size = new System.Drawing.Size(147, 26);
+			label1.TabIndex = 4;
+			label1.Text = "LMB: Paint w/ selected block\r\nRMB: Select block";
+			label1.TextAlign = System.Drawing.ContentAlignment.TopRight;
 			// 
 			// fileToolStripMenuItem
 			// 
@@ -2102,7 +2114,7 @@
 			this.panel4.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.panel4.Controls.Add(this.flipChunkVButton);
 			this.panel4.Controls.Add(this.flipChunkHButton);
-			this.panel4.Controls.Add(this.label1);
+			this.panel4.Controls.Add(label1);
 			this.panel4.Controls.Add(this.ChunkCount);
 			this.panel4.Controls.Add(this.ChunkID);
 			this.panel4.Controls.Add(this.ChunkPicture);
@@ -2136,16 +2148,6 @@
 			this.flipChunkHButton.Text = "Flip Horizontally";
 			this.flipChunkHButton.UseVisualStyleBackColor = true;
 			this.flipChunkHButton.Click += new System.EventHandler(this.flipChunkHButton_Click);
-			// 
-			// label1
-			// 
-			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(110, 294);
-			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(149, 26);
-			this.label1.TabIndex = 4;
-			this.label1.Text = "LMB: Select block\r\nRMB: Paint w/ selected block";
-			this.label1.TextAlign = System.Drawing.ContentAlignment.TopRight;
 			// 
 			// ChunkCount
 			// 
@@ -2283,6 +2285,9 @@
 			this.BlockPicture.Paint += new System.Windows.Forms.PaintEventHandler(this.BlockPicture_Paint);
 			this.BlockPicture.KeyDown += new System.Windows.Forms.KeyEventHandler(this.BlockPicture_KeyDown);
 			this.BlockPicture.MouseClick += new System.Windows.Forms.MouseEventHandler(this.BlockPicture_MouseClick);
+			this.BlockPicture.MouseDown += new System.Windows.Forms.MouseEventHandler(this.BlockPicture_MouseDown);
+			this.BlockPicture.MouseMove += new System.Windows.Forms.MouseEventHandler(this.BlockPicture_MouseMove);
+			this.BlockPicture.MouseUp += new System.Windows.Forms.MouseEventHandler(this.BlockPicture_MouseUp);
 			// 
 			// panel6
 			// 
@@ -2603,12 +2608,13 @@
 			// 
 			this.panel9.AutoSize = true;
 			this.panel9.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.panel9.Controls.Add(this.showBlockBehindCollisionCheckBox);
 			this.panel9.Controls.Add(this.ColID);
 			this.panel9.Controls.Add(this.ColAngle);
 			this.panel9.Controls.Add(this.ColPicture);
 			this.panel9.Location = new System.Drawing.Point(3, 3);
 			this.panel9.Name = "panel9";
-			this.panel9.Size = new System.Drawing.Size(118, 100);
+			this.panel9.Size = new System.Drawing.Size(118, 123);
 			this.panel9.TabIndex = 1;
 			// 
 			// ColID
@@ -2887,6 +2893,17 @@
 			this.loadingAnimation1.UseWaitCursor = true;
 			this.loadingAnimation1.Visible = false;
 			this.loadingAnimation1.SizeChanged += new System.EventHandler(this.loadingAnimation1_SizeChanged);
+			// 
+			// showBlockBehindCollisionCheckBox
+			// 
+			this.showBlockBehindCollisionCheckBox.AutoSize = true;
+			this.showBlockBehindCollisionCheckBox.Location = new System.Drawing.Point(3, 103);
+			this.showBlockBehindCollisionCheckBox.Name = "showBlockBehindCollisionCheckBox";
+			this.showBlockBehindCollisionCheckBox.Size = new System.Drawing.Size(83, 17);
+			this.showBlockBehindCollisionCheckBox.TabIndex = 5;
+			this.showBlockBehindCollisionCheckBox.Text = "Show Block";
+			this.showBlockBehindCollisionCheckBox.UseVisualStyleBackColor = true;
+			this.showBlockBehindCollisionCheckBox.CheckedChanged += new System.EventHandler(this.showBlockBehindCollisionCheckBox_CheckedChanged);
 			// 
 			// MainForm
 			// 
@@ -3188,8 +3205,7 @@
         private System.Windows.Forms.ToolStripMenuItem findToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem findNextToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem useHexadecimalIndexesToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem solidityMapsToolStripMenuItem;
-        private System.Windows.Forms.Label label1;
+		private System.Windows.Forms.ToolStripMenuItem solidityMapsToolStripMenuItem;
 		private System.Windows.Forms.Button flipChunkHButton;
 		private System.Windows.Forms.Button flipChunkVButton;
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel8;
@@ -3233,6 +3249,7 @@
 		private System.Windows.Forms.Button flipBlockHButton;
 		private System.Windows.Forms.Button flipTileVButton;
 		private System.Windows.Forms.Button flipTileHButton;
+		private System.Windows.Forms.CheckBox showBlockBehindCollisionCheckBox;
 
     }
 }

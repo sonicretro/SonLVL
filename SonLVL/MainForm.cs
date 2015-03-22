@@ -2994,28 +2994,31 @@ namespace SonicRetro.SonLVL.GUI
 
 		public int SelectedBlock, SelectedTile;
 		public Point SelectedChunkBlock, SelectedBlockTile, SelectedColor;
+		PatternIndex copiedBlockTile;
+		ChunkBlock copiedChunkBlock;
 
 		private void ChunkPicture_MouseClick(object sender, MouseEventArgs e)
 		{
-			if (!loaded || e.Button != MouseButtons.Left) return;
+			if (!loaded || e.Button != MouseButtons.Right) return;
 			SelectedChunkBlock = new Point(e.X / 16, e.Y / 16);
-			chunkBlockEditor.SelectedObject = LevelData.Chunks[SelectedChunk].Blocks[e.X / 16, e.Y / 16];
+			copiedChunkBlock = chunkBlockEditor.SelectedObject = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
 			DrawChunkPicture();
 		}
 
 		private void ChunkPicture_MouseMove(object sender, MouseEventArgs e)
 		{
-			if (loaded && e.Button == MouseButtons.Right)
+			if (loaded && e.Button == MouseButtons.Left)
 				if (e.X > 0 && e.Y > 0 && e.X < LevelData.chunksz && e.Y < LevelData.chunksz)
 				{
-					ChunkBlock srcBlock = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
-					ChunkBlock destBlock = LevelData.Chunks[SelectedChunk].Blocks[e.X / 16, e.Y / 16];
-					destBlock.Block = srcBlock.Block;
-					destBlock.Solid1 = srcBlock.Solid1;
-					destBlock.XFlip = srcBlock.XFlip;
-					destBlock.YFlip = srcBlock.YFlip;
-					if (srcBlock is S2ChunkBlock)
-						((S2ChunkBlock)destBlock).Solid2 = ((S2ChunkBlock)srcBlock).Solid2;
+					SelectedChunkBlock = new Point(e.X / 16, e.Y / 16);
+					ChunkBlock destBlock = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
+					destBlock.Block = copiedChunkBlock.Block;
+					destBlock.Solid1 = copiedChunkBlock.Solid1;
+					destBlock.XFlip = copiedChunkBlock.XFlip;
+					destBlock.YFlip = copiedChunkBlock.YFlip;
+					if (copiedChunkBlock is S2ChunkBlock)
+						((S2ChunkBlock)destBlock).Solid2 = ((S2ChunkBlock)copiedChunkBlock).Solid2;
+					LevelData.RedrawChunk(SelectedChunk);
 					DrawChunkPicture();
 				}
 		}
@@ -3027,7 +3030,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void ChunkPicture_MouseUp(object sender, MouseEventArgs e)
 		{
-			if (loaded && e.Button == MouseButtons.Right)
+			if (loaded && e.Button == MouseButtons.Left)
 			{
 				LevelData.RedrawChunk(SelectedChunk);
 				DrawLevel();
@@ -3175,17 +3178,49 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void BlockPicture_MouseClick(object sender, MouseEventArgs e)
 		{
-			if (!loaded) return;
+			if (!loaded || e.Button != MouseButtons.Right) return;
 			SelectedBlockTile = new Point(e.X / 32, e.Y / 32);
 			blockTileEditor.SelectedObject = LevelData.Blocks[SelectedBlock].Tiles[e.X / 32, e.Y / 32];
-			BlockPicture.Invalidate();
+			DrawBlockPicture();
+		}
+
+		private void BlockPicture_MouseMove(object sender, MouseEventArgs e)
+		{
+			if (loaded && e.Button == MouseButtons.Left)
+				if (e.X > 0 && e.Y > 0 && e.X < 64 && e.Y < 64)
+				{
+					SelectedBlockTile = new Point(e.X / 32, e.Y / 32);
+					PatternIndex destTile = LevelData.Blocks[SelectedBlock].Tiles[SelectedBlockTile.X, SelectedBlockTile.Y];
+					destTile.Tile = copiedBlockTile.Tile;
+					destTile.Palette = copiedBlockTile.Palette;
+					destTile.Priority = copiedBlockTile.Priority;
+					destTile.XFlip = copiedBlockTile.XFlip;
+					destTile.YFlip = copiedBlockTile.YFlip;
+					LevelData.RedrawBlock(SelectedBlock, false);
+					DrawBlockPicture();
+				}
+		}
+
+		private void BlockPicture_MouseDown(object sender, MouseEventArgs e)
+		{
+			BlockPicture_MouseMove(sender, e);
+		}
+
+		private void BlockPicture_MouseUp(object sender, MouseEventArgs e)
+		{
+			if (loaded && e.Button == MouseButtons.Left)
+			{
+				LevelData.RedrawBlock(SelectedBlock, true);
+				DrawLevel();
+				DrawBlockPicture();
+			}
 		}
 
 		private void blockTileEditor_PropertyValueChanged(object sender, EventArgs e)
 		{
 			LevelData.RedrawBlock(SelectedBlock, true);
 			DrawLevel();
-			BlockPicture.Invalidate();
+			DrawBlockPicture();
 		}
 
 		private void BlockSelector_SelectedIndexChanged(object sender, EventArgs e)
@@ -3202,28 +3237,61 @@ namespace SonicRetro.SonLVL.GUI
 					BlockCollision2.Value = LevelData.ColInds2[SelectedBlock];
 				}
 				BlockID.Text = SelectedBlock.ToString("X3");
-				int blockmax = LevelData.GetBlockMax();
-				BlockCount.Text = LevelData.Blocks.Count.ToString("X") + " / " + blockmax.ToString("X");
-				BlockPicture.Invalidate();
+				BlockCount.Text = LevelData.Blocks.Count.ToString("X") + " / " + LevelData.GetBlockMax().ToString("X");
+				DrawBlockPicture();
+				switch (LevelData.Level.ChunkFormat)
+				{
+					case EngineVersion.S1:
+					case EngineVersion.SCD:
+					case EngineVersion.SCDPC:
+						copiedChunkBlock = new S1ChunkBlock();
+						break;
+					case EngineVersion.S2NA:
+					case EngineVersion.S2:
+					case EngineVersion.S3K:
+					case EngineVersion.SKC:
+						copiedChunkBlock = new S2ChunkBlock();
+						break;
+				}
+				copiedChunkBlock.Block = (ushort)SelectedBlock;
 			}
 			else
 				flipBlockHButton.Enabled = flipBlockVButton.Enabled = false;
 		}
 
-		private void BlockPicture_Paint(object sender, PaintEventArgs e)
+		private void DrawBlockPicture()
 		{
 			if (!loaded) return;
-			e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
-			e.Graphics.Clear(LevelData.PaletteToColor(2, 0, false));
+			BitmapBits bmp = new BitmapBits(16, 16);
+			bmp.FillRectangle(0x20, 0, 0, 16, 16);
 			if (lowToolStripMenuItem.Checked)
-				e.Graphics.DrawImage(LevelData.BlockBmpBits[SelectedBlock][0].Scale(4).ToBitmap(LevelData.BmpPal), 0, 0, 64, 64);
+				bmp.DrawBitmap(LevelData.BlockBmpBits[SelectedBlock][0], 0, 0);
 			if (highToolStripMenuItem.Checked)
-				e.Graphics.DrawImage(LevelData.BlockBmpBits[SelectedBlock][1].Scale(4).ToBitmap(LevelData.BmpPal), 0, 0, 64, 64);
+				bmp.DrawBitmapComposited(LevelData.BlockBmpBits[SelectedBlock][1], 0, 0);
 			if (path1ToolStripMenuItem.Checked)
-				e.Graphics.DrawImage(LevelData.ColBmpBits[LevelData.ColInds1[SelectedBlock]].Scale(4).ToBitmap(Color.Transparent, Color.White), 0, 0, 64, 64);
+			{
+				BitmapBits tmp = new BitmapBits(LevelData.ColBmpBits[LevelData.ColInds1[SelectedBlock]]);
+				tmp.IncrementIndexes(LevelData.ColorWhite);
+				bmp.DrawBitmapComposited(tmp, 0, 0);
+			}
 			if (path2ToolStripMenuItem.Checked)
-				e.Graphics.DrawImage(LevelData.ColBmpBits[LevelData.ColInds2[SelectedBlock]].Scale(4).ToBitmap(Color.Transparent, Color.White), 0, 0, 64, 64);
-			e.Graphics.DrawRectangle(Pens.White, SelectedBlockTile.X * 32, SelectedBlockTile.Y * 32, 31, 31);
+			{
+				BitmapBits tmp = new BitmapBits(LevelData.ColBmpBits[LevelData.ColInds2[SelectedBlock]]);
+				tmp.IncrementIndexes(LevelData.ColorWhite);
+				bmp.DrawBitmapComposited(tmp, 0, 0);
+			}
+			using (Graphics gfx = BlockPicture.CreateGraphics())
+			{
+				gfx.SetOptions();
+				gfx.Clear(LevelData.PaletteToColor(2, 0, false));
+				gfx.DrawImage(bmp.ToBitmap(LevelData.BmpPal), 0, 0, 64, 64);
+				gfx.DrawRectangle(Pens.White, SelectedBlockTile.X * 32 - 1, SelectedBlockTile.Y * 32 - 1, 31, 31);
+			}
+		}
+
+		private void BlockPicture_Paint(object sender, PaintEventArgs e)
+		{
+			DrawBlockPicture();
 		}
 
 		private void BlockPicture_KeyDown(object sender, KeyEventArgs e)
@@ -3288,7 +3356,7 @@ namespace SonicRetro.SonLVL.GUI
 			}
 			LevelData.RedrawBlock(SelectedBlock, true);
 			DrawLevel();
-			BlockPicture.Invalidate();
+			DrawBlockPicture();
 			blockTileEditor.SelectedObject = current;
 		}
 
@@ -3511,6 +3579,7 @@ namespace SonicRetro.SonLVL.GUI
 				TileID.Text = SelectedTile.ToString("X3");
 				TileCount.Text = LevelData.Tiles.Count.ToString("X") + " / 800";
 				TilePicture.Invalidate();
+				copiedBlockTile = new PatternIndex() { Tile = (ushort)SelectedTile, Palette = (byte)SelectedColor.Y };
 			}
 			else
 				rotateTileRightButton.Enabled = flipTileHButton.Enabled = flipTileVButton.Enabled = false;
@@ -3526,17 +3595,22 @@ namespace SonicRetro.SonLVL.GUI
 		private void TilePicture_MouseDown(object sender, MouseEventArgs e)
 		{
 			if (TileSelector.SelectedIndex == -1) return;
-			if (e.Button == System.Windows.Forms.MouseButtons.Left)
+			if (e.Button == MouseButtons.Left)
 			{
-				tile.Bits[((e.Y / 16) * 8) + (e.X / 16)] = (byte)SelectedColor.X;
+				tile[e.X / 16, e.Y / 16] = (byte)SelectedColor.X;
 				TilePicture.Invalidate();
+			}
+			else if (e.Button == MouseButtons.Right)
+			{
+				SelectedColor = new Point(tile[e.X / 16, e.Y / 16], SelectedColor.Y);
+				PalettePanel.Invalidate();
 			}
 		}
 
 		private void TilePicture_MouseMove(object sender, MouseEventArgs e)
 		{
 			if (TileSelector.SelectedIndex == -1) return;
-			if (e.Button == System.Windows.Forms.MouseButtons.Left && new Rectangle(Point.Empty, TilePicture.Size).Contains(e.Location))
+			if (e.Button == MouseButtons.Left && new Rectangle(Point.Empty, TilePicture.Size).Contains(e.Location))
 			{
 				tile.Bits[((e.Y / 16) * 8) + (e.X / 16)] = (byte)SelectedColor.X;
 				TilePicture.Invalidate();
@@ -3545,7 +3619,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void TilePicture_MouseUp(object sender, MouseEventArgs e)
 		{
-			if (TileSelector.SelectedIndex == -1) return;
+			if (TileSelector.SelectedIndex == -1 || e.Button != MouseButtons.Left) return;
 			LevelData.Tiles[SelectedTile] = tile.ToTile();
 			LevelData.Tiles[SelectedTile].CopyTo(LevelData.TileArray, SelectedTile * 32);
 			for (int i = 0; i < LevelData.Blocks.Count; i++)
@@ -3564,7 +3638,7 @@ namespace SonicRetro.SonLVL.GUI
 		private void ChunkSelector_MouseDown(object sender, MouseEventArgs e)
 		{
 			if (!loaded) return;
-			if (CurrentTab == Tab.Chunks & e.Button == System.Windows.Forms.MouseButtons.Right)
+			if (CurrentTab == Tab.Chunks & e.Button == MouseButtons.Right)
 			{
 				pasteBeforeToolStripMenuItem.Enabled = LevelData.Chunks.Count < 256 && (Clipboard.ContainsData(typeof(Chunk).AssemblyQualifiedName) || Clipboard.ContainsData(typeof(ChunkCopyData).AssemblyQualifiedName));
 				pasteAfterToolStripMenuItem.Enabled = pasteBeforeToolStripMenuItem.Enabled;
@@ -3582,7 +3656,7 @@ namespace SonicRetro.SonLVL.GUI
 		private void BlockSelector_MouseDown(object sender, MouseEventArgs e)
 		{
 			if (!loaded) return;
-			if (e.Button == System.Windows.Forms.MouseButtons.Right)
+			if (e.Button == MouseButtons.Right)
 			{
 				int blockmax = LevelData.GetBlockMax();
 				pasteBeforeToolStripMenuItem.Enabled = LevelData.Blocks.Count < blockmax && (Clipboard.ContainsData(typeof(Block).AssemblyQualifiedName) || Clipboard.ContainsData(typeof(BlockCopyData).AssemblyQualifiedName));
@@ -3601,7 +3675,7 @@ namespace SonicRetro.SonLVL.GUI
 		private void TileSelector_MouseDown(object sender, MouseEventArgs e)
 		{
 			if (!loaded) return;
-			if (e.Button == System.Windows.Forms.MouseButtons.Right)
+			if (e.Button == MouseButtons.Right)
 			{
 				pasteBeforeToolStripMenuItem.Enabled = Clipboard.ContainsData("SonLVLTile") & LevelData.Tiles.Count < 0x800;
 				pasteAfterToolStripMenuItem.Enabled = pasteBeforeToolStripMenuItem.Enabled;
@@ -4555,7 +4629,14 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			if (CollisionSelector.SelectedIndex == -1) return;
 			e.Graphics.SetOptions();
-			e.Graphics.DrawImage(LevelData.ColBmpBits[SelectedCol].Scale(4).ToBitmap(Color.Black, Color.White), 0, 0, 64, 64);
+			if (showBlockBehindCollisionCheckBox.Checked)
+			{
+				e.Graphics.Clear(LevelData.PaletteToColor(2, 0, false));
+				e.Graphics.DrawImage(LevelData.CompBlockBmps[SelectedBlock], 0, 0, 64, 64);
+				e.Graphics.DrawImage(LevelData.ColBmpBits[SelectedCol].Scale(4).ToBitmap(Color.Transparent, Color.White), 0, 0, 64, 64);
+			}
+			else
+				e.Graphics.DrawImage(LevelData.ColBmpBits[SelectedCol].Scale(4).ToBitmap(Color.Black, Color.White), 0, 0, 64, 64);
 		}
 
 		private void ColPicture_MouseDown(object sender, MouseEventArgs e)
@@ -7074,6 +7155,11 @@ namespace SonicRetro.SonLVL.GUI
 			TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y);
 			blockTileEditor.SelectedObject = blockTileEditor.SelectedObject;
 			TilePicture.Invalidate();
+		}
+
+		private void showBlockBehindCollisionCheckBox_CheckedChanged(object sender, EventArgs e)
+		{
+			ColPicture.Invalidate();
 		}
 	}
 

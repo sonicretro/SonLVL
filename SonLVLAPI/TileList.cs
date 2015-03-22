@@ -78,7 +78,7 @@ namespace SonicRetro.SonLVL.API
             Invalidate();
         }
 
-        private void TileList_Resize(object sender, EventArgs e) { ChangeSize(); }
+		private void TileList_Resize(object sender, EventArgs e) { ChangeSize(); ScrollToSelected(); }
 
         private void TileList_Paint(object sender, PaintEventArgs e)
         {
