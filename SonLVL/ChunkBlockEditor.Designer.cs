@@ -86,6 +86,15 @@
 			this.solidity1.TabIndex = 0;
 			this.solidity1.SelectedIndexChanged += new System.EventHandler(this.solidity1_SelectedIndexChanged);
 			// 
+			// label2
+			// 
+			label2.AutoSize = true;
+			label2.Location = new System.Drawing.Point(3, 117);
+			label2.Name = "label2";
+			label2.Size = new System.Drawing.Size(37, 13);
+			label2.TabIndex = 9;
+			label2.Text = "Block:";
+			// 
 			// xFlip
 			// 
 			this.xFlip.AutoSize = true;
@@ -114,7 +123,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.blockList.BackColor = System.Drawing.SystemColors.Window;
-			this.blockList.ImageSize = 16;
+			this.blockList.ImageSize = 64;
 			this.blockList.Location = new System.Drawing.Point(3, 141);
 			this.blockList.Name = "blockList";
 			this.blockList.ScrollValue = 0;
@@ -136,15 +145,6 @@
 			this.block.Size = new System.Drawing.Size(53, 20);
 			this.block.TabIndex = 10;
 			this.block.ValueChanged += new System.EventHandler(this.block_ValueChanged);
-			// 
-			// label2
-			// 
-			label2.AutoSize = true;
-			label2.Location = new System.Drawing.Point(3, 117);
-			label2.Name = "label2";
-			label2.Size = new System.Drawing.Size(37, 13);
-			label2.TabIndex = 9;
-			label2.Text = "Block:";
 			// 
 			// ChunkBlockEditor
 			// 

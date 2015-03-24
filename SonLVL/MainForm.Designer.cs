@@ -245,6 +245,7 @@
 			this.tableLayoutPanel7 = new System.Windows.Forms.TableLayoutPanel();
 			this.CollisionSelector = new SonicRetro.SonLVL.API.TileList();
 			this.panel9 = new System.Windows.Forms.Panel();
+			this.showBlockBehindCollisionCheckBox = new System.Windows.Forms.CheckBox();
 			this.ColID = new System.Windows.Forms.TextBox();
 			this.ColAngle = new System.Windows.Forms.NumericUpDown();
 			this.ColPicture = new System.Windows.Forms.Panel();
@@ -277,7 +278,6 @@
 			this.insertLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.deleteLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.loadingAnimation1 = new SonicRetro.SonLVL.LoadingAnimation();
-			this.showBlockBehindCollisionCheckBox = new System.Windows.Forms.CheckBox();
 			toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
 			toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
 			label4 = new System.Windows.Forms.Label();
@@ -469,7 +469,7 @@
 			this.BlockSelector.AllowDrop = true;
 			this.BlockSelector.BackColor = System.Drawing.SystemColors.Window;
 			this.BlockSelector.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.BlockSelector.ImageSize = 16;
+			this.BlockSelector.ImageSize = 64;
 			this.BlockSelector.Location = new System.Drawing.Point(0, 25);
 			this.BlockSelector.Name = "BlockSelector";
 			this.BlockSelector.ScrollValue = 0;
@@ -2229,7 +2229,7 @@
 			this.panel5.Controls.Add(this.BlockPicture);
 			this.panel5.Location = new System.Drawing.Point(3, 3);
 			this.panel5.Name = "panel5";
-			this.panel5.Size = new System.Drawing.Size(180, 138);
+			this.panel5.Size = new System.Drawing.Size(180, 202);
 			this.panel5.TabIndex = 0;
 			// 
 			// flipBlockVButton
@@ -2237,7 +2237,7 @@
 			this.flipBlockVButton.AutoSize = true;
 			this.flipBlockVButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.flipBlockVButton.Enabled = false;
-			this.flipBlockVButton.Location = new System.Drawing.Point(99, 73);
+			this.flipBlockVButton.Location = new System.Drawing.Point(99, 137);
 			this.flipBlockVButton.Name = "flipBlockVButton";
 			this.flipBlockVButton.Size = new System.Drawing.Size(78, 23);
 			this.flipBlockVButton.TabIndex = 8;
@@ -2250,7 +2250,7 @@
 			this.flipBlockHButton.AutoSize = true;
 			this.flipBlockHButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.flipBlockHButton.Enabled = false;
-			this.flipBlockHButton.Location = new System.Drawing.Point(3, 73);
+			this.flipBlockHButton.Location = new System.Drawing.Point(3, 137);
 			this.flipBlockHButton.Name = "flipBlockHButton";
 			this.flipBlockHButton.Size = new System.Drawing.Size(90, 23);
 			this.flipBlockHButton.TabIndex = 7;
@@ -2261,7 +2261,7 @@
 			// BlockCount
 			// 
 			this.BlockCount.AutoSize = true;
-			this.BlockCount.Location = new System.Drawing.Point(3, 125);
+			this.BlockCount.Location = new System.Drawing.Point(3, 189);
 			this.BlockCount.Name = "BlockCount";
 			this.BlockCount.Size = new System.Drawing.Size(42, 13);
 			this.BlockCount.TabIndex = 3;
@@ -2269,7 +2269,7 @@
 			// 
 			// BlockID
 			// 
-			this.BlockID.Location = new System.Drawing.Point(3, 102);
+			this.BlockID.Location = new System.Drawing.Point(3, 166);
 			this.BlockID.Name = "BlockID";
 			this.BlockID.ReadOnly = true;
 			this.BlockID.Size = new System.Drawing.Size(100, 20);
@@ -2280,7 +2280,7 @@
 			// 
 			this.BlockPicture.Location = new System.Drawing.Point(3, 3);
 			this.BlockPicture.Name = "BlockPicture";
-			this.BlockPicture.Size = new System.Drawing.Size(64, 64);
+			this.BlockPicture.Size = new System.Drawing.Size(128, 128);
 			this.BlockPicture.TabIndex = 1;
 			this.BlockPicture.Paint += new System.Windows.Forms.PaintEventHandler(this.BlockPicture_Paint);
 			this.BlockPicture.KeyDown += new System.Windows.Forms.KeyEventHandler(this.BlockPicture_KeyDown);
@@ -2617,6 +2617,17 @@
 			this.panel9.Size = new System.Drawing.Size(118, 123);
 			this.panel9.TabIndex = 1;
 			// 
+			// showBlockBehindCollisionCheckBox
+			// 
+			this.showBlockBehindCollisionCheckBox.AutoSize = true;
+			this.showBlockBehindCollisionCheckBox.Location = new System.Drawing.Point(3, 103);
+			this.showBlockBehindCollisionCheckBox.Name = "showBlockBehindCollisionCheckBox";
+			this.showBlockBehindCollisionCheckBox.Size = new System.Drawing.Size(83, 17);
+			this.showBlockBehindCollisionCheckBox.TabIndex = 5;
+			this.showBlockBehindCollisionCheckBox.Text = "Show Block";
+			this.showBlockBehindCollisionCheckBox.UseVisualStyleBackColor = true;
+			this.showBlockBehindCollisionCheckBox.CheckedChanged += new System.EventHandler(this.showBlockBehindCollisionCheckBox_CheckedChanged);
+			// 
 			// ColID
 			// 
 			this.ColID.Location = new System.Drawing.Point(3, 77);
@@ -2893,17 +2904,6 @@
 			this.loadingAnimation1.UseWaitCursor = true;
 			this.loadingAnimation1.Visible = false;
 			this.loadingAnimation1.SizeChanged += new System.EventHandler(this.loadingAnimation1_SizeChanged);
-			// 
-			// showBlockBehindCollisionCheckBox
-			// 
-			this.showBlockBehindCollisionCheckBox.AutoSize = true;
-			this.showBlockBehindCollisionCheckBox.Location = new System.Drawing.Point(3, 103);
-			this.showBlockBehindCollisionCheckBox.Name = "showBlockBehindCollisionCheckBox";
-			this.showBlockBehindCollisionCheckBox.Size = new System.Drawing.Size(83, 17);
-			this.showBlockBehindCollisionCheckBox.TabIndex = 5;
-			this.showBlockBehindCollisionCheckBox.Text = "Show Block";
-			this.showBlockBehindCollisionCheckBox.UseVisualStyleBackColor = true;
-			this.showBlockBehindCollisionCheckBox.CheckedChanged += new System.EventHandler(this.showBlockBehindCollisionCheckBox_CheckedChanged);
 			// 
 			// MainForm
 			// 

@@ -3179,17 +3179,17 @@ namespace SonicRetro.SonLVL.GUI
 		private void BlockPicture_MouseClick(object sender, MouseEventArgs e)
 		{
 			if (!loaded || e.Button != MouseButtons.Right) return;
-			SelectedBlockTile = new Point(e.X / 32, e.Y / 32);
-			copiedBlockTile = blockTileEditor.SelectedObject = LevelData.Blocks[SelectedBlock].Tiles[e.X / 32, e.Y / 32];
+			SelectedBlockTile = new Point(e.X / 64, e.Y / 64);
+			copiedBlockTile = blockTileEditor.SelectedObject = LevelData.Blocks[SelectedBlock].Tiles[e.X / 64, e.Y / 64];
 			DrawBlockPicture();
 		}
 
 		private void BlockPicture_MouseMove(object sender, MouseEventArgs e)
 		{
 			if (loaded && e.Button == MouseButtons.Left)
-				if (e.X > 0 && e.Y > 0 && e.X < 64 && e.Y < 64)
+				if (e.X > 0 && e.Y > 0 && e.X < 128 && e.Y < 128)
 				{
-					SelectedBlockTile = new Point(e.X / 32, e.Y / 32);
+					SelectedBlockTile = new Point(e.X / 64, e.Y / 64);
 					PatternIndex destTile = LevelData.Blocks[SelectedBlock].Tiles[SelectedBlockTile.X, SelectedBlockTile.Y];
 					destTile.Tile = copiedBlockTile.Tile;
 					destTile.Palette = copiedBlockTile.Palette;
@@ -3284,8 +3284,8 @@ namespace SonicRetro.SonLVL.GUI
 			{
 				gfx.SetOptions();
 				gfx.Clear(LevelData.PaletteToColor(2, 0, false));
-				gfx.DrawImage(bmp.ToBitmap(LevelData.BmpPal), 0, 0, 64, 64);
-				gfx.DrawRectangle(Pens.White, SelectedBlockTile.X * 32 - 1, SelectedBlockTile.Y * 32 - 1, 31, 31);
+				gfx.DrawImage(bmp.ToBitmap(LevelData.BmpPal), 0, 0, 128, 128);
+				gfx.DrawRectangle(Pens.White, SelectedBlockTile.X * 64 - 1, SelectedBlockTile.Y * 64 - 1, 63, 63);
 			}
 		}
 

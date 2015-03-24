@@ -42,6 +42,24 @@
 			((System.ComponentModel.ISupportInitialize)(this.tile)).BeginInit();
 			this.SuspendLayout();
 			// 
+			// label1
+			// 
+			label1.AutoSize = true;
+			label1.Location = new System.Drawing.Point(3, 28);
+			label1.Name = "label1";
+			label1.Size = new System.Drawing.Size(43, 13);
+			label1.TabIndex = 5;
+			label1.Text = "Palette:";
+			// 
+			// label2
+			// 
+			label2.AutoSize = true;
+			label2.Location = new System.Drawing.Point(3, 54);
+			label2.Name = "label2";
+			label2.Size = new System.Drawing.Size(27, 13);
+			label2.TabIndex = 7;
+			label2.Text = "Tile:";
+			// 
 			// xFlip
 			// 
 			this.xFlip.AutoSize = true;
@@ -70,6 +88,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.tileList.BackColor = System.Drawing.SystemColors.Window;
+			this.tileList.ImageSize = 64;
 			this.tileList.Location = new System.Drawing.Point(3, 78);
 			this.tileList.Name = "tileList";
 			this.tileList.ScrollValue = 0;
@@ -89,15 +108,6 @@
 			this.priority.UseVisualStyleBackColor = true;
 			this.priority.CheckedChanged += new System.EventHandler(this.priority_CheckedChanged);
 			// 
-			// label1
-			// 
-			label1.AutoSize = true;
-			label1.Location = new System.Drawing.Point(3, 28);
-			label1.Name = "label1";
-			label1.Size = new System.Drawing.Size(43, 13);
-			label1.TabIndex = 5;
-			label1.Text = "Palette:";
-			// 
 			// palette
 			// 
 			this.palette.Location = new System.Drawing.Point(52, 26);
@@ -110,15 +120,6 @@
 			this.palette.Size = new System.Drawing.Size(37, 20);
 			this.palette.TabIndex = 6;
 			this.palette.ValueChanged += new System.EventHandler(this.palette_ValueChanged);
-			// 
-			// label2
-			// 
-			label2.AutoSize = true;
-			label2.Location = new System.Drawing.Point(3, 54);
-			label2.Name = "label2";
-			label2.Size = new System.Drawing.Size(27, 13);
-			label2.TabIndex = 7;
-			label2.Text = "Tile:";
 			// 
 			// tile
 			// 
