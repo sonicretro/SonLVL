@@ -35,13 +35,13 @@
 			System.Windows.Forms.Label label3;
 			System.Windows.Forms.Label label2;
 			System.Windows.Forms.ToolStripSeparator toolStripSeparator10;
-			System.Windows.Forms.ToolStrip toolStrip1;
+			System.Windows.Forms.ToolStrip chunkListToolStrip;
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
 			System.Windows.Forms.Panel panel1;
 			System.Windows.Forms.Panel panel2;
-			System.Windows.Forms.ToolStrip toolStrip2;
+			System.Windows.Forms.ToolStrip blockListToolStrip;
 			System.Windows.Forms.Panel panel3;
-			System.Windows.Forms.ToolStrip toolStrip3;
+			System.Windows.Forms.ToolStrip tileListToolStrip;
 			System.Windows.Forms.TabControl tabControl2;
 			System.Windows.Forms.Label label1;
 			this.remapChunksButton = new System.Windows.Forms.ToolStripButton();
@@ -278,26 +278,27 @@
 			this.insertLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.deleteLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.loadingAnimation1 = new SonicRetro.SonLVL.LoadingAnimation();
+			this.pasteOverToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
 			toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
 			label4 = new System.Windows.Forms.Label();
 			label3 = new System.Windows.Forms.Label();
 			label2 = new System.Windows.Forms.Label();
 			toolStripSeparator10 = new System.Windows.Forms.ToolStripSeparator();
-			toolStrip1 = new System.Windows.Forms.ToolStrip();
+			chunkListToolStrip = new System.Windows.Forms.ToolStrip();
 			panel1 = new System.Windows.Forms.Panel();
 			panel2 = new System.Windows.Forms.Panel();
-			toolStrip2 = new System.Windows.Forms.ToolStrip();
+			blockListToolStrip = new System.Windows.Forms.ToolStrip();
 			panel3 = new System.Windows.Forms.Panel();
-			toolStrip3 = new System.Windows.Forms.ToolStrip();
+			tileListToolStrip = new System.Windows.Forms.ToolStrip();
 			tabControl2 = new System.Windows.Forms.TabControl();
 			label1 = new System.Windows.Forms.Label();
-			toolStrip1.SuspendLayout();
+			chunkListToolStrip.SuspendLayout();
 			panel1.SuspendLayout();
 			panel2.SuspendLayout();
-			toolStrip2.SuspendLayout();
+			blockListToolStrip.SuspendLayout();
 			panel3.SuspendLayout();
-			toolStrip3.SuspendLayout();
+			tileListToolStrip.SuspendLayout();
 			tabControl2.SuspendLayout();
 			this.tabPage8.SuspendLayout();
 			this.tabPage9.SuspendLayout();
@@ -400,17 +401,17 @@
 			toolStripSeparator10.Name = "toolStripSeparator10";
 			toolStripSeparator10.Size = new System.Drawing.Size(6, 25);
 			// 
-			// toolStrip1
+			// chunkListToolStrip
 			// 
-			toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
-			toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			chunkListToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+			chunkListToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.remapChunksButton,
             this.enableDraggingChunksButton});
-			toolStrip1.Location = new System.Drawing.Point(0, 0);
-			toolStrip1.Name = "toolStrip1";
-			toolStrip1.Size = new System.Drawing.Size(219, 25);
-			toolStrip1.TabIndex = 0;
-			toolStrip1.Text = "toolStrip1";
+			chunkListToolStrip.Location = new System.Drawing.Point(0, 0);
+			chunkListToolStrip.Name = "chunkListToolStrip";
+			chunkListToolStrip.Size = new System.Drawing.Size(219, 25);
+			chunkListToolStrip.TabIndex = 0;
+			chunkListToolStrip.Text = "toolStrip1";
 			// 
 			// remapChunksButton
 			// 
@@ -436,7 +437,7 @@
 			// panel1
 			// 
 			panel1.Controls.Add(this.panel10);
-			panel1.Controls.Add(toolStrip1);
+			panel1.Controls.Add(chunkListToolStrip);
 			panel1.Dock = System.Windows.Forms.DockStyle.Fill;
 			panel1.Location = new System.Drawing.Point(431, 0);
 			panel1.Margin = new System.Windows.Forms.Padding(0);
@@ -456,7 +457,7 @@
 			// panel2
 			// 
 			panel2.Controls.Add(this.BlockSelector);
-			panel2.Controls.Add(toolStrip2);
+			panel2.Controls.Add(blockListToolStrip);
 			panel2.Dock = System.Windows.Forms.DockStyle.Fill;
 			panel2.Location = new System.Drawing.Point(384, 0);
 			panel2.Margin = new System.Windows.Forms.Padding(0);
@@ -486,17 +487,17 @@
 			this.BlockSelector.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TileList_KeyDown);
 			this.BlockSelector.MouseDown += new System.Windows.Forms.MouseEventHandler(this.BlockSelector_MouseDown);
 			// 
-			// toolStrip2
+			// blockListToolStrip
 			// 
-			toolStrip2.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
-			toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			blockListToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+			blockListToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.remapBlocksButton,
             this.enableDraggingBlocksButton});
-			toolStrip2.Location = new System.Drawing.Point(0, 0);
-			toolStrip2.Name = "toolStrip2";
-			toolStrip2.Size = new System.Drawing.Size(266, 25);
-			toolStrip2.TabIndex = 1;
-			toolStrip2.Text = "toolStrip2";
+			blockListToolStrip.Location = new System.Drawing.Point(0, 0);
+			blockListToolStrip.Name = "blockListToolStrip";
+			blockListToolStrip.Size = new System.Drawing.Size(266, 25);
+			blockListToolStrip.TabIndex = 1;
+			blockListToolStrip.Text = "toolStrip2";
 			// 
 			// remapBlocksButton
 			// 
@@ -522,7 +523,7 @@
 			// panel3
 			// 
 			panel3.Controls.Add(this.TileSelector);
-			panel3.Controls.Add(toolStrip3);
+			panel3.Controls.Add(tileListToolStrip);
 			panel3.Dock = System.Windows.Forms.DockStyle.Fill;
 			panel3.Location = new System.Drawing.Point(186, 134);
 			panel3.Margin = new System.Windows.Forms.Padding(0);
@@ -552,17 +553,17 @@
 			this.TileSelector.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TileList_KeyDown);
 			this.TileSelector.MouseDown += new System.Windows.Forms.MouseEventHandler(this.TileSelector_MouseDown);
 			// 
-			// toolStrip3
+			// tileListToolStrip
 			// 
-			toolStrip3.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
-			toolStrip3.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			tileListToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+			tileListToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.remapTilesButton,
             this.enableDraggingTilesButton});
-			toolStrip3.Location = new System.Drawing.Point(0, 0);
-			toolStrip3.Name = "toolStrip3";
-			toolStrip3.Size = new System.Drawing.Size(464, 25);
-			toolStrip3.TabIndex = 2;
-			toolStrip3.Text = "toolStrip3";
+			tileListToolStrip.Location = new System.Drawing.Point(0, 0);
+			tileListToolStrip.Name = "tileListToolStrip";
+			tileListToolStrip.Size = new System.Drawing.Size(464, 25);
+			tileListToolStrip.TabIndex = 2;
+			tileListToolStrip.Text = "toolStrip3";
 			// 
 			// remapTilesButton
 			// 
@@ -2675,6 +2676,7 @@
             this.copyTilesToolStripMenuItem,
             this.deepCopyToolStripMenuItem,
             this.pasteBeforeToolStripMenuItem,
+            this.pasteOverToolStripMenuItem,
             this.pasteAfterToolStripMenuItem,
             this.insertBeforeToolStripMenuItem,
             this.insertAfterToolStripMenuItem,
@@ -2682,7 +2684,7 @@
             this.importToolStripMenuItem,
             this.drawToolStripMenuItem});
 			this.tileContextMenuStrip.Name = "contextMenuStrip1";
-			this.tileContextMenuStrip.Size = new System.Drawing.Size(141, 224);
+			this.tileContextMenuStrip.Size = new System.Drawing.Size(153, 268);
 			// 
 			// cutTilesToolStripMenuItem
 			// 
@@ -2905,6 +2907,14 @@
 			this.loadingAnimation1.Visible = false;
 			this.loadingAnimation1.SizeChanged += new System.EventHandler(this.loadingAnimation1_SizeChanged);
 			// 
+			// pasteOverToolStripMenuItem
+			// 
+			this.pasteOverToolStripMenuItem.Image = global::SonicRetro.SonLVL.Properties.Resources.paste;
+			this.pasteOverToolStripMenuItem.Name = "pasteOverToolStripMenuItem";
+			this.pasteOverToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.pasteOverToolStripMenuItem.Text = "Paste &Over";
+			this.pasteOverToolStripMenuItem.Click += new System.EventHandler(this.pasteOverToolStripMenuItem_Click);
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -2921,18 +2931,18 @@
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
 			this.Load += new System.EventHandler(this.MainForm_Load);
 			this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MainForm_KeyDown);
-			toolStrip1.ResumeLayout(false);
-			toolStrip1.PerformLayout();
+			chunkListToolStrip.ResumeLayout(false);
+			chunkListToolStrip.PerformLayout();
 			panel1.ResumeLayout(false);
 			panel1.PerformLayout();
 			panel2.ResumeLayout(false);
 			panel2.PerformLayout();
-			toolStrip2.ResumeLayout(false);
-			toolStrip2.PerformLayout();
+			blockListToolStrip.ResumeLayout(false);
+			blockListToolStrip.PerformLayout();
 			panel3.ResumeLayout(false);
 			panel3.PerformLayout();
-			toolStrip3.ResumeLayout(false);
-			toolStrip3.PerformLayout();
+			tileListToolStrip.ResumeLayout(false);
+			tileListToolStrip.PerformLayout();
 			tabControl2.ResumeLayout(false);
 			this.tabPage8.ResumeLayout(false);
 			this.tabPage9.ResumeLayout(false);
@@ -3250,6 +3260,7 @@
 		private System.Windows.Forms.Button flipTileVButton;
 		private System.Windows.Forms.Button flipTileHButton;
 		private System.Windows.Forms.CheckBox showBlockBehindCollisionCheckBox;
+		private System.Windows.Forms.ToolStripMenuItem pasteOverToolStripMenuItem;
 
     }
 }
