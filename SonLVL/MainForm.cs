@@ -3723,70 +3723,85 @@ namespace SonicRetro.SonLVL.GUI
 			{
 				case Tab.Chunks:
 					Clipboard.SetData(typeof(Chunk).AssemblyQualifiedName, LevelData.Chunks[SelectedChunk].GetBytes());
-					LevelData.Chunks.RemoveAt(SelectedChunk);
-					LevelData.ChunkBmpBits.RemoveAt(SelectedChunk);
-					LevelData.ChunkBmps.RemoveAt(SelectedChunk);
-					LevelData.ChunkColBmpBits.RemoveAt(SelectedChunk);
-					LevelData.ChunkColBmps.RemoveAt(SelectedChunk);
-					LevelData.CompChunkBmps.RemoveAt(SelectedChunk);
-					LevelData.CompChunkBmpBits.RemoveAt(SelectedChunk);
-					SelectedChunk = (byte)Math.Min(SelectedChunk, LevelData.Chunks.Count - 1);
-					for (int y = 0; y < LevelData.Layout.FGLayout.GetLength(1); y++)
-						for (int x = 0; x < LevelData.Layout.FGLayout.GetLength(0); x++)
-							if (LevelData.Layout.FGLayout[x, y] > SelectedChunk)
-								LevelData.Layout.FGLayout[x, y]--;
-					for (int y = 0; y < LevelData.Layout.BGLayout.GetLength(1); y++)
-						for (int x = 0; x < LevelData.Layout.BGLayout.GetLength(0); x++)
-							if (LevelData.Layout.BGLayout[x, y] > SelectedChunk)
-								LevelData.Layout.BGLayout[x, y]--;
-					ChunkSelector.SelectedIndex = Math.Min(ChunkSelector.SelectedIndex, LevelData.Chunks.Count - 1);
+					DeleteChunk();
 					break;
 				case Tab.Blocks:
 					Clipboard.SetData(typeof(Block).AssemblyQualifiedName, LevelData.Blocks[SelectedBlock].GetBytes());
-					LevelData.Blocks.RemoveAt(SelectedBlock);
-					LevelData.BlockBmps.RemoveAt(SelectedBlock);
-					LevelData.BlockBmpBits.RemoveAt(SelectedBlock);
-					LevelData.CompBlockBmps.RemoveAt(SelectedBlock);
-					LevelData.CompBlockBmpBits.RemoveAt(SelectedBlock);
-					LevelData.ColInds1.RemoveAt(SelectedBlock);
-					if (LevelData.Game.EngineVersion == EngineVersion.S2 || LevelData.Game.EngineVersion == EngineVersion.S2NA || LevelData.Game.EngineVersion == EngineVersion.S3K || LevelData.Game.EngineVersion == EngineVersion.SKC)
-						if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2))
-							LevelData.ColInds2.RemoveAt(SelectedBlock);
-					for (int i = 0; i < LevelData.Chunks.Count; i++)
-					{
-						bool dr = false;
-						for (int y = 0; y < LevelData.chunksz / 16; y++)
-							for (int x = 0; x < LevelData.chunksz / 16; x++)
-								if (LevelData.Chunks[i].Blocks[x, y].Block == SelectedBlock)
-									dr = true;
-								else if (LevelData.Chunks[i].Blocks[x, y].Block > SelectedBlock)
-									LevelData.Chunks[i].Blocks[x, y].Block--;
-						if (dr)
-							LevelData.RedrawChunk(i);
-					}
-					BlockSelector.SelectedIndex = Math.Min(BlockSelector.SelectedIndex, LevelData.Blocks.Count - 1);
+					DeleteBlock();
 					break;
 				case Tab.Tiles:
 					Clipboard.SetData("SonLVLTile", LevelData.Tiles[SelectedTile]);
-					LevelData.Tiles.RemoveAt(SelectedTile);
-					LevelData.UpdateTileArray();
-					TileSelector.Images.RemoveAt(SelectedTile);
-					blockTileEditor.SelectedObject = blockTileEditor.SelectedObject;
-					for (int i = 0; i < LevelData.Blocks.Count; i++)
-					{
-						bool dr = false;
-						for (int y = 0; y < 2; y++)
-							for (int x = 0; x < 2; x++)
-								if (LevelData.Blocks[i].Tiles[x, y].Tile == SelectedTile)
-									dr = true;
-								else if (LevelData.Blocks[i].Tiles[x, y].Tile > SelectedTile)
-									LevelData.Blocks[i].Tiles[x, y].Tile--;
-						if (dr)
-							LevelData.RedrawBlock(i, true);
-					}
-					TileSelector.SelectedIndex = Math.Min(TileSelector.SelectedIndex, TileSelector.Images.Count - 1);
+					DeleteTile();
 					break;
 			}
+		}
+
+		private void DeleteChunk()
+		{
+			LevelData.Chunks.RemoveAt(SelectedChunk);
+			LevelData.ChunkBmpBits.RemoveAt(SelectedChunk);
+			LevelData.ChunkBmps.RemoveAt(SelectedChunk);
+			LevelData.ChunkColBmpBits.RemoveAt(SelectedChunk);
+			LevelData.ChunkColBmps.RemoveAt(SelectedChunk);
+			LevelData.CompChunkBmps.RemoveAt(SelectedChunk);
+			LevelData.CompChunkBmpBits.RemoveAt(SelectedChunk);
+			SelectedChunk = (byte)Math.Min(SelectedChunk, LevelData.Chunks.Count - 1);
+			for (int y = 0; y < LevelData.Layout.FGLayout.GetLength(1); y++)
+				for (int x = 0; x < LevelData.Layout.FGLayout.GetLength(0); x++)
+					if (LevelData.Layout.FGLayout[x, y] > SelectedChunk && LevelData.Layout.FGLayout[x, y] < LevelData.Chunks.Count + 1)
+						LevelData.Layout.FGLayout[x, y]--;
+			for (int y = 0; y < LevelData.Layout.BGLayout.GetLength(1); y++)
+				for (int x = 0; x < LevelData.Layout.BGLayout.GetLength(0); x++)
+					if (LevelData.Layout.BGLayout[x, y] > SelectedChunk && LevelData.Layout.BGLayout[x, y] < LevelData.Chunks.Count + 1)
+						LevelData.Layout.BGLayout[x, y]--;
+			ChunkSelector.SelectedIndex = Math.Min(ChunkSelector.SelectedIndex, LevelData.Chunks.Count - 1);
+		}
+
+		private void DeleteBlock()
+		{
+			LevelData.Blocks.RemoveAt(SelectedBlock);
+			LevelData.BlockBmps.RemoveAt(SelectedBlock);
+			LevelData.BlockBmpBits.RemoveAt(SelectedBlock);
+			LevelData.CompBlockBmps.RemoveAt(SelectedBlock);
+			LevelData.CompBlockBmpBits.RemoveAt(SelectedBlock);
+			LevelData.ColInds1.RemoveAt(SelectedBlock);
+			if (LevelData.Game.EngineVersion == EngineVersion.S2 || LevelData.Game.EngineVersion == EngineVersion.S2NA || LevelData.Game.EngineVersion == EngineVersion.S3K || LevelData.Game.EngineVersion == EngineVersion.SKC)
+				if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2))
+					LevelData.ColInds2.RemoveAt(SelectedBlock);
+			for (int i = 0; i < LevelData.Chunks.Count; i++)
+			{
+				bool dr = false;
+				for (int y = 0; y < LevelData.chunksz / 16; y++)
+					for (int x = 0; x < LevelData.chunksz / 16; x++)
+						if (LevelData.Chunks[i].Blocks[x, y].Block == SelectedBlock)
+							dr = true;
+						else if (LevelData.Chunks[i].Blocks[x, y].Block > SelectedBlock && LevelData.Chunks[i].Blocks[x, y].Block < LevelData.Blocks.Count + 1)
+							LevelData.Chunks[i].Blocks[x, y].Block--;
+				if (dr)
+					LevelData.RedrawChunk(i);
+			}
+			BlockSelector.SelectedIndex = Math.Min(BlockSelector.SelectedIndex, LevelData.Blocks.Count - 1);
+		}
+
+		private void DeleteTile()
+		{
+			LevelData.Tiles.RemoveAt(SelectedTile);
+			LevelData.UpdateTileArray();
+			TileSelector.Images.RemoveAt(SelectedTile);
+			blockTileEditor.SelectedObject = blockTileEditor.SelectedObject;
+			for (int i = 0; i < LevelData.Blocks.Count; i++)
+			{
+				bool dr = false;
+				for (int y = 0; y < 2; y++)
+					for (int x = 0; x < 2; x++)
+						if (LevelData.Blocks[i].Tiles[x, y].Tile == SelectedTile)
+							dr = true;
+						else if (LevelData.Blocks[i].Tiles[x, y].Tile > SelectedTile && LevelData.Blocks[i].Tiles[x, y].Tile < LevelData.Tiles.Count + 1)
+							LevelData.Blocks[i].Tiles[x, y].Tile--;
+				if (dr)
+					LevelData.RedrawBlock(i, true);
+			}
+			TileSelector.SelectedIndex = Math.Min(TileSelector.SelectedIndex, TileSelector.Images.Count - 1);
 		}
 
 		private void copyTilesToolStripMenuItem_Click(object sender, EventArgs e)
@@ -4177,73 +4192,13 @@ namespace SonicRetro.SonLVL.GUI
 			switch (CurrentTab)
 			{
 				case Tab.Chunks:
-					LevelData.Chunks.RemoveAt(SelectedChunk);
-					LevelData.ChunkBmpBits.RemoveAt(SelectedChunk);
-					LevelData.ChunkBmps.RemoveAt(SelectedChunk);
-					LevelData.ChunkColBmpBits.RemoveAt(SelectedChunk);
-					LevelData.ChunkColBmps.RemoveAt(SelectedChunk);
-					LevelData.CompChunkBmps.RemoveAt(SelectedChunk);
-					LevelData.CompChunkBmpBits.RemoveAt(SelectedChunk);
-					SelectedChunk = (byte)Math.Min(SelectedChunk, LevelData.Chunks.Count - 1);
-					for (int y = 0; y < LevelData.Layout.FGLayout.GetLength(1); y++)
-						for (int x = 0; x < LevelData.Layout.FGLayout.GetLength(0); x++)
-							if (LevelData.Layout.FGLayout[x, y] > SelectedChunk)
-								LevelData.Layout.FGLayout[x, y]--;
-					for (int y = 0; y < LevelData.Layout.BGLayout.GetLength(1); y++)
-						for (int x = 0; x < LevelData.Layout.BGLayout.GetLength(0); x++)
-							if (LevelData.Layout.BGLayout[x, y] > SelectedChunk)
-								LevelData.Layout.BGLayout[x, y]--;
-					ChunkSelector.SelectedIndex = Math.Min(ChunkSelector.SelectedIndex, LevelData.Chunks.Count - 1);
+					DeleteChunk();
 					break;
 				case Tab.Blocks:
-					LevelData.Blocks.RemoveAt(SelectedBlock);
-					LevelData.BlockBmps.RemoveAt(SelectedBlock);
-					LevelData.BlockBmpBits.RemoveAt(SelectedBlock);
-					LevelData.CompBlockBmps.RemoveAt(SelectedBlock);
-					LevelData.CompBlockBmpBits.RemoveAt(SelectedBlock);
-					LevelData.ColInds1.RemoveAt(SelectedBlock);
-					switch (LevelData.Level.ChunkFormat)
-					{
-						case EngineVersion.S2NA:
-						case EngineVersion.S2:
-						case EngineVersion.S3K:
-						case EngineVersion.SKC:
-							if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2))
-								LevelData.ColInds2.RemoveAt(SelectedBlock);
-							break;
-					}
-					for (int i = 0; i < LevelData.Chunks.Count; i++)
-					{
-						bool dr = false;
-						for (int y = 0; y < LevelData.chunksz / 16; y++)
-							for (int x = 0; x < LevelData.chunksz / 16; x++)
-								if (LevelData.Chunks[i].Blocks[x, y].Block == SelectedBlock)
-									dr = true;
-								else if (LevelData.Chunks[i].Blocks[x, y].Block > SelectedBlock)
-									LevelData.Chunks[i].Blocks[x, y].Block--;
-						if (dr)
-							LevelData.RedrawChunk(i);
-					}
-					BlockSelector.SelectedIndex = Math.Min(BlockSelector.SelectedIndex, LevelData.Blocks.Count - 1);
+					DeleteBlock();
 					break;
 				case Tab.Tiles:
-					LevelData.Tiles.RemoveAt(SelectedTile);
-					LevelData.UpdateTileArray();
-					TileSelector.Images.RemoveAt(SelectedTile);
-					blockTileEditor.SelectedObject = blockTileEditor.SelectedObject;
-					for (int i = 0; i < LevelData.Blocks.Count; i++)
-					{
-						bool dr = false;
-						for (int y = 0; y < 2; y++)
-							for (int x = 0; x < 2; x++)
-								if (LevelData.Blocks[i].Tiles[x, y].Tile == SelectedTile)
-									dr = true;
-								else if (LevelData.Blocks[i].Tiles[x, y].Tile > SelectedTile)
-									LevelData.Blocks[i].Tiles[x, y].Tile--;
-						if (dr)
-							LevelData.RedrawBlock(i, true);
-					}
-					TileSelector.SelectedIndex = Math.Min(TileSelector.SelectedIndex, TileSelector.Images.Count - 1);
+					DeleteTile();
 					break;
 			}
 		}
