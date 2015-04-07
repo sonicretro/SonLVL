@@ -3016,7 +3016,7 @@ namespace SonicRetro.SonLVL.GUI
 				if (e.X > 0 && e.Y > 0 && e.X < LevelData.chunksz && e.Y < LevelData.chunksz)
 				{
 					SelectedChunkBlock = new Point(e.X / 16, e.Y / 16);
-					ChunkBlock destBlock = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
+					ChunkBlock destBlock = chunkBlockEditor.SelectedObject = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
 					destBlock.Block = copiedChunkBlock.Block;
 					destBlock.Solid1 = copiedChunkBlock.Solid1;
 					destBlock.XFlip = copiedChunkBlock.XFlip;
@@ -3205,7 +3205,7 @@ namespace SonicRetro.SonLVL.GUI
 				if (e.X > 0 && e.Y > 0 && e.X < 128 && e.Y < 128)
 				{
 					SelectedBlockTile = new Point(e.X / 64, e.Y / 64);
-					PatternIndex destTile = LevelData.Blocks[SelectedBlock].Tiles[SelectedBlockTile.X, SelectedBlockTile.Y];
+					PatternIndex destTile = blockTileEditor.SelectedObject = LevelData.Blocks[SelectedBlock].Tiles[SelectedBlockTile.X, SelectedBlockTile.Y];
 					destTile.Tile = copiedBlockTile.Tile;
 					destTile.Palette = copiedBlockTile.Palette;
 					destTile.Priority = copiedBlockTile.Priority;
