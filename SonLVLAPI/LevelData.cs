@@ -44,7 +44,6 @@ namespace SonicRetro.SonLVL.API
         public static Dictionary<byte, ObjectDefinition> ObjTypes;
         public static ObjectDefinition unkobj;
         public static List<StartPositionDefinition> StartPosDefs;
-        public static int chunksz;
         public static bool littleendian;
         public static Dictionary<string, byte[]> filecache;
         public static List<byte> ColInds1;
@@ -92,25 +91,18 @@ namespace SonicRetro.SonLVL.API
             {
                 case EngineVersion.S1:
 				case EngineVersion.SCD:
-                    chunksz = 256;
+                case EngineVersion.S2:
+                case EngineVersion.S2NA:
                     UnknownImg = Properties.Resources.UnknownImg.Copy();
                     break;
                 case EngineVersion.SCDPC:
-                    chunksz = 256;
                     UnknownImg = Properties.Resources.UnknownImg.Copy();
                     littleendian = true;
                     break;
-                case EngineVersion.S2:
-                case EngineVersion.S2NA:
-                    chunksz = 128;
-                    UnknownImg = Properties.Resources.UnknownImg.Copy();
-                    break;
                 case EngineVersion.S3K:
-                    chunksz = 128;
                     UnknownImg = Properties.Resources.UnknownImg3K.Copy();
                     break;
                 case EngineVersion.SKC:
-                    chunksz = 128;
                     UnknownImg = Properties.Resources.UnknownImg3K.Copy();
                     littleendian = true;
                     break;
@@ -148,20 +140,10 @@ namespace SonicRetro.SonLVL.API
                     throw new NotImplementedException("Game type " + Level.EngineVersion.ToString() + " is not supported!");
             }
             Log("Loading " + Level.DisplayName + "...");
-            switch (Level.ChunkFormat)
-            {
-                case EngineVersion.S1:
-				case EngineVersion.SCD:
-                case EngineVersion.SCDPC:
-                    chunksz = 256;
-                    break;
-                case EngineVersion.S2:
-                case EngineVersion.S2NA:
-                case EngineVersion.S3K:
-                case EngineVersion.SKC:
-                    chunksz = 128;
-                    break;
-            }
+			if ((Level.ChunkWidth & 15) != 0)
+				throw new ArgumentException("Chunk width must be divisible by 16!");
+			if ((Level.ChunkHeight & 15) != 0)
+				throw new ArgumentException("Chunk height must be divisible by 16!");
             byte[] tmp = null;
             List<byte> data = new List<byte>();
             Tiles = new MultiFileIndexer<byte[]>();
@@ -249,7 +231,7 @@ namespace SonicRetro.SonLVL.API
             {
                 if (File.Exists(tileent.Filename))
                 {
-                    Log("Loading " + chunksz + "x" + chunksz + " chunks from file \"" + tileent.Filename + "\", using compression " + Level.ChunkCompression.ToString() + "...");
+                    Log("Loading " + Level.ChunkWidth + "x" + Level.ChunkHeight + " chunks from file \"" + tileent.Filename + "\", using compression " + Level.ChunkCompression.ToString() + "...");
                     tmp = Compression.Decompress(tileent.Filename, Level.ChunkCompression);
                     Pad(ref tmp, Chunk.Size);
                     List<Chunk> tmpchnk = new List<Chunk>();
@@ -275,7 +257,7 @@ namespace SonicRetro.SonLVL.API
                 }
                 else
                 {
-                    Log(chunksz + "x" + chunksz + " chunk file \"" + tileent.Filename + "\" not found.");
+                    Log(Level.ChunkWidth + "x" + Level.ChunkHeight + " chunk file \"" + tileent.Filename + "\" not found.");
                     Chunks.AddFile(new List<Chunk>() { new Chunk() }, tileent.Offset == -1 ? tileent.Offset : tileent.Offset / Chunk.Size);
                 }
             }
@@ -1062,23 +1044,23 @@ namespace SonicRetro.SonLVL.API
                         }
                 xend++;
                 yend++;
-                bounds = new Rectangle(0, 0, xend * chunksz, yend * chunksz);
+                bounds = new Rectangle(0, 0, xend * Level.ChunkWidth, yend * Level.ChunkHeight);
             }
             BitmapBits LevelImg8bpp = new BitmapBits(bounds.Size);
-            for (int y = Math.Max(bounds.Y / chunksz, 0); y <= Math.Min((bounds.Bottom - 1) / chunksz, FGHeight - 1); y++)
-                for (int x = Math.Max(bounds.X / chunksz, 0); x <= Math.Min((bounds.Right - 1) / chunksz, FGWidth - 1); x++)
+            for (int y = Math.Max(bounds.Y / Level.ChunkHeight, 0); y <= Math.Min((bounds.Bottom - 1) / Level.ChunkHeight, FGHeight - 1); y++)
+                for (int x = Math.Max(bounds.X / Level.ChunkWidth, 0); x <= Math.Min((bounds.Right - 1) / Level.ChunkWidth, FGWidth - 1); x++)
                 {
                     if (Layout.FGLayout[x, y] < Chunks.Count & lowPlane)
-                        LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[Layout.FGLayout[x, y]][0], x * chunksz - bounds.X, y * chunksz - bounds.Y);
+                        LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[Layout.FGLayout[x, y]][0], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
                     if (objectsAboveHighPlane)
                         if (Layout.FGLayout[x, y] < Chunks.Count)
                         {
                             if (highPlane)
-                                LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[Layout.FGLayout[x, y]][1], x * chunksz - bounds.X, y * chunksz - bounds.Y);
+                                LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[Layout.FGLayout[x, y]][1], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
                             if (collisionPath1)
-                                LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][0], x * chunksz - bounds.X, y * chunksz - bounds.Y);
+								LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][0], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
                             else if (collisionPath2)
-                                LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][1], x * chunksz - bounds.X, y * chunksz - bounds.Y);
+								LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][1], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
                         }
                 }
             if (includeObjects)
@@ -1099,16 +1081,16 @@ namespace SonicRetro.SonLVL.API
                     LevelImg8bpp.DrawSprite(item.Sprite, -bounds.X, -bounds.Y);
             }
             if (!objectsAboveHighPlane)
-                for (int y = Math.Max(bounds.Y / chunksz, 0); y <= Math.Min(bounds.Bottom / chunksz, Layout.FGLayout.GetLength(1) - 1); y++)
-                    for (int x = Math.Max(bounds.X / chunksz, 0); x <= Math.Min(bounds.Right / chunksz, Layout.FGLayout.GetLength(0) - 1); x++)
+                for (int y = Math.Max(bounds.Y / Level.ChunkHeight, 0); y <= Math.Min(bounds.Bottom / Level.ChunkHeight, Layout.FGLayout.GetLength(1) - 1); y++)
+					for (int x = Math.Max(bounds.X / Level.ChunkWidth, 0); x <= Math.Min(bounds.Right / Level.ChunkWidth, Layout.FGLayout.GetLength(0) - 1); x++)
                         if (Layout.FGLayout[x, y] < Chunks.Count)
                         {
                             if (highPlane)
-                                LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[Layout.FGLayout[x, y]][1], x * chunksz - bounds.X, y * chunksz - bounds.Y);
+								LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[Layout.FGLayout[x, y]][1], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
                             if (collisionPath1)
-                                LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][0], x * chunksz - bounds.X, y * chunksz - bounds.Y);
+								LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][0], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
                             else if (collisionPath2)
-                                LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][1], x * chunksz - bounds.X, y * chunksz - bounds.Y);
+								LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][1], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
                         }
             return LevelImg8bpp;
         }
@@ -1131,21 +1113,21 @@ namespace SonicRetro.SonLVL.API
                         }
                 xend++;
                 yend++;
-                bounds = new Rectangle(0, 0, xend * chunksz, yend * chunksz);
+				bounds = new Rectangle(0, 0, xend * Level.ChunkWidth, yend * Level.ChunkHeight);
             }
             BitmapBits LevelImg8bpp = new BitmapBits(bounds.Size);
-            for (int y = Math.Max(bounds.Y / chunksz, 0); y <= Math.Min((bounds.Bottom - 1) / chunksz, Layout.BGLayout.GetLength(1) - 1); y++)
-                for (int x = Math.Max(bounds.X / chunksz, 0); x <= Math.Min((bounds.Right - 1) / chunksz, Layout.BGLayout.GetLength(0) - 1); x++)
+            for (int y = Math.Max(bounds.Y / Level.ChunkHeight, 0); y <= Math.Min((bounds.Bottom - 1) / Level.ChunkHeight, Layout.BGLayout.GetLength(1) - 1); y++)
+				for (int x = Math.Max(bounds.X / Level.ChunkWidth, 0); x <= Math.Min((bounds.Right - 1) / Level.ChunkWidth, Layout.BGLayout.GetLength(0) - 1); x++)
                     if (Layout.BGLayout[x, y] < Chunks.Count)
                     {
                         if (lowPlane)
-                            LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[Layout.BGLayout[x, y]][0], x * chunksz - bounds.X, y * chunksz - bounds.Y);
+							LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[Layout.BGLayout[x, y]][0], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
                         if (highPlane)
-                            LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[Layout.BGLayout[x, y]][1], x * chunksz - bounds.X, y * chunksz - bounds.Y);
+							LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[Layout.BGLayout[x, y]][1], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
                         if (collisionPath1)
-                            LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.BGLayout[x, y]][0], x * chunksz - bounds.X, y * chunksz - bounds.Y);
+                            LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.BGLayout[x, y]][0], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
                         else if (collisionPath2)
-                            LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.BGLayout[x, y]][1], x * chunksz - bounds.X, y * chunksz - bounds.Y);
+                            LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.BGLayout[x, y]][1], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
                     }
             return LevelImg8bpp;
         }
@@ -2677,14 +2659,14 @@ namespace SonicRetro.SonLVL.API
 
         public static void RedrawChunk(int chunk)
         {
-            ChunkBmpBits[chunk][0] = new BitmapBits(chunksz, chunksz);
-            ChunkBmpBits[chunk][1] = new BitmapBits(chunksz, chunksz);
-            ChunkColBmpBits[chunk][0] = new BitmapBits(chunksz, chunksz);
-            ChunkColBmpBits[chunk][1] = new BitmapBits(chunksz, chunksz);
-            CompChunkBmpBits[chunk] = new BitmapBits(chunksz, chunksz);
-            for (int by = 0; by < chunksz / 16; by++)
+            ChunkBmpBits[chunk][0] = new BitmapBits(Level.ChunkWidth, Level.ChunkHeight);
+            ChunkBmpBits[chunk][1] = new BitmapBits(Level.ChunkWidth, Level.ChunkHeight);
+            ChunkColBmpBits[chunk][0] = new BitmapBits(Level.ChunkWidth, Level.ChunkHeight);
+            ChunkColBmpBits[chunk][1] = new BitmapBits(Level.ChunkWidth, Level.ChunkHeight);
+            CompChunkBmpBits[chunk] = new BitmapBits(Level.ChunkWidth, Level.ChunkHeight);
+            for (int by = 0; by < Level.ChunkHeight / 16; by++)
             {
-                for (int bx = 0; bx < chunksz / 16; bx++)
+                for (int bx = 0; bx < Level.ChunkWidth / 16; bx++)
                 {
                     ChunkBlock blk = Chunks[chunk].Blocks[bx, by];
                     if (blk.Block < BlockBmpBits.Count)

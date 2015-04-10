@@ -519,13 +519,14 @@ namespace SonicRetro.SonLVL.GUI
 			}
 			Log("Load completed.");
 			ChunkSelector.Images = LevelData.CompChunkBmps;
-			ChunkSelector.ImageSize = LevelData.chunksz;
+			ChunkSelector.ImageWidth = LevelData.Level.ChunkWidth;
+			ChunkSelector.ImageHeight = LevelData.Level.ChunkHeight;
 			BlockSelector.Images = LevelData.CompBlockBmps;
 			BlockSelector.ChangeSize();
 			CollisionSelector.Images = new List<Bitmap>(LevelData.ColBmps);
 			CollisionSelector.ChangeSize();
 			ChunkSelector.SelectedIndex = 0;
-			ChunkPicture.Size = new Size(LevelData.chunksz, LevelData.chunksz);
+			ChunkPicture.Size = new Size(LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
 			flipChunkHButton.Enabled = flipChunkVButton.Enabled = true;
 			remapChunksButton.Enabled = remapBlocksButton.Enabled = remapTilesButton.Enabled = true;
 			BlockSelector.SelectedIndex = 0;
@@ -666,11 +667,11 @@ namespace SonicRetro.SonLVL.GUI
 		private Bitmap MakeLayoutSectionImage(LayoutSection sec)
 		{
 			int w = sec.Layout.GetLength(0), h = sec.Layout.GetLength(1);
-			BitmapBits bmp = new BitmapBits(w * LevelData.chunksz, h * LevelData.chunksz);
+			BitmapBits bmp = new BitmapBits(w * LevelData.Level.ChunkWidth, h * LevelData.Level.ChunkHeight);
 			for (int y = 0; y < h; y++)
 				for (int x = 0; x < w; x++)
 					if (sec.Layout[x, y] < LevelData.Chunks.Count)
-						bmp.DrawBitmapComposited(LevelData.ChunkBmpBits[sec.Layout[x, y]][0], x * LevelData.chunksz, y * LevelData.chunksz);
+						bmp.DrawBitmapComposited(LevelData.ChunkBmpBits[sec.Layout[x, y]][0], x * LevelData.Level.ChunkWidth, y * LevelData.Level.ChunkHeight);
 			foreach (Entry ent in sec.Objects)
 			{
 				ent.UpdateSprite();
@@ -680,7 +681,7 @@ namespace SonicRetro.SonLVL.GUI
 			for (int y = 0; y < h; y++)
 				for (int x = 0; x < w; x++)
 					if (sec.Layout[x, y] < LevelData.Chunks.Count)
-						bmp.DrawBitmapComposited(LevelData.ChunkBmpBits[sec.Layout[x, y]][1], x * LevelData.chunksz, y * LevelData.chunksz);
+						bmp.DrawBitmapComposited(LevelData.ChunkBmpBits[sec.Layout[x, y]][1], x * LevelData.Level.ChunkWidth, y * LevelData.Level.ChunkHeight);
 			return LevelData.BitmapBitsToBitmap(bmp);
 		}
 
@@ -1044,7 +1045,7 @@ namespace SonicRetro.SonLVL.GUI
 						else if (highToolStripMenuItem.Checked)
 							bits = new BitmapBits(LevelData.ChunkBmpBits[i][1]);
 						else
-							bits = new BitmapBits(LevelData.chunksz, LevelData.chunksz);
+							bits = new BitmapBits(LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
 						if (path1ToolStripMenuItem.Checked)
 							bits.DrawBitmapComposited(LevelData.ChunkColBmpBits[i][0], 0, 0);
 						else if (path2ToolStripMenuItem.Checked)
@@ -1224,10 +1225,10 @@ namespace SonicRetro.SonLVL.GUI
 							LevelImg8bpp.DrawLine(67, 0, y, LevelImg8bpp.Width - 1, y);
 					}
 					if (anglesToolStripMenuItem.Checked && !noneToolStripMenuItem1.Checked)
-						for (int y = Math.Max(camera.Y / LevelData.chunksz, 0); y <= Math.Min(((camera.Y + (objectPanel.Height - 1) / ZoomLevel)) / LevelData.chunksz, LevelData.Layout.FGLayout.GetLength(1) - 1); y++)
-							for (int x = Math.Max(camera.X / LevelData.chunksz, 0); x <= Math.Min(((camera.X + (objectPanel.Width - 1) / ZoomLevel)) / LevelData.chunksz, LevelData.Layout.FGLayout.GetLength(0) - 1); x++)
-								for (int b = 0; b < LevelData.chunksz / 16; b++)
-									for (int a = 0; a < LevelData.chunksz / 16; a++)
+						for (int y = Math.Max(camera.Y / LevelData.Level.ChunkHeight, 0); y <= Math.Min(((camera.Y + (objectPanel.Height - 1) / ZoomLevel)) / LevelData.Level.ChunkHeight, LevelData.FGHeight - 1); y++)
+							for (int x = Math.Max(camera.X / LevelData.Level.ChunkWidth, 0); x <= Math.Min(((camera.X + (objectPanel.Width - 1) / ZoomLevel)) / LevelData.Level.ChunkWidth, LevelData.FGWidth - 1); x++)
+								for (int b = 0; b < LevelData.Level.ChunkHeight / 16; b++)
+									for (int a = 0; a < LevelData.Level.ChunkWidth / 16; a++)
 										if (LevelData.Layout.FGLayout[x, y] < LevelData.Chunks.Count)
 										{
 											ChunkBlock blk = LevelData.Chunks[LevelData.Layout.FGLayout[x, y]].Blocks[a, b];
@@ -1235,7 +1236,7 @@ namespace SonicRetro.SonLVL.GUI
 											Solidity solid = path2ToolStripMenuItem.Checked ? ((S2ChunkBlock)blk).Solid2 : blk.Solid1;
 											if (solid == Solidity.NotSolid) continue;
 											byte coli = path2ToolStripMenuItem.Checked ? LevelData.ColInds2[blk.Block] : LevelData.ColInds1[blk.Block];
-											DrawHUDNum(x * LevelData.chunksz + a * 16 - camera.X, y * LevelData.chunksz + b * 16 - camera.Y, LevelData.Angles[coli].ToString("X2"));
+											DrawHUDNum(x * LevelData.Level.ChunkWidth + a * 16 - camera.X, y * LevelData.Level.ChunkHeight + b * 16 - camera.Y, LevelData.Angles[coli].ToString("X2"));
 										}
 					Rectangle hudbnd = Rectangle.Empty;
 					Rectangle tmpbnd;
@@ -1250,7 +1251,7 @@ namespace SonicRetro.SonLVL.GUI
 						hudbnd = Rectangle.Union(hudbnd, DrawHUDNum(tmpbnd.Right, tmpbnd.Top, camera.X.ToString("X4") + ' ' + camera.Y.ToString("X4")));
 						tmpbnd = DrawHUDStr(hudbnd.Left, hudbnd.Bottom, "Level Size: ");
 						hudbnd = Rectangle.Union(hudbnd, tmpbnd);
-						hudbnd = Rectangle.Union(hudbnd, DrawHUDNum(tmpbnd.Right, tmpbnd.Top, (LevelData.Layout.FGLayout.GetLength(0) * LevelData.chunksz).ToString("X4") + ' ' + (LevelData.Layout.FGLayout.GetLength(1) * LevelData.chunksz).ToString("X4")));
+						hudbnd = Rectangle.Union(hudbnd, DrawHUDNum(tmpbnd.Right, tmpbnd.Top, (LevelData.FGWidth * LevelData.Level.ChunkWidth).ToString("X4") + ' ' + (LevelData.FGHeight * LevelData.Level.ChunkHeight).ToString("X4")));
 						hudbnd = Rectangle.Union(hudbnd, DrawHUDStr(hudbnd.Left, hudbnd.Bottom,
 							"Objects: " + LevelData.Objects.Count + '\n' +
 							"Rings: " + ringcnt));
@@ -1294,10 +1295,10 @@ namespace SonicRetro.SonLVL.GUI
 						}
 					}
 					if (LevelData.LayoutFormat.HasLoopFlag)
-						for (int y = Math.Max(camera.Y / LevelData.chunksz, 0); y <= Math.Min(((camera.Y + (objectPanel.Height - 1) / ZoomLevel)) / LevelData.chunksz, LevelData.Layout.FGLayout.GetLength(1) - 1); y++)
-							for (int x = Math.Max(camera.X / LevelData.chunksz, 0); x <= Math.Min(((camera.X + (objectPanel.Width - 1) / ZoomLevel)) / LevelData.chunksz, LevelData.Layout.FGLayout.GetLength(0) - 1); x++)
+						for (int y = Math.Max(camera.Y / LevelData.Level.ChunkHeight, 0); y <= Math.Min(((camera.Y + (objectPanel.Height - 1) / ZoomLevel)) / LevelData.Level.ChunkHeight, LevelData.FGHeight - 1); y++)
+							for (int x = Math.Max(camera.X / LevelData.Level.ChunkWidth, 0); x <= Math.Min(((camera.X + (objectPanel.Width - 1) / ZoomLevel)) / LevelData.Level.ChunkWidth, LevelData.FGWidth - 1); x++)
 								if (LevelData.Layout.FGLoop[x, y])
-									LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Yellow)) { Width = 3 }, x * LevelData.chunksz - camera.X, y * LevelData.chunksz - camera.Y, LevelData.chunksz, LevelData.chunksz);
+									LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Yellow)) { Width = 3 }, x * LevelData.Level.ChunkWidth - camera.X, y * LevelData.Level.ChunkHeight - camera.Y, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
 					if (selecting)
 					{
 						Rectangle selbnds = Rectangle.FromLTRB(
@@ -1316,16 +1317,16 @@ namespace SonicRetro.SonLVL.GUI
 					LevelImg8bpp = LevelData.DrawForeground(new Rectangle(camera.X, camera.Y, (int)(foregroundPanel.Width / ZoomLevel), (int)(foregroundPanel.Height / ZoomLevel)), true, true, objectsAboveHighPlaneToolStripMenuItem.Checked, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked, allToolStripMenuItem.Checked);
 					if (enableGridToolStripMenuItem.Checked)
 					{
-						for (int x = (LevelData.chunksz - (camera.X % LevelData.chunksz)) % LevelData.chunksz; x < LevelImg8bpp.Width; x += LevelData.chunksz)
+						for (int x = (LevelData.Level.ChunkWidth - (camera.X % LevelData.Level.ChunkWidth)) % LevelData.Level.ChunkWidth; x < LevelImg8bpp.Width; x += LevelData.Level.ChunkWidth)
 							LevelImg8bpp.DrawLine(67, x, 0, x, LevelImg8bpp.Height - 1);
-						for (int y = (LevelData.chunksz - (camera.Y % LevelData.chunksz)) % LevelData.chunksz; y < LevelImg8bpp.Height; y += LevelData.chunksz)
+						for (int y = (LevelData.Level.ChunkHeight - (camera.Y % LevelData.Level.ChunkHeight)) % LevelData.Level.ChunkHeight; y < LevelImg8bpp.Height; y += LevelData.Level.ChunkHeight)
 							LevelImg8bpp.DrawLine(67, 0, y, LevelImg8bpp.Width - 1, y);
 					}
 					if (anglesToolStripMenuItem.Checked & !noneToolStripMenuItem1.Checked)
-						for (int y = Math.Max(camera.Y / LevelData.chunksz, 0); y <= Math.Min(((camera.Y + (foregroundPanel.Height - 1) / ZoomLevel)) / LevelData.chunksz, LevelData.Layout.FGLayout.GetLength(1) - 1); y++)
-							for (int x = Math.Max(camera.X / LevelData.chunksz, 0); x <= Math.Min(((camera.X + (foregroundPanel.Width - 1) / ZoomLevel)) / LevelData.chunksz, LevelData.Layout.FGLayout.GetLength(0) - 1); x++)
-								for (int b = 0; b < LevelData.chunksz / 16; b++)
-									for (int a = 0; a < LevelData.chunksz / 16; a++)
+						for (int y = Math.Max(camera.Y / LevelData.Level.ChunkHeight, 0); y <= Math.Min(((camera.Y + (foregroundPanel.Height - 1) / ZoomLevel)) / LevelData.Level.ChunkHeight, LevelData.FGHeight - 1); y++)
+							for (int x = Math.Max(camera.X / LevelData.Level.ChunkWidth, 0); x <= Math.Min(((camera.X + (foregroundPanel.Width - 1) / ZoomLevel)) / LevelData.Level.ChunkWidth, LevelData.FGWidth - 1); x++)
+								for (int b = 0; b < LevelData.Level.ChunkHeight / 16; b++)
+									for (int a = 0; a < LevelData.Level.ChunkWidth / 16; a++)
 										if (LevelData.Layout.FGLayout[x, y] < LevelData.Chunks.Count)
 										{
 											ChunkBlock blk = LevelData.Chunks[LevelData.Layout.FGLayout[x, y]].Blocks[a, b];
@@ -1333,7 +1334,7 @@ namespace SonicRetro.SonLVL.GUI
 											Solidity solid = path2ToolStripMenuItem.Checked ? ((S2ChunkBlock)blk).Solid2 : blk.Solid1;
 											if (solid == Solidity.NotSolid) continue;
 											byte coli = path2ToolStripMenuItem.Checked ? LevelData.ColInds2[blk.Block] : LevelData.ColInds1[blk.Block];
-											DrawHUDNum(x * LevelData.chunksz + a * 16 - camera.X, y * LevelData.chunksz + b * 16 - camera.Y, LevelData.Angles[coli].ToString("X2"));
+											DrawHUDNum(x * LevelData.Level.ChunkWidth + a * 16 - camera.X, y * LevelData.Level.ChunkHeight + b * 16 - camera.Y, LevelData.Angles[coli].ToString("X2"));
 										}
 					if (LevelData.RingFormat is RingLayoutFormat)
 						ringcnt = ((RingLayoutFormat)LevelData.RingFormat).CountRings(LevelData.Rings);
@@ -1345,7 +1346,7 @@ namespace SonicRetro.SonLVL.GUI
 						hudbnd = Rectangle.Union(hudbnd, DrawHUDNum(tmpbnd.Right, tmpbnd.Top, camera.X.ToString("X4") + ' ' + camera.Y.ToString("X4")));
 						tmpbnd = DrawHUDStr(hudbnd.Left, hudbnd.Bottom, "Level Size: ");
 						hudbnd = Rectangle.Union(hudbnd, tmpbnd);
-						hudbnd = Rectangle.Union(hudbnd, DrawHUDNum(tmpbnd.Right, tmpbnd.Top, (LevelData.Layout.FGLayout.GetLength(0) * LevelData.chunksz).ToString("X4") + ' ' + (LevelData.Layout.FGLayout.GetLength(1) * LevelData.chunksz).ToString("X4")));
+						hudbnd = Rectangle.Union(hudbnd, DrawHUDNum(tmpbnd.Right, tmpbnd.Top, (LevelData.FGWidth * LevelData.Level.ChunkWidth).ToString("X4") + ' ' + (LevelData.FGHeight * LevelData.Level.ChunkHeight).ToString("X4")));
 						hudbnd = Rectangle.Union(hudbnd, DrawHUDStr(hudbnd.Left, hudbnd.Bottom,
 							"Objects: " + LevelData.Objects.Count + '\n' +
 							"Rings: " + ringcnt));
@@ -1361,22 +1362,22 @@ namespace SonicRetro.SonLVL.GUI
 					LevelGfx = Graphics.FromImage(LevelBmp);
 					LevelGfx.SetOptions();
 					if (LevelData.LayoutFormat.HasLoopFlag)
-						for (int y = Math.Max(camera.Y / LevelData.chunksz, 0); y <= Math.Min(((camera.Y + (foregroundPanel.Height - 1) / ZoomLevel)) / LevelData.chunksz, LevelData.Layout.FGLayout.GetLength(1) - 1); y++)
-							for (int x = Math.Max(camera.X / LevelData.chunksz, 0); x <= Math.Min(((camera.X + (foregroundPanel.Width - 1) / ZoomLevel)) / LevelData.chunksz, LevelData.Layout.FGLayout.GetLength(0) - 1); x++)
+						for (int y = Math.Max(camera.Y / LevelData.Level.ChunkHeight, 0); y <= Math.Min(((camera.Y + (foregroundPanel.Height - 1) / ZoomLevel)) / LevelData.Level.ChunkHeight, LevelData.FGHeight - 1); y++)
+							for (int x = Math.Max(camera.X / LevelData.Level.ChunkWidth, 0); x <= Math.Min(((camera.X + (foregroundPanel.Width - 1) / ZoomLevel)) / LevelData.Level.ChunkWidth, LevelData.FGWidth - 1); x++)
 								if (LevelData.Layout.FGLoop[x, y])
-									LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Yellow)) { Width = (int)(3 * ZoomLevel) }, x * LevelData.chunksz - camera.X, y * LevelData.chunksz - camera.Y, LevelData.chunksz, LevelData.chunksz);
+									LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Yellow)) { Width = (int)(3 * ZoomLevel) }, x * LevelData.Level.ChunkWidth - camera.X, y * LevelData.Level.ChunkHeight - camera.Y, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
 					switch (FGMode)
 					{
 						case EditingMode.Draw:
 							LevelGfx.DrawImage(LevelData.CompChunkBmps[SelectedChunk],
-							new Rectangle(((((int)(pnlcur.X / ZoomLevel) + camera.X) / LevelData.chunksz) * LevelData.chunksz) - camera.X, ((((int)(pnlcur.Y / ZoomLevel) + camera.Y) / LevelData.chunksz) * LevelData.chunksz) - camera.Y, LevelData.chunksz, LevelData.chunksz),
-							0, 0, LevelData.chunksz, LevelData.chunksz,
+							new Rectangle(((((int)(pnlcur.X / ZoomLevel) + camera.X) / LevelData.Level.ChunkWidth) * LevelData.Level.ChunkWidth) - camera.X, ((((int)(pnlcur.Y / ZoomLevel) + camera.Y) / LevelData.Level.ChunkHeight) * LevelData.Level.ChunkHeight) - camera.Y, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight),
+							0, 0, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight,
 							GraphicsUnit.Pixel, imageTransparency);
 							break;
 						case EditingMode.Select:
 							if (!FGSelection.IsEmpty)
 							{
-								Rectangle selbnds = FGSelection.Scale(LevelData.chunksz);
+								Rectangle selbnds = FGSelection.Scale(LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
 								selbnds.Offset(-camera.X, -camera.Y);
 								LevelGfx.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.White)), selbnds);
 								LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, selbnds);
@@ -1391,16 +1392,16 @@ namespace SonicRetro.SonLVL.GUI
 					LevelImg8bpp = LevelData.DrawBackground(new Rectangle(camera.X, camera.Y, (int)(backgroundPanel.Width / ZoomLevel), (int)(backgroundPanel.Height / ZoomLevel)), lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked);
 					if (enableGridToolStripMenuItem.Checked)
 					{
-						for (int x = (LevelData.chunksz - (camera.X % LevelData.chunksz)) % LevelData.chunksz; x < LevelImg8bpp.Width; x += LevelData.chunksz)
+						for (int x = (LevelData.Level.ChunkWidth - (camera.X % LevelData.Level.ChunkWidth)) % LevelData.Level.ChunkWidth; x < LevelImg8bpp.Width; x += LevelData.Level.ChunkWidth)
 							LevelImg8bpp.DrawLine(67, x, 0, x, LevelImg8bpp.Height - 1);
-						for (int y = (LevelData.chunksz - (camera.Y % LevelData.chunksz)) % LevelData.chunksz; y < LevelImg8bpp.Height; y += LevelData.chunksz)
+						for (int y = (LevelData.Level.ChunkHeight - (camera.Y % LevelData.Level.ChunkHeight)) % LevelData.Level.ChunkHeight; y < LevelImg8bpp.Height; y += LevelData.Level.ChunkHeight)
 							LevelImg8bpp.DrawLine(67, 0, y, LevelImg8bpp.Width - 1, y);
 					}
 					if (anglesToolStripMenuItem.Checked & !noneToolStripMenuItem1.Checked)
-						for (int y = Math.Max(camera.Y / LevelData.chunksz, 0); y <= Math.Min(((camera.Y + (backgroundPanel.Height - 1) / ZoomLevel)) / LevelData.chunksz, LevelData.Layout.BGLayout.GetLength(1) - 1); y++)
-							for (int x = Math.Max(camera.X / LevelData.chunksz, 0); x <= Math.Min(((camera.X + (backgroundPanel.Width - 1) / ZoomLevel)) / LevelData.chunksz, LevelData.Layout.BGLayout.GetLength(0) - 1); x++)
-								for (int b = 0; b < LevelData.chunksz / 16; b++)
-									for (int a = 0; a < LevelData.chunksz / 16; a++)
+						for (int y = Math.Max(camera.Y / LevelData.Level.ChunkHeight, 0); y <= Math.Min(((camera.Y + (backgroundPanel.Height - 1) / ZoomLevel)) / LevelData.Level.ChunkHeight, LevelData.BGHeight - 1); y++)
+							for (int x = Math.Max(camera.X / LevelData.Level.ChunkWidth, 0); x <= Math.Min(((camera.X + (backgroundPanel.Width - 1) / ZoomLevel)) / LevelData.Level.ChunkWidth, LevelData.BGWidth - 1); x++)
+								for (int b = 0; b < LevelData.Level.ChunkHeight / 16; b++)
+									for (int a = 0; a < LevelData.Level.ChunkWidth / 16; a++)
 										if (LevelData.Layout.BGLayout[x, y] < LevelData.Chunks.Count)
 										{
 											ChunkBlock blk = LevelData.Chunks[LevelData.Layout.BGLayout[x, y]].Blocks[a, b];
@@ -1408,7 +1409,7 @@ namespace SonicRetro.SonLVL.GUI
 											Solidity solid = path2ToolStripMenuItem.Checked ? ((S2ChunkBlock)blk).Solid2 : blk.Solid1;
 											if (solid == Solidity.NotSolid) continue;
 											byte coli = path2ToolStripMenuItem.Checked ? LevelData.ColInds2[blk.Block] : LevelData.ColInds1[blk.Block];
-											DrawHUDNum(x * LevelData.chunksz + a * 16 - camera.X, y * LevelData.chunksz + b * 16 - camera.Y, LevelData.Angles[coli].ToString("X2"));
+											DrawHUDNum(x * LevelData.Level.ChunkWidth + a * 16 - camera.X, y * LevelData.Level.ChunkHeight + b * 16 - camera.Y, LevelData.Angles[coli].ToString("X2"));
 										}
 					if (hUDToolStripMenuItem.Checked)
 					{
@@ -1416,7 +1417,7 @@ namespace SonicRetro.SonLVL.GUI
 						hudbnd = Rectangle.Union(hudbnd, DrawHUDNum(tmpbnd.Right, tmpbnd.Top, camera.X.ToString("X4") + ' ' + camera.Y.ToString("X4")));
 						tmpbnd = DrawHUDStr(hudbnd.Left, hudbnd.Bottom, "Level Size: ");
 						hudbnd = Rectangle.Union(hudbnd, tmpbnd);
-						hudbnd = Rectangle.Union(hudbnd, DrawHUDNum(tmpbnd.Right, tmpbnd.Top, (LevelData.Layout.BGLayout.GetLength(0) * LevelData.chunksz).ToString("X4") + ' ' + (LevelData.Layout.BGLayout.GetLength(1) * LevelData.chunksz).ToString("X4")));
+						hudbnd = Rectangle.Union(hudbnd, DrawHUDNum(tmpbnd.Right, tmpbnd.Top, (LevelData.BGWidth * LevelData.Level.ChunkWidth).ToString("X4") + ' ' + (LevelData.BGHeight * LevelData.Level.ChunkHeight).ToString("X4")));
 						tmpbnd = DrawHUDStr(hudbnd.Left, hudbnd.Bottom, "Chunk: ");
 						hudbnd = Rectangle.Union(hudbnd, tmpbnd);
 						hudbnd = Rectangle.Union(hudbnd, DrawHUDNum(tmpbnd.Right, tmpbnd.Top, SelectedChunk.ToString("X2")));
@@ -1429,22 +1430,22 @@ namespace SonicRetro.SonLVL.GUI
 					LevelGfx = Graphics.FromImage(LevelBmp);
 					LevelGfx.SetOptions();
 					if (LevelData.LayoutFormat.HasLoopFlag)
-						for (int y = Math.Max(camera.Y / LevelData.chunksz, 0); y <= Math.Min(((camera.Y + (backgroundPanel.Height - 1) / ZoomLevel)) / LevelData.chunksz, LevelData.Layout.BGLayout.GetLength(1) - 1); y++)
-							for (int x = Math.Max(camera.X / LevelData.chunksz, 0); x <= Math.Min(((camera.X + (backgroundPanel.Width - 1) / ZoomLevel)) / LevelData.chunksz, LevelData.Layout.BGLayout.GetLength(0) - 1); x++)
+						for (int y = Math.Max(camera.Y / LevelData.Level.ChunkHeight, 0); y <= Math.Min(((camera.Y + (backgroundPanel.Height - 1) / ZoomLevel)) / LevelData.Level.ChunkHeight, LevelData.BGHeight - 1); y++)
+							for (int x = Math.Max(camera.X / LevelData.Level.ChunkWidth, 0); x <= Math.Min(((camera.X + (backgroundPanel.Width - 1) / ZoomLevel)) / LevelData.Level.ChunkWidth, LevelData.BGWidth - 1); x++)
 								if (LevelData.Layout.BGLoop[x, y])
-									LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Yellow)) { Width = (int)(3 * ZoomLevel) }, x * LevelData.chunksz - camera.X, y * LevelData.chunksz - camera.Y, LevelData.chunksz, LevelData.chunksz);
+									LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Yellow)) { Width = (int)(3 * ZoomLevel) }, x * LevelData.Level.ChunkWidth - camera.X, y * LevelData.Level.ChunkHeight - camera.Y, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
 					switch (BGMode)
 					{
 						case EditingMode.Draw:
 							LevelGfx.DrawImage(LevelData.CompChunkBmps[SelectedChunk],
-							new Rectangle(((((int)(pnlcur.X / ZoomLevel) + camera.X) / LevelData.chunksz) * LevelData.chunksz) - camera.X, ((((int)(pnlcur.Y / ZoomLevel) + camera.Y) / LevelData.chunksz) * LevelData.chunksz) - camera.Y, LevelData.chunksz, LevelData.chunksz),
-							0, 0, LevelData.chunksz, LevelData.chunksz,
+							new Rectangle(((((int)(pnlcur.X / ZoomLevel) + camera.X) / LevelData.Level.ChunkWidth) * LevelData.Level.ChunkWidth) - camera.X, ((((int)(pnlcur.Y / ZoomLevel) + camera.Y) / LevelData.Level.ChunkHeight) * LevelData.Level.ChunkHeight) - camera.Y, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight),
+							0, 0, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight,
 							GraphicsUnit.Pixel, imageTransparency);
 							break;
 						case EditingMode.Select:
 							if (!BGSelection.IsEmpty)
 							{
-								Rectangle selbnds = BGSelection.Scale(LevelData.chunksz);
+								Rectangle selbnds = BGSelection.Scale(LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
 								selbnds.Offset(-camera.X, -camera.Y);
 								LevelGfx.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.White)), selbnds);
 								LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, selbnds);
@@ -1524,12 +1525,12 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void UpdateScrollBars()
 		{
-			hScrollBar1.Maximum = (int)Math.Max(((LevelData.Layout.FGLayout.GetLength(0) + 1) * LevelData.chunksz) - (objectPanel.Width / ZoomLevel), 0);
-			vScrollBar1.Maximum = (int)Math.Max(((LevelData.Layout.FGLayout.GetLength(1) + 1) * LevelData.chunksz) - (objectPanel.Height / ZoomLevel), 0);
-			hScrollBar2.Maximum = (int)Math.Max(((LevelData.Layout.FGLayout.GetLength(0) + 1) * LevelData.chunksz) - (foregroundPanel.Width / ZoomLevel), 0);
-			vScrollBar2.Maximum = (int)Math.Max(((LevelData.Layout.FGLayout.GetLength(1) + 1) * LevelData.chunksz) - (foregroundPanel.Height / ZoomLevel), 0);
-			hScrollBar3.Maximum = (int)Math.Max(((LevelData.Layout.BGLayout.GetLength(0) + 1) * LevelData.chunksz) - (backgroundPanel.Width / ZoomLevel), 0);
-			vScrollBar3.Maximum = (int)Math.Max(((LevelData.Layout.BGLayout.GetLength(1) + 1) * LevelData.chunksz) - (backgroundPanel.Height / ZoomLevel), 0);
+			hScrollBar1.Maximum = (int)Math.Max(((LevelData.FGWidth + 1) * LevelData.Level.ChunkWidth) - (objectPanel.Width / ZoomLevel), 0);
+			vScrollBar1.Maximum = (int)Math.Max(((LevelData.FGHeight + 1) * LevelData.Level.ChunkHeight) - (objectPanel.Height / ZoomLevel), 0);
+			hScrollBar2.Maximum = (int)Math.Max(((LevelData.FGWidth + 1) * LevelData.Level.ChunkWidth) - (foregroundPanel.Width / ZoomLevel), 0);
+			vScrollBar2.Maximum = (int)Math.Max(((LevelData.FGHeight + 1) * LevelData.Level.ChunkHeight) - (foregroundPanel.Height / ZoomLevel), 0);
+			hScrollBar3.Maximum = (int)Math.Max(((LevelData.BGWidth + 1) * LevelData.Level.ChunkWidth) - (backgroundPanel.Width / ZoomLevel), 0);
+			vScrollBar3.Maximum = (int)Math.Max(((LevelData.BGHeight + 1) * LevelData.Level.ChunkHeight) - (backgroundPanel.Height / ZoomLevel), 0);
 		}
 
 		Rectangle prevbnds;
@@ -1612,25 +1613,25 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void objectPanel_KeyDown(object sender, KeyEventArgs e)
 		{
-			long step = e.Shift ? LevelData.chunksz : 16;
-			step = e.Control ? int.MaxValue : step;
+			long hstep = e.Control ? int.MaxValue : e.Shift ? LevelData.Level.ChunkWidth : 16;
+			long vstep = e.Control ? int.MaxValue : e.Shift ? LevelData.Level.ChunkHeight : 16;
 			switch (e.KeyCode)
 			{
 				case Keys.Up:
 					if (!loaded) return;
-					vScrollBar1.Value = (int)Math.Max(vScrollBar1.Value - step, vScrollBar1.Minimum);
+					vScrollBar1.Value = (int)Math.Max(vScrollBar1.Value - vstep, vScrollBar1.Minimum);
 					break;
 				case Keys.Down:
 					if (!loaded) return;
-					vScrollBar1.Value = (int)Math.Min(vScrollBar1.Value + step, vScrollBar1.Maximum - LevelData.chunksz + 1);
+					vScrollBar1.Value = (int)Math.Min(vScrollBar1.Value + vstep, vScrollBar1.Maximum - LevelData.Level.ChunkHeight + 1);
 					break;
 				case Keys.Left:
 					if (!loaded) return;
-					hScrollBar1.Value = (int)Math.Max(hScrollBar1.Value - step, hScrollBar1.Minimum);
+					hScrollBar1.Value = (int)Math.Max(hScrollBar1.Value - hstep, hScrollBar1.Minimum);
 					break;
 				case Keys.Right:
 					if (!loaded) return;
-					hScrollBar1.Value = (int)Math.Min(hScrollBar1.Value + step, hScrollBar1.Maximum - LevelData.chunksz + 1);
+					hScrollBar1.Value = (int)Math.Min(hScrollBar1.Value + hstep, hScrollBar1.Maximum - LevelData.Level.ChunkWidth + 1);
 					break;
 				case Keys.Delete:
 					if (!loaded) return;
@@ -1769,25 +1770,25 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void foregroundPanel_KeyDown(object sender, KeyEventArgs e)
 		{
-			long step = e.Shift ? LevelData.chunksz : 16;
-			step = e.Control ? int.MaxValue : step;
+			long hstep = e.Control ? int.MaxValue : e.Shift ? LevelData.Level.ChunkWidth : 16;
+			long vstep = e.Control ? int.MaxValue : e.Shift ? LevelData.Level.ChunkHeight : 16;
 			switch (e.KeyCode)
 			{
 				case Keys.Up:
 					if (!loaded) return;
-					vScrollBar2.Value = (int)Math.Max(vScrollBar2.Value - step, vScrollBar2.Minimum);
+					vScrollBar2.Value = (int)Math.Max(vScrollBar2.Value - vstep, vScrollBar2.Minimum);
 					break;
 				case Keys.Down:
 					if (!loaded) return;
-					vScrollBar2.Value = (int)Math.Min(vScrollBar2.Value + step, vScrollBar2.Maximum - LevelData.chunksz + 1);
+					vScrollBar2.Value = (int)Math.Min(vScrollBar2.Value + vstep, vScrollBar2.Maximum - LevelData.Level.ChunkHeight + 1);
 					break;
 				case Keys.Left:
 					if (!loaded) return;
-					hScrollBar2.Value = (int)Math.Max(hScrollBar2.Value - step, hScrollBar2.Minimum);
+					hScrollBar2.Value = (int)Math.Max(hScrollBar2.Value - hstep, hScrollBar2.Minimum);
 					break;
 				case Keys.Right:
 					if (!loaded) return;
-					hScrollBar2.Value = (int)Math.Min(hScrollBar2.Value + step, hScrollBar2.Maximum - LevelData.chunksz + 1);
+					hScrollBar2.Value = (int)Math.Min(hScrollBar2.Value + hstep, hScrollBar2.Maximum - LevelData.Level.ChunkWidth + 1);
 					break;
 				case Keys.A:
 					if (!loaded) return;
@@ -1808,25 +1809,25 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void backgroundPanel_KeyDown(object sender, KeyEventArgs e)
 		{
-			long step = e.Shift ? LevelData.chunksz : 16;
-			step = e.Control ? int.MaxValue : step;
+			long hstep = e.Control ? int.MaxValue : e.Shift ? LevelData.Level.ChunkWidth : 16;
+			long vstep = e.Control ? int.MaxValue : e.Shift ? LevelData.Level.ChunkHeight : 16;
 			switch (e.KeyCode)
 			{
 				case Keys.Up:
 					if (!loaded) return;
-					vScrollBar3.Value = (int)Math.Max(vScrollBar3.Value - step, vScrollBar3.Minimum);
+					vScrollBar3.Value = (int)Math.Max(vScrollBar3.Value - vstep, vScrollBar3.Minimum);
 					break;
 				case Keys.Down:
 					if (!loaded) return;
-					vScrollBar3.Value = (int)Math.Min(vScrollBar3.Value + step, vScrollBar3.Maximum - LevelData.chunksz + 1);
+					vScrollBar3.Value = (int)Math.Min(vScrollBar3.Value + vstep, vScrollBar3.Maximum - LevelData.Level.ChunkHeight + 1);
 					break;
 				case Keys.Left:
 					if (!loaded) return;
-					hScrollBar3.Value = (int)Math.Max(hScrollBar3.Value - step, hScrollBar3.Minimum);
+					hScrollBar3.Value = (int)Math.Max(hScrollBar3.Value - hstep, hScrollBar3.Minimum);
 					break;
 				case Keys.Right:
 					if (!loaded) return;
-					hScrollBar3.Value = (int)Math.Min(hScrollBar3.Value + step, hScrollBar3.Maximum - LevelData.chunksz + 1);
+					hScrollBar3.Value = (int)Math.Min(hScrollBar3.Value + hstep, hScrollBar3.Maximum - LevelData.Level.ChunkWidth + 1);
 					break;
 				case Keys.A:
 					if (!loaded) return;
@@ -2384,8 +2385,8 @@ namespace SonicRetro.SonLVL.GUI
 		private void foregroundPanel_MouseDown(object sender, MouseEventArgs e)
 		{
 			if (!loaded) return;
-			Point chunkpoint = new Point(((int)(e.X / ZoomLevel) + hScrollBar2.Value) / LevelData.chunksz, ((int)(e.Y / ZoomLevel) + vScrollBar2.Value) / LevelData.chunksz);
-			if (chunkpoint.X >= LevelData.Layout.FGLayout.GetLength(0) | chunkpoint.Y >= LevelData.Layout.FGLayout.GetLength(1)) return;
+			Point chunkpoint = new Point(((int)(e.X / ZoomLevel) + hScrollBar2.Value) / LevelData.Level.ChunkWidth, ((int)(e.Y / ZoomLevel) + vScrollBar2.Value) / LevelData.Level.ChunkHeight);
+			if (chunkpoint.X >= LevelData.FGWidth | chunkpoint.Y >= LevelData.FGHeight) return;
 			switch (FGMode)
 			{
 				case EditingMode.Draw:
@@ -2447,8 +2448,8 @@ namespace SonicRetro.SonLVL.GUI
 			bnd.Offset(-foregroundPanel.Location.X, -foregroundPanel.Location.Y);
 			if (!bnd.Contains(foregroundPanel.PointToClient(Cursor.Position))) return;
 			Point mouse = new Point((int)(e.X / ZoomLevel) + hScrollBar2.Value, (int)(e.Y / ZoomLevel) + vScrollBar2.Value);
-			Point chunkpoint = new Point(mouse.X / LevelData.chunksz, mouse.Y / LevelData.chunksz);
-			if (chunkpoint.X >= LevelData.Layout.FGLayout.GetLength(0) | chunkpoint.Y >= LevelData.Layout.FGLayout.GetLength(1)) return;
+			Point chunkpoint = new Point(mouse.X / LevelData.Level.ChunkWidth, mouse.Y / LevelData.Level.ChunkHeight);
+			if (chunkpoint.X >= LevelData.FGWidth | chunkpoint.Y >= LevelData.FGHeight) return;
 			switch (FGMode)
 			{
 				case EditingMode.Draw:
@@ -2490,8 +2491,8 @@ namespace SonicRetro.SonLVL.GUI
 		private void backgroundPanel_MouseDown(object sender, MouseEventArgs e)
 		{
 			if (!loaded) return;
-			Point chunkpoint = new Point(((int)(e.X / ZoomLevel) + hScrollBar3.Value) / LevelData.chunksz, ((int)(e.Y / ZoomLevel) + vScrollBar3.Value) / LevelData.chunksz);
-			if (chunkpoint.X >= LevelData.Layout.BGLayout.GetLength(0) | chunkpoint.Y >= LevelData.Layout.BGLayout.GetLength(1)) return;
+			Point chunkpoint = new Point(((int)(e.X / ZoomLevel) + hScrollBar3.Value) / LevelData.Level.ChunkWidth, ((int)(e.Y / ZoomLevel) + vScrollBar3.Value) / LevelData.Level.ChunkHeight);
+			if (chunkpoint.X >= LevelData.BGWidth | chunkpoint.Y >= LevelData.BGHeight) return;
 			switch (BGMode)
 			{
 				case EditingMode.Draw:
@@ -2552,8 +2553,8 @@ namespace SonicRetro.SonLVL.GUI
 			bnd.Offset(-backgroundPanel.Location.X, -backgroundPanel.Location.Y);
 			if (!bnd.Contains(backgroundPanel.PointToClient(Cursor.Position))) return;
 			Point mouse = new Point((int)(e.X / ZoomLevel) + hScrollBar3.Value, (int)(e.Y / ZoomLevel) + vScrollBar3.Value);
-			Point chunkpoint = new Point(mouse.X / LevelData.chunksz, mouse.Y / LevelData.chunksz);
-			if (chunkpoint.X >= LevelData.Layout.BGLayout.GetLength(0) | chunkpoint.Y >= LevelData.Layout.BGLayout.GetLength(1)) return;
+			Point chunkpoint = new Point(mouse.X / LevelData.Level.ChunkWidth, mouse.Y / LevelData.Level.ChunkHeight);
+			if (chunkpoint.X >= LevelData.BGWidth | chunkpoint.Y >= LevelData.BGHeight) return;
 			switch (BGMode)
 			{
 				case EditingMode.Draw:
@@ -2989,7 +2990,7 @@ namespace SonicRetro.SonLVL.GUI
 		private void ChunkPicture_MouseMove(object sender, MouseEventArgs e)
 		{
 			if (loaded && e.Button == MouseButtons.Left)
-				if (e.X > 0 && e.Y > 0 && e.X < LevelData.chunksz && e.Y < LevelData.chunksz)
+				if (e.X > 0 && e.Y > 0 && e.X < LevelData.Level.ChunkWidth && e.Y < LevelData.Level.ChunkHeight)
 				{
 					SelectedChunkBlock = new Point(e.X / 16, e.Y / 16);
 					ChunkBlock destBlock = chunkBlockEditor.SelectedObject = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
@@ -3029,7 +3030,7 @@ namespace SonicRetro.SonLVL.GUI
 					current.Block = (ushort)((current.Block + 1) % LevelData.Blocks.Count);
 					break;
 				case Keys.Down:
-					if (SelectedChunkBlock.Y < (LevelData.chunksz / 16) - 1)
+					if (SelectedChunkBlock.Y < (LevelData.Level.ChunkHeight / 16) - 1)
 					{
 						SelectedChunkBlock = new Point(SelectedChunkBlock.X, SelectedChunkBlock.Y + 1);
 						current = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
@@ -3051,7 +3052,7 @@ namespace SonicRetro.SonLVL.GUI
 						return;
 					break;
 				case Keys.Right:
-					if (SelectedChunkBlock.X < (LevelData.chunksz / 16) - 1)
+					if (SelectedChunkBlock.X < (LevelData.Level.ChunkWidth / 16) - 1)
 					{
 						SelectedChunkBlock = new Point(SelectedChunkBlock.X + 1, SelectedChunkBlock.Y);
 						current = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
@@ -3106,8 +3107,8 @@ namespace SonicRetro.SonLVL.GUI
 		private void DrawChunkPicture()
 		{
 			if (!loaded) return;
-			BitmapBits bmp = new BitmapBits(LevelData.chunksz, LevelData.chunksz);
-			bmp.FillRectangle(0x20, 0, 0, LevelData.chunksz, LevelData.chunksz);
+			BitmapBits bmp = new BitmapBits(LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
+			bmp.FillRectangle(0x20, 0, 0, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
 			if (lowToolStripMenuItem.Checked)
 				bmp.DrawBitmap(LevelData.ChunkBmpBits[SelectedChunk][0], 0, 0);
 			if (highToolStripMenuItem.Checked)
@@ -3120,7 +3121,7 @@ namespace SonicRetro.SonLVL.GUI
 			using (Graphics gfx = ChunkPicture.CreateGraphics())
 			{
 				gfx.Clear(LevelData.PaletteToColor(2, 0, false));
-				gfx.DrawImage(bmp.ToBitmap(LevelData.BmpPal), 0, 0, LevelData.chunksz, LevelData.chunksz);
+				gfx.DrawImage(bmp.ToBitmap(LevelData.BmpPal), 0, 0, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
 			}
 		}
 
@@ -3133,11 +3134,10 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			Chunk newcnk = new Chunk();
 			Chunk oldcnk = LevelData.Chunks[SelectedChunk];
-			int blkcnt = LevelData.chunksz / 16;
-			for (int y = 0; y < blkcnt; y++)
-				for (int x = 0; x < blkcnt; x++)
+			for (int y = 0; y < newcnk.Blocks.GetLength(1); y++)
+				for (int x = 0; x < newcnk.Blocks.GetLength(0); x++)
 				{
-					ChunkBlock blk = oldcnk.Blocks[(blkcnt - 1) - x, y];
+					ChunkBlock blk = oldcnk.Blocks[(newcnk.Blocks.GetLength(0) - 1) - x, y];
 					blk.XFlip = !blk.XFlip;
 					newcnk.Blocks[x, y] = blk;
 				}
@@ -3151,11 +3151,10 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			Chunk newcnk = new Chunk();
 			Chunk oldcnk = LevelData.Chunks[SelectedChunk];
-			int blkcnt = LevelData.chunksz / 16;
-			for (int y = 0; y < blkcnt; y++)
-				for (int x = 0; x < blkcnt; x++)
+			for (int y = 0; y < newcnk.Blocks.GetLength(1); y++)
+				for (int x = 0; x < newcnk.Blocks.GetLength(0); x++)
 				{
-					ChunkBlock blk = oldcnk.Blocks[x, (blkcnt - 1) - y];
+					ChunkBlock blk = oldcnk.Blocks[x, (newcnk.Blocks.GetLength(1) - 1) - y];
 					blk.YFlip = !blk.YFlip;
 					newcnk.Blocks[x, y] = blk;
 				}
@@ -3722,12 +3721,12 @@ namespace SonicRetro.SonLVL.GUI
 			LevelData.CompChunkBmps.RemoveAt(SelectedChunk);
 			LevelData.CompChunkBmpBits.RemoveAt(SelectedChunk);
 			SelectedChunk = (byte)Math.Min(SelectedChunk, LevelData.Chunks.Count - 1);
-			for (int y = 0; y < LevelData.Layout.FGLayout.GetLength(1); y++)
-				for (int x = 0; x < LevelData.Layout.FGLayout.GetLength(0); x++)
+			for (int y = 0; y < LevelData.FGHeight; y++)
+				for (int x = 0; x < LevelData.FGWidth; x++)
 					if (LevelData.Layout.FGLayout[x, y] > SelectedChunk && LevelData.Layout.FGLayout[x, y] < LevelData.Chunks.Count + 1)
 						LevelData.Layout.FGLayout[x, y]--;
-			for (int y = 0; y < LevelData.Layout.BGLayout.GetLength(1); y++)
-				for (int x = 0; x < LevelData.Layout.BGLayout.GetLength(0); x++)
+			for (int y = 0; y < LevelData.BGHeight; y++)
+				for (int x = 0; x < LevelData.BGWidth; x++)
 					if (LevelData.Layout.BGLayout[x, y] > SelectedChunk && LevelData.Layout.BGLayout[x, y] < LevelData.Chunks.Count + 1)
 						LevelData.Layout.BGLayout[x, y]--;
 			ChunkSelector.SelectedIndex = Math.Min(ChunkSelector.SelectedIndex, LevelData.Chunks.Count - 1);
@@ -3747,8 +3746,8 @@ namespace SonicRetro.SonLVL.GUI
 			for (int i = 0; i < LevelData.Chunks.Count; i++)
 			{
 				bool dr = false;
-				for (int y = 0; y < LevelData.chunksz / 16; y++)
-					for (int x = 0; x < LevelData.chunksz / 16; x++)
+				for (int y = 0; y < LevelData.Level.ChunkHeight / 16; y++)
+					for (int x = 0; x < LevelData.Level.ChunkWidth / 16; x++)
 						if (LevelData.Chunks[i].Blocks[x, y].Block == SelectedBlock)
 							dr = true;
 						else if (LevelData.Chunks[i].Blocks[x, y].Block > SelectedBlock && LevelData.Chunks[i].Blocks[x, y].Block < LevelData.Blocks.Count + 1)
@@ -3827,8 +3826,8 @@ namespace SonicRetro.SonLVL.GUI
 				if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2))
 					LevelData.ColInds2.Insert(SelectedBlock, 0);
 			for (int i = 0; i < LevelData.Chunks.Count; i++)
-				for (int y = 0; y < LevelData.chunksz / 16; y++)
-					for (int x = 0; x < LevelData.chunksz / 16; x++)
+				for (int y = 0; y < LevelData.Level.ChunkHeight / 16; y++)
+					for (int x = 0; x < LevelData.Level.ChunkWidth / 16; x++)
 						if (LevelData.Chunks[i].Blocks[x, y].Block >= SelectedBlock && LevelData.Chunks[i].Blocks[x, y].Block < LevelData.Blocks.Count)
 							LevelData.Chunks[i].Blocks[x, y].Block++;
 			LevelData.RedrawBlock(SelectedBlock, false);
@@ -3927,8 +3926,8 @@ namespace SonicRetro.SonLVL.GUI
 							}
 							blocks.Add(bi);
 						}
-						for (int y = 0; y < LevelData.chunksz / 16; y++)
-							for (int x = 0; x < LevelData.chunksz / 16; x++)
+						for (int y = 0; y < LevelData.Level.ChunkHeight / 16; y++)
+							for (int x = 0; x < LevelData.Level.ChunkWidth / 16; x++)
 								cnkcpy.Chunk.Blocks[x, y].Block = blocks[cnkcpy.Chunk.Blocks[x, y].Block];
 						LevelData.Chunks.InsertBefore(SelectedChunk, cnkcpy.Chunk);
 					}
@@ -4062,8 +4061,8 @@ namespace SonicRetro.SonLVL.GUI
 							}
 							blocks.Add(bi);
 						}
-						for (int y = 0; y < LevelData.chunksz / 16; y++)
-							for (int x = 0; x < LevelData.chunksz / 16; x++)
+						for (int y = 0; y < LevelData.Level.ChunkHeight / 16; y++)
+							for (int x = 0; x < LevelData.Level.ChunkWidth / 16; x++)
 								cnkcpy.Chunk.Blocks[x, y].Block = blocks[cnkcpy.Chunk.Blocks[x, y].Block];
 						LevelData.Chunks.InsertAfter(SelectedChunk, cnkcpy.Chunk);
 					}
@@ -4206,12 +4205,12 @@ namespace SonicRetro.SonLVL.GUI
 			switch (CurrentTab)
 			{
 				case Tab.Chunks:
-					for (int cy = 0; cy < h / LevelData.chunksz; cy++)
-						for (int cx = 0; cx < w / LevelData.chunksz; cx++)
+					for (int cy = 0; cy < h / LevelData.Level.ChunkHeight; cy++)
+						for (int cx = 0; cx < w / LevelData.Level.ChunkWidth; cx++)
 						{
 							Chunk cnk = new Chunk();
-							for (int by = 0; by < LevelData.chunksz / 16; by++)
-								for (int bx = 0; bx < LevelData.chunksz / 16; bx++)
+							for (int by = 0; by < LevelData.Level.ChunkHeight / 16; by++)
+								for (int bx = 0; bx < LevelData.Level.ChunkWidth / 16; bx++)
 								{
 									Block blk = new Block();
 									for (int y = 0; y < 2; y++)
@@ -4601,7 +4600,7 @@ namespace SonicRetro.SonLVL.GUI
 				switch (CurrentTab)
 				{
 					case Tab.Chunks:
-						dlg.tile = new BitmapBits(LevelData.chunksz, LevelData.chunksz);
+						dlg.tile = new BitmapBits(LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
 						break;
 					case Tab.Blocks:
 						dlg.tile = new BitmapBits(16, 16);
@@ -4750,12 +4749,12 @@ namespace SonicRetro.SonLVL.GUI
 			List<Entry> objstodelete = new List<Entry>();
 			if (includeObjectsWithForegroundSelectionToolStripMenuItem.Checked & CurrentTab == Tab.Foreground)
 			{
-				int x = selection.Left * LevelData.chunksz;
-				int y = selection.Top * LevelData.chunksz;
+				int x = selection.Left * LevelData.Level.ChunkWidth;
+				int y = selection.Top * LevelData.Level.ChunkHeight;
 				if (LevelData.Objects != null)
 					foreach (ObjectEntry item in LevelData.Objects)
-						if (item.Y >= y & item.Y < selection.Bottom * LevelData.chunksz
-							& item.X >= x & item.X < selection.Right * LevelData.chunksz)
+						if (item.Y >= y & item.Y < selection.Bottom * LevelData.Level.ChunkHeight
+							& item.X >= x & item.X < selection.Right * LevelData.Level.ChunkWidth)
 						{
 							Entry ent = item.Clone();
 							ent.X -= (ushort)x;
@@ -4765,8 +4764,8 @@ namespace SonicRetro.SonLVL.GUI
 						}
 				if (LevelData.Rings != null)
 					foreach (RingEntry item in LevelData.Rings)
-						if (item.Y >= y & item.Y < selection.Bottom * LevelData.chunksz
-							& item.X >= x & item.X < selection.Right * LevelData.chunksz)
+						if (item.Y >= y & item.Y < selection.Bottom * LevelData.Level.ChunkHeight
+							& item.X >= x & item.X < selection.Right * LevelData.Level.ChunkWidth)
 						{
 							Entry ent = item.Clone();
 							ent.X -= (ushort)x;
@@ -4776,8 +4775,8 @@ namespace SonicRetro.SonLVL.GUI
 						}
 				if (LevelData.Bumpers != null)
 					foreach (CNZBumperEntry item in LevelData.Bumpers)
-						if (item.Y >= y & item.Y < selection.Bottom * LevelData.chunksz
-							& item.X >= x & item.X < selection.Right * LevelData.chunksz)
+						if (item.Y >= y & item.Y < selection.Bottom * LevelData.Level.ChunkHeight
+							& item.X >= x & item.X < selection.Right * LevelData.Level.ChunkWidth)
 						{
 							Entry ent = item.Clone();
 							ent.X -= (ushort)x;
@@ -4836,12 +4835,12 @@ namespace SonicRetro.SonLVL.GUI
 			List<Entry> objectselection = new List<Entry>();
 			if (includeObjectsWithForegroundSelectionToolStripMenuItem.Checked & CurrentTab == Tab.Foreground)
 			{
-				int x = selection.Left * LevelData.chunksz;
-				int y = selection.Top * LevelData.chunksz;
+				int x = selection.Left * LevelData.Level.ChunkWidth;
+				int y = selection.Top * LevelData.Level.ChunkHeight;
 				if (LevelData.Objects != null)
 					foreach (ObjectEntry item in LevelData.Objects)
-						if (item.Y >= y & item.Y < selection.Bottom * LevelData.chunksz
-							& item.X >= x & item.X < selection.Right * LevelData.chunksz)
+						if (item.Y >= y & item.Y < selection.Bottom * LevelData.Level.ChunkHeight
+							& item.X >= x & item.X < selection.Right * LevelData.Level.ChunkWidth)
 						{
 							Entry ent = item.Clone();
 							ent.X -= (ushort)x;
@@ -4850,8 +4849,8 @@ namespace SonicRetro.SonLVL.GUI
 						}
 				if (LevelData.Rings != null)
 					foreach (RingEntry item in LevelData.Rings)
-						if (item.Y >= y & item.Y < selection.Bottom * LevelData.chunksz
-							& item.X >= x & item.X < selection.Right * LevelData.chunksz)
+						if (item.Y >= y & item.Y < selection.Bottom * LevelData.Level.ChunkHeight
+							& item.X >= x & item.X < selection.Right * LevelData.Level.ChunkWidth)
 						{
 							Entry ent = item.Clone();
 							ent.X -= (ushort)x;
@@ -4860,8 +4859,8 @@ namespace SonicRetro.SonLVL.GUI
 						}
 				if (LevelData.Bumpers != null)
 					foreach (CNZBumperEntry item in LevelData.Bumpers)
-						if (item.Y >= y & item.Y < selection.Bottom * LevelData.chunksz
-							& item.X >= x & item.X < selection.Right * LevelData.chunksz)
+						if (item.Y >= y & item.Y < selection.Bottom * LevelData.Level.ChunkHeight
+							& item.X >= x & item.X < selection.Right * LevelData.Level.ChunkWidth)
 						{
 							Entry ent = item.Clone();
 							ent.X -= (ushort)x;
@@ -4906,7 +4905,7 @@ namespace SonicRetro.SonLVL.GUI
 				}
 			if (includeObjectsWithForegroundSelectionToolStripMenuItem.Checked & CurrentTab == Tab.Foreground)
 			{
-				Size off = new Size(menuLoc.X * LevelData.chunksz, menuLoc.Y * LevelData.chunksz);
+				Size off = new Size(menuLoc.X * LevelData.Level.ChunkWidth, menuLoc.Y * LevelData.Level.ChunkHeight);
 				foreach (Entry item in section.Objects)
 				{
 					Entry newent = item.Clone();
@@ -4969,11 +4968,11 @@ namespace SonicRetro.SonLVL.GUI
 			{
 				int w = (int)Math.Ceiling(selection.Width / (double)width);
 				int h = (int)Math.Ceiling(selection.Height / (double)height);
-				Point bottomright = new Point(selection.Right * LevelData.chunksz, selection.Bottom * LevelData.chunksz);
+				Point bottomright = new Point(selection.Right * LevelData.Level.ChunkWidth, selection.Bottom * LevelData.Level.ChunkHeight);
 				for (int y = 0; y < h; y++)
 					for (int x = 0; x < w; x++)
 					{
-						Size off = new Size((selection.X + (x * width)) * LevelData.chunksz, (selection.Y + (y * height)) * LevelData.chunksz);
+						Size off = new Size((selection.X + (x * width)) * LevelData.Level.ChunkWidth, (selection.Y + (y * height)) * LevelData.Level.ChunkHeight);
 						foreach (Entry item in section.Objects)
 						{
 							Entry it2 = item.Clone();
@@ -5029,18 +5028,18 @@ namespace SonicRetro.SonLVL.GUI
 				List<Entry> objectselection = new List<Entry>();
 				if (LevelData.Objects != null)
 					foreach (ObjectEntry item in LevelData.Objects)
-						if (item.Y >= selection.Top * LevelData.chunksz & item.Y < selection.Bottom * LevelData.chunksz
-							& item.X >= selection.Left * LevelData.chunksz & item.X < selection.Right * LevelData.chunksz)
+						if (item.Y >= selection.Top * LevelData.Level.ChunkHeight & item.Y < selection.Bottom * LevelData.Level.ChunkHeight
+							& item.X >= selection.Left * LevelData.Level.ChunkWidth & item.X < selection.Right * LevelData.Level.ChunkWidth)
 							objectselection.Add(item);
 				if (LevelData.Rings != null)
 					foreach (RingEntry item in LevelData.Rings)
-						if (item.Y >= selection.Top * LevelData.chunksz & item.Y < selection.Bottom * LevelData.chunksz
-							& item.X >= selection.Left * LevelData.chunksz & item.X < selection.Right * LevelData.chunksz)
+						if (item.Y >= selection.Top * LevelData.Level.ChunkHeight & item.Y < selection.Bottom * LevelData.Level.ChunkHeight
+							& item.X >= selection.Left * LevelData.Level.ChunkWidth & item.X < selection.Right * LevelData.Level.ChunkWidth)
 							objectselection.Add(item);
 				if (LevelData.Bumpers != null)
 					foreach (CNZBumperEntry item in LevelData.Bumpers)
-						if (item.Y >= selection.Top * LevelData.chunksz & item.Y < selection.Bottom * LevelData.chunksz
-							& item.X >= selection.Left * LevelData.chunksz & item.X < selection.Right * LevelData.chunksz)
+						if (item.Y >= selection.Top * LevelData.Level.ChunkHeight & item.Y < selection.Bottom * LevelData.Level.ChunkHeight
+							& item.X >= selection.Left * LevelData.Level.ChunkWidth & item.X < selection.Right * LevelData.Level.ChunkWidth)
 							objectselection.Add(item);
 				foreach (Entry item in objectselection)
 				{
@@ -5244,30 +5243,30 @@ namespace SonicRetro.SonLVL.GUI
 					{
 						if (LevelData.Objects != null)
 							foreach (ObjectEntry item in LevelData.Objects)
-								if (item.Y >= selection.Top * LevelData.chunksz & item.Y < selection.Bottom * LevelData.chunksz & item.X >= selection.Left * LevelData.chunksz)
+								if (item.Y >= selection.Top * LevelData.Level.ChunkHeight & item.Y < selection.Bottom * LevelData.Level.ChunkHeight & item.X >= selection.Left * LevelData.Level.ChunkWidth)
 								{
-									item.X += (ushort)(selection.Width * LevelData.chunksz);
+									item.X += (ushort)(selection.Width * LevelData.Level.ChunkWidth);
 									item.UpdateSprite();
 								}
 						if (LevelData.Rings != null)
 							foreach (RingEntry item in LevelData.Rings)
-								if (item.Y >= selection.Top * LevelData.chunksz & item.Y < selection.Bottom * LevelData.chunksz & item.X >= selection.Left * LevelData.chunksz)
+								if (item.Y >= selection.Top * LevelData.Level.ChunkHeight & item.Y < selection.Bottom * LevelData.Level.ChunkHeight & item.X >= selection.Left * LevelData.Level.ChunkWidth)
 								{
-									item.X += (ushort)(selection.Width * LevelData.chunksz);
+									item.X += (ushort)(selection.Width * LevelData.Level.ChunkWidth);
 									item.UpdateSprite();
 								}
 						if (LevelData.Bumpers != null)
 							foreach (CNZBumperEntry item in LevelData.Bumpers)
-								if (item.Y >= selection.Top * LevelData.chunksz & item.Y < selection.Bottom * LevelData.chunksz & item.X >= selection.Left * LevelData.chunksz)
+								if (item.Y >= selection.Top * LevelData.Level.ChunkHeight & item.Y < selection.Bottom * LevelData.Level.ChunkHeight & item.X >= selection.Left * LevelData.Level.ChunkWidth)
 								{
-									item.X += (ushort)(selection.Width * LevelData.chunksz);
+									item.X += (ushort)(selection.Width * LevelData.Level.ChunkWidth);
 									item.UpdateSprite();
 								}
 						if (LevelData.StartPositions != null)
 							foreach (StartPositionEntry item in LevelData.StartPositions)
-								if (item.Y >= selection.Top * LevelData.chunksz & item.Y < selection.Bottom * LevelData.chunksz & item.X >= selection.Left * LevelData.chunksz)
+								if (item.Y >= selection.Top * LevelData.Level.ChunkHeight & item.Y < selection.Bottom * LevelData.Level.ChunkHeight & item.X >= selection.Left * LevelData.Level.ChunkWidth)
 								{
-									item.X += (ushort)(selection.Width * LevelData.chunksz);
+									item.X += (ushort)(selection.Width * LevelData.Level.ChunkWidth);
 									item.UpdateSprite();
 								}
 					}
@@ -5308,30 +5307,30 @@ namespace SonicRetro.SonLVL.GUI
 					{
 						if (LevelData.Objects != null)
 							foreach (ObjectEntry item in LevelData.Objects)
-								if (item.X >= selection.Left * LevelData.chunksz & item.X < selection.Right * LevelData.chunksz & item.Y >= selection.Top * LevelData.chunksz)
+								if (item.X >= selection.Left * LevelData.Level.ChunkWidth & item.X < selection.Right * LevelData.Level.ChunkWidth & item.Y >= selection.Top * LevelData.Level.ChunkHeight)
 								{
-									item.Y += (ushort)(selection.Height * LevelData.chunksz);
+									item.Y += (ushort)(selection.Height * LevelData.Level.ChunkHeight);
 									item.UpdateSprite();
 								}
 						if (LevelData.Rings != null)
 							foreach (RingEntry item in LevelData.Rings)
-								if (item.X >= selection.Left * LevelData.chunksz & item.X < selection.Right * LevelData.chunksz & item.Y >= selection.Top * LevelData.chunksz)
+								if (item.X >= selection.Left * LevelData.Level.ChunkWidth & item.X < selection.Right * LevelData.Level.ChunkWidth & item.Y >= selection.Top * LevelData.Level.ChunkHeight)
 								{
-									item.Y += (ushort)(selection.Height * LevelData.chunksz);
+									item.Y += (ushort)(selection.Height * LevelData.Level.ChunkHeight);
 									item.UpdateSprite();
 								}
 						if (LevelData.Bumpers != null)
 							foreach (CNZBumperEntry item in LevelData.Bumpers)
-								if (item.X >= selection.Left * LevelData.chunksz & item.X < selection.Right * LevelData.chunksz & item.Y >= selection.Top * LevelData.chunksz)
+								if (item.X >= selection.Left * LevelData.Level.ChunkWidth & item.X < selection.Right * LevelData.Level.ChunkWidth & item.Y >= selection.Top * LevelData.Level.ChunkHeight)
 								{
-									item.Y += (ushort)(selection.Height * LevelData.chunksz);
+									item.Y += (ushort)(selection.Height * LevelData.Level.ChunkHeight);
 									item.UpdateSprite();
 								}
 						if (LevelData.StartPositions != null)
 							foreach (StartPositionEntry item in LevelData.StartPositions)
-								if (item.X >= selection.Left * LevelData.chunksz & item.X < selection.Right * LevelData.chunksz & item.Y >= selection.Top * LevelData.chunksz)
+								if (item.X >= selection.Left * LevelData.Level.ChunkWidth & item.X < selection.Right * LevelData.Level.ChunkWidth & item.Y >= selection.Top * LevelData.Level.ChunkHeight)
 								{
-									item.Y += (ushort)(selection.Height * LevelData.chunksz);
+									item.Y += (ushort)(selection.Height * LevelData.Level.ChunkHeight);
 									item.UpdateSprite();
 								}
 					}
@@ -5372,30 +5371,30 @@ namespace SonicRetro.SonLVL.GUI
 					{
 						if (LevelData.Objects != null)
 							foreach (ObjectEntry item in LevelData.Objects)
-								if (item.Y >= selection.Top * LevelData.chunksz)
+								if (item.Y >= selection.Top * LevelData.Level.ChunkHeight)
 								{
-									item.Y += (ushort)(selection.Height * LevelData.chunksz);
+									item.Y += (ushort)(selection.Height * LevelData.Level.ChunkHeight);
 									item.UpdateSprite();
 								}
 						if (LevelData.Rings != null)
 							foreach (RingEntry item in LevelData.Rings)
-								if (item.Y >= selection.Top * LevelData.chunksz)
+								if (item.Y >= selection.Top * LevelData.Level.ChunkHeight)
 								{
-									item.Y += (ushort)(selection.Height * LevelData.chunksz);
+									item.Y += (ushort)(selection.Height * LevelData.Level.ChunkHeight);
 									item.UpdateSprite();
 								}
 						if (LevelData.Bumpers != null)
 							foreach (CNZBumperEntry item in LevelData.Bumpers)
-								if (item.Y >= selection.Top * LevelData.chunksz)
+								if (item.Y >= selection.Top * LevelData.Level.ChunkHeight)
 								{
-									item.Y += (ushort)(selection.Height * LevelData.chunksz);
+									item.Y += (ushort)(selection.Height * LevelData.Level.ChunkHeight);
 									item.UpdateSprite();
 								}
 						if (LevelData.StartPositions != null)
 							foreach (StartPositionEntry item in LevelData.StartPositions)
-								if (item.Y >= selection.Top * LevelData.chunksz)
+								if (item.Y >= selection.Top * LevelData.Level.ChunkHeight)
 								{
-									item.Y += (ushort)(selection.Height * LevelData.chunksz);
+									item.Y += (ushort)(selection.Height * LevelData.Level.ChunkHeight);
 									item.UpdateSprite();
 								}
 					}
@@ -5436,30 +5435,30 @@ namespace SonicRetro.SonLVL.GUI
 					{
 						if (LevelData.Objects != null)
 							foreach (ObjectEntry item in LevelData.Objects)
-								if (item.X >= selection.Left * LevelData.chunksz)
+								if (item.X >= selection.Left * LevelData.Level.ChunkWidth)
 								{
-									item.X += (ushort)(selection.Width * LevelData.chunksz);
+									item.X += (ushort)(selection.Width * LevelData.Level.ChunkWidth);
 									item.UpdateSprite();
 								}
 						if (LevelData.Rings != null)
 							foreach (RingEntry item in LevelData.Rings)
-								if (item.X >= selection.Left * LevelData.chunksz)
+								if (item.X >= selection.Left * LevelData.Level.ChunkWidth)
 								{
-									item.X += (ushort)(selection.Width * LevelData.chunksz);
+									item.X += (ushort)(selection.Width * LevelData.Level.ChunkWidth);
 									item.UpdateSprite();
 								}
 						if (LevelData.Bumpers != null)
 							foreach (CNZBumperEntry item in LevelData.Bumpers)
-								if (item.X >= selection.Left * LevelData.chunksz)
+								if (item.X >= selection.Left * LevelData.Level.ChunkWidth)
 								{
-									item.X += (ushort)(selection.Width * LevelData.chunksz);
+									item.X += (ushort)(selection.Width * LevelData.Level.ChunkWidth);
 									item.UpdateSprite();
 								}
 						if (LevelData.StartPositions != null)
 							foreach (StartPositionEntry item in LevelData.StartPositions)
-								if (item.X >= selection.Left * LevelData.chunksz)
+								if (item.X >= selection.Left * LevelData.Level.ChunkWidth)
 								{
-									item.X += (ushort)(selection.Width * LevelData.chunksz);
+									item.X += (ushort)(selection.Width * LevelData.Level.ChunkWidth);
 									item.UpdateSprite();
 								}
 					}
@@ -5513,30 +5512,30 @@ namespace SonicRetro.SonLVL.GUI
 					{
 						if (LevelData.Objects != null)
 							foreach (ObjectEntry item in LevelData.Objects)
-								if (item.Y >= selection.Top * LevelData.chunksz & item.Y < selection.Bottom * LevelData.chunksz & item.X >= selection.Right * LevelData.chunksz)
+								if (item.Y >= selection.Top * LevelData.Level.ChunkHeight & item.Y < selection.Bottom * LevelData.Level.ChunkHeight & item.X >= selection.Right * LevelData.Level.ChunkWidth)
 								{
-									item.X -= (ushort)(selection.Width * LevelData.chunksz);
+									item.X -= (ushort)(selection.Width * LevelData.Level.ChunkWidth);
 									item.UpdateSprite();
 								}
 						if (LevelData.Rings != null)
 							foreach (RingEntry item in LevelData.Rings)
-								if (item.Y >= selection.Top * LevelData.chunksz & item.Y < selection.Bottom * LevelData.chunksz & item.X >= selection.Right * LevelData.chunksz)
+								if (item.Y >= selection.Top * LevelData.Level.ChunkHeight & item.Y < selection.Bottom * LevelData.Level.ChunkHeight & item.X >= selection.Right * LevelData.Level.ChunkWidth)
 								{
-									item.X -= (ushort)(selection.Width * LevelData.chunksz);
+									item.X -= (ushort)(selection.Width * LevelData.Level.ChunkWidth);
 									item.UpdateSprite();
 								}
 						if (LevelData.Bumpers != null)
 							foreach (CNZBumperEntry item in LevelData.Bumpers)
-								if (item.Y >= selection.Top * LevelData.chunksz & item.Y < selection.Bottom * LevelData.chunksz & item.X >= selection.Right * LevelData.chunksz)
+								if (item.Y >= selection.Top * LevelData.Level.ChunkHeight & item.Y < selection.Bottom * LevelData.Level.ChunkHeight & item.X >= selection.Right * LevelData.Level.ChunkWidth)
 								{
-									item.X -= (ushort)(selection.Width * LevelData.chunksz);
+									item.X -= (ushort)(selection.Width * LevelData.Level.ChunkWidth);
 									item.UpdateSprite();
 								}
 						if (LevelData.StartPositions != null)
 							foreach (StartPositionEntry item in LevelData.StartPositions)
-								if (item.Y >= selection.Top * LevelData.chunksz & item.Y < selection.Bottom * LevelData.chunksz & item.X >= selection.Right * LevelData.chunksz)
+								if (item.Y >= selection.Top * LevelData.Level.ChunkHeight & item.Y < selection.Bottom * LevelData.Level.ChunkHeight & item.X >= selection.Right * LevelData.Level.ChunkWidth)
 								{
-									item.X -= (ushort)(selection.Width * LevelData.chunksz);
+									item.X -= (ushort)(selection.Width * LevelData.Level.ChunkWidth);
 									item.UpdateSprite();
 								}
 					}
@@ -5573,30 +5572,30 @@ namespace SonicRetro.SonLVL.GUI
 					{
 						if (LevelData.Objects != null)
 							foreach (ObjectEntry item in LevelData.Objects)
-								if (item.X >= selection.Left * LevelData.chunksz & item.X < selection.Right * LevelData.chunksz & item.Y >= selection.Bottom * LevelData.chunksz)
+								if (item.X >= selection.Left * LevelData.Level.ChunkWidth & item.X < selection.Right * LevelData.Level.ChunkWidth & item.Y >= selection.Bottom * LevelData.Level.ChunkHeight)
 								{
-									item.Y -= (ushort)(selection.Height * LevelData.chunksz);
+									item.Y -= (ushort)(selection.Height * LevelData.Level.ChunkHeight);
 									item.UpdateSprite();
 								}
 						if (LevelData.Rings != null)
 							foreach (RingEntry item in LevelData.Rings)
-								if (item.X >= selection.Left * LevelData.chunksz & item.X < selection.Right * LevelData.chunksz & item.Y >= selection.Bottom * LevelData.chunksz)
+								if (item.X >= selection.Left * LevelData.Level.ChunkWidth & item.X < selection.Right * LevelData.Level.ChunkWidth & item.Y >= selection.Bottom * LevelData.Level.ChunkHeight)
 								{
-									item.Y -= (ushort)(selection.Height * LevelData.chunksz);
+									item.Y -= (ushort)(selection.Height * LevelData.Level.ChunkHeight);
 									item.UpdateSprite();
 								}
 						if (LevelData.Bumpers != null)
 							foreach (CNZBumperEntry item in LevelData.Bumpers)
-								if (item.X >= selection.Left * LevelData.chunksz & item.X < selection.Right * LevelData.chunksz & item.Y >= selection.Bottom * LevelData.chunksz)
+								if (item.X >= selection.Left * LevelData.Level.ChunkWidth & item.X < selection.Right * LevelData.Level.ChunkWidth & item.Y >= selection.Bottom * LevelData.Level.ChunkHeight)
 								{
-									item.Y -= (ushort)(selection.Height * LevelData.chunksz);
+									item.Y -= (ushort)(selection.Height * LevelData.Level.ChunkHeight);
 									item.UpdateSprite();
 								}
 						if (LevelData.StartPositions != null)
 							foreach (StartPositionEntry item in LevelData.StartPositions)
-								if (item.X >= selection.Left * LevelData.chunksz & item.X < selection.Right * LevelData.chunksz & item.Y >= selection.Bottom * LevelData.chunksz)
+								if (item.X >= selection.Left * LevelData.Level.ChunkWidth & item.X < selection.Right * LevelData.Level.ChunkWidth & item.Y >= selection.Bottom * LevelData.Level.ChunkHeight)
 								{
-									item.Y -= (ushort)(selection.Height * LevelData.chunksz);
+									item.Y -= (ushort)(selection.Height * LevelData.Level.ChunkHeight);
 									item.UpdateSprite();
 								}
 					}
@@ -5633,30 +5632,30 @@ namespace SonicRetro.SonLVL.GUI
 					{
 						if (LevelData.Objects != null)
 							foreach (ObjectEntry item in LevelData.Objects)
-								if (item.Y >= selection.Bottom * LevelData.chunksz)
+								if (item.Y >= selection.Bottom * LevelData.Level.ChunkHeight)
 								{
-									item.Y -= (ushort)(selection.Height * LevelData.chunksz);
+									item.Y -= (ushort)(selection.Height * LevelData.Level.ChunkHeight);
 									item.UpdateSprite();
 								}
 						if (LevelData.Rings != null)
 							foreach (RingEntry item in LevelData.Rings)
-								if (item.Y >= selection.Bottom * LevelData.chunksz)
+								if (item.Y >= selection.Bottom * LevelData.Level.ChunkHeight)
 								{
-									item.Y -= (ushort)(selection.Height * LevelData.chunksz);
+									item.Y -= (ushort)(selection.Height * LevelData.Level.ChunkHeight);
 									item.UpdateSprite();
 								}
 						if (LevelData.Bumpers != null)
 							foreach (CNZBumperEntry item in LevelData.Bumpers)
-								if (item.Y >= selection.Bottom * LevelData.chunksz)
+								if (item.Y >= selection.Bottom * LevelData.Level.ChunkHeight)
 								{
-									item.Y -= (ushort)(selection.Height * LevelData.chunksz);
+									item.Y -= (ushort)(selection.Height * LevelData.Level.ChunkHeight);
 									item.UpdateSprite();
 								}
 						if (LevelData.StartPositions != null)
 							foreach (StartPositionEntry item in LevelData.StartPositions)
-								if (item.Y >= selection.Bottom * LevelData.chunksz)
+								if (item.Y >= selection.Bottom * LevelData.Level.ChunkHeight)
 								{
-									item.Y -= (ushort)(selection.Height * LevelData.chunksz);
+									item.Y -= (ushort)(selection.Height * LevelData.Level.ChunkHeight);
 									item.UpdateSprite();
 								}
 					}
@@ -5703,30 +5702,30 @@ namespace SonicRetro.SonLVL.GUI
 					{
 						if (LevelData.Objects != null)
 							foreach (ObjectEntry item in LevelData.Objects)
-								if (item.X >= selection.Right * LevelData.chunksz)
+								if (item.X >= selection.Right * LevelData.Level.ChunkWidth)
 								{
-									item.X -= (ushort)(selection.Width * LevelData.chunksz);
+									item.X -= (ushort)(selection.Width * LevelData.Level.ChunkWidth);
 									item.UpdateSprite();
 								}
 						if (LevelData.Rings != null)
 							foreach (RingEntry item in LevelData.Rings)
-								if (item.X >= selection.Right * LevelData.chunksz)
+								if (item.X >= selection.Right * LevelData.Level.ChunkWidth)
 								{
-									item.X -= (ushort)(selection.Width * LevelData.chunksz);
+									item.X -= (ushort)(selection.Width * LevelData.Level.ChunkWidth);
 									item.UpdateSprite();
 								}
 						if (LevelData.Bumpers != null)
 							foreach (CNZBumperEntry item in LevelData.Bumpers)
-								if (item.X >= selection.Right * LevelData.chunksz)
+								if (item.X >= selection.Right * LevelData.Level.ChunkWidth)
 								{
-									item.X -= (ushort)(selection.Width * LevelData.chunksz);
+									item.X -= (ushort)(selection.Width * LevelData.Level.ChunkWidth);
 									item.UpdateSprite();
 								}
 						if (LevelData.StartPositions != null)
 							foreach (StartPositionEntry item in LevelData.StartPositions)
-								if (item.X >= selection.Right * LevelData.chunksz)
+								if (item.X >= selection.Right * LevelData.Level.ChunkWidth)
 								{
-									item.X -= (ushort)(selection.Width * LevelData.chunksz);
+									item.X -= (ushort)(selection.Width * LevelData.Level.ChunkWidth);
 									item.UpdateSprite();
 								}
 					}
@@ -5763,10 +5762,10 @@ namespace SonicRetro.SonLVL.GUI
 				Rectangle bounds = GetBounds(item);
 				int x = bounds.Left - 1;
 				int y = bounds.Top + (bounds.Height / 2);
-				int cnkx = x / LevelData.chunksz;
-				int cnky = y / LevelData.chunksz;
-				int blkx = (x % LevelData.chunksz) / 16;
-				int blky = (y % LevelData.chunksz) / 16;
+				int cnkx = x / LevelData.Level.ChunkWidth;
+				int cnky = y / LevelData.Level.ChunkHeight;
+				int blkx = (x % LevelData.Level.ChunkWidth) / 16;
+				int blky = (y % LevelData.Level.ChunkHeight) / 16;
 				int colx = x % 16;
 				int coly = y % 16;
 				while (x > 0)
@@ -5800,7 +5799,7 @@ namespace SonicRetro.SonLVL.GUI
 						colx = 15;
 						if (blkx == 0)
 						{
-							blkx = LevelData.chunksz / 16 - 1;
+							blkx = LevelData.Level.ChunkWidth / 16 - 1;
 							cnkx--;
 						}
 						else
@@ -5823,13 +5822,13 @@ namespace SonicRetro.SonLVL.GUI
 				Rectangle bounds = GetBounds(item);
 				int x = bounds.Left + (bounds.Width / 2);
 				int y = bounds.Bottom + 1;
-				int cnkx = x / LevelData.chunksz;
-				int cnky = y / LevelData.chunksz;
-				int blkx = (x % LevelData.chunksz) / 16;
-				int blky = (y % LevelData.chunksz) / 16;
+				int cnkx = x / LevelData.Level.ChunkWidth;
+				int cnky = y / LevelData.Level.ChunkHeight;
+				int blkx = (x % LevelData.Level.ChunkWidth) / 16;
+				int blky = (y % LevelData.Level.ChunkHeight) / 16;
 				int colx = x % 16;
 				int coly = y % 16;
-				while (y < LevelData.FGHeight * LevelData.chunksz - 1)
+				while (y < LevelData.FGHeight * LevelData.Level.ChunkHeight - 1)
 				{
 					ChunkBlock blk = LevelData.Chunks[LevelData.Layout.FGLayout[cnkx, cnky]].Blocks[blkx, blky];
 					Solidity solid;
@@ -5858,7 +5857,7 @@ namespace SonicRetro.SonLVL.GUI
 					if (coly == 15)
 					{
 						coly = 0;
-						if (blky == LevelData.chunksz / 16 - 1)
+						if (blky == LevelData.Level.ChunkHeight / 16 - 1)
 						{
 							blky = 0;
 							cnky++;
@@ -5883,13 +5882,13 @@ namespace SonicRetro.SonLVL.GUI
 				Rectangle bounds = GetBounds(item);
 				int x = bounds.Right + 1;
 				int y = bounds.Top + (bounds.Height / 2);
-				int cnkx = x / LevelData.chunksz;
-				int cnky = y / LevelData.chunksz;
-				int blkx = (x % LevelData.chunksz) / 16;
-				int blky = (y % LevelData.chunksz) / 16;
+				int cnkx = x / LevelData.Level.ChunkWidth;
+				int cnky = y / LevelData.Level.ChunkHeight;
+				int blkx = (x % LevelData.Level.ChunkWidth) / 16;
+				int blky = (y % LevelData.Level.ChunkHeight) / 16;
 				int colx = x % 16;
 				int coly = y % 16;
-				while (x < LevelData.FGWidth * LevelData.chunksz - 1)
+				while (x < LevelData.FGWidth * LevelData.Level.ChunkWidth - 1)
 				{
 					ChunkBlock blk = LevelData.Chunks[LevelData.Layout.FGLayout[cnkx, cnky]].Blocks[blkx, blky];
 					Solidity solid;
@@ -5918,7 +5917,7 @@ namespace SonicRetro.SonLVL.GUI
 					if (colx == 15)
 					{
 						colx = 0;
-						if (blkx == LevelData.chunksz / 16 - 1)
+						if (blkx == LevelData.Level.ChunkWidth / 16 - 1)
 						{
 							blkx = 0;
 							cnkx++;
@@ -5943,10 +5942,10 @@ namespace SonicRetro.SonLVL.GUI
 				Rectangle bounds = GetBounds(item);
 				int x = bounds.Left + (bounds.Width / 2);
 				int y = bounds.Top - 1;
-				int cnkx = x / LevelData.chunksz;
-				int cnky = y / LevelData.chunksz;
-				int blkx = (x % LevelData.chunksz) / 16;
-				int blky = (y % LevelData.chunksz) / 16;
+				int cnkx = x / LevelData.Level.ChunkWidth;
+				int cnky = y / LevelData.Level.ChunkHeight;
+				int blkx = (x % LevelData.Level.ChunkWidth) / 16;
+				int blky = (y % LevelData.Level.ChunkHeight) / 16;
 				int colx = x % 16;
 				int coly = y % 16;
 				while (y > 0)
@@ -5980,7 +5979,7 @@ namespace SonicRetro.SonLVL.GUI
 						coly = 15;
 						if (blky == 0)
 						{
-							blky = LevelData.chunksz / 16 - 1;
+							blky = LevelData.Level.ChunkHeight / 16 - 1;
 							cnky--;
 						}
 						else
@@ -6157,10 +6156,10 @@ namespace SonicRetro.SonLVL.GUI
 										findNextToolStripMenuItem.Enabled = true;
 										FGSelection = new Rectangle(x, y, 1, 1);
 										loaded = false;
-										hScrollBar2.Value = Math.Max(0, Math.Min(hScrollBar2.Maximum, (x * LevelData.chunksz)
-											+ (LevelData.chunksz / 2) - (foregroundPanel.Width / 2)));
-										vScrollBar2.Value = Math.Max(0, Math.Min(vScrollBar2.Maximum, (y * LevelData.chunksz)
-											+ (LevelData.chunksz / 2) - (foregroundPanel.Height / 2)));
+										hScrollBar2.Value = Math.Max(0, Math.Min(hScrollBar2.Maximum, (x * LevelData.Level.ChunkWidth)
+											+ (LevelData.Level.ChunkWidth / 2) - (foregroundPanel.Width / 2)));
+										vScrollBar2.Value = Math.Max(0, Math.Min(vScrollBar2.Maximum, (y * LevelData.Level.ChunkHeight)
+											+ (LevelData.Level.ChunkHeight / 2) - (foregroundPanel.Height / 2)));
 										loaded = true;
 										DrawLevel();
 										return;
@@ -6193,10 +6192,10 @@ namespace SonicRetro.SonLVL.GUI
 										findNextToolStripMenuItem.Enabled = true;
 										BGSelection = new Rectangle(x, y, 1, 1);
 										loaded = false;
-										hScrollBar3.Value = Math.Max(0, Math.Min(hScrollBar3.Maximum, (x * LevelData.chunksz)
-											+ (LevelData.chunksz / 2) - (backgroundPanel.Width / 2)));
-										vScrollBar3.Value = Math.Max(0, Math.Min(vScrollBar3.Maximum, (y * LevelData.chunksz)
-											+ (LevelData.chunksz / 2) - (backgroundPanel.Height / 2)));
+										hScrollBar3.Value = Math.Max(0, Math.Min(hScrollBar3.Maximum, (x * LevelData.Level.ChunkWidth)
+											+ (LevelData.Level.ChunkWidth / 2) - (backgroundPanel.Width / 2)));
+										vScrollBar3.Value = Math.Max(0, Math.Min(vScrollBar3.Maximum, (y * LevelData.Level.ChunkHeight)
+											+ (LevelData.Level.ChunkHeight / 2) - (backgroundPanel.Height / 2)));
 										loaded = true;
 										DrawLevel();
 										return;
@@ -6262,10 +6261,10 @@ namespace SonicRetro.SonLVL.GUI
 								findNextToolStripMenuItem.Enabled = true;
 								FGSelection = new Rectangle(x, y, 1, 1);
 								loaded = false;
-								hScrollBar2.Value = Math.Max(0, Math.Min(hScrollBar2.Maximum, (x * LevelData.chunksz)
-									+ (LevelData.chunksz / 2) - (foregroundPanel.Width / 2)));
-								vScrollBar2.Value = Math.Max(0, Math.Min(vScrollBar2.Maximum, (y * LevelData.chunksz)
-									+ (LevelData.chunksz / 2) - (foregroundPanel.Height / 2)));
+								hScrollBar2.Value = Math.Max(0, Math.Min(hScrollBar2.Maximum, (x * LevelData.Level.ChunkWidth)
+									+ (LevelData.Level.ChunkWidth / 2) - (foregroundPanel.Width / 2)));
+								vScrollBar2.Value = Math.Max(0, Math.Min(vScrollBar2.Maximum, (y * LevelData.Level.ChunkHeight)
+									+ (LevelData.Level.ChunkHeight / 2) - (foregroundPanel.Height / 2)));
 								loaded = true;
 								DrawLevel();
 								return;
@@ -6290,10 +6289,10 @@ namespace SonicRetro.SonLVL.GUI
 								findNextToolStripMenuItem.Enabled = true;
 								BGSelection = new Rectangle(x, y, 1, 1);
 								loaded = false;
-								hScrollBar3.Value = Math.Max(0, Math.Min(hScrollBar3.Maximum, (x * LevelData.chunksz)
-									+ (LevelData.chunksz / 2) - (backgroundPanel.Width / 2)));
-								vScrollBar3.Value = Math.Max(0, Math.Min(vScrollBar3.Maximum, (y * LevelData.chunksz)
-									+ (LevelData.chunksz / 2) - (backgroundPanel.Height / 2)));
+								hScrollBar3.Value = Math.Max(0, Math.Min(hScrollBar3.Maximum, (x * LevelData.Level.ChunkWidth)
+									+ (LevelData.Level.ChunkWidth / 2) - (backgroundPanel.Width / 2)));
+								vScrollBar3.Value = Math.Max(0, Math.Min(vScrollBar3.Maximum, (y * LevelData.Level.ChunkHeight)
+									+ (LevelData.Level.ChunkHeight / 2) - (backgroundPanel.Height / 2)));
 								loaded = true;
 								DrawLevel();
 								return;
@@ -6573,8 +6572,8 @@ namespace SonicRetro.SonLVL.GUI
 					if (LevelData.ColInds2 != null && LevelData.ColInds2 != LevelData.ColInds1)
 						LevelData.ColInds2.Swap(oldindex, newindex);
 					for (int i = 0; i < LevelData.Chunks.Count; i++)
-						for (int y = 0; y < LevelData.chunksz / 16; y++)
-							for (int x = 0; x < LevelData.chunksz / 16; x++)
+						for (int y = 0; y < LevelData.Level.ChunkHeight / 16; y++)
+							for (int x = 0; x < LevelData.Level.ChunkWidth / 16; x++)
 							{
 								if (LevelData.Chunks[i].Blocks[x, y].Block == newindex)
 									LevelData.Chunks[i].Blocks[x, y].Block = oldindex;
@@ -6596,8 +6595,8 @@ namespace SonicRetro.SonLVL.GUI
 					if (LevelData.ColInds2 != null && LevelData.ColInds2 != LevelData.ColInds1)
 						LevelData.ColInds2.Move(oldindex, newindex);
 					for (int i = 0; i < LevelData.Chunks.Count; i++)
-						for (int y = 0; y < LevelData.chunksz / 16; y++)
-							for (int x = 0; x < LevelData.chunksz / 16; x++)
+						for (int y = 0; y < LevelData.Level.ChunkHeight / 16; y++)
+							for (int x = 0; x < LevelData.Level.ChunkWidth / 16; x++)
 							{
 								ushort b = LevelData.Chunks[i].Blocks[x, y].Block;
 								if (newindex > oldindex)
@@ -6814,8 +6813,8 @@ namespace SonicRetro.SonLVL.GUI
 					for (int c = 0; c < LevelData.Chunks.Count; c++)
 					{
 						bool redraw = false;
-						for (int y = 0; y < LevelData.chunksz / 16; y++)
-							for (int x = 0; x < LevelData.chunksz / 16; x++)
+						for (int y = 0; y < LevelData.Level.ChunkHeight / 16; y++)
+							for (int x = 0; x < LevelData.Level.ChunkWidth / 16; x++)
 								if (ushortdict.ContainsKey(LevelData.Chunks[c].Blocks[x, y].Block))
 								{
 									redraw = true;
@@ -7089,8 +7088,8 @@ namespace SonicRetro.SonLVL.GUI
 							}
 							blocks.Add(bi);
 						}
-						for (int y = 0; y < LevelData.chunksz / 16; y++)
-							for (int x = 0; x < LevelData.chunksz / 16; x++)
+						for (int y = 0; y < LevelData.Level.ChunkHeight / 16; y++)
+							for (int x = 0; x < LevelData.Level.ChunkWidth / 16; x++)
 								cnkcpy.Chunk.Blocks[x, y].Block = blocks[cnkcpy.Chunk.Blocks[x, y].Block];
 						LevelData.Chunks[SelectedChunk] = cnkcpy.Chunk;
 					}
@@ -7201,8 +7200,8 @@ namespace SonicRetro.SonLVL.GUI
 				if (LevelData.ColInds2 != null && LevelData.ColInds2 != LevelData.ColInds1)
 					ColInds2 = new List<byte>();
 			}
-			for (int y = 0; y < LevelData.chunksz / 16; y++)
-				for (int x = 0; x < LevelData.chunksz / 16; x++)
+			for (int y = 0; y < LevelData.Level.ChunkHeight / 16; y++)
+				for (int x = 0; x < LevelData.Level.ChunkWidth / 16; x++)
 				{
 					int i = blocks.IndexOf(chunk.Blocks[x, y].Block);
 					if (i == -1)

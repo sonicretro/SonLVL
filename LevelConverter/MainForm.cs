@@ -139,8 +139,8 @@ namespace SonicRetro.SonLVL.LevelConverter
 			{
 				int xend = 0;
 				int yend = 0;
-				for (int y = 0; y < LevelData.Layout.FGLayout.GetLength(1); y++)
-					for (int x = 0; x < LevelData.Layout.FGLayout.GetLength(0); x++)
+				for (int y = 0; y < LevelData.FGHeight; y++)
+					for (int x = 0; x < LevelData.FGWidth; x++)
 						if (LevelData.Layout.FGLayout[x, y] > 0)
 						{
 							xend = Math.Max(xend, x);
@@ -155,8 +155,8 @@ namespace SonicRetro.SonLVL.LevelConverter
 				LevelData.Layout.FGLayout = tmp;
 				xend = 0;
 				yend = 0;
-				for (int y = 0; y < LevelData.Layout.BGLayout.GetLength(1); y++)
-					for (int x = 0; x < LevelData.Layout.BGLayout.GetLength(0); x++)
+				for (int y = 0; y < LevelData.BGHeight; y++)
+					for (int x = 0; x < LevelData.BGWidth; x++)
 						if (LevelData.Layout.BGLayout[x, y] > 0)
 						{
 							xend = Math.Max(xend, x);
@@ -306,7 +306,7 @@ namespace SonicRetro.SonLVL.LevelConverter
 					chunksz = 8;
 					break;
 			}
-			LevelData.chunksz = chunksz * 16;
+			LevelData.Level.ChunkWidth = LevelData.Level.ChunkHeight = chunksz * 16;
 			LevelData.Level.ChunkFormat = OutFmt;
 			List<Chunk> tmpchnk = new List<Chunk>();
 			switch (chunktypes)
@@ -319,16 +319,16 @@ namespace SonicRetro.SonLVL.LevelConverter
 					tmpchnk = new List<Chunk>() { new Chunk() };
 					List<int> chnks = new List<int>() { 0 };
 					int chnk;
-					byte[,] newFG1 = new byte[(int)Math.Ceiling(LevelData.Layout.FGLayout.GetLength(0) / 2d), (int)Math.Ceiling(LevelData.Layout.FGLayout.GetLength(1) / 2d)];
+					byte[,] newFG1 = new byte[(int)Math.Ceiling(LevelData.FGWidth / 2d), (int)Math.Ceiling(LevelData.FGHeight / 2d)];
 					LevelData.Layout.FGLoop = new bool[newFG1.GetLength(0), newFG1.GetLength(1)];
-					for (int y = 0; y < LevelData.Layout.FGLayout.GetLength(1); y += 2)
+					for (int y = 0; y < LevelData.FGHeight; y += 2)
 					{
-						for (int x = 0; x < LevelData.Layout.FGLayout.GetLength(0); x += 2)
+						for (int x = 0; x < LevelData.FGWidth; x += 2)
 						{
 							chnk = LevelData.Layout.FGLayout[x, y];
-							chnk |= (x + 1 < LevelData.Layout.FGLayout.GetLength(0) ? LevelData.Layout.FGLayout[x + 1, y] : 0) << 8;
-							chnk |= (y + 1 < LevelData.Layout.FGLayout.GetLength(1) ? LevelData.Layout.FGLayout[x, y + 1] : 0) << 16;
-							chnk |= (x + 1 < LevelData.Layout.FGLayout.GetLength(0) & y + 1 < LevelData.Layout.FGLayout.GetLength(1) ? LevelData.Layout.FGLayout[x + 1, y + 1] : 0) << 24;
+							chnk |= (x + 1 < LevelData.FGWidth ? LevelData.Layout.FGLayout[x + 1, y] : 0) << 8;
+							chnk |= (y + 1 < LevelData.FGHeight ? LevelData.Layout.FGLayout[x, y + 1] : 0) << 16;
+							chnk |= (x + 1 < LevelData.FGWidth & y + 1 < LevelData.FGHeight ? LevelData.Layout.FGLayout[x + 1, y + 1] : 0) << 24;
 							if (chnks.IndexOf(chnk) > -1)
 								newFG1[x / 2, y / 2] = (byte)chnks.IndexOf(chnk);
 							else
@@ -381,16 +381,16 @@ namespace SonicRetro.SonLVL.LevelConverter
 						}
 					}
 					LevelData.Layout.FGLayout = newFG1;
-					byte[,] newBG1 = new byte[(int)Math.Ceiling(LevelData.Layout.BGLayout.GetLength(0) / 2d), (int)Math.Ceiling(LevelData.Layout.BGLayout.GetLength(1) / 2d)];
+					byte[,] newBG1 = new byte[(int)Math.Ceiling(LevelData.BGWidth / 2d), (int)Math.Ceiling(LevelData.BGHeight / 2d)];
 					LevelData.Layout.BGLoop = new bool[newBG1.GetLength(0), newBG1.GetLength(1)];
-					for (int y = 0; y < LevelData.Layout.BGLayout.GetLength(1); y += 2)
+					for (int y = 0; y < LevelData.BGHeight; y += 2)
 					{
-						for (int x = 0; x < LevelData.Layout.BGLayout.GetLength(0); x += 2)
+						for (int x = 0; x < LevelData.BGWidth; x += 2)
 						{
 							chnk = LevelData.Layout.BGLayout[x, y];
-							chnk |= (x + 1 < LevelData.Layout.BGLayout.GetLength(0) ? LevelData.Layout.BGLayout[x + 1, y] : 0) << 8;
-							chnk |= (y + 1 < LevelData.Layout.BGLayout.GetLength(1) ? LevelData.Layout.BGLayout[x, y + 1] : 0) << 16;
-							chnk |= (x + 1 < LevelData.Layout.BGLayout.GetLength(0) & y + 1 < LevelData.Layout.BGLayout.GetLength(1) ? LevelData.Layout.BGLayout[x + 1, y + 1] : 0) << 24;
+							chnk |= (x + 1 < LevelData.BGWidth ? LevelData.Layout.BGLayout[x + 1, y] : 0) << 8;
+							chnk |= (y + 1 < LevelData.BGHeight ? LevelData.Layout.BGLayout[x, y + 1] : 0) << 16;
+							chnk |= (x + 1 < LevelData.BGWidth & y + 1 < LevelData.BGHeight ? LevelData.Layout.BGLayout[x + 1, y + 1] : 0) << 24;
 							if (chnks.IndexOf(chnk) > -1)
 								newBG1[x / 2, y / 2] = (byte)chnks.IndexOf(chnk);
 							else
@@ -507,9 +507,9 @@ namespace SonicRetro.SonLVL.LevelConverter
 						}
 						cnkinds.Add(usedcnk, ids);
 					}
-					byte[,] newFG = new byte[LevelData.Layout.FGLayout.GetLength(0) * 2, LevelData.Layout.FGLayout.GetLength(1) * 2];
-					for (int y = 0; y < LevelData.Layout.FGLayout.GetLength(1); y++)
-						for (int x = 0; x < LevelData.Layout.FGLayout.GetLength(0); x++)
+					byte[,] newFG = new byte[LevelData.FGWidth * 2, LevelData.FGHeight * 2];
+					for (int y = 0; y < LevelData.FGHeight; y++)
+						for (int x = 0; x < LevelData.FGWidth; x++)
 							if (LevelData.Layout.FGLayout[x, y] != 0)
 							{
 								byte[] ids = cnkinds[LevelData.Layout.FGLayout[x, y]];
@@ -519,9 +519,9 @@ namespace SonicRetro.SonLVL.LevelConverter
 								newFG[(x * 2) + 1, (y * 2) + 1] = ids[3];
 							}
 					LevelData.Layout.FGLayout = newFG;
-					byte[,] newBG = new byte[LevelData.Layout.BGLayout.GetLength(0) * 2, LevelData.Layout.BGLayout.GetLength(1) * 2];
-					for (int y = 0; y < LevelData.Layout.BGLayout.GetLength(1); y++)
-						for (int x = 0; x < LevelData.Layout.BGLayout.GetLength(0); x++)
+					byte[,] newBG = new byte[LevelData.BGWidth * 2, LevelData.BGHeight * 2];
+					for (int y = 0; y < LevelData.BGHeight; y++)
+						for (int x = 0; x < LevelData.BGWidth; x++)
 							if (LevelData.Layout.BGLayout[x, y] != 0)
 							{
 								byte[] ids = cnkinds[LevelData.Layout.BGLayout[x, y]];
@@ -559,44 +559,44 @@ namespace SonicRetro.SonLVL.LevelConverter
 			}
 			Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "Chunks.bin"), cmp);
 			Level.Chunks = new[] { new SonicRetro.SonLVL.API.FileInfo("Chunks.bin") };
-			ushort fgw = (ushort)LevelData.Layout.FGLayout.GetLength(0);
-			ushort bgw = (ushort)LevelData.Layout.BGLayout.GetLength(0);
-			ushort fgh = (ushort)LevelData.Layout.FGLayout.GetLength(1);
-			ushort bgh = (ushort)LevelData.Layout.BGLayout.GetLength(1);
+			ushort fgw = (ushort)LevelData.FGWidth;
+			ushort bgw = (ushort)LevelData.BGWidth;
+			ushort fgh = (ushort)LevelData.FGHeight;
+			ushort bgh = (ushort)LevelData.BGHeight;
 			switch (OutFmt)
 			{
 				case EngineVersion.S1:
 					tmp2 = new List<byte>();
-					tmp2.Add((byte)(LevelData.Layout.FGLayout.GetLength(0) - 1));
-					tmp2.Add((byte)(LevelData.Layout.FGLayout.GetLength(1) - 1));
-					for (int lr = 0; lr < LevelData.Layout.FGLayout.GetLength(1); lr++)
-						for (int lc = 0; lc < LevelData.Layout.FGLayout.GetLength(0); lc++)
+					tmp2.Add((byte)(LevelData.FGWidth - 1));
+					tmp2.Add((byte)(LevelData.FGHeight - 1));
+					for (int lr = 0; lr < LevelData.FGHeight; lr++)
+						for (int lc = 0; lc < LevelData.FGWidth; lc++)
 							tmp2.Add((byte)(LevelData.Layout.FGLayout[lc, lr] | (LevelData.Layout.FGLoop[lc, lr] ? 0x80 : 0)));
 					Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "FGLayout.bin"), CompressionType.Uncompressed);
 					Level.FGLayout = "FGLayout.bin";
 					tmp2 = new List<byte>();
-					tmp2.Add((byte)(LevelData.Layout.BGLayout.GetLength(0) - 1));
-					tmp2.Add((byte)(LevelData.Layout.BGLayout.GetLength(1) - 1));
-					for (int lr = 0; lr < LevelData.Layout.BGLayout.GetLength(1); lr++)
-						for (int lc = 0; lc < LevelData.Layout.BGLayout.GetLength(0); lc++)
+					tmp2.Add((byte)(LevelData.BGWidth - 1));
+					tmp2.Add((byte)(LevelData.BGHeight - 1));
+					for (int lr = 0; lr < LevelData.BGHeight; lr++)
+						for (int lc = 0; lc < LevelData.BGWidth; lc++)
 							tmp2.Add((byte)(LevelData.Layout.BGLayout[lc, lr] | (LevelData.Layout.BGLoop[lc, lr] ? 0x80 : 0)));
 					Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "BGLayout.bin"), CompressionType.Uncompressed);
 					Level.BGLayout = "BGLayout.bin";
 					break;
 				case EngineVersion.S2NA:
 					tmp2 = new List<byte>();
-					tmp2.Add((byte)(LevelData.Layout.FGLayout.GetLength(0) - 1));
-					tmp2.Add((byte)(LevelData.Layout.FGLayout.GetLength(1) - 1));
-					for (int lr = 0; lr < LevelData.Layout.FGLayout.GetLength(1); lr++)
-						for (int lc = 0; lc < LevelData.Layout.FGLayout.GetLength(0); lc++)
+					tmp2.Add((byte)(LevelData.FGWidth - 1));
+					tmp2.Add((byte)(LevelData.FGHeight - 1));
+					for (int lr = 0; lr < LevelData.FGHeight; lr++)
+						for (int lc = 0; lc < LevelData.FGWidth; lc++)
 							tmp2.Add(LevelData.Layout.FGLayout[lc, lr]);
 					Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "FGLayout.bin"), CompressionType.Uncompressed);
 					Level.FGLayout = "FGLayout.bin";
 					tmp2 = new List<byte>();
-					tmp2.Add((byte)(LevelData.Layout.BGLayout.GetLength(0) - 1));
-					tmp2.Add((byte)(LevelData.Layout.BGLayout.GetLength(1) - 1));
-					for (int lr = 0; lr < LevelData.Layout.BGLayout.GetLength(1); lr++)
-						for (int lc = 0; lc < LevelData.Layout.BGLayout.GetLength(0); lc++)
+					tmp2.Add((byte)(LevelData.BGWidth - 1));
+					tmp2.Add((byte)(LevelData.BGHeight - 1));
+					for (int lr = 0; lr < LevelData.BGHeight; lr++)
+						for (int lc = 0; lc < LevelData.BGWidth; lc++)
 							tmp2.Add(LevelData.Layout.BGLayout[lc, lr]);
 					Compression.Compress(tmp2.ToArray(), Path.Combine(OutDir, "BGLayout.bin"), CompressionType.Uncompressed);
 					Level.BGLayout = "BGLayout.bin";
@@ -605,17 +605,17 @@ namespace SonicRetro.SonLVL.LevelConverter
 					tmp2 = new List<byte>();
 					for (int la = 0; la < 16; la++)
 					{
-						if (LevelData.Layout.FGLayout.GetLength(1) > la)
+						if (LevelData.FGHeight > la)
 							for (int laf = 0; laf < 128; laf++)
-								if (LevelData.Layout.FGLayout.GetLength(0) > laf)
+								if (LevelData.FGWidth > laf)
 									tmp2.Add(LevelData.Layout.FGLayout[laf, la]);
 								else
 									tmp2.Add(0);
 						else
 							tmp2.AddRange(new byte[128]);
-						if (LevelData.Layout.BGLayout.GetLength(1) > la)
+						if (LevelData.BGHeight > la)
 							for (int lab = 0; lab < 128; lab++)
-								if (LevelData.Layout.BGLayout.GetLength(0) > lab)
+								if (LevelData.BGWidth > lab)
 									tmp2.Add(LevelData.Layout.BGLayout[lab, la]);
 								else
 									tmp2.Add(0);

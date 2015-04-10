@@ -74,6 +74,11 @@ namespace SonicRetro.SonLVL.GUI
             return new Rectangle(r.X * factor, r.Y * factor, r.Width * factor, r.Height * factor);
         }
 
+		public static Rectangle Scale(this Rectangle r, int h, int v)
+		{
+			return new Rectangle(r.X * h, r.Y * v, r.Width * h, r.Height * v);
+		}
+
 		public static void Swap<T>(this IList<T> list, int a, int b)
 		{
 			T tmp = list[a];

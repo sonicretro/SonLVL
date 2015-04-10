@@ -40,7 +40,13 @@ namespace SonicRetro.SonLVL.API
         public EngineVersion ChunkFormat { get; set; }
         [IniName("chunkcmp")]
         public CompressionType ChunkCompression { get; set; }
-        [IniName("layoutfmt")]
+		[IniName("chunksize")]
+		public int ChunkSize { get; set; }
+		[IniName("chunkwidth")]
+		public int ChunkWidth { get; set; }
+		[IniName("chunkheight")]
+		public int ChunkHeight { get; set; }
+		[IniName("layoutfmt")]
         public EngineVersion LayoutFormat { get; set; }
         [IniName("layoutcmp")]
         public CompressionType LayoutCompression { get; set; }
@@ -197,6 +203,23 @@ namespace SonicRetro.SonLVL.API
                         result.ChunkCompression = CompressionType.Uncompressed;
                         break;
                 }
+			if (result.ChunkSize != 0)
+				result.ChunkWidth = result.ChunkHeight = result.ChunkSize;
+			else if (result.ChunkWidth == 0 || result.ChunkHeight == 0)
+				switch (result.ChunkFormat)
+				{
+					case EngineVersion.S1:
+					case EngineVersion.SCD:
+					case EngineVersion.SCDPC:
+						result.ChunkWidth = result.ChunkHeight = 256;
+						break;
+					case EngineVersion.S2NA:
+					case EngineVersion.S2:
+					case EngineVersion.S3K:
+					case EngineVersion.SKC:
+						result.ChunkWidth = result.ChunkHeight = 128;
+						break;
+				}
 			if (result.FGLayoutCompression == CompressionType.Invalid)
 				result.FGLayoutCompression = result.LayoutCompression;
 			if (result.BGLayoutCompression == CompressionType.Invalid)
@@ -253,7 +276,13 @@ namespace SonicRetro.SonLVL.API
         public EngineVersion ChunkFormat { get; set; }
         [IniName("chunkcmp")]
         public CompressionType ChunkCompression { get; set; }
-        [IniName("chunks")]
+		[IniName("chunksize")]
+		public int ChunkSize { get; set; }
+		[IniName("chunkwidth")]
+		public int ChunkWidth { get; set; }
+		[IniName("chunkheight")]
+		public int ChunkHeight { get; set; }
+		[IniName("chunks")]
         [IniCollection(IniCollectionMode.SingleLine, Format = "|")]
         public FileInfo[] Chunks { get; set; }
         [IniName("layoutfmt")]

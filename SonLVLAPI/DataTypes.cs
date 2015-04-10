@@ -426,29 +426,30 @@ namespace SonicRetro.SonLVL.API
     {
         public ChunkBlock[,] Blocks { get; set; }
 
-        private int size;
+        private int width, height;
 
-        public static int Size { get { return ChunkBlock.Size * (int)Math.Pow(LevelData.chunksz / 16, 2); } }
+        public static int Size { get { return ChunkBlock.Size * ((LevelData.Level.ChunkWidth / 16) * (LevelData.Level.ChunkHeight / 16)); } }
 
         public Chunk()
         {
-            size = LevelData.chunksz / 16;
-            Blocks = new ChunkBlock[size, size];
+			width = LevelData.Level.ChunkWidth / 16;
+			height = LevelData.Level.ChunkHeight / 16;
+            Blocks = new ChunkBlock[width, height];
             switch (LevelData.Level.ChunkFormat)
             {
                 case EngineVersion.S1:
                 case EngineVersion.SCD:
                 case EngineVersion.SCDPC:
-                    for (int y = 0; y < size; y++)
-                        for (int x = 0; x < size; x++)
+                    for (int y = 0; y < height; y++)
+                        for (int x = 0; x < width; x++)
                             Blocks[x, y] = new S1ChunkBlock();
                     break;
                 case EngineVersion.S2:
                 case EngineVersion.S2NA:
                 case EngineVersion.S3K:
                 case EngineVersion.SKC:
-                    for (int y = 0; y < size; y++)
-                        for (int x = 0; x < size; x++)
+                    for (int y = 0; y < height; y++)
+                        for (int x = 0; x < width; x++)
                             Blocks[x, y] = new S2ChunkBlock();
                     break;
             }
@@ -456,24 +457,25 @@ namespace SonicRetro.SonLVL.API
 
         public Chunk(byte[] file, int address)
         {
-            size = LevelData.chunksz / 16;
-            Blocks = new ChunkBlock[size, size];
-            switch (LevelData.Level.ChunkFormat)
+			width = LevelData.Level.ChunkWidth / 16;
+			height = LevelData.Level.ChunkHeight / 16;
+			Blocks = new ChunkBlock[width, height];
+			switch (LevelData.Level.ChunkFormat)
             {
                 case EngineVersion.S1:
                 case EngineVersion.SCD:
                 case EngineVersion.SCDPC:
-                    for (int y = 0; y < size; y++)
-                        for (int x = 0; x < size; x++)
-                            Blocks[x, y] = new S1ChunkBlock(file, address + ((x + (y * size)) * ChunkBlock.Size));
+                    for (int y = 0; y < height; y++)
+                        for (int x = 0; x < width; x++)
+                            Blocks[x, y] = new S1ChunkBlock(file, address + ((x + (y * width)) * ChunkBlock.Size));
                     break;
                 case EngineVersion.S2:
                 case EngineVersion.S2NA:
                 case EngineVersion.S3K:
                 case EngineVersion.SKC:
-                    for (int y = 0; y < size; y++)
-                        for (int x = 0; x < size; x++)
-                            Blocks[x, y] = new S2ChunkBlock(file, address + ((x + (y * size)) * ChunkBlock.Size));
+                    for (int y = 0; y < height; y++)
+                        for (int x = 0; x < width; x++)
+                            Blocks[x, y] = new S2ChunkBlock(file, address + ((x + (y * width)) * ChunkBlock.Size));
                     break;
             }
         }
@@ -481,8 +483,8 @@ namespace SonicRetro.SonLVL.API
         public byte[] GetBytes()
         {
             List<byte> val = new List<byte>();
-            for (int y = 0; y < size; y++)
-                for (int x = 0; x < size; x++)
+            for (int y = 0; y < height; y++)
+                for (int x = 0; x < width; x++)
                     val.AddRange(Blocks[x, y].GetBytes());
             return val.ToArray();
         }
@@ -491,8 +493,8 @@ namespace SonicRetro.SonLVL.API
         {
             if (!(obj is Chunk)) return false;
             Chunk other = (Chunk)obj;
-            for (int y = 0; y < size; y++)
-                for (int x = 0; x < size; x++)
+            for (int y = 0; y < height; y++)
+                for (int x = 0; x < width; x++)
                     if (Blocks[x, y] != other.Blocks[x, y]) return false;
             return true;
         }

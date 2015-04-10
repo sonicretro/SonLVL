@@ -28,14 +28,38 @@ namespace SonicRetro.SonLVL.API
 
         public event EventHandler ItemDrag = delegate { };
 
-        private int imageSize = 8;
-        [DefaultValue(8)]
+        private int imageWidth = 8;
+		[DefaultValue(8)]
+		public int ImageWidth
+		{
+			get { return imageWidth; }
+			set
+			{
+				imageWidth = value;
+				ChangeSize();
+			}
+		}
+
+		private int imageHeight = 8;
+		[DefaultValue(8)]
+		public int ImageHeight
+		{
+			get { return imageHeight; }
+			set
+			{
+				imageHeight = value;
+				ChangeSize();
+			}
+		}
+
+		[DefaultValue(8)]
         public int ImageSize
         {
-            get { return imageSize; }
+            get { return imageWidth == imageHeight ? imageWidth : -1; }
             set
             {
-                imageSize = value;
+				if (value == -1) return;
+                imageWidth = imageHeight = value;
                 ChangeSize();
             }
         }
@@ -67,12 +91,12 @@ namespace SonicRetro.SonLVL.API
             switch (Direction)
             {
                 case Direction.Horizontal:
-                    int tilesPerCol = Math.Max((Height - hScrollBar1.Height) / (imageSize + 4), 1);
-                    hScrollBar1.Maximum = Math.Max(((int)Math.Ceiling(Images.Count / (double)tilesPerCol) * (imageSize + 4)) - Width, 0);
+                    int tilesPerCol = Math.Max((Height - hScrollBar1.Height) / (imageHeight + 4), 1);
+                    hScrollBar1.Maximum = Math.Max(((int)Math.Ceiling(Images.Count / (double)tilesPerCol) * (imageWidth + 4)) - Width, 0);
                     break;
                 case Direction.Vertical:
-                    int tilesPerRow = Math.Max((Width - vScrollBar1.Width) / (imageSize + 4), 1);
-                    vScrollBar1.Maximum = Math.Max(((int)Math.Ceiling(Images.Count / (double)tilesPerRow) * (imageSize + 4)) - Height, 0);
+                    int tilesPerRow = Math.Max((Width - vScrollBar1.Width) / (imageWidth + 4), 1);
+                    vScrollBar1.Maximum = Math.Max(((int)Math.Ceiling(Images.Count / (double)tilesPerRow) * (imageHeight + 4)) - Height, 0);
                     break;
             }
             Invalidate();
@@ -83,14 +107,15 @@ namespace SonicRetro.SonLVL.API
         private void TileList_Paint(object sender, PaintEventArgs e)
         {
             if (Images.Count == 0) return;
-            int actualImageSize = imageSize + 4;
-            switch (Direction)
+			int actualImageWidth = imageWidth + 4;
+			int actualImageHeight = imageHeight + 4;
+			switch (Direction)
             {
                 case Direction.Horizontal:
-                    int tilesPerCol = Math.Max((Height - hScrollBar1.Height) / actualImageSize, 1);
+                    int tilesPerCol = Math.Max((Height - hScrollBar1.Height) / actualImageHeight, 1);
                     int numCols = (int)Math.Ceiling(Images.Count / (double)tilesPerCol);
-                    int stc = hScrollBar1.Value / actualImageSize;
-                    int edc = Math.Min((int)Math.Ceiling((hScrollBar1.Value + Width) / (double)actualImageSize), numCols);
+                    int stc = hScrollBar1.Value / actualImageWidth;
+                    int edc = Math.Min((int)Math.Ceiling((hScrollBar1.Value + Width) / (double)actualImageWidth), numCols);
                     Graphics g = e.Graphics;
                     g.SetOptions();
                     g.Clear(BackColor);
@@ -99,17 +124,17 @@ namespace SonicRetro.SonLVL.API
                         for (int r = 0; r < tilesPerCol; r++)
                         {
                             if (i == selectedIndex)
-                                g.DrawRectangle(new Pen(Color.Yellow, 2), (actualImageSize * c) - hScrollBar1.Value, actualImageSize * r, actualImageSize - 1, actualImageSize - 1);
-                            g.DrawImage(Images[i], (actualImageSize * c) + 2 - hScrollBar1.Value, (actualImageSize * r) + 2, imageSize, imageSize);
+                                g.DrawRectangle(new Pen(Color.Yellow, 2), (actualImageWidth * c) - hScrollBar1.Value, actualImageHeight * r, actualImageWidth - 1, actualImageWidth - 1);
+                            g.DrawImage(Images[i], (actualImageWidth * c) + 2 - hScrollBar1.Value, (actualImageHeight * r) + 2, imageWidth, imageHeight);
                             i++;
                             if (i == Images.Count) return;
                         }
                     break;
                 case Direction.Vertical:
-                    int tilesPerRow = Math.Max((Width - vScrollBar1.Width) / actualImageSize, 1);
+                    int tilesPerRow = Math.Max((Width - vScrollBar1.Width) / actualImageWidth, 1);
                     int numRows = (int)Math.Ceiling(Images.Count / (double)tilesPerRow);
-                    int str = vScrollBar1.Value / actualImageSize;
-                    int edr = Math.Min((int)Math.Ceiling((vScrollBar1.Value + Height) / (double)actualImageSize), numRows);
+                    int str = vScrollBar1.Value / actualImageHeight;
+                    int edr = Math.Min((int)Math.Ceiling((vScrollBar1.Value + Height) / (double)actualImageHeight), numRows);
                     g = e.Graphics;
                     g.SetOptions();
                     g.Clear(BackColor);
@@ -118,8 +143,8 @@ namespace SonicRetro.SonLVL.API
                         for (int c = 0; c < tilesPerRow; c++)
                         {
                             if (i == selectedIndex)
-                                g.DrawRectangle(new Pen(Color.Yellow, 2), actualImageSize * c, (actualImageSize * r) - vScrollBar1.Value, actualImageSize - 1, actualImageSize - 1);
-                            g.DrawImage(Images[i], (actualImageSize * c) + 2, (actualImageSize * r) + 2 - vScrollBar1.Value, imageSize, imageSize);
+                                g.DrawRectangle(new Pen(Color.Yellow, 2), actualImageWidth * c, (actualImageHeight * r) - vScrollBar1.Value, actualImageWidth - 1, actualImageHeight - 1);
+                            g.DrawImage(Images[i], (actualImageWidth * c) + 2, (actualImageHeight * r) + 2 - vScrollBar1.Value, imageWidth, imageHeight);
                             i++;
                             if (i == Images.Count) return;
                         }
@@ -130,22 +155,23 @@ namespace SonicRetro.SonLVL.API
         public int GetItemAtPoint(Point point)
         {
             if (Images.Count == 0) return -1;
-            int actualImageSize = imageSize + 4;
-            switch (Direction)
+			int actualImageWidth = imageWidth + 4;
+			int actualImageHeight = imageHeight + 4;
+			switch (Direction)
             {
                 case Direction.Horizontal:
-                    int tilesPerCol = Math.Max((Height - hScrollBar1.Height) / actualImageSize, 1);
+                    int tilesPerCol = Math.Max((Height - hScrollBar1.Height) / actualImageHeight, 1);
                     int numCols = (int)Math.Ceiling(Images.Count / (double)tilesPerCol);
-                    int selY = Math.Min(point.Y / actualImageSize, tilesPerCol);
-                    int selX = (point.X + hScrollBar1.Value) / actualImageSize;
+                    int selY = Math.Min(point.Y / actualImageHeight, tilesPerCol);
+                    int selX = (point.X + hScrollBar1.Value) / actualImageWidth;
                     if (selX * tilesPerCol + selY < Images.Count)
                         return selX * tilesPerCol + selY;
                     break;
                 case Direction.Vertical:
-                    int tilesPerRow = Math.Max((Width - vScrollBar1.Width) / actualImageSize, 1);
+                    int tilesPerRow = Math.Max((Width - vScrollBar1.Width) / actualImageWidth, 1);
                     int numRows = (int)Math.Ceiling(Images.Count / (double)tilesPerRow);
-                    selX = Math.Min(point.X / actualImageSize, tilesPerRow);
-                    selY = (point.Y + vScrollBar1.Value) / actualImageSize;
+                    selX = Math.Min(point.X / actualImageWidth, tilesPerRow);
+                    selY = (point.Y + vScrollBar1.Value) / actualImageHeight;
                     if (selY * tilesPerRow + selX < Images.Count)
                         return selY * tilesPerRow + selX;
                     break;
@@ -155,19 +181,20 @@ namespace SonicRetro.SonLVL.API
 
         public Rectangle GetItemBounds(int index)
         {
-            int actualImageSize = imageSize + 4;
-            switch (Direction)
+			int actualImageWidth = imageWidth + 4;
+			int actualImageHeight = imageHeight + 4;
+			switch (Direction)
             {
                 case Direction.Horizontal:
-                    int tilesPerCol = Math.Max((Height - hScrollBar1.Height) / actualImageSize, 1);
+                    int tilesPerCol = Math.Max((Height - hScrollBar1.Height) / actualImageHeight, 1);
                     int r = index % tilesPerCol;
                     int c = index / tilesPerCol;
-                    return new Rectangle((c * actualImageSize) - hScrollBar1.Value, r * actualImageSize, actualImageSize, actualImageSize);
+                    return new Rectangle((c * actualImageWidth) - hScrollBar1.Value, r * actualImageHeight, actualImageWidth, actualImageHeight);
                 case Direction.Vertical:
-                    int tilesPerRow = Math.Max((Width - vScrollBar1.Width) / actualImageSize, 1);
+                    int tilesPerRow = Math.Max((Width - vScrollBar1.Width) / actualImageWidth, 1);
                     r = index / tilesPerRow;
                     c = index % tilesPerRow;
-                    return new Rectangle(c * actualImageSize, (r * actualImageSize) - vScrollBar1.Value, actualImageSize, actualImageSize);
+                    return new Rectangle(c * actualImageWidth, (r * actualImageHeight) - vScrollBar1.Value, actualImageWidth, actualImageHeight);
             }
             return Rectangle.Empty;
         }
@@ -220,12 +247,13 @@ namespace SonicRetro.SonLVL.API
         private void TileList_KeyDown(object sender, KeyEventArgs e)
         {
             if (Images.Count == 0) return;
-            int actualImageSize = imageSize + 4;
-            switch (Direction)
+			int actualImageWidth = imageWidth + 4;
+			int actualImageHeight = imageHeight + 4;
+			switch (Direction)
             {
                 case Direction.Horizontal:
-                    int tilesPerCol = Math.Max((Height - hScrollBar1.Height) / actualImageSize, 1);
-                    int colsPerPage = Width / actualImageSize;
+                    int tilesPerCol = Math.Max((Height - hScrollBar1.Height) / actualImageHeight, 1);
+                    int colsPerPage = Width / actualImageWidth;
                     switch (e.KeyCode)
                     {
                         case Keys.Down:
@@ -255,8 +283,8 @@ namespace SonicRetro.SonLVL.API
                     }
                     break;
                 case Direction.Vertical:
-                    int tilesPerRow = Math.Max((Width - vScrollBar1.Width) / actualImageSize, 1);
-                    int rowsPerPage = Height / actualImageSize;
+                    int tilesPerRow = Math.Max((Width - vScrollBar1.Width) / actualImageWidth, 1);
+                    int rowsPerPage = Height / actualImageHeight;
                     switch (e.KeyCode)
                     {
                         case Keys.Down:
@@ -308,24 +336,25 @@ namespace SonicRetro.SonLVL.API
         {
             if (selectedIndex == -1) return;
             ChangeSize();
-            int actualImageSize = imageSize + 4;
-            switch (Direction)
+			int actualImageWidth = imageWidth + 4;
+			int actualImageHeight = imageHeight + 4;
+			switch (Direction)
             {
                 case Direction.Horizontal:
-                    int tilesPerCol = Math.Max((Height - hScrollBar1.Height) / actualImageSize, 1);
-                    int x = ((SelectedIndex / tilesPerCol) * actualImageSize) - hScrollBar1.Value;
+                    int tilesPerCol = Math.Max((Height - hScrollBar1.Height) / actualImageHeight, 1);
+                    int x = ((SelectedIndex / tilesPerCol) * actualImageWidth) - hScrollBar1.Value;
                     if (x < 0)
                         hScrollBar1.Value += x;
-                    if (x + actualImageSize > Width)
-                        hScrollBar1.Value += (x + actualImageSize) - Width;
+                    if (x + actualImageWidth > Width)
+                        hScrollBar1.Value += (x + actualImageWidth) - Width;
                     break;
                 case Direction.Vertical:
-                    int tilesPerRow = Math.Max((Width - vScrollBar1.Width) / actualImageSize, 1);
-                    int y = ((SelectedIndex / tilesPerRow) * actualImageSize) - vScrollBar1.Value;
+                    int tilesPerRow = Math.Max((Width - vScrollBar1.Width) / actualImageWidth, 1);
+                    int y = ((SelectedIndex / tilesPerRow) * actualImageHeight) - vScrollBar1.Value;
                     if (y < 0)
                         vScrollBar1.Value += y;
-                    if (y + actualImageSize > Height)
-                        vScrollBar1.Value += (y + actualImageSize) - Height;
+                    if (y + actualImageHeight > Height)
+                        vScrollBar1.Value += (y + actualImageHeight) - Height;
                     break;
             }
         }
