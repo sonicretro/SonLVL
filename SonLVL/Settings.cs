@@ -33,7 +33,7 @@ namespace SonicRetro.SonLVL
 			get { return 1 << ObjectGridSize; }
 			set
 			{
-				ObjectGridSize = (byte)Math.Max(0, Math.Min(8, Math.Log(2, value)));
+				ObjectGridSize = (byte)Math.Max(0, Math.Min(8, Math.Log(value, 2)));
 			}
 		}
 		[IniIgnore]
