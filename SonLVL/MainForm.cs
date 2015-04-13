@@ -944,38 +944,62 @@ namespace SonicRetro.SonLVL.GUI
 		#endregion
 
 		#region Export Menu
-		private void paletteToolStripMenuItem_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+		private void pNGToolStripMenuItem_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
 		{
 			exportToolStripMenuItem.DropDown.Hide();
-			SaveFileDialog a = new SaveFileDialog() { DefaultExt = "png", Filter = "PNG Files|*.png", RestoreDirectory = true };
-			if (a.ShowDialog() == DialogResult.OK)
-			{
-				int line = paletteToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem);
-				if (line < 4)
+			using (SaveFileDialog a = new SaveFileDialog() { DefaultExt = "png", Filter = "PNG Files|*.png", RestoreDirectory = true })
+				if (a.ShowDialog() == DialogResult.OK)
 				{
-					BitmapBits bmp = new BitmapBits(16 * 8, 8);
-					Color[] pal = new Color[16];
-					for (int i = 0; i < 16; i++)
+					int line = paletteToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem);
+					if (line < 4)
 					{
-						pal[i] = LevelData.PaletteToColor(line, i, false);
-						bmp.FillRectangle((byte)i, i * 8, 0, 8, 8);
+						BitmapBits bmp = new BitmapBits(16 * 8, 8);
+						Color[] pal = new Color[16];
+						for (int i = 0; i < 16; i++)
+						{
+							pal[i] = LevelData.PaletteToColor(line, i, false);
+							bmp.FillRectangle((byte)i, i * 8, 0, 8, 8);
+						}
+						bmp.ToBitmap(pal).Save(a.FileName);
 					}
-					bmp.ToBitmap(pal).Save(a.FileName);
+					else
+					{
+						BitmapBits bmp = new BitmapBits(16 * 8, 4 * 8);
+						Color[] pal = new Color[256];
+						for (int i = 0; i < 64; i++)
+							pal[i] = LevelData.PaletteToColor(i / 16, i % 16, false);
+						for (int i = 64; i < 256; i++)
+							pal[i] = Color.Black;
+						for (int y = 0; y < 4; y++)
+							for (int x = 0; x < 16; x++)
+								bmp.FillRectangle((byte)((y * 16) + x), x * 8, y * 8, 8, 8);
+						bmp.ToBitmap(pal).Save(a.FileName);
+					}
 				}
-				else
-				{
-					BitmapBits bmp = new BitmapBits(16 * 8, 4 * 8);
-					Color[] pal = new Color[256];
-					for (int i = 0; i < 64; i++)
-						pal[i] = LevelData.PaletteToColor(i / 16, i % 16, false);
-					for (int i = 64; i < 256; i++)
-						pal[i] = Color.Black;
-					for (int y = 0; y < 4; y++)
-						for (int x = 0; x < 16; x++)
-							bmp.FillRectangle((byte)((y * 16) + x), x * 8, y * 8, 8, 8);
-					bmp.ToBitmap(pal).Save(a.FileName);
-				}
-			}
+		}
+
+		private void yYCHRToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			using (SaveFileDialog a = new SaveFileDialog() { DefaultExt = "pal", Filter = "Palette Files|*.pal", RestoreDirectory = true })
+				if (a.ShowDialog() == DialogResult.OK)
+					using (FileStream str = File.Create(a.FileName))
+					using (BinaryWriter bw = new BinaryWriter(str))
+					{
+						int cnt = Math.Min(LevelData.Palette.Count, 4);
+						for (int i = 0; i < cnt; i++)
+						{
+							SonLVLColor[,] pal = LevelData.Palette[(LevelData.CurPal + i) % LevelData.Palette.Count];
+							for (int y = 0; y < 4; y++)
+								for (int x = 0; x < 16; x++)
+								{
+									bw.Write(pal[y, x].R);
+									bw.Write(pal[y, x].G);
+									bw.Write(pal[y, x].B);
+								}
+						}
+						if (cnt != 4)
+							bw.Write(new byte[0xC0 * (4 - cnt)]);
+					}
 		}
 
 		private void tilesToolStripMenuItem_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)

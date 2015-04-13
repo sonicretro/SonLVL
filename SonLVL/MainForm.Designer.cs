@@ -111,6 +111,7 @@
 			this.logToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.exportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.paletteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.pNGToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.line0ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.line1ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.line2ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -254,6 +255,7 @@
 			this.copyTilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.deepCopyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.pasteBeforeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.pasteOverToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.pasteAfterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.insertBeforeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.insertAfterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -278,7 +280,7 @@
 			this.insertLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.deleteLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.loadingAnimation1 = new SonicRetro.SonLVL.LoadingAnimation();
-			this.pasteOverToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.yYCHRToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
 			toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
 			label4 = new System.Windows.Forms.Label();
@@ -470,7 +472,9 @@
 			this.BlockSelector.AllowDrop = true;
 			this.BlockSelector.BackColor = System.Drawing.SystemColors.Window;
 			this.BlockSelector.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.BlockSelector.ImageHeight = 64;
 			this.BlockSelector.ImageSize = 64;
+			this.BlockSelector.ImageWidth = 64;
 			this.BlockSelector.Location = new System.Drawing.Point(0, 25);
 			this.BlockSelector.Name = "BlockSelector";
 			this.BlockSelector.ScrollValue = 0;
@@ -536,7 +540,9 @@
 			this.TileSelector.AllowDrop = true;
 			this.TileSelector.BackColor = System.Drawing.SystemColors.Window;
 			this.TileSelector.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.TileSelector.ImageHeight = 64;
 			this.TileSelector.ImageSize = 64;
+			this.TileSelector.ImageWidth = 64;
 			this.TileSelector.Location = new System.Drawing.Point(0, 25);
 			this.TileSelector.Name = "TileSelector";
 			this.TileSelector.ScrollValue = 0;
@@ -611,7 +617,9 @@
 			// 
 			this.ChunkSelector.BackColor = System.Drawing.SystemColors.Window;
 			this.ChunkSelector.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.ChunkSelector.ImageHeight = 128;
 			this.ChunkSelector.ImageSize = 128;
+			this.ChunkSelector.ImageWidth = 128;
 			this.ChunkSelector.Location = new System.Drawing.Point(0, 0);
 			this.ChunkSelector.Margin = new System.Windows.Forms.Padding(0);
 			this.ChunkSelector.Name = "ChunkSelector";
@@ -1145,50 +1153,59 @@
 			// paletteToolStripMenuItem
 			// 
 			this.paletteToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.pNGToolStripMenuItem,
+            this.yYCHRToolStripMenuItem});
+			this.paletteToolStripMenuItem.Name = "paletteToolStripMenuItem";
+			this.paletteToolStripMenuItem.Size = new System.Drawing.Size(210, 22);
+			this.paletteToolStripMenuItem.Text = "&Palette";
+			// 
+			// pNGToolStripMenuItem
+			// 
+			this.pNGToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.line0ToolStripMenuItem,
             this.line1ToolStripMenuItem,
             this.line2ToolStripMenuItem,
             this.line3ToolStripMenuItem,
             this.toolStripSeparator2,
             this.fullToolStripMenuItem});
-			this.paletteToolStripMenuItem.Name = "paletteToolStripMenuItem";
-			this.paletteToolStripMenuItem.Size = new System.Drawing.Size(210, 22);
-			this.paletteToolStripMenuItem.Text = "&Palette";
-			this.paletteToolStripMenuItem.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.paletteToolStripMenuItem_DropDownItemClicked);
+			this.pNGToolStripMenuItem.Name = "pNGToolStripMenuItem";
+			this.pNGToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.pNGToolStripMenuItem.Text = "&PNG";
+			this.pNGToolStripMenuItem.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.pNGToolStripMenuItem_DropDownItemClicked);
 			// 
 			// line0ToolStripMenuItem
 			// 
 			this.line0ToolStripMenuItem.Name = "line0ToolStripMenuItem";
-			this.line0ToolStripMenuItem.Size = new System.Drawing.Size(105, 22);
+			this.line0ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.line0ToolStripMenuItem.Text = "Line &0";
 			// 
 			// line1ToolStripMenuItem
 			// 
 			this.line1ToolStripMenuItem.Name = "line1ToolStripMenuItem";
-			this.line1ToolStripMenuItem.Size = new System.Drawing.Size(105, 22);
+			this.line1ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.line1ToolStripMenuItem.Text = "Line &1";
 			// 
 			// line2ToolStripMenuItem
 			// 
 			this.line2ToolStripMenuItem.Name = "line2ToolStripMenuItem";
-			this.line2ToolStripMenuItem.Size = new System.Drawing.Size(105, 22);
+			this.line2ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.line2ToolStripMenuItem.Text = "Line &2";
 			// 
 			// line3ToolStripMenuItem
 			// 
 			this.line3ToolStripMenuItem.Name = "line3ToolStripMenuItem";
-			this.line3ToolStripMenuItem.Size = new System.Drawing.Size(105, 22);
+			this.line3ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.line3ToolStripMenuItem.Text = "Line &3";
 			// 
 			// toolStripSeparator2
 			// 
 			this.toolStripSeparator2.Name = "toolStripSeparator2";
-			this.toolStripSeparator2.Size = new System.Drawing.Size(102, 6);
+			this.toolStripSeparator2.Size = new System.Drawing.Size(149, 6);
 			// 
 			// fullToolStripMenuItem
 			// 
 			this.fullToolStripMenuItem.Name = "fullToolStripMenuItem";
-			this.fullToolStripMenuItem.Size = new System.Drawing.Size(105, 22);
+			this.fullToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.fullToolStripMenuItem.Text = "&Full";
 			// 
 			// tilesToolStripMenuItem
@@ -1206,25 +1223,25 @@
 			// paletteLine0ToolStripMenuItem
 			// 
 			this.paletteLine0ToolStripMenuItem.Name = "paletteLine0ToolStripMenuItem";
-			this.paletteLine0ToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
+			this.paletteLine0ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.paletteLine0ToolStripMenuItem.Text = "Palette line &0";
 			// 
 			// paletteLine1ToolStripMenuItem
 			// 
 			this.paletteLine1ToolStripMenuItem.Name = "paletteLine1ToolStripMenuItem";
-			this.paletteLine1ToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
+			this.paletteLine1ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.paletteLine1ToolStripMenuItem.Text = "Palette line &1";
 			// 
 			// paletteLine2ToolStripMenuItem
 			// 
 			this.paletteLine2ToolStripMenuItem.Name = "paletteLine2ToolStripMenuItem";
-			this.paletteLine2ToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
+			this.paletteLine2ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.paletteLine2ToolStripMenuItem.Text = "Palette line &2";
 			// 
 			// paletteLine3ToolStripMenuItem
 			// 
 			this.paletteLine3ToolStripMenuItem.Name = "paletteLine3ToolStripMenuItem";
-			this.paletteLine3ToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
+			this.paletteLine3ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.paletteLine3ToolStripMenuItem.Text = "Palette line &3";
 			// 
 			// blocksToolStripMenuItem
@@ -2596,7 +2613,9 @@
 			// 
 			this.CollisionSelector.BackColor = System.Drawing.Color.Black;
 			this.CollisionSelector.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.CollisionSelector.ImageHeight = 16;
 			this.CollisionSelector.ImageSize = 16;
+			this.CollisionSelector.ImageWidth = 16;
 			this.CollisionSelector.Location = new System.Drawing.Point(127, 3);
 			this.CollisionSelector.Name = "CollisionSelector";
 			this.CollisionSelector.ScrollValue = 0;
@@ -2684,7 +2703,7 @@
             this.importToolStripMenuItem,
             this.drawToolStripMenuItem});
 			this.tileContextMenuStrip.Name = "contextMenuStrip1";
-			this.tileContextMenuStrip.Size = new System.Drawing.Size(153, 268);
+			this.tileContextMenuStrip.Size = new System.Drawing.Size(141, 246);
 			// 
 			// cutTilesToolStripMenuItem
 			// 
@@ -2717,6 +2736,14 @@
 			this.pasteBeforeToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
 			this.pasteBeforeToolStripMenuItem.Text = "Paste &Before";
 			this.pasteBeforeToolStripMenuItem.Click += new System.EventHandler(this.pasteBeforeToolStripMenuItem_Click);
+			// 
+			// pasteOverToolStripMenuItem
+			// 
+			this.pasteOverToolStripMenuItem.Image = global::SonicRetro.SonLVL.Properties.Resources.paste;
+			this.pasteOverToolStripMenuItem.Name = "pasteOverToolStripMenuItem";
+			this.pasteOverToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+			this.pasteOverToolStripMenuItem.Text = "Paste &Over";
+			this.pasteOverToolStripMenuItem.Click += new System.EventHandler(this.pasteOverToolStripMenuItem_Click);
 			// 
 			// pasteAfterToolStripMenuItem
 			// 
@@ -2907,13 +2934,12 @@
 			this.loadingAnimation1.Visible = false;
 			this.loadingAnimation1.SizeChanged += new System.EventHandler(this.loadingAnimation1_SizeChanged);
 			// 
-			// pasteOverToolStripMenuItem
+			// yYCHRToolStripMenuItem
 			// 
-			this.pasteOverToolStripMenuItem.Image = global::SonicRetro.SonLVL.Properties.Resources.paste;
-			this.pasteOverToolStripMenuItem.Name = "pasteOverToolStripMenuItem";
-			this.pasteOverToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-			this.pasteOverToolStripMenuItem.Text = "Paste &Over";
-			this.pasteOverToolStripMenuItem.Click += new System.EventHandler(this.pasteOverToolStripMenuItem_Click);
+			this.yYCHRToolStripMenuItem.Name = "yYCHRToolStripMenuItem";
+			this.yYCHRToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.yYCHRToolStripMenuItem.Text = "&YY-CHR";
+			this.yYCHRToolStripMenuItem.Click += new System.EventHandler(this.yYCHRToolStripMenuItem_Click);
 			// 
 			// MainForm
 			// 
@@ -3261,6 +3287,8 @@
 		private System.Windows.Forms.Button flipTileHButton;
 		private System.Windows.Forms.CheckBox showBlockBehindCollisionCheckBox;
 		private System.Windows.Forms.ToolStripMenuItem pasteOverToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem pNGToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem yYCHRToolStripMenuItem;
 
     }
 }
