@@ -4228,12 +4228,10 @@ namespace SonicRetro.SonLVL.GUI
 			int h = bmp.Height;
 			int pal = 0;
 			bool match = false;
-			List<BitmapBits> tiles = new List<BitmapBits>();
-			List<Block> blocks = new List<Block>();
-			List<Chunk> chunks = new List<Chunk>();
+			List<BitmapBits> tiles = new List<BitmapBits>(LevelData.Tiles.Count);
+			foreach (byte[] t in LevelData.Tiles)
+				tiles.Add(BitmapBits.FromTile(t, 0));
 			byte[] tile;
-			int curtilecnt = LevelData.Tiles.Count;
-			int curblkcnt = LevelData.Blocks.Count;
 			switch (CurrentTab)
 			{
 				case Tab.Chunks:
@@ -4257,7 +4255,7 @@ namespace SonicRetro.SonLVL.GUI
 												if (tiles[i].Equals(bits))
 												{
 													match = true;
-													blk.Tiles[x, y].Tile = (ushort)(i + curtilecnt);
+													blk.Tiles[x, y].Tile = (ushort)i;
 													break;
 												}
 												BitmapBits flip = new BitmapBits(bits);
@@ -4265,7 +4263,7 @@ namespace SonicRetro.SonLVL.GUI
 												if (tiles[i].Equals(flip))
 												{
 													match = true;
-													blk.Tiles[x, y].Tile = (ushort)(i + curtilecnt);
+													blk.Tiles[x, y].Tile = (ushort)i;
 													blk.Tiles[x, y].XFlip = true;
 													break;
 												}
@@ -4274,7 +4272,7 @@ namespace SonicRetro.SonLVL.GUI
 												if (tiles[i].Equals(flip))
 												{
 													match = true;
-													blk.Tiles[x, y].Tile = (ushort)(i + curtilecnt);
+													blk.Tiles[x, y].Tile = (ushort)i;
 													blk.Tiles[x, y].YFlip = true;
 													break;
 												}
@@ -4283,7 +4281,7 @@ namespace SonicRetro.SonLVL.GUI
 												if (tiles[i].Equals(flip))
 												{
 													match = true;
-													blk.Tiles[x, y].Tile = (ushort)(i + curtilecnt);
+													blk.Tiles[x, y].Tile = (ushort)i;
 													blk.Tiles[x, y].XFlip = true;
 													blk.Tiles[x, y].YFlip = true;
 													break;
@@ -4298,9 +4296,9 @@ namespace SonicRetro.SonLVL.GUI
 											TileSelector.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y));
 										}
 									match = false;
-									for (int i = 0; i < blocks.Count; i++)
+									for (int i = 0; i < LevelData.Blocks.Count; i++)
 									{
-										if (blk.Equals(blocks[i]))
+										if (blk.Equals(LevelData.Blocks[i]))
 										{
 											match = true;
 											cnk.Blocks[bx, by].Block = (ushort)i;
@@ -4308,7 +4306,6 @@ namespace SonicRetro.SonLVL.GUI
 										}
 									}
 									if (match) continue;
-									blocks.Add(blk);
 									LevelData.Blocks.Add(blk);
 									LevelData.ColInds1.Add(0);
 									switch (LevelData.Level.ChunkFormat)
@@ -4330,16 +4327,15 @@ namespace SonicRetro.SonLVL.GUI
 									cnk.Blocks[bx, by].Block = (ushort)SelectedBlock;
 								}
 							match = false;
-							for (int i = 0; i < chunks.Count; i++)
+							for (int i = 0; i < LevelData.Chunks.Count; i++)
 							{
-								if (cnk.Equals(chunks[i]))
+								if (cnk.Equals(LevelData.Chunks[i]))
 								{
 									match = true;
 									break;
 								}
 							}
 							if (match) continue;
-							chunks.Add(cnk);
 							LevelData.Chunks.Add(cnk);
 							SelectedChunk = (byte)(LevelData.Chunks.Count - 1);
 							LevelData.ChunkBmpBits.Add(new BitmapBits[2]);
@@ -4371,7 +4367,7 @@ namespace SonicRetro.SonLVL.GUI
 										if (tiles[i].Equals(bits))
 										{
 											match = true;
-											blk.Tiles[x, y].Tile = (ushort)(i + curtilecnt);
+											blk.Tiles[x, y].Tile = (ushort)i;
 											break;
 										}
 										BitmapBits flip = new BitmapBits(bits);
@@ -4379,7 +4375,7 @@ namespace SonicRetro.SonLVL.GUI
 										if (tiles[i].Equals(flip))
 										{
 											match = true;
-											blk.Tiles[x, y].Tile = (ushort)(i + curtilecnt);
+											blk.Tiles[x, y].Tile = (ushort)i;
 											blk.Tiles[x, y].XFlip = true;
 											break;
 										}
@@ -4388,7 +4384,7 @@ namespace SonicRetro.SonLVL.GUI
 										if (tiles[i].Equals(flip))
 										{
 											match = true;
-											blk.Tiles[x, y].Tile = (ushort)(i + curtilecnt);
+											blk.Tiles[x, y].Tile = (ushort)i;
 											blk.Tiles[x, y].YFlip = true;
 											break;
 										}
@@ -4397,7 +4393,7 @@ namespace SonicRetro.SonLVL.GUI
 										if (tiles[i].Equals(flip))
 										{
 											match = true;
-											blk.Tiles[x, y].Tile = (ushort)(i + curtilecnt);
+											blk.Tiles[x, y].Tile = (ushort)i;
 											blk.Tiles[x, y].XFlip = true;
 											blk.Tiles[x, y].YFlip = true;
 											break;
@@ -4412,14 +4408,13 @@ namespace SonicRetro.SonLVL.GUI
 									TileSelector.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y));
 								}
 							match = false;
-							for (int i = 0; i < blocks.Count; i++)
-								if (blk.Equals(blocks[i]))
+							for (int i = 0; i < LevelData.Blocks.Count; i++)
+								if (blk.Equals(LevelData.Blocks[i]))
 								{
 									match = true;
 									break;
 								}
 							if (match) continue;
-							blocks.Add(blk);
 							LevelData.Blocks.Add(blk);
 							LevelData.ColInds1.Add(0);
 							switch (LevelData.Level.ChunkFormat)
