@@ -208,6 +208,11 @@ namespace SonicRetro.SonLVL.API
 				return !object.ReferenceEquals(b, null);
             return !a.Equals(b);
         }
+
+		public PatternIndex Clone()
+		{
+			return (PatternIndex)MemberwiseClone();
+		}
     }
 
 	[Serializable]
@@ -256,6 +261,53 @@ namespace SonicRetro.SonLVL.API
         {
             return base.GetHashCode();
         }
+
+		public Block Clone()
+		{
+			Block result = (Block)MemberwiseClone();
+			for (int y = 0; y < 2; y++)
+				for (int x = 0; x < 2; x++)
+					Tiles[x, y] = Tiles[x, y].Clone();
+			return result;
+		}
+
+		public Block Flip(bool horizontal, bool vertical)
+		{
+			Block result = Clone();
+			if (horizontal)
+				if (vertical)
+				{
+					for (int y = 0; y < 2; y++)
+						for (int x = 0; x < 2; x++)
+						{
+							PatternIndex tile = Tiles[1 - x, 1 - y].Clone();
+							tile.XFlip = !tile.XFlip;
+							tile.YFlip = !tile.YFlip;
+							result.Tiles[x, y] = tile;
+						}
+				}
+				else
+				{
+					for (int y = 0; y < 2; y++)
+						for (int x = 0; x < 2; x++)
+						{
+							PatternIndex tile = Tiles[1 - x, y].Clone();
+							tile.XFlip = !tile.XFlip;
+							result.Tiles[x, y] = tile;
+						}
+				}
+			else if (vertical)
+			{
+				for (int y = 0; y < 2; y++)
+					for (int x = 0; x < 2; x++)
+					{
+						PatternIndex tile = Tiles[x, 1 - y].Clone();
+						tile.YFlip = !tile.YFlip;
+						result.Tiles[x, y] = tile;
+					}
+			}
+			return result;
+		}
     }
 
     public enum Solidity : byte
@@ -331,6 +383,11 @@ namespace SonicRetro.SonLVL.API
         {
             return base.GetHashCode();
         }
+
+		public ChunkBlock Clone()
+		{
+			return (ChunkBlock)MemberwiseClone();
+		}
     }
 
 	[Serializable]
@@ -384,6 +441,11 @@ namespace SonicRetro.SonLVL.API
         {
             return base.GetHashCode();
         }
+
+		public S2ChunkBlock Clone()
+		{
+			return (S2ChunkBlock)MemberwiseClone();
+		}
     }
 
 	[Serializable]
@@ -419,6 +481,11 @@ namespace SonicRetro.SonLVL.API
         {
             return base.GetHashCode();
         }
+
+		public S1ChunkBlock Clone()
+		{
+			return (S1ChunkBlock)MemberwiseClone();
+		}
     }
 
 	[Serializable]
@@ -495,7 +562,7 @@ namespace SonicRetro.SonLVL.API
             Chunk other = (Chunk)obj;
             for (int y = 0; y < height; y++)
                 for (int x = 0; x < width; x++)
-                    if (Blocks[x, y] != other.Blocks[x, y]) return false;
+                    if (!Blocks[x, y].Equals(other.Blocks[x, y])) return false;
             return true;
         }
 
@@ -503,6 +570,53 @@ namespace SonicRetro.SonLVL.API
         {
             return base.GetHashCode();
         }
+
+		public Chunk Clone()
+		{
+			Chunk result = (Chunk)MemberwiseClone();
+			for (int y = 0; y < height; y++)
+				for (int x = 0; x < width; x++)
+					result.Blocks[x, y] = result.Blocks[x, y].Clone();
+			return result;
+		}
+
+		public Chunk Flip(bool horizontal, bool vertical)
+		{
+			Chunk result = Clone();
+			if (horizontal)
+				if (vertical)
+				{
+					for (int y = 0; y < height; y++)
+						for (int x = 0; x < width; x++)
+						{
+							ChunkBlock block = Blocks[width - 1 - x, height - 1 - y].Clone();
+							block.XFlip = !block.XFlip;
+							block.YFlip = !block.YFlip;
+							result.Blocks[x, y] = block;
+						}
+				}
+				else
+				{
+					for (int y = 0; y < height; y++)
+						for (int x = 0; x < width; x++)
+						{
+							ChunkBlock block = Blocks[width - 1 - x, y].Clone();
+							block.XFlip = !block.XFlip;
+							result.Blocks[x, y] = block;
+						}
+				}
+			else if (vertical)
+			{
+				for (int y = 0; y < height; y++)
+					for (int x = 0; x < width; x++)
+					{
+						ChunkBlock block = Blocks[x, height - 1 - y].Clone();
+						block.YFlip = !block.YFlip;
+						result.Blocks[x, y] = block;
+					}
+			}
+			return result;
+		}
     }
 
     [TypeConverter(typeof(PositionConverter))]
