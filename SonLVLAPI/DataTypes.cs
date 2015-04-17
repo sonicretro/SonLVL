@@ -442,7 +442,7 @@ namespace SonicRetro.SonLVL.API
             return base.GetHashCode();
         }
 
-		public S2ChunkBlock Clone()
+		public new S2ChunkBlock Clone()
 		{
 			return (S2ChunkBlock)MemberwiseClone();
 		}
@@ -482,7 +482,7 @@ namespace SonicRetro.SonLVL.API
             return base.GetHashCode();
         }
 
-		public S1ChunkBlock Clone()
+		public new S1ChunkBlock Clone()
 		{
 			return (S1ChunkBlock)MemberwiseClone();
 		}
