@@ -4294,6 +4294,7 @@ namespace SonicRetro.SonLVL.GUI
 											match = true;
 											cnk.Blocks[bx, by].Block = (ushort)i;
 											cnk.Blocks[bx, by].XFlip = true;
+											break;
 										}
 										flip = blk.Flip(false, true);
 										if (flip.Equals(LevelData.Blocks[i]))
@@ -4301,6 +4302,7 @@ namespace SonicRetro.SonLVL.GUI
 											match = true;
 											cnk.Blocks[bx, by].Block = (ushort)i;
 											cnk.Blocks[bx, by].YFlip = true;
+											break;
 										}
 										flip = blk.Flip(true, true);
 										if (flip.Equals(LevelData.Blocks[i]))
@@ -4309,6 +4311,7 @@ namespace SonicRetro.SonLVL.GUI
 											cnk.Blocks[bx, by].Block = (ushort)i;
 											cnk.Blocks[bx, by].XFlip = true;
 											cnk.Blocks[bx, by].YFlip = true;
+											break;
 										}
 									}
 									if (match) continue;
@@ -4415,11 +4418,31 @@ namespace SonicRetro.SonLVL.GUI
 								}
 							match = false;
 							for (int i = 0; i < LevelData.Blocks.Count; i++)
+							{
 								if (blk.Equals(LevelData.Blocks[i]))
 								{
 									match = true;
 									break;
 								}
+								Block flip = blk.Flip(true, false);
+								if (flip.Equals(LevelData.Blocks[i]))
+								{
+									match = true;
+									break;
+								}
+								flip = blk.Flip(false, true);
+								if (flip.Equals(LevelData.Blocks[i]))
+								{
+									match = true;
+									break;
+								}
+								flip = blk.Flip(true, true);
+								if (flip.Equals(LevelData.Blocks[i]))
+								{
+									match = true;
+									break;
+								}
+							}
 							if (match) continue;
 							LevelData.Blocks.Add(blk);
 							LevelData.ColInds1.Add(0);
@@ -7266,6 +7289,7 @@ namespace SonicRetro.SonLVL.GUI
 									match = true;
 									cnk.Blocks[bx, by].Block = (ushort)i;
 									cnk.Blocks[bx, by].XFlip = true;
+									break;
 								}
 								flip = blk.Flip(false, true);
 								if (flip.Equals(LevelData.Blocks[i]))
@@ -7273,6 +7297,7 @@ namespace SonicRetro.SonLVL.GUI
 									match = true;
 									cnk.Blocks[bx, by].Block = (ushort)i;
 									cnk.Blocks[bx, by].YFlip = true;
+									break;
 								}
 								flip = blk.Flip(true, true);
 								if (flip.Equals(LevelData.Blocks[i]))
@@ -7281,6 +7306,7 @@ namespace SonicRetro.SonLVL.GUI
 									cnk.Blocks[bx, by].Block = (ushort)i;
 									cnk.Blocks[bx, by].XFlip = true;
 									cnk.Blocks[bx, by].YFlip = true;
+									break;
 								}
 							}
 							if (match) continue;
