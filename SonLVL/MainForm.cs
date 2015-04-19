@@ -4230,7 +4230,7 @@ namespace SonicRetro.SonLVL.GUI
 									for (int y = 0; y < 2; y++)
 										for (int x = 0; x < 2; x++)
 										{
-											tile = LevelData.BmpToTile(bmp.Clone(new Rectangle((cx * 16) + (bx * 16) + (x * 8), (cy * 16) + (by * 16) + (y * 8), 8, 8), bmp.PixelFormat), out pal);
+											tile = LevelData.BmpToTile(bmp.Clone(new Rectangle((cx * LevelData.Level.ChunkWidth) + (bx * 16) + (x * 8), (cy * LevelData.Level.ChunkHeight) + (by * 16) + (y * 8), 8, 8), bmp.PixelFormat), out pal);
 											blk.Tiles[x, y].Palette = (byte)pal;
 											BitmapBits bits = BitmapBits.FromTile(tile, 0);
 											match = false;
@@ -7225,7 +7225,7 @@ namespace SonicRetro.SonLVL.GUI
 							for (int y = 0; y < 2; y++)
 								for (int x = 0; x < 2; x++)
 								{
-									tile = LevelData.BmpToTile(bmp.Clone(new Rectangle((cx * 16) + (bx * 16) + (x * 8), (cy * 16) + (by * 16) + (y * 8), 8, 8), bmp.PixelFormat), out pal);
+									tile = LevelData.BmpToTile(bmp.Clone(new Rectangle((cx * LevelData.Level.ChunkWidth) + (bx * 16) + (x * 8), (cy * LevelData.Level.ChunkHeight) + (by * 16) + (y * 8), 8, 8), bmp.PixelFormat), out pal);
 									blk.Tiles[x, y].Palette = (byte)pal;
 									BitmapBits bits = BitmapBits.FromTile(tile, 0);
 									match = false;
