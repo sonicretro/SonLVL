@@ -265,9 +265,10 @@ namespace SonicRetro.SonLVL.API
 		public Block Clone()
 		{
 			Block result = (Block)MemberwiseClone();
+			result.Tiles = (PatternIndex[,])Tiles.Clone();
 			for (int y = 0; y < 2; y++)
 				for (int x = 0; x < 2; x++)
-					Tiles[x, y] = Tiles[x, y].Clone();
+					result.Tiles[x, y] = Tiles[x, y].Clone();
 			return result;
 		}
 
@@ -574,9 +575,10 @@ namespace SonicRetro.SonLVL.API
 		public Chunk Clone()
 		{
 			Chunk result = (Chunk)MemberwiseClone();
+			result.Blocks = (ChunkBlock[,])Blocks.Clone();
 			for (int y = 0; y < height; y++)
 				for (int x = 0; x < width; x++)
-					result.Blocks[x, y] = result.Blocks[x, y].Clone();
+					result.Blocks[x, y] = Blocks[x, y].Clone();
 			return result;
 		}
 

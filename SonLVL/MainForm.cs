@@ -4211,6 +4211,7 @@ namespace SonicRetro.SonLVL.GUI
 			int w = bmp.Width;
 			int h = bmp.Height;
 			int pal = 0;
+			byte? forcepal = bmp.PixelFormat == PixelFormat.Format1bppIndexed || bmp.PixelFormat == PixelFormat.Format4bppIndexed ? (byte)SelectedColor.Y : (byte?)null;
 			bool match = false;
 			List<BitmapBits> tiles = new List<BitmapBits>(LevelData.Tiles.Count);
 			foreach (byte[] t in LevelData.Tiles)
@@ -4231,7 +4232,7 @@ namespace SonicRetro.SonLVL.GUI
 										for (int x = 0; x < 2; x++)
 										{
 											tile = LevelData.BmpToTile(bmp.Clone(new Rectangle((cx * LevelData.Level.ChunkWidth) + (bx * 16) + (x * 8), (cy * LevelData.Level.ChunkHeight) + (by * 16) + (y * 8), 8, 8), bmp.PixelFormat), out pal);
-											blk.Tiles[x, y].Palette = (byte)pal;
+											blk.Tiles[x, y].Palette = forcepal ?? (byte)pal;
 											BitmapBits bits = BitmapBits.FromTile(tile, 0);
 											match = false;
 											for (int i = 0; i < tiles.Count; i++)
@@ -4368,7 +4369,7 @@ namespace SonicRetro.SonLVL.GUI
 								for (int x = 0; x < 2; x++)
 								{
 									tile = LevelData.BmpToTile(bmp.Clone(new Rectangle((bx * 16) + (x * 8), (by * 16) + (y * 8), 8, 8), bmp.PixelFormat), out pal);
-									blk.Tiles[x, y].Palette = (byte)pal;
+									blk.Tiles[x, y].Palette = forcepal ?? (byte)pal;
 									BitmapBits bits = BitmapBits.FromTile(tile, 0);
 									match = false;
 									for (int i = 0; i < tiles.Count; i++)
@@ -7209,6 +7210,7 @@ namespace SonicRetro.SonLVL.GUI
 			int ch = h / LevelData.Level.ChunkHeight;
 			byte[,] result = new byte[cw, ch];
 			int pal = 0;
+			byte? forcepal = bmp.PixelFormat == PixelFormat.Format1bppIndexed || bmp.PixelFormat == PixelFormat.Format4bppIndexed ? (byte)SelectedColor.Y : (byte?)null;
 			bool match = false;
 			List<BitmapBits> tiles = new List<BitmapBits>(LevelData.Tiles.Count);
 			foreach (byte[] t in LevelData.Tiles)
@@ -7226,7 +7228,7 @@ namespace SonicRetro.SonLVL.GUI
 								for (int x = 0; x < 2; x++)
 								{
 									tile = LevelData.BmpToTile(bmp.Clone(new Rectangle((cx * LevelData.Level.ChunkWidth) + (bx * 16) + (x * 8), (cy * LevelData.Level.ChunkHeight) + (by * 16) + (y * 8), 8, 8), bmp.PixelFormat), out pal);
-									blk.Tiles[x, y].Palette = (byte)pal;
+									blk.Tiles[x, y].Palette = forcepal ?? (byte)pal;
 									BitmapBits bits = BitmapBits.FromTile(tile, 0);
 									match = false;
 									for (int i = 0; i < tiles.Count; i++)
