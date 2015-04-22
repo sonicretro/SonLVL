@@ -92,5 +92,13 @@ namespace SonicRetro.SonLVL.GUI
 			list.Insert(dst, tmp);
 			list.RemoveAt(src > dst ? src + 1 : src);
 		}
+
+		public static void AddOrSet<T>(this IList<T> list, int index, T item)
+		{
+			if (list.Count <= index)
+				list.Add(item);
+			else
+				list[index] = item;
+		}
     }
 }

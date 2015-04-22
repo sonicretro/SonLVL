@@ -2989,7 +2989,100 @@ namespace SonicRetro.SonLVL.API
             return bmpbits.ToTile();
         }
 
-        private static void LoadBitmap1BppIndexed(BitmapBits bmp, byte[] Bits, int Stride)
+		public static ColInfo[,] GetColMap(Bitmap bmp)
+		{
+			if (bmp.PixelFormat != PixelFormat.Format32bppArgb)
+				bmp = bmp.To32bpp();
+			BitmapBits bmpbits = new BitmapBits(bmp.Width, bmp.Height);
+			BitmapData bmpd = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, bmp.PixelFormat);
+			int stride = bmpd.Stride;
+			byte[] Bits = new byte[Math.Abs(stride) * bmpd.Height];
+			System.Runtime.InteropServices.Marshal.Copy(bmpd.Scan0, Bits, 0, Bits.Length);
+			bmp.UnlockBits(bmpd);
+			LoadBitmap32BppArgb(bmpbits, Bits, stride, new Color[] { Color.Magenta, Color.White, Color.Yellow, Color.Black });
+			ColInfo[,] result = new ColInfo[bmpbits.Width / 16, bmpbits.Height / 16];
+			for (int by = 0; by < bmpbits.Height / 16; by++)
+				for (int bx = 0; bx < bmpbits.Width / 16; bx++)
+				{
+					ushort[] coltypes = new ushort[3];
+					sbyte[] heightmap = new sbyte[16];
+					Point? start = null;
+					Point? end = null;
+					bool inverted = false;
+					for (int x = 0; x < 16; x++)
+					{
+						if (bmpbits[bx * 16 + x, by * 16 + 15] != 0) // solidity starts at bottom
+						{
+							for (int y = 15; y >= 0; y--)
+								if (bmpbits[bx * 16 + x, by * 16 + y] != 0)
+									coltypes[bmpbits[bx * 16 + x, by * 16 + y] - 1]++;
+								else
+								{
+									if (!start.HasValue)
+										start = new Point(x, y + 1);
+									end = new Point(x, y + 1);
+									heightmap[x] = (sbyte)(15 - y);
+									break;
+								}
+							if (heightmap[x] == 0)
+							{
+								if (!start.HasValue || start.Value.Y == 0)
+									start = new Point(x, 0);
+								if (!end.HasValue || end.Value.Y != 0)
+									end = new Point(x, 0);
+								heightmap[x] = 16;
+							}
+						}
+						else if (bmpbits[bx * 16 + x, by * 16] != 0) // solidity starts at top
+						{
+							inverted = true;
+							for (int y = 0; y < 16; y++)
+								if (bmpbits[bx * 16 + x, by * 16 + y] != 0)
+									coltypes[bmpbits[bx * 16 + x, by * 16 + y] - 1]++;
+								else
+								{
+									if (!start.HasValue)
+										start = new Point(x, y - 1);
+									end = new Point(x, y - 1);
+									heightmap[x] = (sbyte)-y;
+									break;
+								}
+						}
+					}
+					if (inverted)
+					{
+						if (start.HasValue && start.Value.Y == 0)
+							start = new Point(start.Value.X, 15);
+						if (end.HasValue && end.Value.Y == 0)
+							end = new Point(end.Value.X, 15);
+						for (int x = 0; x < 16; x++)
+							if (heightmap[x] == 16)
+								heightmap[x] = -16;
+					}
+					Solidity solid = Solidity.NotSolid;
+					byte angle = 0;
+					if (start.HasValue)
+					{
+						solid = Solidity.TopSolid;
+						ushort max = coltypes[0];
+						if (coltypes[1] > max)
+						{
+							solid = Solidity.LRBSolid;
+							max = coltypes[1];
+						}
+						if (coltypes[2] > max)
+							solid = Solidity.AllSolid;
+						if (start.Value.Y == end.Value.Y)
+							angle = 0xFF;
+						else
+							angle = (byte)((byte)(Math.Atan2(end.Value.Y - start.Value.Y, (end.Value.X - start.Value.X) * (inverted ? -1 : 1)) * (256 / (2 * Math.PI))) & 0xFC);
+					}
+					result[bx, by] = new ColInfo(solid, heightmap, angle);
+				}
+			return result;
+		}
+		
+		private static void LoadBitmap1BppIndexed(BitmapBits bmp, byte[] Bits, int Stride)
         {
             for (int y = 0; y < bmp.Height; y++)
             {
@@ -3169,4 +3262,18 @@ namespace SonicRetro.SonLVL.API
         ASM,
         Macro
     }
+
+	public class ColInfo
+	{
+		public Solidity Solidity { get; private set; }
+		public sbyte[] HeightMap { get; private set; }
+		public byte Angle { get; private set; }
+
+		public ColInfo(Solidity solidity, sbyte[] heightMap, byte angle)
+		{
+			Solidity = solidity;
+			HeightMap = heightMap;
+			Angle = angle;
+		}
+	}
 }
