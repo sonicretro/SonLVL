@@ -263,7 +263,6 @@
 			this.insertBeforeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.insertAfterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.deleteTilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.importToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.drawToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.paletteContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.importToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
@@ -284,6 +283,9 @@
 			this.insertLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.deleteLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.loadingAnimation1 = new SonicRetro.SonLVL.LoadingAnimation();
+			this.importChunksToolStripButton = new System.Windows.Forms.ToolStripButton();
+			this.importBlocksToolStripButton = new System.Windows.Forms.ToolStripButton();
+			this.importTilesToolStripButton = new System.Windows.Forms.ToolStripButton();
 			toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
 			toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
 			label4 = new System.Windows.Forms.Label();
@@ -412,6 +414,7 @@
 			// 
 			chunkListToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			chunkListToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.importChunksToolStripButton,
             this.remapChunksButton,
             this.enableDraggingChunksButton});
 			chunkListToolStrip.Location = new System.Drawing.Point(0, 0);
@@ -500,6 +503,7 @@
 			// 
 			blockListToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			blockListToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.importBlocksToolStripButton,
             this.remapBlocksButton,
             this.enableDraggingBlocksButton});
 			blockListToolStrip.Location = new System.Drawing.Point(0, 0);
@@ -526,7 +530,7 @@
 			this.enableDraggingBlocksButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
 			this.enableDraggingBlocksButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.enableDraggingBlocksButton.Name = "enableDraggingBlocksButton";
-			this.enableDraggingBlocksButton.Size = new System.Drawing.Size(98, 22);
+			this.enableDraggingBlocksButton.Size = new System.Drawing.Size(98, 19);
 			this.enableDraggingBlocksButton.Text = "Enable Dragging";
 			// 
 			// panel3
@@ -568,6 +572,7 @@
 			// 
 			tileListToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			tileListToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.importTilesToolStripButton,
             this.remapTilesButton,
             this.enableDraggingTilesButton});
 			tileListToolStrip.Location = new System.Drawing.Point(0, 0);
@@ -2732,10 +2737,9 @@
             this.insertBeforeToolStripMenuItem,
             this.insertAfterToolStripMenuItem,
             this.deleteTilesToolStripMenuItem,
-            this.importToolStripMenuItem,
             this.drawToolStripMenuItem});
 			this.tileContextMenuStrip.Name = "contextMenuStrip1";
-			this.tileContextMenuStrip.Size = new System.Drawing.Size(141, 246);
+			this.tileContextMenuStrip.Size = new System.Drawing.Size(141, 224);
 			// 
 			// cutTilesToolStripMenuItem
 			// 
@@ -2806,13 +2810,6 @@
 			this.deleteTilesToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
 			this.deleteTilesToolStripMenuItem.Text = "&Delete";
 			this.deleteTilesToolStripMenuItem.Click += new System.EventHandler(this.deleteTilesToolStripMenuItem_Click);
-			// 
-			// importToolStripMenuItem
-			// 
-			this.importToolStripMenuItem.Name = "importToolStripMenuItem";
-			this.importToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
-			this.importToolStripMenuItem.Text = "&Import";
-			this.importToolStripMenuItem.Click += new System.EventHandler(this.importToolStripMenuItem_Click);
 			// 
 			// drawToolStripMenuItem
 			// 
@@ -2973,6 +2970,33 @@
 			this.loadingAnimation1.UseWaitCursor = true;
 			this.loadingAnimation1.Visible = false;
 			this.loadingAnimation1.SizeChanged += new System.EventHandler(this.loadingAnimation1_SizeChanged);
+			// 
+			// importChunksToolStripButton
+			// 
+			this.importChunksToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.importChunksToolStripButton.Enabled = false;
+			this.importChunksToolStripButton.Name = "importChunksToolStripButton";
+			this.importChunksToolStripButton.Size = new System.Drawing.Size(56, 22);
+			this.importChunksToolStripButton.Text = "Import...";
+			this.importChunksToolStripButton.Click += new System.EventHandler(this.importToolStripMenuItem_Click);
+			// 
+			// importBlocksToolStripButton
+			// 
+			this.importBlocksToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.importBlocksToolStripButton.Enabled = false;
+			this.importBlocksToolStripButton.Name = "importBlocksToolStripButton";
+			this.importBlocksToolStripButton.Size = new System.Drawing.Size(56, 22);
+			this.importBlocksToolStripButton.Text = "Import...";
+			this.importBlocksToolStripButton.Click += new System.EventHandler(this.importToolStripMenuItem_Click);
+			// 
+			// importTilesToolStripButton
+			// 
+			this.importTilesToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.importTilesToolStripButton.Enabled = false;
+			this.importTilesToolStripButton.Name = "importTilesToolStripButton";
+			this.importTilesToolStripButton.Size = new System.Drawing.Size(56, 22);
+			this.importTilesToolStripButton.Text = "Import...";
+			this.importTilesToolStripButton.Click += new System.EventHandler(this.importToolStripMenuItem_Click);
 			// 
 			// MainForm
 			// 
@@ -3216,8 +3240,7 @@
         private System.Windows.Forms.ToolStripMenuItem pasteAfterToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem insertBeforeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem insertAfterToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem deleteTilesToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem importToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem deleteTilesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem drawToolStripMenuItem;
         private System.Windows.Forms.ContextMenuStrip paletteContextMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem importToolStripMenuItem1;
@@ -3327,6 +3350,9 @@
 		private System.Windows.Forms.ToolStripMenuItem yYCHRToolStripMenuItem;
 		private System.Windows.Forms.ToolStripButton importToolStripButton;
 		private System.Windows.Forms.ToolStripMenuItem importToolStripMenuItem2;
+		private System.Windows.Forms.ToolStripButton importChunksToolStripButton;
+		private System.Windows.Forms.ToolStripButton importBlocksToolStripButton;
+		private System.Windows.Forms.ToolStripButton importTilesToolStripButton;
 
     }
 }
