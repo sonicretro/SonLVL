@@ -950,11 +950,11 @@ namespace SonicRetro.SonLVL.GUI
 			using (SaveFileDialog a = new SaveFileDialog() { DefaultExt = "png", Filter = "PNG Files|*.png", RestoreDirectory = true })
 				if (a.ShowDialog() == DialogResult.OK)
 				{
-					int line = paletteToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem);
+					int line = pNGToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem);
 					if (line < 4)
 					{
 						BitmapBits bmp = new BitmapBits(16 * 8, 8);
-						Color[] pal = new Color[16];
+						Color[] pal = new Color[256];
 						for (int i = 0; i < 16; i++)
 						{
 							pal[i] = LevelData.PaletteToColor(line, i, false);

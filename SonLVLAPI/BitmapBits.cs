@@ -383,18 +383,10 @@ namespace SonicRetro.SonLVL.API
 
         public void FillRectangle(byte index, int x, int y, int width, int height)
         {
-            int srcl = 0;
-            if (x < 0)
-                srcl = -x;
-            int srct = 0;
-            if (y < 0)
-                srct = -y;
-            int srcr = width;
-            if (srcr > Width - x)
-                srcr = Width - x;
-            int srcb = height;
-            if (srcb > Height - y)
-                srcb = Height - y;
+            int srcl = Math.Max(x, 0);
+            int srct = Math.Max(y, 0);
+            int srcr = Math.Min(x + width, Width);
+			int srcb = Math.Min(y + height, Height);
             for (int cy = srct; cy < srcb; cy++)
                 for (int cx = srcl; cx < srcr; cx++)
                     this[cx, cy] = index;
