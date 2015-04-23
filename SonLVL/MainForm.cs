@@ -1263,7 +1263,15 @@ namespace SonicRetro.SonLVL.GUI
 											Solidity solid = path2ToolStripMenuItem.Checked ? ((S2ChunkBlock)blk).Solid2 : blk.Solid1;
 											if (solid == Solidity.NotSolid) continue;
 											byte coli = path2ToolStripMenuItem.Checked ? LevelData.ColInds2[blk.Block] : LevelData.ColInds1[blk.Block];
-											DrawHUDNum(x * LevelData.Level.ChunkWidth + a * 16 - camera.X, y * LevelData.Level.ChunkHeight + b * 16 - camera.Y, LevelData.Angles[coli].ToString("X2"));
+											byte angle = LevelData.Angles[coli];
+											if (angle != 0xFF)
+											{
+												if (blk.XFlip)
+													angle = (byte)(-angle & 0xFF);
+												if (blk.YFlip)
+													angle = (byte)((-(angle + 0x40) - 0x40) & 0xFF);
+											}
+											DrawHUDNum(x * LevelData.Level.ChunkWidth + a * 16 - camera.X, y * LevelData.Level.ChunkHeight + b * 16 - camera.Y, angle.ToString("X2"));
 										}
 					Rectangle hudbnd = Rectangle.Empty;
 					Rectangle tmpbnd;
@@ -1361,7 +1369,15 @@ namespace SonicRetro.SonLVL.GUI
 											Solidity solid = path2ToolStripMenuItem.Checked ? ((S2ChunkBlock)blk).Solid2 : blk.Solid1;
 											if (solid == Solidity.NotSolid) continue;
 											byte coli = path2ToolStripMenuItem.Checked ? LevelData.ColInds2[blk.Block] : LevelData.ColInds1[blk.Block];
-											DrawHUDNum(x * LevelData.Level.ChunkWidth + a * 16 - camera.X, y * LevelData.Level.ChunkHeight + b * 16 - camera.Y, LevelData.Angles[coli].ToString("X2"));
+											byte angle = LevelData.Angles[coli];
+											if (angle != 0xFF)
+											{
+												if (blk.XFlip)
+													angle = (byte)(-angle & 0xFF);
+												if (blk.YFlip)
+													angle = (byte)((-(angle + 0x40) - 0x40) & 0xFF);
+											}
+											DrawHUDNum(x * LevelData.Level.ChunkWidth + a * 16 - camera.X, y * LevelData.Level.ChunkHeight + b * 16 - camera.Y, angle.ToString("X2"));
 										}
 					if (LevelData.RingFormat is RingLayoutFormat)
 						ringcnt = ((RingLayoutFormat)LevelData.RingFormat).CountRings(LevelData.Rings);
@@ -1436,7 +1452,15 @@ namespace SonicRetro.SonLVL.GUI
 											Solidity solid = path2ToolStripMenuItem.Checked ? ((S2ChunkBlock)blk).Solid2 : blk.Solid1;
 											if (solid == Solidity.NotSolid) continue;
 											byte coli = path2ToolStripMenuItem.Checked ? LevelData.ColInds2[blk.Block] : LevelData.ColInds1[blk.Block];
-											DrawHUDNum(x * LevelData.Level.ChunkWidth + a * 16 - camera.X, y * LevelData.Level.ChunkHeight + b * 16 - camera.Y, LevelData.Angles[coli].ToString("X2"));
+											byte angle = LevelData.Angles[coli];
+											if (angle != 0xFF)
+											{
+												if (blk.XFlip)
+													angle = (byte)(-angle & 0xFF);
+												if (blk.YFlip)
+													angle = (byte)((-(angle + 0x40) - 0x40) & 0xFF);
+											}
+											DrawHUDNum(x * LevelData.Level.ChunkWidth + a * 16 - camera.X, y * LevelData.Level.ChunkHeight + b * 16 - camera.Y, angle.ToString("X2"));
 										}
 					if (hUDToolStripMenuItem.Checked)
 					{
@@ -7501,13 +7525,15 @@ namespace SonicRetro.SonLVL.GUI
 								if (xflip)
 								{
 									Array.Reverse(map);
-									angle = (byte)(-angle & 0xFF);
+									if (angle != 0xFF)
+										angle = (byte)(-angle & 0xFF);
 								}
 								if (yflip)
 								{
 									for (int i = 0; i < 16; i++)
 										map[i] = (sbyte)-map[i];
-									angle = (byte)((-(angle + 0x40) - 0x40) & 0xFF);
+									if (angle != 0xFF)
+										angle = (byte)((-(angle + 0x40) - 0x40) & 0xFF);
 								}
 								byte? emptymap = null;
 								bool found = false;
