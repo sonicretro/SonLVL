@@ -85,7 +85,18 @@ namespace GetArt.NET
 				LevelData.BmpPal.Entries[i] = Color.Transparent;
             int w = img.Width;
             int h = img.Height;
-            int pal = 0;
+			bool[,] priority = new bool[w / 8, h / 8];
+			bmpfile = null;
+			foreach (string extension in filetypes)
+				if (File.Exists("Priority." + extension))
+				{
+					bmpfile = "Priority." + extension;
+					break;
+				}
+			if (bmpfile != null)
+				using (Bitmap pribmp = new Bitmap(bmpfile))
+					LevelData.GetPriMap(pribmp, priority);
+			int pal = 0;
             bool match = false;
             List<BitmapBits> tiles = new List<BitmapBits>();
             using (FileStream art = File.Create("Art.bin"))
@@ -96,7 +107,7 @@ namespace GetArt.NET
                 for (int y = 0; y < h / 8; y++)
                     for (int x = 0; x < w / 8; x++)
                     {
-                        map = new PatternIndex();
+						map = new PatternIndex() { Priority = priority[x, y] };
                         tile = LevelData.BmpToTile(img.Clone(new Rectangle(x * 8, y * 8, 8, 8), img.PixelFormat), out pal);
                         map.Palette = (byte)pal;
                         BitmapBits bits = BitmapBits.FromTile(tile, 0);
