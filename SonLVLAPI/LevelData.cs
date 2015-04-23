@@ -3081,7 +3081,31 @@ namespace SonicRetro.SonLVL.API
 				}
 			return result;
 		}
-		
+
+		public static void GetPriMap(Bitmap bmp, bool[,] primap)
+		{
+			if (bmp.PixelFormat != PixelFormat.Format32bppArgb)
+				bmp = bmp.To32bpp();
+			BitmapBits bmpbits = new BitmapBits(bmp.Width, bmp.Height);
+			BitmapData bmpd = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, bmp.PixelFormat);
+			int stride = bmpd.Stride;
+			byte[] Bits = new byte[Math.Abs(stride) * bmpd.Height];
+			System.Runtime.InteropServices.Marshal.Copy(bmpd.Scan0, Bits, 0, Bits.Length);
+			bmp.UnlockBits(bmpd);
+			LoadBitmap32BppArgb(bmpbits, Bits, stride, new Color[] { Color.Black, Color.White });
+			int w = Math.Min(primap.GetLength(0), bmpbits.Width / 8);
+			int h = Math.Min(primap.GetLength(1), bmpbits.Height / 8);
+			for (int ty = 0; ty < h; ty++)
+				for (int tx = 0; tx < w; tx++)
+				{
+					ushort[] cnt = new ushort[2];
+					for (int y = 0; y < 8; y++)
+						for (int x = 0; x < 8; x++)
+							cnt[bmpbits[(tx * 8) + x, (ty * 8) + y]]++;
+					primap[tx, ty] = cnt[0] < cnt[1];
+				}
+		}
+
 		private static void LoadBitmap1BppIndexed(BitmapBits bmp, byte[] Bits, int Stride)
         {
             for (int y = 0; y < bmp.Height; y++)

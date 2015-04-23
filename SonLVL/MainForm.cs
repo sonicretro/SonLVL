@@ -4212,7 +4212,7 @@ namespace SonicRetro.SonLVL.GUI
 				opendlg.RestoreDirectory = true;
 				if (opendlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
 				{
-					Bitmap colbmp1 = null, colbmp2 = null;
+					Bitmap colbmp1 = null, colbmp2 = null, pribmp = null;
 					if (CurrentTab != Tab.Tiles)
 					{
 						string fmt = Path.Combine(Path.GetDirectoryName(opendlg.FileName),
@@ -4225,19 +4225,25 @@ namespace SonicRetro.SonLVL.GUI
 						}
 						else if (File.Exists(string.Format(fmt, "col")))
 							colbmp1 = new Bitmap(string.Format(fmt, "col"));
+						if (File.Exists(string.Format(fmt, "pri")))
+							pribmp = new Bitmap(string.Format(fmt, "pri"));
 					}
-					ImportImage(new Bitmap(opendlg.FileName), colbmp1, colbmp2);
+					ImportImage(new Bitmap(opendlg.FileName), colbmp1, colbmp2, pribmp);
 				}
 			}
 		}
 
-		private void ImportImage(Bitmap bmp, Bitmap colbmp1, Bitmap colbmp2)
+		private void ImportImage(Bitmap bmp, Bitmap colbmp1, Bitmap colbmp2, Bitmap pribmp)
 		{
 			int w = bmp.Width;
 			int h = bmp.Height;
 			BlockColInfo[,] blockcoldata = null;
 			if (colbmp1 != null)
 				blockcoldata = ProcessColBmps(colbmp1, colbmp2, w, h);
+			bool[,] priority = new bool[w / 8, h / 8];
+			if (pribmp != null)
+				using (pribmp)
+					LevelData.GetPriMap(pribmp, priority);
 			int pal = 0;
 			byte? forcepal = bmp.PixelFormat == PixelFormat.Format1bppIndexed || bmp.PixelFormat == PixelFormat.Format4bppIndexed ? (byte)SelectedColor.Y : (byte?)null;
 			bool match = false;
@@ -4317,6 +4323,7 @@ namespace SonicRetro.SonLVL.GUI
 														break;
 													}
 												}
+												blk.Tiles[x, y].Priority = priority[(cx * (LevelData.Level.ChunkWidth / 8)) + (bx * 2) + x, (cy * (LevelData.Level.ChunkHeight / 8)) + (by * 2) + y];
 												if (match) continue;
 												tiles.Add(bits);
 												LevelData.Tiles.Add(tile);
@@ -4713,7 +4720,7 @@ namespace SonicRetro.SonLVL.GUI
 						break;
 				}
 				if (dlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
-					ImportImage(dlg.tile.ToBitmap(LevelData.BmpPal), null, null);
+					ImportImage(dlg.tile.ToBitmap(LevelData.BmpPal), null, null, null);
 			}
 		}
 
@@ -7248,7 +7255,7 @@ namespace SonicRetro.SonLVL.GUI
 			}
 		}
 
-		private byte[,] ImportLayout(Bitmap bmp, Bitmap colbmp1, Bitmap colbmp2)
+		private byte[,] ImportLayout(Bitmap bmp, Bitmap colbmp1, Bitmap colbmp2, Bitmap pribmp)
 		{
 			int w = bmp.Width;
 			int h = bmp.Height;
@@ -7259,6 +7266,10 @@ namespace SonicRetro.SonLVL.GUI
 			BlockColInfo[,] blockcoldata = null;
 			if (colbmp1 != null)
 				blockcoldata = ProcessColBmps(colbmp1, colbmp2, w, h);
+			bool[,] priority = new bool[w / 8, h / 8];
+			if (pribmp != null)
+				using (pribmp)
+					LevelData.GetPriMap(pribmp, priority);
 			byte[,] result = new byte[cw, ch];
 			int pal = 0;
 			byte? forcepal = bmp.PixelFormat == PixelFormat.Format1bppIndexed || bmp.PixelFormat == PixelFormat.Format4bppIndexed ? (byte)SelectedColor.Y : (byte?)null;
@@ -7336,6 +7347,7 @@ namespace SonicRetro.SonLVL.GUI
 												break;
 											}
 										}
+										blk.Tiles[x, y].Priority = priority[(cx * (LevelData.Level.ChunkWidth / 8)) + (bx * 2) + x, (cy * (LevelData.Level.ChunkHeight / 8)) + (by * 2) + y];
 										if (match) continue;
 										tiles.Add(bits);
 										LevelData.Tiles.Add(tile);
@@ -7601,7 +7613,7 @@ namespace SonicRetro.SonLVL.GUI
 				if (opendlg.ShowDialog(this) == DialogResult.OK)
 					using (Bitmap bmp = new Bitmap(opendlg.FileName))
 					{
-						Bitmap colbmp1 = null, colbmp2 = null;
+						Bitmap colbmp1 = null, colbmp2 = null, pribmp = null;
 						string fmt = Path.Combine(Path.GetDirectoryName(opendlg.FileName),
 							Path.GetFileNameWithoutExtension(opendlg.FileName) + "_{0}" + Path.GetExtension(opendlg.FileName));
 						if (File.Exists(string.Format(fmt, "col1")))
@@ -7612,7 +7624,9 @@ namespace SonicRetro.SonLVL.GUI
 						}
 						else if (File.Exists(string.Format(fmt, "col")))
 							colbmp1 = new Bitmap(string.Format(fmt, "col"));
-						byte[,] section = ImportLayout(bmp, colbmp1, colbmp2);
+						if (File.Exists(string.Format(fmt, "pri")))
+							pribmp = new Bitmap(string.Format(fmt, "pri"));
+						byte[,] section = ImportLayout(bmp, colbmp1, colbmp2, pribmp);
 						byte[,] layout;
 						bool[,] loop;
 						int w, h;
@@ -7651,7 +7665,7 @@ namespace SonicRetro.SonLVL.GUI
 				if (opendlg.ShowDialog(this) == DialogResult.OK)
 					using (Bitmap bmp = new Bitmap(opendlg.FileName))
 					{
-						Bitmap colbmp1 = null, colbmp2 = null;
+						Bitmap colbmp1 = null, colbmp2 = null, pribmp = null;
 						string fmt = Path.Combine(Path.GetDirectoryName(opendlg.FileName),
 							Path.GetFileNameWithoutExtension(opendlg.FileName) + "_{0}" + Path.GetExtension(opendlg.FileName));
 						if (File.Exists(string.Format(fmt, "col1")))
@@ -7662,7 +7676,9 @@ namespace SonicRetro.SonLVL.GUI
 						}
 						else if (File.Exists(string.Format(fmt, "col")))
 							colbmp1 = new Bitmap(string.Format(fmt, "col"));
-						byte[,] layout = ImportLayout(bmp, colbmp1, colbmp2);
+						if (File.Exists(string.Format(fmt, "pri")))
+							pribmp = new Bitmap(string.Format(fmt, "pri"));
+						byte[,] layout = ImportLayout(bmp, colbmp1, colbmp2, pribmp);
 						LayoutSection section = new LayoutSection(layout, LevelData.LayoutFormat.HasLoopFlag ? new bool[layout.GetLength(0), layout.GetLength(1)] : null, null);
 						using (LayoutSectionNameDialog dlg = new LayoutSectionNameDialog() { Value = Path.GetFileNameWithoutExtension(opendlg.FileName) })
 						{
