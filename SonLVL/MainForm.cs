@@ -1412,10 +1412,11 @@ namespace SonicRetro.SonLVL.GUI
 					switch (FGMode)
 					{
 						case EditingMode.Draw:
-							LevelGfx.DrawImage(LevelData.CompChunkBmps[SelectedChunk],
-							new Rectangle(((((int)(pnlcur.X / ZoomLevel) + camera.X) / LevelData.Level.ChunkWidth) * LevelData.Level.ChunkWidth) - camera.X, ((((int)(pnlcur.Y / ZoomLevel) + camera.Y) / LevelData.Level.ChunkHeight) * LevelData.Level.ChunkHeight) - camera.Y, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight),
-							0, 0, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight,
-							GraphicsUnit.Pixel, imageTransparency);
+							if (SelectedChunk < LevelData.Chunks.Count)
+								LevelGfx.DrawImage(LevelData.CompChunkBmps[SelectedChunk],
+								new Rectangle(((((int)(pnlcur.X / ZoomLevel) + camera.X) / LevelData.Level.ChunkWidth) * LevelData.Level.ChunkWidth) - camera.X, ((((int)(pnlcur.Y / ZoomLevel) + camera.Y) / LevelData.Level.ChunkHeight) * LevelData.Level.ChunkHeight) - camera.Y, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight),
+								0, 0, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight,
+								GraphicsUnit.Pixel, imageTransparency);
 							break;
 						case EditingMode.Select:
 							if (!FGSelection.IsEmpty)
@@ -1488,10 +1489,11 @@ namespace SonicRetro.SonLVL.GUI
 					switch (BGMode)
 					{
 						case EditingMode.Draw:
-							LevelGfx.DrawImage(LevelData.CompChunkBmps[SelectedChunk],
-							new Rectangle(((((int)(pnlcur.X / ZoomLevel) + camera.X) / LevelData.Level.ChunkWidth) * LevelData.Level.ChunkWidth) - camera.X, ((((int)(pnlcur.Y / ZoomLevel) + camera.Y) / LevelData.Level.ChunkHeight) * LevelData.Level.ChunkHeight) - camera.Y, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight),
-							0, 0, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight,
-							GraphicsUnit.Pixel, imageTransparency);
+							if (SelectedChunk < LevelData.Chunks.Count)
+								LevelGfx.DrawImage(LevelData.CompChunkBmps[SelectedChunk],
+								new Rectangle(((((int)(pnlcur.X / ZoomLevel) + camera.X) / LevelData.Level.ChunkWidth) * LevelData.Level.ChunkWidth) - camera.X, ((((int)(pnlcur.Y / ZoomLevel) + camera.Y) / LevelData.Level.ChunkHeight) * LevelData.Level.ChunkHeight) - camera.Y, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight),
+								0, 0, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight,
+								GraphicsUnit.Pixel, imageTransparency);
 							break;
 						case EditingMode.Select:
 							if (!BGSelection.IsEmpty)
