@@ -421,6 +421,7 @@ namespace SonicRetro.SonLVL.GUI
 			((ToolStripMenuItem)sender).Checked = true;
 			Enabled = false;
 			Text = "SonLVL - " + LevelData.Game.EngineVersion + " - Loading " + LevelData.Game.GetLevelInfo((string)((ToolStripMenuItem)sender).Tag).DisplayName + "...";
+			LevelData.littleendian = false;
 			string anipath = Path.Combine(Application.StartupPath, "loadanim");
 			Dictionary<string, AnimationInfo> animini = AnimationInfo.Load(Path.Combine(anipath, "anims.ini"));
 			AnimationInfo[] anims = animini.Where((item) => item.Value.Game == LevelData.Game.EngineVersion)
