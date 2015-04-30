@@ -645,10 +645,10 @@ namespace SonicRetro.SonLVL.GUI
 			{
 				blendAlternatePaletteToolStripMenuItem.Enabled = waterPaletteToolStripMenuItem.Visible = true;
 				selectPaletteToolStripMenuItem.DropDownItems.Clear();
-				selectPaletteToolStripMenuItem.DropDownItems.Add(new ToolStripMenuItem("None") { Checked = LevelData.Level.WaterPalette < 1, Tag = -1 });
+				selectPaletteToolStripMenuItem.DropDownItems.Add(new ToolStripMenuItem("None") { Checked = LevelData.Level.WaterPalette < 2, Tag = -1 });
 				for (int i = 1; i < LevelData.PalName.Count; i++)
-					selectPaletteToolStripMenuItem.DropDownItems.Add(new ToolStripMenuItem(LevelData.PalName[i]) { Checked = LevelData.Level.WaterPalette == i, Tag = i });
-				waterPalette = LevelData.Level.WaterPalette < 1 ? -1 : LevelData.Level.WaterPalette;
+					selectPaletteToolStripMenuItem.DropDownItems.Add(new ToolStripMenuItem(LevelData.PalName[i]) { Checked = LevelData.Level.WaterPalette - 1 == i, Tag = i });
+				waterPalette = LevelData.Level.WaterPalette < 2 ? -1 : LevelData.Level.WaterPalette - 1;
 				waterHeight = LevelData.Level.WaterHeight;
 			}
 			else

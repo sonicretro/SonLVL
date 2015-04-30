@@ -312,7 +312,7 @@ namespace SonicRetro.SonLVL.API
         [IniName("palette")]
         [IniCollection(IniCollectionMode.NoSquareBrackets, StartIndex = 2)]
         public NamedPaletteList[] ExtraPalettes { get; set; }
-		[DefaultValue(-1)]
+		[DefaultValue(0)]
 		[IniName("waterpal")]
 		public int WaterPalette { get; set; }
 		[DefaultValue("600")]
