@@ -18,10 +18,15 @@ namespace SonicRetro.SonLVL.API
         public int Height { get; private set; }
         public Size Size { get { return new Size(Width, Height); } }
 
+		public int GetPixelIndex(int x, int y)
+		{
+			return (y * Width) + x;
+		}
+
         public byte this[int x, int y]
         {
-            get { return Bits[(y * Width) + x]; }
-            set { Bits[(y * Width) + x] = value; }
+			get { return Bits[GetPixelIndex(x, y)]; }
+			set { Bits[GetPixelIndex(x, y)] = value; }
         }
 
         public BitmapBits(int width, int height)
@@ -132,7 +137,7 @@ namespace SonicRetro.SonLVL.API
         {
             for (int i = 0; i < source.Height; i++)
             {
-                int di = ((y + i) * Width) + x;
+                int di = GetPixelIndex(x, y + i);
                 int si = i * source.Width;
                 Array.Copy(source.Bits, si, Bits, di, source.Width);
             }
@@ -180,7 +185,7 @@ namespace SonicRetro.SonLVL.API
             if (srcb > Height - y)
                 srcb = Height - y;
             for (int c = srct; c < srcb; c++)
-                Array.Copy(source.Bits, c * source.Width + srcl, Bits, ((y + c) * Width) + x + srcl, srcr - srcl);
+                Array.Copy(source.Bits, source.GetPixelIndex(srcl, c), Bits, GetPixelIndex(x + srcl, y + c), srcr - srcl);
         }
 
         public void DrawBitmapBounded(BitmapBits source, Point location) { DrawBitmapComposited(source, location.X, location.Y); }
@@ -412,7 +417,7 @@ namespace SonicRetro.SonLVL.API
         {
             BitmapBits result = new BitmapBits(width, height);
             for (int v = 0; v < height; v++)
-                Array.Copy(this.Bits, ((y + v) * this.Width) + x, result.Bits, v * width, width);
+                Array.Copy(this.Bits, GetPixelIndex(x, y + v), result.Bits, v * width, width);
             return result;
         }
 

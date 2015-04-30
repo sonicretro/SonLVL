@@ -181,6 +181,12 @@
     <Compile Include="TileRemappingDialog.Designer.cs">
       <DependentUpon>TileRemappingDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="WaterHeightDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WaterHeightDialog.Designer.cs">
+      <DependentUpon>WaterHeightDialog.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="AddGroupDialog.resx">
       <DependentUpon>AddGroupDialog.cs</DependentUpon>
     </EmbeddedResource>
@@ -245,6 +251,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="TileRemappingDialog.resx">
       <DependentUpon>TileRemappingDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WaterHeightDialog.resx">
+      <DependentUpon>WaterHeightDialog.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.config" />
     <None Include="Properties\Settings.settings">

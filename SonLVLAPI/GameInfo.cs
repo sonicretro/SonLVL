@@ -312,6 +312,18 @@ namespace SonicRetro.SonLVL.API
         [IniName("palette")]
         [IniCollection(IniCollectionMode.NoSquareBrackets, StartIndex = 2)]
         public NamedPaletteList[] ExtraPalettes { get; set; }
+		[DefaultValue(-1)]
+		[IniName("waterpal")]
+		public int WaterPalette { get; set; }
+		[DefaultValue("600")]
+		[IniName("waterheight")]
+		public string WaterHeightString
+		{
+			get { return WaterHeight.ToString("X"); }
+			set { WaterHeight = ushort.Parse(value, NumberStyles.HexNumber); }
+		}
+		[IniIgnore]
+		public ushort WaterHeight { get; set; }
         [IniName("objectfmt")]
         public EngineVersion ObjectFormat { get; set; }
         [IniName("objectcmp")]

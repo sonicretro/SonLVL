@@ -457,11 +457,11 @@ namespace SonicRetro.SonLVL.API
                 BmpPal = palbmp.Palette;
                 for (int i = 0; i < 64; i++)
                     BmpPal.Entries[i] = PaletteToColor(i / 16, i % 16, true);
-                BmpPal.Entries[64] = Color.White;
-                BmpPal.Entries[65] = Color.Yellow;
-                BmpPal.Entries[66] = Color.Black;
-                for (int i = 67; i < 256; i++)
-                    BmpPal.Entries[i] = Color.Black;
+				for (int i = 64; i < 256; i++)
+					BmpPal.Entries[i] = Color.Black;
+				BmpPal.Entries[ColorWhite] = Color.White;
+				BmpPal.Entries[ColorYellow] = Color.Yellow;
+				BmpPal.Entries[ColorBlack] = Color.Black;
                 UnknownImg.Palette = BmpPal;
 				if (Level.Sprites != null)
                 {
