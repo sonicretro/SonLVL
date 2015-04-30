@@ -1068,13 +1068,13 @@ namespace SonicRetro.SonLVL.API
                 for (int oi = 0; oi < Objects.Count; oi++)
                 {
                     ObjectEntry oe = Objects[oi];
-                    if (ObjectVisible(oe, allTimeZones))
+                    if (!(!includeDebugObjects && GetObjectDefinition(oe.ID).Debug) && ObjectVisible(oe, allTimeZones))
                         LevelImg8bpp.DrawSprite(oe.Sprite, -bounds.X, -bounds.Y);
                 }
 				if (RingFormat is RingLayoutFormat)
 					for (int ri = 0; ri < Rings.Count; ri++)
 						LevelImg8bpp.DrawSprite(Rings[ri].Sprite, -bounds.X, -bounds.Y);
-                if (Bumpers != null)
+                if (Bumpers != null && includeDebugObjects)
                     foreach (CNZBumperEntry item in Bumpers)
                         LevelImg8bpp.DrawSprite(item.Sprite, -bounds.X, -bounds.Y);
                 foreach (StartPositionEntry item in StartPositions)
