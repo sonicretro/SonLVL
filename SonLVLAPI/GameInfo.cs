@@ -365,6 +365,9 @@ namespace SonicRetro.SonLVL.API
         public string Angles { get; set; }
         [IniName("timezone")]
         public TimeZone TimeZone { get; set; }
+		[IniCollection(IniCollectionMode.SingleLine, Format = ",", ValueConverter = typeof(ByteHexConverter))]
+		[IniName("loopchunks")]
+		public List<byte> LoopChunks { get; set; }
         [IniName("sprites")]
         public string Sprites { get; set; }
         [IniName("objlst")]

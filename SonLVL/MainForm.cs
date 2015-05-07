@@ -2508,6 +2508,8 @@ namespace SonicRetro.SonLVL.GUI
 									locs.Add(chunkpoint);
 									tiles.Add(t);
 									LevelData.Layout.FGLayout[chunkpoint.X, chunkpoint.Y] = SelectedChunk;
+									if (LevelData.LayoutFormat.HasLoopFlag)
+										LevelData.Layout.FGLoop[chunkpoint.X, chunkpoint.Y] = LevelData.Level.LoopChunks.Contains(SelectedChunk);
 									DrawLevel();
 								}
 							}
@@ -2564,6 +2566,8 @@ namespace SonicRetro.SonLVL.GUI
 							locs.Add(chunkpoint);
 							tiles.Add(t);
 							LevelData.Layout.FGLayout[chunkpoint.X, chunkpoint.Y] = SelectedChunk;
+							if (LevelData.LayoutFormat.HasLoopFlag)
+								LevelData.Layout.FGLoop[chunkpoint.X, chunkpoint.Y] = LevelData.Level.LoopChunks.Contains(SelectedChunk);
 						}
 					}
 					break;
@@ -2614,6 +2618,8 @@ namespace SonicRetro.SonLVL.GUI
 									locs.Add(chunkpoint);
 									tiles.Add(tb);
 									LevelData.Layout.BGLayout[chunkpoint.X, chunkpoint.Y] = SelectedChunk;
+									if (LevelData.LayoutFormat.HasLoopFlag)
+										LevelData.Layout.BGLoop[chunkpoint.X, chunkpoint.Y] = LevelData.Level.LoopChunks.Contains(SelectedChunk);
 									DrawLevel();
 								}
 							}
@@ -2669,6 +2675,8 @@ namespace SonicRetro.SonLVL.GUI
 							locs.Add(chunkpoint);
 							tiles.Add(t);
 							LevelData.Layout.BGLayout[chunkpoint.X, chunkpoint.Y] = SelectedChunk;
+							if (LevelData.LayoutFormat.HasLoopFlag)
+								LevelData.Layout.BGLoop[chunkpoint.X, chunkpoint.Y] = LevelData.Level.LoopChunks.Contains(SelectedChunk);
 						}
 					}
 					break;
