@@ -53,10 +53,10 @@ namespace ObjectLayoutDiff
 							diff.removed = origobjs.Select(a => a.Data).ToList();
 						else
 							diff.removed = null;
-						IniFile.Serialize(diff, args[4]);
+						IniSerializer.Serialize(diff, args[4]);
 						break;
 					case "apply":
-						diff = IniFile.Deserialize<DiffData>(args[2]);
+						diff = IniSerializer.Deserialize<DiffData>(args[2]);
 						if (diff.format != format)
 						{
 							Console.WriteLine("Error: Diff file does not match selected format.");

@@ -258,7 +258,7 @@ namespace ObjDefEditor
                 Definition.Properties = null;
             if (Definition.Subtypes.Items.Length == 0)
                 Definition.Subtypes = null;
-            IniFile.Serialize(objlist, objectLists[objectListList.SelectedIndex]);
+            IniSerializer.Serialize(objlist, objectLists[objectListList.SelectedIndex]);
             Definition.Save(objlist[(string)objectDefinitionList.SelectedItem].XMLFile);
             SetupDefinition();
         }
@@ -305,7 +305,7 @@ namespace ObjDefEditor
                 addDefinitionButton.Enabled = false;
                 return;
             }
-            objlist = IniFile.Deserialize<Dictionary<string, ObjectData>>(objectLists[objectListList.SelectedIndex]);
+            objlist = IniSerializer.Deserialize<Dictionary<string, ObjectData>>(objectLists[objectListList.SelectedIndex]);
             objectDefinitionList.Items.Clear();
             objectDefinitionList.BeginUpdate();
             foreach (KeyValuePair<string, ObjectData> item in objlist)

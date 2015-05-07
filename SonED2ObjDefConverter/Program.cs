@@ -159,7 +159,7 @@ namespace SonED2ObjDefConverter
                 }
             }
             foreach (KeyValuePair<string, Dictionary<string, ObjectData>> item in objectinis)
-                IniFile.Serialize(item.Value, Path.Combine(outdir, item.Key == "FF" ? "obj.ini" : "obj" + item.Key + ".ini"));
+                IniSerializer.Serialize(item.Value, Path.Combine(outdir, item.Key == "FF" ? "obj.ini" : "obj" + item.Key + ".ini"));
         }
 
         public static Bitmap LoadPCXFile(string filename)

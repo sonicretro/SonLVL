@@ -131,7 +131,7 @@ namespace SonicRetro.SonLVL.GUI
 				Dictionary<string, int> downloaded;
 				Dictionary<string, UpdateInfo> updini;
 				if (File.Exists("Updater.ini"))
-					downloaded = IniFile.Deserialize<Dictionary<string, int>>("Updater.ini");
+					downloaded = IniSerializer.Deserialize<Dictionary<string, int>>("Updater.ini");
 				else
 					downloaded = new Dictionary<string, int>();
 #if !DEBUG
@@ -142,7 +142,7 @@ namespace SonicRetro.SonLVL.GUI
 					{
 						string updatefile = Path.GetTempFileName();
 						cli.DownloadFile("http://mm.reimuhakurei.net/SonLVL/update.ini", updatefile);
-						updini = IniFile.Deserialize<Dictionary<string, UpdateInfo>>(updatefile);
+						updini = IniSerializer.Deserialize<Dictionary<string, UpdateInfo>>(updatefile);
 						File.Delete(updatefile);
 					}
 					List<string> updates = new List<string>();
@@ -181,11 +181,11 @@ namespace SonicRetro.SonLVL.GUI
 			imageTransparency.SetColorMatrix(x, System.Drawing.Imaging.ColorMatrixFlag.Default, System.Drawing.Imaging.ColorAdjustType.Bitmap);
 			string HUDpath = Path.Combine(Application.StartupPath, "HUD");
 			HUDLetters = new Dictionary<char, BitmapBits>();
-			Dictionary<char, string> huditems = IniFile.Deserialize<Dictionary<char, string>>(Path.Combine(HUDpath, "HUD.ini"));
+			Dictionary<char, string> huditems = IniSerializer.Deserialize<Dictionary<char, string>>(Path.Combine(HUDpath, "HUD.ini"));
 			foreach (KeyValuePair<char, string> item in huditems)
 				HUDLetters.Add(item.Key, new BitmapBits(Path.Combine(HUDpath, item.Value + ".png")));
 			HUDNumbers = new Dictionary<char, BitmapBits>();
-			huditems = IniFile.Deserialize<Dictionary<char, string>>(Path.Combine(HUDpath, "HUDnum.ini"));
+			huditems = IniSerializer.Deserialize<Dictionary<char, string>>(Path.Combine(HUDpath, "HUDnum.ini"));
 			foreach (KeyValuePair<char, string> item in huditems)
 				HUDNumbers.Add(item.Key, new BitmapBits(Path.Combine(HUDpath, item.Value + ".png")));
 			objectsAboveHighPlaneToolStripMenuItem.Checked = Settings.ObjectsAboveHighPlane;
@@ -652,7 +652,7 @@ namespace SonicRetro.SonLVL.GUI
 				for (int i = 1; i < LevelData.PalName.Count; i++)
 					selectPaletteToolStripMenuItem.DropDownItems.Add(new ToolStripMenuItem(LevelData.PalName[i]) { Checked = LevelData.Level.WaterPalette - 1 == i, Tag = i });
 				waterPalette = LevelData.Level.WaterPalette < 2 ? -1 : LevelData.Level.WaterPalette - 1;
-				waterHeight = LevelData.Level.WaterHeight;
+				waterHeight = (ushort)LevelData.Level.WaterHeight;
 				if (waterPalette != -1)
 				{
 					LevelImgPalette.Entries[128] = LevelData.Palette[waterPalette][2, 0].RGBColor;

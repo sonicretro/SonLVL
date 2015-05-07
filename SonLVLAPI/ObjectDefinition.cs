@@ -60,11 +60,13 @@ namespace SonicRetro.SonLVL.API
         [IniName("rememberstate")]
         public bool RememberState;
         [IniName("defaultsubtype")]
-        public string DefaultSubtype;
+		[TypeConverter(typeof(ByteHexConverter))]
+        public byte DefaultSubtype;
         [IniName("debug")]
         public bool Debug;
-        [IniName("subtypes")]
-        public string Subtypes;
+		[IniName("subtypes")]
+		[IniCollection(IniCollectionMode.SingleLine, Format = ",", ValueConverter = typeof(ByteHexConverter))]
+		public byte[] Subtypes;
         [IniCollection(IniCollectionMode.IndexOnly)]
         public Dictionary<string, string> CustomProperties;
 
@@ -535,12 +537,10 @@ namespace SonicRetro.SonLVL.API
                 debug = true;
             }
             rememberstate = data.RememberState;
-            if (!string.IsNullOrEmpty(data.DefaultSubtype))
-                defsub = byte.Parse(data.DefaultSubtype, System.Globalization.NumberStyles.HexNumber);
+			defsub = data.DefaultSubtype;
             debug = debug | data.Debug;
-            string[] subs = (data.Subtypes ?? string.Empty).Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (string item in subs)
-                subtypes.Add(byte.Parse(item, System.Globalization.NumberStyles.HexNumber));
+			if (data.Subtypes != null)
+				subtypes.AddRange(data.Subtypes);
         }
 
         public override ReadOnlyCollection<byte> Subtypes { get { return new ReadOnlyCollection<byte>(subtypes); } }

@@ -1157,7 +1157,7 @@ namespace SonicRetro.SonLVL.API
         private static void LoadObjectDefinitionFile(string file)
         {
             Log("Loading object definition file \"" + file + "\".");
-            Dictionary<string, ObjectData> obj = IniFile.Deserialize<Dictionary<string, ObjectData>>(file);
+            Dictionary<string, ObjectData> obj = IniSerializer.Deserialize<Dictionary<string, ObjectData>>(file);
             foreach (KeyValuePair<string, ObjectData> group in obj)
             {
                 group.Value.Init();

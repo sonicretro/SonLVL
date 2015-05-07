@@ -495,7 +495,7 @@ namespace SonED2ProjectConverter
                 }
             }
             foreach (KeyValuePair<string, Dictionary<string, ObjectData>> item in objectinis)
-                IniFile.Serialize(item.Value, Path.Combine(outdir, item.Key == "FF" ? Path.GetFileName(filename) + ".ini" : Path.GetFileName(filename) + item.Key + ".ini"));
+                IniSerializer.Serialize(item.Value, Path.Combine(outdir, item.Key == "FF" ? Path.GetFileName(filename) + ".ini" : Path.GetFileName(filename) + item.Key + ".ini"));
             return result;
         }
 

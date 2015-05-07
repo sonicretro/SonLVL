@@ -64,7 +64,7 @@ namespace SonicRetro.SonLVL
         {
             filename = Path.Combine(Application.StartupPath, "SonLVL.ini");
             if (File.Exists(filename))
-                return IniFile.Deserialize<Settings>(filename);
+                return IniSerializer.Deserialize<Settings>(filename);
             else
             {
                 Settings result = new Settings();
@@ -92,7 +92,7 @@ namespace SonicRetro.SonLVL
 
         public void Save()
         {
-            IniFile.Serialize(this, filename);
+            IniSerializer.Serialize(this, filename);
         }
     }
 

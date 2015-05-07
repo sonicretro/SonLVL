@@ -64,6 +64,7 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="GameInfo.cs" />
     <Compile Include="IniFile.cs" />
+    <Compile Include="IniSerializer.cs" />
     <Compile Include="KeyboardPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>

@@ -46,7 +46,7 @@ namespace SonicRetro.SonLVL
             string userfile = Path.Combine(Path.GetDirectoryName(filename), Path.GetFileNameWithoutExtension(filename) + ".user" + Path.GetExtension(filename));
             if (File.Exists(userfile))
                 ini = IniFile.Combine(ini, IniFile.Load(userfile));
-            Dictionary<string, AnimationInfo> result = IniFile.Deserialize<Dictionary<string, AnimationInfo>>(filename);
+            Dictionary<string, AnimationInfo> result = IniSerializer.Deserialize<Dictionary<string, AnimationInfo>>(filename);
             foreach (KeyValuePair<string, AnimationInfo> anim in result)
             {
                 if (anim.Value.MappingsGame == EngineVersion.Invalid)

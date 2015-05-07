@@ -29,12 +29,7 @@ namespace SonicRetro.SonLVL.API
         [IniName("blockcmp")]
         public CompressionType BlockCompression { get; set; }
 		[IniName("blockmax")]
-		public string BlockMaxString
-		{
-			get { return BlockMax.HasValue ? BlockMax.Value.ToString("X") : null; }
-			set { BlockMax = value == null ? null : (ushort?)ushort.Parse(value, NumberStyles.HexNumber); }
-		}
-		[IniIgnore]
+		[TypeConverter(typeof(UInt16HexConverter))]
 		public ushort? BlockMax { get; set; }
         [IniName("chunkfmt")]
         public EngineVersion ChunkFormat { get; set; }
@@ -114,7 +109,7 @@ namespace SonicRetro.SonLVL.API
             string userfile = Path.Combine(Path.GetDirectoryName(filename), Path.GetFileNameWithoutExtension(filename) + ".user" + Path.GetExtension(filename));
             if (File.Exists(userfile))
                 ini = IniFile.Combine(ini, IniFile.Load(userfile));
-            GameInfo result = IniFile.Deserialize<GameInfo>(ini);
+            GameInfo result = IniSerializer.Deserialize<GameInfo>(ini);
             if (result.MappingsVersion == EngineVersion.Invalid)
                 result.MappingsVersion = result.EngineVersion;
             if (result.DPLCVersion == EngineVersion.Invalid)
@@ -124,7 +119,7 @@ namespace SonicRetro.SonLVL.API
 
         public void Save(string filename)
         {
-            IniFile.Serialize(this, filename);
+            IniSerializer.Serialize(this, filename);
         }
 
         public LevelInfo GetLevelInfo(string levelName)
@@ -315,15 +310,10 @@ namespace SonicRetro.SonLVL.API
 		[DefaultValue(0)]
 		[IniName("waterpal")]
 		public int WaterPalette { get; set; }
-		[DefaultValue("600")]
+		[DefaultValue(0x600)]
 		[IniName("waterheight")]
-		public string WaterHeightString
-		{
-			get { return WaterHeight.ToString("X"); }
-			set { WaterHeight = ushort.Parse(value, NumberStyles.HexNumber); }
-		}
-		[IniIgnore]
-		public ushort WaterHeight { get; set; }
+		[TypeConverter(typeof(Int32HexConverter))]
+		public int WaterHeight { get; set; }
         [IniName("objectfmt")]
         public EngineVersion ObjectFormat { get; set; }
         [IniName("objectcmp")]
@@ -567,4 +557,127 @@ namespace SonicRetro.SonLVL.API
             return base.ConvertFrom(context, culture, value);
         }
     }
+
+	public class Int32HexConverter : TypeConverter
+	{
+		public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
+		{
+			if (destinationType == typeof(string))
+				return true;
+			return base.CanConvertTo(context, destinationType);
+		}
+
+		public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+		{
+			if (destinationType == typeof(string) && value is int)
+				return ((int)value).ToString("X");
+			return base.ConvertTo(context, culture, value, destinationType);
+		}
+
+		public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+		{
+			if (sourceType == typeof(string))
+				return true;
+			return base.CanConvertFrom(context, sourceType);
+		}
+
+		public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+		{
+			if (value is string)
+				return int.Parse((string)value, NumberStyles.HexNumber);
+			return base.ConvertFrom(context, culture, value);
+		}
+
+		public override bool IsValid(ITypeDescriptorContext context, object value)
+		{
+			if (value is int)
+				return true;
+			int i;
+			if (value is string)
+				return int.TryParse((string)value, NumberStyles.HexNumber, NumberFormatInfo.InvariantInfo, out i);
+			return base.IsValid(context, value);
+		}
+	}
+
+	public class UInt16HexConverter : TypeConverter
+	{
+		public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
+		{
+			if (destinationType == typeof(string))
+				return true;
+			return base.CanConvertTo(context, destinationType);
+		}
+
+		public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+		{
+			if (destinationType == typeof(string) && value is ushort)
+				return ((ushort)value).ToString("X");
+			return base.ConvertTo(context, culture, value, destinationType);
+		}
+
+		public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+		{
+			if (sourceType == typeof(string))
+				return true;
+			return base.CanConvertFrom(context, sourceType);
+		}
+
+		public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+		{
+			if (value is string)
+				return ushort.Parse((string)value, NumberStyles.HexNumber);
+			return base.ConvertFrom(context, culture, value);
+		}
+
+		public override bool IsValid(ITypeDescriptorContext context, object value)
+		{
+			if (value is ushort)
+				return true;
+			ushort i;
+			if (value is string)
+				return ushort.TryParse((string)value, NumberStyles.HexNumber, NumberFormatInfo.InvariantInfo, out i);
+			return base.IsValid(context, value);
+		}
+	}
+
+	public class ByteHexConverter : TypeConverter
+	{
+		public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
+		{
+			if (destinationType == typeof(string))
+				return true;
+			return base.CanConvertTo(context, destinationType);
+		}
+
+		public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+		{
+			if (destinationType == typeof(string) && value is byte)
+				return ((byte)value).ToString("X");
+			return base.ConvertTo(context, culture, value, destinationType);
+		}
+
+		public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+		{
+			if (sourceType == typeof(string))
+				return true;
+			return base.CanConvertFrom(context, sourceType);
+		}
+
+		public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+		{
+			if (value is string)
+				return byte.Parse((string)value, NumberStyles.HexNumber);
+			return base.ConvertFrom(context, culture, value);
+		}
+
+		public override bool IsValid(ITypeDescriptorContext context, object value)
+		{
+			if (value is byte)
+				return true;
+			byte i;
+			if (value is string)
+				return byte.TryParse((string)value, NumberStyles.HexNumber, NumberFormatInfo.InvariantInfo, out i);
+			return base.IsValid(context, value);
+		}
+	}
 }

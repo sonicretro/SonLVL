@@ -753,7 +753,7 @@ namespace SonAni
 
         public static ProjectFile Load(string filename)
         {
-            ProjectFile result = IniFile.Deserialize<ProjectFile>(filename);
+            ProjectFile result = IniSerializer.Deserialize<ProjectFile>(filename);
             if (result.MappingsGame == EngineVersion.Invalid)
                 result.MappingsGame = result.Game;
             if (result.DPLCGame == EngineVersion.Invalid)
