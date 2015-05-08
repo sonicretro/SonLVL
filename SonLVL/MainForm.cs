@@ -1003,7 +1003,7 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			exportToolStripMenuItem.DropDown.Hide();
 			using (SaveFileDialog a = new SaveFileDialog() { DefaultExt = "png", Filter = "PNG Files|*.png", RestoreDirectory = true })
-				if (a.ShowDialog() == DialogResult.OK)
+				if (a.ShowDialog(this) == DialogResult.OK)
 				{
 					int line = pNGToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem);
 					if (line < 4)
@@ -1036,7 +1036,7 @@ namespace SonicRetro.SonLVL.GUI
 		private void yYCHRToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			using (SaveFileDialog a = new SaveFileDialog() { DefaultExt = "pal", Filter = "Palette Files|*.pal", RestoreDirectory = true })
-				if (a.ShowDialog() == DialogResult.OK)
+				if (a.ShowDialog(this) == DialogResult.OK)
 					using (FileStream str = File.Create(a.FileName))
 					using (BinaryWriter bw = new BinaryWriter(str))
 					{
@@ -1054,6 +1054,41 @@ namespace SonicRetro.SonLVL.GUI
 						}
 						if (cnt != 4)
 							bw.Write(new byte[0xC0 * (4 - cnt)]);
+					}
+		}
+
+		private void jASCPALToolStripMenuItem_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+		{
+			exportToolStripMenuItem.DropDown.Hide();
+			using (SaveFileDialog a = new SaveFileDialog() { DefaultExt = "pal", Filter = "JASC-PAL Files|*.pal;*.PspPalette", RestoreDirectory = true })
+				if (a.ShowDialog(this) == DialogResult.OK)
+					using (StreamWriter writer = File.CreateText(a.FileName))
+					{
+						writer.WriteLine("JASC-PAL");
+						writer.WriteLine("0100");
+						int line = jASCPALToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem);
+						if (line < 4)
+						{
+							writer.WriteLine("16");
+							for (int i = 0; i < 16; i++)
+							{
+								SonLVLColor col = LevelData.Palette[LevelData.CurPal][line, i];
+								writer.WriteLine("{0} {1} {2}", col.R, col.G, col.B);
+							}
+						}
+						else
+						{
+							writer.WriteLine("256");
+							for (int y = 0; y < 4; y++)
+								for (int x = 0; x < 16; x++)
+								{
+									SonLVLColor col = LevelData.Palette[LevelData.CurPal][y, x];
+									writer.WriteLine("{0} {1} {2}", col.R, col.G, col.B);
+								}
+							for (int i = 64; i < 256; i++)
+								writer.WriteLine("0 0 0");
+						}
+						writer.Close();
 					}
 		}
 
