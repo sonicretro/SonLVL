@@ -58,6 +58,7 @@ namespace SonicRetro.SonLVL
         public Tab CurrentTab { get; set; }
 		public GUI.EditingMode ForegroundMode { get; set; }
 		public GUI.EditingMode BackgroundMode { get; set; }
+		public bool SwitchChunkBlockMouseButtons { get; set; }
 		public WindowMode WindowMode { get; set; }
         [DefaultValue(true)]
         public bool ShowMenu { get; set; }

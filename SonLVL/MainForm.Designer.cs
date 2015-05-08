@@ -44,7 +44,6 @@
 			System.Windows.Forms.ToolStrip tileListToolStrip;
 			System.Windows.Forms.TabControl tabControl2;
 			System.Windows.Forms.ToolStrip layoutSectionListToolStrip;
-			System.Windows.Forms.Label label1;
 			this.importChunksToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.remapChunksButton = new System.Windows.Forms.ToolStripButton();
 			this.enableDraggingChunksButton = new System.Windows.Forms.ToolStripButton();
@@ -64,6 +63,7 @@
 			this.layoutSectionListBox = new System.Windows.Forms.ListBox();
 			this.importToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.layoutSectionPreview = new System.Windows.Forms.PictureBox();
+			this.chunkCtrlLabel = new System.Windows.Forms.Label();
 			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.changeLevelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -84,6 +84,7 @@
 			this.blendAlternatePaletteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.resizeLevelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.includeObjectsWithForegroundSelectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.switchMouseButtonsInChunkAndBlockEditorsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.objectsAboveHighPlaneToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.hUDToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -303,7 +304,6 @@
 			tileListToolStrip = new System.Windows.Forms.ToolStrip();
 			tabControl2 = new System.Windows.Forms.TabControl();
 			layoutSectionListToolStrip = new System.Windows.Forms.ToolStrip();
-			label1 = new System.Windows.Forms.Label();
 			chunkListToolStrip.SuspendLayout();
 			panel1.SuspendLayout();
 			panel2.SuspendLayout();
@@ -748,15 +748,15 @@
 			this.layoutSectionPreview.TabIndex = 0;
 			this.layoutSectionPreview.TabStop = false;
 			// 
-			// label1
+			// chunkCtrlLabel
 			// 
-			label1.AutoSize = true;
-			label1.Location = new System.Drawing.Point(110, 294);
-			label1.Name = "label1";
-			label1.Size = new System.Drawing.Size(147, 26);
-			label1.TabIndex = 4;
-			label1.Text = "LMB: Paint w/ selected block\r\nRMB: Select block";
-			label1.TextAlign = System.Drawing.ContentAlignment.TopRight;
+			this.chunkCtrlLabel.AutoSize = true;
+			this.chunkCtrlLabel.Location = new System.Drawing.Point(110, 294);
+			this.chunkCtrlLabel.Name = "chunkCtrlLabel";
+			this.chunkCtrlLabel.Size = new System.Drawing.Size(147, 26);
+			this.chunkCtrlLabel.TabIndex = 4;
+			this.chunkCtrlLabel.Text = "LMB: Paint w/ selected block\r\nRMB: Select block";
+			this.chunkCtrlLabel.TextAlign = System.Drawing.ContentAlignment.TopRight;
 			// 
 			// fileToolStripMenuItem
 			// 
@@ -869,7 +869,8 @@
             this.toolStripSeparator3,
             this.blendAlternatePaletteToolStripMenuItem,
             this.resizeLevelToolStripMenuItem,
-            this.includeObjectsWithForegroundSelectionToolStripMenuItem});
+            this.includeObjectsWithForegroundSelectionToolStripMenuItem,
+            this.switchMouseButtonsInChunkAndBlockEditorsToolStripMenuItem});
 			this.editToolStripMenuItem.Enabled = false;
 			this.editToolStripMenuItem.Name = "editToolStripMenuItem";
 			this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
@@ -879,7 +880,7 @@
 			// 
 			this.undoCtrlZToolStripMenuItem.Name = "undoCtrlZToolStripMenuItem";
 			this.undoCtrlZToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
-			this.undoCtrlZToolStripMenuItem.Size = new System.Drawing.Size(293, 22);
+			this.undoCtrlZToolStripMenuItem.Size = new System.Drawing.Size(335, 22);
 			this.undoCtrlZToolStripMenuItem.Text = "&Undo";
 			this.undoCtrlZToolStripMenuItem.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.undoCtrlZToolStripMenuItem_DropDownItemClicked);
 			// 
@@ -887,7 +888,7 @@
 			// 
 			this.redoCtrlYToolStripMenuItem.Name = "redoCtrlYToolStripMenuItem";
 			this.redoCtrlYToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Y)));
-			this.redoCtrlYToolStripMenuItem.Size = new System.Drawing.Size(293, 22);
+			this.redoCtrlYToolStripMenuItem.Size = new System.Drawing.Size(335, 22);
 			this.redoCtrlYToolStripMenuItem.Text = "&Redo";
 			this.redoCtrlYToolStripMenuItem.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.redoCtrlYToolStripMenuItem_DropDownItemClicked);
 			// 
@@ -895,7 +896,7 @@
 			// 
 			this.findToolStripMenuItem.Name = "findToolStripMenuItem";
 			this.findToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.F)));
-			this.findToolStripMenuItem.Size = new System.Drawing.Size(293, 22);
+			this.findToolStripMenuItem.Size = new System.Drawing.Size(335, 22);
 			this.findToolStripMenuItem.Text = "&Find...";
 			this.findToolStripMenuItem.Click += new System.EventHandler(this.findToolStripMenuItem_Click);
 			// 
@@ -904,26 +905,26 @@
 			this.findNextToolStripMenuItem.Enabled = false;
 			this.findNextToolStripMenuItem.Name = "findNextToolStripMenuItem";
 			this.findNextToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F3;
-			this.findNextToolStripMenuItem.Size = new System.Drawing.Size(293, 22);
+			this.findNextToolStripMenuItem.Size = new System.Drawing.Size(335, 22);
 			this.findNextToolStripMenuItem.Text = "Find &Next";
 			this.findNextToolStripMenuItem.Click += new System.EventHandler(this.findNextToolStripMenuItem_Click);
 			// 
 			// toolStripSeparator3
 			// 
 			this.toolStripSeparator3.Name = "toolStripSeparator3";
-			this.toolStripSeparator3.Size = new System.Drawing.Size(290, 6);
+			this.toolStripSeparator3.Size = new System.Drawing.Size(332, 6);
 			// 
 			// blendAlternatePaletteToolStripMenuItem
 			// 
 			this.blendAlternatePaletteToolStripMenuItem.Name = "blendAlternatePaletteToolStripMenuItem";
-			this.blendAlternatePaletteToolStripMenuItem.Size = new System.Drawing.Size(293, 22);
+			this.blendAlternatePaletteToolStripMenuItem.Size = new System.Drawing.Size(335, 22);
 			this.blendAlternatePaletteToolStripMenuItem.Text = "&Blend Alternate Palette...";
 			this.blendAlternatePaletteToolStripMenuItem.Click += new System.EventHandler(this.blendAlternatePaletteToolStripMenuItem_Click);
 			// 
 			// resizeLevelToolStripMenuItem
 			// 
 			this.resizeLevelToolStripMenuItem.Name = "resizeLevelToolStripMenuItem";
-			this.resizeLevelToolStripMenuItem.Size = new System.Drawing.Size(293, 22);
+			this.resizeLevelToolStripMenuItem.Size = new System.Drawing.Size(335, 22);
 			this.resizeLevelToolStripMenuItem.Text = "Re&size Level...";
 			this.resizeLevelToolStripMenuItem.Click += new System.EventHandler(this.resizeLevelToolStripMenuItem_Click);
 			// 
@@ -931,8 +932,16 @@
 			// 
 			this.includeObjectsWithForegroundSelectionToolStripMenuItem.CheckOnClick = true;
 			this.includeObjectsWithForegroundSelectionToolStripMenuItem.Name = "includeObjectsWithForegroundSelectionToolStripMenuItem";
-			this.includeObjectsWithForegroundSelectionToolStripMenuItem.Size = new System.Drawing.Size(293, 22);
+			this.includeObjectsWithForegroundSelectionToolStripMenuItem.Size = new System.Drawing.Size(335, 22);
 			this.includeObjectsWithForegroundSelectionToolStripMenuItem.Text = "&Include objects with foreground selection";
+			// 
+			// switchMouseButtonsInChunkAndBlockEditorsToolStripMenuItem
+			// 
+			this.switchMouseButtonsInChunkAndBlockEditorsToolStripMenuItem.CheckOnClick = true;
+			this.switchMouseButtonsInChunkAndBlockEditorsToolStripMenuItem.Name = "switchMouseButtonsInChunkAndBlockEditorsToolStripMenuItem";
+			this.switchMouseButtonsInChunkAndBlockEditorsToolStripMenuItem.Size = new System.Drawing.Size(335, 22);
+			this.switchMouseButtonsInChunkAndBlockEditorsToolStripMenuItem.Text = "Switch mouse buttons in chunk and block editors";
+			this.switchMouseButtonsInChunkAndBlockEditorsToolStripMenuItem.CheckedChanged += new System.EventHandler(this.switchMouseButtonsInChunkAndBlockEditorsToolStripMenuItem_CheckedChanged);
 			// 
 			// viewToolStripMenuItem
 			// 
@@ -992,14 +1001,14 @@
 			// selectPaletteToolStripMenuItem
 			// 
 			this.selectPaletteToolStripMenuItem.Name = "selectPaletteToolStripMenuItem";
-			this.selectPaletteToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.selectPaletteToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
 			this.selectPaletteToolStripMenuItem.Text = "Select &Palette";
 			this.selectPaletteToolStripMenuItem.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.selectPaletteToolStripMenuItem_DropDownItemClicked);
 			// 
 			// setPositionToolStripMenuItem
 			// 
 			this.setPositionToolStripMenuItem.Name = "setPositionToolStripMenuItem";
-			this.setPositionToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.setPositionToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
 			this.setPositionToolStripMenuItem.Text = "Set P&osition...";
 			this.setPositionToolStripMenuItem.Click += new System.EventHandler(this.setPositionToolStripMenuItem_Click);
 			// 
@@ -1019,7 +1028,7 @@
 			this.lowToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
 			this.lowToolStripMenuItem.Name = "lowToolStripMenuItem";
 			this.lowToolStripMenuItem.ShortcutKeyDisplayString = "Y";
-			this.lowToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.lowToolStripMenuItem.Size = new System.Drawing.Size(115, 22);
 			this.lowToolStripMenuItem.Text = "&Low";
 			this.lowToolStripMenuItem.CheckedChanged += new System.EventHandler(this.lowToolStripMenuItem_CheckedChanged);
 			this.lowToolStripMenuItem.Click += new System.EventHandler(this.lowToolStripMenuItem_Click);
@@ -1031,7 +1040,7 @@
 			this.highToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
 			this.highToolStripMenuItem.Name = "highToolStripMenuItem";
 			this.highToolStripMenuItem.ShortcutKeyDisplayString = "U";
-			this.highToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.highToolStripMenuItem.Size = new System.Drawing.Size(115, 22);
 			this.highToolStripMenuItem.Text = "&High";
 			this.highToolStripMenuItem.CheckedChanged += new System.EventHandler(this.highToolStripMenuItem_CheckedChanged);
 			this.highToolStripMenuItem.Click += new System.EventHandler(this.highToolStripMenuItem_Click);
@@ -2224,7 +2233,7 @@
 			this.panel4.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.panel4.Controls.Add(this.flipChunkVButton);
 			this.panel4.Controls.Add(this.flipChunkHButton);
-			this.panel4.Controls.Add(label1);
+			this.panel4.Controls.Add(this.chunkCtrlLabel);
 			this.panel4.Controls.Add(this.ChunkCount);
 			this.panel4.Controls.Add(this.ChunkID);
 			this.panel4.Controls.Add(this.ChunkPicture);
@@ -3384,6 +3393,8 @@
 		private System.Windows.Forms.ToolStripMenuItem waterPaletteToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem setPositionToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem selectPaletteToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem switchMouseButtonsInChunkAndBlockEditorsToolStripMenuItem;
+		private System.Windows.Forms.Label chunkCtrlLabel;
 
     }
 }

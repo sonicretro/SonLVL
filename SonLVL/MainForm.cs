@@ -236,6 +236,7 @@ namespace SonicRetro.SonLVL.GUI
 				bgDrawToolStripButton.Checked = false;
 				bgSelectToolStripButton.Checked = true;
 			}
+			switchMouseButtonsInChunkAndBlockEditorsToolStripMenuItem.Checked = Settings.SwitchChunkBlockMouseButtons;
 			switch (Settings.WindowMode)
 			{
 				case WindowMode.Maximized:
@@ -3105,7 +3106,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void ChunkPicture_MouseClick(object sender, MouseEventArgs e)
 		{
-			if (!loaded || e.Button != MouseButtons.Right) return;
+			if (!loaded || e.Button != chunkblockMouse2) return;
 			SelectedChunkBlock = new Point(e.X / 16, e.Y / 16);
 			ChunkBlock blk = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
 			if (blk.Block < LevelData.Blocks.Count)
@@ -3116,7 +3117,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void ChunkPicture_MouseMove(object sender, MouseEventArgs e)
 		{
-			if (loaded && e.Button == MouseButtons.Left)
+			if (loaded && e.Button == chunkblockMouse1)
 				if (e.X > 0 && e.Y > 0 && e.X < LevelData.Level.ChunkWidth && e.Y < LevelData.Level.ChunkHeight)
 				{
 					SelectedChunkBlock = new Point(e.X / 16, e.Y / 16);
@@ -3140,7 +3141,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void ChunkPicture_MouseUp(object sender, MouseEventArgs e)
 		{
-			if (loaded && e.Button == MouseButtons.Left)
+			if (loaded && e.Button == chunkblockMouse1)
 			{
 				LevelData.RedrawChunk(SelectedChunk);
 				DrawLevel();
@@ -3282,7 +3283,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void BlockPicture_MouseClick(object sender, MouseEventArgs e)
 		{
-			if (!loaded || e.Button != MouseButtons.Right) return;
+			if (!loaded || e.Button != chunkblockMouse2) return;
 			SelectedBlockTile = new Point(e.X / 64, e.Y / 64);
 			PatternIndex til = LevelData.Blocks[SelectedBlock].Tiles[e.X / 64, e.Y / 64];
 			if (til.Tile < LevelData.Tiles.Count)
@@ -3293,7 +3294,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void BlockPicture_MouseMove(object sender, MouseEventArgs e)
 		{
-			if (loaded && e.Button == MouseButtons.Left)
+			if (loaded && e.Button == chunkblockMouse1)
 				if (e.X > 0 && e.Y > 0 && e.X < 128 && e.Y < 128)
 				{
 					SelectedBlockTile = new Point(e.X / 64, e.Y / 64);
@@ -3316,7 +3317,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void BlockPicture_MouseUp(object sender, MouseEventArgs e)
 		{
-			if (loaded && e.Button == MouseButtons.Left)
+			if (loaded && e.Button == chunkblockMouse1)
 			{
 				LevelData.RedrawBlock(SelectedBlock, true);
 				DrawLevel();
@@ -7822,6 +7823,23 @@ namespace SonicRetro.SonLVL.GUI
 					waterHeight = dlg.Value;
 					DrawLevel();
 				}
+		}
+
+		private void switchMouseButtonsInChunkAndBlockEditorsToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+		{
+			if (switchMouseButtonsInChunkAndBlockEditorsToolStripMenuItem.Checked)
+			{
+				chunkblockMouse1 = MouseButtons.Right;
+				chunkblockMouse2 = MouseButtons.Left;
+				chunkCtrlLabel.Text = "RMB: Paint w/ selected block\nLMB: Select block";
+			}
+			else
+			{
+				chunkblockMouse1 = MouseButtons.Left;
+				chunkblockMouse2 = MouseButtons.Right;
+				chunkCtrlLabel.Text = "LMB: Paint w/ selected block\nRMB: Select block";
+			}
+			Settings.SwitchChunkBlockMouseButtons = switchMouseButtonsInChunkAndBlockEditorsToolStripMenuItem.Checked;
 		}
 	}
 
