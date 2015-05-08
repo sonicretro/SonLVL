@@ -4675,8 +4675,8 @@ namespace SonicRetro.SonLVL.GUI
 											if (cnk.Blocks[bx, by] is S2ChunkBlock)
 												((S2ChunkBlock)cnk.Blocks[bx, by]).Solid2 = col.Solidity2;
 										}
-										for (int y = 0; y < 2; y++)
-											for (int x = 0; x < 2; x++)
+										for (int x = 0; x < 2; x++)
+											for (int y = 0; y < 2; y++)
 											{
 												using (Bitmap tb = blockbmp.Clone(new Rectangle(x * 8, y * 8, 8, 8), blockbmp.PixelFormat))
 													tile = LevelData.BmpToTile(tb, out pal);
@@ -4835,8 +4835,8 @@ namespace SonicRetro.SonLVL.GUI
 									else if (col.YFlip)
 										bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
 								}
-								for (int y = 0; y < 2; y++)
-									for (int x = 0; x < 2; x++)
+								for (int x = 0; x < 2; x++)
+									for (int y = 0; y < 2; y++)
 									{
 										using (Bitmap tb = blockbmp.Clone(new Rectangle(x * 8, y * 8, 8, 8), blockbmp.PixelFormat))
 											tile = LevelData.BmpToTile(tb, out pal);
@@ -7699,8 +7699,8 @@ namespace SonicRetro.SonLVL.GUI
 									if (cnk.Blocks[bx, by] is S2ChunkBlock)
 										((S2ChunkBlock)cnk.Blocks[bx, by]).Solid2 = col.Solidity2;
 								}
-								for (int y = 0; y < 2; y++)
-									for (int x = 0; x < 2; x++)
+								for (int x = 0; x < 2; x++)
+									for (int y = 0; y < 2; y++)
 									{
 										using (Bitmap tb = blockbmp.Clone(new Rectangle(x * 8, y * 8, 8, 8), blockbmp.PixelFormat))
 											tile = LevelData.BmpToTile(tb, out pal);
