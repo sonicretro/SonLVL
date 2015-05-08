@@ -223,6 +223,7 @@ namespace SonicRetro.SonLVL.GUI
 			transparentBackFGBGToolStripMenuItem.Checked = Settings.TransparentBackFGBGExport;
 			includeobjectsWithFGToolStripMenuItem.Checked = Settings.IncludeObjectsFGExport;
 			hideDebugObjectsToolStripMenuItem.Checked = Settings.HideDebugObjectsExport;
+			exportArtcollisionpriorityToolStripMenuItem.Checked = Settings.ExportArtCollisionPriority;
 			CurrentTab = Settings.CurrentTab;
 			FGMode = Settings.ForegroundMode;
 			if (FGMode == EditingMode.Select)
