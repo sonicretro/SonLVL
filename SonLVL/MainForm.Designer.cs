@@ -290,6 +290,7 @@
 			this.insertLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.deleteLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.loadingAnimation1 = new SonicRetro.SonLVL.LoadingAnimation();
+			this.exportArtcollisionpriorityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
 			toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
 			label4 = new System.Windows.Forms.Label();
@@ -1238,7 +1239,8 @@
             this.transparentBackFGBGToolStripMenuItem,
             this.includeobjectsWithFGToolStripMenuItem,
             this.hideDebugObjectsToolStripMenuItem,
-            this.useHexadecimalIndexesToolStripMenuItem});
+            this.useHexadecimalIndexesToolStripMenuItem,
+            this.exportArtcollisionpriorityToolStripMenuItem});
 			this.exportToolStripMenuItem.Enabled = false;
 			this.exportToolStripMenuItem.Name = "exportToolStripMenuItem";
 			this.exportToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
@@ -1250,7 +1252,7 @@
             this.pNGToolStripMenuItem,
             this.yYCHRToolStripMenuItem});
 			this.paletteToolStripMenuItem.Name = "paletteToolStripMenuItem";
-			this.paletteToolStripMenuItem.Size = new System.Drawing.Size(210, 22);
+			this.paletteToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
 			this.paletteToolStripMenuItem.Text = "&Palette";
 			// 
 			// pNGToolStripMenuItem
@@ -1317,7 +1319,7 @@
             this.paletteLine2ToolStripMenuItem,
             this.paletteLine3ToolStripMenuItem});
 			this.tilesToolStripMenuItem.Name = "tilesToolStripMenuItem";
-			this.tilesToolStripMenuItem.Size = new System.Drawing.Size(210, 22);
+			this.tilesToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
 			this.tilesToolStripMenuItem.Text = "&Tiles";
 			this.tilesToolStripMenuItem.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.tilesToolStripMenuItem_DropDownItemClicked);
 			// 
@@ -1348,42 +1350,42 @@
 			// blocksToolStripMenuItem
 			// 
 			this.blocksToolStripMenuItem.Name = "blocksToolStripMenuItem";
-			this.blocksToolStripMenuItem.Size = new System.Drawing.Size(210, 22);
+			this.blocksToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
 			this.blocksToolStripMenuItem.Text = "&Blocks";
 			this.blocksToolStripMenuItem.Click += new System.EventHandler(this.blocksToolStripMenuItem_Click);
 			// 
 			// chunksToolStripMenuItem
 			// 
 			this.chunksToolStripMenuItem.Name = "chunksToolStripMenuItem";
-			this.chunksToolStripMenuItem.Size = new System.Drawing.Size(210, 22);
+			this.chunksToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
 			this.chunksToolStripMenuItem.Text = "&Chunks";
 			this.chunksToolStripMenuItem.Click += new System.EventHandler(this.chunksToolStripMenuItem_Click);
 			// 
 			// solidityMapsToolStripMenuItem
 			// 
 			this.solidityMapsToolStripMenuItem.Name = "solidityMapsToolStripMenuItem";
-			this.solidityMapsToolStripMenuItem.Size = new System.Drawing.Size(210, 22);
+			this.solidityMapsToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
 			this.solidityMapsToolStripMenuItem.Text = "&Solidity Maps";
 			this.solidityMapsToolStripMenuItem.Click += new System.EventHandler(this.solidityMapsToolStripMenuItem_Click);
 			// 
 			// foregroundToolStripMenuItem
 			// 
 			this.foregroundToolStripMenuItem.Name = "foregroundToolStripMenuItem";
-			this.foregroundToolStripMenuItem.Size = new System.Drawing.Size(210, 22);
+			this.foregroundToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
 			this.foregroundToolStripMenuItem.Text = "&Foreground";
 			this.foregroundToolStripMenuItem.Click += new System.EventHandler(this.foregroundToolStripMenuItem_Click);
 			// 
 			// backgroundToolStripMenuItem
 			// 
 			this.backgroundToolStripMenuItem.Name = "backgroundToolStripMenuItem";
-			this.backgroundToolStripMenuItem.Size = new System.Drawing.Size(210, 22);
+			this.backgroundToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
 			this.backgroundToolStripMenuItem.Text = "B&ackground";
 			this.backgroundToolStripMenuItem.Click += new System.EventHandler(this.backgroundToolStripMenuItem_Click);
 			// 
 			// toolStripSeparator1
 			// 
 			this.toolStripSeparator1.Name = "toolStripSeparator1";
-			this.toolStripSeparator1.Size = new System.Drawing.Size(207, 6);
+			this.toolStripSeparator1.Size = new System.Drawing.Size(219, 6);
 			// 
 			// transparentBackFGBGToolStripMenuItem
 			// 
@@ -1391,7 +1393,7 @@
 			this.transparentBackFGBGToolStripMenuItem.CheckOnClick = true;
 			this.transparentBackFGBGToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
 			this.transparentBackFGBGToolStripMenuItem.Name = "transparentBackFGBGToolStripMenuItem";
-			this.transparentBackFGBGToolStripMenuItem.Size = new System.Drawing.Size(210, 22);
+			this.transparentBackFGBGToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
 			this.transparentBackFGBGToolStripMenuItem.Text = "T&ransparent back (FG/BG)";
 			this.transparentBackFGBGToolStripMenuItem.CheckedChanged += new System.EventHandler(this.transparentBackFGBGToolStripMenuItem_CheckedChanged);
 			// 
@@ -1399,7 +1401,7 @@
 			// 
 			this.includeobjectsWithFGToolStripMenuItem.CheckOnClick = true;
 			this.includeobjectsWithFGToolStripMenuItem.Name = "includeobjectsWithFGToolStripMenuItem";
-			this.includeobjectsWithFGToolStripMenuItem.Size = new System.Drawing.Size(210, 22);
+			this.includeobjectsWithFGToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
 			this.includeobjectsWithFGToolStripMenuItem.Text = "Include &objects with FG";
 			this.includeobjectsWithFGToolStripMenuItem.CheckedChanged += new System.EventHandler(this.includeObjectsWithFGToolStripMenuItem_CheckedChanged);
 			// 
@@ -1407,7 +1409,7 @@
 			// 
 			this.hideDebugObjectsToolStripMenuItem.CheckOnClick = true;
 			this.hideDebugObjectsToolStripMenuItem.Name = "hideDebugObjectsToolStripMenuItem";
-			this.hideDebugObjectsToolStripMenuItem.Size = new System.Drawing.Size(210, 22);
+			this.hideDebugObjectsToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
 			this.hideDebugObjectsToolStripMenuItem.Text = "&Hide debug objects";
 			this.hideDebugObjectsToolStripMenuItem.CheckedChanged += new System.EventHandler(this.hideDebugObjectsToolStripMenuItem_CheckedChanged);
 			// 
@@ -1415,7 +1417,7 @@
 			// 
 			this.useHexadecimalIndexesToolStripMenuItem.CheckOnClick = true;
 			this.useHexadecimalIndexesToolStripMenuItem.Name = "useHexadecimalIndexesToolStripMenuItem";
-			this.useHexadecimalIndexesToolStripMenuItem.Size = new System.Drawing.Size(210, 22);
+			this.useHexadecimalIndexesToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
 			this.useHexadecimalIndexesToolStripMenuItem.Text = "Use he&xadecimal indexes";
 			this.useHexadecimalIndexesToolStripMenuItem.CheckedChanged += new System.EventHandler(this.useHexadecimalIndexesToolStripMenuItem_CheckedChanged);
 			// 
@@ -3035,6 +3037,14 @@
 			this.loadingAnimation1.Visible = false;
 			this.loadingAnimation1.SizeChanged += new System.EventHandler(this.loadingAnimation1_SizeChanged);
 			// 
+			// exportArtcollisionpriorityToolStripMenuItem
+			// 
+			this.exportArtcollisionpriorityToolStripMenuItem.CheckOnClick = true;
+			this.exportArtcollisionpriorityToolStripMenuItem.Name = "exportArtcollisionpriorityToolStripMenuItem";
+			this.exportArtcollisionpriorityToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
+			this.exportArtcollisionpriorityToolStripMenuItem.Text = "Export art+collision+priority";
+			this.exportArtcollisionpriorityToolStripMenuItem.CheckedChanged += new System.EventHandler(this.exportArtcollisionpriorityToolStripMenuItem_CheckedChanged);
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -3395,6 +3405,7 @@
 		private System.Windows.Forms.ToolStripMenuItem selectPaletteToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem switchMouseButtonsInChunkAndBlockEditorsToolStripMenuItem;
 		private System.Windows.Forms.Label chunkCtrlLabel;
+		private System.Windows.Forms.ToolStripMenuItem exportArtcollisionpriorityToolStripMenuItem;
 
     }
 }

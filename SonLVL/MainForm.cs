@@ -1079,28 +1079,58 @@ namespace SonicRetro.SonLVL.GUI
 					for (int i = 0; i < LevelData.Blocks.Count; i++)
 					{
 						BitmapBits bits = null;
-						if (highToolStripMenuItem.Checked & lowToolStripMenuItem.Checked)
-							bits = new BitmapBits(LevelData.CompBlockBmpBits[i]);
-						else if (lowToolStripMenuItem.Checked)
-							bits = new BitmapBits(LevelData.BlockBmpBits[i][0]);
-						else if (highToolStripMenuItem.Checked)
-							bits = new BitmapBits(LevelData.BlockBmpBits[i][1]);
-						else
+						string pathBase = Path.Combine(a.SelectedPath, useHexadecimalIndexesToolStripMenuItem.Checked ? i.ToString("X2") : i.ToString());
+						if (exportArtcollisionpriorityToolStripMenuItem.Checked)
+						{
+							LevelData.CompBlockBmpBits[i].ToBitmap(LevelImgPalette).Save(pathBase + ".png");
+							bool dualPath = false;
+							switch (LevelData.Level.ChunkFormat)
+							{
+								case EngineVersion.S2:
+								case EngineVersion.S2NA:
+								case EngineVersion.S3K:
+								case EngineVersion.SKC:
+									dualPath = !Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2);
+									break;
+							}
+							if (dualPath)
+							{
+								LevelData.ColBmpBits[LevelData.ColInds1[i]].ToBitmap(Color.Black, Color.White).Save(pathBase + "_col1.png");
+								LevelData.ColBmpBits[LevelData.ColInds2[i]].ToBitmap(Color.Black, Color.White).Save(pathBase + "_col2.png");
+							}
+							else
+								LevelData.ColBmpBits[LevelData.ColInds1[i]].ToBitmap(Color.Black, Color.White).Save(pathBase + "_col.png");
 							bits = new BitmapBits(16, 16);
-						if (path1ToolStripMenuItem.Checked)
-						{
-							BitmapBits bmp = new BitmapBits(LevelData.ColBmpBits[LevelData.ColInds1[i]]);
-							bmp.IncrementIndexes(LevelData.ColorWhite - 1);
-							bits.DrawBitmapComposited(bmp, 0, 0);
+							for (int y = 0; y < 2; y++)
+								for (int x = 0; x < 2; x++)
+									if (LevelData.Blocks[i].Tiles[x, y].Priority)
+										bits.FillRectangle(1, x * 8, y * 8, 8, 8);
+							bits.ToBitmap(Color.Black, Color.White).Save(pathBase + "_pri.png");
 						}
-						else if (path2ToolStripMenuItem.Checked)
+						else
 						{
-							BitmapBits bmp = new BitmapBits(LevelData.ColBmpBits[LevelData.ColInds2[i]]);
-							bmp.IncrementIndexes(LevelData.ColorWhite - 1);
-							bits.DrawBitmapComposited(bmp, 0, 0);
+							if (highToolStripMenuItem.Checked & lowToolStripMenuItem.Checked)
+								bits = new BitmapBits(LevelData.CompBlockBmpBits[i]);
+							else if (lowToolStripMenuItem.Checked)
+								bits = new BitmapBits(LevelData.BlockBmpBits[i][0]);
+							else if (highToolStripMenuItem.Checked)
+								bits = new BitmapBits(LevelData.BlockBmpBits[i][1]);
+							else
+								bits = new BitmapBits(16, 16);
+							if (path1ToolStripMenuItem.Checked)
+							{
+								BitmapBits bmp = new BitmapBits(LevelData.ColBmpBits[LevelData.ColInds1[i]]);
+								bmp.IncrementIndexes(LevelData.ColorWhite - 1);
+								bits.DrawBitmapComposited(bmp, 0, 0);
+							}
+							else if (path2ToolStripMenuItem.Checked)
+							{
+								BitmapBits bmp = new BitmapBits(LevelData.ColBmpBits[LevelData.ColInds2[i]]);
+								bmp.IncrementIndexes(LevelData.ColorWhite - 1);
+								bits.DrawBitmapComposited(bmp, 0, 0);
+							}
+							bits.ToBitmap(LevelImgPalette).Save(pathBase + ".png");
 						}
-						bits.ToBitmap(LevelImgPalette).Save(Path.Combine(a.SelectedPath,
-							(useHexadecimalIndexesToolStripMenuItem.Checked ? i.ToString("X2") : i.ToString()) + ".png"));
 					}
 		}
 
@@ -1116,20 +1146,64 @@ namespace SonicRetro.SonLVL.GUI
 					for (int i = 0; i < LevelData.Chunks.Count; i++)
 					{
 						BitmapBits bits = null;
-						if (highToolStripMenuItem.Checked & lowToolStripMenuItem.Checked)
-							bits = new BitmapBits(LevelData.CompChunkBmpBits[i]);
-						else if (lowToolStripMenuItem.Checked)
-							bits = new BitmapBits(LevelData.ChunkBmpBits[i][0]);
-						else if (highToolStripMenuItem.Checked)
-							bits = new BitmapBits(LevelData.ChunkBmpBits[i][1]);
-						else
+						string pathBase = Path.Combine(a.SelectedPath, useHexadecimalIndexesToolStripMenuItem.Checked ? i.ToString("X2") : i.ToString());
+						if (exportArtcollisionpriorityToolStripMenuItem.Checked)
+						{
+							LevelData.CompChunkBmpBits[i].ToBitmap(LevelImgPalette).Save(pathBase + ".png");
+							bool dualPath = false;
+							switch (LevelData.Level.ChunkFormat)
+							{
+								case EngineVersion.S2:
+								case EngineVersion.S2NA:
+								case EngineVersion.S3K:
+								case EngineVersion.SKC:
+									dualPath = !Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2);
+									break;
+							}
+							if (dualPath)
+							{
+								bits = new BitmapBits(LevelData.ChunkColBmpBits[i][0]);
+								bits.IncrementIndexes(-LevelData.ColorWhite + 1);
+								bits.ToBitmap(Color.Magenta, Color.White, Color.Yellow, Color.Black).Save(pathBase + "_col1.png");
+								bits = new BitmapBits(LevelData.ChunkColBmpBits[i][1]);
+								bits.IncrementIndexes(-LevelData.ColorWhite + 1);
+								bits.ToBitmap(Color.Magenta, Color.White, Color.Yellow, Color.Black).Save(pathBase + "_col2.png");
+							}
+							else
+							{
+								bits = new BitmapBits(LevelData.ChunkColBmpBits[i][0]);
+								bits.IncrementIndexes(-LevelData.ColorWhite + 1);
+								bits.ToBitmap(Color.Magenta, Color.White, Color.Yellow, Color.Black).Save(pathBase + "_col.png");
+							}
 							bits = new BitmapBits(LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
-						if (path1ToolStripMenuItem.Checked)
-							bits.DrawBitmapComposited(LevelData.ChunkColBmpBits[i][0], 0, 0);
-						else if (path2ToolStripMenuItem.Checked)
-							bits.DrawBitmapComposited(LevelData.ChunkColBmpBits[i][1], 0, 0);
-						bits.ToBitmap(LevelImgPalette).Save(Path.Combine(a.SelectedPath,
-							(useHexadecimalIndexesToolStripMenuItem.Checked ? i.ToString("X2") : i.ToString()) + ".png"));
+							for (int cy = 0; cy < LevelData.Level.ChunkHeight / 16; cy++)
+								for (int cx = 0; cx < LevelData.Level.ChunkWidth / 16; cx++)
+								{
+									if (LevelData.Chunks[i].Blocks[cx, cy].Block >= LevelData.Blocks.Count) continue;
+									Block blk = LevelData.Blocks[LevelData.Chunks[i].Blocks[cx, cy].Block];
+									for (int by = 0; by < 2; by++)
+										for (int bx = 0; bx < 2; bx++)
+											if (blk.Tiles[bx, by].Priority)
+												bits.FillRectangle(1, cx * 16 + bx * 8, cy * 16 + by * 8, 8, 8);
+								}
+							bits.ToBitmap(Color.Black, Color.White).Save(pathBase + "_pri.png");
+						}
+						else
+						{
+							if (highToolStripMenuItem.Checked & lowToolStripMenuItem.Checked)
+								bits = new BitmapBits(LevelData.CompChunkBmpBits[i]);
+							else if (lowToolStripMenuItem.Checked)
+								bits = new BitmapBits(LevelData.ChunkBmpBits[i][0]);
+							else if (highToolStripMenuItem.Checked)
+								bits = new BitmapBits(LevelData.ChunkBmpBits[i][1]);
+							else
+								bits = new BitmapBits(LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
+							if (path1ToolStripMenuItem.Checked)
+								bits.DrawBitmapComposited(LevelData.ChunkColBmpBits[i][0], 0, 0);
+							else if (path2ToolStripMenuItem.Checked)
+								bits.DrawBitmapComposited(LevelData.ChunkColBmpBits[i][1], 0, 0);
+							bits.ToBitmap(LevelImgPalette).Save(pathBase + ".png");
+						}
 					}
 		}
 
@@ -1152,31 +1226,122 @@ namespace SonicRetro.SonLVL.GUI
 						})
 				if (a.ShowDialog() == DialogResult.OK)
 				{
-					BitmapBits bmp = LevelData.DrawForeground(null, includeobjectsWithFGToolStripMenuItem.Checked, !hideDebugObjectsToolStripMenuItem.Checked, objectsAboveHighPlaneToolStripMenuItem.Checked, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked, allToolStripMenuItem.Checked);
-					for (int i = 0; i < bmp.Bits.Length; i++)
-						if (bmp.Bits[i] == 0)
-							bmp.Bits[i] = 32;
-					if (waterPalette != -1 && bmp.Height > waterHeight)
-						for (int i = waterHeight * bmp.Width; i < bmp.Bits.Length; i++)
-							if (bmp.Bits[i] < 64)
-								bmp.Bits[i] += 128;
-					Bitmap res = bmp.ToBitmap();
-					ColorPalette pal = res.Palette;
-					for (int i = 0; i < 64; i++)
-						pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, transparentBackFGBGToolStripMenuItem.Checked);
-					for (int i = 64; i < 256; i++)
-						pal.Entries[i] = Color.Black;
-					if (waterPalette != -1)
-						for (int i = 128; i < 192; i++)
-							if (transparentBackFGBGToolStripMenuItem.Checked && i % 16 == 0)
-								pal.Entries[i] = Color.Transparent;
-							else
-								pal.Entries[i] = LevelData.Palette[waterPalette][(i - 128) / 16, i % 16].RGBColor;
-					pal.Entries[LevelData.ColorWhite] = Color.White;
-					pal.Entries[LevelData.ColorYellow] = Color.Yellow;
-					pal.Entries[LevelData.ColorBlack] = Color.Black;
-					res.Palette = pal;
-					res.Save(a.FileName);
+					if (exportArtcollisionpriorityToolStripMenuItem.Checked)
+					{
+						string pathBase = Path.Combine(Path.GetDirectoryName(a.FileName), Path.GetFileNameWithoutExtension(a.FileName));
+						string pathExt = Path.GetExtension(a.FileName);
+						BitmapBits bmp = LevelData.DrawForeground(null, false, false, false, true, true, false, false, false);
+						for (int i = 0; i < bmp.Bits.Length; i++)
+							if (bmp.Bits[i] == 0)
+								bmp.Bits[i] = 32;
+						if (waterPalette != -1 && bmp.Height > waterHeight)
+							for (int i = waterHeight * bmp.Width; i < bmp.Bits.Length; i++)
+								if (bmp.Bits[i] < 64)
+									bmp.Bits[i] += 128;
+						Bitmap res = bmp.ToBitmap();
+						ColorPalette pal = res.Palette;
+						for (int i = 0; i < 64; i++)
+							pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, transparentBackFGBGToolStripMenuItem.Checked);
+						for (int i = 64; i < 256; i++)
+							pal.Entries[i] = Color.Black;
+						if (waterPalette != -1)
+							for (int i = 128; i < 192; i++)
+								if (transparentBackFGBGToolStripMenuItem.Checked && i % 16 == 0)
+									pal.Entries[i] = Color.Transparent;
+								else
+									pal.Entries[i] = LevelData.Palette[waterPalette][(i - 128) / 16, i % 16].RGBColor;
+						pal.Entries[LevelData.ColorWhite] = Color.White;
+						pal.Entries[LevelData.ColorYellow] = Color.Yellow;
+						pal.Entries[LevelData.ColorBlack] = Color.Black;
+						res.Palette = pal;
+						res.Save(a.FileName);
+						bool dualPath = false;
+						switch (LevelData.Level.ChunkFormat)
+						{
+							case EngineVersion.S2:
+							case EngineVersion.S2NA:
+							case EngineVersion.S3K:
+							case EngineVersion.SKC:
+								dualPath = !Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2);
+								break;
+						}
+						if (dualPath)
+						{
+							bmp = LevelData.DrawForeground(null, false, false, false, false, false, true, false, false);
+							bmp.IncrementIndexes(-LevelData.ColorWhite + 1);
+							bmp.ToBitmap(Color.Magenta, Color.White, Color.Yellow, Color.Black).Save(pathBase + "_col1" + pathExt);
+							bmp = LevelData.DrawForeground(null, false, false, false, false, false, false, true, false);
+							bmp.IncrementIndexes(-LevelData.ColorWhite + 1);
+							bmp.ToBitmap(Color.Magenta, Color.White, Color.Yellow, Color.Black).Save(pathBase + "_col2" + pathExt);
+						}
+						else if (LevelData.LayoutFormat.HasLoopFlag && LevelData.Layout.FGLoop.OfType<bool>().Any(b => b))
+						{
+							bmp = LevelData.DrawForeground(null, false, false, false, false, false, true, false, false);
+							bmp.IncrementIndexes(-LevelData.ColorWhite + 1);
+							bmp.ToBitmap(Color.Magenta, Color.White, Color.Yellow, Color.Black).Save(pathBase + "_col1" + pathExt);
+							byte[,] copy = (byte[,])LevelData.Layout.FGLayout.Clone();
+							for (int y = 0; y < LevelData.FGHeight; y++)
+								for (int x = 0; x < LevelData.FGWidth; x++)
+									if (LevelData.Layout.FGLoop[x, y])
+										LevelData.Layout.FGLayout[x, y]++;
+							bmp = LevelData.DrawForeground(null, false, false, false, false, false, true, false, false);
+							bmp.IncrementIndexes(-LevelData.ColorWhite + 1);
+							bmp.ToBitmap(Color.Magenta, Color.White, Color.Yellow, Color.Black).Save(pathBase + "_col2" + pathExt);
+							LevelData.Layout.FGLayout = copy;
+						}
+						else
+						{
+							bmp = LevelData.DrawForeground(null, false, false, false, false, false, true, false, false);
+							bmp.IncrementIndexes(-LevelData.ColorWhite + 1);
+							bmp.ToBitmap(Color.Magenta, Color.White, Color.Yellow, Color.Black).Save(pathBase + "_col" + pathExt);
+						}
+						bmp.Clear();
+						for (int ly = 0; ly < LevelData.FGHeight; ly++)
+							for (int lx = 0; lx < LevelData.FGWidth; lx++)
+							{
+								if (LevelData.Layout.FGLayout[lx, ly] >= LevelData.Chunks.Count) continue;
+								Chunk cnk = LevelData.Chunks[LevelData.Layout.FGLayout[lx, ly]];
+								for (int cy = 0; cy < LevelData.Level.ChunkHeight / 16; cy++)
+									for (int cx = 0; cx < LevelData.Level.ChunkWidth / 16; cx++)
+									{
+										if (cnk.Blocks[cx, cy].Block >= LevelData.Blocks.Count) continue;
+										Block blk = LevelData.Blocks[cnk.Blocks[cx, cy].Block];
+										for (int by = 0; by < 2; by++)
+											for (int bx = 0; bx < 2; bx++)
+												if (blk.Tiles[bx, by].Priority)
+													bmp.FillRectangle(1, lx * LevelData.Level.ChunkWidth + cx * 16 + bx * 8, ly * LevelData.Level.ChunkHeight + cy * 16 + by * 8, 8, 8);
+									}
+							}
+						bmp.ToBitmap(Color.Black, Color.White).Save(pathBase + "_pri" + pathExt);
+					}
+					else
+					{
+						BitmapBits bmp = LevelData.DrawForeground(null, includeobjectsWithFGToolStripMenuItem.Checked, !hideDebugObjectsToolStripMenuItem.Checked, objectsAboveHighPlaneToolStripMenuItem.Checked, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked, allToolStripMenuItem.Checked);
+						for (int i = 0; i < bmp.Bits.Length; i++)
+							if (bmp.Bits[i] == 0)
+								bmp.Bits[i] = 32;
+						if (waterPalette != -1 && bmp.Height > waterHeight)
+							for (int i = waterHeight * bmp.Width; i < bmp.Bits.Length; i++)
+								if (bmp.Bits[i] < 64)
+									bmp.Bits[i] += 128;
+						Bitmap res = bmp.ToBitmap();
+						ColorPalette pal = res.Palette;
+						for (int i = 0; i < 64; i++)
+							pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, transparentBackFGBGToolStripMenuItem.Checked);
+						for (int i = 64; i < 256; i++)
+							pal.Entries[i] = Color.Black;
+						if (waterPalette != -1)
+							for (int i = 128; i < 192; i++)
+								if (transparentBackFGBGToolStripMenuItem.Checked && i % 16 == 0)
+									pal.Entries[i] = Color.Transparent;
+								else
+									pal.Entries[i] = LevelData.Palette[waterPalette][(i - 128) / 16, i % 16].RGBColor;
+						pal.Entries[LevelData.ColorWhite] = Color.White;
+						pal.Entries[LevelData.ColorYellow] = Color.Yellow;
+						pal.Entries[LevelData.ColorBlack] = Color.Black;
+						res.Palette = pal;
+						res.Save(a.FileName);
+					}
 				}
 		}
 
@@ -1190,22 +1355,113 @@ namespace SonicRetro.SonLVL.GUI
 						})
 				if (a.ShowDialog() == DialogResult.OK)
 				{
-					BitmapBits bmp = LevelData.DrawBackground(null, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked);
-					for (int i = 0; i < bmp.Bits.Length; i++)
-						if (bmp.Bits[i] == 0)
-							bmp.Bits[i] = 32;
-					Bitmap res = bmp.ToBitmap();
-					ColorPalette pal = res.Palette;
-					for (int i = 0; i < 64; i++)
-						pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, transparentBackFGBGToolStripMenuItem.Checked);
-					for (int i = 64; i < 256; i++)
-						pal.Entries[i] = Color.Black;
-					pal.Entries[LevelData.ColorWhite] = Color.White;
-					pal.Entries[LevelData.ColorYellow] = Color.Yellow;
-					pal.Entries[LevelData.ColorBlack] = Color.Black;
-					pal.Entries[LevelData.ColorTransparent] = LevelData.PaletteToColor(2, 0, transparentBackFGBGToolStripMenuItem.Checked);
-					res.Palette = pal;
-					res.Save(a.FileName);
+					if (exportArtcollisionpriorityToolStripMenuItem.Checked)
+					{
+						string pathBase = Path.Combine(Path.GetDirectoryName(a.FileName), Path.GetFileNameWithoutExtension(a.FileName));
+						string pathExt = Path.GetExtension(a.FileName);
+						BitmapBits bmp = LevelData.DrawBackground(null, true, true, false, false);
+						for (int i = 0; i < bmp.Bits.Length; i++)
+							if (bmp.Bits[i] == 0)
+								bmp.Bits[i] = 32;
+						if (waterPalette != -1 && bmp.Height > waterHeight)
+							for (int i = waterHeight * bmp.Width; i < bmp.Bits.Length; i++)
+								if (bmp.Bits[i] < 64)
+									bmp.Bits[i] += 128;
+						Bitmap res = bmp.ToBitmap();
+						ColorPalette pal = res.Palette;
+						for (int i = 0; i < 64; i++)
+							pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, transparentBackFGBGToolStripMenuItem.Checked);
+						for (int i = 64; i < 256; i++)
+							pal.Entries[i] = Color.Black;
+						if (waterPalette != -1)
+							for (int i = 128; i < 192; i++)
+								if (transparentBackFGBGToolStripMenuItem.Checked && i % 16 == 0)
+									pal.Entries[i] = Color.Transparent;
+								else
+									pal.Entries[i] = LevelData.Palette[waterPalette][(i - 128) / 16, i % 16].RGBColor;
+						pal.Entries[LevelData.ColorWhite] = Color.White;
+						pal.Entries[LevelData.ColorYellow] = Color.Yellow;
+						pal.Entries[LevelData.ColorBlack] = Color.Black;
+						res.Palette = pal;
+						res.Save(a.FileName);
+						bool dualPath = false;
+						switch (LevelData.Level.ChunkFormat)
+						{
+							case EngineVersion.S2:
+							case EngineVersion.S2NA:
+							case EngineVersion.S3K:
+							case EngineVersion.SKC:
+								dualPath = !Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2);
+								break;
+						}
+						if (dualPath)
+						{
+							bmp = LevelData.DrawBackground(null, false, false, true, false);
+							bmp.IncrementIndexes(-LevelData.ColorWhite + 1);
+							bmp.ToBitmap(Color.Magenta, Color.White, Color.Yellow, Color.Black).Save(pathBase + "_col1" + pathExt);
+							bmp = LevelData.DrawBackground(null, false, false, false, true);
+							bmp.IncrementIndexes(-LevelData.ColorWhite + 1);
+							bmp.ToBitmap(Color.Magenta, Color.White, Color.Yellow, Color.Black).Save(pathBase + "_col2" + pathExt);
+						}
+						else if (LevelData.LayoutFormat.HasLoopFlag && LevelData.Layout.BGLoop.OfType<bool>().Any(b => b))
+						{
+							bmp = LevelData.DrawBackground(null, false, false, true, false);
+							bmp.IncrementIndexes(-LevelData.ColorWhite + 1);
+							bmp.ToBitmap(Color.Magenta, Color.White, Color.Yellow, Color.Black).Save(pathBase + "_col1" + pathExt);
+							byte[,] copy = (byte[,])LevelData.Layout.BGLayout.Clone();
+							for (int y = 0; y < LevelData.BGHeight; y++)
+								for (int x = 0; x < LevelData.BGWidth; x++)
+									if (LevelData.Layout.BGLoop[x, y])
+										LevelData.Layout.BGLayout[x, y]++;
+							bmp = LevelData.DrawBackground(null, false, false, true, false);
+							bmp.IncrementIndexes(-LevelData.ColorWhite + 1);
+							bmp.ToBitmap(Color.Magenta, Color.White, Color.Yellow, Color.Black).Save(pathBase + "_col2" + pathExt);
+							LevelData.Layout.BGLayout = copy;
+						}
+						else
+						{
+							bmp = LevelData.DrawBackground(null, false, false, true, false);
+							bmp.IncrementIndexes(-LevelData.ColorWhite + 1);
+							bmp.ToBitmap(Color.Magenta, Color.White, Color.Yellow, Color.Black).Save(pathBase + "_col" + pathExt);
+						}
+						bmp.Clear();
+						for (int ly = 0; ly < LevelData.BGHeight; ly++)
+							for (int lx = 0; lx < LevelData.BGWidth; lx++)
+							{
+								if (LevelData.Layout.BGLayout[lx, ly] >= LevelData.Chunks.Count) continue;
+								Chunk cnk = LevelData.Chunks[LevelData.Layout.BGLayout[lx, ly]];
+								for (int cy = 0; cy < LevelData.Level.ChunkHeight / 16; cy++)
+									for (int cx = 0; cx < LevelData.Level.ChunkWidth / 16; cx++)
+									{
+										if (cnk.Blocks[cx, cy].Block >= LevelData.Blocks.Count) continue;
+										Block blk = LevelData.Blocks[cnk.Blocks[cx, cy].Block];
+										for (int by = 0; by < 2; by++)
+											for (int bx = 0; bx < 2; bx++)
+												if (blk.Tiles[bx, by].Priority)
+													bmp.FillRectangle(1, lx * LevelData.Level.ChunkWidth + cx * 16 + bx * 8, ly * LevelData.Level.ChunkHeight + cy * 16 + by * 8, 8, 8);
+									}
+							}
+						bmp.ToBitmap(Color.Black, Color.White).Save(pathBase + "_pri" + pathExt);
+					}
+					else
+					{
+						BitmapBits bmp = LevelData.DrawBackground(null, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked);
+						for (int i = 0; i < bmp.Bits.Length; i++)
+							if (bmp.Bits[i] == 0)
+								bmp.Bits[i] = 32;
+						Bitmap res = bmp.ToBitmap();
+						ColorPalette pal = res.Palette;
+						for (int i = 0; i < 64; i++)
+							pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, transparentBackFGBGToolStripMenuItem.Checked);
+						for (int i = 64; i < 256; i++)
+							pal.Entries[i] = Color.Black;
+						pal.Entries[LevelData.ColorWhite] = Color.White;
+						pal.Entries[LevelData.ColorYellow] = Color.Yellow;
+						pal.Entries[LevelData.ColorBlack] = Color.Black;
+						pal.Entries[LevelData.ColorTransparent] = LevelData.PaletteToColor(2, 0, transparentBackFGBGToolStripMenuItem.Checked);
+						res.Palette = pal;
+						res.Save(a.FileName);
+					}
 				}
 		}
 
@@ -1227,6 +1483,11 @@ namespace SonicRetro.SonLVL.GUI
 		private void useHexadecimalIndexesToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
 		{
 			Settings.UseHexadecimalIndexesExport = useHexadecimalIndexesToolStripMenuItem.Checked;
+		}
+
+		private void exportArtcollisionpriorityToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+		{
+			Settings.ExportArtCollisionPriority = exportArtcollisionpriorityToolStripMenuItem.Checked;
 		}
 		#endregion
 

@@ -45,6 +45,7 @@ namespace SonicRetro.SonLVL
         public bool IncludeObjectsFGExport { get; set; }
         public bool HideDebugObjectsExport { get; set; }
         public bool UseHexadecimalIndexesExport { get; set; }
+		public bool ExportArtCollisionPriority { get; set; }
         public bool ObjectsAboveHighPlane { get; set; }
         [DefaultValue(true)]
         public bool ViewLowPlane { get; set; }
