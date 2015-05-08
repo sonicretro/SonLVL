@@ -100,6 +100,8 @@ namespace SonicRetro.SonLVL.GUI
 		List<Bitmap> savedLayoutSectionImages;
 		int waterPalette;
 		ushort waterHeight = 0x600;
+		MouseButtons chunkblockMouse1 = MouseButtons.Left;
+		MouseButtons chunkblockMouse2 = MouseButtons.Right;
 
 		internal void Log(params string[] lines)
 		{
@@ -222,6 +224,18 @@ namespace SonicRetro.SonLVL.GUI
 			includeobjectsWithFGToolStripMenuItem.Checked = Settings.IncludeObjectsFGExport;
 			hideDebugObjectsToolStripMenuItem.Checked = Settings.HideDebugObjectsExport;
 			CurrentTab = Settings.CurrentTab;
+			FGMode = Settings.ForegroundMode;
+			if (FGMode == EditingMode.Select)
+			{
+				fgDrawToolStripButton.Checked = false;
+				fgSelectToolStripButton.Checked = true;
+			}
+			BGMode = Settings.BackgroundMode;
+			if (BGMode == EditingMode.Select)
+			{
+				bgDrawToolStripButton.Checked = false;
+				bgSelectToolStripButton.Checked = true;
+			}
 			switch (Settings.WindowMode)
 			{
 				case WindowMode.Maximized:
@@ -4899,14 +4913,14 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			fgDrawToolStripButton.Checked = true;
 			fgSelectToolStripButton.Checked = false;
-			FGMode = EditingMode.Draw;
+			Settings.ForegroundMode = FGMode = EditingMode.Draw;
 		}
 
 		private void fgSelectToolStripButton_Click(object sender, EventArgs e)
 		{
 			fgDrawToolStripButton.Checked = false;
 			fgSelectToolStripButton.Checked = true;
-			FGMode = EditingMode.Select;
+			Settings.ForegroundMode = FGMode = EditingMode.Select;
 		}
 
 		private void cutToolStripMenuItem1_Click(object sender, EventArgs e)
@@ -5287,14 +5301,14 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			bgDrawToolStripButton.Checked = true;
 			bgSelectToolStripButton.Checked = false;
-			BGMode = EditingMode.Draw;
+			Settings.BackgroundMode = BGMode = EditingMode.Draw;
 		}
 
 		private void bgSelectToolStripButton_Click(object sender, EventArgs e)
 		{
 			bgDrawToolStripButton.Checked = false;
 			bgSelectToolStripButton.Checked = true;
-			BGMode = EditingMode.Select;
+			Settings.BackgroundMode = BGMode = EditingMode.Select;
 		}
 
 		private void resizeLevelToolStripMenuItem_Click(object sender, EventArgs e)

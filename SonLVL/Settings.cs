@@ -56,7 +56,9 @@ namespace SonicRetro.SonLVL
         [DefaultValue("1x")]
         public string ZoomLevel { get; set; }
         public Tab CurrentTab { get; set; }
-        public WindowMode WindowMode { get; set; }
+		public GUI.EditingMode ForegroundMode { get; set; }
+		public GUI.EditingMode BackgroundMode { get; set; }
+		public WindowMode WindowMode { get; set; }
         [DefaultValue(true)]
         public bool ShowMenu { get; set; }
 
