@@ -7844,7 +7844,7 @@ namespace SonicRetro.SonLVL.GUI
 		}
 	}
 
-	internal enum EditingMode { Draw, Select }
+	public enum EditingMode { Draw, Select }
 
 	[Serializable]
 	public class LayoutSection
