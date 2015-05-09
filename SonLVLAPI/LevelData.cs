@@ -2712,8 +2712,8 @@ namespace SonicRetro.SonLVL.API
             ChunkBmps[chunk][1] = ChunkBmpBits[chunk][1].ToBitmap(BmpPal);
             ChunkColBmps[chunk][0] = ChunkColBmpBits[chunk][0].ToBitmap(Color.Transparent, Color.White, Color.Yellow, Color.Black);
             ChunkColBmps[chunk][1] = ChunkColBmpBits[chunk][1].ToBitmap(Color.Transparent, Color.White, Color.Yellow, Color.Black);
-            ChunkColBmpBits[chunk][0].IncrementIndexes(63);
-            ChunkColBmpBits[chunk][1].IncrementIndexes(63);
+            ChunkColBmpBits[chunk][0].IncrementIndexes(ColorWhite - 1);
+            ChunkColBmpBits[chunk][1].IncrementIndexes(ColorWhite - 1);
             CompChunkBmps[chunk] = CompChunkBmpBits[chunk].ToBitmap(BmpPal);
         }
 

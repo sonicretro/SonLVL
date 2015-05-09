@@ -185,11 +185,21 @@ namespace SonicRetro.SonLVL.GUI
 			HUDLetters = new Dictionary<char, BitmapBits>();
 			Dictionary<char, string> huditems = IniSerializer.Deserialize<Dictionary<char, string>>(Path.Combine(HUDpath, "HUD.ini"));
 			foreach (KeyValuePair<char, string> item in huditems)
-				HUDLetters.Add(item.Key, new BitmapBits(Path.Combine(HUDpath, item.Value + ".png")));
+			{
+				BitmapBits bmp = new BitmapBits(Path.Combine(HUDpath, item.Value + ".png"));
+				if (bmp.OriginalFormat != PixelFormat.Format8bppIndexed)
+					bmp.IncrementIndexes(LevelData.ColorWhite - 1);
+				HUDLetters.Add(item.Key, bmp);
+			}
 			HUDNumbers = new Dictionary<char, BitmapBits>();
 			huditems = IniSerializer.Deserialize<Dictionary<char, string>>(Path.Combine(HUDpath, "HUDnum.ini"));
 			foreach (KeyValuePair<char, string> item in huditems)
-				HUDNumbers.Add(item.Key, new BitmapBits(Path.Combine(HUDpath, item.Value + ".png")));
+			{
+				BitmapBits bmp = new BitmapBits(Path.Combine(HUDpath, item.Value + ".png"));
+				if (bmp.OriginalFormat != PixelFormat.Format8bppIndexed)
+					bmp.IncrementIndexes(LevelData.ColorWhite - 1);
+				HUDNumbers.Add(item.Key, bmp);
+			}
 			objectsAboveHighPlaneToolStripMenuItem.Checked = Settings.ObjectsAboveHighPlane;
 			hUDToolStripMenuItem.Checked = Settings.ShowHUD;
 			lowToolStripMenuItem.Checked = Settings.ViewLowPlane;
