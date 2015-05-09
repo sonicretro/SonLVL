@@ -17,6 +17,7 @@ namespace SonicRetro.SonLVL.API
         public int Width { get; private set; }
         public int Height { get; private set; }
         public Size Size { get { return new Size(Width, Height); } }
+		public PixelFormat OriginalFormat { get; private set; }
 
 		public int GetPixelIndex(int x, int y)
 		{
@@ -34,34 +35,119 @@ namespace SonicRetro.SonLVL.API
             Width = width;
             Height = height;
             Bits = new byte[width * height];
+			OriginalFormat = PixelFormat.Format8bppIndexed;
         }
 
         public BitmapBits(Size size)
             : this(size.Width, size.Height) { }
 
-        public BitmapBits(Bitmap bmp)
-        {
-            if (bmp.PixelFormat != PixelFormat.Format8bppIndexed)
-                throw new ArgumentException();
-            BitmapData bmpd = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, bmp.PixelFormat);
-            Width = bmpd.Width;
-            Height = bmpd.Height;
-            byte[] tmpbits = new byte[Math.Abs(bmpd.Stride) * bmpd.Height];
-            Marshal.Copy(bmpd.Scan0, tmpbits, 0, tmpbits.Length);
-            if (bmpd.Stride == bmpd.Width)
-                Bits = tmpbits;
-            else
-            {
-                Bits = new byte[Width * Height];
-                int j = 0;
-                for (int i = 0; i < Bits.Length; i += Width)
-                {
-                    Array.Copy(tmpbits, j, Bits, i, Width);
-                    j += Math.Abs(bmpd.Stride);
-                }
-            }
-            bmp.UnlockBits(bmpd);
-        }
+		public BitmapBits(Bitmap bmp)
+		{
+			LoadBitmap(bmp);
+		}
+
+		public BitmapBits(string filename)
+		{
+			using (Bitmap bmp = new Bitmap(filename))
+				LoadBitmap(bmp);
+		}
+
+		private void LoadBitmap(Bitmap bmp)
+		{
+			switch (bmp.PixelFormat)
+			{
+				case PixelFormat.Format1bppIndexed:
+					LoadBitmap1bpp(bmp);
+					break;
+				case PixelFormat.Format4bppIndexed:
+					LoadBitmap4bpp(bmp);
+					break;
+				case PixelFormat.Format8bppIndexed:
+					LoadBitmap8bpp(bmp);
+					break;
+				default:
+					throw new ArgumentException("Only indexed-color bitmaps are supported.");
+			}
+			OriginalFormat = bmp.PixelFormat;
+		}
+
+		private void LoadBitmap1bpp(Bitmap bmp)
+		{
+			BitmapData bmpd = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, PixelFormat.Format1bppIndexed);
+			Width = bmpd.Width;
+			Height = bmpd.Height;
+			Bits = new byte[Width * Height];
+			byte[] tmpbits = new byte[Math.Abs(bmpd.Stride) * bmpd.Height];
+			Marshal.Copy(bmpd.Scan0, tmpbits, 0, tmpbits.Length);
+			int dstaddr = 0;
+			for (int y = 0; y < Height; y++)
+			{
+				int srcaddr = y * Math.Abs(bmpd.Stride);
+				for (int x = 0; x < Width; x += 8)
+				{
+					Bits[dstaddr++] = (byte)((tmpbits[srcaddr + (x / 8)] >> 7) & 1);
+					if (x + 1 == Width) break;
+					Bits[dstaddr++] = (byte)((tmpbits[srcaddr + (x / 8)] >> 6) & 1);
+					if (x + 2 == Width) break;
+					Bits[dstaddr++] = (byte)((tmpbits[srcaddr + (x / 8)] >> 5) & 1);
+					if (x + 3 == Width) break;
+					Bits[dstaddr++] = (byte)((tmpbits[srcaddr + (x / 8)] >> 4) & 1);
+					if (x + 4 == Width) break;
+					Bits[dstaddr++] = (byte)((tmpbits[srcaddr + (x / 8)] >> 3) & 1);
+					if (x + 5 == Width) break;
+					Bits[dstaddr++] = (byte)((tmpbits[srcaddr + (x / 8)] >> 2) & 1);
+					if (x + 6 == Width) break;
+					Bits[dstaddr++] = (byte)((tmpbits[srcaddr + (x / 8)] >> 1) & 1);
+					if (x + 7 == Width) break;
+					Bits[dstaddr++] = (byte)(tmpbits[srcaddr + (x / 8)] & 1);
+				}
+			}
+			bmp.UnlockBits(bmpd);
+		}
+
+		private void LoadBitmap4bpp(Bitmap bmp)
+		{
+			BitmapData bmpd = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, PixelFormat.Format4bppIndexed);
+			Width = bmpd.Width;
+			Height = bmpd.Height;
+			Bits = new byte[Width * Height];
+			byte[] tmpbits = new byte[Math.Abs(bmpd.Stride) * bmpd.Height];
+			Marshal.Copy(bmpd.Scan0, tmpbits, 0, tmpbits.Length);
+			int dstaddr = 0;
+			for (int y = 0; y < Height; y++)
+			{
+				int srcaddr = y * Math.Abs(bmpd.Stride);
+				for (int x = 0; x < Width; x += 2)
+				{
+					Bits[dstaddr++] = (byte)(tmpbits[srcaddr + (x / 2)] >> 4);
+					if (x + 1 == Width) break;
+					Bits[dstaddr++] = (byte)(tmpbits[srcaddr + (x / 2)] & 0xF);
+				}
+			}
+			bmp.UnlockBits(bmpd);
+		}
+
+		private void LoadBitmap8bpp(Bitmap bmp)
+		{
+			BitmapData bmpd = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, PixelFormat.Format8bppIndexed);
+			Width = bmpd.Width;
+			Height = bmpd.Height;
+			byte[] tmpbits = new byte[Math.Abs(bmpd.Stride) * bmpd.Height];
+			Marshal.Copy(bmpd.Scan0, tmpbits, 0, tmpbits.Length);
+			if (bmpd.Stride == bmpd.Width)
+				Bits = tmpbits;
+			else
+			{
+				Bits = new byte[Width * Height];
+				int j = 0;
+				for (int i = 0; i < Bits.Length; i += Width)
+				{
+					Array.Copy(tmpbits, j, Bits, i, Width);
+					j += Math.Abs(bmpd.Stride);
+				}
+			}
+			bmp.UnlockBits(bmpd);
+		}
 
         public BitmapBits(BitmapBits source)
         {
@@ -69,33 +155,7 @@ namespace SonicRetro.SonLVL.API
             Height = source.Height;
             Bits = new byte[source.Bits.Length];
             Array.Copy(source.Bits, Bits, Bits.Length);
-        }
-
-        public BitmapBits(string filename)
-        {
-            using (Bitmap bmp = new Bitmap(filename))
-            {
-                if (bmp.PixelFormat != PixelFormat.Format8bppIndexed)
-                    throw new ArgumentException("Only 8bpp (256 color) images are supported.\nFile: \"" + filename + "\"");
-                BitmapData bmpd = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, bmp.PixelFormat);
-                Width = bmpd.Width;
-                Height = bmpd.Height;
-                byte[] tmpbits = new byte[Math.Abs(bmpd.Stride) * bmpd.Height];
-                Marshal.Copy(bmpd.Scan0, tmpbits, 0, tmpbits.Length);
-                if (bmpd.Stride == bmpd.Width)
-                    Bits = tmpbits;
-                else
-                {
-                    Bits = new byte[Width * Height];
-                    int j = 0;
-                    for (int i = 0; i < Bits.Length; i += Width)
-                    {
-                        Array.Copy(tmpbits, j, Bits, i, Width);
-                        j += Math.Abs(bmpd.Stride);
-                    }
-                }
-                bmp.UnlockBits(bmpd);
-            }
+			OriginalFormat = PixelFormat.Format8bppIndexed;
         }
 
         public Bitmap ToBitmap()
@@ -133,7 +193,100 @@ namespace SonicRetro.SonLVL.API
             return newbmp;
         }
 
-        public void DrawBitmap(BitmapBits source, int x, int y)
+		public Bitmap ToBitmap4bpp()
+		{
+			if (Size.IsEmpty) return new Bitmap(1, 1, PixelFormat.Format4bppIndexed);
+			Bitmap newbmp = new Bitmap(Width, Height, PixelFormat.Format4bppIndexed);
+			BitmapData newbmpd = newbmp.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.WriteOnly, PixelFormat.Format4bppIndexed);
+			byte[] bmpbits = new byte[Math.Abs(newbmpd.Stride) * newbmpd.Height];
+			int srcaddr = 0;
+			for (int y = 0; y < Height; y++)
+			{
+				int dstaddr = y * Math.Abs(newbmpd.Stride);
+				for (int x = 0; x < Width; x += 2)
+				{
+					byte px = (byte)((Bits[srcaddr++] & 0xF) << 4);
+					if (x + 1 != Width)
+						px |= (byte)(Bits[srcaddr++] & 0xF);
+					bmpbits[dstaddr++] = px;
+				}
+			}
+			Marshal.Copy(bmpbits, 0, newbmpd.Scan0, bmpbits.Length);
+			newbmp.UnlockBits(newbmpd);
+			return newbmp;
+		}
+
+		public Bitmap ToBitmap4bpp(ColorPalette palette)
+		{
+			Bitmap newbmp = ToBitmap4bpp();
+			newbmp.Palette = palette;
+			return newbmp;
+		}
+
+		public Bitmap ToBitmap4bpp(params Color[] palette)
+		{
+			Bitmap newbmp = ToBitmap4bpp();
+			ColorPalette pal = newbmp.Palette;
+			for (int i = 0; i < Math.Min(palette.Length, 16); i++)
+				pal.Entries[i] = palette[i];
+			newbmp.Palette = pal;
+			return newbmp;
+		}
+
+		public Bitmap ToBitmap1bpp()
+		{
+			if (Size.IsEmpty) return new Bitmap(1, 1, PixelFormat.Format1bppIndexed);
+			Bitmap newbmp = new Bitmap(Width, Height, PixelFormat.Format1bppIndexed);
+			BitmapData newbmpd = newbmp.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.WriteOnly, PixelFormat.Format1bppIndexed);
+			byte[] bmpbits = new byte[Math.Abs(newbmpd.Stride) * newbmpd.Height];
+			int srcaddr = 0;
+			for (int y = 0; y < Height; y++)
+			{
+				int dstaddr = y * Math.Abs(newbmpd.Stride);
+				for (int x = 0; x < Width; x += 8)
+				{
+					byte px = (byte)((Bits[srcaddr++] & 1) << 7);
+					if (x + 1 == Width) goto writepx;
+					px |= (byte)((Bits[srcaddr++] & 1) << 6);
+					if (x + 2 == Width) goto writepx;
+					px |= (byte)((Bits[srcaddr++] & 1) << 5);
+					if (x + 3 == Width) goto writepx;
+					px |= (byte)((Bits[srcaddr++] & 1) << 4);
+					if (x + 4 == Width) goto writepx;
+					px |= (byte)((Bits[srcaddr++] & 1) << 3);
+					if (x + 5 == Width) goto writepx;
+					px |= (byte)((Bits[srcaddr++] & 1) << 2);
+					if (x + 6 == Width) goto writepx;
+					px |= (byte)((Bits[srcaddr++] & 1) << 1);
+					if (x + 7 == Width) goto writepx;
+					px |= (byte)(Bits[srcaddr++] & 1);
+				writepx:
+					bmpbits[dstaddr++] = px;
+				}
+			}
+			Marshal.Copy(bmpbits, 0, newbmpd.Scan0, bmpbits.Length);
+			newbmp.UnlockBits(newbmpd);
+			return newbmp;
+		}
+
+		public Bitmap ToBitmap1bpp(ColorPalette palette)
+		{
+			Bitmap newbmp = ToBitmap1bpp();
+			newbmp.Palette = palette;
+			return newbmp;
+		}
+
+		public Bitmap ToBitmap1bpp(params Color[] palette)
+		{
+			Bitmap newbmp = ToBitmap1bpp();
+			ColorPalette pal = newbmp.Palette;
+			for (int i = 0; i < Math.Min(palette.Length, 2); i++)
+				pal.Entries[i] = palette[i];
+			newbmp.Palette = pal;
+			return newbmp;
+		}
+
+		public void DrawBitmap(BitmapBits source, int x, int y)
         {
             for (int i = 0; i < source.Height; i++)
             {
