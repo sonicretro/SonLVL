@@ -591,6 +591,60 @@ namespace SonicRetro.SonLVL.API
                     Bits[i] = @new;
         }
 
+		/// <summary>
+		/// Scrolls the image horizontally to the left by <paramref name="amount"/> pixels.
+		/// </summary>
+		/// <param name="amount">The number of pixels to scroll by. Positive is left, negative is right.</param>
+		public void ScrollHorizontal(int amount)
+		{
+			byte[] newBits = new byte[Bits.Length];
+			while (amount < 0)
+				amount += Width;
+			amount %= Width;
+			if (amount == 0) return;
+			int copy1src = amount;
+			int copy1dst = 0;
+			int copy1len = Width - amount;
+			int copy2src = 0;
+			int copy2dst = Width - amount;
+			int copy2len = amount;
+			for (int y = 0; y < Height; y++)
+			{
+				Array.Copy(Bits, copy1src, newBits, copy1dst, copy1len);
+				Array.Copy(Bits, copy2src, newBits, copy2dst, copy2len);
+				copy1src += Width;
+				copy1dst += Width;
+				copy2src += Width;
+				copy2dst += Width;
+			}
+			Bits = newBits;
+		}
+
+		/// <summary>
+		/// Scrolls each row in the image horizontally to the left by <paramref name="amounts"/> pixels.
+		/// </summary>
+		/// <param name="amounts">The number of pixels to scroll each row by. Positive is left, negative is right.</param>
+		public void ScrollHorizontal(int[] amounts)
+		{
+			byte[] newBits = new byte[Bits.Length];
+			for (int i = 0; i < amounts.Length; i++)
+			{
+				while (amounts[i] < 0)
+					amounts[i] += Width;
+				amounts[i] %= Width;
+			}
+			int rowStart = 0;
+			for (int y = 0; y < Height; y++)
+			{
+				int amount = amounts[y % amounts.Length];
+				Array.Copy(Bits, rowStart + amount, newBits, rowStart, Width - amount);
+				if (amount != 0)
+					Array.Copy(Bits, rowStart, newBits, rowStart + Width - amount, amount);
+				rowStart += Width;
+			}
+			Bits = newBits;
+		}
+
         public static BitmapBits ReadPCX(string filename) { Color[] palette; return ReadPCX(filename, out palette); }
 
         public static BitmapBits ReadPCX(string filename, out Color[] palette)
