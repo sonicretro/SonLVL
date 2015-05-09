@@ -76,11 +76,13 @@ namespace SonicRetro.SonLVL.API
             InvalidTile.DrawLine(15, 7, 7, 7, 0);
             InvalidTile.DrawLine(15, 0, 0, 7, 7);
             InvalidTile.DrawLine(15, 0, 7, 7, 0);
-            InvalidBlock.DrawBitmap(InvalidTile, 0, 0);
-            InvalidBlock.DrawBitmap(InvalidTile, 8, 0);
-            InvalidBlock.DrawBitmap(InvalidTile, 0, 8);
-            InvalidBlock.DrawBitmap(InvalidTile, 8, 8);
-        }
+			InvalidBlock.DrawLine(15, 0, 0, 15, 0);
+			InvalidBlock.DrawLine(15, 0, 0, 0, 15);
+			InvalidBlock.DrawLine(15, 15, 15, 0, 15);
+			InvalidBlock.DrawLine(15, 15, 15, 15, 0);
+			InvalidBlock.DrawLine(15, 0, 0, 15, 15);
+			InvalidBlock.DrawLine(15, 0, 15, 15, 0);
+		}
 
         public static void LoadGame(string filename)
         {
