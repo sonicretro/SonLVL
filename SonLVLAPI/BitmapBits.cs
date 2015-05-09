@@ -645,6 +645,56 @@ namespace SonicRetro.SonLVL.API
 			Bits = newBits;
 		}
 
+		/// <summary>
+		/// Scrolls the image vertically upwards by <paramref name="amount"/> pixels.
+		/// </summary>
+		/// <param name="amount">The number of pixels to scroll by. Positive is up, negative is down.</param>
+		public void ScrollVertical(int amount)
+		{
+			byte[] newBits = new byte[Bits.Length];
+			while (amount < 0)
+				amount += Height;
+			amount %= Height;
+			if (amount == 0) return;
+			int src = amount * Width;
+			int dst = 0;
+			for (int y = 0; y < Height; y++)
+			{
+				Array.Copy(Bits, src, newBits, dst, Width);
+				src = (src + Width) % Bits.Length;
+				dst += Width;
+			}
+			Bits = newBits;
+		}
+
+		/// <summary>
+		/// Scrolls each column in the image vertically upwards by <paramref name="amounts"/> pixels.
+		/// </summary>
+		/// <param name="amounts">The number of pixels to scroll each column by. Positive is up, negative is down.</param>
+		public void ScrollVertical(int[] amounts)
+		{
+			byte[] newBits = new byte[Bits.Length];
+			for (int i = 0; i < amounts.Length; i++)
+			{
+				while (amounts[i] < 0)
+					amounts[i] += Height;
+				amounts[i] %= Height;
+			}
+			for (int x = 0; x < Width; x++)
+			{
+				int amount = amounts[x % amounts.Length];
+				int src = GetPixelIndex(x, amount);
+				int dst = x;
+				for (int y = 0; y < Height; y++)
+				{
+					newBits[dst] = Bits[src];
+					src = (src + Width) % Bits.Length;
+					dst += Width;
+				}
+			}
+			Bits = newBits;
+		}
+
         public static BitmapBits ReadPCX(string filename) { Color[] palette; return ReadPCX(filename, out palette); }
 
         public static BitmapBits ReadPCX(string filename, out Color[] palette)
