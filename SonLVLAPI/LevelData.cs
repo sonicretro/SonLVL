@@ -64,9 +64,9 @@ namespace SonicRetro.SonLVL.API
         private static readonly BitmapBits InvalidTile = new BitmapBits(8, 8);
         private static readonly BitmapBits InvalidBlock = new BitmapBits(16, 16);
         public const int ColorTransparent = 0;
-        public const int ColorWhite = 64;
-        public const int ColorYellow = 65;
-        public const int ColorBlack = 66;
+        public const int ColorWhite = 128;
+        public const int ColorYellow = 129;
+        public const int ColorBlack = 130;
 
         static LevelData()
         {
