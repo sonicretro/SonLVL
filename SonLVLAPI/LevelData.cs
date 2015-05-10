@@ -2774,11 +2774,15 @@ namespace SonicRetro.SonLVL.API
                 item[0].Palette = BmpPal;
                 item[1].Palette = BmpPal;
             }
+			foreach (Bitmap item in CompBlockBmps)
+				item.Palette = BmpPal;
             foreach (Bitmap[] item in ChunkBmps)
             {
                 item[0].Palette = BmpPal;
                 item[1].Palette = BmpPal;
             }
+			foreach (Bitmap item in CompChunkBmps)
+				item.Palette = BmpPal;
             PaletteChangedEvent();
         }
 
