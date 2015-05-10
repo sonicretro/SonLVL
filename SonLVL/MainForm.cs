@@ -4725,6 +4725,10 @@ namespace SonicRetro.SonLVL.GUI
 											}
 									}
 									match = false;
+									cnk.Blocks[bx, by].XFlip ^= col.XFlip;
+									cnk.Blocks[bx, by].YFlip ^= col.YFlip;
+									if (blk.Tiles[0, 0].Tile == 0 && blk.Tiles[1, 0].Tile == 0 && blk.Tiles[0, 1].Tile == 0 && blk.Tiles[1, 1].Tile == 0)
+										continue;
 									Block blkh = blk.Flip(true, false);
 									Block blkv = blk.Flip(false, true);
 									Block blkhv = blk.Flip(true, true);
@@ -4766,8 +4770,6 @@ namespace SonicRetro.SonLVL.GUI
 											break;
 										}
 									}
-									cnk.Blocks[bx, by].XFlip ^= col.XFlip;
-									cnk.Blocks[bx, by].YFlip ^= col.YFlip;
 									if (match) continue;
 									LevelData.Blocks.Add(blk);
 									LevelData.ColInds1.AddOrSet(LevelData.Blocks.Count - 1, col.ColInd1);
@@ -4884,6 +4886,8 @@ namespace SonicRetro.SonLVL.GUI
 									}
 							}
 							match = false;
+							if (blk.Tiles[0, 0].Tile == 0 && blk.Tiles[1, 0].Tile == 0 && blk.Tiles[0, 1].Tile == 0 && blk.Tiles[1, 1].Tile == 0)
+								continue;
 							Block blkh = blk.Flip(true, false);
 							Block blkv = blk.Flip(false, true);
 							Block blkhv = blk.Flip(true, true);
@@ -7749,6 +7753,10 @@ namespace SonicRetro.SonLVL.GUI
 									}
 							}
 							match = false;
+							cnk.Blocks[bx, by].XFlip ^= col.XFlip;
+							cnk.Blocks[bx, by].YFlip ^= col.YFlip;
+							if (blk.Tiles[0, 0].Tile == 0 && blk.Tiles[1, 0].Tile == 0 && blk.Tiles[0, 1].Tile == 0 && blk.Tiles[1, 1].Tile == 0)
+								continue;
 							Block blkh = blk.Flip(true, false);
 							Block blkv = blk.Flip(false, true);
 							Block blkhv = blk.Flip(true, true);
@@ -7790,8 +7798,6 @@ namespace SonicRetro.SonLVL.GUI
 									break;
 								}
 							}
-							cnk.Blocks[bx, by].XFlip ^= col.XFlip;
-							cnk.Blocks[bx, by].YFlip ^= col.YFlip;
 							if (match) continue;
 							LevelData.Blocks.Add(blk);
 							LevelData.ColInds1.AddOrSet(LevelData.Blocks.Count - 1, col.ColInd1);
