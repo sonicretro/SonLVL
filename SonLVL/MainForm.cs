@@ -754,11 +754,11 @@ namespace SonicRetro.SonLVL.GUI
 			string romfile = LevelData.Game.ROMFile ?? LevelData.Game.RunCommand;
 			if (LevelData.Game.UseEmulator)
 				if (!string.IsNullOrEmpty(Settings.Emulator))
-					System.Diagnostics.Process.Start(Settings.Emulator, '"' + Path.Combine(Environment.CurrentDirectory, romfile) + '"');
+					System.Diagnostics.Process.Start(Settings.Emulator, '"' + Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, romfile)) + '"');
 				else
 					MessageBox.Show("You must set up an emulator before you can run the ROM, use File -> Setup Emulator.");
 			else
-				System.Diagnostics.Process.Start(Path.Combine(Environment.CurrentDirectory, romfile));
+				System.Diagnostics.Process.Start(Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, romfile)));
 		}
 
 		private void setupEmulatorToolStripMenuItem_Click(object sender, EventArgs e)
