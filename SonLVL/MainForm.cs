@@ -52,6 +52,17 @@ namespace SonicRetro.SonLVL.GUI
 			LevelImgPalette.Entries[LevelData.ColorYellow] = Color.Yellow;
 			LevelImgPalette.Entries[LevelData.ColorBlack] = Color.Black;
 			LevelImgPalette.Entries[131] = Settings.GridColor;
+			DrawChunkPicture();
+			chunkBlockEditor.Invalidate();
+			DrawBlockPicture();
+			blockTileEditor.SelectedObject = blockTileEditor.SelectedObject;
+			curpal = new Color[16];
+			for (int i = 0; i < 16; i++)
+				curpal[i] = LevelData.PaletteToColor(SelectedColor.Y, i, false);
+			PalettePanel.Invalidate();
+			TilePicture.Invalidate();
+			for (int i = 0; i < TileSelector.Images.Count; i++)
+				TileSelector.Images[i] = LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, SelectedColor.Y);
 		}
 
 		void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
