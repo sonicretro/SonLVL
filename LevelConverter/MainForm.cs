@@ -492,7 +492,7 @@ namespace SonicRetro.SonLVL.LevelConverter
 							byte[] b = newchnk[i].GetBytes();
 							int match = -1;
 							for (int c = 0; c < tmpchnk.Count; c++)
-								if (b.ArrayEqual(tmpchnk[c].GetBytes()))
+								if (b.FastByteArrayEqual(tmpchnk[c].GetBytes()))
 								{
 									match = c;
 									break;

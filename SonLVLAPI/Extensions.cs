@@ -211,18 +211,98 @@ namespace SonicRetro.SonLVL.API
 
 		public static bool ArrayEqual<T>(this T[] arr1, T[] arr2)
 		{
+			if (arr1 == arr2) return true;
 			if (arr1.Length != arr2.Length) return false;
 			for (int i = 0; i < arr1.Length; i++)
-				if (!arr1[i].Equals(arr2[1]))
+				if (!arr1[i].Equals(arr2[i]))
 					return false;
+			return true;
+		}
+
+		public static unsafe bool FastByteArrayEqual(this byte[] arr1, byte[] arr2)
+		{
+			if (arr1 == arr2) return true;
+			if (arr1.Length != arr2.Length) return false;
+			fixed (byte* fp1 = arr1, fp2 = arr2)
+			{
+				ulong* lp1 = (ulong*)fp1;
+				ulong* lp2 = (ulong*)fp2;
+				int length = arr1.Length;
+				int longlen = length  / 8;
+				for (int i = 0; i < longlen; i++)
+					if (*lp1++ != *lp2++) return false;
+				if ((length & 7) != 0)
+				{
+					byte* bp1 = (byte*)lp1;
+					byte* bp2 = (byte*)lp2;
+					if ((length & 4) == 4)
+						if (*(uint*)bp1 != *(uint*)bp2)
+							return false;
+						else
+						{
+							bp1 += 4;
+							bp2 += 4;
+						}
+					if ((length & 2) == 2)
+						if (*(ushort*)bp1 != *(ushort*)bp2)
+							return false;
+						else
+						{
+							bp1 += 2;
+							bp2 += 2;
+						}
+					if ((length & 1) == 1)
+						return *bp1 != *bp2;
+				}
+			}
+			return true;
+		}
+
+		public static unsafe bool FastSByteArrayEqual(this sbyte[] arr1, sbyte[] arr2)
+		{
+			if (arr1 == arr2) return true;
+			if (arr1.Length != arr2.Length) return false;
+			fixed (sbyte* fp1 = arr1, fp2 = arr2)
+			{
+				ulong* lp1 = (ulong*)fp1;
+				ulong* lp2 = (ulong*)fp2;
+				int length = arr1.Length;
+				int longlen = length  / 8;
+				for (int i = 0; i < longlen; i++)
+					if (*lp1++ != *lp2++) return false;
+				if ((length & 7) != 0)
+				{
+					byte* bp1 = (byte*)lp1;
+					byte* bp2 = (byte*)lp2;
+					if ((length & 4) == 4)
+						if (*(uint*)bp1 != *(uint*)bp2)
+							return false;
+						else
+						{
+							bp1 += 4;
+							bp2 += 4;
+						}
+					if ((length & 2) == 2)
+						if (*(ushort*)bp1 != *(ushort*)bp2)
+							return false;
+						else
+						{
+							bp1 += 2;
+							bp2 += 2;
+						}
+					if ((length & 1) == 1)
+						return *bp1 != *bp2;
+				}
+			}
 			return true;
 		}
 
 		public static bool ListEqual<T>(this IList<T> lst1, IList<T> lst2)
 		{
+			if (lst1 == lst2) return true;
 			if (lst1.Count != lst2.Count) return false;
 			for (int i = 0; i < lst1.Count; i++)
-				if (!lst1[i].Equals(lst2[1]))
+				if (!lst1[i].Equals(lst2[i]))
 					return false;
 			return true;
 		}
