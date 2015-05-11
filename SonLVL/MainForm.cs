@@ -4301,7 +4301,7 @@ namespace SonicRetro.SonLVL.GUI
 						{
 							ushort ti = (ushort)LevelData.Tiles.Count;
 							for (ushort j = 0; j < LevelData.Tiles.Count; j++)
-								if (tile.SequenceEqual(LevelData.Tiles[j]))
+								if (tile.ArrayEqual(LevelData.Tiles[j]))
 								{
 									ti = j;
 									break;
@@ -4367,7 +4367,7 @@ namespace SonicRetro.SonLVL.GUI
 						{
 							ushort ti = (ushort)LevelData.Tiles.Count;
 							for (ushort j = 0; j < LevelData.Tiles.Count; j++)
-								if (tile.SequenceEqual(LevelData.Tiles[j]))
+								if (tile.ArrayEqual(LevelData.Tiles[j]))
 								{
 									ti = j;
 									break;
@@ -4436,7 +4436,7 @@ namespace SonicRetro.SonLVL.GUI
 						{
 							ushort ti = (ushort)LevelData.Tiles.Count;
 							for (ushort j = 0; j < LevelData.Tiles.Count; j++)
-								if (tile.SequenceEqual(LevelData.Tiles[j]))
+								if (tile.ArrayEqual(LevelData.Tiles[j]))
 								{
 									ti = j;
 									break;
@@ -4503,7 +4503,7 @@ namespace SonicRetro.SonLVL.GUI
 						{
 							ushort ti = (ushort)LevelData.Tiles.Count;
 							for (ushort j = 0; j < LevelData.Tiles.Count; j++)
-								if (tile.SequenceEqual(LevelData.Tiles[j]))
+								if (tile.ArrayEqual(LevelData.Tiles[j]))
 								{
 									ti = j;
 									break;
@@ -4639,8 +4639,14 @@ namespace SonicRetro.SonLVL.GUI
 			byte? forcepal = bmp.PixelFormat == PixelFormat.Format1bppIndexed || bmp.PixelFormat == PixelFormat.Format4bppIndexed ? (byte)SelectedColor.Y : (byte?)null;
 			bool match = false;
 			List<BitmapBits> tiles = new List<BitmapBits>(LevelData.Tiles.Count);
-			foreach (byte[] t in LevelData.Tiles)
-				tiles.Add(BitmapBits.FromTile(t, 0));
+			for (int i = 0; i < LevelData.Tiles.Count; i++)
+				tiles.Add(BitmapBits.FromTile(LevelData.Tiles[i], 0));
+			List<byte[]> blocks = new List<byte[]>(LevelData.Blocks.Count);
+			for (int i = 0; i < LevelData.Blocks.Count; i++)
+				blocks.Add(LevelData.Blocks[i].GetBytes());
+			List<byte[]> chunks = new List<byte[]>(LevelData.Chunks.Count);
+			for (int i = 0; i < LevelData.Chunks.Count; i++)
+				chunks.Add(LevelData.Chunks[i].GetBytes());
 			List<byte[]> newTiles = new List<byte[]>();
 			List<Block> newBlocks = new List<Block>();
 			List<byte> newColInds1 = new List<byte>();
@@ -4731,10 +4737,11 @@ namespace SonicRetro.SonLVL.GUI
 									cnk.Blocks[bx, by].YFlip ^= col.YFlip;
 									if (blk.Tiles[0, 0].Tile == 0 && blk.Tiles[1, 0].Tile == 0 && blk.Tiles[0, 1].Tile == 0 && blk.Tiles[1, 1].Tile == 0)
 										continue;
-									Block blkh = blk.Flip(true, false);
-									Block blkv = blk.Flip(false, true);
-									Block blkhv = blk.Flip(true, true);
-									for (int i = 0; i < LevelData.Blocks.Count; i++)
+									byte[] blkb = blk.GetBytes();
+									byte[] blkh = blk.Flip(true, false).GetBytes();
+									byte[] blkv = blk.Flip(false, true).GetBytes();
+									byte[] blkhv = blk.Flip(true, true).GetBytes();
+									for (int i = 0; i < blocks.Count; i++)
 									{
 										if (blockcoldata != null)
 										{
@@ -4743,27 +4750,27 @@ namespace SonicRetro.SonLVL.GUI
 											if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2) && LevelData.ColInds2[i] != col.ColInd2)
 												continue;
 										}
-										if (blk.Equals(LevelData.Blocks[i]))
+										if (blkb.ArrayEqual(blocks[i]))
 										{
 											match = true;
 											cnk.Blocks[bx, by].Block = (ushort)i;
 											break;
 										}
-										if (blkh.Equals(LevelData.Blocks[i]))
+										if (blkh.ArrayEqual(blocks[i]))
 										{
 											match = true;
 											cnk.Blocks[bx, by].Block = (ushort)i;
 											cnk.Blocks[bx, by].XFlip = true;
 											break;
 										}
-										if (blkv.Equals(LevelData.Blocks[i]))
+										if (blkv.ArrayEqual(blocks[i]))
 										{
 											match = true;
 											cnk.Blocks[bx, by].Block = (ushort)i;
 											cnk.Blocks[bx, by].YFlip = true;
 											break;
 										}
-										if (blkhv.Equals(LevelData.Blocks[i]))
+										if (blkhv.ArrayEqual(blocks[i]))
 										{
 											match = true;
 											cnk.Blocks[bx, by].Block = (ushort)i;
@@ -4773,19 +4780,22 @@ namespace SonicRetro.SonLVL.GUI
 										}
 									}
 									if (match) continue;
+									blocks.Add(blkb);
 									newBlocks.Add(blk);
 									newColInds1.Add(col.ColInd1);
 									newColInds2.Add(col.ColInd2);
 									cnk.Blocks[bx, by].Block = (ushort)(LevelData.Blocks.Count + newBlocks.Count - 1);
 								}
 							match = false;
-							for (int i = 0; i < LevelData.Chunks.Count; i++)
-								if (cnk.Equals(LevelData.Chunks[i]))
+							byte[] cnkb = cnk.GetBytes();
+							for (int i = 0; i < chunks.Count; i++)
+								if (cnkb.ArrayEqual(chunks[i]))
 								{
 									match = true;
 									break;
 								}
 							if (match) continue;
+							chunks.Add(cnkb);
 							newChunks.Add(cnk);
 						}
 					if (LevelData.Tiles.Count + newTiles.Count >= 0x800)
@@ -4918,10 +4928,11 @@ namespace SonicRetro.SonLVL.GUI
 							match = false;
 							if (blk.Tiles[0, 0].Tile == 0 && blk.Tiles[1, 0].Tile == 0 && blk.Tiles[0, 1].Tile == 0 && blk.Tiles[1, 1].Tile == 0)
 								continue;
-							Block blkh = blk.Flip(true, false);
-							Block blkv = blk.Flip(false, true);
-							Block blkhv = blk.Flip(true, true);
-							for (int i = 0; i < LevelData.Blocks.Count; i++)
+							byte[] blkb = blk.GetBytes();
+							byte[] blkh = blk.Flip(true, false).GetBytes();
+							byte[] blkv = blk.Flip(false, true).GetBytes();
+							byte[] blkhv = blk.Flip(true, true).GetBytes();
+							for (int i = 0; i < blocks.Count; i++)
 							{
 								if (blockcoldata != null)
 								{
@@ -4930,14 +4941,15 @@ namespace SonicRetro.SonLVL.GUI
 									if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2) && LevelData.ColInds2[i] != col.ColInd2)
 										continue;
 								}
-								if (blk.Equals(LevelData.Blocks[i]) || blkh.Equals(LevelData.Blocks[i])
-										|| blkv.Equals(LevelData.Blocks[i]) || blkhv.Equals(LevelData.Blocks[i]))
+								if (blkb.ArrayEqual(blocks[i]) || blkh.ArrayEqual(blocks[i])
+										|| blkv.ArrayEqual(blocks[i]) || blkhv.ArrayEqual(blocks[i]))
 								{
 									match = true;
 									break;
 								}
 							}
 							if (match) continue;
+							blocks.Add(blkb);
 							newBlocks.Add(blk);
 							newColInds1.Add(col.ColInd1);
 							newColInds2.Add(col.ColInd2);
@@ -7607,7 +7619,7 @@ namespace SonicRetro.SonLVL.GUI
 						{
 							ushort ti = (ushort)LevelData.Tiles.Count;
 							for (ushort j = 0; j < LevelData.Tiles.Count; j++)
-								if (tile.SequenceEqual(LevelData.Tiles[j]))
+								if (tile.ArrayEqual(LevelData.Tiles[j]))
 								{
 									ti = j;
 									break;
@@ -7671,7 +7683,7 @@ namespace SonicRetro.SonLVL.GUI
 						{
 							ushort ti = (ushort)LevelData.Tiles.Count;
 							for (ushort j = 0; j < LevelData.Tiles.Count; j++)
-								if (tile.SequenceEqual(LevelData.Tiles[j]))
+								if (tile.ArrayEqual(LevelData.Tiles[j]))
 								{
 									ti = j;
 									break;
@@ -7732,8 +7744,14 @@ namespace SonicRetro.SonLVL.GUI
 			byte? forcepal = bmp.PixelFormat == PixelFormat.Format1bppIndexed || bmp.PixelFormat == PixelFormat.Format4bppIndexed ? (byte)SelectedColor.Y : (byte?)null;
 			bool match = false;
 			List<BitmapBits> tiles = new List<BitmapBits>(LevelData.Tiles.Count);
-			foreach (byte[] t in LevelData.Tiles)
-				tiles.Add(BitmapBits.FromTile(t, 0));
+			for (int i = 0; i < LevelData.Tiles.Count; i++)
+				tiles.Add(BitmapBits.FromTile(LevelData.Tiles[i], 0));
+			List<byte[]> blocks = new List<byte[]>(LevelData.Blocks.Count);
+			for (int i = 0; i < LevelData.Blocks.Count; i++)
+				blocks.Add(LevelData.Blocks[i].GetBytes());
+			List<byte[]> chunks = new List<byte[]>(LevelData.Chunks.Count);
+			for (int i = 0; i < LevelData.Chunks.Count; i++)
+				chunks.Add(LevelData.Chunks[i].GetBytes());
 			List<byte[]> newTiles = new List<byte[]>();
 			List<Block> newBlocks = new List<Block>();
 			List<byte> newColInds1 = new List<byte>();
@@ -7821,10 +7839,11 @@ namespace SonicRetro.SonLVL.GUI
 							cnk.Blocks[bx, by].YFlip ^= col.YFlip;
 							if (blk.Tiles[0, 0].Tile == 0 && blk.Tiles[1, 0].Tile == 0 && blk.Tiles[0, 1].Tile == 0 && blk.Tiles[1, 1].Tile == 0)
 								continue;
-							Block blkh = blk.Flip(true, false);
-							Block blkv = blk.Flip(false, true);
-							Block blkhv = blk.Flip(true, true);
-							for (int i = 0; i < LevelData.Blocks.Count; i++)
+							byte[] blkb = blk.GetBytes();
+							byte[] blkh = blk.Flip(true, false).GetBytes();
+							byte[] blkv = blk.Flip(false, true).GetBytes();
+							byte[] blkhv = blk.Flip(true, true).GetBytes();
+							for (int i = 0; i < blocks.Count; i++)
 							{
 								if (blockcoldata != null)
 								{
@@ -7833,27 +7852,27 @@ namespace SonicRetro.SonLVL.GUI
 									if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2) && LevelData.ColInds2[i] != col.ColInd2)
 										continue;
 								}
-								if (blk.Equals(LevelData.Blocks[i]))
+								if (blkb.ArrayEqual(blocks[i]))
 								{
 									match = true;
 									cnk.Blocks[bx, by].Block = (ushort)i;
 									break;
 								}
-								if (blkh.Equals(LevelData.Blocks[i]))
+								if (blkh.ArrayEqual(blocks[i]))
 								{
 									match = true;
 									cnk.Blocks[bx, by].Block = (ushort)i;
 									cnk.Blocks[bx, by].XFlip = true;
 									break;
 								}
-								if (blkv.Equals(LevelData.Blocks[i]))
+								if (blkv.ArrayEqual(blocks[i]))
 								{
 									match = true;
 									cnk.Blocks[bx, by].Block = (ushort)i;
 									cnk.Blocks[bx, by].YFlip = true;
 									break;
 								}
-								if (blkhv.Equals(LevelData.Blocks[i]))
+								if (blkhv.ArrayEqual(blocks[i]))
 								{
 									match = true;
 									cnk.Blocks[bx, by].Block = (ushort)i;
@@ -7863,20 +7882,23 @@ namespace SonicRetro.SonLVL.GUI
 								}
 							}
 							if (match) continue;
+							blocks.Add(blkb);
 							newBlocks.Add(blk);
 							newColInds1.Add(col.ColInd1);
 							newColInds2.Add(col.ColInd2);
 							cnk.Blocks[bx, by].Block = (ushort)(LevelData.Blocks.Count + newBlocks.Count - 1);
 						}
 					match = false;
-					for (int i = 0; i < LevelData.Chunks.Count; i++)
-						if (cnk.Equals(LevelData.Chunks[i]))
+					byte[] cnkb = cnk.GetBytes();
+					for (int i = 0; i < chunks.Count; i++)
+						if (cnkb.ArrayEqual(chunks[i]))
 						{
 							result[cx, cy] = (byte)i;
 							match = true;
 							break;
 						}
 					if (match) continue;
+					chunks.Add(cnkb);
 					newChunks.Add(cnk);
 					result[cx, cy] = (byte)(LevelData.Chunks.Count + newChunks.Count - 1);
 				}
@@ -7971,7 +7993,7 @@ namespace SonicRetro.SonLVL.GUI
 						blk2 = coldata2[x, y];
 					byte ind1 = 0, ind2 = 0;
 					bool xflip = false, yflip = false;
-					if ((blk1.HeightMap.SequenceEqual(LevelData.ColArr1[0xFF]) || blk1.Solidity == Solidity.NotSolid) && coldata2 != null)
+					if ((blk1.HeightMap.ArrayEqual(LevelData.ColArr1[0xFF]) || blk1.Solidity == Solidity.NotSolid) && coldata2 != null)
 					{
 						ind1 = (byte)(blk1.Solidity == Solidity.NotSolid ? 0 : 0xFF);
 						if (blk2.Solidity != Solidity.NotSolid)
@@ -7983,7 +8005,7 @@ namespace SonicRetro.SonLVL.GUI
 							MatchCol(blk1, out ind1, out xflip, out yflip);
 						if (blk2.Solidity != Solidity.NotSolid)
 						{
-							if (blk2.HeightMap.SequenceEqual(LevelData.ColArr1[0xFF]))
+							if (blk2.HeightMap.ArrayEqual(LevelData.ColArr1[0xFF]))
 							{
 								ind2 = 0xFF;
 							}
@@ -8008,7 +8030,7 @@ namespace SonicRetro.SonLVL.GUI
 								bool found = false;
 								for (int i = 0; i < LevelData.ColArr1.Length; i++)
 								{
-									if (map.SequenceEqual(LevelData.ColArr1[i]))
+									if (map.ArrayEqual(LevelData.ColArr1[i]))
 									{
 										ind2 = (byte)i;
 										found = true;
@@ -8035,7 +8057,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void MatchCol(ColInfo blk, out byte ind, out bool xflip, out bool yflip)
 		{
-			if (blk.HeightMap.SequenceEqual(LevelData.ColArr1[0xFF]))
+			if (blk.HeightMap.ArrayEqual(LevelData.ColArr1[0xFF]))
 			{
 				xflip = false;
 				yflip = false;
@@ -8052,28 +8074,28 @@ namespace SonicRetro.SonLVL.GUI
 			byte? emptymap = null;
 			for (int i = 0; i < LevelData.ColArr1.Length; i++)
 			{
-				if (blk.HeightMap.SequenceEqual(LevelData.ColArr1[i]))
+				if (blk.HeightMap.ArrayEqual(LevelData.ColArr1[i]))
 				{
 					xflip = false;
 					yflip = false;
 					ind = (byte)i;
 					return;
 				}
-				if (maph.SequenceEqual(LevelData.ColArr1[i]))
+				if (maph.ArrayEqual(LevelData.ColArr1[i]))
 				{
 					xflip = true;
 					yflip = false;
 					ind = (byte)i;
 					return;
 				}
-				if (mapv.SequenceEqual(LevelData.ColArr1[i]))
+				if (mapv.ArrayEqual(LevelData.ColArr1[i]))
 				{
 					xflip = false;
 					yflip = true;
 					ind = (byte)i;
 					return;
 				}
-				if (maphv.SequenceEqual(LevelData.ColArr1[i]))
+				if (maphv.ArrayEqual(LevelData.ColArr1[i]))
 				{
 					xflip = true;
 					yflip = true;

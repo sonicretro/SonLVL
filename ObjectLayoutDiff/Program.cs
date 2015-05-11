@@ -37,7 +37,7 @@ namespace ObjectLayoutDiff
 						List<ObjectEntry> newobjs = LoadObjects(File.ReadAllBytes(args[3]), format);
 						for (int i = 0; i < origobjs.Count; i++)
 							for (int j = 0; j < newobjs.Count; j++)
-								if (origobjs[i].GetBytes().SequenceEqual(newobjs[j].GetBytes()))
+								if (origobjs[i].GetBytes().ArrayEqual(newobjs[j].GetBytes()))
 								{
 									origobjs.RemoveAt(i--);
 									newobjs.RemoveAt(j);

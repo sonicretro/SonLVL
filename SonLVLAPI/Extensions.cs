@@ -208,5 +208,23 @@ namespace SonicRetro.SonLVL.API
             else
                 return "-" + Math.Abs(number).ToHex68k();
         }
+
+		public static bool ArrayEqual<T>(this T[] arr1, T[] arr2)
+		{
+			if (arr1.Length != arr2.Length) return false;
+			for (int i = 0; i < arr1.Length; i++)
+				if (!arr1[i].Equals(arr2[1]))
+					return false;
+			return true;
+		}
+
+		public static bool ListEqual<T>(this IList<T> lst1, IList<T> lst2)
+		{
+			if (lst1.Count != lst2.Count) return false;
+			for (int i = 0; i < lst1.Count; i++)
+				if (!lst1[i].Equals(lst2[1]))
+					return false;
+			return true;
+		}
     }
 }
