@@ -118,6 +118,12 @@
     <Compile Include="FindObjectsDialog.Designer.cs">
       <DependentUpon>FindObjectsDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="ImportProgressControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ImportProgressControl.Designer.cs">
+      <DependentUpon>ImportProgressControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="InsertDeleteDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -210,6 +216,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FindObjectsDialog.resx">
       <DependentUpon>FindObjectsDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ImportProgressControl.resx">
+      <DependentUpon>ImportProgressControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="InsertDeleteDialog.resx">
       <DependentUpon>InsertDeleteDialog.cs</DependentUpon>

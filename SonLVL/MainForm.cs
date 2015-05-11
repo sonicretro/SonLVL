@@ -465,6 +465,7 @@ namespace SonicRetro.SonLVL.GUI
 				item.Value.Checked = false;
 			((ToolStripMenuItem)sender).Checked = true;
 			Enabled = false;
+			UseWaitCursor = true;
 			Text = "SonLVL - " + LevelData.Game.EngineVersion + " - Loading " + LevelData.Game.GetLevelInfo((string)((ToolStripMenuItem)sender).Tag).DisplayName + "...";
 			LevelData.littleendian = false;
 			string anipath = Path.Combine(Application.StartupPath, "loadanim");
@@ -509,6 +510,7 @@ namespace SonicRetro.SonLVL.GUI
 			}
 			pal[0] = Color.Transparent;
 			loadingAnimation1.ChangeAnimation(tiles.ToArray(), map.ToArray(), dplc.ToArray(), ani, pal);
+			importProgressControl1.ChangeAnimation(tiles.ToArray(), map.ToArray(), dplc.ToArray(), ani, pal);
 #if !DEBUG
 			loadingAnimation1.BringToFront();
 			loadingAnimation1.Show();
@@ -730,6 +732,7 @@ namespace SonicRetro.SonLVL.GUI
 			loadingAnimation1.Hide();
 #endif
 			Enabled = true;
+			UseWaitCursor = false;
 			DrawLevel();
 		}
 
@@ -4639,25 +4642,45 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			int w = bmp.Width;
 			int h = bmp.Height;
+			Enabled = false;
+			UseWaitCursor = true;
+			importProgressControl1_SizeChanged(this, EventArgs.Empty);
+			importProgressControl1.CurrentProgress = 0;
+			importProgressControl1.MaximumProgress = (w / 8) * (h / 8);
+			importProgressControl1.BringToFront();
+			importProgressControl1.Show();
+			Application.DoEvents();
 			BlockColInfo[,] blockcoldata = null;
 			if (colbmp1 != null)
+			{
 				blockcoldata = ProcessColBmps(colbmp1, colbmp2, w, h);
+				Application.DoEvents();
+			}
 			bool[,] priority = new bool[w / 8, h / 8];
 			if (pribmp != null)
+			{
 				using (pribmp)
 					LevelData.GetPriMap(pribmp, priority);
+				Application.DoEvents();
+			}
 			int pal = 0;
 			byte? forcepal = bmp.PixelFormat == PixelFormat.Format1bppIndexed || bmp.PixelFormat == PixelFormat.Format4bppIndexed ? (byte)SelectedColor.Y : (byte?)null;
 			bool match = false;
 			List<BitmapBits> tiles = new List<BitmapBits>(LevelData.Tiles.Count);
 			for (int i = 0; i < LevelData.Tiles.Count; i++)
 				tiles.Add(BitmapBits.FromTile(LevelData.Tiles[i], 0));
+			Application.DoEvents();
 			List<byte[]> blocks = new List<byte[]>(LevelData.Blocks.Count);
 			for (int i = 0; i < LevelData.Blocks.Count; i++)
 				blocks.Add(LevelData.Blocks[i].GetBytes());
+			Application.DoEvents();
+			List<byte> colInds1 = new List<byte>(LevelData.ColInds1);
+			List<byte> colInds2 = new List<byte>(LevelData.ColInds2);
+			Application.DoEvents();
 			List<byte[]> chunks = new List<byte[]>(LevelData.Chunks.Count);
 			for (int i = 0; i < LevelData.Chunks.Count; i++)
 				chunks.Add(LevelData.Chunks[i].GetBytes());
+			Application.DoEvents();
 			List<byte[]> newTiles = new List<byte[]>();
 			List<Block> newBlocks = new List<Block>();
 			List<byte> newColInds1 = new List<byte>();
@@ -4707,6 +4730,7 @@ namespace SonicRetro.SonLVL.GUI
 												match = false;
 												for (int i = 0; i < tiles.Count; i++)
 												{
+													Application.DoEvents();
 													if (tiles[i].Equals(bits))
 													{
 														match = true;
@@ -4737,6 +4761,8 @@ namespace SonicRetro.SonLVL.GUI
 													}
 												}
 												blk.Tiles[x, y].Priority = priority[(cx * (LevelData.Level.ChunkWidth / 8)) + (bx * 2) + x, (cy * (LevelData.Level.ChunkHeight / 8)) + (by * 2) + y];
+												importProgressControl1.CurrentProgress++;
+												Application.DoEvents();
 												if (match) continue;
 												tiles.Add(bits);
 												newTiles.Add(tile);
@@ -4754,11 +4780,12 @@ namespace SonicRetro.SonLVL.GUI
 									byte[] blkhv = blk.Flip(true, true).GetBytes();
 									for (int i = 0; i < blocks.Count; i++)
 									{
+										Application.DoEvents();
 										if (blockcoldata != null)
 										{
-											if (LevelData.ColInds1[i] != col.ColInd1)
+											if (colInds1[i] != col.ColInd1)
 												continue;
-											if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2) && LevelData.ColInds2[i] != col.ColInd2)
+											if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2) && colInds2[i] != col.ColInd2)
 												continue;
 										}
 										if (blkb.FastByteArrayEqual(blocks[i]))
@@ -4792,6 +4819,8 @@ namespace SonicRetro.SonLVL.GUI
 									}
 									if (match) continue;
 									blocks.Add(blkb);
+									colInds1.Add(col.ColInd1);
+									colInds2.Add(col.ColInd2);
 									newBlocks.Add(blk);
 									newColInds1.Add(col.ColInd1);
 									newColInds2.Add(col.ColInd2);
@@ -4800,32 +4829,45 @@ namespace SonicRetro.SonLVL.GUI
 							match = false;
 							byte[] cnkb = cnk.GetBytes();
 							for (int i = 0; i < chunks.Count; i++)
+							{
+								Application.DoEvents();
 								if (cnkb.FastByteArrayEqual(chunks[i]))
 								{
 									match = true;
 									break;
 								}
+							}
 							if (match) continue;
 							chunks.Add(cnkb);
 							newChunks.Add(cnk);
 						}
 					if (LevelData.Tiles.Count + newTiles.Count >= 0x800)
 					{
+						importProgressControl1.Hide();
+						Enabled = true;
+						UseWaitCursor = false;
 						MessageBox.Show(this, "There are " + (LevelData.Tiles.Count + newTiles.Count - 0x800) + " tiles over the limit.\nImport cannot proceed.", "SonLVL", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 						return;
 					}
 					if (LevelData.Blocks.Count + newBlocks.Count >= LevelData.GetBlockMax())
 					{
+						importProgressControl1.Hide();
+						Enabled = true;
+						UseWaitCursor = false;
 						MessageBox.Show(this, "There are " + (LevelData.Blocks.Count + newBlocks.Count - LevelData.GetBlockMax()) + " blocks over the limit.\nImport cannot proceed.", "SonLVL", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 						return;
 					}
 					if (LevelData.Chunks.Count + newChunks.Count >= 256)
 					{
+						importProgressControl1.Hide();
+						Enabled = true;
+						UseWaitCursor = false;
 						MessageBox.Show(this, "There are " + (LevelData.Chunks.Count + newChunks.Count - 256) + " chunks over the limit.\nImport cannot proceed.", "SonLVL", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 						return;
 					}
 					foreach (byte[] t in newTiles)
 					{
+						Application.DoEvents();
 						LevelData.Tiles.Add(t);
 						TileSelector.Images.Add(LevelData.TileToBmp4bpp(t, 0, SelectedColor.Y));
 					}
@@ -4834,6 +4876,7 @@ namespace SonicRetro.SonLVL.GUI
 					TileSelector.SelectedIndex = SelectedTile;
 					for (int i = 0; i < newBlocks.Count; i++)
 					{
+						Application.DoEvents();
 						LevelData.Blocks.Add(newBlocks[i]);
 						LevelData.ColInds1.AddOrSet(LevelData.Blocks.Count - 1, newColInds1[i]);
 						switch (LevelData.Level.ChunkFormat)
@@ -4856,6 +4899,7 @@ namespace SonicRetro.SonLVL.GUI
 					BlockSelector.SelectedIndex = SelectedBlock;
 					foreach (Chunk c in newChunks)
 					{
+						Application.DoEvents();
 						LevelData.ChunkBmpBits.Add(new BitmapBits[2]);
 						LevelData.ChunkBmps.Add(new Bitmap[2]);
 						LevelData.ChunkColBmpBits.Add(new BitmapBits[2]);
@@ -4901,6 +4945,7 @@ namespace SonicRetro.SonLVL.GUI
 										match = false;
 										for (int i = 0; i < tiles.Count; i++)
 										{
+											Application.DoEvents();
 											if (tiles[i].Equals(bits))
 											{
 												match = true;
@@ -4930,6 +4975,9 @@ namespace SonicRetro.SonLVL.GUI
 												break;
 											}
 										}
+										blk.Tiles[x, y].Priority = priority[(bx * 2) + x, (by * 2) + y];
+										importProgressControl1.CurrentProgress++;
+										Application.DoEvents();
 										if (match) continue;
 										tiles.Add(bits);
 										newTiles.Add(tile);
@@ -4945,6 +4993,7 @@ namespace SonicRetro.SonLVL.GUI
 							byte[] blkhv = blk.Flip(true, true).GetBytes();
 							for (int i = 0; i < blocks.Count; i++)
 							{
+								Application.DoEvents();
 								if (blockcoldata != null)
 								{
 									if (LevelData.ColInds1[i] != col.ColInd1)
@@ -4967,16 +5016,23 @@ namespace SonicRetro.SonLVL.GUI
 						}
 					if (LevelData.Tiles.Count + newTiles.Count >= 0x800)
 					{
+						importProgressControl1.Hide();
+						Enabled = true;
+						UseWaitCursor = false;
 						MessageBox.Show(this, "There are " + (LevelData.Tiles.Count + newTiles.Count - 0x800) + " tiles over the limit.\nImport cannot proceed.", "SonLVL", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 						return;
 					}
 					if (LevelData.Blocks.Count + newBlocks.Count >= LevelData.GetBlockMax())
 					{
+						importProgressControl1.Hide();
+						Enabled = true;
+						UseWaitCursor = false;
 						MessageBox.Show(this, "There are " + (LevelData.Blocks.Count + newBlocks.Count - LevelData.GetBlockMax()) + " blocks over the limit.\nImport cannot proceed.", "SonLVL", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 						return;
 					}
 					foreach (byte[] t in newTiles)
 					{
+						Application.DoEvents();
 						LevelData.Tiles.Add(t);
 						TileSelector.Images.Add(LevelData.TileToBmp4bpp(t, 0, SelectedColor.Y));
 					}
@@ -4985,6 +5041,7 @@ namespace SonicRetro.SonLVL.GUI
 					TileSelector.SelectedIndex = SelectedTile;
 					for (int i = 0; i < newBlocks.Count; i++)
 					{
+						Application.DoEvents();
 						LevelData.Blocks.Add(newBlocks[i]);
 						LevelData.ColInds1.AddOrSet(LevelData.Blocks.Count - 1, newColInds1[i]);
 						switch (LevelData.Level.ChunkFormat)
@@ -5021,23 +5078,32 @@ namespace SonicRetro.SonLVL.GUI
 							bitshv.Flip(true, true);
 							match = false;
 							for (int i = 0; i < tiles.Count; i++)
+							{
+								Application.DoEvents();
 								if (tiles[i].Equals(bits) || tiles[i].Equals(bitsh)
 									|| tiles[i].Equals(bitsv) || tiles[i].Equals(bitshv))
 								{
 									match = true;
 									break;
 								}
+							}
+							importProgressControl1.CurrentProgress++;
+							Application.DoEvents();
 							if (match) continue;
 							tiles.Add(bits);
 							newTiles.Add(tile);
 						}
 					if (LevelData.Tiles.Count + newTiles.Count >= 0x800)
 					{
+						importProgressControl1.Hide();
+						Enabled = true;
+						UseWaitCursor = false;
 						MessageBox.Show(this, "There are " + (LevelData.Tiles.Count + newTiles.Count - 0x800) + " tiles over the limit.\nImport cannot proceed.", "SonLVL", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 						return;
 					}
 					foreach (byte[] t in newTiles)
 					{
+						Application.DoEvents();
 						LevelData.Tiles.Add(t);
 						TileSelector.Images.Add(LevelData.TileToBmp4bpp(t, 0, SelectedColor.Y));
 					}
@@ -5048,6 +5114,9 @@ namespace SonicRetro.SonLVL.GUI
 					break;
 			}
 			bmp.Dispose();
+			importProgressControl1.Hide();
+			Enabled = true;
+			UseWaitCursor = false;
 		}
 
 		private int SelectedCol;
@@ -7739,17 +7808,31 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			int w = bmp.Width;
 			int h = bmp.Height;
+			Enabled = false;
+			UseWaitCursor = true;
+			importProgressControl1_SizeChanged(this, EventArgs.Empty);
+			importProgressControl1.CurrentProgress = 0;
+			importProgressControl1.MaximumProgress = (w / 8) * (h / 8);
+			importProgressControl1.BringToFront();
+			importProgressControl1.Show();
+			Application.DoEvents();
 			int cw = w / LevelData.Level.ChunkWidth;
 			int ch = h / LevelData.Level.ChunkHeight;
 			w = cw * LevelData.Level.ChunkWidth;
 			h = ch * LevelData.Level.ChunkHeight;
 			BlockColInfo[,] blockcoldata = null;
 			if (colbmp1 != null)
+			{
 				blockcoldata = ProcessColBmps(colbmp1, colbmp2, w, h);
+				Application.DoEvents();
+			}
 			bool[,] priority = new bool[w / 8, h / 8];
 			if (pribmp != null)
+			{
 				using (pribmp)
 					LevelData.GetPriMap(pribmp, priority);
+				Application.DoEvents();
+			}
 			byte[,] result = new byte[cw, ch];
 			int pal = 0;
 			byte? forcepal = bmp.PixelFormat == PixelFormat.Format1bppIndexed || bmp.PixelFormat == PixelFormat.Format4bppIndexed ? (byte)SelectedColor.Y : (byte?)null;
@@ -7757,12 +7840,18 @@ namespace SonicRetro.SonLVL.GUI
 			List<BitmapBits> tiles = new List<BitmapBits>(LevelData.Tiles.Count);
 			for (int i = 0; i < LevelData.Tiles.Count; i++)
 				tiles.Add(BitmapBits.FromTile(LevelData.Tiles[i], 0));
+			Application.DoEvents();
 			List<byte[]> blocks = new List<byte[]>(LevelData.Blocks.Count);
 			for (int i = 0; i < LevelData.Blocks.Count; i++)
 				blocks.Add(LevelData.Blocks[i].GetBytes());
+			Application.DoEvents();
+			List<byte> colInds1 = new List<byte>(LevelData.ColInds1);
+			List<byte> colInds2 = new List<byte>(LevelData.ColInds2);
+			Application.DoEvents();
 			List<byte[]> chunks = new List<byte[]>(LevelData.Chunks.Count);
 			for (int i = 0; i < LevelData.Chunks.Count; i++)
 				chunks.Add(LevelData.Chunks[i].GetBytes());
+			Application.DoEvents();
 			List<byte[]> newTiles = new List<byte[]>();
 			List<Block> newBlocks = new List<Block>();
 			List<byte> newColInds1 = new List<byte>();
@@ -7809,6 +7898,7 @@ namespace SonicRetro.SonLVL.GUI
 										match = false;
 										for (int i = 0; i < tiles.Count; i++)
 										{
+											Application.DoEvents();
 											if (tiles[i].Equals(bits))
 											{
 												match = true;
@@ -7839,6 +7929,8 @@ namespace SonicRetro.SonLVL.GUI
 											}
 										}
 										blk.Tiles[x, y].Priority = priority[(cx * (LevelData.Level.ChunkWidth / 8)) + (bx * 2) + x, (cy * (LevelData.Level.ChunkHeight / 8)) + (by * 2) + y];
+										importProgressControl1.CurrentProgress++;
+										Application.DoEvents();
 										if (match) continue;
 										tiles.Add(bits);
 										newTiles.Add(tile);
@@ -7856,11 +7948,12 @@ namespace SonicRetro.SonLVL.GUI
 							byte[] blkhv = blk.Flip(true, true).GetBytes();
 							for (int i = 0; i < blocks.Count; i++)
 							{
+								Application.DoEvents();
 								if (blockcoldata != null)
 								{
-									if (LevelData.ColInds1[i] != col.ColInd1)
+									if (colInds1[i] != col.ColInd1)
 										continue;
-									if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2) && LevelData.ColInds2[i] != col.ColInd2)
+									if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2) && colInds2[i] != col.ColInd2)
 										continue;
 								}
 								if (blkb.FastByteArrayEqual(blocks[i]))
@@ -7894,6 +7987,8 @@ namespace SonicRetro.SonLVL.GUI
 							}
 							if (match) continue;
 							blocks.Add(blkb);
+							colInds1.Add(col.ColInd1);
+							colInds2.Add(col.ColInd2);
 							newBlocks.Add(blk);
 							newColInds1.Add(col.ColInd1);
 							newColInds2.Add(col.ColInd2);
@@ -7902,12 +7997,15 @@ namespace SonicRetro.SonLVL.GUI
 					match = false;
 					byte[] cnkb = cnk.GetBytes();
 					for (int i = 0; i < chunks.Count; i++)
+					{
+						Application.DoEvents();
 						if (cnkb.FastByteArrayEqual(chunks[i]))
 						{
 							result[cx, cy] = (byte)i;
 							match = true;
 							break;
 						}
+					}
 					if (match) continue;
 					chunks.Add(cnkb);
 					newChunks.Add(cnk);
@@ -7915,21 +8013,31 @@ namespace SonicRetro.SonLVL.GUI
 				}
 			if (LevelData.Tiles.Count + newTiles.Count >= 0x800)
 			{
+				importProgressControl1.Hide();
+				Enabled = true;
+				UseWaitCursor = false;
 				MessageBox.Show(this, "There are " + (LevelData.Tiles.Count + newTiles.Count - 0x800) + " tiles over the limit.\nImport cannot proceed.", "SonLVL", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 				return null;
 			}
 			if (LevelData.Blocks.Count + newBlocks.Count >= LevelData.GetBlockMax())
 			{
+				importProgressControl1.Hide();
+				Enabled = true;
+				UseWaitCursor = false;
 				MessageBox.Show(this, "There are " + (LevelData.Blocks.Count + newBlocks.Count - LevelData.GetBlockMax()) + " blocks over the limit.\nImport cannot proceed.", "SonLVL", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 				return null;
 			}
 			if (LevelData.Chunks.Count + newChunks.Count >= 256)
 			{
+				importProgressControl1.Hide();
+				Enabled = true;
+				UseWaitCursor = false;
 				MessageBox.Show(this, "There are " + (LevelData.Chunks.Count + newChunks.Count - 256) + " chunks over the limit.\nImport cannot proceed.", "SonLVL", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 				return null;
 			}
 			foreach (byte[] t in newTiles)
 			{
+				Application.DoEvents();
 				LevelData.Tiles.Add(t);
 				TileSelector.Images.Add(LevelData.TileToBmp4bpp(t, 0, SelectedColor.Y));
 			}
@@ -7938,6 +8046,7 @@ namespace SonicRetro.SonLVL.GUI
 			TileSelector.SelectedIndex = SelectedTile;
 			for (int i = 0; i < newBlocks.Count; i++)
 			{
+				Application.DoEvents();
 				LevelData.Blocks.Add(newBlocks[i]);
 				LevelData.ColInds1.AddOrSet(LevelData.Blocks.Count - 1, newColInds1[i]);
 				switch (LevelData.Level.ChunkFormat)
@@ -7960,6 +8069,7 @@ namespace SonicRetro.SonLVL.GUI
 			BlockSelector.SelectedIndex = SelectedBlock;
 			foreach (Chunk c in newChunks)
 			{
+				Application.DoEvents();
 				LevelData.ChunkBmpBits.Add(new BitmapBits[2]);
 				LevelData.ChunkBmps.Add(new Bitmap[2]);
 				LevelData.ChunkColBmpBits.Add(new BitmapBits[2]);
@@ -7970,6 +8080,7 @@ namespace SonicRetro.SonLVL.GUI
 			}
 			SelectedChunk = (byte)(LevelData.Chunks.Count - 1);
 			ChunkSelector.SelectedIndex = SelectedChunk;
+			importProgressControl1.Hide();
 			return result;
 		}
 
@@ -7994,6 +8105,7 @@ namespace SonicRetro.SonLVL.GUI
 					g.DrawImage(colbmp2, 0, 0, colbmp2.Width, colbmp2.Height);
 					coldata2 = LevelData.GetColMap(tmp);
 				}
+			Application.DoEvents();
 			BlockColInfo[,] blockcoldata = new BlockColInfo[w / 16, h / 16];
 			for (int y = 0; y < h / 16; y++)
 				for (int x = 0; x < w / 16; x++)
@@ -8062,6 +8174,7 @@ namespace SonicRetro.SonLVL.GUI
 						}
 					}
 					blockcoldata[x, y] = new BlockColInfo(ind1, ind2, blk1.Solidity, blk2.Solidity, xflip, yflip);
+					Application.DoEvents();
 				}
 			return blockcoldata;
 		}
@@ -8269,6 +8382,11 @@ namespace SonicRetro.SonLVL.GUI
 				chunkCtrlLabel.Text = "LMB: Paint w/ selected block\nRMB: Select block";
 			}
 			Settings.SwitchChunkBlockMouseButtons = switchMouseButtonsInChunkAndBlockEditorsToolStripMenuItem.Checked;
+		}
+
+		private void importProgressControl1_SizeChanged(object sender, EventArgs e)
+		{
+			importProgressControl1.Location = new Point((ClientSize.Width / 2) - (importProgressControl1.Width / 2), (ClientSize.Height / 2) - (importProgressControl1.Height / 2));
 		}
 	}
 
