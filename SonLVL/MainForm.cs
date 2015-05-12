@@ -8388,6 +8388,112 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			importProgressControl1.Location = new Point((ClientSize.Width / 2) - (importProgressControl1.Width / 2), (ClientSize.Height / 2) - (importProgressControl1.Height / 2));
 		}
+
+		private void deleteUnusedTilesToolStripButton_Click(object sender, EventArgs e)
+		{
+			if (MessageBox.Show(this, "This action may break other levels that share part of the same tile set, or objects that have their art in this set.\n\nAre you sure you want to delete all tiles not used in blocks?", "Delete Unused Tiles", MessageBoxButtons.OKCancel) == DialogResult.OK)
+			{
+				bool[] tilesused = new bool[LevelData.Tiles.Count];
+				foreach (Block blk in LevelData.Blocks)
+					foreach (PatternIndex pat in blk.Tiles)
+						if (pat.Tile < tilesused.Length)
+							tilesused[pat.Tile] = true;
+				ushort c = 0;
+				Dictionary<ushort, ushort> tilemap = new Dictionary<ushort, ushort>();
+				for (ushort i = 0; i < tilesused.Length; i++)
+					if (tilesused[i])
+						tilemap[i] = c++;
+				foreach (Block blk in LevelData.Blocks)
+					foreach (PatternIndex pat in blk.Tiles)
+						if (tilemap.ContainsKey(pat.Tile))
+							pat.Tile = tilemap[pat.Tile];
+				for (int i = tilesused.Length - 1; i >= 0; i--)
+				{
+					if (tilesused[i]) continue;
+					LevelData.Tiles.RemoveAt(i);
+					TileSelector.Images.RemoveAt(i);
+				}
+				LevelData.UpdateTileArray();
+				SelectedTile = TileSelector.SelectedIndex = Math.Min(SelectedTile, LevelData.Tiles.Count - 1);
+				blockTileEditor.SelectedObject = blockTileEditor.SelectedObject;
+			}
+		}
+
+		private void deleteUnusedBlocksToolStripButton_Click(object sender, EventArgs e)
+		{
+			if (MessageBox.Show(this, "This action may break other levels that share part of the same block set.\n\nAre you sure you want to delete all blocks not used in chunks?", "Delete Unused Blocks", MessageBoxButtons.OKCancel) == DialogResult.OK)
+			{
+				bool[] blocksused = new bool[LevelData.Blocks.Count];
+				foreach (Chunk cnk in LevelData.Chunks)
+					foreach (ChunkBlock blk in cnk.Blocks)
+						if (blk.Block < blocksused.Length)
+							blocksused[blk.Block] = true;
+				ushort c = 0;
+				Dictionary<ushort, ushort> blockmap = new Dictionary<ushort, ushort>();
+				for (ushort i = 0; i < blocksused.Length; i++)
+					if (blocksused[i])
+						blockmap[i] = c++;
+				foreach (Chunk cnk in LevelData.Chunks)
+					foreach (ChunkBlock blk in cnk.Blocks)
+						if (blockmap.ContainsKey(blk.Block))
+							blk.Block = blockmap[blk.Block];
+				for (int i = blocksused.Length - 1; i >= 0; i--)
+				{
+					if (blocksused[i]) continue;
+					LevelData.Blocks.RemoveAt(i);
+					LevelData.BlockBmpBits.RemoveAt(i);
+					LevelData.BlockBmps.RemoveAt(i);
+					LevelData.CompBlockBmpBits.RemoveAt(i);
+					LevelData.CompBlockBmps.RemoveAt(i);
+					LevelData.ColInds1.RemoveAt(i);
+					if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2))
+						LevelData.ColInds2.RemoveAt(i);
+				}
+				SelectedBlock = BlockSelector.SelectedIndex = Math.Min(SelectedBlock, LevelData.Blocks.Count - 1);
+				chunkBlockEditor.SelectedObject = chunkBlockEditor.SelectedObject;
+			}
+		}
+
+		private void deleteUnusedChunksToolStripButton_Click(object sender, EventArgs e)
+		{
+			if (MessageBox.Show(this, "This action may break other levels that share the same chunk set, or levels that alter the level layout dynamically.\n\nAre you sure you want to delete all chunks not used in the layout?", "Delete Unused Chunks", MessageBoxButtons.OKCancel) == DialogResult.OK)
+			{
+				bool[] chunksused = new bool[LevelData.Chunks.Count];
+				for (int y = 0; y < LevelData.FGHeight; y++)
+					for (int x = 0; x < LevelData.FGWidth; x++)
+						if (LevelData.Layout.FGLayout[x, y] < chunksused.Length)
+							chunksused[LevelData.Layout.FGLayout[x, y]] = true;
+				for (int y = 0; y < LevelData.BGHeight; y++)
+					for (int x = 0; x < LevelData.BGWidth; x++)
+						if (LevelData.Layout.BGLayout[x, y] < chunksused.Length)
+							chunksused[LevelData.Layout.BGLayout[x, y]] = true;
+				byte c = 0;
+				Dictionary<byte, byte> chunkmap = new Dictionary<byte, byte>();
+				for (int i = 0; i < chunksused.Length; i++)
+					if (chunksused[i])
+						chunkmap[(byte)i] = c++;
+				for (int y = 0; y < LevelData.FGHeight; y++)
+					for (int x = 0; x < LevelData.FGWidth; x++)
+						if (chunkmap.ContainsKey(LevelData.Layout.FGLayout[x, y]))
+							LevelData.Layout.FGLayout[x, y] = chunkmap[LevelData.Layout.FGLayout[x, y]];
+				for (int y = 0; y < LevelData.BGHeight; y++)
+					for (int x = 0; x < LevelData.BGWidth; x++)
+						if (chunkmap.ContainsKey(LevelData.Layout.BGLayout[x, y]))
+							LevelData.Layout.BGLayout[x, y] = chunkmap[LevelData.Layout.BGLayout[x, y]];
+				for (int i = chunksused.Length - 1; i >= 0; i--)
+				{
+					if (chunksused[i]) continue;
+					LevelData.Chunks.RemoveAt(i);
+					LevelData.ChunkBmpBits.RemoveAt(i);
+					LevelData.ChunkBmps.RemoveAt(i);
+					LevelData.ChunkColBmpBits.RemoveAt(i);
+					LevelData.ChunkColBmps.RemoveAt(i);
+					LevelData.CompChunkBmpBits.RemoveAt(i);
+					LevelData.CompChunkBmps.RemoveAt(i);
+				}
+				ChunkSelector.SelectedIndex = SelectedChunk = Math.Min(SelectedChunk, (byte)(LevelData.Chunks.Count - 1));
+			}
+		}
 	}
 
 	public enum EditingMode { Draw, Select }

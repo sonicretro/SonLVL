@@ -63,10 +63,12 @@
 			this.panel10 = new System.Windows.Forms.Panel();
 			this.BlockSelector = new SonicRetro.SonLVL.API.TileList();
 			this.importBlocksToolStripButton = new System.Windows.Forms.ToolStripButton();
+			this.deleteUnusedBlocksToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.remapBlocksButton = new System.Windows.Forms.ToolStripButton();
 			this.enableDraggingBlocksButton = new System.Windows.Forms.ToolStripButton();
 			this.TileSelector = new SonicRetro.SonLVL.API.TileList();
 			this.importTilesToolStripButton = new System.Windows.Forms.ToolStripButton();
+			this.deleteUnusedTilesToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.remapTilesButton = new System.Windows.Forms.ToolStripButton();
 			this.enableDraggingTilesButton = new System.Windows.Forms.ToolStripButton();
 			this.tabPage8 = new System.Windows.Forms.TabPage();
@@ -299,6 +301,7 @@
 			this.deleteLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.loadingAnimation1 = new SonicRetro.SonLVL.LoadingAnimation();
 			this.importProgressControl1 = new SonicRetro.SonLVL.ImportProgressControl();
+			this.deleteUnusedChunksToolStripButton = new System.Windows.Forms.ToolStripButton();
 			toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
 			toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
 			label4 = new System.Windows.Forms.Label();
@@ -440,6 +443,7 @@
 			chunkListToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			chunkListToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.importChunksToolStripButton,
+            this.deleteUnusedChunksToolStripButton,
             this.remapChunksButton,
             this.enableDraggingChunksButton});
 			chunkListToolStrip.Location = new System.Drawing.Point(0, 0);
@@ -463,7 +467,7 @@
 			this.remapChunksButton.Enabled = false;
 			this.remapChunksButton.Image = ((System.Drawing.Image)(resources.GetObject("remapChunksButton.Image")));
 			this.remapChunksButton.Name = "remapChunksButton";
-			this.remapChunksButton.Size = new System.Drawing.Size(137, 22);
+			this.remapChunksButton.Size = new System.Drawing.Size(137, 19);
 			this.remapChunksButton.Text = "Advanced Remapping...";
 			this.remapChunksButton.Click += new System.EventHandler(this.remapChunksButton_Click);
 			// 
@@ -538,6 +542,7 @@
 			blockListToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			blockListToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.importBlocksToolStripButton,
+            this.deleteUnusedBlocksToolStripButton,
             this.remapBlocksButton,
             this.enableDraggingBlocksButton});
 			blockListToolStrip.Location = new System.Drawing.Point(0, 0);
@@ -555,13 +560,21 @@
 			this.importBlocksToolStripButton.Text = "Import...";
 			this.importBlocksToolStripButton.Click += new System.EventHandler(this.importToolStripMenuItem_Click);
 			// 
+			// deleteUnusedBlocksToolStripButton
+			// 
+			this.deleteUnusedBlocksToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.deleteUnusedBlocksToolStripButton.Name = "deleteUnusedBlocksToolStripButton";
+			this.deleteUnusedBlocksToolStripButton.Size = new System.Drawing.Size(87, 22);
+			this.deleteUnusedBlocksToolStripButton.Text = "Delete Unused";
+			this.deleteUnusedBlocksToolStripButton.Click += new System.EventHandler(this.deleteUnusedBlocksToolStripButton_Click);
+			// 
 			// remapBlocksButton
 			// 
 			this.remapBlocksButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
 			this.remapBlocksButton.Enabled = false;
 			this.remapBlocksButton.Image = ((System.Drawing.Image)(resources.GetObject("remapBlocksButton.Image")));
 			this.remapBlocksButton.Name = "remapBlocksButton";
-			this.remapBlocksButton.Size = new System.Drawing.Size(137, 22);
+			this.remapBlocksButton.Size = new System.Drawing.Size(137, 19);
 			this.remapBlocksButton.Text = "Advanced Remapping...";
 			this.remapBlocksButton.Click += new System.EventHandler(this.remapBlocksButton_Click);
 			// 
@@ -616,6 +629,7 @@
 			tileListToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			tileListToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.importTilesToolStripButton,
+            this.deleteUnusedTilesToolStripButton,
             this.remapTilesButton,
             this.enableDraggingTilesButton});
 			tileListToolStrip.Location = new System.Drawing.Point(0, 0);
@@ -632,6 +646,14 @@
 			this.importTilesToolStripButton.Size = new System.Drawing.Size(56, 22);
 			this.importTilesToolStripButton.Text = "Import...";
 			this.importTilesToolStripButton.Click += new System.EventHandler(this.importToolStripMenuItem_Click);
+			// 
+			// deleteUnusedTilesToolStripButton
+			// 
+			this.deleteUnusedTilesToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.deleteUnusedTilesToolStripButton.Name = "deleteUnusedTilesToolStripButton";
+			this.deleteUnusedTilesToolStripButton.Size = new System.Drawing.Size(87, 22);
+			this.deleteUnusedTilesToolStripButton.Text = "Delete Unused";
+			this.deleteUnusedTilesToolStripButton.Click += new System.EventHandler(this.deleteUnusedTilesToolStripButton_Click);
 			// 
 			// remapTilesButton
 			// 
@@ -3130,6 +3152,14 @@
 			this.importProgressControl1.Visible = false;
 			this.importProgressControl1.SizeChanged += new System.EventHandler(this.importProgressControl1_SizeChanged);
 			// 
+			// deleteUnusedChunksToolStripButton
+			// 
+			this.deleteUnusedChunksToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.deleteUnusedChunksToolStripButton.Name = "deleteUnusedChunksToolStripButton";
+			this.deleteUnusedChunksToolStripButton.Size = new System.Drawing.Size(87, 22);
+			this.deleteUnusedChunksToolStripButton.Text = "Delete Unused";
+			this.deleteUnusedChunksToolStripButton.Click += new System.EventHandler(this.deleteUnusedChunksToolStripButton_Click);
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -3487,6 +3517,9 @@
 		private System.Windows.Forms.ToolStripMenuItem exportArtcollisionpriorityToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem jASCPALToolStripMenuItem;
 		private ImportProgressControl importProgressControl1;
+		private System.Windows.Forms.ToolStripButton deleteUnusedTilesToolStripButton;
+		private System.Windows.Forms.ToolStripButton deleteUnusedBlocksToolStripButton;
+		private System.Windows.Forms.ToolStripButton deleteUnusedChunksToolStripButton;
 
     }
 }
