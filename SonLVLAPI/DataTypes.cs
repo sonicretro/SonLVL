@@ -108,7 +108,7 @@ namespace SonicRetro.SonLVL.API
 
 		public static SonLVLColor[] Load(byte[] file, EngineVersion game)
 		{
-			return Load(file, 0, file.Length, game);
+			return Load(file, 0, file.Length / (game == EngineVersion.SCDPC ? 4 : 2), game);
 		}
 
 		public static SonLVLColor[] Load(string filename, EngineVersion game)
