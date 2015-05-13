@@ -105,6 +105,17 @@ namespace SonicRetro.SonLVL.API
                     palfile[pi] = new SonLVLColor(file[address + (pi * 4)], file[address + (pi * 4) + 1], file[address + (pi * 4) + 2]);
             return palfile;
         }
+
+		public static SonLVLColor[] Load(byte[] file, EngineVersion game)
+		{
+			return Load(file, 0, file.Length, game);
+		}
+
+		public static SonLVLColor[] Load(string filename, EngineVersion game)
+		{
+			byte[] file = File.ReadAllBytes(filename);
+			return Load(file, game);
+		}
     }
 
 	[Serializable]
