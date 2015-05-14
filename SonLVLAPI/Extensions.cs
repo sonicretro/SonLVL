@@ -322,7 +322,7 @@ namespace SonicRetro.SonLVL.API
 		{
 			if (length == 0) return;
 			if (startIndex < 0 || startIndex >= arr.Length) throw new ArgumentOutOfRangeException("startIndex");
-			if (length < 0 || startIndex + length >= arr.Length) throw new ArgumentOutOfRangeException("length");
+			if (length < 0 || startIndex + length > arr.Length) throw new ArgumentOutOfRangeException("length");
 			for (int i = startIndex; i < startIndex + length; i++)
 				arr[i] = item;
 		}
@@ -361,7 +361,7 @@ namespace SonicRetro.SonLVL.API
 		{
 			if (length == 0) return;
 			if (startIndex < 0 || startIndex >= arr.Length) throw new ArgumentOutOfRangeException("startIndex");
-			if (length < 0 || startIndex + length >= arr.Length) throw new ArgumentOutOfRangeException("length");
+			if (length < 0 || startIndex + length > arr.Length) throw new ArgumentOutOfRangeException("length");
 			ulong longval = (ulong)value;
 			longval |= longval << 8;
 			longval |= longval << 16;
@@ -384,7 +384,7 @@ namespace SonicRetro.SonLVL.API
 		{
 			if (length == 0) return;
 			if (startIndex < 0 || startIndex >= arr.Length) throw new ArgumentOutOfRangeException("startIndex");
-			if (length < 0 || startIndex + length >= arr.Length) throw new ArgumentOutOfRangeException("length");
+			if (length < 0 || startIndex + length > arr.Length) throw new ArgumentOutOfRangeException("length");
 			ulong longval = (ulong)value;
 			longval |= longval << 8;
 			longval |= longval << 16;
@@ -407,7 +407,7 @@ namespace SonicRetro.SonLVL.API
 		{
 			if (length == 0) return;
 			if (startIndex < 0 || startIndex >= arr.Length) throw new ArgumentOutOfRangeException("startIndex");
-			if (length < 0 || startIndex + length >= arr.Length) throw new ArgumentOutOfRangeException("length");
+			if (length < 0 || startIndex + length > arr.Length) throw new ArgumentOutOfRangeException("length");
 			ulong longval = (ulong)value;
 			longval |= longval << 8;
 			longval |= longval << 16;
@@ -430,7 +430,7 @@ namespace SonicRetro.SonLVL.API
 		{
 			if (length == 0) return;
 			if (startIndex < 0 || startIndex >= arr.Length) throw new ArgumentOutOfRangeException("startIndex");
-			if (length < 0 || startIndex + length >= arr.Length) throw new ArgumentOutOfRangeException("length");
+			if (length < 0 || startIndex + length > arr.Length) throw new ArgumentOutOfRangeException("length");
 			ulong longval = (ulong)value;
 			longval |= longval << 8;
 			longval |= longval << 16;
@@ -453,7 +453,7 @@ namespace SonicRetro.SonLVL.API
 		{
 			if (length == 0) return;
 			if (startIndex < 0 || startIndex >= arr.Length) throw new ArgumentOutOfRangeException("startIndex");
-			if (length < 0 || startIndex + length >= arr.Length) throw new ArgumentOutOfRangeException("length");
+			if (length < 0 || startIndex + length > arr.Length) throw new ArgumentOutOfRangeException("length");
 			ulong longval = (ulong)value;
 			longval |= longval << 8;
 			longval |= longval << 16;
@@ -476,7 +476,7 @@ namespace SonicRetro.SonLVL.API
 		{
 			if (length == 0) return;
 			if (startIndex < 0 || startIndex >= arr.Length) throw new ArgumentOutOfRangeException("startIndex");
-			if (length < 0 || startIndex + length >= arr.Length) throw new ArgumentOutOfRangeException("length");
+			if (length < 0 || startIndex + length > arr.Length) throw new ArgumentOutOfRangeException("length");
 			ulong longval = (ulong)value;
 			longval |= longval << 8;
 			longval |= longval << 16;
@@ -499,7 +499,7 @@ namespace SonicRetro.SonLVL.API
 		{
 			if (length == 0) return;
 			if (startIndex < 0 || startIndex >= arr.Length) throw new ArgumentOutOfRangeException("startIndex");
-			if (length < 0 || startIndex + length >= arr.Length) throw new ArgumentOutOfRangeException("length");
+			if (length < 0 || startIndex + length > arr.Length) throw new ArgumentOutOfRangeException("length");
 			ulong longval = (ulong)value;
 			longval |= longval << 8;
 			longval |= longval << 16;
