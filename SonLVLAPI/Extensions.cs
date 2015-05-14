@@ -409,7 +409,6 @@ namespace SonicRetro.SonLVL.API
 			if (startIndex < 0 || startIndex >= arr.Length) throw new ArgumentOutOfRangeException("startIndex");
 			if (length < 0 || startIndex + length > arr.Length) throw new ArgumentOutOfRangeException("length");
 			ulong longval = (ulong)value;
-			longval |= longval << 8;
 			longval |= longval << 16;
 			longval |= longval << 32;
 			fixed (ushort* fp = arr)
@@ -419,7 +418,6 @@ namespace SonicRetro.SonLVL.API
 		public static unsafe void FastFill(this ushort[] arr, ushort value)
 		{
 			ulong longval = (ulong)value;
-			longval |= longval << 8;
 			longval |= longval << 16;
 			longval |= longval << 32;
 			fixed (ushort* fp = arr)
@@ -432,7 +430,6 @@ namespace SonicRetro.SonLVL.API
 			if (startIndex < 0 || startIndex >= arr.Length) throw new ArgumentOutOfRangeException("startIndex");
 			if (length < 0 || startIndex + length > arr.Length) throw new ArgumentOutOfRangeException("length");
 			ulong longval = (ulong)value;
-			longval |= longval << 8;
 			longval |= longval << 16;
 			longval |= longval << 32;
 			fixed (short* fp = arr)
@@ -442,7 +439,6 @@ namespace SonicRetro.SonLVL.API
 		public static unsafe void FastFill(this short[] arr, short value)
 		{
 			ulong longval = (ulong)value;
-			longval |= longval << 8;
 			longval |= longval << 16;
 			longval |= longval << 32;
 			fixed (short* fp = arr)
@@ -455,8 +451,6 @@ namespace SonicRetro.SonLVL.API
 			if (startIndex < 0 || startIndex >= arr.Length) throw new ArgumentOutOfRangeException("startIndex");
 			if (length < 0 || startIndex + length > arr.Length) throw new ArgumentOutOfRangeException("length");
 			ulong longval = (ulong)value;
-			longval |= longval << 8;
-			longval |= longval << 16;
 			longval |= longval << 32;
 			fixed (uint* fp = arr)
 				FastFillInternal(fp + startIndex, longval, length * 4);
@@ -465,8 +459,6 @@ namespace SonicRetro.SonLVL.API
 		public static unsafe void FastFill(this uint[] arr, uint value)
 		{
 			ulong longval = (ulong)value;
-			longval |= longval << 8;
-			longval |= longval << 16;
 			longval |= longval << 32;
 			fixed (uint* fp = arr)
 				FastFillInternal(fp, longval, arr.Length * 4);
@@ -478,8 +470,6 @@ namespace SonicRetro.SonLVL.API
 			if (startIndex < 0 || startIndex >= arr.Length) throw new ArgumentOutOfRangeException("startIndex");
 			if (length < 0 || startIndex + length > arr.Length) throw new ArgumentOutOfRangeException("length");
 			ulong longval = (ulong)value;
-			longval |= longval << 8;
-			longval |= longval << 16;
 			longval |= longval << 32;
 			fixed (int* fp = arr)
 				FastFillInternal(fp + startIndex, longval, length * 4);
@@ -488,8 +478,6 @@ namespace SonicRetro.SonLVL.API
 		public static unsafe void FastFill(this int[] arr, int value)
 		{
 			ulong longval = (ulong)value;
-			longval |= longval << 8;
-			longval |= longval << 16;
 			longval |= longval << 32;
 			fixed (int* fp = arr)
 				FastFillInternal(fp, longval, arr.Length * 4);
@@ -501,7 +489,6 @@ namespace SonicRetro.SonLVL.API
 			if (startIndex < 0 || startIndex >= arr.Length) throw new ArgumentOutOfRangeException("startIndex");
 			if (length < 0 || startIndex + length > arr.Length) throw new ArgumentOutOfRangeException("length");
 			ulong longval = (ulong)value;
-			longval |= longval << 8;
 			longval |= longval << 16;
 			longval |= longval << 32;
 			fixed (char* fp = arr)
@@ -511,7 +498,6 @@ namespace SonicRetro.SonLVL.API
 		public static unsafe void FastFill(this char[] arr, char value)
 		{
 			ulong longval = (ulong)value;
-			longval |= longval << 8;
 			longval |= longval << 16;
 			longval |= longval << 32;
 			fixed (char* fp = arr)
