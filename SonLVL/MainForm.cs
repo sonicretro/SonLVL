@@ -536,8 +536,7 @@ namespace SonicRetro.SonLVL.GUI
 				LevelImgPalette = new Bitmap(1, 1, PixelFormat.Format8bppIndexed).Palette;
 				for (int i = 0; i < 64; i++)
 					LevelImgPalette.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, false);
-				for (int i = 64; i < 256; i++)
-					LevelImgPalette.Entries[i] = Color.Black;
+				LevelImgPalette.Entries.Fill(Color.Black, 64, 192);
 				LevelImgPalette.Entries[LevelData.ColorTransparent] = LevelData.PaletteToColor(2, 0, false);
 				LevelImgPalette.Entries[LevelData.ColorWhite] = Color.White;
 				LevelImgPalette.Entries[LevelData.ColorYellow] = Color.Yellow;
@@ -1047,8 +1046,7 @@ namespace SonicRetro.SonLVL.GUI
 						Color[] pal = new Color[256];
 						for (int i = 0; i < 64; i++)
 							pal[i] = LevelData.PaletteToColor(i / 16, i % 16, false);
-						for (int i = 64; i < 256; i++)
-							pal[i] = Color.Black;
+						pal.Fill(Color.Black, 64, 192);
 						for (int y = 0; y < 4; y++)
 							for (int x = 0; x < 16; x++)
 								bmp.FillRectangle((byte)((y * 16) + x), x * 8, y * 8, 8, 8);
@@ -1302,8 +1300,7 @@ namespace SonicRetro.SonLVL.GUI
 						ColorPalette pal = res.Palette;
 						for (int i = 0; i < 64; i++)
 							pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, transparentBackFGBGToolStripMenuItem.Checked);
-						for (int i = 64; i < 256; i++)
-							pal.Entries[i] = Color.Black;
+						pal.Entries.Fill(Color.Black, 64, 192);
 						if (waterPalette != -1)
 							for (int i = 64; i < 128; i++)
 								if (transparentBackFGBGToolStripMenuItem.Checked && i % 16 == 0)
@@ -1385,8 +1382,7 @@ namespace SonicRetro.SonLVL.GUI
 						ColorPalette pal = res.Palette;
 						for (int i = 0; i < 64; i++)
 							pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, transparentBackFGBGToolStripMenuItem.Checked);
-						for (int i = 64; i < 256; i++)
-							pal.Entries[i] = Color.Black;
+						pal.Entries.Fill(Color.Black, 64, 192);
 						if (waterPalette != -1)
 							for (int i = 64; i < 128; i++)
 								if (transparentBackFGBGToolStripMenuItem.Checked && i % 16 == 0)
@@ -1424,8 +1420,7 @@ namespace SonicRetro.SonLVL.GUI
 						ColorPalette pal = res.Palette;
 						for (int i = 0; i < 64; i++)
 							pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, transparentBackFGBGToolStripMenuItem.Checked);
-						for (int i = 64; i < 256; i++)
-							pal.Entries[i] = Color.Black;
+						pal.Entries.Fill(Color.Black, 64, 192);
 						res.Palette = pal;
 						res.Save(a.FileName);
 						bool dualPath = false;
@@ -1497,8 +1492,7 @@ namespace SonicRetro.SonLVL.GUI
 						ColorPalette pal = res.Palette;
 						for (int i = 0; i < 64; i++)
 							pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, transparentBackFGBGToolStripMenuItem.Checked);
-						for (int i = 64; i < 256; i++)
-							pal.Entries[i] = Color.Black;
+						pal.Entries.Fill(Color.Black, 64, 192);
 						pal.Entries[LevelData.ColorWhite] = Color.White;
 						pal.Entries[LevelData.ColorYellow] = Color.Yellow;
 						pal.Entries[LevelData.ColorBlack] = Color.Black;

@@ -317,5 +317,205 @@ namespace SonicRetro.SonLVL.API
 					return false;
 			return true;
 		}
-    }
+
+		public static void Fill<T>(this T[] arr, T item, int startIndex, int length)
+		{
+			if (length == 0) return;
+			if (startIndex < 0 || startIndex >= arr.Length) throw new ArgumentOutOfRangeException("startIndex");
+			if (length < 0 || startIndex + length >= arr.Length) throw new ArgumentOutOfRangeException("length");
+			for (int i = startIndex; i < startIndex + length; i++)
+				arr[i] = item;
+		}
+
+		public static void Fill<T>(this T[] arr, T item)
+		{
+			for (int i = 0; i < arr.Length; i++)
+				arr[i] = item;
+		}
+
+		private static unsafe void FastFillInternal(void* fp, ulong item, int length)
+		{
+			ulong* lp = (ulong*)fp;
+			int longlen = length / 8;
+			for (int i = 0; i < longlen; i++)
+				*lp++ = item;
+			if ((length & 7) != 0)
+			{
+				byte* bp = (byte*)lp;
+				if ((length & 4) == 4)
+				{
+					*(uint*)bp = (uint)item;
+					bp += 4;
+				}
+				if ((length & 2) == 2)
+				{
+					*(ushort*)bp = (ushort)item;
+					bp += 2;
+				}
+				if ((length & 1) == 1)
+					*bp = (byte)item;
+			}
+		}
+
+		public static unsafe void FastFill(this byte[] arr, byte value, int startIndex, int length)
+		{
+			if (length == 0) return;
+			if (startIndex < 0 || startIndex >= arr.Length) throw new ArgumentOutOfRangeException("startIndex");
+			if (length < 0 || startIndex + length >= arr.Length) throw new ArgumentOutOfRangeException("length");
+			ulong longval = (ulong)value;
+			longval |= longval << 8;
+			longval |= longval << 16;
+			longval |= longval << 32;
+			fixed (byte* fp = arr)
+				FastFillInternal(fp + startIndex, longval, length);
+		}
+
+		public static unsafe void FastFill(this byte[] arr, byte value)
+		{
+			ulong longval = (ulong)value;
+			longval |= longval << 8;
+			longval |= longval << 16;
+			longval |= longval << 32;
+			fixed (byte* fp = arr)
+				FastFillInternal(fp, longval, arr.Length);
+		}
+
+		public static unsafe void FastFill(this sbyte[] arr, sbyte value, int startIndex, int length)
+		{
+			if (length == 0) return;
+			if (startIndex < 0 || startIndex >= arr.Length) throw new ArgumentOutOfRangeException("startIndex");
+			if (length < 0 || startIndex + length >= arr.Length) throw new ArgumentOutOfRangeException("length");
+			ulong longval = (ulong)value;
+			longval |= longval << 8;
+			longval |= longval << 16;
+			longval |= longval << 32;
+			fixed (sbyte* fp = arr)
+				FastFillInternal(fp + startIndex, longval, length);
+		}
+
+		public static unsafe void FastFill(this sbyte[] arr, sbyte value)
+		{
+			ulong longval = (ulong)value;
+			longval |= longval << 8;
+			longval |= longval << 16;
+			longval |= longval << 32;
+			fixed (sbyte* fp = arr)
+				FastFillInternal(fp, longval, arr.Length);
+		}
+
+		public static unsafe void FastFill(this ushort[] arr, ushort value, int startIndex, int length)
+		{
+			if (length == 0) return;
+			if (startIndex < 0 || startIndex >= arr.Length) throw new ArgumentOutOfRangeException("startIndex");
+			if (length < 0 || startIndex + length >= arr.Length) throw new ArgumentOutOfRangeException("length");
+			ulong longval = (ulong)value;
+			longval |= longval << 8;
+			longval |= longval << 16;
+			longval |= longval << 32;
+			fixed (ushort* fp = arr)
+				FastFillInternal(fp + startIndex, longval, length * 2);
+		}
+
+		public static unsafe void FastFill(this ushort[] arr, ushort value)
+		{
+			ulong longval = (ulong)value;
+			longval |= longval << 8;
+			longval |= longval << 16;
+			longval |= longval << 32;
+			fixed (ushort* fp = arr)
+				FastFillInternal(fp, longval, arr.Length * 2);
+		}
+
+		public static unsafe void FastFill(this short[] arr, short value, int startIndex, int length)
+		{
+			if (length == 0) return;
+			if (startIndex < 0 || startIndex >= arr.Length) throw new ArgumentOutOfRangeException("startIndex");
+			if (length < 0 || startIndex + length >= arr.Length) throw new ArgumentOutOfRangeException("length");
+			ulong longval = (ulong)value;
+			longval |= longval << 8;
+			longval |= longval << 16;
+			longval |= longval << 32;
+			fixed (short* fp = arr)
+				FastFillInternal(fp + startIndex, longval, length * 2);
+		}
+
+		public static unsafe void FastFill(this short[] arr, short value)
+		{
+			ulong longval = (ulong)value;
+			longval |= longval << 8;
+			longval |= longval << 16;
+			longval |= longval << 32;
+			fixed (short* fp = arr)
+				FastFillInternal(fp, longval, arr.Length * 2);
+		}
+
+		public static unsafe void FastFill(this uint[] arr, uint value, int startIndex, int length)
+		{
+			if (length == 0) return;
+			if (startIndex < 0 || startIndex >= arr.Length) throw new ArgumentOutOfRangeException("startIndex");
+			if (length < 0 || startIndex + length >= arr.Length) throw new ArgumentOutOfRangeException("length");
+			ulong longval = (ulong)value;
+			longval |= longval << 8;
+			longval |= longval << 16;
+			longval |= longval << 32;
+			fixed (uint* fp = arr)
+				FastFillInternal(fp + startIndex, longval, length * 4);
+		}
+
+		public static unsafe void FastFill(this uint[] arr, uint value)
+		{
+			ulong longval = (ulong)value;
+			longval |= longval << 8;
+			longval |= longval << 16;
+			longval |= longval << 32;
+			fixed (uint* fp = arr)
+				FastFillInternal(fp, longval, arr.Length * 4);
+		}
+
+		public static unsafe void FastFill(this int[] arr, int value, int startIndex, int length)
+		{
+			if (length == 0) return;
+			if (startIndex < 0 || startIndex >= arr.Length) throw new ArgumentOutOfRangeException("startIndex");
+			if (length < 0 || startIndex + length >= arr.Length) throw new ArgumentOutOfRangeException("length");
+			ulong longval = (ulong)value;
+			longval |= longval << 8;
+			longval |= longval << 16;
+			longval |= longval << 32;
+			fixed (int* fp = arr)
+				FastFillInternal(fp + startIndex, longval, length * 4);
+		}
+
+		public static unsafe void FastFill(this int[] arr, int value)
+		{
+			ulong longval = (ulong)value;
+			longval |= longval << 8;
+			longval |= longval << 16;
+			longval |= longval << 32;
+			fixed (int* fp = arr)
+				FastFillInternal(fp, longval, arr.Length * 4);
+		}
+
+		public static unsafe void FastFill(this char[] arr, char value, int startIndex, int length)
+		{
+			if (length == 0) return;
+			if (startIndex < 0 || startIndex >= arr.Length) throw new ArgumentOutOfRangeException("startIndex");
+			if (length < 0 || startIndex + length >= arr.Length) throw new ArgumentOutOfRangeException("length");
+			ulong longval = (ulong)value;
+			longval |= longval << 8;
+			longval |= longval << 16;
+			longval |= longval << 32;
+			fixed (char* fp = arr)
+				FastFillInternal(fp + startIndex, longval, length * 2);
+		}
+
+		public static unsafe void FastFill(this char[] arr, char value)
+		{
+			ulong longval = (ulong)value;
+			longval |= longval << 8;
+			longval |= longval << 16;
+			longval |= longval << 32;
+			fixed (char* fp = arr)
+				FastFillInternal(fp, longval, arr.Length * 2);
+		}
+	}
 }
