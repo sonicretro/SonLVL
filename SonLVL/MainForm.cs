@@ -1293,9 +1293,7 @@ namespace SonicRetro.SonLVL.GUI
 							if (bmp.Bits[i] == 0)
 								bmp.Bits[i] = 32;
 						if (waterPalette != -1 && bmp.Height > waterHeight)
-							for (int i = waterHeight * bmp.Width; i < bmp.Bits.Length; i++)
-								if (bmp.Bits[i] < 64)
-									bmp.Bits[i] += 64;
+							bmp.ApplyWaterPalette(waterHeight);
 						Bitmap res = bmp.ToBitmap();
 						ColorPalette pal = res.Palette;
 						for (int i = 0; i < 64; i++)

@@ -695,6 +695,36 @@ namespace SonicRetro.SonLVL.API
 			Bits = newBits;
 		}
 
+		public unsafe void ApplyWaterPalette(int waterHeight)
+		{
+			if (waterHeight < 0 || waterHeight > Height) throw new ArgumentOutOfRangeException("waterHeight");
+			int st = waterHeight * Width;
+			int length = Bits.Length - st;
+			fixed (byte* fp = Bits)
+			{
+				ulong* lp = (ulong*)(fp + st);
+				int longlen = length / 8;
+				for (int i = 0; i < longlen; i++)
+					*lp++ += 0x4040404040404040u;
+				if ((length & 7) != 0)
+				{
+					byte* bp = (byte*)lp;
+					if ((length & 4) == 4)
+					{
+						*(uint*)bp += 0x40404040u;
+						bp += 4;
+					}
+					if ((length & 2) == 2)
+					{
+						*(ushort*)bp += 0x4040;
+						bp += 2;
+					}
+					if ((length & 1) == 1)
+						*bp += 0x40;
+				}
+			}
+		}
+
         public static BitmapBits ReadPCX(string filename) { Color[] palette; return ReadPCX(filename, out palette); }
 
         public static BitmapBits ReadPCX(string filename, out Color[] palette)
