@@ -558,7 +558,7 @@ namespace SonicRetro.SonLVL.API
             BitmapBits other = obj as BitmapBits;
             if (other == null) return false;
             if (Width != other.Width | Height != other.Height) return false;
-            return Bits.FastByteArrayEqual(other.Bits);
+            return Bits.FastArrayEqual(other.Bits);
         }
 
         public override int GetHashCode()

@@ -219,82 +219,93 @@ namespace SonicRetro.SonLVL.API
 			return true;
 		}
 
-		public static unsafe bool FastByteArrayEqual(this byte[] arr1, byte[] arr2)
+		private static unsafe bool FastArrayEqualInternal(void* fp1, void* fp2, int length)
 		{
-			if (arr1 == arr2) return true;
-			if (arr1.Length != arr2.Length) return false;
-			fixed (byte* fp1 = arr1, fp2 = arr2)
+			ulong* lp1 = (ulong*)fp1;
+			ulong* lp2 = (ulong*)fp2;
+			int longlen = length / 8;
+			for (int i = 0; i < longlen; i++)
+				if (*lp1++ != *lp2++) return false;
+			if ((length & 7) != 0)
 			{
-				ulong* lp1 = (ulong*)fp1;
-				ulong* lp2 = (ulong*)fp2;
-				int length = arr1.Length;
-				int longlen = length  / 8;
-				for (int i = 0; i < longlen; i++)
-					if (*lp1++ != *lp2++) return false;
-				if ((length & 7) != 0)
-				{
-					byte* bp1 = (byte*)lp1;
-					byte* bp2 = (byte*)lp2;
-					if ((length & 4) == 4)
-						if (*(uint*)bp1 != *(uint*)bp2)
-							return false;
-						else
-						{
-							bp1 += 4;
-							bp2 += 4;
-						}
-					if ((length & 2) == 2)
-						if (*(ushort*)bp1 != *(ushort*)bp2)
-							return false;
-						else
-						{
-							bp1 += 2;
-							bp2 += 2;
-						}
-					if ((length & 1) == 1)
-						return *bp1 != *bp2;
-				}
+				byte* bp1 = (byte*)lp1;
+				byte* bp2 = (byte*)lp2;
+				if ((length & 4) == 4)
+					if (*(uint*)bp1 != *(uint*)bp2)
+						return false;
+					else
+					{
+						bp1 += 4;
+						bp2 += 4;
+					}
+				if ((length & 2) == 2)
+					if (*(ushort*)bp1 != *(ushort*)bp2)
+						return false;
+					else
+					{
+						bp1 += 2;
+						bp2 += 2;
+					}
+				if ((length & 1) == 1)
+					return *bp1 != *bp2;
 			}
 			return true;
 		}
 
-		public static unsafe bool FastSByteArrayEqual(this sbyte[] arr1, sbyte[] arr2)
+		public static unsafe bool FastArrayEqual(this byte[] arr1, byte[] arr2)
+		{
+			if (arr1 == arr2) return true;
+			if (arr1.Length != arr2.Length) return false;
+			fixed (byte* fp1 = arr1, fp2 = arr2)
+				return FastArrayEqualInternal(fp1, fp2, arr1.Length);
+		}
+
+		public static unsafe bool FastArrayEqual(this sbyte[] arr1, sbyte[] arr2)
 		{
 			if (arr1 == arr2) return true;
 			if (arr1.Length != arr2.Length) return false;
 			fixed (sbyte* fp1 = arr1, fp2 = arr2)
-			{
-				ulong* lp1 = (ulong*)fp1;
-				ulong* lp2 = (ulong*)fp2;
-				int length = arr1.Length;
-				int longlen = length  / 8;
-				for (int i = 0; i < longlen; i++)
-					if (*lp1++ != *lp2++) return false;
-				if ((length & 7) != 0)
-				{
-					byte* bp1 = (byte*)lp1;
-					byte* bp2 = (byte*)lp2;
-					if ((length & 4) == 4)
-						if (*(uint*)bp1 != *(uint*)bp2)
-							return false;
-						else
-						{
-							bp1 += 4;
-							bp2 += 4;
-						}
-					if ((length & 2) == 2)
-						if (*(ushort*)bp1 != *(ushort*)bp2)
-							return false;
-						else
-						{
-							bp1 += 2;
-							bp2 += 2;
-						}
-					if ((length & 1) == 1)
-						return *bp1 != *bp2;
-				}
-			}
-			return true;
+				return FastArrayEqualInternal(fp1, fp2, arr1.Length);
+		}
+
+		public static unsafe bool FastArrayEqual(this ushort[] arr1, ushort[] arr2)
+		{
+			if (arr1 == arr2) return true;
+			if (arr1.Length != arr2.Length) return false;
+			fixed (ushort* fp1 = arr1, fp2 = arr2)
+				return FastArrayEqualInternal(fp1, fp2, arr1.Length * 2);
+		}
+
+		public static unsafe bool FastArrayEqual(this short[] arr1, short[] arr2)
+		{
+			if (arr1 == arr2) return true;
+			if (arr1.Length != arr2.Length) return false;
+			fixed (short* fp1 = arr1, fp2 = arr2)
+				return FastArrayEqualInternal(fp1, fp2, arr1.Length * 2);
+		}
+
+		public static unsafe bool FastArrayEqual(this uint[] arr1, uint[] arr2)
+		{
+			if (arr1 == arr2) return true;
+			if (arr1.Length != arr2.Length) return false;
+			fixed (uint* fp1 = arr1, fp2 = arr2)
+				return FastArrayEqualInternal(fp1, fp2, arr1.Length * 4);
+		}
+
+		public static unsafe bool FastArrayEqual(this int[] arr1, int[] arr2)
+		{
+			if (arr1 == arr2) return true;
+			if (arr1.Length != arr2.Length) return false;
+			fixed (int* fp1 = arr1, fp2 = arr2)
+				return FastArrayEqualInternal(fp1, fp2, arr1.Length * 4);
+		}
+
+		public static unsafe bool FastArrayEqual(this char[] arr1, char[] arr2)
+		{
+			if (arr1 == arr2) return true;
+			if (arr1.Length != arr2.Length) return false;
+			fixed (char* fp1 = arr1, fp2 = arr2)
+				return FastArrayEqualInternal(fp1, fp2, arr1.Length * 2);
 		}
 
 		public static bool ListEqual<T>(this IList<T> lst1, IList<T> lst2)

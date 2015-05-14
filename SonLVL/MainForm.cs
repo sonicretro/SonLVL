@@ -4315,7 +4315,7 @@ namespace SonicRetro.SonLVL.GUI
 						{
 							ushort ti = (ushort)LevelData.Tiles.Count;
 							for (ushort j = 0; j < LevelData.Tiles.Count; j++)
-								if (tile.FastByteArrayEqual(LevelData.Tiles[j]))
+								if (tile.FastArrayEqual(LevelData.Tiles[j]))
 								{
 									ti = j;
 									break;
@@ -4381,7 +4381,7 @@ namespace SonicRetro.SonLVL.GUI
 						{
 							ushort ti = (ushort)LevelData.Tiles.Count;
 							for (ushort j = 0; j < LevelData.Tiles.Count; j++)
-								if (tile.FastByteArrayEqual(LevelData.Tiles[j]))
+								if (tile.FastArrayEqual(LevelData.Tiles[j]))
 								{
 									ti = j;
 									break;
@@ -4450,7 +4450,7 @@ namespace SonicRetro.SonLVL.GUI
 						{
 							ushort ti = (ushort)LevelData.Tiles.Count;
 							for (ushort j = 0; j < LevelData.Tiles.Count; j++)
-								if (tile.FastByteArrayEqual(LevelData.Tiles[j]))
+								if (tile.FastArrayEqual(LevelData.Tiles[j]))
 								{
 									ti = j;
 									break;
@@ -4517,7 +4517,7 @@ namespace SonicRetro.SonLVL.GUI
 						{
 							ushort ti = (ushort)LevelData.Tiles.Count;
 							for (ushort j = 0; j < LevelData.Tiles.Count; j++)
-								if (tile.FastByteArrayEqual(LevelData.Tiles[j]))
+								if (tile.FastArrayEqual(LevelData.Tiles[j]))
 								{
 									ti = j;
 									break;
@@ -4788,27 +4788,27 @@ namespace SonicRetro.SonLVL.GUI
 											if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2) && colInds2[i] != col.ColInd2)
 												continue;
 										}
-										if (blkb.FastByteArrayEqual(blocks[i]))
+										if (blkb.FastArrayEqual(blocks[i]))
 										{
 											match = true;
 											cnk.Blocks[bx, by].Block = (ushort)i;
 											break;
 										}
-										if (blkh.FastByteArrayEqual(blocks[i]))
+										if (blkh.FastArrayEqual(blocks[i]))
 										{
 											match = true;
 											cnk.Blocks[bx, by].Block = (ushort)i;
 											cnk.Blocks[bx, by].XFlip = true;
 											break;
 										}
-										if (blkv.FastByteArrayEqual(blocks[i]))
+										if (blkv.FastArrayEqual(blocks[i]))
 										{
 											match = true;
 											cnk.Blocks[bx, by].Block = (ushort)i;
 											cnk.Blocks[bx, by].YFlip = true;
 											break;
 										}
-										if (blkhv.FastByteArrayEqual(blocks[i]))
+										if (blkhv.FastArrayEqual(blocks[i]))
 										{
 											match = true;
 											cnk.Blocks[bx, by].Block = (ushort)i;
@@ -4831,7 +4831,7 @@ namespace SonicRetro.SonLVL.GUI
 							for (int i = 0; i < chunks.Count; i++)
 							{
 								Application.DoEvents();
-								if (cnkb.FastByteArrayEqual(chunks[i]))
+								if (cnkb.FastArrayEqual(chunks[i]))
 								{
 									match = true;
 									break;
@@ -5001,8 +5001,8 @@ namespace SonicRetro.SonLVL.GUI
 									if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2) && LevelData.ColInds2[i] != col.ColInd2)
 										continue;
 								}
-								if (blkb.FastByteArrayEqual(blocks[i]) || blkh.FastByteArrayEqual(blocks[i])
-										|| blkv.FastByteArrayEqual(blocks[i]) || blkhv.FastByteArrayEqual(blocks[i]))
+								if (blkb.FastArrayEqual(blocks[i]) || blkh.FastArrayEqual(blocks[i])
+										|| blkv.FastArrayEqual(blocks[i]) || blkhv.FastArrayEqual(blocks[i]))
 								{
 									match = true;
 									break;
@@ -7699,7 +7699,7 @@ namespace SonicRetro.SonLVL.GUI
 						{
 							ushort ti = (ushort)LevelData.Tiles.Count;
 							for (ushort j = 0; j < LevelData.Tiles.Count; j++)
-								if (tile.FastByteArrayEqual(LevelData.Tiles[j]))
+								if (tile.FastArrayEqual(LevelData.Tiles[j]))
 								{
 									ti = j;
 									break;
@@ -7763,7 +7763,7 @@ namespace SonicRetro.SonLVL.GUI
 						{
 							ushort ti = (ushort)LevelData.Tiles.Count;
 							for (ushort j = 0; j < LevelData.Tiles.Count; j++)
-								if (tile.FastByteArrayEqual(LevelData.Tiles[j]))
+								if (tile.FastArrayEqual(LevelData.Tiles[j]))
 								{
 									ti = j;
 									break;
@@ -7956,27 +7956,27 @@ namespace SonicRetro.SonLVL.GUI
 									if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2) && colInds2[i] != col.ColInd2)
 										continue;
 								}
-								if (blkb.FastByteArrayEqual(blocks[i]))
+								if (blkb.FastArrayEqual(blocks[i]))
 								{
 									match = true;
 									cnk.Blocks[bx, by].Block = (ushort)i;
 									break;
 								}
-								if (blkh.FastByteArrayEqual(blocks[i]))
+								if (blkh.FastArrayEqual(blocks[i]))
 								{
 									match = true;
 									cnk.Blocks[bx, by].Block = (ushort)i;
 									cnk.Blocks[bx, by].XFlip = true;
 									break;
 								}
-								if (blkv.FastByteArrayEqual(blocks[i]))
+								if (blkv.FastArrayEqual(blocks[i]))
 								{
 									match = true;
 									cnk.Blocks[bx, by].Block = (ushort)i;
 									cnk.Blocks[bx, by].YFlip = true;
 									break;
 								}
-								if (blkhv.FastByteArrayEqual(blocks[i]))
+								if (blkhv.FastArrayEqual(blocks[i]))
 								{
 									match = true;
 									cnk.Blocks[bx, by].Block = (ushort)i;
@@ -7999,7 +7999,7 @@ namespace SonicRetro.SonLVL.GUI
 					for (int i = 0; i < chunks.Count; i++)
 					{
 						Application.DoEvents();
-						if (cnkb.FastByteArrayEqual(chunks[i]))
+						if (cnkb.FastArrayEqual(chunks[i]))
 						{
 							result[cx, cy] = (byte)i;
 							match = true;
@@ -8116,7 +8116,7 @@ namespace SonicRetro.SonLVL.GUI
 						blk2 = coldata2[x, y];
 					byte ind1 = 0, ind2 = 0;
 					bool xflip = false, yflip = false;
-					if ((blk1.HeightMap.FastSByteArrayEqual(LevelData.ColArr1[0xFF]) || blk1.Solidity == Solidity.NotSolid) && coldata2 != null)
+					if ((blk1.HeightMap.FastArrayEqual(LevelData.ColArr1[0xFF]) || blk1.Solidity == Solidity.NotSolid) && coldata2 != null)
 					{
 						ind1 = (byte)(blk1.Solidity == Solidity.NotSolid ? 0 : 0xFF);
 						if (blk2.Solidity != Solidity.NotSolid)
@@ -8128,7 +8128,7 @@ namespace SonicRetro.SonLVL.GUI
 							MatchCol(blk1, out ind1, out xflip, out yflip);
 						if (blk2.Solidity != Solidity.NotSolid)
 						{
-							if (blk2.HeightMap.FastSByteArrayEqual(LevelData.ColArr1[0xFF]))
+							if (blk2.HeightMap.FastArrayEqual(LevelData.ColArr1[0xFF]))
 							{
 								ind2 = 0xFF;
 							}
@@ -8153,7 +8153,7 @@ namespace SonicRetro.SonLVL.GUI
 								bool found = false;
 								for (int i = 0; i < LevelData.ColArr1.Length; i++)
 								{
-									if (map.FastSByteArrayEqual(LevelData.ColArr1[i]))
+									if (map.FastArrayEqual(LevelData.ColArr1[i]))
 									{
 										ind2 = (byte)i;
 										found = true;
@@ -8181,7 +8181,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void MatchCol(ColInfo blk, out byte ind, out bool xflip, out bool yflip)
 		{
-			if (blk.HeightMap.FastSByteArrayEqual(LevelData.ColArr1[0xFF]))
+			if (blk.HeightMap.FastArrayEqual(LevelData.ColArr1[0xFF]))
 			{
 				xflip = false;
 				yflip = false;
@@ -8198,28 +8198,28 @@ namespace SonicRetro.SonLVL.GUI
 			byte? emptymap = null;
 			for (int i = 0; i < LevelData.ColArr1.Length; i++)
 			{
-				if (blk.HeightMap.FastSByteArrayEqual(LevelData.ColArr1[i]))
+				if (blk.HeightMap.FastArrayEqual(LevelData.ColArr1[i]))
 				{
 					xflip = false;
 					yflip = false;
 					ind = (byte)i;
 					return;
 				}
-				if (maph.FastSByteArrayEqual(LevelData.ColArr1[i]))
+				if (maph.FastArrayEqual(LevelData.ColArr1[i]))
 				{
 					xflip = true;
 					yflip = false;
 					ind = (byte)i;
 					return;
 				}
-				if (mapv.FastSByteArrayEqual(LevelData.ColArr1[i]))
+				if (mapv.FastArrayEqual(LevelData.ColArr1[i]))
 				{
 					xflip = false;
 					yflip = true;
 					ind = (byte)i;
 					return;
 				}
-				if (maphv.FastSByteArrayEqual(LevelData.ColArr1[i]))
+				if (maphv.FastArrayEqual(LevelData.ColArr1[i]))
 				{
 					xflip = true;
 					yflip = true;
