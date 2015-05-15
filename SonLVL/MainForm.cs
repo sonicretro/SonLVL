@@ -4892,13 +4892,14 @@ namespace SonicRetro.SonLVL.GUI
 					foreach (Chunk c in newChunks)
 					{
 						Application.DoEvents();
+						LevelData.Chunks.Add(c);
 						LevelData.ChunkBmpBits.Add(new BitmapBits[2]);
 						LevelData.ChunkBmps.Add(new Bitmap[2]);
 						LevelData.ChunkColBmpBits.Add(new BitmapBits[2]);
 						LevelData.ChunkColBmps.Add(new Bitmap[2]);
 						LevelData.CompChunkBmps.Add(null);
 						LevelData.CompChunkBmpBits.Add(null);
-						LevelData.RedrawChunk(LevelData.Blocks.Count - 1);
+						LevelData.RedrawChunk(LevelData.Chunks.Count - 1);
 					}
 					SelectedChunk = (byte)(LevelData.Chunks.Count - 1);
 					ChunkSelector.SelectedIndex = SelectedChunk;
@@ -8062,17 +8063,20 @@ namespace SonicRetro.SonLVL.GUI
 			foreach (Chunk c in newChunks)
 			{
 				Application.DoEvents();
+				LevelData.Chunks.Add(c);
 				LevelData.ChunkBmpBits.Add(new BitmapBits[2]);
 				LevelData.ChunkBmps.Add(new Bitmap[2]);
 				LevelData.ChunkColBmpBits.Add(new BitmapBits[2]);
 				LevelData.ChunkColBmps.Add(new Bitmap[2]);
 				LevelData.CompChunkBmps.Add(null);
 				LevelData.CompChunkBmpBits.Add(null);
-				LevelData.RedrawChunk(LevelData.Blocks.Count - 1);
+				LevelData.RedrawChunk(LevelData.Chunks.Count - 1);
 			}
 			SelectedChunk = (byte)(LevelData.Chunks.Count - 1);
 			ChunkSelector.SelectedIndex = SelectedChunk;
 			importProgressControl1.Hide();
+			Enabled = true;
+			UseWaitCursor = false;
 			return result;
 		}
 
