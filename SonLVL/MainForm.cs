@@ -4898,7 +4898,7 @@ namespace SonicRetro.SonLVL.GUI
 						LevelData.ChunkColBmps.Add(new Bitmap[2]);
 						LevelData.CompChunkBmps.Add(null);
 						LevelData.CompChunkBmpBits.Add(null);
-						LevelData.RedrawChunk(SelectedChunk);
+						LevelData.RedrawChunk(LevelData.Blocks.Count - 1);
 					}
 					SelectedChunk = (byte)(LevelData.Chunks.Count - 1);
 					ChunkSelector.SelectedIndex = SelectedChunk;
@@ -8068,7 +8068,7 @@ namespace SonicRetro.SonLVL.GUI
 				LevelData.ChunkColBmps.Add(new Bitmap[2]);
 				LevelData.CompChunkBmps.Add(null);
 				LevelData.CompChunkBmpBits.Add(null);
-				LevelData.RedrawChunk(SelectedChunk);
+				LevelData.RedrawChunk(LevelData.Blocks.Count - 1);
 			}
 			SelectedChunk = (byte)(LevelData.Chunks.Count - 1);
 			ChunkSelector.SelectedIndex = SelectedChunk;
