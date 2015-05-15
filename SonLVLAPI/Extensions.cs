@@ -247,7 +247,7 @@ namespace SonicRetro.SonLVL.API
 						bp2 += 2;
 					}
 				if ((length & 1) == 1)
-					return *bp1 != *bp2;
+					return *bp1 == *bp2;
 			}
 			return true;
 		}
