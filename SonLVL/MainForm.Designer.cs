@@ -57,7 +57,10 @@
 			System.Windows.Forms.ToolStripMenuItem line3ToolStripMenuItem1;
 			System.Windows.Forms.ToolStripSeparator toolStripSeparator13;
 			System.Windows.Forms.ToolStripMenuItem fullToolStripMenuItem1;
+			System.Windows.Forms.ToolStripSeparator toolStripSeparator14;
+			System.Windows.Forms.ToolStripSeparator toolStripSeparator15;
 			this.importChunksToolStripButton = new System.Windows.Forms.ToolStripButton();
+			this.deleteUnusedChunksToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.remapChunksButton = new System.Windows.Forms.ToolStripButton();
 			this.enableDraggingChunksButton = new System.Windows.Forms.ToolStripButton();
 			this.panel10 = new System.Windows.Forms.Panel();
@@ -210,12 +213,14 @@
 			this.fgToolStrip = new System.Windows.Forms.ToolStrip();
 			this.fgDrawToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.fgSelectToolStripButton = new System.Windows.Forms.ToolStripButton();
+			this.clearForegroundToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.tabPage3 = new System.Windows.Forms.TabPage();
 			this.splitContainer3 = new System.Windows.Forms.SplitContainer();
 			this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
 			this.bgToolStrip = new System.Windows.Forms.ToolStrip();
 			this.bgDrawToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.bgSelectToolStripButton = new System.Windows.Forms.ToolStripButton();
+			this.clearBackgroundToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.backgroundPanel = new SonicRetro.SonLVL.API.KeyboardPanel();
 			this.vScrollBar3 = new System.Windows.Forms.VScrollBar();
 			this.hScrollBar3 = new System.Windows.Forms.HScrollBar();
@@ -301,7 +306,6 @@
 			this.deleteLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.loadingAnimation1 = new SonicRetro.SonLVL.LoadingAnimation();
 			this.importProgressControl1 = new SonicRetro.SonLVL.ImportProgressControl();
-			this.deleteUnusedChunksToolStripButton = new System.Windows.Forms.ToolStripButton();
 			toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
 			toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
 			label4 = new System.Windows.Forms.Label();
@@ -329,6 +333,8 @@
 			line3ToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
 			toolStripSeparator13 = new System.Windows.Forms.ToolStripSeparator();
 			fullToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+			toolStripSeparator14 = new System.Windows.Forms.ToolStripSeparator();
+			toolStripSeparator15 = new System.Windows.Forms.ToolStripSeparator();
 			chunkListToolStrip.SuspendLayout();
 			panel1.SuspendLayout();
 			panel2.SuspendLayout();
@@ -460,6 +466,14 @@
 			this.importChunksToolStripButton.Size = new System.Drawing.Size(56, 22);
 			this.importChunksToolStripButton.Text = "Import...";
 			this.importChunksToolStripButton.Click += new System.EventHandler(this.importToolStripMenuItem_Click);
+			// 
+			// deleteUnusedChunksToolStripButton
+			// 
+			this.deleteUnusedChunksToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.deleteUnusedChunksToolStripButton.Name = "deleteUnusedChunksToolStripButton";
+			this.deleteUnusedChunksToolStripButton.Size = new System.Drawing.Size(87, 22);
+			this.deleteUnusedChunksToolStripButton.Text = "Delete Unused";
+			this.deleteUnusedChunksToolStripButton.Click += new System.EventHandler(this.deleteUnusedChunksToolStripButton_Click);
 			// 
 			// remapChunksButton
 			// 
@@ -866,6 +880,16 @@
 			fullToolStripMenuItem1.Name = "fullToolStripMenuItem1";
 			fullToolStripMenuItem1.Size = new System.Drawing.Size(105, 22);
 			fullToolStripMenuItem1.Text = "&Full";
+			// 
+			// toolStripSeparator14
+			// 
+			toolStripSeparator14.Name = "toolStripSeparator14";
+			toolStripSeparator14.Size = new System.Drawing.Size(6, 25);
+			// 
+			// toolStripSeparator15
+			// 
+			toolStripSeparator15.Name = "toolStripSeparator15";
+			toolStripSeparator15.Size = new System.Drawing.Size(6, 25);
 			// 
 			// chunkCtrlLabel
 			// 
@@ -2121,7 +2145,9 @@
 			this.fgToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			this.fgToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fgDrawToolStripButton,
-            this.fgSelectToolStripButton});
+            this.fgSelectToolStripButton,
+            toolStripSeparator14,
+            this.clearForegroundToolStripButton});
 			this.fgToolStrip.Location = new System.Drawing.Point(0, 0);
 			this.fgToolStrip.Name = "fgToolStrip";
 			this.fgToolStrip.Size = new System.Drawing.Size(384, 25);
@@ -2147,6 +2173,15 @@
 			this.fgSelectToolStripButton.Size = new System.Drawing.Size(58, 22);
 			this.fgSelectToolStripButton.Text = "Select";
 			this.fgSelectToolStripButton.Click += new System.EventHandler(this.fgSelectToolStripButton_Click);
+			// 
+			// clearForegroundToolStripButton
+			// 
+			this.clearForegroundToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.clearForegroundToolStripButton.Enabled = false;
+			this.clearForegroundToolStripButton.Name = "clearForegroundToolStripButton";
+			this.clearForegroundToolStripButton.Size = new System.Drawing.Size(38, 22);
+			this.clearForegroundToolStripButton.Text = "Clear";
+			this.clearForegroundToolStripButton.Click += new System.EventHandler(this.clearForegroundToolStripButton_Click);
 			// 
 			// tabPage3
 			// 
@@ -2194,6 +2229,7 @@
 			this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
 			this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
 			this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
+			this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
 			this.tableLayoutPanel3.Size = new System.Drawing.Size(384, 477);
 			this.tableLayoutPanel3.TabIndex = 3;
 			// 
@@ -2203,7 +2239,9 @@
 			this.bgToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			this.bgToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.bgDrawToolStripButton,
-            this.bgSelectToolStripButton});
+            this.bgSelectToolStripButton,
+            toolStripSeparator15,
+            this.clearBackgroundToolStripButton});
 			this.bgToolStrip.Location = new System.Drawing.Point(0, 0);
 			this.bgToolStrip.Name = "bgToolStrip";
 			this.bgToolStrip.Size = new System.Drawing.Size(384, 25);
@@ -2229,6 +2267,15 @@
 			this.bgSelectToolStripButton.Size = new System.Drawing.Size(58, 22);
 			this.bgSelectToolStripButton.Text = "Select";
 			this.bgSelectToolStripButton.Click += new System.EventHandler(this.bgSelectToolStripButton_Click);
+			// 
+			// clearBackgroundToolStripButton
+			// 
+			this.clearBackgroundToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.clearBackgroundToolStripButton.Enabled = false;
+			this.clearBackgroundToolStripButton.Name = "clearBackgroundToolStripButton";
+			this.clearBackgroundToolStripButton.Size = new System.Drawing.Size(38, 22);
+			this.clearBackgroundToolStripButton.Text = "Clear";
+			this.clearBackgroundToolStripButton.Click += new System.EventHandler(this.clearBackgroundToolStripButton_Click);
 			// 
 			// backgroundPanel
 			// 
@@ -3152,14 +3199,6 @@
 			this.importProgressControl1.Visible = false;
 			this.importProgressControl1.SizeChanged += new System.EventHandler(this.importProgressControl1_SizeChanged);
 			// 
-			// deleteUnusedChunksToolStripButton
-			// 
-			this.deleteUnusedChunksToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-			this.deleteUnusedChunksToolStripButton.Name = "deleteUnusedChunksToolStripButton";
-			this.deleteUnusedChunksToolStripButton.Size = new System.Drawing.Size(87, 22);
-			this.deleteUnusedChunksToolStripButton.Text = "Delete Unused";
-			this.deleteUnusedChunksToolStripButton.Click += new System.EventHandler(this.deleteUnusedChunksToolStripButton_Click);
-			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -3520,6 +3559,8 @@
 		private System.Windows.Forms.ToolStripButton deleteUnusedTilesToolStripButton;
 		private System.Windows.Forms.ToolStripButton deleteUnusedBlocksToolStripButton;
 		private System.Windows.Forms.ToolStripButton deleteUnusedChunksToolStripButton;
+		private System.Windows.Forms.ToolStripButton clearForegroundToolStripButton;
+		private System.Windows.Forms.ToolStripButton clearBackgroundToolStripButton;
 
     }
 }

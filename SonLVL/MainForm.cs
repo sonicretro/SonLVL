@@ -727,6 +727,7 @@ namespace SonicRetro.SonLVL.GUI
 			ChunkCount.Text = LevelData.Chunks.Count.ToString("X") + " / 100";
 			BlockCount.Text = LevelData.Blocks.Count.ToString("X") + " / " + LevelData.GetBlockMax().ToString("X");
 			TileCount.Text = LevelData.Tiles.Count.ToString("X") + " / 800";
+			clearBackgroundToolStripButton.Enabled = clearForegroundToolStripButton.Enabled = true;
 #if !DEBUG
 			loadingAnimation1.Hide();
 #endif
@@ -8488,6 +8489,26 @@ namespace SonicRetro.SonLVL.GUI
 					LevelData.CompChunkBmps.RemoveAt(i);
 				}
 				ChunkSelector.SelectedIndex = SelectedChunk = Math.Min(SelectedChunk, (byte)(LevelData.Chunks.Count - 1));
+			}
+		}
+
+		private void clearForegroundToolStripButton_Click(object sender, EventArgs e)
+		{
+			if (MessageBox.Show(this, "Are you sure you want to clear the foreground layout?", "Clear Foreground", MessageBoxButtons.OKCancel) == DialogResult.OK)
+			{
+				Array.Clear(LevelData.Layout.FGLayout, 0, LevelData.FGWidth * LevelData.FGHeight);
+				if (LevelData.Layout.FGLoop != null)
+					Array.Clear(LevelData.Layout.FGLoop, 0, LevelData.FGWidth * LevelData.FGHeight);
+			}
+		}
+
+		private void clearBackgroundToolStripButton_Click(object sender, EventArgs e)
+		{
+			if (MessageBox.Show(this, "Are you sure you want to clear the background layout?", "Clear Background", MessageBoxButtons.OKCancel) == DialogResult.OK)
+			{
+				Array.Clear(LevelData.Layout.BGLayout, 0, LevelData.BGWidth * LevelData.BGHeight);
+				if (LevelData.Layout.BGLoop != null)
+					Array.Clear(LevelData.Layout.BGLoop, 0, LevelData.BGWidth * LevelData.BGHeight);
 			}
 		}
 	}
