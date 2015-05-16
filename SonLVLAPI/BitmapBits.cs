@@ -460,9 +460,8 @@ namespace SonicRetro.SonLVL.API
 					x1 = x2;
 					x2 = tmp;
 				}
-				int end = y1 * Width + Math.Min(x2, Width - 1);
-				for (int i = y1 * Width + Math.Max(x1, 0); i <= end; i++)
-					Bits[i] = index;
+				int start = y1 * Width + Math.Max(x1, 0);
+				Bits.FastFill(index, start, (y1 * Width + Math.Min(x2, Width - 1)) - start);
 				return;
 			}
 			if (x1 == x2)
@@ -545,9 +544,18 @@ namespace SonicRetro.SonLVL.API
             int srct = Math.Max(y, 0);
             int srcr = Math.Min(x + width, Width);
 			int srcb = Math.Min(y + height, Height);
-            for (int cy = srct; cy < srcb; cy++)
-                for (int cx = srcl; cx < srcr; cx++)
-                    this[cx, cy] = index;
+			int start = srct * Width;
+			if (srcl == 0 && srcr == Width)
+				Bits.FastFill(index, start, srcb * Width - start);
+			else
+			{
+				int length = srcr - srcl;
+				for (int cy = srct; cy < srcb; cy++)
+				{
+					Bits.FastFill(index, start, length);
+					start += Width;
+				}
+			}
         }
 
         public void FillRectangle(byte index, Rectangle rect) { DrawRectangle(index, rect.X, rect.Y, rect.Width, rect.Height); }
