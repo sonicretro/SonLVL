@@ -385,7 +385,7 @@ namespace SonicRetro.SonLVL.API
 			if (length == 0) return;
 			if (startIndex < 0 || startIndex >= arr.Length) throw new ArgumentOutOfRangeException("startIndex");
 			if (length < 0 || startIndex + length > arr.Length) throw new ArgumentOutOfRangeException("length");
-			ulong longval = (ulong)value;
+			ulong longval = (ulong)(byte)value;
 			longval |= longval << 8;
 			longval |= longval << 16;
 			longval |= longval << 32;
@@ -395,7 +395,7 @@ namespace SonicRetro.SonLVL.API
 
 		public static unsafe void FastFill(this sbyte[] arr, sbyte value)
 		{
-			ulong longval = (ulong)value;
+			ulong longval = (ulong)(byte)value;
 			longval |= longval << 8;
 			longval |= longval << 16;
 			longval |= longval << 32;
@@ -429,7 +429,7 @@ namespace SonicRetro.SonLVL.API
 			if (length == 0) return;
 			if (startIndex < 0 || startIndex >= arr.Length) throw new ArgumentOutOfRangeException("startIndex");
 			if (length < 0 || startIndex + length > arr.Length) throw new ArgumentOutOfRangeException("length");
-			ulong longval = (ulong)value;
+			ulong longval = (ulong)(ushort)value;
 			longval |= longval << 16;
 			longval |= longval << 32;
 			fixed (short* fp = arr)
@@ -438,7 +438,7 @@ namespace SonicRetro.SonLVL.API
 
 		public static unsafe void FastFill(this short[] arr, short value)
 		{
-			ulong longval = (ulong)value;
+			ulong longval = (ulong)(ushort)value;
 			longval |= longval << 16;
 			longval |= longval << 32;
 			fixed (short* fp = arr)
@@ -469,7 +469,7 @@ namespace SonicRetro.SonLVL.API
 			if (length == 0) return;
 			if (startIndex < 0 || startIndex >= arr.Length) throw new ArgumentOutOfRangeException("startIndex");
 			if (length < 0 || startIndex + length > arr.Length) throw new ArgumentOutOfRangeException("length");
-			ulong longval = (ulong)value;
+			ulong longval = (ulong)(uint)value;
 			longval |= longval << 32;
 			fixed (int* fp = arr)
 				FastFillInternal(fp + startIndex, longval, length * 4);
@@ -477,7 +477,7 @@ namespace SonicRetro.SonLVL.API
 
 		public static unsafe void FastFill(this int[] arr, int value)
 		{
-			ulong longval = (ulong)value;
+			ulong longval = (ulong)(uint)value;
 			longval |= longval << 32;
 			fixed (int* fp = arr)
 				FastFillInternal(fp, longval, arr.Length * 4);
