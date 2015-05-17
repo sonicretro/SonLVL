@@ -540,11 +540,15 @@ namespace SonicRetro.SonLVL.API
 
         public void FillRectangle(byte index, int x, int y, int width, int height)
         {
+			if (x > Width) return;
+			if (y > Height) return;
+			if (x + width <= 0) return;
+			if (y + height <= 0) return;
             int srcl = Math.Max(x, 0);
             int srct = Math.Max(y, 0);
             int srcr = Math.Min(x + width, Width);
 			int srcb = Math.Min(y + height, Height);
-			int start = srct * Width;
+			int start = srct * Width + srcl;
 			if (srcl == 0 && srcr == Width)
 				Bits.FastFill(index, start, srcb * Width - start);
 			else
@@ -558,7 +562,9 @@ namespace SonicRetro.SonLVL.API
 			}
         }
 
-        public void FillRectangle(byte index, Rectangle rect) { DrawRectangle(index, rect.X, rect.Y, rect.Width, rect.Height); }
+		public void FillRectangle(byte index, Point loc, Size size) { DrawRectangle(index, loc.X, loc.Y, size.Width, size.Height); }
+
+		public void FillRectangle(byte index, Rectangle rect) { DrawRectangle(index, rect.X, rect.Y, rect.Width, rect.Height); }
 
         public override bool Equals(object obj)
         {
