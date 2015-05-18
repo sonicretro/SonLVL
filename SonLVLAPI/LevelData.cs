@@ -649,35 +649,32 @@ namespace SonicRetro.SonLVL.API
                     break;
                 case EngineVersion.S3K:
                 case EngineVersion.SKC:
-                    if (Level.CollisionIndex != null)
-                    {
-                        if (File.Exists(Level.CollisionIndex))
-                        {
-                            tmp = Compression.Decompress(Level.CollisionIndex, Level.CollisionIndexCompression);
-                            switch (Level.CollisionIndexSize)
-                            {
-                                case 0:
-                                case 1:
-                                    for (int i = 0; i < 0x600; i += 2)
-                                    {
-                                        ColInds1.Add(tmp[i]);
-                                        ColInds2.Add(tmp[i + 1]);
-                                    }
-                                    break;
-                                case 2:
-                                    for (int i = 0; i < 0x600; i += 2)
-                                        ColInds1.Add((byte)ByteConverter.ToUInt16(tmp, i));
-                                    for (int i = 0x600; i < 0xC00; i += 2)
-                                        ColInds2.Add((byte)ByteConverter.ToUInt16(tmp, i));
-                                    break;
-                            }
-                        }
-                        else
-                        {
-                            ColInds1.AddRange(new byte[0x300]);
-                            ColInds2.AddRange(new byte[0x300]);
-                        }
-                    }
+					if (Level.CollisionIndex != null && File.Exists(Level.CollisionIndex))
+					{
+						tmp = Compression.Decompress(Level.CollisionIndex, Level.CollisionIndexCompression);
+						switch (Level.CollisionIndexSize)
+						{
+							case 0:
+							case 1:
+								for (int i = 0; i < 0x600; i += 2)
+								{
+									ColInds1.Add(tmp[i]);
+									ColInds2.Add(tmp[i + 1]);
+								}
+								break;
+							case 2:
+								for (int i = 0; i < 0x600; i += 2)
+									ColInds1.Add((byte)ByteConverter.ToUInt16(tmp, i));
+								for (int i = 0x600; i < 0xC00; i += 2)
+									ColInds2.Add((byte)ByteConverter.ToUInt16(tmp, i));
+								break;
+						}
+					}
+					else
+					{
+						ColInds1.AddRange(new byte[0x300]);
+						ColInds2.AddRange(new byte[0x300]);
+					}
                     break;
             }
             if (Level.EngineVersion != EngineVersion.S3K && Level.EngineVersion != EngineVersion.SKC)
