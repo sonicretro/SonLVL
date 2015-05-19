@@ -34,25 +34,30 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="SonicRetro.KensSharp.Common">
-      <HintPath>..\..\KENSSharp\Frontend\bin\Release\SonicRetro.KensSharp.Common.dll</HintPath>
+    <Reference Include="SonicRetro.KensSharp.Common, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Dependencies\SonicRetro.KensSharp.Common.dll</HintPath>
     </Reference>
-    <Reference Include="SonicRetro.KensSharp.Enigma">
-      <HintPath>..\..\KENSSharp\Frontend\bin\Release\SonicRetro.KensSharp.Enigma.dll</HintPath>
+    <Reference Include="SonicRetro.KensSharp.Enigma, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Dependencies\SonicRetro.KensSharp.Enigma.dll</HintPath>
     </Reference>
-    <Reference Include="SonicRetro.KensSharp.Kosinski">
-      <HintPath>..\..\KENSSharp\Frontend\bin\Release\SonicRetro.KensSharp.Kosinski.dll</HintPath>
+    <Reference Include="SonicRetro.KensSharp.Kosinski, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Dependencies\SonicRetro.KensSharp.Kosinski.dll</HintPath>
     </Reference>
-    <Reference Include="SonicRetro.KensSharp.Nemesis">
-      <HintPath>..\..\KENSSharp\Frontend\bin\Release\SonicRetro.KensSharp.Nemesis.dll</HintPath>
+    <Reference Include="SonicRetro.KensSharp.Nemesis, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Dependencies\SonicRetro.KensSharp.Nemesis.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="SZDDComp">
-      <HintPath>.\SZDDComp.dll</HintPath>
+    <Reference Include="SZDDComp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Dependencies\SZDDComp.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -143,6 +148,20 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\UnknownImg3K.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="lib32\comper.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="lib32\libwinpthread-1.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="lib64\comper.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="lib64\libwinpthread-1.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
