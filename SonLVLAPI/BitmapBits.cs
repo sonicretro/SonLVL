@@ -288,6 +288,11 @@ namespace SonicRetro.SonLVL.API
 
 		public void DrawBitmap(BitmapBits source, int x, int y)
         {
+			if (x == 0 && source.Width == Width)
+			{
+				source.Bits.CopyTo(Bits, GetPixelIndex(0, y));
+				return;
+			}
             for (int i = 0; i < source.Height; i++)
             {
                 int di = GetPixelIndex(x, y + i);
@@ -323,20 +328,55 @@ namespace SonicRetro.SonLVL.API
             DrawBitmapComposited(source, location.X, location.Y);
         }
 
-        public void DrawBitmapBounded(BitmapBits source, int x, int y)
+		public void DrawBitmapBehind(BitmapBits source, int x, int y)
+		{
+			int srcl = 0;
+			if (x < 0)
+				srcl = -x;
+			int srct = 0;
+			if (y < 0)
+				srct = -y;
+			int srcr = source.Width;
+			if (srcr > Width - x)
+				srcr = Width - x;
+			int srcb = source.Height;
+			if (srcb > Height - y)
+				srcb = Height - y;
+			for (int c = srct; c < srcb; c++)
+				for (int r = srcl; r < srcr; r++)
+					if (this[x + r, y + c] == 0)
+						this[x + r, y + c] = source[r, c];
+		}
+
+		public void DrawBitmapBehind(BitmapBits source, Point location)
+		{
+			DrawBitmapBehind(source, location.X, location.Y);
+		}
+
+		public void DrawBitmapBounded(BitmapBits source, int x, int y)
         {
+			if (x >= 0 && y >= 0 && x + source.Width < Width && y + source.Height < Height)
+			{
+				DrawBitmap(source, x, y);
+				return;
+			}
+			int srct = 0;
+			if (y < 0)
+				srct = -y;
+			int srcb = source.Height;
+			if (srcb > Height - y)
+				srcb = Height - y;
+			if (x == 0 && source.Width == Width)
+			{
+				Array.Copy(source.Bits, source.GetPixelIndex(0, srct), Bits, GetPixelIndex(0, y + srct), srcb - srct);
+				return;
+			}
             int srcl = 0;
             if (x < 0)
                 srcl = -x;
-            int srct = 0;
-            if (y < 0)
-                srct = -y;
             int srcr = source.Width;
             if (srcr > Width - x)
                 srcr = Width - x;
-            int srcb = source.Height;
-            if (srcb > Height - y)
-                srcb = Height - y;
             for (int c = srct; c < srcb; c++)
                 Array.Copy(source.Bits, source.GetPixelIndex(srcl, c), Bits, GetPixelIndex(x + srcl, y + c), srcr - srcl);
         }
