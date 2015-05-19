@@ -355,7 +355,7 @@ namespace SonicRetro.SonLVL.API
 
 		public void DrawBitmapBounded(BitmapBits source, int x, int y)
         {
-			if (x >= 0 && y >= 0 && x + source.Width < Width && y + source.Height < Height)
+			if (x >= 0 && y >= 0 && x + source.Width <= Width && y + source.Height <= Height)
 			{
 				DrawBitmap(source, x, y);
 				return;
@@ -368,7 +368,7 @@ namespace SonicRetro.SonLVL.API
 				srcb = Height - y;
 			if (x == 0 && source.Width == Width)
 			{
-				Array.Copy(source.Bits, source.GetPixelIndex(0, srct), Bits, GetPixelIndex(0, y + srct), srcb - srct);
+				Array.Copy(source.Bits, source.GetPixelIndex(0, srct), Bits, GetPixelIndex(0, y + srct), GetPixelIndex(0, srcb - srct));
 				return;
 			}
             int srcl = 0;
