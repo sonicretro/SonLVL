@@ -3937,10 +3937,10 @@ namespace SonicRetro.SonLVL.GUI
 					switch (System.IO.Path.GetExtension(a.FileName))
 					{
 						case ".bin":
-							byte[] file = System.IO.File.ReadAllBytes(a.FileName);
-							for (int i = 0; i < file.Length; i += 2)
+							SonLVLColor[] colors = SonLVLColor.Load(a.FileName, LevelData.Level.PaletteFormat);
+							for (int i = 0; i < colors.Length; i++)
 							{
-								LevelData.Palette[LevelData.CurPal][l, x] = new SonLVLColor(BitConverter.ToUInt16(file, i));
+								LevelData.Palette[LevelData.CurPal][l, x] = colors[i];
 								x++;
 								if (x == 16)
 								{
