@@ -2646,8 +2646,8 @@ namespace SonicRetro.SonLVL.API
                 for (int i = 0; i < Chunks.Count; i++)
                 {
                     bool dr = false;
-                    for (int k = 0; k < 8; k++)
-                        for (int j = 0; j < 8; j++)
+					for (int k = 0; k < Level.ChunkHeight / 16; k++)
+						for (int j = 0; j < Level.ChunkWidth / 16; j++)
                             if (Chunks[i].Blocks[j, k].Block == block)
                                 dr = true;
                     if (dr)
@@ -2809,8 +2809,8 @@ namespace SonicRetro.SonLVL.API
                 for (int i = 0; i < Chunks.Count; i++)
                 {
                     bool dr = false;
-                    for (int k = 0; k < 8; k++)
-                        for (int j = 0; j < 8; j++)
+					for (int k = 0; k < Level.ChunkHeight / 16; k++)
+						for (int j = 0; j < Level.ChunkWidth / 16; j++)
                             if (ColInds1[Chunks[i].Blocks[j, k].Block] == block | ColInds2[Chunks[i].Blocks[j, k].Block] == block)
                                 dr = true;
                     if (dr)
