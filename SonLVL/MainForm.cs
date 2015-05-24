@@ -727,7 +727,8 @@ namespace SonicRetro.SonLVL.GUI
 			ChunkCount.Text = LevelData.Chunks.Count.ToString("X") + " / 100";
 			BlockCount.Text = LevelData.Blocks.Count.ToString("X") + " / " + LevelData.GetBlockMax().ToString("X");
 			TileCount.Text = LevelData.Tiles.Count.ToString("X") + " / 800";
-			clearBackgroundToolStripButton.Enabled = clearForegroundToolStripButton.Enabled = true;
+			deleteUnusedTilesToolStripButton.Enabled = deleteUnusedBlocksToolStripButton.Enabled = deleteUnusedChunksToolStripButton.Enabled =
+				clearBackgroundToolStripButton.Enabled = clearForegroundToolStripButton.Enabled = true;
 #if !DEBUG
 			loadingAnimation1.Hide();
 #endif

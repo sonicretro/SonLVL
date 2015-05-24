@@ -471,6 +471,7 @@
 			// deleteUnusedChunksToolStripButton
 			// 
 			this.deleteUnusedChunksToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.deleteUnusedChunksToolStripButton.Enabled = false;
 			this.deleteUnusedChunksToolStripButton.Name = "deleteUnusedChunksToolStripButton";
 			this.deleteUnusedChunksToolStripButton.Size = new System.Drawing.Size(87, 22);
 			this.deleteUnusedChunksToolStripButton.Text = "Delete Unused";
@@ -578,6 +579,7 @@
 			// deleteUnusedBlocksToolStripButton
 			// 
 			this.deleteUnusedBlocksToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.deleteUnusedBlocksToolStripButton.Enabled = false;
 			this.deleteUnusedBlocksToolStripButton.Name = "deleteUnusedBlocksToolStripButton";
 			this.deleteUnusedBlocksToolStripButton.Size = new System.Drawing.Size(87, 22);
 			this.deleteUnusedBlocksToolStripButton.Text = "Delete Unused";
@@ -665,6 +667,7 @@
 			// deleteUnusedTilesToolStripButton
 			// 
 			this.deleteUnusedTilesToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.deleteUnusedTilesToolStripButton.Enabled = false;
 			this.deleteUnusedTilesToolStripButton.Name = "deleteUnusedTilesToolStripButton";
 			this.deleteUnusedTilesToolStripButton.Size = new System.Drawing.Size(87, 22);
 			this.deleteUnusedTilesToolStripButton.Text = "Delete Unused";
