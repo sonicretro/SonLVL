@@ -98,6 +98,7 @@
 			this.redoCtrlYToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.findToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.findNextToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.findPreviousToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
 			this.blendAlternatePaletteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.resizeLevelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -1009,6 +1010,7 @@
             this.redoCtrlYToolStripMenuItem,
             this.findToolStripMenuItem,
             this.findNextToolStripMenuItem,
+            this.findPreviousToolStripMenuItem,
             this.toolStripSeparator3,
             this.blendAlternatePaletteToolStripMenuItem,
             this.resizeLevelToolStripMenuItem,
@@ -1051,6 +1053,15 @@
 			this.findNextToolStripMenuItem.Size = new System.Drawing.Size(335, 22);
 			this.findNextToolStripMenuItem.Text = "Find &Next";
 			this.findNextToolStripMenuItem.Click += new System.EventHandler(this.findNextToolStripMenuItem_Click);
+			// 
+			// findPreviousToolStripMenuItem
+			// 
+			this.findPreviousToolStripMenuItem.Enabled = false;
+			this.findPreviousToolStripMenuItem.Name = "findPreviousToolStripMenuItem";
+			this.findPreviousToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Shift | System.Windows.Forms.Keys.F3)));
+			this.findPreviousToolStripMenuItem.Size = new System.Drawing.Size(335, 22);
+			this.findPreviousToolStripMenuItem.Text = "Find &Previous";
+			this.findPreviousToolStripMenuItem.Click += new System.EventHandler(this.findPreviousToolStripMenuItem_Click);
 			// 
 			// toolStripSeparator3
 			// 
@@ -3494,6 +3505,7 @@
         private System.Windows.Forms.ToolStripButton alignBottomsToolStripButton;
         private System.Windows.Forms.ToolStripMenuItem findToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem findNextToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem findPreviousToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem useHexadecimalIndexesToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem solidityMapsToolStripMenuItem;
 		private System.Windows.Forms.Button flipChunkHButton;

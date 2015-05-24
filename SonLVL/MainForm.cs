@@ -704,7 +704,7 @@ namespace SonicRetro.SonLVL.GUI
 				waterPalette = -1;
 			}
 			timeZoneToolStripMenuItem.Visible = LevelData.Level.TimeZone != API.TimeZone.None;
-			findNextToolStripMenuItem.Enabled = false;
+			findNextToolStripMenuItem.Enabled = findPreviousToolStripMenuItem.Enabled = false;
 			string levelname = LevelData.Level.DisplayName;
 			foreach (char c in Path.GetInvalidFileNameChars())
 				levelname = levelname.Replace(c, '_');
@@ -3367,12 +3367,12 @@ namespace SonicRetro.SonLVL.GUI
 			{
 				case Tab.Objects:
 					findToolStripMenuItem.Enabled = true;
-					findNextToolStripMenuItem.Enabled = lastfoundobj != null;
+					findNextToolStripMenuItem.Enabled = findPreviousToolStripMenuItem.Enabled = lastfoundobj != null;
 					objectPanel.Focus();
 					break;
 				case Tab.Foreground:
 					findToolStripMenuItem.Enabled = true;
-					findNextToolStripMenuItem.Enabled = lastfoundfgchunk.HasValue;
+					findNextToolStripMenuItem.Enabled = findPreviousToolStripMenuItem.Enabled = lastfoundfgchunk.HasValue;
 					tabPage8.Controls.Add(ChunkSelector);
 					tabPage9.Controls.Add(layoutSectionSplitContainer);
 					ChunkSelector.AllowDrop = false;
@@ -3380,19 +3380,19 @@ namespace SonicRetro.SonLVL.GUI
 					break;
 				case Tab.Background:
 					findToolStripMenuItem.Enabled = true;
-					findNextToolStripMenuItem.Enabled = lastfoundbgchunk.HasValue;
+					findNextToolStripMenuItem.Enabled = findPreviousToolStripMenuItem.Enabled = lastfoundbgchunk.HasValue;
 					tabPage10.Controls.Add(ChunkSelector);
 					tabPage11.Controls.Add(layoutSectionSplitContainer);
 					ChunkSelector.AllowDrop = false;
 					backgroundPanel.Focus();
 					break;
 				case Tab.Chunks:
-					findToolStripMenuItem.Enabled = findNextToolStripMenuItem.Enabled = false;
+					findToolStripMenuItem.Enabled = findNextToolStripMenuItem.Enabled = findPreviousToolStripMenuItem.Enabled = false;
 					panel10.Controls.Add(ChunkSelector);
 					ChunkSelector.AllowDrop = true;
 					break;
 				default:
-					findToolStripMenuItem.Enabled = findNextToolStripMenuItem.Enabled = false;
+					findToolStripMenuItem.Enabled = findNextToolStripMenuItem.Enabled = findPreviousToolStripMenuItem.Enabled = false;
 					break;
 			}
 			DrawLevel();
@@ -6782,11 +6782,12 @@ namespace SonicRetro.SonLVL.GUI
 						searchid = findObjectsDialog.idSelect.Value;
 						searchsub = findObjectsDialog.findSubtype.Checked ? (byte?)findObjectsDialog.subtypeSelect.Value : null;
 						findNextToolStripMenuItem.Enabled = true;
+						findPreviousToolStripMenuItem.Enabled = false;
 					}
 					else
 					{
 						MessageBox.Show(this, "No matching objects found.", "SonLVL");
-						findNextToolStripMenuItem.Enabled = false;
+						findNextToolStripMenuItem.Enabled = findPreviousToolStripMenuItem.Enabled = false;
 						lastfoundobj = null;
 					}
 					SelectedObjectChanged();
@@ -6812,6 +6813,7 @@ namespace SonicRetro.SonLVL.GUI
 										lastfoundfgchunk = new Point(x, y);
 										searchfgchunk = (byte)findFGChunksDialog.chunkSelect.Value;
 										findNextToolStripMenuItem.Enabled = true;
+										findPreviousToolStripMenuItem.Enabled = false;
 										FGSelection = new Rectangle(x, y, 1, 1);
 										loaded = false;
 										hScrollBar2.Value = Math.Max(0, Math.Min(hScrollBar2.Maximum, (x * LevelData.Level.ChunkWidth)
@@ -6824,7 +6826,7 @@ namespace SonicRetro.SonLVL.GUI
 									}
 							MessageBox.Show(this, "No matching chunks found.", "SonLVL");
 							lastfoundfgchunk = null;
-							findNextToolStripMenuItem.Enabled = false;
+							findNextToolStripMenuItem.Enabled = findPreviousToolStripMenuItem.Enabled = false;
 							break;
 					}
 					break;
@@ -6848,6 +6850,7 @@ namespace SonicRetro.SonLVL.GUI
 										lastfoundbgchunk = new Point(x, y);
 										searchbgchunk = (byte)findBGChunksDialog.chunkSelect.Value;
 										findNextToolStripMenuItem.Enabled = true;
+										findPreviousToolStripMenuItem.Enabled = false;
 										BGSelection = new Rectangle(x, y, 1, 1);
 										loaded = false;
 										hScrollBar3.Value = Math.Max(0, Math.Min(hScrollBar3.Maximum, (x * LevelData.Level.ChunkWidth)
@@ -6860,7 +6863,7 @@ namespace SonicRetro.SonLVL.GUI
 									}
 							MessageBox.Show(this, "No matching chunks found.", "SonLVL");
 							lastfoundbgchunk = null;
-							findNextToolStripMenuItem.Enabled = false;
+							findNextToolStripMenuItem.Enabled = findPreviousToolStripMenuItem.Enabled = false;
 							break;
 					}
 					break;
@@ -6895,6 +6898,7 @@ namespace SonicRetro.SonLVL.GUI
 					{
 						ScrollToObject(SelectedItems[0]);
 						lastfoundobj = (ObjectEntry)SelectedItems[0];
+						findPreviousToolStripMenuItem.Enabled = true;	
 					}
 					else
 					{
@@ -6916,6 +6920,96 @@ namespace SonicRetro.SonLVL.GUI
 							else if (LevelData.Layout.FGLayout[x, y] == searchfgchunk)
 							{
 								lastfoundfgchunk = new Point(x, y);
+								findPreviousToolStripMenuItem.Enabled = true;
+								FGSelection = new Rectangle(x, y, 1, 1);
+								loaded = false;
+								hScrollBar2.Value = Math.Max(0, Math.Min(hScrollBar2.Maximum, (x * LevelData.Level.ChunkWidth)
+									+ (LevelData.Level.ChunkWidth / 2) - (foregroundPanel.Width / 2)));
+								vScrollBar2.Value = Math.Max(0, Math.Min(vScrollBar2.Maximum, (y * LevelData.Level.ChunkHeight)
+									+ (LevelData.Level.ChunkHeight / 2) - (foregroundPanel.Height / 2)));
+								loaded = true;
+								DrawLevel();
+								return;
+							}
+						}
+					MessageBox.Show(this, "No more chunks found.", "SonLVL");
+					findNextToolStripMenuItem.Enabled = false;
+					break;
+				case Tab.Background:
+					for (int x = 0; x < LevelData.BGWidth; x++)
+						for (int y = 0; y < LevelData.BGHeight; y++)
+						{
+							if (x == 0 && y == 0)
+							{
+								x = lastfoundbgchunk.Value.X;
+								y = lastfoundbgchunk.Value.Y;
+							}
+							else if (LevelData.Layout.BGLayout[x, y] == searchbgchunk)
+							{
+								lastfoundbgchunk = new Point(x, y);
+								findPreviousToolStripMenuItem.Enabled = true;
+								BGSelection = new Rectangle(x, y, 1, 1);
+								loaded = false;
+								hScrollBar3.Value = Math.Max(0, Math.Min(hScrollBar3.Maximum, (x * LevelData.Level.ChunkWidth)
+									+ (LevelData.Level.ChunkWidth / 2) - (backgroundPanel.Width / 2)));
+								vScrollBar3.Value = Math.Max(0, Math.Min(vScrollBar3.Maximum, (y * LevelData.Level.ChunkHeight)
+									+ (LevelData.Level.ChunkHeight / 2) - (backgroundPanel.Height / 2)));
+								loaded = true;
+								DrawLevel();
+								return;
+							}
+						}
+					MessageBox.Show(this, "No more chunks found.", "SonLVL");
+					findNextToolStripMenuItem.Enabled = false;
+					break;
+			}
+		}
+
+		private void findPreviousToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			switch (CurrentTab)
+			{
+				case Tab.Objects:
+					SelectedItems.Clear();
+					IEnumerable<ObjectEntry> list = LevelData.Objects;
+					if (LevelData.Objects.Contains(lastfoundobj))
+					{
+						list = System.Linq.Enumerable.Take(list, LevelData.Objects.IndexOf(lastfoundobj));
+						list = System.Linq.Enumerable.Reverse(list);
+					}
+					foreach (ObjectEntry item in list)
+						if (item.ID == searchid)
+							if (!searchsub.HasValue || item.SubType == searchsub.Value)
+							{
+								SelectedItems.Add(item);
+								break;
+							}
+					if (SelectedItems.Count > 0)
+					{
+						ScrollToObject(SelectedItems[0]);
+						lastfoundobj = (ObjectEntry)SelectedItems[0];
+						findNextToolStripMenuItem.Enabled = true;
+					}
+					else
+					{
+						MessageBox.Show(this, "No more objects found.", "SonLVL");
+						findPreviousToolStripMenuItem.Enabled = false;
+					}
+					SelectedObjectChanged();
+					DrawLevel();
+					break;
+				case Tab.Foreground:
+					for (int x = (LevelData.FGWidth - 1); x >= 0; x--)
+						for (int y = (LevelData.FGHeight - 1); y >= 0; y--)
+						{
+							if (x == (LevelData.FGWidth - 1) && y == (LevelData.FGHeight - 1))
+							{
+								x = lastfoundfgchunk.Value.X;
+								y = lastfoundfgchunk.Value.Y;
+							}
+							else if (LevelData.Layout.FGLayout[x, y] == searchfgchunk)
+							{
+								lastfoundfgchunk = new Point(x, y);
 								findNextToolStripMenuItem.Enabled = true;
 								FGSelection = new Rectangle(x, y, 1, 1);
 								loaded = false;
@@ -6929,14 +7023,13 @@ namespace SonicRetro.SonLVL.GUI
 							}
 						}
 					MessageBox.Show(this, "No more chunks found.", "SonLVL");
-					lastfoundfgchunk = null;
-					findNextToolStripMenuItem.Enabled = false;
+					findPreviousToolStripMenuItem.Enabled = false;
 					break;
 				case Tab.Background:
-					for (int x = 0; x < LevelData.BGWidth; x++)
-						for (int y = 0; y < LevelData.BGHeight; y++)
+					for (int x = (LevelData.BGWidth - 1); x >= 0; x--)
+						for (int y = (LevelData.BGHeight - 1); y >= 0; y--)
 						{
-							if (x == 0 && y == 0)
+							if (x == (LevelData.BGWidth - 1) && y == (LevelData.BGHeight - 1))
 							{
 								x = lastfoundbgchunk.Value.X;
 								y = lastfoundbgchunk.Value.Y;
@@ -6957,8 +7050,7 @@ namespace SonicRetro.SonLVL.GUI
 							}
 						}
 					MessageBox.Show(this, "No more chunks found.", "SonLVL");
-					lastfoundbgchunk = null;
-					findNextToolStripMenuItem.Enabled = false;
+					findPreviousToolStripMenuItem.Enabled = false;
 					break;
 			}
 		}
