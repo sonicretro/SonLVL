@@ -1,33 +1,33 @@
-﻿namespace SonicRetro.SonLVL
+namespace SonicRetro.SonLVL
 {
-    partial class FindChunksDialog
-    {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
-        private System.ComponentModel.IContainer components = null;
+	partial class FindChunksDialog
+	{
+		/// <summary>
+		/// Required designer variable.
+		/// </summary>
+		private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
+		/// <summary>
+		/// Clean up any resources being used.
+		/// </summary>
+		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing && (components != null))
+			{
+				components.Dispose();
+			}
+			base.Dispose(disposing);
+		}
 
-        #region Windows Form Designer generated code
+		#region Windows Form Designer generated code
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
-        private void InitializeComponent()
-        {
+		/// <summary>
+		/// Required method for Designer support - do not modify
+		/// the contents of this method with the code editor.
+		/// </summary>
+		private void InitializeComponent()
+		{
 			this.panel1 = new System.Windows.Forms.Panel();
 			this.tileList1 = new SonicRetro.SonLVL.API.TileList();
 			this.chunkSelect = new System.Windows.Forms.NumericUpDown();
@@ -65,10 +65,10 @@
 			this.chunkSelect.Hexadecimal = true;
 			this.chunkSelect.Location = new System.Drawing.Point(0, 272);
 			this.chunkSelect.Maximum = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
+			255,
+			0,
+			0,
+			0});
 			this.chunkSelect.Name = "chunkSelect";
 			this.chunkSelect.Size = new System.Drawing.Size(293, 20);
 			this.chunkSelect.TabIndex = 5;
@@ -127,17 +127,17 @@
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
-        }
+		}
 
-        #endregion
+		#endregion
 
-        private System.Windows.Forms.Panel panel1;
-        internal System.Windows.Forms.NumericUpDown chunkSelect;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Button cancelButton;
-        private System.Windows.Forms.Button okButton;
-        private API.TileList tileList1;
+		private System.Windows.Forms.Panel panel1;
+		internal System.Windows.Forms.NumericUpDown chunkSelect;
+		private System.Windows.Forms.Label label1;
+		private System.Windows.Forms.Button cancelButton;
+		private System.Windows.Forms.Button okButton;
+		private API.TileList tileList1;
 
-    }
+	}
 }
 

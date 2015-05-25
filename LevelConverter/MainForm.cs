@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -917,23 +917,23 @@ namespace SonicRetro.SonLVL.LevelConverter
 		}
 
 		private Size[] RingSpacing = {
-                                     new Size(0x10, 0), // horizontal tight
-                                     new Size(0x18, 0), // horizontal normal
-                                     new Size(0x20, 0), // horizontal wide
-                                     new Size(0, 0x10), // vertical tight
-                                     new Size(0, 0x18), // vertical normal
-                                     new Size(0, 0x20), // vertical wide
-                                     new Size(0x10, 0x10), // diagonal
-                                     new Size(0x18, 0x18),
-                                     new Size(0x20, 0x20),
-                                     new Size(-0x10, 0x10),
-                                     new Size(-0x18, 0x18),
-                                     new Size(-0x20, 0x20),
-                                     new Size(0x10, 8),
-                                     new Size(0x18, 0x10),
-                                     new Size(-0x10, 8),
-                                     new Size(-0x18, 0x10)
-                                 };
+									 new Size(0x10, 0), // horizontal tight
+									 new Size(0x18, 0), // horizontal normal
+									 new Size(0x20, 0), // horizontal wide
+									 new Size(0, 0x10), // vertical tight
+									 new Size(0, 0x18), // vertical normal
+									 new Size(0, 0x20), // vertical wide
+									 new Size(0x10, 0x10), // diagonal
+									 new Size(0x18, 0x18),
+									 new Size(0x20, 0x20),
+									 new Size(-0x10, 0x10),
+									 new Size(-0x18, 0x18),
+									 new Size(-0x20, 0x20),
+									 new Size(0x10, 8),
+									 new Size(0x18, 0x10),
+									 new Size(-0x10, 8),
+									 new Size(-0x18, 0x10)
+								 };
 
 		private void ObjS1ToS2()
 		{

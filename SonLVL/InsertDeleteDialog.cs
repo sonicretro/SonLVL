@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -8,21 +8,21 @@ using System.Windows.Forms;
 
 namespace SonicRetro.SonLVL
 {
-    public partial class InsertDeleteDialog : Form
-    {
-        public InsertDeleteDialog()
-        {
-            InitializeComponent();
-        }
+	public partial class InsertDeleteDialog : Form
+	{
+		public InsertDeleteDialog()
+		{
+			InitializeComponent();
+		}
 
-        private void okButton_Click(object sender, EventArgs e)
-        {
-            Close();
-        }
+		private void okButton_Click(object sender, EventArgs e)
+		{
+			Close();
+		}
 
-        private void cancelButton_Click(object sender, EventArgs e)
-        {
-            Close();
-        }
-    }
+		private void cancelButton_Click(object sender, EventArgs e)
+		{
+			Close();
+		}
+	}
 }

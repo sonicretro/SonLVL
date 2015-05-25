@@ -1,4 +1,4 @@
-﻿namespace SonicRetro.SonLVL.API.S1
+namespace SonicRetro.SonLVL.API.S1
 {
 	public class Ring : RingObjectFormat
 	{

@@ -1,4 +1,4 @@
-﻿namespace SonicRetro.SonLVL
+namespace SonicRetro.SonLVL
 {
 	partial class PatternIndexEditor
 	{
@@ -85,8 +85,8 @@
 			// tileList
 			// 
 			this.tileList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Left) 
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.tileList.BackColor = System.Drawing.SystemColors.Window;
 			this.tileList.ImageSize = 64;
 			this.tileList.Location = new System.Drawing.Point(3, 78);
@@ -112,10 +112,10 @@
 			// 
 			this.palette.Location = new System.Drawing.Point(52, 26);
 			this.palette.Maximum = new decimal(new int[] {
-            3,
-            0,
-            0,
-            0});
+			3,
+			0,
+			0,
+			0});
 			this.palette.Name = "palette";
 			this.palette.Size = new System.Drawing.Size(37, 20);
 			this.palette.TabIndex = 6;
@@ -126,10 +126,10 @@
 			this.tile.Hexadecimal = true;
 			this.tile.Location = new System.Drawing.Point(36, 52);
 			this.tile.Maximum = new decimal(new int[] {
-            2047,
-            0,
-            0,
-            0});
+			2047,
+			0,
+			0,
+			0});
 			this.tile.Name = "tile";
 			this.tile.Size = new System.Drawing.Size(53, 20);
 			this.tile.TabIndex = 8;

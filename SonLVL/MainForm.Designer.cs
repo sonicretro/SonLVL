@@ -1,33 +1,33 @@
-﻿namespace SonicRetro.SonLVL.GUI
+namespace SonicRetro.SonLVL.GUI
 {
-    partial class MainForm
-    {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
-        private System.ComponentModel.IContainer components = null;
+	partial class MainForm
+	{
+		/// <summary>
+		/// Required designer variable.
+		/// </summary>
+		private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
+		/// <summary>
+		/// Clean up any resources being used.
+		/// </summary>
+		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing && (components != null))
+			{
+				components.Dispose();
+			}
+			base.Dispose(disposing);
+		}
 
-        #region Windows Form Designer generated code
+		#region Windows Form Designer generated code
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
-        private void InitializeComponent()
-        {
+		/// <summary>
+		/// Required method for Designer support - do not modify
+		/// the contents of this method with the code editor.
+		/// </summary>
+		private void InitializeComponent()
+		{
 			this.components = new System.ComponentModel.Container();
 			System.Windows.Forms.ToolStripSeparator toolStripSeparator8;
 			System.Windows.Forms.ToolStripSeparator toolStripSeparator9;
@@ -449,10 +449,10 @@
 			// 
 			chunkListToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			chunkListToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.importChunksToolStripButton,
-            this.deleteUnusedChunksToolStripButton,
-            this.remapChunksButton,
-            this.enableDraggingChunksButton});
+			this.importChunksToolStripButton,
+			this.deleteUnusedChunksToolStripButton,
+			this.remapChunksButton,
+			this.enableDraggingChunksButton});
 			chunkListToolStrip.Location = new System.Drawing.Point(0, 0);
 			chunkListToolStrip.Name = "chunkListToolStrip";
 			chunkListToolStrip.Size = new System.Drawing.Size(219, 25);
@@ -557,10 +557,10 @@
 			// 
 			blockListToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			blockListToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.importBlocksToolStripButton,
-            this.deleteUnusedBlocksToolStripButton,
-            this.remapBlocksButton,
-            this.enableDraggingBlocksButton});
+			this.importBlocksToolStripButton,
+			this.deleteUnusedBlocksToolStripButton,
+			this.remapBlocksButton,
+			this.enableDraggingBlocksButton});
 			blockListToolStrip.Location = new System.Drawing.Point(0, 0);
 			blockListToolStrip.Name = "blockListToolStrip";
 			blockListToolStrip.Size = new System.Drawing.Size(266, 25);
@@ -645,10 +645,10 @@
 			// 
 			tileListToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			tileListToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.importTilesToolStripButton,
-            this.deleteUnusedTilesToolStripButton,
-            this.remapTilesButton,
-            this.enableDraggingTilesButton});
+			this.importTilesToolStripButton,
+			this.deleteUnusedTilesToolStripButton,
+			this.remapTilesButton,
+			this.enableDraggingTilesButton});
 			tileListToolStrip.Location = new System.Drawing.Point(0, 0);
 			tileListToolStrip.Name = "tileListToolStrip";
 			tileListToolStrip.Size = new System.Drawing.Size(464, 25);
@@ -784,7 +784,7 @@
 			// layoutSectionListToolStrip
 			// 
 			layoutSectionListToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.importToolStripButton});
+			this.importToolStripButton});
 			layoutSectionListToolStrip.Location = new System.Drawing.Point(0, 0);
 			layoutSectionListToolStrip.Name = "layoutSectionListToolStrip";
 			layoutSectionListToolStrip.Size = new System.Drawing.Size(254, 25);
@@ -908,13 +908,13 @@
 			// fileToolStripMenuItem
 			// 
 			this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.openToolStripMenuItem,
-            this.changeLevelToolStripMenuItem,
-            this.saveToolStripMenuItem,
-            this.buildAndRunToolStripMenuItem,
-            this.setupEmulatorToolStripMenuItem,
-            this.recentProjectsToolStripMenuItem,
-            this.exitToolStripMenuItem});
+			this.openToolStripMenuItem,
+			this.changeLevelToolStripMenuItem,
+			this.saveToolStripMenuItem,
+			this.buildAndRunToolStripMenuItem,
+			this.setupEmulatorToolStripMenuItem,
+			this.recentProjectsToolStripMenuItem,
+			this.exitToolStripMenuItem});
 			this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
 			this.fileToolStripMenuItem.ShortcutKeyDisplayString = "";
 			this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
@@ -932,7 +932,7 @@
 			// changeLevelToolStripMenuItem
 			// 
 			this.changeLevelToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.noneToolStripMenuItem});
+			this.noneToolStripMenuItem});
 			this.changeLevelToolStripMenuItem.Name = "changeLevelToolStripMenuItem";
 			this.changeLevelToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
 			this.changeLevelToolStripMenuItem.Text = "&Change Level...";
@@ -971,7 +971,7 @@
 			// recentProjectsToolStripMenuItem
 			// 
 			this.recentProjectsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.noneToolStripMenuItem2});
+			this.noneToolStripMenuItem2});
 			this.recentProjectsToolStripMenuItem.Name = "recentProjectsToolStripMenuItem";
 			this.recentProjectsToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
 			this.recentProjectsToolStripMenuItem.Text = "&Recent Projects";
@@ -995,11 +995,11 @@
 			// menuStrip1
 			// 
 			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem,
-            this.editToolStripMenuItem,
-            this.viewToolStripMenuItem,
-            this.exportToolStripMenuItem,
-            this.helpToolStripMenuItem});
+			this.fileToolStripMenuItem,
+			this.editToolStripMenuItem,
+			this.viewToolStripMenuItem,
+			this.exportToolStripMenuItem,
+			this.helpToolStripMenuItem});
 			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip1.Name = "menuStrip1";
 			this.menuStrip1.Size = new System.Drawing.Size(658, 24);
@@ -1009,16 +1009,16 @@
 			// editToolStripMenuItem
 			// 
 			this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.undoCtrlZToolStripMenuItem,
-            this.redoCtrlYToolStripMenuItem,
-            this.findToolStripMenuItem,
-            this.findNextToolStripMenuItem,
-            this.findPreviousToolStripMenuItem,
-            this.toolStripSeparator3,
-            this.blendAlternatePaletteToolStripMenuItem,
-            this.resizeLevelToolStripMenuItem,
-            this.includeObjectsWithForegroundSelectionToolStripMenuItem,
-            this.switchMouseButtonsInChunkAndBlockEditorsToolStripMenuItem});
+			this.undoCtrlZToolStripMenuItem,
+			this.redoCtrlYToolStripMenuItem,
+			this.findToolStripMenuItem,
+			this.findNextToolStripMenuItem,
+			this.findPreviousToolStripMenuItem,
+			this.toolStripSeparator3,
+			this.blendAlternatePaletteToolStripMenuItem,
+			this.resizeLevelToolStripMenuItem,
+			this.includeObjectsWithForegroundSelectionToolStripMenuItem,
+			this.switchMouseButtonsInChunkAndBlockEditorsToolStripMenuItem});
 			this.editToolStripMenuItem.Enabled = false;
 			this.editToolStripMenuItem.Name = "editToolStripMenuItem";
 			this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
@@ -1103,17 +1103,17 @@
 			// viewToolStripMenuItem
 			// 
 			this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.objectsAboveHighPlaneToolStripMenuItem,
-            this.hUDToolStripMenuItem,
-            this.paletteToolStripMenuItem2,
-            this.waterPaletteToolStripMenuItem,
-            this.layersToolStripMenuItem,
-            this.collisionToolStripMenuItem,
-            this.timeZoneToolStripMenuItem,
-            this.gridToolStripMenuItem,
-            this.zoomToolStripMenuItem,
-            this.toolStripSeparator4,
-            this.logToolStripMenuItem});
+			this.objectsAboveHighPlaneToolStripMenuItem,
+			this.hUDToolStripMenuItem,
+			this.paletteToolStripMenuItem2,
+			this.waterPaletteToolStripMenuItem,
+			this.layersToolStripMenuItem,
+			this.collisionToolStripMenuItem,
+			this.timeZoneToolStripMenuItem,
+			this.gridToolStripMenuItem,
+			this.zoomToolStripMenuItem,
+			this.toolStripSeparator4,
+			this.logToolStripMenuItem});
 			this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
 			this.viewToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
 			this.viewToolStripMenuItem.Text = "&View";
@@ -1148,8 +1148,8 @@
 			// waterPaletteToolStripMenuItem
 			// 
 			this.waterPaletteToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.selectPaletteToolStripMenuItem,
-            this.setPositionToolStripMenuItem});
+			this.selectPaletteToolStripMenuItem,
+			this.setPositionToolStripMenuItem});
 			this.waterPaletteToolStripMenuItem.Name = "waterPaletteToolStripMenuItem";
 			this.waterPaletteToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
 			this.waterPaletteToolStripMenuItem.Text = "&Water Palette";
@@ -1172,8 +1172,8 @@
 			// layersToolStripMenuItem
 			// 
 			this.layersToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.lowToolStripMenuItem,
-            this.highToolStripMenuItem});
+			this.lowToolStripMenuItem,
+			this.highToolStripMenuItem});
 			this.layersToolStripMenuItem.Name = "layersToolStripMenuItem";
 			this.layersToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
 			this.layersToolStripMenuItem.Text = "&Layers";
@@ -1205,11 +1205,11 @@
 			// collisionToolStripMenuItem
 			// 
 			this.collisionToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.noneToolStripMenuItem1,
-            this.path1ToolStripMenuItem,
-            this.path2ToolStripMenuItem,
-            this.toolStripSeparator6,
-            this.anglesToolStripMenuItem});
+			this.noneToolStripMenuItem1,
+			this.path1ToolStripMenuItem,
+			this.path2ToolStripMenuItem,
+			this.toolStripSeparator6,
+			this.anglesToolStripMenuItem});
 			this.collisionToolStripMenuItem.Name = "collisionToolStripMenuItem";
 			this.collisionToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
 			this.collisionToolStripMenuItem.Text = "&Collision";
@@ -1254,8 +1254,8 @@
 			// timeZoneToolStripMenuItem
 			// 
 			this.timeZoneToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.currentOnlyToolStripMenuItem,
-            this.allToolStripMenuItem});
+			this.currentOnlyToolStripMenuItem,
+			this.allToolStripMenuItem});
 			this.timeZoneToolStripMenuItem.Name = "timeZoneToolStripMenuItem";
 			this.timeZoneToolStripMenuItem.ShortcutKeyDisplayString = "P";
 			this.timeZoneToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
@@ -1281,8 +1281,8 @@
 			// gridToolStripMenuItem
 			// 
 			this.gridToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.enableGridToolStripMenuItem,
-            this.gridColorToolStripMenuItem});
+			this.enableGridToolStripMenuItem,
+			this.gridColorToolStripMenuItem});
 			this.gridToolStripMenuItem.Name = "gridToolStripMenuItem";
 			this.gridToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
 			this.gridToolStripMenuItem.Text = "&Grid";
@@ -1305,14 +1305,14 @@
 			// zoomToolStripMenuItem
 			// 
 			this.zoomToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.xToolStripMenuItem7,
-            this.xToolStripMenuItem6,
-            this.xToolStripMenuItem,
-            this.xToolStripMenuItem1,
-            this.xToolStripMenuItem2,
-            this.xToolStripMenuItem3,
-            this.xToolStripMenuItem4,
-            this.xToolStripMenuItem5});
+			this.xToolStripMenuItem7,
+			this.xToolStripMenuItem6,
+			this.xToolStripMenuItem,
+			this.xToolStripMenuItem1,
+			this.xToolStripMenuItem2,
+			this.xToolStripMenuItem3,
+			this.xToolStripMenuItem4,
+			this.xToolStripMenuItem5});
 			this.zoomToolStripMenuItem.Name = "zoomToolStripMenuItem";
 			this.zoomToolStripMenuItem.ShortcutKeyDisplayString = "+ -";
 			this.zoomToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
@@ -1384,19 +1384,19 @@
 			// exportToolStripMenuItem
 			// 
 			this.exportToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.paletteToolStripMenuItem,
-            this.tilesToolStripMenuItem,
-            this.blocksToolStripMenuItem,
-            this.chunksToolStripMenuItem,
-            this.solidityMapsToolStripMenuItem,
-            this.foregroundToolStripMenuItem,
-            this.backgroundToolStripMenuItem,
-            toolStripSeparator1,
-            this.transparentBackFGBGToolStripMenuItem,
-            this.includeobjectsWithFGToolStripMenuItem,
-            this.hideDebugObjectsToolStripMenuItem,
-            this.useHexadecimalIndexesToolStripMenuItem,
-            this.exportArtcollisionpriorityToolStripMenuItem});
+			this.paletteToolStripMenuItem,
+			this.tilesToolStripMenuItem,
+			this.blocksToolStripMenuItem,
+			this.chunksToolStripMenuItem,
+			this.solidityMapsToolStripMenuItem,
+			this.foregroundToolStripMenuItem,
+			this.backgroundToolStripMenuItem,
+			toolStripSeparator1,
+			this.transparentBackFGBGToolStripMenuItem,
+			this.includeobjectsWithFGToolStripMenuItem,
+			this.hideDebugObjectsToolStripMenuItem,
+			this.useHexadecimalIndexesToolStripMenuItem,
+			this.exportArtcollisionpriorityToolStripMenuItem});
 			this.exportToolStripMenuItem.Enabled = false;
 			this.exportToolStripMenuItem.Name = "exportToolStripMenuItem";
 			this.exportToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
@@ -1405,9 +1405,9 @@
 			// paletteToolStripMenuItem
 			// 
 			this.paletteToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.pNGToolStripMenuItem,
-            this.yYCHRToolStripMenuItem,
-            this.jASCPALToolStripMenuItem});
+			this.pNGToolStripMenuItem,
+			this.yYCHRToolStripMenuItem,
+			this.jASCPALToolStripMenuItem});
 			this.paletteToolStripMenuItem.Name = "paletteToolStripMenuItem";
 			this.paletteToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
 			this.paletteToolStripMenuItem.Text = "&Palette";
@@ -1415,12 +1415,12 @@
 			// pNGToolStripMenuItem
 			// 
 			this.pNGToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            line0ToolStripMenuItem,
-            line1ToolStripMenuItem,
-            line2ToolStripMenuItem,
-            line3ToolStripMenuItem,
-            toolStripSeparator2,
-            fullToolStripMenuItem});
+			line0ToolStripMenuItem,
+			line1ToolStripMenuItem,
+			line2ToolStripMenuItem,
+			line3ToolStripMenuItem,
+			toolStripSeparator2,
+			fullToolStripMenuItem});
 			this.pNGToolStripMenuItem.Name = "pNGToolStripMenuItem";
 			this.pNGToolStripMenuItem.Size = new System.Drawing.Size(126, 22);
 			this.pNGToolStripMenuItem.Text = "&PNG";
@@ -1436,12 +1436,12 @@
 			// jASCPALToolStripMenuItem
 			// 
 			this.jASCPALToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            line0ToolStripMenuItem1,
-            line1ToolStripMenuItem1,
-            line2ToolStripMenuItem1,
-            line3ToolStripMenuItem1,
-            toolStripSeparator13,
-            fullToolStripMenuItem1});
+			line0ToolStripMenuItem1,
+			line1ToolStripMenuItem1,
+			line2ToolStripMenuItem1,
+			line3ToolStripMenuItem1,
+			toolStripSeparator13,
+			fullToolStripMenuItem1});
 			this.jASCPALToolStripMenuItem.Name = "jASCPALToolStripMenuItem";
 			this.jASCPALToolStripMenuItem.Size = new System.Drawing.Size(126, 22);
 			this.jASCPALToolStripMenuItem.Text = "JASC-PAL";
@@ -1450,10 +1450,10 @@
 			// tilesToolStripMenuItem
 			// 
 			this.tilesToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.paletteLine0ToolStripMenuItem,
-            this.paletteLine1ToolStripMenuItem,
-            this.paletteLine2ToolStripMenuItem,
-            this.paletteLine3ToolStripMenuItem});
+			this.paletteLine0ToolStripMenuItem,
+			this.paletteLine1ToolStripMenuItem,
+			this.paletteLine2ToolStripMenuItem,
+			this.paletteLine3ToolStripMenuItem});
 			this.tilesToolStripMenuItem.Name = "tilesToolStripMenuItem";
 			this.tilesToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
 			this.tilesToolStripMenuItem.Text = "&Tiles";
@@ -1563,8 +1563,8 @@
 			// helpToolStripMenuItem
 			// 
 			this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.viewReadmeToolStripMenuItem,
-            this.reportBugToolStripMenuItem});
+			this.viewReadmeToolStripMenuItem,
+			this.reportBugToolStripMenuItem});
 			this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
 			this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
 			this.helpToolStripMenuItem.Text = "&Help";
@@ -1592,17 +1592,17 @@
 			// objectContextMenuStrip
 			// 
 			this.objectContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.addObjectToolStripMenuItem,
-            this.addRingToolStripMenuItem,
-            this.addGroupOfObjectsToolStripMenuItem,
-            this.addGroupOfRingsToolStripMenuItem,
-            this.cutToolStripMenuItem,
-            this.copyToolStripMenuItem,
-            this.pasteToolStripMenuItem,
-            this.deleteToolStripMenuItem,
-            this.toolStripSeparator5,
-            this.selectAllObjectsToolStripMenuItem,
-            this.selectAllRingsToolStripMenuItem});
+			this.addObjectToolStripMenuItem,
+			this.addRingToolStripMenuItem,
+			this.addGroupOfObjectsToolStripMenuItem,
+			this.addGroupOfRingsToolStripMenuItem,
+			this.cutToolStripMenuItem,
+			this.copyToolStripMenuItem,
+			this.pasteToolStripMenuItem,
+			this.deleteToolStripMenuItem,
+			this.toolStripSeparator5,
+			this.selectAllObjectsToolStripMenuItem,
+			this.selectAllRingsToolStripMenuItem});
 			this.objectContextMenuStrip.Name = "contextMenuStrip1";
 			this.objectContextMenuStrip.Size = new System.Drawing.Size(199, 230);
 			// 
@@ -1694,7 +1694,7 @@
 			// hScrollBar1
 			// 
 			this.hScrollBar1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.hScrollBar1.Enabled = false;
 			this.hScrollBar1.LargeChange = 128;
 			this.hScrollBar1.Location = new System.Drawing.Point(0, 435);
@@ -1708,7 +1708,7 @@
 			// vScrollBar1
 			// 
 			this.vScrollBar1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+			| System.Windows.Forms.AnchorStyles.Left)));
 			this.vScrollBar1.Enabled = false;
 			this.vScrollBar1.LargeChange = 128;
 			this.vScrollBar1.Location = new System.Drawing.Point(331, 0);
@@ -1857,20 +1857,20 @@
 			// objToolStrip
 			// 
 			this.objToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.objGridSizeDropDownButton,
-            toolStripSeparator10,
-            this.alignLeftWallToolStripButton,
-            this.alignGroundToolStripButton,
-            this.alignRightWallToolStripButton,
-            this.alignCeilingToolStripButton,
-            toolStripSeparator8,
-            this.alignLeftsToolStripButton,
-            this.alignCentersToolStripButton,
-            this.alignRightsToolStripButton,
-            toolStripSeparator9,
-            this.alignTopsToolStripButton,
-            this.alignMiddlesToolStripButton,
-            this.alignBottomsToolStripButton});
+			this.objGridSizeDropDownButton,
+			toolStripSeparator10,
+			this.alignLeftWallToolStripButton,
+			this.alignGroundToolStripButton,
+			this.alignRightWallToolStripButton,
+			this.alignCeilingToolStripButton,
+			toolStripSeparator8,
+			this.alignLeftsToolStripButton,
+			this.alignCentersToolStripButton,
+			this.alignRightsToolStripButton,
+			toolStripSeparator9,
+			this.alignTopsToolStripButton,
+			this.alignMiddlesToolStripButton,
+			this.alignBottomsToolStripButton});
 			this.objToolStrip.Location = new System.Drawing.Point(0, 0);
 			this.objToolStrip.Name = "objToolStrip";
 			this.objToolStrip.Size = new System.Drawing.Size(348, 25);
@@ -1881,15 +1881,15 @@
 			// 
 			this.objGridSizeDropDownButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
 			this.objGridSizeDropDownButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripMenuItem2,
-            this.toolStripMenuItem4,
-            this.toolStripMenuItem5,
-            this.toolStripMenuItem6,
-            this.toolStripMenuItem7,
-            this.toolStripMenuItem8,
-            this.toolStripMenuItem9,
-            this.toolStripMenuItem10,
-            this.toolStripMenuItem11});
+			this.toolStripMenuItem2,
+			this.toolStripMenuItem4,
+			this.toolStripMenuItem5,
+			this.toolStripMenuItem6,
+			this.toolStripMenuItem7,
+			this.toolStripMenuItem8,
+			this.toolStripMenuItem9,
+			this.toolStripMenuItem10,
+			this.toolStripMenuItem11});
 			this.objGridSizeDropDownButton.Image = ((System.Drawing.Image)(resources.GetObject("objGridSizeDropDownButton.Image")));
 			this.objGridSizeDropDownButton.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.objGridSizeDropDownButton.Name = "objGridSizeDropDownButton";
@@ -2128,7 +2128,7 @@
 			// vScrollBar2
 			// 
 			this.vScrollBar2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+			| System.Windows.Forms.AnchorStyles.Left)));
 			this.vScrollBar2.Enabled = false;
 			this.vScrollBar2.LargeChange = 128;
 			this.vScrollBar2.Location = new System.Drawing.Point(367, 25);
@@ -2142,7 +2142,7 @@
 			// hScrollBar2
 			// 
 			this.hScrollBar2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.hScrollBar2.Enabled = false;
 			this.hScrollBar2.LargeChange = 128;
 			this.hScrollBar2.Location = new System.Drawing.Point(0, 460);
@@ -2158,10 +2158,10 @@
 			this.tableLayoutPanel2.SetColumnSpan(this.fgToolStrip, 2);
 			this.fgToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			this.fgToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fgDrawToolStripButton,
-            this.fgSelectToolStripButton,
-            toolStripSeparator14,
-            this.clearForegroundToolStripButton});
+			this.fgDrawToolStripButton,
+			this.fgSelectToolStripButton,
+			toolStripSeparator14,
+			this.clearForegroundToolStripButton});
 			this.fgToolStrip.Location = new System.Drawing.Point(0, 0);
 			this.fgToolStrip.Name = "fgToolStrip";
 			this.fgToolStrip.Size = new System.Drawing.Size(384, 25);
@@ -2252,10 +2252,10 @@
 			this.tableLayoutPanel3.SetColumnSpan(this.bgToolStrip, 2);
 			this.bgToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			this.bgToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.bgDrawToolStripButton,
-            this.bgSelectToolStripButton,
-            toolStripSeparator15,
-            this.clearBackgroundToolStripButton});
+			this.bgDrawToolStripButton,
+			this.bgSelectToolStripButton,
+			toolStripSeparator15,
+			this.clearBackgroundToolStripButton});
 			this.bgToolStrip.Location = new System.Drawing.Point(0, 0);
 			this.bgToolStrip.Name = "bgToolStrip";
 			this.bgToolStrip.Size = new System.Drawing.Size(384, 25);
@@ -2309,7 +2309,7 @@
 			// vScrollBar3
 			// 
 			this.vScrollBar3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+			| System.Windows.Forms.AnchorStyles.Left)));
 			this.vScrollBar3.Enabled = false;
 			this.vScrollBar3.LargeChange = 128;
 			this.vScrollBar3.Location = new System.Drawing.Point(367, 25);
@@ -2323,7 +2323,7 @@
 			// hScrollBar3
 			// 
 			this.hScrollBar3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.hScrollBar3.Enabled = false;
 			this.hScrollBar3.LargeChange = 128;
 			this.hScrollBar3.Location = new System.Drawing.Point(0, 460);
@@ -2635,10 +2635,10 @@
 			this.BlockCollision2.Hexadecimal = true;
 			this.BlockCollision2.Location = new System.Drawing.Point(80, 20);
 			this.BlockCollision2.Maximum = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
+			255,
+			0,
+			0,
+			0});
 			this.BlockCollision2.Name = "BlockCollision2";
 			this.BlockCollision2.Size = new System.Drawing.Size(39, 20);
 			this.BlockCollision2.TabIndex = 1;
@@ -2649,10 +2649,10 @@
 			this.BlockCollision1.Hexadecimal = true;
 			this.BlockCollision1.Location = new System.Drawing.Point(7, 20);
 			this.BlockCollision1.Maximum = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
+			255,
+			0,
+			0,
+			0});
 			this.BlockCollision1.Name = "BlockCollision1";
 			this.BlockCollision1.Size = new System.Drawing.Size(39, 20);
 			this.BlockCollision1.TabIndex = 0;
@@ -2927,18 +2927,18 @@
 			this.ColAngle.Hexadecimal = true;
 			this.ColAngle.Location = new System.Drawing.Point(74, 4);
 			this.ColAngle.Maximum = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
+			255,
+			0,
+			0,
+			0});
 			this.ColAngle.Name = "ColAngle";
 			this.ColAngle.Size = new System.Drawing.Size(41, 20);
 			this.ColAngle.TabIndex = 3;
 			this.ColAngle.Value = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
+			255,
+			0,
+			0,
+			0});
 			this.ColAngle.ValueChanged += new System.EventHandler(this.ColAngle_ValueChanged);
 			// 
 			// ColPicture
@@ -2956,16 +2956,16 @@
 			// tileContextMenuStrip
 			// 
 			this.tileContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.cutTilesToolStripMenuItem,
-            this.copyTilesToolStripMenuItem,
-            this.deepCopyToolStripMenuItem,
-            this.pasteBeforeToolStripMenuItem,
-            this.pasteOverToolStripMenuItem,
-            this.pasteAfterToolStripMenuItem,
-            this.insertBeforeToolStripMenuItem,
-            this.insertAfterToolStripMenuItem,
-            this.deleteTilesToolStripMenuItem,
-            this.drawToolStripMenuItem});
+			this.cutTilesToolStripMenuItem,
+			this.copyTilesToolStripMenuItem,
+			this.deepCopyToolStripMenuItem,
+			this.pasteBeforeToolStripMenuItem,
+			this.pasteOverToolStripMenuItem,
+			this.pasteAfterToolStripMenuItem,
+			this.insertBeforeToolStripMenuItem,
+			this.insertAfterToolStripMenuItem,
+			this.deleteTilesToolStripMenuItem,
+			this.drawToolStripMenuItem});
 			this.tileContextMenuStrip.Name = "contextMenuStrip1";
 			this.tileContextMenuStrip.Size = new System.Drawing.Size(141, 224);
 			// 
@@ -3049,7 +3049,7 @@
 			// paletteContextMenuStrip
 			// 
 			this.paletteContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.importToolStripMenuItem1});
+			this.importToolStripMenuItem1});
 			this.paletteContextMenuStrip.Name = "contextMenuStrip2";
 			this.paletteContextMenuStrip.Size = new System.Drawing.Size(111, 26);
 			// 
@@ -3063,21 +3063,21 @@
 			// layoutContextMenuStrip
 			// 
 			this.layoutContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.cutToolStripMenuItem1,
-            this.copyToolStripMenuItem1,
-            this.pasteOnceToolStripMenuItem,
-            this.pasteRepeatingToolStripMenuItem,
-            this.importToolStripMenuItem2,
-            this.toolStripSeparator11,
-            this.deleteToolStripMenuItem1,
-            this.fillToolStripMenuItem,
-            this.toolStripSeparator12,
-            this.saveSectionToolStripMenuItem,
-            this.pasteSectionOnceToolStripMenuItem,
-            this.pasteSectionRepeatingToolStripMenuItem,
-            this.toolStripSeparator7,
-            this.insertLayoutToolStripMenuItem,
-            this.deleteLayoutToolStripMenuItem});
+			this.cutToolStripMenuItem1,
+			this.copyToolStripMenuItem1,
+			this.pasteOnceToolStripMenuItem,
+			this.pasteRepeatingToolStripMenuItem,
+			this.importToolStripMenuItem2,
+			this.toolStripSeparator11,
+			this.deleteToolStripMenuItem1,
+			this.fillToolStripMenuItem,
+			this.toolStripSeparator12,
+			this.saveSectionToolStripMenuItem,
+			this.pasteSectionOnceToolStripMenuItem,
+			this.pasteSectionRepeatingToolStripMenuItem,
+			this.toolStripSeparator7,
+			this.insertLayoutToolStripMenuItem,
+			this.deleteLayoutToolStripMenuItem});
 			this.layoutContextMenuStrip.Name = "layoutContextMenuStrip";
 			this.layoutContextMenuStrip.Size = new System.Drawing.Size(203, 286);
 			// 
@@ -3324,192 +3324,192 @@
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
-        }
+		}
 
-        #endregion
+		#endregion
 
-        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem changeLevelToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
-        private System.Windows.Forms.MenuStrip menuStrip1;
-        private System.Windows.Forms.ToolStripMenuItem noneToolStripMenuItem;
-        private System.ComponentModel.BackgroundWorker backgroundLevelLoader;
-        private System.Windows.Forms.ToolStripMenuItem exportToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem tilesToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem blocksToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem chunksToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem foregroundToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem changeLevelToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
+		private System.Windows.Forms.MenuStrip menuStrip1;
+		private System.Windows.Forms.ToolStripMenuItem noneToolStripMenuItem;
+		private System.ComponentModel.BackgroundWorker backgroundLevelLoader;
+		private System.Windows.Forms.ToolStripMenuItem exportToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem tilesToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem blocksToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem chunksToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem foregroundToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem backgroundToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem transparentBackFGBGToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem paletteLine0ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem paletteLine1ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem paletteLine2ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem paletteLine3ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem includeobjectsWithFGToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem viewToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem objectsAboveHighPlaneToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem undoCtrlZToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem redoCtrlYToolStripMenuItem;
-        private System.Windows.Forms.ContextMenuStrip objectContextMenuStrip;
-        private System.Windows.Forms.ToolStripMenuItem cutToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem copyToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem pasteToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem addObjectToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem addRingToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem transparentBackFGBGToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem paletteLine0ToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem paletteLine1ToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem paletteLine2ToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem paletteLine3ToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem includeobjectsWithFGToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem viewToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem objectsAboveHighPlaneToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem undoCtrlZToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem redoCtrlYToolStripMenuItem;
+		private System.Windows.Forms.ContextMenuStrip objectContextMenuStrip;
+		private System.Windows.Forms.ToolStripMenuItem cutToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem copyToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem pasteToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem addObjectToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem addRingToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem paletteToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
-        internal System.Windows.Forms.ToolStripMenuItem logToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem blendAlternatePaletteToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem collisionToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem noneToolStripMenuItem1;
-        internal System.Windows.Forms.ToolStripMenuItem path1ToolStripMenuItem;
-        internal System.Windows.Forms.ToolStripMenuItem path2ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem paletteToolStripMenuItem2;
-        private System.Windows.Forms.ToolStripMenuItem hideDebugObjectsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem addGroupOfObjectsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem addGroupOfRingsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem buildAndRunToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem timeZoneToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem currentOnlyToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem allToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem hUDToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem layersToolStripMenuItem;
-        internal System.Windows.Forms.ToolStripMenuItem lowToolStripMenuItem;
-        internal System.Windows.Forms.ToolStripMenuItem highToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem setupEmulatorToolStripMenuItem;
-        private System.Windows.Forms.HScrollBar hScrollBar1;
-        private System.Windows.Forms.VScrollBar vScrollBar1;
-        private SonicRetro.SonLVL.API.KeyboardPanel objectPanel;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private System.Windows.Forms.TabControl tabControl1;
-        private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.TabPage tabPage2;
-        private System.Windows.Forms.TabPage tabPage3;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
-        private SonicRetro.SonLVL.API.KeyboardPanel foregroundPanel;
-        private System.Windows.Forms.VScrollBar vScrollBar2;
-        private System.Windows.Forms.HScrollBar hScrollBar2;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
-        private SonicRetro.SonLVL.API.KeyboardPanel backgroundPanel;
-        private System.Windows.Forms.VScrollBar vScrollBar3;
-        private System.Windows.Forms.HScrollBar hScrollBar3;
-        private System.Windows.Forms.TabPage tabPage4;
-        private System.Windows.Forms.TabPage tabPage5;
-        private System.Windows.Forms.TabPage tabPage6;
-        private System.Windows.Forms.TabPage tabPage7;
-        internal System.Windows.Forms.PropertyGrid ObjectProperties;
-        private System.Windows.Forms.SplitContainer splitContainer1;
-        private System.Windows.Forms.SplitContainer splitContainer2;
-        internal SonicRetro.SonLVL.API.TileList ChunkSelector;
-        private System.Windows.Forms.SplitContainer splitContainer3;
-        private System.Windows.Forms.ToolStripMenuItem recentProjectsToolStripMenuItem;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
-        private System.Windows.Forms.Panel panel4;
-        private System.Windows.Forms.Label ChunkCount;
-        private System.Windows.Forms.TextBox ChunkID;
-        internal SonicRetro.SonLVL.API.KeyboardPanel ChunkPicture;
-        private ChunkBlockEditor chunkBlockEditor;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel5;
-        internal SonicRetro.SonLVL.API.TileList BlockSelector;
-        private System.Windows.Forms.Panel panel5;
-        private System.Windows.Forms.Label BlockCount;
-        private System.Windows.Forms.TextBox BlockID;
-        internal SonicRetro.SonLVL.API.KeyboardPanel BlockPicture;
-        private System.Windows.Forms.Panel panel6;
-        private PatternIndexEditor blockTileEditor;
-        private System.Windows.Forms.GroupBox ColIndBox;
-        internal System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button1;
-        internal System.Windows.Forms.NumericUpDown BlockCollision2;
-        private System.Windows.Forms.NumericUpDown BlockCollision1;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel6;
-        internal SonicRetro.SonLVL.API.TileList TileSelector;
-        private System.Windows.Forms.Panel panel7;
-        private System.Windows.Forms.Button rotateTileRightButton;
-        private System.Windows.Forms.Label TileCount;
-        private System.Windows.Forms.TextBox TileID;
-        internal System.Windows.Forms.Panel TilePicture;
-        internal System.Windows.Forms.Panel panel8;
-        internal System.Windows.Forms.Panel PalettePanel;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel7;
-        internal SonicRetro.SonLVL.API.TileList CollisionSelector;
-        internal System.Windows.Forms.Panel panel9;
-        private System.Windows.Forms.TextBox ColID;
-        private System.Windows.Forms.NumericUpDown ColAngle;
-        internal System.Windows.Forms.Panel ColPicture;
-        private System.Windows.Forms.ContextMenuStrip tileContextMenuStrip;
-        private System.Windows.Forms.ToolStripMenuItem cutTilesToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem copyTilesToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem pasteBeforeToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem pasteAfterToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem insertBeforeToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem insertAfterToolStripMenuItem;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
+		internal System.Windows.Forms.ToolStripMenuItem logToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem blendAlternatePaletteToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem collisionToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem noneToolStripMenuItem1;
+		internal System.Windows.Forms.ToolStripMenuItem path1ToolStripMenuItem;
+		internal System.Windows.Forms.ToolStripMenuItem path2ToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem paletteToolStripMenuItem2;
+		private System.Windows.Forms.ToolStripMenuItem hideDebugObjectsToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem addGroupOfObjectsToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem addGroupOfRingsToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem buildAndRunToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem timeZoneToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem currentOnlyToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem allToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem hUDToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem layersToolStripMenuItem;
+		internal System.Windows.Forms.ToolStripMenuItem lowToolStripMenuItem;
+		internal System.Windows.Forms.ToolStripMenuItem highToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem setupEmulatorToolStripMenuItem;
+		private System.Windows.Forms.HScrollBar hScrollBar1;
+		private System.Windows.Forms.VScrollBar vScrollBar1;
+		private SonicRetro.SonLVL.API.KeyboardPanel objectPanel;
+		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+		private System.Windows.Forms.TabControl tabControl1;
+		private System.Windows.Forms.TabPage tabPage1;
+		private System.Windows.Forms.TabPage tabPage2;
+		private System.Windows.Forms.TabPage tabPage3;
+		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
+		private SonicRetro.SonLVL.API.KeyboardPanel foregroundPanel;
+		private System.Windows.Forms.VScrollBar vScrollBar2;
+		private System.Windows.Forms.HScrollBar hScrollBar2;
+		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
+		private SonicRetro.SonLVL.API.KeyboardPanel backgroundPanel;
+		private System.Windows.Forms.VScrollBar vScrollBar3;
+		private System.Windows.Forms.HScrollBar hScrollBar3;
+		private System.Windows.Forms.TabPage tabPage4;
+		private System.Windows.Forms.TabPage tabPage5;
+		private System.Windows.Forms.TabPage tabPage6;
+		private System.Windows.Forms.TabPage tabPage7;
+		internal System.Windows.Forms.PropertyGrid ObjectProperties;
+		private System.Windows.Forms.SplitContainer splitContainer1;
+		private System.Windows.Forms.SplitContainer splitContainer2;
+		internal SonicRetro.SonLVL.API.TileList ChunkSelector;
+		private System.Windows.Forms.SplitContainer splitContainer3;
+		private System.Windows.Forms.ToolStripMenuItem recentProjectsToolStripMenuItem;
+		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
+		private System.Windows.Forms.Panel panel4;
+		private System.Windows.Forms.Label ChunkCount;
+		private System.Windows.Forms.TextBox ChunkID;
+		internal SonicRetro.SonLVL.API.KeyboardPanel ChunkPicture;
+		private ChunkBlockEditor chunkBlockEditor;
+		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel5;
+		internal SonicRetro.SonLVL.API.TileList BlockSelector;
+		private System.Windows.Forms.Panel panel5;
+		private System.Windows.Forms.Label BlockCount;
+		private System.Windows.Forms.TextBox BlockID;
+		internal SonicRetro.SonLVL.API.KeyboardPanel BlockPicture;
+		private System.Windows.Forms.Panel panel6;
+		private PatternIndexEditor blockTileEditor;
+		private System.Windows.Forms.GroupBox ColIndBox;
+		internal System.Windows.Forms.Button button2;
+		private System.Windows.Forms.Button button1;
+		internal System.Windows.Forms.NumericUpDown BlockCollision2;
+		private System.Windows.Forms.NumericUpDown BlockCollision1;
+		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel6;
+		internal SonicRetro.SonLVL.API.TileList TileSelector;
+		private System.Windows.Forms.Panel panel7;
+		private System.Windows.Forms.Button rotateTileRightButton;
+		private System.Windows.Forms.Label TileCount;
+		private System.Windows.Forms.TextBox TileID;
+		internal System.Windows.Forms.Panel TilePicture;
+		internal System.Windows.Forms.Panel panel8;
+		internal System.Windows.Forms.Panel PalettePanel;
+		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel7;
+		internal SonicRetro.SonLVL.API.TileList CollisionSelector;
+		internal System.Windows.Forms.Panel panel9;
+		private System.Windows.Forms.TextBox ColID;
+		private System.Windows.Forms.NumericUpDown ColAngle;
+		internal System.Windows.Forms.Panel ColPicture;
+		private System.Windows.Forms.ContextMenuStrip tileContextMenuStrip;
+		private System.Windows.Forms.ToolStripMenuItem cutTilesToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem copyTilesToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem pasteBeforeToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem pasteAfterToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem insertBeforeToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem insertAfterToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem deleteTilesToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem drawToolStripMenuItem;
-        private System.Windows.Forms.ContextMenuStrip paletteContextMenuStrip;
-        private System.Windows.Forms.ToolStripMenuItem importToolStripMenuItem1;
-        private System.Windows.Forms.Panel panel10;
-        private System.Windows.Forms.ToolStripMenuItem gridToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem enableGridToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem gridColorToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem zoomToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem viewReadmeToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem reportBugToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem xToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem xToolStripMenuItem1;
-        private System.Windows.Forms.ToolStripMenuItem xToolStripMenuItem2;
-        private System.Windows.Forms.ToolStripMenuItem xToolStripMenuItem3;
-        private System.Windows.Forms.ToolStripMenuItem xToolStripMenuItem4;
-        private System.Windows.Forms.ToolStripMenuItem xToolStripMenuItem5;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
-        private System.Windows.Forms.ToolStripMenuItem selectAllObjectsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem selectAllRingsToolStripMenuItem;
-        private System.Windows.Forms.ToolStrip fgToolStrip;
-        private System.Windows.Forms.ToolStripButton fgSelectToolStripButton;
-        private System.Windows.Forms.ToolStripButton fgDrawToolStripButton;
-        private System.Windows.Forms.ContextMenuStrip layoutContextMenuStrip;
-        private System.Windows.Forms.ToolStripMenuItem cutToolStripMenuItem1;
-        private System.Windows.Forms.ToolStripMenuItem copyToolStripMenuItem1;
-        private System.Windows.Forms.ToolStripMenuItem pasteOnceToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem1;
-        private System.Windows.Forms.ToolStrip bgToolStrip;
-        private System.Windows.Forms.ToolStripButton bgDrawToolStripButton;
-        private System.Windows.Forms.ToolStripButton bgSelectToolStripButton;
-        private System.Windows.Forms.ToolStripMenuItem noneToolStripMenuItem2;
-        private System.Windows.Forms.ToolStripMenuItem resizeLevelToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
-        private System.Windows.Forms.ToolStripMenuItem anglesToolStripMenuItem;
-        private System.Windows.Forms.SplitContainer splitContainer4;
-        private System.Windows.Forms.ListView objectTypeList;
-        private System.Windows.Forms.ImageList objectTypeImages;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
-        private System.Windows.Forms.ToolStripMenuItem insertLayoutToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem deleteLayoutToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem includeObjectsWithForegroundSelectionToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem pasteRepeatingToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem fillToolStripMenuItem;
-        private LoadingAnimation loadingAnimation1;
-        private System.Windows.Forms.ToolStrip objToolStrip;
-        private System.Windows.Forms.ToolStripButton alignGroundToolStripButton;
-        private System.Windows.Forms.ToolStripButton alignLeftWallToolStripButton;
-        private System.Windows.Forms.ToolStripButton alignRightWallToolStripButton;
-        private System.Windows.Forms.ToolStripButton alignCeilingToolStripButton;
-        private System.Windows.Forms.ToolStripButton alignLeftsToolStripButton;
-        private System.Windows.Forms.ToolStripButton alignCentersToolStripButton;
-        private System.Windows.Forms.ToolStripButton alignRightsToolStripButton;
-        private System.Windows.Forms.ToolStripButton alignTopsToolStripButton;
-        private System.Windows.Forms.ToolStripButton alignMiddlesToolStripButton;
-        private System.Windows.Forms.ToolStripButton alignBottomsToolStripButton;
-        private System.Windows.Forms.ToolStripMenuItem findToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem findNextToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem findPreviousToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem useHexadecimalIndexesToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem drawToolStripMenuItem;
+		private System.Windows.Forms.ContextMenuStrip paletteContextMenuStrip;
+		private System.Windows.Forms.ToolStripMenuItem importToolStripMenuItem1;
+		private System.Windows.Forms.Panel panel10;
+		private System.Windows.Forms.ToolStripMenuItem gridToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem enableGridToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem gridColorToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem zoomToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem viewReadmeToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem reportBugToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem xToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem xToolStripMenuItem1;
+		private System.Windows.Forms.ToolStripMenuItem xToolStripMenuItem2;
+		private System.Windows.Forms.ToolStripMenuItem xToolStripMenuItem3;
+		private System.Windows.Forms.ToolStripMenuItem xToolStripMenuItem4;
+		private System.Windows.Forms.ToolStripMenuItem xToolStripMenuItem5;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
+		private System.Windows.Forms.ToolStripMenuItem selectAllObjectsToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem selectAllRingsToolStripMenuItem;
+		private System.Windows.Forms.ToolStrip fgToolStrip;
+		private System.Windows.Forms.ToolStripButton fgSelectToolStripButton;
+		private System.Windows.Forms.ToolStripButton fgDrawToolStripButton;
+		private System.Windows.Forms.ContextMenuStrip layoutContextMenuStrip;
+		private System.Windows.Forms.ToolStripMenuItem cutToolStripMenuItem1;
+		private System.Windows.Forms.ToolStripMenuItem copyToolStripMenuItem1;
+		private System.Windows.Forms.ToolStripMenuItem pasteOnceToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem1;
+		private System.Windows.Forms.ToolStrip bgToolStrip;
+		private System.Windows.Forms.ToolStripButton bgDrawToolStripButton;
+		private System.Windows.Forms.ToolStripButton bgSelectToolStripButton;
+		private System.Windows.Forms.ToolStripMenuItem noneToolStripMenuItem2;
+		private System.Windows.Forms.ToolStripMenuItem resizeLevelToolStripMenuItem;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator6;
+		private System.Windows.Forms.ToolStripMenuItem anglesToolStripMenuItem;
+		private System.Windows.Forms.SplitContainer splitContainer4;
+		private System.Windows.Forms.ListView objectTypeList;
+		private System.Windows.Forms.ImageList objectTypeImages;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
+		private System.Windows.Forms.ToolStripMenuItem insertLayoutToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem deleteLayoutToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem includeObjectsWithForegroundSelectionToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem pasteRepeatingToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem fillToolStripMenuItem;
+		private LoadingAnimation loadingAnimation1;
+		private System.Windows.Forms.ToolStrip objToolStrip;
+		private System.Windows.Forms.ToolStripButton alignGroundToolStripButton;
+		private System.Windows.Forms.ToolStripButton alignLeftWallToolStripButton;
+		private System.Windows.Forms.ToolStripButton alignRightWallToolStripButton;
+		private System.Windows.Forms.ToolStripButton alignCeilingToolStripButton;
+		private System.Windows.Forms.ToolStripButton alignLeftsToolStripButton;
+		private System.Windows.Forms.ToolStripButton alignCentersToolStripButton;
+		private System.Windows.Forms.ToolStripButton alignRightsToolStripButton;
+		private System.Windows.Forms.ToolStripButton alignTopsToolStripButton;
+		private System.Windows.Forms.ToolStripButton alignMiddlesToolStripButton;
+		private System.Windows.Forms.ToolStripButton alignBottomsToolStripButton;
+		private System.Windows.Forms.ToolStripMenuItem findToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem findNextToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem findPreviousToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem useHexadecimalIndexesToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem solidityMapsToolStripMenuItem;
 		private System.Windows.Forms.Button flipChunkHButton;
 		private System.Windows.Forms.Button flipChunkVButton;
@@ -3577,5 +3577,5 @@
 		private System.Windows.Forms.ToolStripButton clearForegroundToolStripButton;
 		private System.Windows.Forms.ToolStripButton clearBackgroundToolStripButton;
 
-    }
+	}
 }

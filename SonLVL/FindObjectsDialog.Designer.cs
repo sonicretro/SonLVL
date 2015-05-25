@@ -1,33 +1,33 @@
-﻿namespace SonicRetro.SonLVL
+namespace SonicRetro.SonLVL
 {
-    partial class FindObjectsDialog
-    {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
-        private System.ComponentModel.IContainer components = null;
+	partial class FindObjectsDialog
+	{
+		/// <summary>
+		/// Required designer variable.
+		/// </summary>
+		private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
+		/// <summary>
+		/// Clean up any resources being used.
+		/// </summary>
+		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing && (components != null))
+			{
+				components.Dispose();
+			}
+			base.Dispose(disposing);
+		}
 
-        #region Windows Form Designer generated code
+		#region Windows Form Designer generated code
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
-        private void InitializeComponent()
-        {
+		/// <summary>
+		/// Required method for Designer support - do not modify
+		/// the contents of this method with the code editor.
+		/// </summary>
+		private void InitializeComponent()
+		{
 			this.components = new System.ComponentModel.Container();
 			this.okButton = new System.Windows.Forms.Button();
 			this.cancelButton = new System.Windows.Forms.Button();
@@ -81,10 +81,10 @@
 			this.subtypeSelect.Hexadecimal = true;
 			this.subtypeSelect.Location = new System.Drawing.Point(0, 80);
 			this.subtypeSelect.Maximum = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
+			255,
+			0,
+			0,
+			0});
 			this.subtypeSelect.Name = "subtypeSelect";
 			this.subtypeSelect.Size = new System.Drawing.Size(150, 20);
 			this.subtypeSelect.TabIndex = 5;
@@ -163,19 +163,19 @@
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
-        }
+		}
 
-        #endregion
+		#endregion
 
-        private System.Windows.Forms.Button okButton;
-        private System.Windows.Forms.Button cancelButton;
-        internal API.IDControl idSelect;
-        internal System.Windows.Forms.CheckBox findSubtype;
-        internal System.Windows.Forms.NumericUpDown subtypeSelect;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.ImageList imageList1;
-        private System.Windows.Forms.ListView subtypeList;
-    }
+		private System.Windows.Forms.Button okButton;
+		private System.Windows.Forms.Button cancelButton;
+		internal API.IDControl idSelect;
+		internal System.Windows.Forms.CheckBox findSubtype;
+		internal System.Windows.Forms.NumericUpDown subtypeSelect;
+		private System.Windows.Forms.Label label1;
+		private System.Windows.Forms.Panel panel1;
+		private System.Windows.Forms.ImageList imageList1;
+		private System.Windows.Forms.ListView subtypeList;
+	}
 }
 

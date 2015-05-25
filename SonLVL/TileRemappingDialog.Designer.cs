@@ -1,4 +1,4 @@
-﻿namespace SonicRetro.SonLVL
+namespace SonicRetro.SonLVL
 {
 	partial class TileRemappingDialog
 	{
@@ -91,7 +91,7 @@
 			// SourceTileList
 			// 
 			this.SourceTileList.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+			| System.Windows.Forms.AnchorStyles.Left)));
 			this.SourceTileList.BackColor = System.Drawing.SystemColors.Window;
 			this.SourceTileList.Location = new System.Drawing.Point(12, 38);
 			this.SourceTileList.Name = "SourceTileList";
@@ -104,7 +104,7 @@
 			// DestinationTileList
 			// 
 			this.DestinationTileList.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.DestinationTileList.BackColor = System.Drawing.SystemColors.Window;
 			this.DestinationTileList.Location = new System.Drawing.Point(500, 38);
 			this.DestinationTileList.Name = "DestinationTileList";
@@ -117,7 +117,7 @@
 			// panel1
 			// 
 			this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.panel1.AutoSize = true;
 			this.panel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.panel1.Controls.Add(this.okButton);
@@ -132,10 +132,10 @@
 			this.SourceTile.Hexadecimal = true;
 			this.SourceTile.Location = new System.Drawing.Point(252, 12);
 			this.SourceTile.Maximum = new decimal(new int[] {
-            65535,
-            0,
-            0,
-            0});
+			65535,
+			0,
+			0,
+			0});
 			this.SourceTile.Name = "SourceTile";
 			this.SourceTile.Size = new System.Drawing.Size(60, 20);
 			this.SourceTile.TabIndex = 5;
@@ -147,10 +147,10 @@
 			this.DestinationTile.Hexadecimal = true;
 			this.DestinationTile.Location = new System.Drawing.Point(500, 12);
 			this.DestinationTile.Maximum = new decimal(new int[] {
-            65535,
-            0,
-            0,
-            0});
+			65535,
+			0,
+			0,
+			0});
 			this.DestinationTile.Name = "DestinationTile";
 			this.DestinationTile.Size = new System.Drawing.Size(60, 20);
 			this.DestinationTile.TabIndex = 6;
@@ -169,8 +169,8 @@
 			// listBox1
 			// 
 			this.listBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Left) 
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.listBox1.FormattingEnabled = true;
 			this.listBox1.IntegralHeight = false;
 			this.listBox1.Location = new System.Drawing.Point(318, 38);

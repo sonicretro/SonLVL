@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -517,8 +517,8 @@ namespace SonicRetro.SonLVL.GUI
 			initerror = null;
 			backgroundLevelLoader.RunWorkerAsync(((ToolStripMenuItem)sender).Tag);
 #else
-            backgroundLevelLoader_DoWork(null, new DoWorkEventArgs(((ToolStripMenuItem)sender).Tag));
-            backgroundLevelLoader_RunWorkerCompleted(null, null);
+			backgroundLevelLoader_DoWork(null, new DoWorkEventArgs(((ToolStripMenuItem)sender).Tag));
+			backgroundLevelLoader_RunWorkerCompleted(null, null);
 #endif
 		}
 

@@ -1,4 +1,4 @@
-﻿namespace SonicRetro.SonLVL
+namespace SonicRetro.SonLVL
 {
 	partial class ImportProgressControl
 	{
@@ -43,7 +43,7 @@
 			// label1
 			// 
 			label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+			| System.Windows.Forms.AnchorStyles.Left)));
 			label1.AutoSize = true;
 			label1.Location = new System.Drawing.Point(0, 0);
 			label1.Margin = new System.Windows.Forms.Padding(0);
@@ -56,7 +56,7 @@
 			// previewPanel
 			// 
 			this.previewPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+			| System.Windows.Forms.AnchorStyles.Left)));
 			this.previewPanel.Location = new System.Drawing.Point(140, 3);
 			this.previewPanel.Name = "previewPanel";
 			this.previewPanel.Size = new System.Drawing.Size(40, 50);
@@ -81,7 +81,7 @@
 			// panel1
 			// 
 			this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+			| System.Windows.Forms.AnchorStyles.Left)));
 			this.panel1.AutoSize = true;
 			this.panel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.panel1.Controls.Add(label1);

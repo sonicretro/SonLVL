@@ -1,4 +1,4 @@
-﻿namespace SonicRetro.SonLVL
+namespace SonicRetro.SonLVL
 {
 	partial class ChunkBlockEditor
 	{
@@ -61,10 +61,10 @@
 			this.solidity2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.solidity2.FormattingEnabled = true;
 			this.solidity2.Items.AddRange(new object[] {
-            "Not Solid",
-            "Top Solid",
-            "Left/Right/Bottom Solid",
-            "All Solid"});
+			"Not Solid",
+			"Top Solid",
+			"Left/Right/Bottom Solid",
+			"All Solid"});
 			this.solidity2.Location = new System.Drawing.Point(6, 46);
 			this.solidity2.Name = "solidity2";
 			this.solidity2.Size = new System.Drawing.Size(121, 21);
@@ -76,10 +76,10 @@
 			this.solidity1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.solidity1.FormattingEnabled = true;
 			this.solidity1.Items.AddRange(new object[] {
-            "Not Solid",
-            "Top Solid",
-            "Left/Right/Bottom Solid",
-            "All Solid"});
+			"Not Solid",
+			"Top Solid",
+			"Left/Right/Bottom Solid",
+			"All Solid"});
 			this.solidity1.Location = new System.Drawing.Point(6, 19);
 			this.solidity1.Name = "solidity1";
 			this.solidity1.Size = new System.Drawing.Size(121, 21);
@@ -120,8 +120,8 @@
 			// blockList
 			// 
 			this.blockList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			| System.Windows.Forms.AnchorStyles.Left) 
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.blockList.BackColor = System.Drawing.SystemColors.Window;
 			this.blockList.ImageSize = 64;
 			this.blockList.Location = new System.Drawing.Point(3, 141);
@@ -137,10 +137,10 @@
 			this.block.Hexadecimal = true;
 			this.block.Location = new System.Drawing.Point(46, 115);
 			this.block.Maximum = new decimal(new int[] {
-            2047,
-            0,
-            0,
-            0});
+			2047,
+			0,
+			0,
+			0});
 			this.block.Name = "block";
 			this.block.Size = new System.Drawing.Size(53, 20);
 			this.block.TabIndex = 10;
