@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -162,7 +162,24 @@ namespace SonicRetro.SonLVL.API
 		{
 			if (Size.IsEmpty) return new Bitmap(1, 1, PixelFormat.Format8bppIndexed);
 			Bitmap newbmp = new Bitmap(Width, Height, PixelFormat.Format8bppIndexed);
-			BitmapData newbmpd = newbmp.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.WriteOnly, PixelFormat.Format8bppIndexed);
+			ToBitmapInternal(newbmp);
+			return newbmp;
+		}
+
+		public void ToBitmap(Bitmap destination)
+		{
+			if (destination.Width != Width)
+				throw new ArgumentException("Width of destination bitmap must be equal to current bitmap.");
+			if (destination.Height != Height)
+				throw new ArgumentException("Height of destination bitmap must be equal to current bitmap.");
+			if (destination.PixelFormat != PixelFormat.Format8bppIndexed)
+				throw new ArgumentException("Destination bitmap's pixel format must be 8bpp.");
+			ToBitmapInternal(destination);
+		}
+
+		private void ToBitmapInternal(Bitmap destination)
+		{
+			BitmapData newbmpd = destination.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.WriteOnly, PixelFormat.Format8bppIndexed);
 			if (newbmpd.Stride == newbmpd.Width)
 				Marshal.Copy(Bits, 0, newbmpd.Scan0, Bits.Length);
 			else
@@ -172,8 +189,7 @@ namespace SonicRetro.SonLVL.API
 					Array.Copy(Bits, y * Width, bmpbits, y * Math.Abs(newbmpd.Stride), Width);
 				Marshal.Copy(bmpbits, 0, newbmpd.Scan0, bmpbits.Length);
 			}
-			newbmp.UnlockBits(newbmpd);
-			return newbmp;
+			destination.UnlockBits(newbmpd);
 		}
 
 		public Bitmap ToBitmap(ColorPalette palette)
@@ -197,7 +213,24 @@ namespace SonicRetro.SonLVL.API
 		{
 			if (Size.IsEmpty) return new Bitmap(1, 1, PixelFormat.Format4bppIndexed);
 			Bitmap newbmp = new Bitmap(Width, Height, PixelFormat.Format4bppIndexed);
-			BitmapData newbmpd = newbmp.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.WriteOnly, PixelFormat.Format4bppIndexed);
+			ToBitmap4bppInternal(newbmp);
+			return newbmp;
+		}
+
+		public void ToBitmap4bpp(Bitmap destination)
+		{
+			if (destination.Width != Width)
+				throw new ArgumentException("Width of destination bitmap must be equal to current bitmap.");
+			if (destination.Height != Height)
+				throw new ArgumentException("Height of destination bitmap must be equal to current bitmap.");
+			if (destination.PixelFormat != PixelFormat.Format4bppIndexed)
+				throw new ArgumentException("Destination bitmap's pixel format must be 4bpp.");
+			ToBitmap4bppInternal(destination);
+		}
+
+		private void ToBitmap4bppInternal(Bitmap destination)
+		{
+			BitmapData newbmpd = destination.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.WriteOnly, PixelFormat.Format4bppIndexed);
 			byte[] bmpbits = new byte[Math.Abs(newbmpd.Stride) * newbmpd.Height];
 			int srcaddr = 0;
 			for (int y = 0; y < Height; y++)
@@ -212,8 +245,7 @@ namespace SonicRetro.SonLVL.API
 				}
 			}
 			Marshal.Copy(bmpbits, 0, newbmpd.Scan0, bmpbits.Length);
-			newbmp.UnlockBits(newbmpd);
-			return newbmp;
+			destination.UnlockBits(newbmpd);
 		}
 
 		public Bitmap ToBitmap4bpp(ColorPalette palette)
@@ -237,7 +269,24 @@ namespace SonicRetro.SonLVL.API
 		{
 			if (Size.IsEmpty) return new Bitmap(1, 1, PixelFormat.Format1bppIndexed);
 			Bitmap newbmp = new Bitmap(Width, Height, PixelFormat.Format1bppIndexed);
-			BitmapData newbmpd = newbmp.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.WriteOnly, PixelFormat.Format1bppIndexed);
+			ToBitmap1bppInternal(newbmp);
+			return newbmp;
+		}
+
+		public void ToBitmap1bpp(Bitmap destination)
+		{
+			if (destination.Width != Width)
+				throw new ArgumentException("Width of destination bitmap must be equal to current bitmap.");
+			if (destination.Height != Height)
+				throw new ArgumentException("Height of destination bitmap must be equal to current bitmap.");
+			if (destination.PixelFormat != PixelFormat.Format1bppIndexed)
+				throw new ArgumentException("Destination bitmap's pixel format must be 1bpp.");
+			ToBitmap1bppInternal(destination);
+		}
+
+		private void ToBitmap1bppInternal(Bitmap destination)
+		{
+			BitmapData newbmpd = destination.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.WriteOnly, PixelFormat.Format1bppIndexed);
 			byte[] bmpbits = new byte[Math.Abs(newbmpd.Stride) * newbmpd.Height];
 			int srcaddr = 0;
 			for (int y = 0; y < Height; y++)
@@ -265,8 +314,7 @@ namespace SonicRetro.SonLVL.API
 				}
 			}
 			Marshal.Copy(bmpbits, 0, newbmpd.Scan0, bmpbits.Length);
-			newbmp.UnlockBits(newbmpd);
-			return newbmp;
+			destination.UnlockBits(newbmpd);
 		}
 
 		public Bitmap ToBitmap1bpp(ColorPalette palette)
