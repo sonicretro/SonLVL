@@ -700,9 +700,9 @@ namespace SonicRetro.SonLVL.API
 		public void ScrollHorizontal(int amount)
 		{
 			byte[] newBits = new byte[Bits.Length];
-			while (amount < 0)
-				amount += Width;
 			amount %= Width;
+			if (amount < 0)
+				amount += Width;
 			if (amount == 0) return;
 			int copy1src = amount;
 			int copy1dst = 0;
@@ -726,14 +726,14 @@ namespace SonicRetro.SonLVL.API
 		/// Scrolls each row in the image horizontally to the left by <paramref name="amounts"/> pixels.
 		/// </summary>
 		/// <param name="amounts">The number of pixels to scroll each row by. Positive is left, negative is right.</param>
-		public void ScrollHorizontal(int[] amounts)
+		public void ScrollHorizontal(params int[] amounts)
 		{
 			byte[] newBits = new byte[Bits.Length];
 			for (int i = 0; i < amounts.Length; i++)
 			{
-				while (amounts[i] < 0)
-					amounts[i] += Width;
 				amounts[i] %= Width;
+				if (amounts[i] < 0)
+					amounts[i] += Width;
 			}
 			int rowStart = 0;
 			for (int y = 0; y < Height; y++)
@@ -754,9 +754,9 @@ namespace SonicRetro.SonLVL.API
 		public void ScrollVertical(int amount)
 		{
 			byte[] newBits = new byte[Bits.Length];
-			while (amount < 0)
-				amount += Height;
 			amount %= Height;
+			if (amount < 0)
+				amount += Height;
 			if (amount == 0) return;
 			int src = amount * Width;
 			int dst = 0;
@@ -773,14 +773,14 @@ namespace SonicRetro.SonLVL.API
 		/// Scrolls each column in the image vertically upwards by <paramref name="amounts"/> pixels.
 		/// </summary>
 		/// <param name="amounts">The number of pixels to scroll each column by. Positive is up, negative is down.</param>
-		public void ScrollVertical(int[] amounts)
+		public void ScrollVertical(params int[] amounts)
 		{
 			byte[] newBits = new byte[Bits.Length];
 			for (int i = 0; i < amounts.Length; i++)
 			{
-				while (amounts[i] < 0)
-					amounts[i] += Height;
 				amounts[i] %= Height;
+				if (amounts[i] < 0)
+					amounts[i] += Height;
 			}
 			for (int x = 0; x < Width; x++)
 			{
@@ -795,6 +795,31 @@ namespace SonicRetro.SonLVL.API
 				}
 			}
 			Bits = newBits;
+		}
+
+		public void ScrollHV(BitmapBits destination, int dstY, int srcY, params int[] srcX)
+		{
+			if (dstY < 0 || dstY >= destination.Height) return;
+			for (int i = 0; i < srcX.Length; i++)
+			{
+				srcX[i] %= Width;
+				if (srcX[i] < 0)
+					srcX[i] += Width;
+			}
+			srcY %= Height;
+			if (srcY < 0)
+				srcY += Height;
+			int rowSrc = GetPixelIndex(0, srcY);
+			int rowDst = destination.GetPixelIndex(0, dstY);
+			for (int y = 0; y < destination.Height - dstY; y++)
+			{
+				int amount = srcX[y % srcX.Length];
+				Array.Copy(Bits, rowSrc + amount, destination.Bits, rowDst, Math.Min(Width - amount, destination.Width));
+				if (amount != 0 && Width - amount < destination.Width)
+					Array.Copy(Bits, rowSrc, destination.Bits, rowDst + Width - amount, Math.Min(amount, destination.Width - (Width - amount)));
+				rowSrc = (rowSrc + Width) % Bits.Length;
+				rowDst += destination.Width;
+			}
 		}
 
 		public unsafe void ApplyWaterPalette(int waterHeight)
