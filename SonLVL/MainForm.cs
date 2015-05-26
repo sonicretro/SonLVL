@@ -4813,8 +4813,8 @@ namespace SonicRetro.SonLVL.GUI
 									}
 									if (match) continue;
 									blocks.Add(blkb);
-									colInds1.Add(col.ColInd1);
-									colInds2.Add(col.ColInd2);
+									colInds1.AddOrSet(blocks.Count - 1, col.ColInd1);
+									colInds2.AddOrSet(blocks.Count - 1, col.ColInd2);
 									newBlocks.Add(blk);
 									newColInds1.Add(col.ColInd1);
 									newColInds2.Add(col.ColInd2);
@@ -4991,9 +4991,9 @@ namespace SonicRetro.SonLVL.GUI
 								Application.DoEvents();
 								if (blockcoldata != null)
 								{
-									if (LevelData.ColInds1[i] != col.ColInd1)
+									if (colInds1[i] != col.ColInd1)
 										continue;
-									if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2) && LevelData.ColInds2[i] != col.ColInd2)
+									if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2) && colInds2[i] != col.ColInd2)
 										continue;
 								}
 								if (blkb.FastArrayEqual(blocks[i]) || blkh.FastArrayEqual(blocks[i])
@@ -5005,6 +5005,8 @@ namespace SonicRetro.SonLVL.GUI
 							}
 							if (match) continue;
 							blocks.Add(blkb);
+							colInds1.AddOrSet(blocks.Count - 1, col.ColInd1);
+							colInds2.AddOrSet(blocks.Count - 1, col.ColInd2);
 							newBlocks.Add(blk);
 							newColInds1.Add(col.ColInd1);
 							newColInds2.Add(col.ColInd2);
@@ -8074,8 +8076,8 @@ namespace SonicRetro.SonLVL.GUI
 							}
 							if (match) continue;
 							blocks.Add(blkb);
-							colInds1.Add(col.ColInd1);
-							colInds2.Add(col.ColInd2);
+							colInds1.AddOrSet(blocks.Count - 1, col.ColInd1);
+							colInds2.AddOrSet(blocks.Count - 1, col.ColInd2);
 							newBlocks.Add(blk);
 							newColInds1.Add(col.ColInd1);
 							newColInds2.Add(col.ColInd2);
