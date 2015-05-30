@@ -5764,7 +5764,7 @@ namespace SonicRetro.SonLVL.GUI
 			using (ResizeLevelDialog dg = new ResizeLevelDialog(CurrentTab != Tab.Background))
 			{
 				dg.levelWidth.Minimum = 1;
-				dg.levelWidth.Minimum = 1;
+				dg.levelHeight.Minimum = 1;
 				if (LevelData.LayoutFormat.IsResizable)
 				{
 					Size maxsize = LevelData.LayoutFormat.MaxSize;
