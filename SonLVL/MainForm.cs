@@ -5216,17 +5216,17 @@ namespace SonicRetro.SonLVL.GUI
 		private void button1_Click(object sender, EventArgs e)
 		{
 			if (!loaded) return;
-			CollisionSelector sel = new CollisionSelector();
-			sel.ShowDialog(this);
-			BlockCollision1.Value = sel.Selection;
+			using (CollisionSelector sel = new CollisionSelector())
+				if (sel.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+					BlockCollision1.Value = sel.Selection;
 		}
 
 		private void button2_Click(object sender, EventArgs e)
 		{
 			if (!loaded) return;
-			CollisionSelector sel = new CollisionSelector();
-			sel.ShowDialog(this);
-			BlockCollision2.Value = sel.Selection;
+			using (CollisionSelector sel = new CollisionSelector())
+				if (sel.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+					BlockCollision2.Value = sel.Selection;
 		}
 
 		private void rotateTileRightButton_Click(object sender, EventArgs e)

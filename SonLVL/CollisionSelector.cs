@@ -24,6 +24,7 @@ namespace SonicRetro.SonLVL.GUI
 		private void tileList1_MouseDoubleClick(object sender, MouseEventArgs e)
 		{
 			Selection = tileList1.SelectedIndex;
+			DialogResult = System.Windows.Forms.DialogResult.OK;
 			Close();
 		}
 	}
