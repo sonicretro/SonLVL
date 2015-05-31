@@ -13,6 +13,7 @@ namespace SonicRetro.SonLVL.API
 		public byte R { get; set; }
 		public byte G { get; set; }
 		public byte B { get; set; }
+		public bool Priority { get; set; }
 
 		public Color RGBColor
 		{
@@ -25,6 +26,24 @@ namespace SonicRetro.SonLVL.API
 				R = value.R;
 				G = value.G;
 				B = value.B;
+			}
+		}
+
+		public ushort X32Color
+		{
+ 			get
+			{
+				return (ushort)((R >> 3) | ((G >> 3) << 5) | ((B >> 3) << 10) | (Priority ? 0x8000 : 0));
+			}
+			set
+			{
+				int tmp = value & 0x1F;
+				R = (byte)((tmp >> 2) | (tmp << 3));
+				tmp = (value >> 5) & 0x1F;
+				G = (byte)((tmp >> 2) | (tmp << 3));
+				tmp = (value >> 10) & 0x1F;
+				B = (byte)((tmp >> 2) | (tmp << 3));
+				Priority = (value & 0x8000) == 0x8000;
 			}
 		}
 
@@ -74,6 +93,15 @@ namespace SonicRetro.SonLVL.API
 			MDColor = mdcolor;
 		}
 
+		public SonLVLColor(ushort color, bool x32)
+			: this()
+		{
+			if (x32)
+				X32Color = color;
+			else
+				MDColor = color;
+		}
+
 		private static readonly byte[] MDColorTable = { 0, 0x24, 0x49, 0x6D, 0x92, 0xB6, 0xDB, 0xFF };
 
 		private static int RGBToMD(byte RGB)
@@ -99,7 +127,7 @@ namespace SonicRetro.SonLVL.API
 			SonLVLColor[] palfile = new SonLVLColor[length];
 			if (game != EngineVersion.SCDPC)
 				for (int pi = 0; pi < length; pi++)
-					palfile[pi] = new SonLVLColor(ByteConverter.ToUInt16(file, address + (pi * 2)));
+					palfile[pi] = new SonLVLColor(ByteConverter.ToUInt16(file, address + (pi * 2)), game == EngineVersion.Chaotix);
 			else
 				for (int pi = 0; pi < length; pi++)
 					palfile[pi] = new SonLVLColor(file[address + (pi * 4)], file[address + (pi * 4) + 1], file[address + (pi * 4) + 2]);
