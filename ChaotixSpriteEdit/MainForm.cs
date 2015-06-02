@@ -226,7 +226,7 @@ namespace ChaotixSpriteEdit
 								int stride = bmpd.Stride;
 								byte[] Bits = new byte[Math.Abs(stride) * bmpd.Height];
 								System.Runtime.InteropServices.Marshal.Copy(bmpd.Scan0, Bits, 0, Bits.Length);
-								bmp.UnlockBits(bmpd);
+								tmp.UnlockBits(bmpd);
 								for (int y = 0; y < bmpbits.Height; y++)
 								{
 									int srcaddr = y * Math.Abs(stride);
