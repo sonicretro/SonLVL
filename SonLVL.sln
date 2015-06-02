@@ -1,6 +1,8 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual C# Express 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SonLVL.GUI", "SonLVL\SonLVL.GUI.csproj", "{934ED80F-F466-423E-8203-9A3F35583323}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "S2ObjectDefinitions", "S2ObjectDefinitions\S2ObjectDefinitions.csproj", "{C674C4ED-D30A-4021-9546-6B2DC85670C2}"
@@ -28,6 +30,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SonAni", "SonAni\SonAni.csproj", "{022D16B9-9D49-4C96-BBA7-F598E6E42E6E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectLayoutDiff", "ObjectLayoutDiff\ObjectLayoutDiff.csproj", "{1A15F5D8-5539-414F-9BB9-2E823FCDEFFE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChaotixSpriteEdit", "ChaotixSpriteEdit\ChaotixSpriteEdit.csproj", "{31D87D3D-D4EB-4A56-9389-AADF9B3B77ED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -91,6 +95,10 @@ Global
 		{1A15F5D8-5539-414F-9BB9-2E823FCDEFFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1A15F5D8-5539-414F-9BB9-2E823FCDEFFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1A15F5D8-5539-414F-9BB9-2E823FCDEFFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31D87D3D-D4EB-4A56-9389-AADF9B3B77ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31D87D3D-D4EB-4A56-9389-AADF9B3B77ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31D87D3D-D4EB-4A56-9389-AADF9B3B77ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31D87D3D-D4EB-4A56-9389-AADF9B3B77ED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
