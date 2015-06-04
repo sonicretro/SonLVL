@@ -8624,7 +8624,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void copySolidsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			Clipboard.SetData(typeof(ColInfo).AssemblyQualifiedName, new ColInfo(Solidity.NotSolid, LevelData.ColArr1[CollisionSelector.SelectedIndex], LevelData.Angles[CollisionSelector.SelectedIndex]);
+			Clipboard.SetData(typeof(ColInfo).AssemblyQualifiedName, new ColInfo(Solidity.NotSolid, LevelData.ColArr1[CollisionSelector.SelectedIndex], LevelData.Angles[CollisionSelector.SelectedIndex]));
 		}
 
 		private void pasteSolidsToolStripMenuItem_Click(object sender, EventArgs e)
