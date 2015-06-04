@@ -59,6 +59,7 @@ namespace SonicRetro.SonLVL.GUI
 			System.Windows.Forms.ToolStripMenuItem fullToolStripMenuItem1;
 			System.Windows.Forms.ToolStripSeparator toolStripSeparator14;
 			System.Windows.Forms.ToolStripSeparator toolStripSeparator15;
+			System.Windows.Forms.Label label1;
 			this.importChunksToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.deleteUnusedChunksToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.remapChunksButton = new System.Windows.Forms.ToolStripButton();
@@ -272,6 +273,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.tableLayoutPanel7 = new System.Windows.Forms.TableLayoutPanel();
 			this.CollisionSelector = new SonicRetro.SonLVL.API.TileList();
 			this.panel9 = new System.Windows.Forms.Panel();
+			this.calculateAngleButton = new System.Windows.Forms.Button();
 			this.showBlockBehindCollisionCheckBox = new System.Windows.Forms.CheckBox();
 			this.ColID = new System.Windows.Forms.TextBox();
 			this.ColAngle = new System.Windows.Forms.NumericUpDown();
@@ -307,6 +309,10 @@ namespace SonicRetro.SonLVL.GUI
 			this.deleteLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.loadingAnimation1 = new SonicRetro.SonLVL.LoadingAnimation();
 			this.importProgressControl1 = new SonicRetro.SonLVL.ImportProgressControl();
+			this.solidsContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.copySolidsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.pasteSolidsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.clearSolidsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
 			toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
 			label4 = new System.Windows.Forms.Label();
@@ -336,6 +342,7 @@ namespace SonicRetro.SonLVL.GUI
 			fullToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
 			toolStripSeparator14 = new System.Windows.Forms.ToolStripSeparator();
 			toolStripSeparator15 = new System.Windows.Forms.ToolStripSeparator();
+			label1 = new System.Windows.Forms.Label();
 			chunkListToolStrip.SuspendLayout();
 			panel1.SuspendLayout();
 			panel2.SuspendLayout();
@@ -401,6 +408,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.tileContextMenuStrip.SuspendLayout();
 			this.paletteContextMenuStrip.SuspendLayout();
 			this.layoutContextMenuStrip.SuspendLayout();
+			this.solidsContextMenuStrip.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// toolStripSeparator8
@@ -894,6 +902,15 @@ namespace SonicRetro.SonLVL.GUI
 			// 
 			toolStripSeparator15.Name = "toolStripSeparator15";
 			toolStripSeparator15.Size = new System.Drawing.Size(6, 25);
+			// 
+			// label1
+			// 
+			label1.AutoSize = true;
+			label1.Location = new System.Drawing.Point(2, 79);
+			label1.Name = "label1";
+			label1.Size = new System.Drawing.Size(37, 13);
+			label1.TabIndex = 6;
+			label1.Text = "Angle:";
 			// 
 			// chunkCtrlLabel
 			// 
@@ -2880,31 +2897,46 @@ namespace SonicRetro.SonLVL.GUI
 			this.CollisionSelector.ImageHeight = 16;
 			this.CollisionSelector.ImageSize = 16;
 			this.CollisionSelector.ImageWidth = 16;
-			this.CollisionSelector.Location = new System.Drawing.Point(127, 3);
+			this.CollisionSelector.Location = new System.Drawing.Point(115, 3);
 			this.CollisionSelector.Name = "CollisionSelector";
 			this.CollisionSelector.ScrollValue = 0;
 			this.CollisionSelector.SelectedIndex = -1;
-			this.CollisionSelector.Size = new System.Drawing.Size(520, 471);
+			this.CollisionSelector.Size = new System.Drawing.Size(532, 471);
 			this.CollisionSelector.TabIndex = 2;
 			this.CollisionSelector.SelectedIndexChanged += new System.EventHandler(this.CollisionSelector_SelectedIndexChanged);
+			this.CollisionSelector.MouseDown += new System.Windows.Forms.MouseEventHandler(this.CollisionSelector_MouseDown);
 			// 
 			// panel9
 			// 
 			this.panel9.AutoSize = true;
 			this.panel9.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.panel9.Controls.Add(this.calculateAngleButton);
+			this.panel9.Controls.Add(label1);
 			this.panel9.Controls.Add(this.showBlockBehindCollisionCheckBox);
 			this.panel9.Controls.Add(this.ColID);
 			this.panel9.Controls.Add(this.ColAngle);
 			this.panel9.Controls.Add(this.ColPicture);
 			this.panel9.Location = new System.Drawing.Point(3, 3);
 			this.panel9.Name = "panel9";
-			this.panel9.Size = new System.Drawing.Size(118, 123);
+			this.panel9.Size = new System.Drawing.Size(106, 178);
 			this.panel9.TabIndex = 1;
+			// 
+			// calculateAngleButton
+			// 
+			this.calculateAngleButton.AutoSize = true;
+			this.calculateAngleButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.calculateAngleButton.Location = new System.Drawing.Point(5, 103);
+			this.calculateAngleButton.Name = "calculateAngleButton";
+			this.calculateAngleButton.Size = new System.Drawing.Size(61, 23);
+			this.calculateAngleButton.TabIndex = 7;
+			this.calculateAngleButton.Text = "Calculate";
+			this.calculateAngleButton.UseVisualStyleBackColor = true;
+			this.calculateAngleButton.Click += new System.EventHandler(this.calculateAngleButton_Click);
 			// 
 			// showBlockBehindCollisionCheckBox
 			// 
 			this.showBlockBehindCollisionCheckBox.AutoSize = true;
-			this.showBlockBehindCollisionCheckBox.Location = new System.Drawing.Point(3, 103);
+			this.showBlockBehindCollisionCheckBox.Location = new System.Drawing.Point(3, 158);
 			this.showBlockBehindCollisionCheckBox.Name = "showBlockBehindCollisionCheckBox";
 			this.showBlockBehindCollisionCheckBox.Size = new System.Drawing.Size(83, 17);
 			this.showBlockBehindCollisionCheckBox.TabIndex = 5;
@@ -2914,7 +2946,7 @@ namespace SonicRetro.SonLVL.GUI
 			// 
 			// ColID
 			// 
-			this.ColID.Location = new System.Drawing.Point(3, 77);
+			this.ColID.Location = new System.Drawing.Point(3, 132);
 			this.ColID.Name = "ColID";
 			this.ColID.ReadOnly = true;
 			this.ColID.Size = new System.Drawing.Size(100, 20);
@@ -2924,7 +2956,7 @@ namespace SonicRetro.SonLVL.GUI
 			// ColAngle
 			// 
 			this.ColAngle.Hexadecimal = true;
-			this.ColAngle.Location = new System.Drawing.Point(74, 4);
+			this.ColAngle.Location = new System.Drawing.Point(45, 77);
 			this.ColAngle.Maximum = new decimal(new int[] {
             255,
             0,
@@ -3212,6 +3244,39 @@ namespace SonicRetro.SonLVL.GUI
 			this.importProgressControl1.Visible = false;
 			this.importProgressControl1.SizeChanged += new System.EventHandler(this.importProgressControl1_SizeChanged);
 			// 
+			// solidsContextMenuStrip
+			// 
+			this.solidsContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.copySolidsToolStripMenuItem,
+            this.pasteSolidsToolStripMenuItem,
+            this.clearSolidsToolStripMenuItem});
+			this.solidsContextMenuStrip.Name = "solidsContextMenuStrip";
+			this.solidsContextMenuStrip.Size = new System.Drawing.Size(103, 70);
+			// 
+			// copySolidsToolStripMenuItem
+			// 
+			this.copySolidsToolStripMenuItem.Image = global::SonicRetro.SonLVL.Properties.Resources.copy;
+			this.copySolidsToolStripMenuItem.Name = "copySolidsToolStripMenuItem";
+			this.copySolidsToolStripMenuItem.Size = new System.Drawing.Size(102, 22);
+			this.copySolidsToolStripMenuItem.Text = "&Copy";
+			this.copySolidsToolStripMenuItem.Click += new System.EventHandler(this.copySolidsToolStripMenuItem_Click);
+			// 
+			// pasteSolidsToolStripMenuItem
+			// 
+			this.pasteSolidsToolStripMenuItem.Image = global::SonicRetro.SonLVL.Properties.Resources.paste;
+			this.pasteSolidsToolStripMenuItem.Name = "pasteSolidsToolStripMenuItem";
+			this.pasteSolidsToolStripMenuItem.Size = new System.Drawing.Size(102, 22);
+			this.pasteSolidsToolStripMenuItem.Text = "&Paste";
+			this.pasteSolidsToolStripMenuItem.Click += new System.EventHandler(this.pasteSolidsToolStripMenuItem_Click);
+			// 
+			// clearSolidsToolStripMenuItem
+			// 
+			this.clearSolidsToolStripMenuItem.Image = global::SonicRetro.SonLVL.Properties.Resources.delete;
+			this.clearSolidsToolStripMenuItem.Name = "clearSolidsToolStripMenuItem";
+			this.clearSolidsToolStripMenuItem.Size = new System.Drawing.Size(102, 22);
+			this.clearSolidsToolStripMenuItem.Text = "&Clear";
+			this.clearSolidsToolStripMenuItem.Click += new System.EventHandler(this.clearSolidsToolStripMenuItem_Click);
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -3320,6 +3385,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.tileContextMenuStrip.ResumeLayout(false);
 			this.paletteContextMenuStrip.ResumeLayout(false);
 			this.layoutContextMenuStrip.ResumeLayout(false);
+			this.solidsContextMenuStrip.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -3575,6 +3641,11 @@ namespace SonicRetro.SonLVL.GUI
 		private System.Windows.Forms.ToolStripButton deleteUnusedChunksToolStripButton;
 		private System.Windows.Forms.ToolStripButton clearForegroundToolStripButton;
 		private System.Windows.Forms.ToolStripButton clearBackgroundToolStripButton;
+		private System.Windows.Forms.Button calculateAngleButton;
+		private System.Windows.Forms.ContextMenuStrip solidsContextMenuStrip;
+		private System.Windows.Forms.ToolStripMenuItem copySolidsToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem pasteSolidsToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem clearSolidsToolStripMenuItem;
 
 	}
 }

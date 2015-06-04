@@ -8606,6 +8606,41 @@ namespace SonicRetro.SonLVL.GUI
 					Array.Clear(LevelData.Layout.BGLoop, 0, LevelData.BGWidth * LevelData.BGHeight);
 			}
 		}
+
+		private void calculateAngleButton_Click(object sender, EventArgs e)
+		{
+			ColAngle.Value = LevelData.GetColMap(LevelData.ColBmps[SelectedCol])[0, 0].Angle; // super lazy
+		}
+
+		private void CollisionSelector_MouseDown(object sender, MouseEventArgs e)
+		{
+			if (!loaded) return;
+			if (e.Button == MouseButtons.Right)
+			{
+				pasteSolidsToolStripMenuItem.Enabled = Clipboard.ContainsData(typeof(ColInfo).AssemblyQualifiedName);
+				solidsContextMenuStrip.Show(CollisionSelector, e.Location);
+			}
+		}
+
+		private void copySolidsToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			Clipboard.SetData(typeof(ColInfo).AssemblyQualifiedName, new ColInfo(Solidity.NotSolid, LevelData.ColArr1[CollisionSelector.SelectedIndex], LevelData.Angles[CollisionSelector.SelectedIndex]);
+		}
+
+		private void pasteSolidsToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			ColInfo col = (ColInfo)Clipboard.GetData(typeof(ColInfo).AssemblyQualifiedName);
+			col.HeightMap.CopyTo(LevelData.ColArr1[CollisionSelector.SelectedIndex], 0);
+			LevelData.Angles[CollisionSelector.SelectedIndex] = col.Angle;
+			CollisionSelector_SelectedIndexChanged(this, EventArgs.Empty);
+		}
+
+		private void clearSolidsToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			Array.Clear(LevelData.ColArr1[CollisionSelector.SelectedIndex], 0, 16);
+			LevelData.Angles[CollisionSelector.SelectedIndex] = 0;
+			CollisionSelector_SelectedIndexChanged(this, EventArgs.Empty);
+		}
 	}
 
 	public enum EditingMode { Draw, Select }
