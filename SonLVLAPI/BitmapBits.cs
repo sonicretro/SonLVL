@@ -813,7 +813,7 @@ namespace SonicRetro.SonLVL.API
 			int rowDst = destination.GetPixelIndex(0, dstY);
 			for (int y = 0; y < destination.Height - dstY; y++)
 			{
-				int amount = srcX[y % srcX.Length];
+				int amount = srcX[(srcY + y) % srcX.Length];
 				Array.Copy(Bits, rowSrc + amount, destination.Bits, rowDst, Math.Min(Width - amount, destination.Width));
 				if (amount != 0 && Width - amount < destination.Width)
 					Array.Copy(Bits, rowSrc, destination.Bits, rowDst + Width - amount, Math.Min(amount, destination.Width - (Width - amount)));
