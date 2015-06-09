@@ -146,6 +146,8 @@ namespace ChaotixSpriteEdit
 								}
 							break;
 					}
+					palettePanel.Invalidate();
+					spriteImagePanel.Invalidate();
 				}
 		}
 
@@ -153,7 +155,11 @@ namespace ChaotixSpriteEdit
 		{
 			using (ColorDialog a = new ColorDialog { AllowFullOpen = true, AnyColor = true, FullOpen = true, Color = palette.Entries[selectedColor] })
 				if (a.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+				{
 					palette.Entries[selectedColor] = a.Color;
+					palettePanel.Invalidate();
+					spriteImagePanel.Invalidate();
+				}
 		}
 
 		private void offsetXNumericUpDown_ValueChanged(object sender, EventArgs e)
@@ -189,25 +195,33 @@ namespace ChaotixSpriteEdit
 
 		private void spriteImagePanel_MouseDown(object sender, MouseEventArgs e)
 		{
-			if (e.Button == MouseButtons.Left)
+			switch (e.Button)
 			{
-				sprite.Image[e.X / 4, e.Y / 4] = (byte)selectedColor;
-				spriteImagePanel.Invalidate();
-			}
-			else if (e.Button == MouseButtons.Right)
-			{
-				selectedColor = sprite.Image[e.X / 4, e.Y / 4];
-				spriteImagePanel.Invalidate();
+				case MouseButtons.Left:
+					sprite.Image[e.X / 4, e.Y / 4] = (byte)selectedColor;
+					spriteImagePanel.Invalidate();
+					break;
+				case MouseButtons.Right:
+					selectedColor = sprite.Image[e.X / 4, e.Y / 4];
+					palettePanel.Invalidate();
+					break;
 			}
 		}
 
 		private void spriteImagePanel_MouseMove(object sender, MouseEventArgs e)
 		{
-			if (e.Button == MouseButtons.Left && new Rectangle(Point.Empty, spriteImagePanel.Size).Contains(e.Location))
-			{
-				sprite.Image[e.X / 4, e.Y / 4] = (byte)selectedColor;
-				spriteImagePanel.Invalidate();
-			}
+			if (new Rectangle(Point.Empty, spriteImagePanel.Size).Contains(e.Location))
+				switch (e.Button)
+				{
+					case MouseButtons.Left:
+						sprite.Image[e.X / 4, e.Y / 4] = (byte)selectedColor;
+						spriteImagePanel.Invalidate();
+						break;
+					case MouseButtons.Right:
+						selectedColor = sprite.Image[e.X / 4, e.Y / 4];
+						palettePanel.Invalidate();
+						break;
+				}
 		}
 
 		private void importButton_Click(object sender, EventArgs e)
