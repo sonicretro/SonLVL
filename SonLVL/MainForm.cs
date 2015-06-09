@@ -3818,6 +3818,7 @@ namespace SonicRetro.SonLVL.GUI
 				BlockPicture.Invalidate();
 				TileSelector.Invalidate();
 				TilePicture.Invalidate();
+				DrawLevel();
 			}
 			cols = a.CustomColors;
 			loaded = false;
@@ -3852,6 +3853,7 @@ namespace SonicRetro.SonLVL.GUI
 			BlockPicture.Invalidate();
 			TileSelector.Invalidate();
 			TilePicture.Invalidate();
+			DrawLevel();
 		}
 
 		private void BlockCollision1_ValueChanged(object sender, EventArgs e)
@@ -3984,6 +3986,7 @@ namespace SonicRetro.SonLVL.GUI
 			BlockPicture.Invalidate();
 			TileSelector.Invalidate();
 			TilePicture.Invalidate();
+			DrawLevel();
 		}
 
 		private BitmapBits tile;
