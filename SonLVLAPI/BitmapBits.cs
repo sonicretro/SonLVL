@@ -529,10 +529,27 @@ namespace SonicRetro.SonLVL.API
 
 		public BitmapBits Scale(int factor)
 		{
+			if (factor < 1)
+				throw new ArgumentOutOfRangeException("factor", "Scaling factor must be 1 or greater.");
+			if (factor == 1)
+				return new BitmapBits(this);
 			BitmapBits res = new BitmapBits(Width * factor, Height * factor);
-			for (int y = 0; y < res.Height; y++)
-				for (int x = 0; x < res.Width; x++)
-					res[x, y] = this[(x / factor), (y / factor)];
+			int srcaddr = 0;
+			int dstaddr = 0;
+			for (int y = 0; y < Height; y++)
+			{
+				int linestart = dstaddr;
+				for (int x = 0; x < Width; x++)
+				{
+					res.Bits.FastFill(Bits[srcaddr++], dstaddr, factor);
+					dstaddr += factor;
+				}
+				for (int i = 1; i < factor; i++)
+				{
+					Array.Copy(res.Bits, linestart, res.Bits, dstaddr, res.Width);
+					dstaddr += res.Width;
+				}
+			}
 			return res;
 		}
 
