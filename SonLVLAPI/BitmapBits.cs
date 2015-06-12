@@ -869,6 +869,41 @@ namespace SonicRetro.SonLVL.API
 			}
 		}
 
+		public void FloodFill(byte index, int x, int y) { FloodFill(index, new Point(x, y)); }
+
+		public void FloodFill(byte index, Point location)
+		{
+			byte oldind = this[location.X, location.Y];
+			if (oldind == index) return;
+			Queue<Point> pts = new Queue<Point>(Bits.Length / 2);
+			pts.Enqueue(location);
+			this[location.X, location.Y] = index;
+			while (pts.Count > 0)
+			{
+				Point pt = pts.Dequeue();
+				if (pt.X > 0 && this[pt.X - 1, pt.Y] == oldind)
+				{
+					this[pt.X - 1, pt.Y] = index;
+					pts.Enqueue(new Point(pt.X - 1, pt.Y));
+				}
+				if (pt.X < Width - 1 && this[pt.X + 1, pt.Y] == oldind)
+				{
+					this[pt.X + 1, pt.Y] = index;
+					pts.Enqueue(new Point(pt.X + 1, pt.Y));
+				}
+				if (pt.Y > 0 && this[pt.X, pt.Y - 1] == oldind)
+				{
+					this[pt.X, pt.Y - 1] = index;
+					pts.Enqueue(new Point(pt.X, pt.Y - 1));
+				}
+				if (pt.Y < Height - 1 && this[pt.X, pt.Y + 1] == oldind)
+				{
+					this[pt.X, pt.Y + 1] = index;
+					pts.Enqueue(new Point(pt.X, pt.Y + 1));
+				}
+			}
+		}
+
 		public static BitmapBits ReadPCX(string filename) { Color[] palette; return ReadPCX(filename, out palette); }
 
 		public static BitmapBits ReadPCX(string filename, out Color[] palette)
