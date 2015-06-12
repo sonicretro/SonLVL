@@ -38,11 +38,17 @@ namespace SonicRetro.SonLVL.GUI
 			this.panel3 = new System.Windows.Forms.Panel();
 			this.TilePicture = new System.Windows.Forms.Panel();
 			this.panel4 = new System.Windows.Forms.Panel();
+			this.panel5 = new System.Windows.Forms.Panel();
+			this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+			this.pencilToolStripButton = new System.Windows.Forms.ToolStripButton();
+			this.fillToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.panel1.SuspendLayout();
 			this.panel2.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
 			this.panel3.SuspendLayout();
 			this.panel4.SuspendLayout();
+			this.panel5.SuspendLayout();
+			this.toolStrip1.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// okButton
@@ -105,23 +111,23 @@ namespace SonicRetro.SonLVL.GUI
 			// 
 			this.numericUpDown1.Location = new System.Drawing.Point(55, 6);
 			this.numericUpDown1.Maximum = new decimal(new int[] {
-			16,
-			0,
-			0,
-			0});
+            16,
+            0,
+            0,
+            0});
 			this.numericUpDown1.Minimum = new decimal(new int[] {
-			1,
-			0,
-			0,
-			0});
+            1,
+            0,
+            0,
+            0});
 			this.numericUpDown1.Name = "numericUpDown1";
 			this.numericUpDown1.Size = new System.Drawing.Size(37, 20);
 			this.numericUpDown1.TabIndex = 4;
 			this.numericUpDown1.Value = new decimal(new int[] {
-			1,
-			0,
-			0,
-			0});
+            1,
+            0,
+            0,
+            0});
 			this.numericUpDown1.ValueChanged += new System.EventHandler(this.numericUpDown1_ValueChanged);
 			// 
 			// label1
@@ -140,9 +146,9 @@ namespace SonicRetro.SonLVL.GUI
 			this.panel3.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
 			this.panel3.Controls.Add(this.TilePicture);
 			this.panel3.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.panel3.Location = new System.Drawing.Point(0, 93);
+			this.panel3.Location = new System.Drawing.Point(24, 0);
 			this.panel3.Name = "panel3";
-			this.panel3.Size = new System.Drawing.Size(294, 235);
+			this.panel3.Size = new System.Drawing.Size(270, 235);
 			this.panel3.TabIndex = 10;
 			// 
 			// TilePicture
@@ -168,13 +174,56 @@ namespace SonicRetro.SonLVL.GUI
 			this.panel4.Size = new System.Drawing.Size(294, 46);
 			this.panel4.TabIndex = 11;
 			// 
+			// panel5
+			// 
+			this.panel5.Controls.Add(this.panel3);
+			this.panel5.Controls.Add(this.toolStrip1);
+			this.panel5.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.panel5.Location = new System.Drawing.Point(0, 93);
+			this.panel5.Name = "panel5";
+			this.panel5.Size = new System.Drawing.Size(294, 235);
+			this.panel5.TabIndex = 3;
+			// 
+			// toolStrip1
+			// 
+			this.toolStrip1.Dock = System.Windows.Forms.DockStyle.Left;
+			this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+			this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.pencilToolStripButton,
+            this.fillToolStripButton});
+			this.toolStrip1.Location = new System.Drawing.Point(0, 0);
+			this.toolStrip1.Name = "toolStrip1";
+			this.toolStrip1.Size = new System.Drawing.Size(24, 235);
+			this.toolStrip1.TabIndex = 11;
+			this.toolStrip1.Text = "toolStrip1";
+			// 
+			// pencilToolStripButton
+			// 
+			this.pencilToolStripButton.Checked = true;
+			this.pencilToolStripButton.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.pencilToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.pencilToolStripButton.Image = global::SonicRetro.SonLVL.Properties.Resources.pencil;
+			this.pencilToolStripButton.Name = "pencilToolStripButton";
+			this.pencilToolStripButton.Size = new System.Drawing.Size(29, 20);
+			this.pencilToolStripButton.Text = "Pencil";
+			this.pencilToolStripButton.Click += new System.EventHandler(this.pencilToolStripButton_Click);
+			// 
+			// fillToolStripButton
+			// 
+			this.fillToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+			this.fillToolStripButton.Image = global::SonicRetro.SonLVL.Properties.Resources.fill;
+			this.fillToolStripButton.Name = "fillToolStripButton";
+			this.fillToolStripButton.Size = new System.Drawing.Size(29, 20);
+			this.fillToolStripButton.Text = "Fill";
+			this.fillToolStripButton.Click += new System.EventHandler(this.fillToolStripButton_Click);
+			// 
 			// DrawTileDialog
 			// 
 			this.AcceptButton = this.okButton;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(294, 374);
-			this.Controls.Add(this.panel3);
+			this.Controls.Add(this.panel5);
 			this.Controls.Add(this.panel2);
 			this.Controls.Add(this.panel1);
 			this.Controls.Add(this.panel4);
@@ -192,6 +241,10 @@ namespace SonicRetro.SonLVL.GUI
 			((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
 			this.panel3.ResumeLayout(false);
 			this.panel4.ResumeLayout(false);
+			this.panel5.ResumeLayout(false);
+			this.panel5.PerformLayout();
+			this.toolStrip1.ResumeLayout(false);
+			this.toolStrip1.PerformLayout();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -209,6 +262,10 @@ namespace SonicRetro.SonLVL.GUI
 		private System.Windows.Forms.NumericUpDown numericUpDown1;
 		private System.Windows.Forms.Label label1;
 		internal System.Windows.Forms.Panel TilePicture;
+		private System.Windows.Forms.Panel panel5;
+		private System.Windows.Forms.ToolStrip toolStrip1;
+		private System.Windows.Forms.ToolStripButton pencilToolStripButton;
+		private System.Windows.Forms.ToolStripButton fillToolStripButton;
 	}
 }
 

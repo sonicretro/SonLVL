@@ -47,24 +47,34 @@ namespace SonicRetro.SonLVL.GUI
 			DrawTile();
 		}
 
+		private Tool tool;
 		private void TilePicture_MouseDown(object sender, MouseEventArgs e)
 		{
 			if (e.Button == System.Windows.Forms.MouseButtons.Left)
-			{
-				tile.Bits[((e.Y / (int)numericUpDown1.Value) * tile.Width) + (e.X / (int)numericUpDown1.Value)] = (byte)((selectedColor.Y * 16) + selectedColor.X);
-				lastpoint = new Point(e.X / (int)numericUpDown1.Value, e.Y / (int)numericUpDown1.Value);
-				DrawTile();
-			}
+				switch (tool)
+				{
+					case Tool.Pencil:
+						tile[e.X / (int)numericUpDown1.Value, e.Y / (int)numericUpDown1.Value] = (byte)((selectedColor.Y * 16) + selectedColor.X);
+						lastpoint = new Point(e.X / (int)numericUpDown1.Value, e.Y / (int)numericUpDown1.Value);
+						DrawTile();
+						break;
+					case Tool.Fill:
+						tile.FloodFill((byte)((selectedColor.Y * 16) + selectedColor.X), e.X / (int)numericUpDown1.Value, e.Y / (int)numericUpDown1.Value);
+						DrawTile();
+						break;
+				}
 		}
 
 		Point lastpoint;
 		private void TilePicture_MouseMove(object sender, MouseEventArgs e)
 		{
-			if (e.Button == System.Windows.Forms.MouseButtons.Left)
+			if (tool == Tool.Pencil && e.Button == System.Windows.Forms.MouseButtons.Left)
 			{
 				if (new Rectangle(Point.Empty, TilePicture.Size).Contains(e.Location))
+				{
 					tile.DrawLine((byte)((selectedColor.Y * 16) + selectedColor.X), lastpoint, new Point(e.X / (int)numericUpDown1.Value, e.Y / (int)numericUpDown1.Value));
-				tile.Bits[((e.Y / (int)numericUpDown1.Value) * tile.Width) + (e.X / (int)numericUpDown1.Value)] = (byte)((selectedColor.Y * 16) + selectedColor.X);
+					tile[e.X / (int)numericUpDown1.Value, e.Y / (int)numericUpDown1.Value] = (byte)((selectedColor.Y * 16) + selectedColor.X);
+				}
 				lastpoint = new Point(e.X / (int)numericUpDown1.Value, e.Y / (int)numericUpDown1.Value);
 				DrawTile();
 			}
@@ -82,11 +92,16 @@ namespace SonicRetro.SonLVL.GUI
 			TilePicture.Size = new Size(tile.Width * (int)numericUpDown1.Value, tile.Height * (int)numericUpDown1.Value);
 		}
 
+		Cursor pencilcur, fillcur;
 		private void DrawTileDialog_Shown(object sender, EventArgs e)
 		{
 			tileGfx = TilePicture.CreateGraphics();
 			tileGfx.SetOptions();
-			TilePicture.Cursor = new Cursor(new System.IO.MemoryStream(Properties.Resources.pencilcur));
+			using (System.IO.MemoryStream ms = new System.IO.MemoryStream(Properties.Resources.pencilcur))
+				pencilcur = new Cursor(ms);
+			using (System.IO.MemoryStream ms = new System.IO.MemoryStream(Properties.Resources.fillcur))
+				fillcur = new Cursor(ms);
+			TilePicture.Cursor = pencilcur;
 			TilePicture.Size = new Size(tile.Width * (int)numericUpDown1.Value, tile.Height * (int)numericUpDown1.Value);
 		}
 
@@ -95,5 +110,23 @@ namespace SonicRetro.SonLVL.GUI
 			tileGfx = TilePicture.CreateGraphics();
 			tileGfx.SetOptions();
 		}
+
+		private void pencilToolStripButton_Click(object sender, EventArgs e)
+		{
+			pencilToolStripButton.Checked = true;
+			fillToolStripButton.Checked = false;
+			tool = Tool.Pencil;
+			TilePicture.Cursor = pencilcur;
+		}
+
+		private void fillToolStripButton_Click(object sender, EventArgs e)
+		{
+			pencilToolStripButton.Checked = false;
+			fillToolStripButton.Checked = true;
+			tool = Tool.Fill;
+			TilePicture.Cursor = fillcur;
+		}
+
+		enum Tool { Pencil, Fill }
 	}
 }
