@@ -22,6 +22,7 @@ namespace ChaotixSpriteEdit
 		int selectedColor;
 		Sprite sprite = new Sprite(new BitmapBits(32, 32), new Point(-16, -16));
 		string filename;
+		Cursor pencilcur, fillcur;
 
 		private void MainForm_Load(object sender, EventArgs e)
 		{
@@ -33,6 +34,11 @@ namespace ChaotixSpriteEdit
 				using (BinaryReader br = new BinaryReader(fs))
 					for (int i = 0; i < 256; i++)
 						palette.Entries[i] = Color.FromArgb(br.ReadByte(), br.ReadByte(), br.ReadByte());
+			using (System.IO.MemoryStream ms = new System.IO.MemoryStream(Properties.Resources.pencilcur))
+				pencilcur = new Cursor(ms);
+			using (System.IO.MemoryStream ms = new System.IO.MemoryStream(Properties.Resources.fillcur))
+				fillcur = new Cursor(ms);
+			spriteImagePanel.Cursor = pencilcur;
 			if (Program.Arguments.Count > 0)
 				LoadSprite(Program.Arguments[0]);
 		}
@@ -67,7 +73,7 @@ namespace ChaotixSpriteEdit
 
 		private void LoadSprite(string filename)
 		{
-			sprite = Sprite.LoadChaotixSprites(filename)[0];
+			sprite = Sprite.LoadChaotixSprite(filename);
 			spriteImagePanel.Size = new Size(sprite.Width * 4, sprite.Height * 4);
 			offsetXNumericUpDown.Value = sprite.X;
 			offsetYNumericUpDown.Value = sprite.Y;
@@ -76,9 +82,27 @@ namespace ChaotixSpriteEdit
 			spriteImagePanel.Invalidate();
 		}
 
+		private void importFromROMToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			using (OpenFileDialog dlg = new OpenFileDialog() { DefaultExt = "bin", Filter = "ROM Files|*.bin;*.32x|All Files|*.*", RestoreDirectory = true })
+				if (dlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+				{
+					byte[] file = File.ReadAllBytes(dlg.FileName);
+					using (SpriteAddressDialog adlg = new SpriteAddressDialog(file.Length))
+					if (adlg.ShowDialog(this)== System.Windows.Forms.DialogResult.OK)
+					{
+						sprite = Sprite.LoadChaotixSprite(file, adlg.Address);
+						spriteImagePanel.Size = new Size(sprite.Width * 4, sprite.Height * 4);
+						offsetXNumericUpDown.Value = sprite.X;
+						offsetYNumericUpDown.Value = sprite.Y;
+						spriteImagePanel.Invalidate();
+					}
+				}
+		}
+
 		private void saveToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			Sprite.SaveChaotixSprites(filename, new[] { sprite });
+			sprite.SaveChaotixSprite(filename);
 		}
 
 		private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -87,7 +111,7 @@ namespace ChaotixSpriteEdit
 				if (dlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
 				{
 					filename = dlg.FileName;
-					Sprite.SaveChaotixSprites(filename, new[] { sprite });
+					sprite.SaveChaotixSprite(filename);
 				}
 		}
 
@@ -176,6 +200,12 @@ namespace ChaotixSpriteEdit
 				spriteImagePanel.Invalidate();
 		}
 
+		private void centerButton_Click(object sender, EventArgs e)
+		{
+			offsetXNumericUpDown.Value = -sprite.Width / 2;
+			offsetYNumericUpDown.Value = -sprite.Height / 2;
+		}
+
 		private void showCenterCheckBox_CheckedChanged(object sender, EventArgs e)
 		{
 			spriteImagePanel.Invalidate();
@@ -193,13 +223,40 @@ namespace ChaotixSpriteEdit
 			}
 		}
 
+		private Tool tool;
+		private void pencilToolStripButton_Click(object sender, EventArgs e)
+		{
+			pencilToolStripButton.Checked = true;
+			fillToolStripButton.Checked = false;
+			tool = Tool.Pencil;
+			spriteImagePanel.Cursor = pencilcur;
+		}
+
+		private void fillToolStripButton_Click(object sender, EventArgs e)
+		{
+			pencilToolStripButton.Checked = false;
+			fillToolStripButton.Checked = true;
+			tool = Tool.Fill;
+			spriteImagePanel.Cursor = fillcur;
+		}
+
 		private void spriteImagePanel_MouseDown(object sender, MouseEventArgs e)
 		{
 			switch (e.Button)
 			{
 				case MouseButtons.Left:
-					sprite.Image[e.X / 4, e.Y / 4] = (byte)selectedColor;
-					spriteImagePanel.Invalidate();
+					switch (tool)
+					{
+						case Tool.Pencil:
+							sprite.Image[e.X / 4, e.Y / 4] = (byte)selectedColor;
+							lastpoint = new Point(e.X / 4, e.Y / 4);
+							spriteImagePanel.Invalidate();
+							break;
+						case Tool.Fill:
+							sprite.Image.FloodFill((byte)selectedColor, e.X / 4, e.Y / 4);
+							spriteImagePanel.Invalidate();
+							break;
+					}
 					break;
 				case MouseButtons.Right:
 					selectedColor = sprite.Image[e.X / 4, e.Y / 4];
@@ -208,14 +265,20 @@ namespace ChaotixSpriteEdit
 			}
 		}
 
+		Point lastpoint;
 		private void spriteImagePanel_MouseMove(object sender, MouseEventArgs e)
 		{
 			if (new Rectangle(Point.Empty, spriteImagePanel.Size).Contains(e.Location))
 				switch (e.Button)
 				{
 					case MouseButtons.Left:
-						sprite.Image[e.X / 4, e.Y / 4] = (byte)selectedColor;
-						spriteImagePanel.Invalidate();
+						if (tool == Tool.Pencil)
+						{
+							sprite.Image.DrawLine((byte)selectedColor, lastpoint, new Point(e.X / 4, e.Y / 4));
+							sprite.Image[e.X / 4, e.Y / 4] = (byte)selectedColor;
+							spriteImagePanel.Invalidate();
+							lastpoint = new Point(e.X / 4, e.Y / 4);
+						}
 						break;
 					case MouseButtons.Right:
 						selectedColor = sprite.Image[e.X / 4, e.Y / 4];
@@ -255,6 +318,8 @@ namespace ChaotixSpriteEdit
 								sprite.Image = bmpbits;
 							}
 						spriteImagePanel.Size = new Size(sprite.Width * 4, sprite.Height * 4);
+						offsetXNumericUpDown.Value = -sprite.Width / 2;
+						offsetYNumericUpDown.Value = -sprite.Height / 2;
 						spriteImagePanel.Invalidate();
 					}
 		}
@@ -266,5 +331,7 @@ namespace ChaotixSpriteEdit
 					using (Bitmap bmp = sprite.Image.ToBitmap(palette))
 						bmp.Save(dlg.FileName);
 		}
+
+		enum Tool { Pencil, Fill }
 	}
 }

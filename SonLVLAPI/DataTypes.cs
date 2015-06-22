@@ -2379,86 +2379,76 @@ namespace SonicRetro.SonLVL.API
 					Image.DrawBitmapComposited(spr.Image, new Point(spr.X - left, spr.Y - top));
 		}
 
-		public static List<Sprite> LoadChaotixSprites(string filename)
+		public static Sprite LoadChaotixSprite(string filename) { return LoadChaotixSprite(File.ReadAllBytes(filename), 0); }
+
+		public static Sprite LoadChaotixSprite(byte[] file, int addr)
 		{
-			byte[] file = File.ReadAllBytes(filename);
-			List<Sprite> result = new List<Sprite>();
-			int addr = 0;
-			while (addr < file.Length)
+			short left = ByteConverter.ToInt16(file, addr);
+			addr += 2;
+			short right = ByteConverter.ToInt16(file, addr);
+			addr += 2;
+			sbyte top = (sbyte)file[addr];
+			addr += 2;
+			sbyte bottom = (sbyte)file[addr];
+			addr += 2;
+			BitmapBits bmp = new BitmapBits(right - left + 1, bottom - top + 1);
+			sbyte y;
+			while (true)
 			{
-				short left = ByteConverter.ToInt16(file, addr);
+				sbyte xl = (sbyte)file[addr++];
+				sbyte xr = (sbyte)file[addr++];
+				if (xl == 0 && xr == 0) break;
+				y = (sbyte)file[addr];
 				addr += 2;
-				short right = ByteConverter.ToInt16(file, addr);
-				addr += 2;
-				sbyte top = (sbyte)file[addr];
-				addr += 2;
-				sbyte bottom = (sbyte)file[addr];
-				addr += 2;
-				BitmapBits bmp = new BitmapBits(right - left + 1, bottom - top + 1);
-				sbyte y;
-				while (true)
-				{
-					sbyte xl = (sbyte)file[addr++];
-					sbyte xr = (sbyte)file[addr++];
-					if (xl == 0 && xr == 0) break;
-					y = (sbyte)file[addr];
-					addr += 2;
-					Array.Copy(file, addr, bmp.Bits, bmp.GetPixelIndex(xl - left, y - top), xr - xl);
-					addr += xr - xl;
-				}
-				result.Add(new Sprite(bmp, new Point(left, top)));
-				if (addr % 4 != 0)
-					addr += 4 - (addr % 4);
+				Array.Copy(file, addr, bmp.Bits, bmp.GetPixelIndex(xl - left, y - top), xr - xl);
+				addr += xr - xl;
 			}
-			return result;
+			return new Sprite(bmp, new Point(left, top));
 		}
 
-		public static void SaveChaotixSprites(string filename, IEnumerable<Sprite> sprites)
+		public void SaveChaotixSprite(string filename)
 		{
 			List<byte> result = new List<byte>();
-			foreach (Sprite sprite in sprites)
+			result.AddRange(ByteConverter.GetBytes((short)Left));
+			result.AddRange(ByteConverter.GetBytes((short)(Right - 1)));
+			result.Add((byte)(sbyte)Top);
+			result.Add((byte)0);
+			result.Add((byte)(sbyte)(Bottom - 1));
+			result.Add((byte)0);
+			for (int y = 0; y < Height; y++)
 			{
-				result.AddRange(ByteConverter.GetBytes((short)sprite.Left));
-				result.AddRange(ByteConverter.GetBytes((short)(sprite.Right - 1)));
-				result.Add((byte)(sbyte)sprite.Top);
-				result.Add((byte)0);
-				result.Add((byte)(sbyte)(sprite.Bottom - 1));
-				result.Add((byte)0);
-				for (int y = 0; y < sprite.Height; y++)
-				{
-					int xl = -1;
-					for (int x = 0; x < sprite.Width; x++)
-						if (sprite.Image[x, y] != 0)
-						{
-							xl = x;
-							break;
-						}
-					if (xl == -1) continue;
-					int xr = 0;
-					for (int x = sprite.Width - 1; x >= xl; x--)
-						if (sprite.Image[x, y] != 0)
-						{
-							xr = x + 1;
-							break;
-						}
-					if ((xr - xl) % 2 != 0)
+				int xl = -1;
+				for (int x = 0; x < Width; x++)
+					if (Image[x, y] != 0)
 					{
-						if (xr != sprite.Width)
-							++xr;
-						else
-							--xl;
+						xl = x;
+						break;
 					}
-					result.Add((byte)(sbyte)(xl + sprite.Left));
-					result.Add((byte)(sbyte)(xr + sprite.Left));
-					result.Add((byte)(sbyte)(y + sprite.Top));
-					result.Add((byte)0);
-					for (int x = xl; x < xr; x++)
-						result.Add(sprite.Image[x, y]);
+				if (xl == -1) continue;
+				int xr = 0;
+				for (int x = Width - 1; x >= xl; x--)
+					if (Image[x, y] != 0)
+					{
+						xr = x + 1;
+						break;
+					}
+				if ((xr - xl) % 2 != 0)
+				{
+					if (xr != Width)
+						++xr;
+					else
+						--xl;
 				}
-				result.AddRange(ByteConverter.GetBytes((short)0));
-				if (result.Count % 4 != 0)
-					result.AddRange(new byte[4 - (result.Count % 4)]);
+				result.Add((byte)(sbyte)(xl + Left));
+				result.Add((byte)(sbyte)(xr + Left));
+				result.Add((byte)(sbyte)(y + Top));
+				result.Add((byte)0);
+				for (int x = xl; x < xr; x++)
+					result.Add(Image[x, y]);
 			}
+			result.AddRange(ByteConverter.GetBytes((short)0));
+			if (result.Count % 4 != 0)
+				result.AddRange(new byte[4 - (result.Count % 4)]);
 			File.WriteAllBytes(filename, result.ToArray());
 		}
 	}
