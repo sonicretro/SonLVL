@@ -3785,18 +3785,18 @@ namespace SonicRetro.SonLVL.GUI
 			for (int y = 0; y <= 3; y++)
 				for (int x = 0; x <= 15; x++)
 				{
-					e.Graphics.FillRectangle(new SolidBrush(LevelData.PaletteToColor(y, x, false)), x * 32, y * 32, 32, 32);
-					e.Graphics.DrawRectangle(Pens.White, x * 32, y * 32, 31, 31);
+					e.Graphics.FillRectangle(new SolidBrush(LevelData.PaletteToColor(y, x, false)), x * 20, y * 20, 20, 20);
+					e.Graphics.DrawRectangle(Pens.White, x * 20, y * 20, 19, 19);
 				}
-			e.Graphics.DrawRectangle(new Pen(Color.Yellow, 2), SelectedColor.X * 32, SelectedColor.Y * 32, 32, 32);
+			e.Graphics.DrawRectangle(new Pen(Color.Yellow, 2), SelectedColor.X * 20, SelectedColor.Y * 20, 20, 20);
 		}
 
 		int[] cols;
 		private void PalettePanel_MouseDoubleClick(object sender, MouseEventArgs e)
 		{
 			if (!loaded) return;
-			int line = e.Y / 32;
-			int index = e.X / 32;
+			int line = e.Y / 20;
+			int index = e.X / 20;
 			SelectedColor = new Point(index, line);
 			ColorDialog a = new ColorDialog
 			{
@@ -3892,8 +3892,8 @@ namespace SonicRetro.SonLVL.GUI
 		private void PalettePanel_MouseDown(object sender, MouseEventArgs e)
 		{
 			if (!loaded) return;
-			bool newpal = e.Y / 32 != SelectedColor.Y;
-			SelectedColor = new Point(e.X / 32, e.Y / 32);
+			bool newpal = e.Y / 20 != SelectedColor.Y;
+			SelectedColor = new Point(e.X / 20, e.Y / 20);
 			if (e.Button == System.Windows.Forms.MouseButtons.Right)
 				paletteContextMenuStrip.Show(PalettePanel, e.Location);
 			PalettePanel.Invalidate();
