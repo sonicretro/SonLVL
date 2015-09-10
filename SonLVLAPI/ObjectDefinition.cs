@@ -22,7 +22,6 @@ namespace SonicRetro.SonLVL.API
 		[IniCollection(IniCollectionMode.SingleLine, Format = "|")]
 		public FileInfo[] Art;
 		[IniName("artcmp")]
-		[DefaultValue(CompressionType.Nemesis)]
 		public CompressionType ArtCompression;
 		[IniName("map")]
 		public string MapFile;
@@ -485,7 +484,7 @@ namespace SonicRetro.SonLVL.API
 				{
 					MultiFileIndexer<byte> art = new MultiFileIndexer<byte>();
 					foreach (FileInfo file in data.Art)
-						art.AddFile(new List<byte>(ObjectHelper.OpenArtFile(file.Filename, data.ArtCompression)), file.Offset);
+						art.AddFile(new List<byte>(ObjectHelper.OpenArtFile(file.Filename, data.ArtCompression == CompressionType.Invalid ? LevelData.Game.ObjectArtCompression : data.ArtCompression)), file.Offset);
 					byte[] artfile = art.ToArray();
 					if (data.MapFile != null)
 					{
@@ -726,7 +725,7 @@ namespace SonicRetro.SonLVL.API
 						MultiFileIndexer<byte> art = new MultiFileIndexer<byte>();
 						foreach (XMLDef.ArtFile artfile in mapimg.ArtFiles)
 							art.AddFile(new List<byte>(ObjectHelper.OpenArtFile(artfile.filename,
-								artfile.compression == CompressionType.Invalid ? CompressionType.Nemesis : artfile.compression)),
+								artfile.compression == CompressionType.Invalid ? LevelData.Game.ObjectArtCompression : artfile.compression)),
 								artfile.offsetSpecified ? artfile.offset : -1);
 						XMLDef.MapFile map = mapimg.MapFile;
 						switch (map.type)

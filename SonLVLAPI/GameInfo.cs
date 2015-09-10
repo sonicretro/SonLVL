@@ -16,6 +16,9 @@ namespace SonicRetro.SonLVL.API
 		[IniName("objlst")]
 		[IniCollection(IniCollectionMode.SingleLine, Format = "|")]
 		public string[] ObjectList { get; set; }
+		[IniName("objartcmp")]
+		[DefaultValue(CompressionType.Nemesis)]
+		public CompressionType ObjectArtCompression { get; set; }
 		[IniName("mapver")]
 		public EngineVersion MappingsVersion { get; set; }
 		[IniName("dplcver")]
