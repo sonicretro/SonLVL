@@ -1168,6 +1168,8 @@ namespace SonicRetro.SonLVL.API
 		{
 			foreach (KeyValuePair<string, ObjectData> group in INIObjDefs)
 			{
+				if (group.Value.ArtCompression == CompressionType.Invalid)
+					group.Value.ArtCompression = Game.ObjectArtCompression;
 				byte ID;
 				if (group.Key == "Ring" && RingFormat is RingLayoutFormat)
 					((RingLayoutFormat)RingFormat).Init(group.Value);
