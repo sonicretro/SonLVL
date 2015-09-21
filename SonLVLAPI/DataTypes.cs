@@ -2432,19 +2432,15 @@ namespace SonicRetro.SonLVL.API
 						xr = x + 1;
 						break;
 					}
+				xl &= ~1;
 				if ((xr - xl) % 2 != 0)
-				{
-					if (xr != Width)
-						++xr;
-					else
-						--xl;
-				}
+					++xr;
 				result.Add((byte)(sbyte)(xl + Left));
 				result.Add((byte)(sbyte)(xr + Left));
 				result.Add((byte)(sbyte)(y + Top));
 				result.Add((byte)0);
 				for (int x = xl; x < xr; x++)
-					result.Add(Image[x, y]);
+					result.Add((byte)(x < Width ? Image[x, y] : 0));
 			}
 			result.AddRange(ByteConverter.GetBytes((short)0));
 			if (result.Count % 4 != 0)
