@@ -2409,8 +2409,10 @@ namespace SonicRetro.SonLVL.API
 		public void SaveChaotixSprite(string filename)
 		{
 			List<byte> result = new List<byte>();
-			result.AddRange(ByteConverter.GetBytes((short)Left));
-			result.AddRange(ByteConverter.GetBytes((short)(Right - 1)));
+			int left = Left & ~1;
+			int right = (Right & 1) == 1 ? Right + 1 : Right;
+			result.AddRange(ByteConverter.GetBytes((short)left));
+			result.AddRange(ByteConverter.GetBytes((short)(right - 1)));
 			result.Add((byte)(sbyte)Top);
 			result.Add((byte)0);
 			result.Add((byte)(sbyte)(Bottom - 1));
@@ -2435,8 +2437,8 @@ namespace SonicRetro.SonLVL.API
 				xl &= ~1;
 				if ((xr - xl) % 2 != 0)
 					++xr;
-				result.Add((byte)(sbyte)(xl + Left));
-				result.Add((byte)(sbyte)(xr + Left));
+				result.Add((byte)(sbyte)(xl + left));
+				result.Add((byte)(sbyte)(xr + left));
 				result.Add((byte)(sbyte)(y + Top));
 				result.Add((byte)0);
 				for (int x = xl; x < xr; x++)
