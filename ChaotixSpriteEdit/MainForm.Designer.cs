@@ -41,6 +41,7 @@
 			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.importFromROMToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -56,7 +57,8 @@
 			this.exportButton = new System.Windows.Forms.Button();
 			this.paletteContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.importPaletteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.importFromROMToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.importMDPaletteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.exportPaletteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			menuStrip1 = new System.Windows.Forms.MenuStrip();
 			toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			panel1 = new System.Windows.Forms.Panel();
@@ -116,6 +118,13 @@
 			this.openToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
 			this.openToolStripMenuItem.Text = "&Open...";
 			this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
+			// 
+			// importFromROMToolStripMenuItem
+			// 
+			this.importFromROMToolStripMenuItem.Name = "importFromROMToolStripMenuItem";
+			this.importFromROMToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
+			this.importFromROMToolStripMenuItem.Text = "&Import from ROM...";
+			this.importFromROMToolStripMenuItem.Click += new System.EventHandler(this.importFromROMToolStripMenuItem_Click);
 			// 
 			// saveToolStripMenuItem
 			// 
@@ -327,7 +336,7 @@
 			this.pencilToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.pencilToolStripButton.Image = global::ChaotixSpriteEdit.Properties.Resources.pencil;
 			this.pencilToolStripButton.Name = "pencilToolStripButton";
-			this.pencilToolStripButton.Size = new System.Drawing.Size(29, 20);
+			this.pencilToolStripButton.Size = new System.Drawing.Size(21, 20);
 			this.pencilToolStripButton.Text = "Pencil";
 			this.pencilToolStripButton.Click += new System.EventHandler(this.pencilToolStripButton_Click);
 			// 
@@ -336,7 +345,7 @@
 			this.fillToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
 			this.fillToolStripButton.Image = global::ChaotixSpriteEdit.Properties.Resources.fill;
 			this.fillToolStripButton.Name = "fillToolStripButton";
-			this.fillToolStripButton.Size = new System.Drawing.Size(29, 20);
+			this.fillToolStripButton.Size = new System.Drawing.Size(21, 20);
 			this.fillToolStripButton.Text = "Fill";
 			this.fillToolStripButton.Click += new System.EventHandler(this.fillToolStripButton_Click);
 			// 
@@ -367,23 +376,32 @@
 			// paletteContextMenuStrip
 			// 
 			this.paletteContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.importPaletteToolStripMenuItem});
+            this.importPaletteToolStripMenuItem,
+            this.importMDPaletteToolStripMenuItem,
+            this.exportPaletteToolStripMenuItem});
 			this.paletteContextMenuStrip.Name = "paletteContextMenuStrip";
-			this.paletteContextMenuStrip.Size = new System.Drawing.Size(111, 26);
+			this.paletteContextMenuStrip.Size = new System.Drawing.Size(153, 92);
 			// 
 			// importPaletteToolStripMenuItem
 			// 
 			this.importPaletteToolStripMenuItem.Name = "importPaletteToolStripMenuItem";
-			this.importPaletteToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
-			this.importPaletteToolStripMenuItem.Text = "Import";
+			this.importPaletteToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.importPaletteToolStripMenuItem.Text = "Import...";
 			this.importPaletteToolStripMenuItem.Click += new System.EventHandler(this.importPaletteToolStripMenuItem_Click);
 			// 
-			// importFromROMToolStripMenuItem
+			// importMDPaletteToolStripMenuItem
 			// 
-			this.importFromROMToolStripMenuItem.Name = "importFromROMToolStripMenuItem";
-			this.importFromROMToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
-			this.importFromROMToolStripMenuItem.Text = "&Import from ROM...";
-			this.importFromROMToolStripMenuItem.Click += new System.EventHandler(this.importFromROMToolStripMenuItem_Click);
+			this.importMDPaletteToolStripMenuItem.Name = "importMDPaletteToolStripMenuItem";
+			this.importMDPaletteToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.importMDPaletteToolStripMenuItem.Text = "Import MD...";
+			this.importMDPaletteToolStripMenuItem.Click += new System.EventHandler(this.importMDPaletteToolStripMenuItem_Click);
+			// 
+			// exportPaletteToolStripMenuItem
+			// 
+			this.exportPaletteToolStripMenuItem.Name = "exportPaletteToolStripMenuItem";
+			this.exportPaletteToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.exportPaletteToolStripMenuItem.Text = "Export...";
+			this.exportPaletteToolStripMenuItem.Click += new System.EventHandler(this.exportPaletteToolStripMenuItem_Click);
 			// 
 			// MainForm
 			// 
@@ -440,6 +458,8 @@
 		private System.Windows.Forms.ToolStripButton pencilToolStripButton;
 		private System.Windows.Forms.ToolStripButton fillToolStripButton;
 		private System.Windows.Forms.ToolStripMenuItem importFromROMToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem importMDPaletteToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem exportPaletteToolStripMenuItem;
 	}
 }
 

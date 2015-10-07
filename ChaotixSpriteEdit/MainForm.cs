@@ -89,14 +89,14 @@ namespace ChaotixSpriteEdit
 				{
 					byte[] file = File.ReadAllBytes(dlg.FileName);
 					using (SpriteAddressDialog adlg = new SpriteAddressDialog(file.Length))
-					if (adlg.ShowDialog(this)== System.Windows.Forms.DialogResult.OK)
-					{
-						sprite = Sprite.LoadChaotixSprite(file, adlg.Address);
-						spriteImagePanel.Size = new Size(sprite.Width * 4, sprite.Height * 4);
-						offsetXNumericUpDown.Value = sprite.X;
-						offsetYNumericUpDown.Value = sprite.Y;
-						spriteImagePanel.Invalidate();
-					}
+						if (adlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+						{
+							sprite = Sprite.LoadChaotixSprite(file, adlg.Address);
+							spriteImagePanel.Size = new Size(sprite.Width * 4, sprite.Height * 4);
+							offsetXNumericUpDown.Value = sprite.X;
+							offsetYNumericUpDown.Value = sprite.Y;
+							spriteImagePanel.Invalidate();
+						}
 				}
 		}
 
@@ -173,6 +173,31 @@ namespace ChaotixSpriteEdit
 					palettePanel.Invalidate();
 					spriteImagePanel.Invalidate();
 				}
+		}
+
+		private void importMDPaletteToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			using (OpenFileDialog a = new OpenFileDialog() { DefaultExt = "bin", Filter = "MD Palettes|*.bin", RestoreDirectory = true })
+				if (a.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+				{
+					SonLVLColor[] colors = SonLVLColor.Load(a.FileName, EngineVersion.S1);
+					for (int i = 0; i < colors.Length && selectedColor + i < palette.Entries.Length; i++)
+						palette.Entries[selectedColor + i] = colors[i].RGBColor;
+					palettePanel.Invalidate();
+					spriteImagePanel.Invalidate();
+				}
+		}
+
+		private void exportPaletteToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			using (SaveFileDialog a = new SaveFileDialog() { DefaultExt = "bin", Filter = "32X Palettes|*.bin", RestoreDirectory = true})
+			if (a.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+			{
+				List<byte> fc = new List<byte>(512);
+				for (int i = 0; i < 256; i++)
+					fc.AddRange(SonicRetro.SonLVL.API.ByteConverter.GetBytes(new SonLVLColor(palette.Entries[i]).X32Color));
+				File.WriteAllBytes(a.FileName, fc.ToArray());
+			}
 		}
 
 		private void palettePanel_MouseDoubleClick(object sender, MouseEventArgs e)
