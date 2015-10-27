@@ -874,6 +874,10 @@ namespace SonicRetro.SonLVL.LevelConverter
 						break;
 					case EngineVersion.S3K:
 					case EngineVersion.SKC:
+						while (LevelData.ColInds1.Count < 0x300)
+							LevelData.ColInds1.Add(0);
+						while (LevelData.ColInds2.Count < 0x300)
+							LevelData.ColInds2.Add(0);
 						tmp2 = new List<byte>();
 						for (int i = 0; i < LevelData.ColInds1.Count; i++)
 						{
