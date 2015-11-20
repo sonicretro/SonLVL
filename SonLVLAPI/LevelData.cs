@@ -3292,6 +3292,7 @@ namespace SonicRetro.SonLVL.API
 		Macro
 	}
 
+	[Serializable]
 	public class ColInfo
 	{
 		public Solidity Solidity { get; private set; }
