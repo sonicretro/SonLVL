@@ -5138,18 +5138,18 @@ namespace SonicRetro.SonLVL.GUI
 			if (showBlockBehindCollisionCheckBox.Checked)
 			{
 				e.Graphics.Clear(LevelData.PaletteToColor(2, 0, false));
-				e.Graphics.DrawImage(LevelData.CompBlockBmps[SelectedBlock], 0, 0, 64, 64);
-				e.Graphics.DrawImage(LevelData.ColBmpBits[SelectedCol].Scale(4).ToBitmap(Color.Transparent, Color.White), 0, 0, 64, 64);
+				e.Graphics.DrawImage(LevelData.CompBlockBmps[SelectedBlock], 0, 0, 128, 128);
+				e.Graphics.DrawImage(LevelData.ColBmpBits[SelectedCol].Scale(8).ToBitmap(Color.Transparent, Color.White), 0, 0, 128, 128);
 			}
 			else
-				e.Graphics.DrawImage(LevelData.ColBmpBits[SelectedCol].Scale(4).ToBitmap(Color.Black, Color.White), 0, 0, 64, 64);
+				e.Graphics.DrawImage(LevelData.ColBmpBits[SelectedCol].Scale(8).ToBitmap(Color.Black, Color.White), 0, 0, 128, 128);
 		}
 
 		private void ColPicture_MouseDown(object sender, MouseEventArgs e)
 		{
 			if (CollisionSelector.SelectedIndex == -1) return;
-			int x = e.X / 4;
-			int y = e.Y / 4;
+			int x = e.X / 8;
+			int y = e.Y / 8;
 			switch (e.Button)
 			{
 				case MouseButtons.Left:
@@ -5170,9 +5170,9 @@ namespace SonicRetro.SonLVL.GUI
 		private void ColPicture_MouseMove(object sender, MouseEventArgs e)
 		{
 			if (CollisionSelector.SelectedIndex == -1) return;
-			int x = e.X / 4;
+			int x = e.X / 8;
 			if (x < 0 | x > 15) return;
-			int y = e.Y / 4;
+			int y = e.Y / 8;
 			if (y < 0 | y > 16) return;
 			switch (e.Button)
 			{
