@@ -3958,22 +3958,40 @@ namespace SonicRetro.SonLVL.GUI
 						case ".png":
 						case ".jpg":
 						case ".gif":
-							Bitmap bmp = new Bitmap(a.FileName);
-							if ((bmp.PixelFormat & System.Drawing.Imaging.PixelFormat.Indexed) == System.Drawing.Imaging.PixelFormat.Indexed)
+							using (Bitmap bmp = new Bitmap(a.FileName))
 							{
-								Color[] pal = bmp.Palette.Entries;
-								for (int i = 0; i < pal.Length; i++)
+								if ((bmp.PixelFormat & PixelFormat.Indexed) == PixelFormat.Indexed)
 								{
-									LevelData.ColorToPalette(l, x, pal[i]);
-									x++;
-									if (x == 16)
+									Color[] pal = bmp.Palette.Entries;
+									for (int i = 0; i < pal.Length; i++)
 									{
-										x = 0;
-										l++;
+										LevelData.ColorToPalette(l, x++, pal[i]);
+										if (x == 16)
+										{
+											x = 0;
+											l++;
+											if (l == 4)
+												break;
+										}
+									}
+								}
+								else
+									for (int y = 0; y < bmp.Height; y += 8)
+									{
+										for (int ix = 0; ix < bmp.Width; ix += 8)
+										{
+											LevelData.ColorToPalette(l, x++, bmp.GetPixel(ix, y));
+											if (x == 16)
+											{
+												x = 0;
+												l++;
+												if (l == 4)
+													break;
+											}
+										}
 										if (l == 4)
 											break;
 									}
-								}
 							}
 							break;
 					}
