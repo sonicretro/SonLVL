@@ -10,5 +10,6 @@ Arguments:
     -c, --columns=number    Number of columns per row. Default 8.
     -w, --width=number      Width of the image. As many sprites will be
                             placed in each row as possible.
+    -g, --grid              Align all sprites in a grid.
     -b, --background=color  Background color, as a name or #RRGGBB.
                             Default Transparent.

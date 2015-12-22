@@ -1,11 +1,9 @@
-﻿using System;
+﻿using SonicRetro.SonLVL.API;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using SonicRetro.SonLVL.API;
 using System.ComponentModel;
-using System.Drawing.Imaging;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 
 namespace SpriteSheetGen
@@ -25,13 +23,15 @@ namespace SpriteSheetGen
 				new LongOpt("padding", Argument.Required, null, 'p'),
                 new LongOpt("columns", Argument.Required, null, 'c'),
 				new LongOpt("width", Argument.Required, null, 'w'),
-				new LongOpt("background", Argument.Required, null, 'b')
+				new LongOpt("background", Argument.Required, null, 'b'),
+				new LongOpt("grid", Argument.No, null, 'g')
             };
 			Getopt getopt = new Getopt("SpriteSheetGen", args, Getopt.digest(opts), opts);
 			int padding = 2;
 			int columns = 8;
 			int width = 0;
 			bool fixedwidth = false;
+			int gridsize = -1;
 			Color background = Color.Transparent;
 			int opt = getopt.getopt();
 			while (opt != -1)
@@ -51,6 +51,9 @@ namespace SpriteSheetGen
 						width = int.Parse(getopt.Optarg);
 						columns = -1;
 						fixedwidth = true;
+						break;
+					case 'g':
+						gridsize = 0;
 						break;
 					case 'b':
 						if (getopt.Optarg.StartsWith("#"))
@@ -130,6 +133,25 @@ namespace SpriteSheetGen
 			else
 				dplc = null;
 			List<Sprite> sprites = new List<Sprite>(map.Count);
+			if (gridsize == 0)
+			{
+				for (int i = 0; i < map.Count; i++)
+				{
+					if (map[i].TileCount == 0)
+					{
+						//File.AppendAllText("log.txt", "Frame " + i + " empty.\r\n");
+						continue;
+					}
+					Sprite spr;
+					if (dplc != null)
+						spr = new Sprite(LevelData.MapFrameToBmp(art, map[i], dplc[i], spriteInfo.StartPalette));
+					else
+						spr = new Sprite(LevelData.MapFrameToBmp(art, map[i], spriteInfo.StartPalette));
+					gridsize = Math.Max(gridsize, Math.Max(spr.Width, spr.Height));
+				}
+				if (!fixedwidth)
+					width = (padding * 2 + gridsize) * columns;
+			}
 			int x = padding;
 			int y = padding;
 			int height = 0;
@@ -147,28 +169,48 @@ namespace SpriteSheetGen
 					spr = new Sprite(LevelData.MapFrameToBmp(art, map[i], dplc[i], spriteInfo.StartPalette));
 				else
 					spr = new Sprite(LevelData.MapFrameToBmp(art, map[i], spriteInfo.StartPalette));
-				if (fixedwidth && x + spr.Width + padding > width)
+				if (gridsize == -1)
 				{
-					x = padding;
-					y += rowheight;
-					rowheight = 0;
-				}
-				spr.Offset = new System.Drawing.Point(x, y);
-				if (!fixedwidth && x + spr.Width + padding > width)
-					width = x + spr.Width + padding;
-				if (y + spr.Height + padding > height)
-					height = y + spr.Height + padding;
-				if (spr.Height + 2 * padding > rowheight)
-					rowheight = spr.Height + 2 * padding;
-				if (!fixedwidth && ++rowcnt == columns)
-				{
-					x = padding;
-					y += rowheight;
-					rowcnt = 0;
-					rowheight = 0;
+					if (fixedwidth && x + spr.Width + padding > width)
+					{
+						x = padding;
+						y += rowheight;
+						rowheight = 0;
+					}
+					spr.Offset = new System.Drawing.Point(x, y);
+					if (!fixedwidth)
+						width = Math.Max(width, x + spr.Width + padding);
+					height = Math.Max(height, y + spr.Height + padding);
+					if (spr.Height + 2 * padding > rowheight)
+						rowheight = spr.Height + 2 * padding;
+					if (!fixedwidth && ++rowcnt == columns)
+					{
+						x = padding;
+						y += rowheight;
+						rowcnt = 0;
+						rowheight = 0;
+					}
+					else
+						x += spr.Width + 2 * padding;
 				}
 				else
-					x += spr.Width + 2 * padding;
+				{
+					if (fixedwidth && x + gridsize + padding > width)
+					{
+						x = padding;
+						y += gridsize + 2 * padding;
+					}
+					spr.Offset = new System.Drawing.Point(x + (gridsize - spr.Width) / 2, y + (gridsize - spr.Height) / 2);
+					height = Math.Max(height, y + gridsize + padding);
+					if (!fixedwidth && ++rowcnt == columns)
+					{
+						x = padding;
+						y += gridsize + 2 * padding;
+						rowcnt = 0;
+					}
+					else
+						x += gridsize + 2 * padding;
+				}
 				sprites.Add(spr);
 			}
 			BitmapBits bmp2 = new BitmapBits(width, height);
