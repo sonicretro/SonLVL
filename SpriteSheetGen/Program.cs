@@ -59,7 +59,7 @@ namespace SpriteSheetGen
 						if (getopt.Optarg.StartsWith("#"))
 							background = Color.FromArgb((int)(0xFF000000 | uint.Parse(getopt.Optarg.Substring(1), System.Globalization.NumberStyles.HexNumber)));
 						else
-							background = Color.FromName(getopt.Optarg);
+							background = Color.FromName(getopt.Optarg.Replace(" ", ""));
 						break;
 				}
 				opt = getopt.getopt();
