@@ -133,30 +133,6 @@ namespace SpriteSheetGen
 			else
 				dplc = null;
 			List<Sprite> sprites = new List<Sprite>(map.Count);
-			if (gridsize == 0)
-			{
-				for (int i = 0; i < map.Count; i++)
-				{
-					if (map[i].TileCount == 0)
-					{
-						//File.AppendAllText("log.txt", "Frame " + i + " empty.\r\n");
-						continue;
-					}
-					Sprite spr;
-					if (dplc != null)
-						spr = new Sprite(LevelData.MapFrameToBmp(art, map[i], dplc[i], spriteInfo.StartPalette));
-					else
-						spr = new Sprite(LevelData.MapFrameToBmp(art, map[i], spriteInfo.StartPalette));
-					gridsize = Math.Max(gridsize, Math.Max(spr.Width, spr.Height));
-				}
-				if (!fixedwidth)
-					width = (padding * 2 + gridsize) * columns;
-			}
-			int x = padding;
-			int y = padding;
-			int height = 0;
-			int rowcnt = 0;
-			int rowheight = 0;
 			for (int i = 0; i < map.Count; i++)
 			{
 				if (map[i].TileCount == 0)
@@ -169,6 +145,55 @@ namespace SpriteSheetGen
 					spr = new Sprite(LevelData.MapFrameToBmp(art, map[i], dplc[i], spriteInfo.StartPalette));
 				else
 					spr = new Sprite(LevelData.MapFrameToBmp(art, map[i], spriteInfo.StartPalette));
+				for (int _x = 0; _x < spr.Width; _x++)
+					for (int _y = 0; _y < spr.Height; _y++)
+						if (spr.Image[_x, _y] != 0)
+						{
+							spr.Image = spr.Image.GetSection(_x, 0, spr.Width - _x, spr.Height);
+							goto checkright;
+						}
+			checkright:
+				for (int _x = spr.Width - 1; _x >= 0; _x--)
+					for (int _y = 0; _y < spr.Height; _y++)
+						if (spr.Image[_x, _y] != 0)
+						{
+							spr.Image = spr.Image.GetSection(0, 0, _x + 1, spr.Height);
+							goto checktop;
+						}
+			checktop:
+				for (int _y = 0; _y < spr.Height; _y++)
+					for (int _x = 0; _x < spr.Width; _x++)
+						if (spr.Image[_x, _y] != 0)
+						{
+							spr.Image = spr.Image.GetSection(0, _y, spr.Width, spr.Height - _y);
+							goto checkbottom;
+						}
+			checkbottom:
+				for (int _y = spr.Height - 1; _y >= 0; _y--)
+					for (int _x = 0; _x < spr.Width; _x++)
+						if (spr.Image[_x, _y] != 0)
+						{
+							spr.Image = spr.Image.GetSection(0, 0, spr.Width, _y + 1);
+							goto checkdone;
+						}
+			checkdone:
+				sprites.Add(spr);
+			}
+			if (gridsize == 0)
+			{
+				for (int i = 0; i < sprites.Count; i++)
+					gridsize = Math.Max(gridsize, Math.Max(sprites[i].Width, sprites[i].Height));
+				if (!fixedwidth)
+					width = (padding * 2 + gridsize) * columns;
+			}
+			int x = padding;
+			int y = padding;
+			int height = 0;
+			int rowcnt = 0;
+			int rowheight = 0;
+			for (int i = 0; i < sprites.Count; i++)
+			{
+				Sprite spr = sprites[i];
 				if (gridsize == -1)
 				{
 					if (fixedwidth && x + spr.Width + padding > width)
@@ -211,7 +236,7 @@ namespace SpriteSheetGen
 					else
 						x += gridsize + 2 * padding;
 				}
-				sprites.Add(spr);
+				sprites[i] = spr;
 			}
 			BitmapBits bmp2 = new BitmapBits(width, height);
 			foreach (Sprite spr in sprites)
