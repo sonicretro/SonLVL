@@ -1155,11 +1155,11 @@ namespace SonicRetro.SonLVL.GUI
 							}
 							if (dualPath)
 							{
-								LevelData.ColBmpBits[LevelData.ColInds1[i]].ToBitmap1bpp(Color.Black, Color.White).Save(pathBase + "_col1.png");
-								LevelData.ColBmpBits[LevelData.ColInds2[i]].ToBitmap1bpp(Color.Black, Color.White).Save(pathBase + "_col2.png");
+								LevelData.ColBmpBits[LevelData.GetColInd1(i)].ToBitmap1bpp(Color.Black, Color.White).Save(pathBase + "_col1.png");
+								LevelData.ColBmpBits[LevelData.GetColInd2(i)].ToBitmap1bpp(Color.Black, Color.White).Save(pathBase + "_col2.png");
 							}
 							else
-								LevelData.ColBmpBits[LevelData.ColInds1[i]].ToBitmap1bpp(Color.Black, Color.White).Save(pathBase + "_col.png");
+								LevelData.ColBmpBits[LevelData.GetColInd1(i)].ToBitmap1bpp(Color.Black, Color.White).Save(pathBase + "_col.png");
 							bits = new BitmapBits(16, 16);
 							for (int y = 0; y < 2; y++)
 								for (int x = 0; x < 2; x++)
@@ -1179,13 +1179,13 @@ namespace SonicRetro.SonLVL.GUI
 								bits = new BitmapBits(16, 16);
 							if (path1ToolStripMenuItem.Checked)
 							{
-								BitmapBits bmp = new BitmapBits(LevelData.ColBmpBits[LevelData.ColInds1[i]]);
+								BitmapBits bmp = new BitmapBits(LevelData.ColBmpBits[LevelData.GetColInd1(i)]);
 								bmp.IncrementIndexes(LevelData.ColorWhite - 1);
 								bits.DrawBitmapComposited(bmp, 0, 0);
 							}
 							else if (path2ToolStripMenuItem.Checked)
 							{
-								BitmapBits bmp = new BitmapBits(LevelData.ColBmpBits[LevelData.ColInds2[i]]);
+								BitmapBits bmp = new BitmapBits(LevelData.ColBmpBits[LevelData.GetColInd2(i)]);
 								bmp.IncrementIndexes(LevelData.ColorWhite - 1);
 								bits.DrawBitmapComposited(bmp, 0, 0);
 							}
@@ -1624,7 +1624,7 @@ namespace SonicRetro.SonLVL.GUI
 											if (blk.Block > LevelData.Blocks.Count) continue;
 											Solidity solid = path2ToolStripMenuItem.Checked ? ((S2ChunkBlock)blk).Solid2 : blk.Solid1;
 											if (solid == Solidity.NotSolid) continue;
-											byte coli = path2ToolStripMenuItem.Checked ? LevelData.ColInds2[blk.Block] : LevelData.ColInds1[blk.Block];
+											byte coli = path2ToolStripMenuItem.Checked ? LevelData.GetColInd2(blk.Block) : LevelData.GetColInd1(blk.Block);
 											byte angle = LevelData.Angles[coli];
 											if (angle != 0xFF)
 											{
@@ -1733,7 +1733,7 @@ namespace SonicRetro.SonLVL.GUI
 											if (blk.Block > LevelData.Blocks.Count) continue;
 											Solidity solid = path2ToolStripMenuItem.Checked ? ((S2ChunkBlock)blk).Solid2 : blk.Solid1;
 											if (solid == Solidity.NotSolid) continue;
-											byte coli = path2ToolStripMenuItem.Checked ? LevelData.ColInds2[blk.Block] : LevelData.ColInds1[blk.Block];
+											byte coli = path2ToolStripMenuItem.Checked ? LevelData.GetColInd2(blk.Block) : LevelData.GetColInd1(blk.Block);
 											byte angle = LevelData.Angles[coli];
 											if (angle != 0xFF)
 											{
@@ -1817,7 +1817,7 @@ namespace SonicRetro.SonLVL.GUI
 											if (blk.Block > LevelData.Blocks.Count) continue;
 											Solidity solid = path2ToolStripMenuItem.Checked ? ((S2ChunkBlock)blk).Solid2 : blk.Solid1;
 											if (solid == Solidity.NotSolid) continue;
-											byte coli = path2ToolStripMenuItem.Checked ? LevelData.ColInds2[blk.Block] : LevelData.ColInds1[blk.Block];
+											byte coli = path2ToolStripMenuItem.Checked ? LevelData.GetColInd2(blk.Block) : LevelData.GetColInd1(blk.Block);
 											byte angle = LevelData.Angles[coli];
 											if (angle != 0xFF)
 											{
@@ -3642,10 +3642,14 @@ namespace SonicRetro.SonLVL.GUI
 				SelectedBlockTile = new Point();
 				blockTileEditor.SelectedObject = LevelData.Blocks[SelectedBlock].Tiles[0, 0];
 				if (LevelData.ColInds1.Count > 0)
-				{
-					BlockCollision1.Value = LevelData.ColInds1[SelectedBlock];
-					BlockCollision2.Value = LevelData.ColInds2[SelectedBlock];
-				}
+					if (SelectedBlock < LevelData.ColInds1.Count)
+					{
+						ColIndBox.Enabled = true;
+						BlockCollision1.Value = LevelData.GetColInd1(SelectedBlock);
+						BlockCollision2.Value = LevelData.GetColInd2(SelectedBlock);
+					}
+					else
+						ColIndBox.Enabled = false;
 				BlockID.Text = SelectedBlock.ToString("X3");
 				BlockCount.Text = LevelData.Blocks.Count.ToString("X") + " / " + LevelData.GetBlockMax().ToString("X");
 				DrawBlockPicture();
@@ -3680,13 +3684,13 @@ namespace SonicRetro.SonLVL.GUI
 				bmp.DrawBitmapComposited(LevelData.BlockBmpBits[SelectedBlock][1], 0, 0);
 			if (path1ToolStripMenuItem.Checked)
 			{
-				BitmapBits tmp = new BitmapBits(LevelData.ColBmpBits[LevelData.ColInds1[SelectedBlock]]);
+				BitmapBits tmp = new BitmapBits(LevelData.ColBmpBits[LevelData.GetColInd1(SelectedBlock)]);
 				tmp.IncrementIndexes(LevelData.ColorWhite);
 				bmp.DrawBitmapComposited(tmp, 0, 0);
 			}
 			if (path2ToolStripMenuItem.Checked)
 			{
-				BitmapBits tmp = new BitmapBits(LevelData.ColBmpBits[LevelData.ColInds2[SelectedBlock]]);
+				BitmapBits tmp = new BitmapBits(LevelData.ColBmpBits[LevelData.GetColInd2(SelectedBlock)]);
 				tmp.IncrementIndexes(LevelData.ColorWhite);
 				bmp.DrawBitmapComposited(tmp, 0, 0);
 			}
@@ -6458,12 +6462,12 @@ namespace SonicRetro.SonLVL.GUI
 					if (path2ToolStripMenuItem.Checked)
 					{
 						solid = ((S2ChunkBlock)blk).Solid2;
-						colind = LevelData.ColInds2[blk.Block];
+						colind = LevelData.GetColInd2(blk.Block);
 					}
 					else
 					{
 						solid = blk.Solid1;
-						colind = LevelData.ColInds1[blk.Block];
+						colind = LevelData.GetColInd1(blk.Block);
 					}
 					if ((solid & Solidity.LRBSolid) == Solidity.LRBSolid)
 					{
@@ -6518,12 +6522,12 @@ namespace SonicRetro.SonLVL.GUI
 					if (path2ToolStripMenuItem.Checked)
 					{
 						solid = ((S2ChunkBlock)blk).Solid2;
-						colind = LevelData.ColInds2[blk.Block];
+						colind = LevelData.GetColInd2(blk.Block);
 					}
 					else
 					{
 						solid = blk.Solid1;
-						colind = LevelData.ColInds1[blk.Block];
+						colind = LevelData.GetColInd1(blk.Block);
 					}
 					if ((solid & Solidity.TopSolid) == Solidity.TopSolid)
 					{
@@ -6578,12 +6582,12 @@ namespace SonicRetro.SonLVL.GUI
 					if (path2ToolStripMenuItem.Checked)
 					{
 						solid = ((S2ChunkBlock)blk).Solid2;
-						colind = LevelData.ColInds2[blk.Block];
+						colind = LevelData.GetColInd2(blk.Block);
 					}
 					else
 					{
 						solid = blk.Solid1;
-						colind = LevelData.ColInds1[blk.Block];
+						colind = LevelData.GetColInd1(blk.Block);
 					}
 					if ((solid & Solidity.LRBSolid) == Solidity.LRBSolid)
 					{
@@ -6638,12 +6642,12 @@ namespace SonicRetro.SonLVL.GUI
 					if (path2ToolStripMenuItem.Checked)
 					{
 						solid = ((S2ChunkBlock)blk).Solid2;
-						colind = LevelData.ColInds2[blk.Block];
+						colind = LevelData.GetColInd2(blk.Block);
 					}
 					else
 					{
 						solid = blk.Solid1;
-						colind = LevelData.ColInds1[blk.Block];
+						colind = LevelData.GetColInd1(blk.Block);
 					}
 					if ((solid & Solidity.LRBSolid) == Solidity.LRBSolid)
 					{
@@ -8725,9 +8729,9 @@ namespace SonicRetro.SonLVL.GUI
 						blocks.Add(chunk.Blocks[x, y].Block);
 						if (ColInds1 != null)
 						{
-							ColInds1.Add(LevelData.ColInds1[chunk.Blocks[x, y].Block]);
+							ColInds1.Add(LevelData.GetColInd1(chunk.Blocks[x, y].Block));
 							if (ColInds2 != null)
-								ColInds2.Add(LevelData.ColInds2[chunk.Blocks[x, y].Block]);
+								ColInds2.Add(LevelData.GetColInd2(chunk.Blocks[x, y].Block));
 						}
 					}
 					Chunk.Blocks[x, y].Block = (ushort)i;

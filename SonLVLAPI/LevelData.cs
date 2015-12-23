@@ -2684,13 +2684,13 @@ namespace SonicRetro.SonLVL.API
 							bx * 16, by * 16);
 						if (ColInds1.Count > 0)
 						{
-							bmp = new BitmapBits(ColBmpBits[ColInds1[blk.Block]]);
+							bmp = new BitmapBits(ColBmpBits[GetColInd1(blk.Block)]);
 							bmp.IncrementIndexes((int)blk.Solid1 - 1);
 							bmp.Flip(blk.XFlip, blk.YFlip);
 							ChunkColBmpBits[chunk][0].DrawBitmap(bmp, bx * 16, by * 16);
 							if (blk is S2ChunkBlock)
 							{
-								bmp = new BitmapBits(ColBmpBits[ColInds2[blk.Block]]);
+								bmp = new BitmapBits(ColBmpBits[GetColInd2(blk.Block)]);
 								bmp.IncrementIndexes((int)((S2ChunkBlock)blk).Solid2 - 1);
 								bmp.Flip(blk.XFlip, blk.YFlip);
 								ChunkColBmpBits[chunk][1].DrawBitmap(bmp, bx * 16, by * 16);
@@ -2813,7 +2813,7 @@ namespace SonicRetro.SonLVL.API
 					bool dr = false;
 					for (int k = 0; k < Level.ChunkHeight / 16; k++)
 						for (int j = 0; j < Level.ChunkWidth / 16; j++)
-							if (ColInds1[Chunks[i].Blocks[j, k].Block] == block | ColInds2[Chunks[i].Blocks[j, k].Block] == block)
+							if (GetColInd1(Chunks[i].Blocks[j, k].Block) == block | GetColInd2(Chunks[i].Blocks[j, k].Block) == block)
 								dr = true;
 					if (dr)
 						RedrawChunk(i);
@@ -3251,6 +3251,20 @@ namespace SonicRetro.SonLVL.API
 			if (Game.BlockMax.HasValue)
 				blockmax = Game.BlockMax.Value;
 			return blockmax;
+		}
+
+		public static byte GetColInd1(int index)
+		{
+			if (index >= ColInds1.Count)
+				return 0;
+			return ColInds1[index];
+		}
+
+		public static byte GetColInd2(int index)
+		{
+			if (index >= ColInds2.Count)
+				return 0;
+			return ColInds2[index];
 		}
 	}
 
