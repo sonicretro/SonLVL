@@ -45,7 +45,7 @@ namespace SonicRetro.SonLVL
 					}
 					else
 						solidity2.Visible = false;
-					block.Maximum = LevelData.GetBlockMax();
+					block.Maximum = Math.Max(LevelData.GetBlockMax(), LevelData.Blocks.Count);
 					block.Value = value.Block;
 					blockList.Images = LevelData.CompBlockBmps;
 					blockList.ChangeSize();
@@ -106,7 +106,10 @@ namespace SonicRetro.SonLVL
 		private void blockList_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			if (!initializing && blockList.SelectedIndex > -1)
+			{
+				block.Maximum = Math.Max(LevelData.GetBlockMax(), LevelData.Blocks.Count);
 				block.Value = blockList.SelectedIndex;
+			}
 		}
 	}
 }
