@@ -2963,6 +2963,7 @@ namespace SonicRetro.SonLVL.GUI
 								DrawLevel();
 							}
 							pasteOnceToolStripMenuItem.Enabled = pasteRepeatingToolStripMenuItem.Enabled = Clipboard.ContainsData(typeof(LayoutSection).AssemblyQualifiedName);
+							pasteSectionOnceToolStripMenuItem.Enabled = pasteSectionRepeatingToolStripMenuItem.Enabled = layoutSectionListBox.SelectedIndex != -1;
 							layoutContextMenuStrip.Show(backgroundPanel, e.Location);
 							break;
 					}
