@@ -1065,6 +1065,9 @@ namespace SonicRetro.SonLVL.LevelConverter
 								break;
 							case 0x41:
 								break;
+							case 0x64:
+								item.ID = 0x24;
+								break;
 							case 0x71:
 								item.ID = 0x74;
 								break;
@@ -1159,6 +1162,9 @@ namespace SonicRetro.SonLVL.LevelConverter
 										break;
 								}
 								break;
+							case 0x64:
+								item.ID = 0x54;
+								break;
 							default:
 								known = false;
 								break;
@@ -1249,6 +1255,9 @@ namespace SonicRetro.SonLVL.LevelConverter
 					bool known = true;
 					switch (item.ID)
 					{
+						case 0x24:
+							item.ID = 0x64;
+							break;
 						case 0x26:
 							switch (item.SubType)
 							{
@@ -1335,6 +1344,9 @@ namespace SonicRetro.SonLVL.LevelConverter
 					bool known = true;
 					switch (item.ID)
 					{
+						case 0x24:
+							item.ID = 0x54;
+							break;
 						case 0x26:
 							item.ID = 1;
 							switch (item.SubType)
@@ -1498,6 +1510,9 @@ namespace SonicRetro.SonLVL.LevelConverter
 									break;
 							}
 							break;
+						case 0x54:
+							item.ID = 0x64;
+							break;
 						default:
 							known = false;
 							break;
@@ -1572,6 +1587,9 @@ namespace SonicRetro.SonLVL.LevelConverter
 									item.SubType = 10;
 									break;
 							}
+							break;
+						case 0x54:
+							item.ID = 0x24;
 							break;
 						default:
 							known = false;
