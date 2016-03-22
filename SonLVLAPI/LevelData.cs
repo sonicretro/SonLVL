@@ -656,6 +656,7 @@ namespace SonicRetro.SonLVL.API
 						{
 							case 0:
 							case 1:
+								Array.Resize(ref tmp, 0x600);
 								for (int i = 0; i < 0x600; i += 2)
 								{
 									ColInds1.Add(tmp[i]);
