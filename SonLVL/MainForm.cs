@@ -867,13 +867,30 @@ namespace SonicRetro.SonLVL.GUI
 		private void blendAlternatePaletteToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			using (AlternatePaletteDialog dlg = new AlternatePaletteDialog())
-			{
 				if (dlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
 				{
 					int underwater = LevelData.CurPal;
 					LevelData.CurPal = 0;
 					Color[,] pal = new Color[4, 16];
 					for (int l = 0; l < 4; l++)
+					{
+						bool doblend = false;
+						switch (l)
+						{
+							case 0:
+								doblend = dlg.Line1;
+								break;
+							case 1:
+								doblend = dlg.Line2;
+								break;
+							case 2:
+								doblend = dlg.Line3;
+								break;
+							case 3:
+								doblend = dlg.Line4;
+								break;
+						}
+						if (!doblend) continue;
 						for (int i = 0; i < 16; i++)
 						{
 							Color col = LevelData.PaletteToColor(l, i, false);
@@ -884,6 +901,7 @@ namespace SonicRetro.SonLVL.GUI
 							else
 								pal[l, i] = Color.FromArgb(Math.Max(col.R - dlg.BlendColor.R, 0), Math.Max(col.G - dlg.BlendColor.G, 0), Math.Max(col.B - dlg.BlendColor.B, 0));
 						}
+					}
 					LevelData.CurPal = dlg.paletteIndex.SelectedIndex + 1;
 					for (int l = 0; l < 4; l++)
 						for (int i = 0; i < 16; i++)
@@ -891,7 +909,6 @@ namespace SonicRetro.SonLVL.GUI
 					LevelData.CurPal = underwater;
 					LevelData.PaletteChanged();
 				}
-			}
 		}
 		#endregion
 

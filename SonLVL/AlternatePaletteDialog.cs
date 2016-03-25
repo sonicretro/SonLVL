@@ -25,6 +25,10 @@ namespace SonicRetro.SonLVL.GUI
 
 		int palnum;
 		public Color BlendColor { get; set; }
+		public bool Line1 { get { return checkBox1.Checked; } }
+		public bool Line2 { get { return checkBox2.Checked; } }
+		public bool Line3 { get { return checkBox3.Checked; } }
+		public bool Line4 { get { return checkBox4.Checked; } }
 
 		private void UnderwaterPaletteDialog_Load(object sender, EventArgs e)
 		{
@@ -73,17 +77,38 @@ namespace SonicRetro.SonLVL.GUI
 			Bitmap bmp = new Bitmap(256, 64);
 			Graphics gfx = Graphics.FromImage(bmp);
 			for (int l = 0; l < 4; l++)
+			{
+				bool doblend = false;
+				switch (l)
+				{
+					case 0:
+						doblend = checkBox1.Checked;
+						break;
+					case 1:
+						doblend = checkBox2.Checked;
+						break;
+					case 2:
+						doblend = checkBox3.Checked;
+						break;
+					case 3:
+						doblend = checkBox4.Checked;
+						break;
+				}
 				for (int i = 0; i < 16; i++)
 				{
 					Color col = LevelData.PaletteToColor(l, i, false);
-					if (radioButton1.Checked)
-						col = col.Blend(BlendColor);
-					else if (radioButton2.Checked)
-						col = Color.FromArgb(Math.Min(col.R + BlendColor.R, 255), Math.Min(col.G + BlendColor.G, 255), Math.Min(col.B + BlendColor.B, 255));
-					else
-						col = Color.FromArgb(Math.Max(col.R - BlendColor.R, 0), Math.Max(col.G - BlendColor.G, 0), Math.Max(col.B - BlendColor.B, 0));
+					if (doblend)
+					{
+						if (radioButton1.Checked)
+							col = col.Blend(BlendColor);
+						else if (radioButton2.Checked)
+							col = Color.FromArgb(Math.Min(col.R + BlendColor.R, 255), Math.Min(col.G + BlendColor.G, 255), Math.Min(col.B + BlendColor.B, 255));
+						else
+							col = Color.FromArgb(Math.Max(col.R - BlendColor.R, 0), Math.Max(col.G - BlendColor.G, 0), Math.Max(col.B - BlendColor.B, 0));
+					}
 					gfx.FillRectangle(new SolidBrush(col), i * 16, l * 16, 16, 16);
 				}
+			}
 			pictureBox2.Image = bmp;
 			LevelData.CurPal = palnum;
 		}
