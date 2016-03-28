@@ -895,17 +895,13 @@ namespace SonicRetro.SonLVL.GUI
 						{
 							Color col = LevelData.PaletteToColor(l, i, false);
 							if (dlg.radioButton1.Checked)
-								pal[l, i] = col.Blend(dlg.BlendColor);
+								LevelData.Palette[dlg.paletteIndex.SelectedIndex + 1][l, i] = new SonLVLColor(col.Blend(dlg.BlendColor));
 							else if (dlg.radioButton2.Checked)
-								pal[l, i] = Color.FromArgb(Math.Min(col.R + dlg.BlendColor.R, 255), Math.Min(col.G + dlg.BlendColor.G, 255), Math.Min(col.B + dlg.BlendColor.B, 255));
+								LevelData.Palette[dlg.paletteIndex.SelectedIndex + 1][l, i] = new SonLVLColor(Color.FromArgb(Math.Min(col.R + dlg.BlendColor.R, 255), Math.Min(col.G + dlg.BlendColor.G, 255), Math.Min(col.B + dlg.BlendColor.B, 255)));
 							else
-								pal[l, i] = Color.FromArgb(Math.Max(col.R - dlg.BlendColor.R, 0), Math.Max(col.G - dlg.BlendColor.G, 0), Math.Max(col.B - dlg.BlendColor.B, 0));
+								LevelData.Palette[dlg.paletteIndex.SelectedIndex + 1][l, i] = new SonLVLColor(Color.FromArgb(Math.Max(col.R - dlg.BlendColor.R, 0), Math.Max(col.G - dlg.BlendColor.G, 0), Math.Max(col.B - dlg.BlendColor.B, 0)));
 						}
 					}
-					LevelData.CurPal = dlg.paletteIndex.SelectedIndex + 1;
-					for (int l = 0; l < 4; l++)
-						for (int i = 0; i < 16; i++)
-							LevelData.ColorToPalette(l, i, pal[l, i]);
 					LevelData.CurPal = underwater;
 					LevelData.PaletteChanged();
 				}
