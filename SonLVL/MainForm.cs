@@ -3470,7 +3470,10 @@ namespace SonicRetro.SonLVL.GUI
 			switch (e.KeyCode)
 			{
 				case Keys.B:
-					current.Block = (ushort)((current.Block + 1) % LevelData.Blocks.Count);
+					if (e.Shift)
+						current.Block = (ushort)(current.Block == 0 ? LevelData.Blocks.Count - 1 : current.Block - 1);
+					else
+						current.Block = (ushort)((current.Block + 1) % LevelData.Blocks.Count);
 					break;
 				case Keys.Down:
 					if (SelectedChunkBlock.Y < (LevelData.Level.ChunkHeight / 16) - 1)
@@ -3506,13 +3509,19 @@ namespace SonicRetro.SonLVL.GUI
 						return;
 					break;
 				case Keys.S:
-					current.Solid1++;
+					if (e.Shift)
+						current.Solid1--;
+					else
+						current.Solid1++;
 					break;
 				case Keys.T:
 					if (!(current is S2ChunkBlock))
 						return;
 					S2ChunkBlock cur2 = (S2ChunkBlock)current;
-					cur2.Solid2++;
+					if (e.Shift)
+						cur2.Solid2--;
+					else
+						cur2.Solid2++;
 					break;
 				case Keys.Up:
 					if (SelectedChunkBlock.Y > 0)
@@ -3729,7 +3738,10 @@ namespace SonicRetro.SonLVL.GUI
 			switch (e.KeyCode)
 			{
 				case Keys.C:
-					current.Palette++;
+					if (e.Shift)
+						current.Palette--;
+					else
+						current.Palette++;
 					break;
 				case Keys.Down:
 					if (SelectedBlockTile.Y < 1)
@@ -3768,7 +3780,10 @@ namespace SonicRetro.SonLVL.GUI
 						return;
 					break;
 				case Keys.T:
-					current.Tile = (ushort)((current.Tile + 1) % LevelData.Tiles.Count);
+					if (e.Shift)
+						current.Tile = (ushort)(current.Tile == 0 ? LevelData.Tiles.Count - 1 : current.Tile - 1);
+					else
+						current.Tile = (ushort)((current.Tile + 1) % LevelData.Tiles.Count);
 					break;
 				case Keys.Up:
 					if (SelectedBlockTile.Y > 0)

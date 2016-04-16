@@ -10,27 +10,29 @@ Ctrl+Z: Undo
 Ctrl+Y: Redo
 Alt+Enter: Enable/Disable fullscreen mode.
 F5: Show/Hide the menu.
-Ctrl+1: Switch to Objects tab
-Ctrl+2: Switch to Foreground tab
-Ctrl+3: Switch to Background tab
-Ctrl+4: Switch to Chunks tab
-Ctrl+5: Switch to Blocks tab
-Ctrl+6: Switch to Tiles tab
-Ctrl+7: Switch to Solids tab
-Q: Disable collision viewing
-W: View collision path 1
-E: View collision path 2
-R: Toggle viewing of angle values
-T: Toggle objects above/below high plane
-Y: Toggle viewing of low plane
-U: Toggle viewing of high plane
-I: Toggle grid
-O: Toggle HUD
-P: Toggle viewing of objects from all timezones (Sonic CD only)
-[: View previous palette
-]: View next palette
--: Zoom out
-+: Zoom in
+Ctrl+Tab: Switch to next tab.
+Ctrl+Shift+Tab: Switch to previous tab.
+Ctrl+1: Switch to Objects tab.
+Ctrl+2: Switch to Foreground tab.
+Ctrl+3: Switch to Background tab.
+Ctrl+4: Switch to Chunks tab.
+Ctrl+5: Switch to Blocks tab.
+Ctrl+6: Switch to Tiles tab.
+Ctrl+7: Switch to Solids tab.
+Q: Disable collision viewing.
+W: View collision path 1.
+E: View collision path 2.
+R: Toggle viewing of angle values.
+T: Toggle objects above/below high plane.
+Y: Toggle viewing of low plane.
+U: Toggle viewing of high plane.
+I: Toggle grid.
+O: Toggle HUD.
+P: Toggle viewing of objects from all timezones (Sonic CD only).
+[: View previous palette.
+]: View next palette.
+-: Zoom out.
++: Zoom in.
 
 Object Editing:
 Left click: Select an object or ring group. Hold Ctrl to select multiple objects.
@@ -45,8 +47,8 @@ A: Decrease type of all selected objects. (no undo)
 Z: Increase type of all selected objects. (no undo)
 S: Decrease subtype of all selected objects. (no undo)
 X: Increase subtype of all selected objects. (no undo)
-J: Increase grid size
-M: Decrease grid size
+J: Increase grid size.
+M: Decrease grid size.
 Ctrl+X: Cut selected objects.
 Ctrl+Y: Copy selected objects.
 Ctrl+V: Paste copied objects.
@@ -67,8 +69,11 @@ Up, Down, Left, Right: Change selected chunk block.
 X: Flip horizontally.
 Y: Flip vertically.
 S: Increment solidity.
+Shift+S: Decrement solidity.
 T: Increment secondary solidity (S2/S3K chunks only).
+Shift+T: Decrement secondary solidity (S2/S3K chunks only).
 B: Increment block index.
+Shift+B: Decrement block index.
 
 Block Editing:
 Click and drag blocks in the block list to re-order them, hold Ctrl to swap two blocks.
@@ -78,7 +83,9 @@ X: Flip horizontally.
 Y: Flip vertically.
 P: Toggle priority.
 C: Increment palette.
+Shift+C: Decrement palette.
 T: Increment tile index.
+Shift+T: Decrement tile index.
 
 Tile Editing:
 Click and drag tiles in the tile list to re-order them, hold Ctrl to swap two tiles.
