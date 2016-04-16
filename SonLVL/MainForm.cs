@@ -4198,9 +4198,8 @@ namespace SonicRetro.SonLVL.GUI
 			LevelData.CompBlockBmps.RemoveAt(SelectedBlock);
 			LevelData.CompBlockBmpBits.RemoveAt(SelectedBlock);
 			LevelData.ColInds1.RemoveAt(SelectedBlock);
-			if (LevelData.Game.EngineVersion == EngineVersion.S2 || LevelData.Game.EngineVersion == EngineVersion.S2NA || LevelData.Game.EngineVersion == EngineVersion.S3K || LevelData.Game.EngineVersion == EngineVersion.SKC)
-				if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2))
-					LevelData.ColInds2.RemoveAt(SelectedBlock);
+			if (LevelData.ColInds2 != null && LevelData.ColInds2 != LevelData.ColInds1)
+				LevelData.ColInds2.RemoveAt(SelectedBlock);
 			for (int i = 0; i < LevelData.Chunks.Count; i++)
 			{
 				bool dr = false;
@@ -4283,9 +4282,8 @@ namespace SonicRetro.SonLVL.GUI
 			LevelData.CompBlockBmps.Insert(SelectedBlock, null);
 			LevelData.CompBlockBmpBits.Insert(SelectedBlock, null);
 			LevelData.ColInds1.Insert(SelectedBlock, 0);
-			if (LevelData.Game.EngineVersion == EngineVersion.S2 || LevelData.Game.EngineVersion == EngineVersion.S2NA || LevelData.Game.EngineVersion == EngineVersion.S3K || LevelData.Game.EngineVersion == EngineVersion.SKC)
-				if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2))
-					LevelData.ColInds2.Insert(SelectedBlock, 0);
+			if (LevelData.ColInds2 != null && LevelData.ColInds2 != LevelData.ColInds1)
+				LevelData.ColInds2.Insert(SelectedBlock, 0);
 			for (int i = 0; i < LevelData.Chunks.Count; i++)
 				for (int y = 0; y < LevelData.Level.ChunkHeight / 16; y++)
 					for (int x = 0; x < LevelData.Level.ChunkWidth / 16; x++)
