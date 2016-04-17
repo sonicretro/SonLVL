@@ -55,7 +55,7 @@ namespace SonicRetro.SonLVL.GUI
 			DrawChunkPicture();
 			chunkBlockEditor.Invalidate();
 			DrawBlockPicture();
-			blockTileEditor.SelectedObject = blockTileEditor.SelectedObject;
+			blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 			curpal = new Color[16];
 			for (int i = 0; i < 16; i++)
 				curpal[i] = LevelData.PaletteToColor(SelectedColor.Y, i, false);
@@ -111,8 +111,8 @@ namespace SonicRetro.SonLVL.GUI
 		List<Bitmap> savedLayoutSectionImages;
 		int waterPalette;
 		ushort waterHeight = 0x600;
-		MouseButtons chunkblockMouse1 = MouseButtons.Left;
-		MouseButtons chunkblockMouse2 = MouseButtons.Right;
+		MouseButtons chunkblockMouseDraw = MouseButtons.Left;
+		MouseButtons chunkblockMouseSelect = MouseButtons.Right;
 
 		internal void Log(params string[] lines)
 		{
@@ -2900,8 +2900,8 @@ namespace SonicRetro.SonLVL.GUI
 					}
 					break;
 				case EditingMode.Select:
-					if (e.Button == MouseButtons.Left & selecting)
-						FGSelection = new Rectangle(Math.Min(FGSelection.X, chunkpoint.X), Math.Min(FGSelection.Y, chunkpoint.Y), Math.Abs(FGSelection.X - chunkpoint.X) + 1, Math.Abs(FGSelection.Y - chunkpoint.Y) + 1);
+					if (e.Button == MouseButtons.Left && selecting)
+						FGSelection = Rectangle.FromLTRB(Math.Min(FGSelection.Left, chunkpoint.X), Math.Min(FGSelection.Top, chunkpoint.Y), Math.Max(FGSelection.Right, chunkpoint.X + 1), Math.Max(FGSelection.Bottom, chunkpoint.Y + 1));
 					break;
 			}
 			if (chunkpoint != lastchunkpoint) DrawLevel();
@@ -3010,8 +3010,8 @@ namespace SonicRetro.SonLVL.GUI
 					}
 					break;
 				case EditingMode.Select:
-					if (e.Button == MouseButtons.Left & selecting)
-						BGSelection = new Rectangle(Math.Min(BGSelection.X, chunkpoint.X), Math.Min(BGSelection.Y, chunkpoint.Y), Math.Abs(BGSelection.X - chunkpoint.X) + 1, Math.Abs(BGSelection.Y - chunkpoint.Y) + 1);
+					if (e.Button == MouseButtons.Left && selecting)
+						BGSelection = Rectangle.FromLTRB(Math.Min(BGSelection.Left, chunkpoint.X), Math.Min(BGSelection.Top, chunkpoint.Y), Math.Max(BGSelection.Right, chunkpoint.X + 1), Math.Max(BGSelection.Bottom, chunkpoint.Y + 1));
 					break;
 			}
 			if (chunkpoint != lastchunkpoint) DrawLevel();
@@ -3039,8 +3039,8 @@ namespace SonicRetro.SonLVL.GUI
 			if (ChunkSelector.SelectedIndex == -1 | ChunkSelector.SelectedIndex >= LevelData.Chunks.Count) return;
 			importChunksToolStripButton.Enabled = LevelData.Chunks.Count < 256;
 			SelectedChunk = (byte)ChunkSelector.SelectedIndex;
-			SelectedChunkBlock = new Point();
-			chunkBlockEditor.SelectedObject = LevelData.Chunks[SelectedChunk].Blocks[0, 0];
+			SelectedChunkBlock = new Rectangle(0, 0, 1, 1);
+			chunkBlockEditor.SelectedObjects = new[] { LevelData.Chunks[SelectedChunk].Blocks[0, 0] };
 			ChunkPicture.Invalidate();
 			ChunkID.Text = SelectedChunk.ToString("X2");
 			ChunkCount.Text = LevelData.Chunks.Count.ToString("X") + " / 100";
@@ -3413,28 +3413,19 @@ namespace SonicRetro.SonLVL.GUI
 			DrawLevel();
 		}
 
-		public int SelectedBlock, SelectedTile;
-		public Point SelectedChunkBlock, SelectedBlockTile, SelectedColor;
+		int SelectedBlock, SelectedTile;
+		Rectangle SelectedChunkBlock, SelectedBlockTile;
+		Point SelectedColor;
 		PatternIndex copiedBlockTile;
 		ChunkBlock copiedChunkBlock;
 
-		private void ChunkPicture_MouseClick(object sender, MouseEventArgs e)
-		{
-			if (!loaded || e.Button != chunkblockMouse2) return;
-			SelectedChunkBlock = new Point(e.X / 16, e.Y / 16);
-			ChunkBlock blk = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
-			if (blk.Block < LevelData.Blocks.Count)
-				BlockSelector.SelectedIndex = blk.Block;
-			copiedChunkBlock = chunkBlockEditor.SelectedObject = blk;
-			DrawChunkPicture();
-		}
-
 		private void ChunkPicture_MouseMove(object sender, MouseEventArgs e)
 		{
-			if (loaded && e.Button == chunkblockMouse1)
-				if (e.X > 0 && e.Y > 0 && e.X < LevelData.Level.ChunkWidth && e.Y < LevelData.Level.ChunkHeight)
+			if (!loaded) return;
+			if (e.X > 0 && e.Y > 0 && e.X < LevelData.Level.ChunkWidth && e.Y < LevelData.Level.ChunkHeight)
+				if (e.Button == chunkblockMouseDraw)
 				{
-					SelectedChunkBlock = new Point(e.X / 16, e.Y / 16);
+					SelectedChunkBlock = new Rectangle(e.X / 16, e.Y / 16, 1, 1);
 					ChunkBlock destBlock = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
 					destBlock.Block = copiedChunkBlock.Block;
 					destBlock.Solid1 = copiedChunkBlock.Solid1;
@@ -3442,20 +3433,47 @@ namespace SonicRetro.SonLVL.GUI
 					destBlock.YFlip = copiedChunkBlock.YFlip;
 					if (copiedChunkBlock is S2ChunkBlock)
 						((S2ChunkBlock)destBlock).Solid2 = ((S2ChunkBlock)copiedChunkBlock).Solid2;
-					chunkBlockEditor.SelectedObject = destBlock;
+					chunkBlockEditor.SelectedObjects = new[] { destBlock };
 					LevelData.RedrawChunk(SelectedChunk);
+					DrawChunkPicture();
+				}
+				else if (e.Button == chunkblockMouseSelect)
+				{
+					SelectedChunkBlock = Rectangle.FromLTRB(Math.Min(SelectedChunkBlock.Left, e.X / 16), Math.Min(SelectedChunkBlock.Top, e.Y / 16), Math.Max(SelectedChunkBlock.Right, e.X / 16 + 1), Math.Max(SelectedChunkBlock.Bottom, e.Y / 16 + 1));
+					copiedChunkBlock = (chunkBlockEditor.SelectedObjects = GetSelectedChunkBlocks())[0];
 					DrawChunkPicture();
 				}
 		}
 
+		private ChunkBlock[] GetSelectedChunkBlocks()
+		{
+			ChunkBlock[] blocks = new ChunkBlock[SelectedChunkBlock.Width * SelectedChunkBlock.Height];
+			int i = 0;
+			for (int y = SelectedChunkBlock.Top; y < SelectedChunkBlock.Bottom; y++)
+				for (int x = SelectedChunkBlock.Left; x < SelectedChunkBlock.Right; x++)
+					blocks[i++] = LevelData.Chunks[SelectedChunk].Blocks[x, y];
+			return blocks;
+		}
+
 		private void ChunkPicture_MouseDown(object sender, MouseEventArgs e)
 		{
-			ChunkPicture_MouseMove(sender, e);
+			if (!loaded) return;
+			if (e.Button == chunkblockMouseDraw)
+				ChunkPicture_MouseMove(sender, e);
+			else if (e.Button == chunkblockMouseSelect)
+			{
+				SelectedChunkBlock = new Rectangle(e.X / 16, e.Y / 16, 1, 1);
+				ChunkBlock blk = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
+				if (blk.Block < LevelData.Blocks.Count)
+					BlockSelector.SelectedIndex = blk.Block;
+				chunkBlockEditor.SelectedObjects = new[] { copiedChunkBlock = blk };
+				DrawChunkPicture();
+			}
 		}
 
 		private void ChunkPicture_MouseUp(object sender, MouseEventArgs e)
 		{
-			if (loaded && e.Button == chunkblockMouse1)
+			if (loaded && e.Button == chunkblockMouseDraw)
 			{
 				LevelData.RedrawChunk(SelectedChunk);
 				DrawLevel();
@@ -3466,20 +3484,21 @@ namespace SonicRetro.SonLVL.GUI
 		private void ChunkPicture_KeyDown(object sender, KeyEventArgs e)
 		{
 			if (!loaded) return;
-			ChunkBlock current = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
+			ChunkBlock[] blocks = GetSelectedChunkBlocks();
 			switch (e.KeyCode)
 			{
 				case Keys.B:
-					if (e.Shift)
-						current.Block = (ushort)(current.Block == 0 ? LevelData.Blocks.Count - 1 : current.Block - 1);
-					else
-						current.Block = (ushort)((current.Block + 1) % LevelData.Blocks.Count);
+					foreach (ChunkBlock item in blocks)
+						if (e.Shift)
+							item.Block = (ushort)(item.Block == 0 ? LevelData.Blocks.Count - 1 : item.Block - 1);
+						else
+							item.Block = (ushort)((item.Block + 1) % LevelData.Blocks.Count);
 					break;
 				case Keys.Down:
 					if (SelectedChunkBlock.Y < (LevelData.Level.ChunkHeight / 16) - 1)
 					{
-						SelectedChunkBlock = new Point(SelectedChunkBlock.X, SelectedChunkBlock.Y + 1);
-						current = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
+						SelectedChunkBlock = new Rectangle(SelectedChunkBlock.X, SelectedChunkBlock.Y + 1, 1, 1);
+						ChunkBlock current = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
 						if (current.Block < LevelData.Blocks.Count)
 							BlockSelector.SelectedIndex = current.Block;
 					}
@@ -3489,8 +3508,8 @@ namespace SonicRetro.SonLVL.GUI
 				case Keys.Left:
 					if (SelectedChunkBlock.X > 0)
 					{
-						SelectedChunkBlock = new Point(SelectedChunkBlock.X - 1, SelectedChunkBlock.Y);
-						current = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
+						SelectedChunkBlock = new Rectangle(SelectedChunkBlock.X - 1, SelectedChunkBlock.Y, 1, 1);
+						ChunkBlock current = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
 						if (current.Block < LevelData.Blocks.Count)
 							BlockSelector.SelectedIndex = current.Block;
 					}
@@ -3500,8 +3519,8 @@ namespace SonicRetro.SonLVL.GUI
 				case Keys.Right:
 					if (SelectedChunkBlock.X < (LevelData.Level.ChunkWidth / 16) - 1)
 					{
-						SelectedChunkBlock = new Point(SelectedChunkBlock.X + 1, SelectedChunkBlock.Y);
-						current = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
+						SelectedChunkBlock = new Rectangle(SelectedChunkBlock.X + 1, SelectedChunkBlock.Y, 1, 1);
+						ChunkBlock current = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
 						if (current.Block < LevelData.Blocks.Count)
 							BlockSelector.SelectedIndex = current.Block;
 					}
@@ -3509,25 +3528,29 @@ namespace SonicRetro.SonLVL.GUI
 						return;
 					break;
 				case Keys.S:
-					if (e.Shift)
-						current.Solid1--;
-					else
-						current.Solid1++;
+					foreach (ChunkBlock item in blocks)
+						if (e.Shift)
+							item.Solid1--;
+						else
+							item.Solid1++;
 					break;
 				case Keys.T:
-					if (!(current is S2ChunkBlock))
+					if (!(blocks[0] is S2ChunkBlock))
 						return;
-					S2ChunkBlock cur2 = (S2ChunkBlock)current;
-					if (e.Shift)
-						cur2.Solid2--;
-					else
-						cur2.Solid2++;
+					foreach (ChunkBlock item in blocks)
+					{
+						S2ChunkBlock cur2 = (S2ChunkBlock)item;
+						if (e.Shift)
+							cur2.Solid2--;
+						else
+							cur2.Solid2++;
+					}
 					break;
 				case Keys.Up:
 					if (SelectedChunkBlock.Y > 0)
 					{
-						SelectedChunkBlock = new Point(SelectedChunkBlock.X, SelectedChunkBlock.Y - 1);
-						current = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
+						SelectedChunkBlock = new Rectangle(SelectedChunkBlock.X, SelectedChunkBlock.Y - 1, 1, 1);
+						ChunkBlock current = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
 						if (current.Block < LevelData.Blocks.Count)
 							BlockSelector.SelectedIndex = current.Block;
 					}
@@ -3535,10 +3558,12 @@ namespace SonicRetro.SonLVL.GUI
 						return;
 					break;
 				case Keys.X:
-					current.XFlip = !current.XFlip;
+					foreach (ChunkBlock item in blocks)
+						item.XFlip = !item.XFlip;
 					break;
 				case Keys.Y:
-					current.YFlip = !current.YFlip;
+					foreach (ChunkBlock item in blocks)
+						item.YFlip = !item.YFlip;
 					break;
 				default:
 					return;
@@ -3546,7 +3571,7 @@ namespace SonicRetro.SonLVL.GUI
 			LevelData.RedrawChunk(SelectedChunk);
 			DrawLevel();
 			DrawChunkPicture();
-			copiedChunkBlock = chunkBlockEditor.SelectedObject = current;
+			copiedChunkBlock = (chunkBlockEditor.SelectedObjects = blocks)[0];
 		}
 
 		private void chunkBlockEditor_PropertyValueChanged(object sender, EventArgs e)
@@ -3569,7 +3594,7 @@ namespace SonicRetro.SonLVL.GUI
 				bmp.DrawBitmapComposited(LevelData.ChunkColBmpBits[SelectedChunk][0], 0, 0);
 			if (path2ToolStripMenuItem.Checked)
 				bmp.DrawBitmapComposited(LevelData.ChunkColBmpBits[SelectedChunk][1], 0, 0);
-			bmp.DrawRectangle(LevelData.ColorWhite, SelectedChunkBlock.X * 16 - 1, SelectedChunkBlock.Y * 16 - 1, 18, 18);
+			bmp.DrawRectangle(LevelData.ColorWhite, SelectedChunkBlock.X * 16 - 1, SelectedChunkBlock.Y * 16 - 1, SelectedChunkBlock.Width * 16 + 2, SelectedChunkBlock.Height * 16 + 2);
 			using (Graphics gfx = ChunkPicture.CreateGraphics())
 			{
 				gfx.Clear(LevelData.PaletteToColor(2, 0, false));
@@ -3589,7 +3614,7 @@ namespace SonicRetro.SonLVL.GUI
 			LevelData.RedrawChunk(SelectedChunk);
 			if (newcnk.Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y].Block < LevelData.Blocks.Count)
 				BlockSelector.SelectedIndex = newcnk.Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y].Block;
-			copiedChunkBlock = chunkBlockEditor.SelectedObject = newcnk.Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
+			copiedChunkBlock = (chunkBlockEditor.SelectedObjects = GetSelectedChunkBlocks())[0];
 			DrawChunkPicture();
 		}
 
@@ -3600,47 +3625,64 @@ namespace SonicRetro.SonLVL.GUI
 			LevelData.RedrawChunk(SelectedChunk);
 			if (newcnk.Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y].Block < LevelData.Blocks.Count)
 				BlockSelector.SelectedIndex = newcnk.Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y].Block;
-			chunkBlockEditor.SelectedObject = newcnk.Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
+			copiedChunkBlock = (chunkBlockEditor.SelectedObjects = GetSelectedChunkBlocks())[0];
 			DrawChunkPicture();
-		}
-
-		private void BlockPicture_MouseClick(object sender, MouseEventArgs e)
-		{
-			if (!loaded || e.Button != chunkblockMouse2) return;
-			SelectedBlockTile = new Point(e.X / 64, e.Y / 64);
-			PatternIndex til = LevelData.Blocks[SelectedBlock].Tiles[e.X / 64, e.Y / 64];
-			if (til.Tile < LevelData.Tiles.Count)
-				TileSelector.SelectedIndex = til.Tile;
-			copiedBlockTile = blockTileEditor.SelectedObject = til;
-			DrawBlockPicture();
 		}
 
 		private void BlockPicture_MouseMove(object sender, MouseEventArgs e)
 		{
-			if (loaded && e.Button == chunkblockMouse1)
-				if (e.X > 0 && e.Y > 0 && e.X < 128 && e.Y < 128)
+			if (!loaded) return;
+			if (e.X > 0 && e.Y > 0 && e.X < 128 && e.Y < 128)
+				if (e.Button == chunkblockMouseDraw)
 				{
-					SelectedBlockTile = new Point(e.X / 64, e.Y / 64);
+					SelectedBlockTile = new Rectangle(e.X / 64, e.Y / 64, 1, 1);
 					PatternIndex destTile = LevelData.Blocks[SelectedBlock].Tiles[SelectedBlockTile.X, SelectedBlockTile.Y];
 					destTile.Tile = copiedBlockTile.Tile;
 					destTile.Palette = copiedBlockTile.Palette;
 					destTile.Priority = copiedBlockTile.Priority;
 					destTile.XFlip = copiedBlockTile.XFlip;
 					destTile.YFlip = copiedBlockTile.YFlip;
-					blockTileEditor.SelectedObject = destTile;
+					blockTileEditor.SelectedObjects = new[] { destTile };
 					LevelData.RedrawBlock(SelectedBlock, false);
+					DrawBlockPicture();
+				}
+				else if (e.Button == chunkblockMouseSelect)
+				{
+					SelectedBlockTile = Rectangle.FromLTRB(Math.Min(SelectedBlockTile.Left, e.X / 64), Math.Min(SelectedBlockTile.Top, e.Y / 64), Math.Max(SelectedBlockTile.Right, e.X / 64 + 1), Math.Max(SelectedBlockTile.Bottom, e.Y / 64 + 1));
+					copiedBlockTile = (blockTileEditor.SelectedObjects = GetSelectedBlockTiles())[0];
 					DrawBlockPicture();
 				}
 		}
 
+		private PatternIndex[] GetSelectedBlockTiles()
+		{
+			PatternIndex[] tiles = new PatternIndex[SelectedBlockTile.Width * SelectedBlockTile.Height];
+			int i = 0;
+			for (int y = SelectedBlockTile.Top; y < SelectedBlockTile.Bottom; y++)
+				for (int x = SelectedBlockTile.Left; x < SelectedBlockTile.Right; x++)
+					tiles[i++] = LevelData.Blocks[SelectedBlock].Tiles[x, y];
+			return tiles;
+		}
+
 		private void BlockPicture_MouseDown(object sender, MouseEventArgs e)
 		{
-			BlockPicture_MouseMove(sender, e);
+			if (!loaded) return;
+			if (e.Button == chunkblockMouseDraw)
+				BlockPicture_MouseMove(sender, e);
+			else if (e.Button == chunkblockMouseSelect)
+			{
+				SelectedBlockTile = new Rectangle(e.X / 64, e.Y / 64, 1, 1);
+				PatternIndex til = LevelData.Blocks[SelectedBlock].Tiles[e.X / 64, e.Y / 64];
+				if (til.Tile < LevelData.Tiles.Count)
+					TileSelector.SelectedIndex = til.Tile;
+				blockTileEditor.SelectedObjects = new[] { copiedBlockTile = til };
+				DrawBlockPicture();
+			}
 		}
 
 		private void BlockPicture_MouseUp(object sender, MouseEventArgs e)
 		{
-			if (loaded && e.Button == chunkblockMouse1)
+			if (loaded && e.Button == chunkblockMouseDraw)
 			{
 				LevelData.RedrawBlock(SelectedBlock, true);
 				DrawLevel();
@@ -3662,8 +3704,8 @@ namespace SonicRetro.SonLVL.GUI
 			{
 				SelectedBlock = BlockSelector.SelectedIndex;
 				flipBlockHButton.Enabled = flipBlockVButton.Enabled = true;
-				SelectedBlockTile = new Point();
-				blockTileEditor.SelectedObject = LevelData.Blocks[SelectedBlock].Tiles[0, 0];
+				SelectedBlockTile = new Rectangle(0, 0, 1, 1);
+				blockTileEditor.SelectedObjects = new[] { LevelData.Blocks[SelectedBlock].Tiles[0, 0] };
 				if (LevelData.ColInds1.Count > 0)
 					if (SelectedBlock < LevelData.ColInds1.Count)
 					{
@@ -3717,12 +3759,13 @@ namespace SonicRetro.SonLVL.GUI
 				tmp.IncrementIndexes(LevelData.ColorWhite);
 				bmp.DrawBitmapComposited(tmp, 0, 0);
 			}
+			bmp.Scale(8);
+			bmp.DrawRectangle(LevelData.ColorWhite, SelectedBlockTile.X * 64 - 1, SelectedBlockTile.Y * 64 - 1, SelectedBlockTile.Width * 64 + 2, SelectedBlockTile.Height * 64 + 2);
 			using (Graphics gfx = BlockPicture.CreateGraphics())
 			{
 				gfx.SetOptions();
 				gfx.Clear(LevelData.PaletteToColor(2, 0, false));
 				gfx.DrawImage(bmp.ToBitmap(LevelData.BmpPal), 0, 0, 128, 128);
-				gfx.DrawRectangle(Pens.White, SelectedBlockTile.X * 64 - 1, SelectedBlockTile.Y * 64 - 1, 63, 63);
 			}
 		}
 
@@ -3734,20 +3777,21 @@ namespace SonicRetro.SonLVL.GUI
 		private void BlockPicture_KeyDown(object sender, KeyEventArgs e)
 		{
 			if (!loaded) return;
-			PatternIndex current = LevelData.Blocks[SelectedBlock].Tiles[SelectedBlockTile.X, SelectedBlockTile.Y];
+			PatternIndex[] tiles = GetSelectedBlockTiles();
 			switch (e.KeyCode)
 			{
 				case Keys.C:
-					if (e.Shift)
-						current.Palette--;
-					else
-						current.Palette++;
+					foreach (PatternIndex item in tiles)
+						if (e.Shift)
+							item.Palette--;
+						else
+							item.Palette++;
 					break;
 				case Keys.Down:
 					if (SelectedBlockTile.Y < 1)
 					{
-						SelectedBlockTile = new Point(SelectedBlockTile.X, SelectedBlockTile.Y + 1);
-						current = LevelData.Blocks[SelectedBlock].Tiles[SelectedBlockTile.X, SelectedBlockTile.Y];
+						SelectedBlockTile = new Rectangle(SelectedBlockTile.X, SelectedBlockTile.Y + 1, 1, 1);
+						PatternIndex current = LevelData.Blocks[SelectedBlock].Tiles[SelectedBlockTile.X, SelectedBlockTile.Y];
 						if (current.Tile < LevelData.Tiles.Count)
 							TileSelector.SelectedIndex = current.Tile;
 					}
@@ -3757,8 +3801,8 @@ namespace SonicRetro.SonLVL.GUI
 				case Keys.Left:
 					if (SelectedBlockTile.X > 0)
 					{
-						SelectedBlockTile = new Point(SelectedBlockTile.X - 1, SelectedBlockTile.Y);
-						current = LevelData.Blocks[SelectedBlock].Tiles[SelectedBlockTile.X, SelectedBlockTile.Y];
+						SelectedBlockTile = new Rectangle(SelectedBlockTile.X - 1, SelectedBlockTile.Y, 1, 1);
+						PatternIndex current = LevelData.Blocks[SelectedBlock].Tiles[SelectedBlockTile.X, SelectedBlockTile.Y];
 						if (current.Tile < LevelData.Tiles.Count)
 							TileSelector.SelectedIndex = current.Tile;
 					}
@@ -3766,13 +3810,14 @@ namespace SonicRetro.SonLVL.GUI
 						return;
 					break;
 				case Keys.P:
-					current.Priority = !current.Priority;
+					foreach (PatternIndex item in tiles)
+						item.Priority = !item.Priority;
 					break;
 				case Keys.Right:
 					if (SelectedBlockTile.X < 1)
 					{
-						SelectedBlockTile = new Point(SelectedBlockTile.X + 1, SelectedBlockTile.Y);
-						current = LevelData.Blocks[SelectedBlock].Tiles[SelectedBlockTile.X, SelectedBlockTile.Y];
+						SelectedBlockTile = new Rectangle(SelectedBlockTile.X + 1, SelectedBlockTile.Y, 1, 1);
+						PatternIndex current = LevelData.Blocks[SelectedBlock].Tiles[SelectedBlockTile.X, SelectedBlockTile.Y];
 						if (current.Tile < LevelData.Tiles.Count)
 							TileSelector.SelectedIndex = current.Tile;
 					}
@@ -3780,16 +3825,17 @@ namespace SonicRetro.SonLVL.GUI
 						return;
 					break;
 				case Keys.T:
-					if (e.Shift)
-						current.Tile = (ushort)(current.Tile == 0 ? LevelData.Tiles.Count - 1 : current.Tile - 1);
-					else
-						current.Tile = (ushort)((current.Tile + 1) % LevelData.Tiles.Count);
+					foreach (PatternIndex item in tiles)
+						if (e.Shift)
+							item.Tile = (ushort)(item.Tile == 0 ? LevelData.Tiles.Count - 1 : item.Tile - 1);
+						else
+							item.Tile = (ushort)((item.Tile + 1) % LevelData.Tiles.Count);
 					break;
 				case Keys.Up:
 					if (SelectedBlockTile.Y > 0)
 					{
-						SelectedBlockTile = new Point(SelectedBlockTile.X, SelectedBlockTile.Y - 1);
-						current = LevelData.Blocks[SelectedBlock].Tiles[SelectedBlockTile.X, SelectedBlockTile.Y];
+						SelectedBlockTile = new Rectangle(SelectedBlockTile.X, SelectedBlockTile.Y - 1, 1, 1);
+						PatternIndex current = LevelData.Blocks[SelectedBlock].Tiles[SelectedBlockTile.X, SelectedBlockTile.Y];
 						if (current.Tile < LevelData.Tiles.Count)
 							TileSelector.SelectedIndex = current.Tile;
 					}
@@ -3797,10 +3843,12 @@ namespace SonicRetro.SonLVL.GUI
 						return;
 					break;
 				case Keys.X:
-					current.XFlip = !current.XFlip;
+					foreach (PatternIndex item in tiles)
+						item.XFlip = !item.XFlip;
 					break;
 				case Keys.Y:
-					current.YFlip = !current.YFlip;
+					foreach (PatternIndex item in tiles)
+						item.YFlip = !item.YFlip;
 					break;
 				default:
 					return;
@@ -3808,7 +3856,7 @@ namespace SonicRetro.SonLVL.GUI
 			LevelData.RedrawBlock(SelectedBlock, true);
 			DrawLevel();
 			DrawBlockPicture();
-			copiedBlockTile = blockTileEditor.SelectedObject = current;
+			copiedBlockTile = (blockTileEditor.SelectedObjects = tiles)[0];
 		}
 
 		private void PalettePanel_Paint(object sender, PaintEventArgs e)
@@ -4106,7 +4154,7 @@ namespace SonicRetro.SonLVL.GUI
 					LevelData.RedrawBlock(i, true);
 			}
 			TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y);
-			blockTileEditor.SelectedObject = blockTileEditor.SelectedObject;
+			blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 		}
 
 		private void ChunkSelector_MouseDown(object sender, MouseEventArgs e)
@@ -4236,7 +4284,7 @@ namespace SonicRetro.SonLVL.GUI
 			LevelData.Tiles.RemoveAt(SelectedTile);
 			LevelData.UpdateTileArray();
 			TileSelector.Images.RemoveAt(SelectedTile);
-			blockTileEditor.SelectedObject = blockTileEditor.SelectedObject;
+			blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 			for (int i = 0; i < LevelData.Blocks.Count; i++)
 			{
 				bool dr = false;
@@ -4313,7 +4361,7 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			LevelData.UpdateTileArray();
 			TileSelector.Images.Insert(SelectedTile, LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y));
-			blockTileEditor.SelectedObject = blockTileEditor.SelectedObject;
+			blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 			for (int i = 0; i < LevelData.Blocks.Count; i++)
 				for (int y = 0; y < 2; y++)
 					for (int x = 0; x < 2; x++)
@@ -4373,7 +4421,7 @@ namespace SonicRetro.SonLVL.GUI
 							}
 							tiles.Add(ti);
 						}
-						blockTileEditor.SelectedObject = blockTileEditor.SelectedObject;
+						blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 						List<ushort> blocks = new List<ushort>(cnkcpy.Blocks.Count);
 						for (int i = 0; i < cnkcpy.Blocks.Count; i++)
 						{
@@ -4508,7 +4556,7 @@ namespace SonicRetro.SonLVL.GUI
 							}
 							tiles.Add(ti);
 						}
-						blockTileEditor.SelectedObject = blockTileEditor.SelectedObject;
+						blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 						List<ushort> blocks = new List<ushort>(cnkcpy.Blocks.Count);
 						for (int i = 0; i < cnkcpy.Blocks.Count; i++)
 						{
@@ -5159,7 +5207,7 @@ namespace SonicRetro.SonLVL.GUI
 					SelectedTile = LevelData.Tiles.Count - 1;
 					LevelData.UpdateTileArray();
 					TileSelector.SelectedIndex = SelectedTile;
-					blockTileEditor.SelectedObject = blockTileEditor.SelectedObject;
+					blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 					break;
 			}
 			bmp.Dispose();
@@ -5297,7 +5345,7 @@ namespace SonicRetro.SonLVL.GUI
 					LevelData.RedrawBlock(i, true);
 			}
 			TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y);
-			blockTileEditor.SelectedObject = blockTileEditor.SelectedObject;
+			blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 			TilePicture.Invalidate();
 		}
 
@@ -7742,7 +7790,7 @@ namespace SonicRetro.SonLVL.GUI
 			LevelData.RedrawBlock(SelectedBlock, true);
 			if (newblk.Tiles[SelectedBlockTile.X, SelectedBlockTile.Y].Tile < LevelData.Tiles.Count)
 				TileSelector.SelectedIndex = newblk.Tiles[SelectedBlockTile.X, SelectedBlockTile.Y].Tile;
-			copiedBlockTile = blockTileEditor.SelectedObject = newblk.Tiles[SelectedBlockTile.X, SelectedBlockTile.Y];
+			copiedBlockTile = (blockTileEditor.SelectedObjects = GetSelectedBlockTiles())[0];
 			BlockPicture.Invalidate();
 		}
 
@@ -7753,7 +7801,7 @@ namespace SonicRetro.SonLVL.GUI
 			LevelData.RedrawBlock(SelectedBlock, true);
 			if (newblk.Tiles[SelectedBlockTile.X, SelectedBlockTile.Y].Tile < LevelData.Tiles.Count)
 				TileSelector.SelectedIndex = newblk.Tiles[SelectedBlockTile.X, SelectedBlockTile.Y].Tile;
-			copiedBlockTile = blockTileEditor.SelectedObject = newblk.Tiles[SelectedBlockTile.X, SelectedBlockTile.Y];
+			copiedBlockTile = (blockTileEditor.SelectedObjects = GetSelectedBlockTiles())[0];
 			BlockPicture.Invalidate();
 		}
 
@@ -7773,7 +7821,7 @@ namespace SonicRetro.SonLVL.GUI
 					LevelData.RedrawBlock(i, true);
 			}
 			TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y);
-			blockTileEditor.SelectedObject = blockTileEditor.SelectedObject;
+			blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 			TilePicture.Invalidate();
 		}
 
@@ -7793,7 +7841,7 @@ namespace SonicRetro.SonLVL.GUI
 					LevelData.RedrawBlock(i, true);
 			}
 			TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y);
-			blockTileEditor.SelectedObject = blockTileEditor.SelectedObject;
+			blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 			TilePicture.Invalidate();
 		}
 
@@ -7852,7 +7900,7 @@ namespace SonicRetro.SonLVL.GUI
 							}
 							tiles.Add(ti);
 						}
-						blockTileEditor.SelectedObject = blockTileEditor.SelectedObject;
+						blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 						List<ushort> blocks = new List<ushort>(cnkcpy.Blocks.Count);
 						for (int i = 0; i < cnkcpy.Blocks.Count; i++)
 						{
@@ -7940,7 +7988,7 @@ namespace SonicRetro.SonLVL.GUI
 							LevelData.RedrawBlock(i, true);
 					}
 					TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(t, 0, SelectedColor.Y);
-					blockTileEditor.SelectedObject = blockTileEditor.SelectedObject;
+					blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 					break;
 			}
 		}
@@ -8515,14 +8563,14 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			if (switchMouseButtonsInChunkAndBlockEditorsToolStripMenuItem.Checked)
 			{
-				chunkblockMouse1 = MouseButtons.Right;
-				chunkblockMouse2 = MouseButtons.Left;
+				chunkblockMouseDraw = MouseButtons.Right;
+				chunkblockMouseSelect = MouseButtons.Left;
 				chunkCtrlLabel.Text = "RMB: Paint w/ selected block\nLMB: Select block";
 			}
 			else
 			{
-				chunkblockMouse1 = MouseButtons.Left;
-				chunkblockMouse2 = MouseButtons.Right;
+				chunkblockMouseDraw = MouseButtons.Left;
+				chunkblockMouseSelect = MouseButtons.Right;
 				chunkCtrlLabel.Text = "LMB: Paint w/ selected block\nRMB: Select block";
 			}
 			Settings.SwitchChunkBlockMouseButtons = switchMouseButtonsInChunkAndBlockEditorsToolStripMenuItem.Checked;
@@ -8559,7 +8607,7 @@ namespace SonicRetro.SonLVL.GUI
 				}
 				LevelData.UpdateTileArray();
 				SelectedTile = TileSelector.SelectedIndex = Math.Min(SelectedTile, LevelData.Tiles.Count - 1);
-				blockTileEditor.SelectedObject = blockTileEditor.SelectedObject;
+				blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 			}
 		}
 
@@ -8594,7 +8642,7 @@ namespace SonicRetro.SonLVL.GUI
 						LevelData.ColInds2.RemoveAt(i);
 				}
 				SelectedBlock = BlockSelector.SelectedIndex = Math.Min(SelectedBlock, LevelData.Blocks.Count - 1);
-				chunkBlockEditor.SelectedObject = chunkBlockEditor.SelectedObject;
+				chunkBlockEditor.SelectedObjects = chunkBlockEditor.SelectedObjects;
 			}
 		}
 

@@ -35,7 +35,7 @@ namespace SonicRetro.SonLVL
 			this.xFlip = new System.Windows.Forms.CheckBox();
 			this.yFlip = new System.Windows.Forms.CheckBox();
 			this.blockList = new SonicRetro.SonLVL.API.TileList();
-			this.block = new System.Windows.Forms.NumericUpDown();
+			this.block = new SonicRetro.SonLVL.NumericUpDownMulti();
 			groupBox1 = new System.Windows.Forms.GroupBox();
 			label2 = new System.Windows.Forms.Label();
 			groupBox1.SuspendLayout();
@@ -173,6 +173,6 @@ namespace SonicRetro.SonLVL
 		private System.Windows.Forms.ComboBox solidity1;
 		private System.Windows.Forms.ComboBox solidity2;
 		private API.TileList blockList;
-		private System.Windows.Forms.NumericUpDown block;
+		private NumericUpDownMulti block;
 	}
 }

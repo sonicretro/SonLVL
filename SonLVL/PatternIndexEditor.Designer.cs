@@ -35,7 +35,7 @@ namespace SonicRetro.SonLVL
 			this.tileList = new SonicRetro.SonLVL.API.TileList();
 			this.priority = new System.Windows.Forms.CheckBox();
 			this.palette = new System.Windows.Forms.NumericUpDown();
-			this.tile = new System.Windows.Forms.NumericUpDown();
+			this.tile = new SonicRetro.SonLVL.NumericUpDownMulti();
 			label1 = new System.Windows.Forms.Label();
 			label2 = new System.Windows.Forms.Label();
 			((System.ComponentModel.ISupportInitialize)(this.palette)).BeginInit();
@@ -164,6 +164,6 @@ namespace SonicRetro.SonLVL
 		private API.TileList tileList;
 		private System.Windows.Forms.CheckBox priority;
 		private System.Windows.Forms.NumericUpDown palette;
-		private System.Windows.Forms.NumericUpDown tile;
+		private NumericUpDownMulti tile;
 	}
 }

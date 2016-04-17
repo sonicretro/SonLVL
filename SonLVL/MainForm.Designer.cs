@@ -2478,7 +2478,6 @@ namespace SonicRetro.SonLVL.GUI
 			this.ChunkPicture.TabIndex = 1;
 			this.ChunkPicture.Paint += new System.Windows.Forms.PaintEventHandler(this.ChunkPicture_Paint);
 			this.ChunkPicture.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ChunkPicture_KeyDown);
-			this.ChunkPicture.MouseClick += new System.Windows.Forms.MouseEventHandler(this.ChunkPicture_MouseClick);
 			this.ChunkPicture.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ChunkPicture_MouseDown);
 			this.ChunkPicture.MouseMove += new System.Windows.Forms.MouseEventHandler(this.ChunkPicture_MouseMove);
 			this.ChunkPicture.MouseUp += new System.Windows.Forms.MouseEventHandler(this.ChunkPicture_MouseUp);
@@ -2488,7 +2487,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.chunkBlockEditor.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.chunkBlockEditor.Location = new System.Drawing.Point(271, 3);
 			this.chunkBlockEditor.Name = "chunkBlockEditor";
-			this.chunkBlockEditor.SelectedObject = null;
+			this.chunkBlockEditor.SelectedObjects = null;
 			this.chunkBlockEditor.Size = new System.Drawing.Size(157, 391);
 			this.chunkBlockEditor.TabIndex = 3;
 			this.chunkBlockEditor.PropertyValueChanged += new System.EventHandler(this.chunkBlockEditor_PropertyValueChanged);
@@ -2588,7 +2587,6 @@ namespace SonicRetro.SonLVL.GUI
 			this.BlockPicture.TabIndex = 1;
 			this.BlockPicture.Paint += new System.Windows.Forms.PaintEventHandler(this.BlockPicture_Paint);
 			this.BlockPicture.KeyDown += new System.Windows.Forms.KeyEventHandler(this.BlockPicture_KeyDown);
-			this.BlockPicture.MouseClick += new System.Windows.Forms.MouseEventHandler(this.BlockPicture_MouseClick);
 			this.BlockPicture.MouseDown += new System.Windows.Forms.MouseEventHandler(this.BlockPicture_MouseDown);
 			this.BlockPicture.MouseMove += new System.Windows.Forms.MouseEventHandler(this.BlockPicture_MouseMove);
 			this.BlockPicture.MouseUp += new System.Windows.Forms.MouseEventHandler(this.BlockPicture_MouseUp);
@@ -2672,7 +2670,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.blockTileEditor.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.blockTileEditor.Location = new System.Drawing.Point(0, 0);
 			this.blockTileEditor.Name = "blockTileEditor";
-			this.blockTileEditor.SelectedObject = null;
+			this.blockTileEditor.SelectedObjects = null;
 			this.blockTileEditor.Size = new System.Drawing.Size(185, 391);
 			this.blockTileEditor.TabIndex = 3;
 			this.blockTileEditor.PropertyValueChanged += new System.EventHandler(this.blockTileEditor_PropertyValueChanged);
