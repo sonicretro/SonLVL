@@ -6986,6 +6986,7 @@ namespace SonicRetro.SonLVL.GUI
 			switch (CurrentTab)
 			{
 				case Tab.Objects:
+					ObjectProperties.SelectedObjects = null;
 					SelectedItems.Clear();
 					IEnumerable<ObjectEntry> list = LevelData.Objects;
 					if (LevelData.Objects.Contains(lastfoundobj))
