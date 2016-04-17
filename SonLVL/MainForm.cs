@@ -3759,7 +3759,7 @@ namespace SonicRetro.SonLVL.GUI
 				tmp.IncrementIndexes(LevelData.ColorWhite);
 				bmp.DrawBitmapComposited(tmp, 0, 0);
 			}
-			bmp.Scale(8);
+			bmp = bmp.Scale(8);
 			bmp.DrawRectangle(LevelData.ColorWhite, SelectedBlockTile.X * 64 - 1, SelectedBlockTile.Y * 64 - 1, SelectedBlockTile.Width * 64 + 2, SelectedBlockTile.Height * 64 + 2);
 			using (Graphics gfx = BlockPicture.CreateGraphics())
 			{
