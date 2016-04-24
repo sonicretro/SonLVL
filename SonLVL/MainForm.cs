@@ -4168,6 +4168,7 @@ namespace SonicRetro.SonLVL.GUI
 				drawToolStripMenuItem.Enabled = LevelData.Chunks.Count < 256;
 				insertAfterToolStripMenuItem.Enabled = drawToolStripMenuItem.Enabled;
 				insertBeforeToolStripMenuItem.Enabled = drawToolStripMenuItem.Enabled;
+				duplicateTilesToolStripMenuItem.Enabled = drawToolStripMenuItem.Enabled;
 				deleteTilesToolStripMenuItem.Enabled = LevelData.Chunks.Count > 1;
 				cutTilesToolStripMenuItem.Enabled = deleteTilesToolStripMenuItem.Enabled;
 				deepCopyToolStripMenuItem.Visible = true;
@@ -4187,6 +4188,7 @@ namespace SonicRetro.SonLVL.GUI
 				drawToolStripMenuItem.Enabled = LevelData.Blocks.Count < blockmax;
 				insertAfterToolStripMenuItem.Enabled = drawToolStripMenuItem.Enabled;
 				insertBeforeToolStripMenuItem.Enabled = drawToolStripMenuItem.Enabled;
+				duplicateTilesToolStripMenuItem.Enabled = drawToolStripMenuItem.Enabled;
 				deleteTilesToolStripMenuItem.Enabled = LevelData.Blocks.Count > 1;
 				cutTilesToolStripMenuItem.Enabled = deleteTilesToolStripMenuItem.Enabled;
 				deepCopyToolStripMenuItem.Visible = true;
@@ -4205,6 +4207,7 @@ namespace SonicRetro.SonLVL.GUI
 				drawToolStripMenuItem.Enabled = LevelData.Tiles.Count < 0x800;
 				insertAfterToolStripMenuItem.Enabled = drawToolStripMenuItem.Enabled;
 				insertBeforeToolStripMenuItem.Enabled = drawToolStripMenuItem.Enabled;
+				duplicateTilesToolStripMenuItem.Enabled = drawToolStripMenuItem.Enabled;
 				deleteTilesToolStripMenuItem.Enabled = LevelData.Tiles.Count > 1;
 				cutTilesToolStripMenuItem.Enabled = deleteTilesToolStripMenuItem.Enabled;
 				deepCopyToolStripMenuItem.Visible = false;
@@ -4638,6 +4641,28 @@ namespace SonicRetro.SonLVL.GUI
 				case Tab.Tiles:
 					byte[] t = (byte[])Clipboard.GetData("SonLVLTile");
 					LevelData.Tiles.InsertAfter(SelectedTile, t);
+					SelectedTile++;
+					InsertTile();
+					break;
+			}
+		}
+
+		private void duplicateTilesToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			switch (CurrentTab)
+			{
+				case Tab.Chunks:
+					LevelData.Chunks.InsertAfter(SelectedChunk, LevelData.Chunks[SelectedChunk].Clone());
+					SelectedChunk++;
+					InsertChunk();
+					break;
+				case Tab.Blocks:
+					LevelData.Blocks.InsertAfter(SelectedBlock, LevelData.Blocks[SelectedBlock].Clone());
+					SelectedBlock++;
+					InsertBlock();
+					break;
+				case Tab.Tiles:
+					LevelData.Tiles.InsertAfter(SelectedTile, (byte[])LevelData.Tiles[SelectedTile].Clone());
 					SelectedTile++;
 					InsertTile();
 					break;
@@ -5380,6 +5405,24 @@ namespace SonicRetro.SonLVL.GUI
 						if (e.Control)
 							copyTilesToolStripMenuItem_Click(sender, EventArgs.Empty);
 						break;
+					case Keys.D:
+						if (e.Control)
+							switch (CurrentTab)
+							{
+								case Tab.Chunks:
+									if (LevelData.Chunks.Count < 0x100)
+										duplicateTilesToolStripMenuItem_Click(sender, EventArgs.Empty);
+									break;
+								case Tab.Blocks:
+									if (LevelData.Blocks.Count < LevelData.GetBlockMax())
+										duplicateTilesToolStripMenuItem_Click(sender, EventArgs.Empty);
+									break;
+								case Tab.Tiles:
+									if (LevelData.Tiles.Count < 0x800)
+										duplicateTilesToolStripMenuItem_Click(sender, EventArgs.Empty);
+									break;
+							}
+						break;
 					case Keys.Delete:
 						switch (CurrentTab)
 						{
@@ -5419,22 +5462,36 @@ namespace SonicRetro.SonLVL.GUI
 							switch (CurrentTab)
 							{
 								case Tab.Chunks:
-									if (Clipboard.GetDataObject().GetDataPresent(typeof(Chunk).AssemblyQualifiedName) & LevelData.Chunks.Count < 0x100)
+									if ((Clipboard.ContainsData(typeof(ChunkCopyData).AssemblyQualifiedName) || Clipboard.ContainsData(typeof(Chunk).AssemblyQualifiedName)) && LevelData.Chunks.Count < 0x100)
 										pasteAfterToolStripMenuItem_Click(sender, EventArgs.Empty);
 									break;
 								case Tab.Blocks:
-									if (Clipboard.GetDataObject().GetDataPresent(typeof(Block).AssemblyQualifiedName) & LevelData.Blocks.Count < LevelData.GetBlockMax())
+									if ((Clipboard.ContainsData(typeof(BlockCopyData).AssemblyQualifiedName) || Clipboard.ContainsData(typeof(Block).AssemblyQualifiedName)) && LevelData.Blocks.Count < LevelData.GetBlockMax())
 										pasteAfterToolStripMenuItem_Click(sender, EventArgs.Empty);
 									break;
 								case Tab.Tiles:
-									if (Clipboard.GetDataObject().GetDataPresent("SonLVLTile") & LevelData.Tiles.Count < 0x800)
+									if (Clipboard.ContainsData("SonLVLTile") & LevelData.Tiles.Count < 0x800)
 										pasteAfterToolStripMenuItem_Click(sender, EventArgs.Empty);
 									break;
 							}
 						break;
 					case Keys.X:
 						if (e.Control)
-							cutTilesToolStripMenuItem_Click(sender, EventArgs.Empty);
+							switch (CurrentTab)
+							{
+								case Tab.Chunks:
+									if (LevelData.Chunks.Count > 1)
+										cutTilesToolStripMenuItem_Click(sender, EventArgs.Empty);
+									break;
+								case Tab.Blocks:
+									if (LevelData.Blocks.Count > 1)
+										cutTilesToolStripMenuItem_Click(sender, EventArgs.Empty);
+									break;
+								case Tab.Tiles:
+									if (LevelData.Tiles.Count > 1)
+										cutTilesToolStripMenuItem_Click(sender, EventArgs.Empty);
+									break;
+							}
 						break;
 				}
 			}
