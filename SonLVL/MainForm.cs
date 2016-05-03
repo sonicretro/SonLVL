@@ -3436,6 +3436,7 @@ namespace SonicRetro.SonLVL.GUI
 					chunkBlockEditor.SelectedObjects = new[] { destBlock };
 					LevelData.RedrawChunk(SelectedChunk);
 					DrawChunkPicture();
+					ChunkSelector.Invalidate();
 				}
 				else if (e.Button == chunkblockMouseSelect)
 				{
@@ -3468,6 +3469,7 @@ namespace SonicRetro.SonLVL.GUI
 					BlockSelector.SelectedIndex = blk.Block;
 				chunkBlockEditor.SelectedObjects = new[] { copiedChunkBlock = blk };
 				DrawChunkPicture();
+				ChunkSelector.Invalidate();
 			}
 		}
 
@@ -3478,6 +3480,7 @@ namespace SonicRetro.SonLVL.GUI
 				LevelData.RedrawChunk(SelectedChunk);
 				DrawLevel();
 				DrawChunkPicture();
+				ChunkSelector.Invalidate();
 			}
 		}
 
@@ -3571,6 +3574,7 @@ namespace SonicRetro.SonLVL.GUI
 			LevelData.RedrawChunk(SelectedChunk);
 			DrawLevel();
 			DrawChunkPicture();
+			ChunkSelector.Invalidate();
 			copiedChunkBlock = (chunkBlockEditor.SelectedObjects = blocks)[0];
 		}
 
@@ -3616,6 +3620,7 @@ namespace SonicRetro.SonLVL.GUI
 				BlockSelector.SelectedIndex = newcnk.Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y].Block;
 			copiedChunkBlock = (chunkBlockEditor.SelectedObjects = GetSelectedChunkBlocks())[0];
 			DrawChunkPicture();
+			ChunkSelector.Invalidate();
 		}
 
 		private void flipChunkVButton_Click(object sender, EventArgs e)
@@ -3627,6 +3632,7 @@ namespace SonicRetro.SonLVL.GUI
 				BlockSelector.SelectedIndex = newcnk.Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y].Block;
 			copiedChunkBlock = (chunkBlockEditor.SelectedObjects = GetSelectedChunkBlocks())[0];
 			DrawChunkPicture();
+			ChunkSelector.Invalidate();
 		}
 
 		private void BlockPicture_MouseMove(object sender, MouseEventArgs e)
@@ -3645,6 +3651,7 @@ namespace SonicRetro.SonLVL.GUI
 					blockTileEditor.SelectedObjects = new[] { destTile };
 					LevelData.RedrawBlock(SelectedBlock, false);
 					DrawBlockPicture();
+					BlockSelector.Invalidate();
 				}
 				else if (e.Button == chunkblockMouseSelect)
 				{
@@ -3687,6 +3694,7 @@ namespace SonicRetro.SonLVL.GUI
 				LevelData.RedrawBlock(SelectedBlock, true);
 				DrawLevel();
 				DrawBlockPicture();
+				BlockSelector.Invalidate();
 			}
 		}
 
@@ -3695,6 +3703,7 @@ namespace SonicRetro.SonLVL.GUI
 			LevelData.RedrawBlock(SelectedBlock, true);
 			DrawLevel();
 			DrawBlockPicture();
+			BlockSelector.Invalidate();
 		}
 
 		private void BlockSelector_SelectedIndexChanged(object sender, EventArgs e)
@@ -3856,6 +3865,7 @@ namespace SonicRetro.SonLVL.GUI
 			LevelData.RedrawBlock(SelectedBlock, true);
 			DrawLevel();
 			DrawBlockPicture();
+			BlockSelector.Invalidate();
 			copiedBlockTile = (blockTileEditor.SelectedObjects = tiles)[0];
 		}
 
@@ -4099,7 +4109,7 @@ namespace SonicRetro.SonLVL.GUI
 				tile = BitmapBits.FromTile(LevelData.Tiles[SelectedTile], 0);
 				TileID.Text = SelectedTile.ToString("X3");
 				TileCount.Text = LevelData.Tiles.Count.ToString("X") + " / 800";
-				TilePicture.Invalidate();
+				DrawTilePicture();
 				copiedBlockTile = new PatternIndex() { Tile = (ushort)SelectedTile, Palette = (byte)SelectedColor.Y };
 			}
 			else
@@ -4108,9 +4118,17 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void TilePicture_Paint(object sender, PaintEventArgs e)
 		{
+			DrawTilePicture();
+		}
+
+		private void DrawTilePicture()
+		{
 			if (TileSelector.SelectedIndex == -1) return;
-			e.Graphics.SetOptions();
-			e.Graphics.DrawImage(tile.Scale(16).ToBitmap(curpal), 0, 0, 128, 128);
+			using (Graphics gfx = TilePicture.CreateGraphics())
+			{
+				gfx.SetOptions();
+				gfx.DrawImage(tile.Scale(16).ToBitmap(curpal), 0, 0, 128, 128);
+			}
 		}
 
 		private void TilePicture_MouseDown(object sender, MouseEventArgs e)
@@ -4119,7 +4137,7 @@ namespace SonicRetro.SonLVL.GUI
 			if (e.Button == MouseButtons.Left)
 			{
 				tile[e.X / 16, e.Y / 16] = (byte)SelectedColor.X;
-				TilePicture.Invalidate();
+				DrawTilePicture();
 			}
 			else if (e.Button == MouseButtons.Right)
 			{
@@ -4134,7 +4152,7 @@ namespace SonicRetro.SonLVL.GUI
 			if (e.Button == MouseButtons.Left && new Rectangle(Point.Empty, TilePicture.Size).Contains(e.Location))
 			{
 				tile.Bits[((e.Y / 16) * 8) + (e.X / 16)] = (byte)SelectedColor.X;
-				TilePicture.Invalidate();
+				DrawTilePicture();
 			}
 		}
 
@@ -4154,6 +4172,7 @@ namespace SonicRetro.SonLVL.GUI
 					LevelData.RedrawBlock(i, true);
 			}
 			TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y);
+			TileSelector.Invalidate();
 			blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 		}
 
@@ -7850,6 +7869,7 @@ namespace SonicRetro.SonLVL.GUI
 				TileSelector.SelectedIndex = newblk.Tiles[SelectedBlockTile.X, SelectedBlockTile.Y].Tile;
 			copiedBlockTile = (blockTileEditor.SelectedObjects = GetSelectedBlockTiles())[0];
 			BlockPicture.Invalidate();
+			BlockSelector.Invalidate();
 		}
 
 		private void flipBlockVButton_Click(object sender, EventArgs e)
@@ -7861,6 +7881,7 @@ namespace SonicRetro.SonLVL.GUI
 				TileSelector.SelectedIndex = newblk.Tiles[SelectedBlockTile.X, SelectedBlockTile.Y].Tile;
 			copiedBlockTile = (blockTileEditor.SelectedObjects = GetSelectedBlockTiles())[0];
 			BlockPicture.Invalidate();
+			BlockSelector.Invalidate();
 		}
 
 		private void flipTileHButton_Click(object sender, EventArgs e)
@@ -7880,7 +7901,8 @@ namespace SonicRetro.SonLVL.GUI
 			}
 			TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y);
 			blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
-			TilePicture.Invalidate();
+			DrawTilePicture();
+			TileSelector.Invalidate();
 		}
 
 		private void flipTileVButton_Click(object sender, EventArgs e)
@@ -7900,7 +7922,8 @@ namespace SonicRetro.SonLVL.GUI
 			}
 			TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y);
 			blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
-			TilePicture.Invalidate();
+			DrawTilePicture();
+			TileSelector.Invalidate();
 		}
 
 		private void showBlockBehindCollisionCheckBox_CheckedChanged(object sender, EventArgs e)
