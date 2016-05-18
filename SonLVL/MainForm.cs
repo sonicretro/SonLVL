@@ -4450,7 +4450,8 @@ namespace SonicRetro.SonLVL.GUI
 							Block block = cnkcpy.Blocks[i];
 							for (int y = 0; y < 2; y++)
 								for (int x = 0; x < 2; x++)
-									block.Tiles[x, y].Tile = tiles[block.Tiles[x, y].Tile];
+									if (block.Tiles[x, y].Tile < tiles.Count)
+										block.Tiles[x, y].Tile = tiles[block.Tiles[x, y].Tile];
 							ushort bi = (ushort)LevelData.Blocks.Count;
 							for (ushort j = 0; j < LevelData.Blocks.Count; j++)
 								if (block.Equals(LevelData.Blocks[j]))
@@ -4474,7 +4475,8 @@ namespace SonicRetro.SonLVL.GUI
 						}
 						for (int y = 0; y < LevelData.Level.ChunkHeight / 16; y++)
 							for (int x = 0; x < LevelData.Level.ChunkWidth / 16; x++)
-								cnkcpy.Chunk.Blocks[x, y].Block = blocks[cnkcpy.Chunk.Blocks[x, y].Block];
+								if (cnkcpy.Chunk.Blocks[x, y].Block < blocks.Count)
+									cnkcpy.Chunk.Blocks[x, y].Block = blocks[cnkcpy.Chunk.Blocks[x, y].Block];
 						LevelData.Chunks.InsertBefore(SelectedChunk, cnkcpy.Chunk);
 					}
 					else
@@ -4511,7 +4513,8 @@ namespace SonicRetro.SonLVL.GUI
 						}
 						for (int y = 0; y < 2; y++)
 							for (int x = 0; x < 2; x++)
-								blkcpy.Block.Tiles[x, y].Tile = tiles[blkcpy.Block.Tiles[x, y].Tile];
+								if (blkcpy.Block.Tiles[x, y].Tile < tiles.Count)
+									blkcpy.Block.Tiles[x, y].Tile = tiles[blkcpy.Block.Tiles[x, y].Tile];
 						LevelData.Blocks.InsertBefore(SelectedBlock, blkcpy.Block);
 					}
 					else
@@ -8877,21 +8880,22 @@ namespace SonicRetro.SonLVL.GUI
 			}
 			for (int y = 0; y < LevelData.Level.ChunkHeight / 16; y++)
 				for (int x = 0; x < LevelData.Level.ChunkWidth / 16; x++)
-				{
-					int i = blocks.IndexOf(chunk.Blocks[x, y].Block);
-					if (i == -1)
+					if (chunk.Blocks[x, y].Block < LevelData.Blocks.Count)
 					{
-						i = blocks.Count;
-						blocks.Add(chunk.Blocks[x, y].Block);
-						if (ColInds1 != null)
+						int i = blocks.IndexOf(chunk.Blocks[x, y].Block);
+						if (i == -1)
 						{
-							ColInds1.Add(LevelData.GetColInd1(chunk.Blocks[x, y].Block));
-							if (ColInds2 != null)
-								ColInds2.Add(LevelData.GetColInd2(chunk.Blocks[x, y].Block));
+							i = blocks.Count;
+							blocks.Add(chunk.Blocks[x, y].Block);
+							if (ColInds1 != null)
+							{
+								ColInds1.Add(LevelData.GetColInd1(chunk.Blocks[x, y].Block));
+								if (ColInds2 != null)
+									ColInds2.Add(LevelData.GetColInd2(chunk.Blocks[x, y].Block));
+							}
 						}
+						Chunk.Blocks[x, y].Block = (ushort)i;
 					}
-					Chunk.Blocks[x, y].Block = (ushort)i;
-				}
 			Blocks = new List<Block>(blocks.Count);
 			List<ushort> tiles = new List<ushort>();
 			foreach (ushort blkind in blocks)
@@ -8899,15 +8903,16 @@ namespace SonicRetro.SonLVL.GUI
 				Block block = LevelData.Blocks[blkind].Clone();
 				for (int y = 0; y < 2; y++)
 					for (int x = 0; x < 2; x++)
-					{
-						int i = tiles.IndexOf(block.Tiles[x, y].Tile);
-						if (i == -1)
+						if (block.Tiles[x, y].Tile < LevelData.Tiles.Count)
 						{
-							i = tiles.Count;
-							tiles.Add(block.Tiles[x, y].Tile);
+							int i = tiles.IndexOf(block.Tiles[x, y].Tile);
+							if (i == -1)
+							{
+								i = tiles.Count;
+								tiles.Add(block.Tiles[x, y].Tile);
+							}
+							block.Tiles[x, y].Tile = (ushort)i;
 						}
-						block.Tiles[x, y].Tile = (ushort)i;
-					}
 				Blocks.Add(block);
 			}
 			Tiles = new List<byte[]>(tiles.Count);
@@ -8928,15 +8933,16 @@ namespace SonicRetro.SonLVL.GUI
 			List<ushort> tiles = new List<ushort>();
 			for (int y = 0; y < 2; y++)
 				for (int x = 0; x < 2; x++)
-				{
-					int i = tiles.IndexOf(block.Tiles[x, y].Tile);
-					if (i == -1)
+					if (block.Tiles[x, y].Tile < LevelData.Tiles.Count)
 					{
-						i = tiles.Count;
-						tiles.Add(block.Tiles[x, y].Tile);
+						int i = tiles.IndexOf(block.Tiles[x, y].Tile);
+						if (i == -1)
+						{
+							i = tiles.Count;
+							tiles.Add(block.Tiles[x, y].Tile);
+						}
+						Block.Tiles[x, y].Tile = (ushort)i;
 					}
-					Block.Tiles[x, y].Tile = (ushort)i;
-				}
 			Tiles = new List<byte[]>(tiles.Count);
 			for (int i = 0; i < tiles.Count; i++)
 				Tiles.Add(LevelData.Tiles[tiles[i]]);
