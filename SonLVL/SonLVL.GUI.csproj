@@ -184,6 +184,12 @@
       <DependentUpon>AlternatePaletteDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Settings.cs" />
+    <Compile Include="StatisticsDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="StatisticsDialog.Designer.cs">
+      <DependentUpon>StatisticsDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="TileRemappingDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -260,6 +266,9 @@
     </Compile>
     <EmbeddedResource Include="AlternatePaletteDialog.resx">
       <DependentUpon>AlternatePaletteDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="StatisticsDialog.resx">
+      <DependentUpon>StatisticsDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="TileRemappingDialog.resx">
       <DependentUpon>TileRemappingDialog.cs</DependentUpon>

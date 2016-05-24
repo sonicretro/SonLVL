@@ -728,7 +728,7 @@ namespace SonicRetro.SonLVL.GUI
 			BlockCount.Text = LevelData.Blocks.Count.ToString("X") + " / " + LevelData.GetBlockMax().ToString("X");
 			TileCount.Text = LevelData.Tiles.Count.ToString("X") + " / 800";
 			deleteUnusedTilesToolStripButton.Enabled = deleteUnusedBlocksToolStripButton.Enabled = deleteUnusedChunksToolStripButton.Enabled =
-				clearBackgroundToolStripButton.Enabled = clearForegroundToolStripButton.Enabled = true;
+				clearBackgroundToolStripButton.Enabled = clearForegroundToolStripButton.Enabled = usageCountsToolStripMenuItem.Enabled = true;
 #if !DEBUG
 			loadingAnimation1.Hide();
 #endif
@@ -8828,6 +8828,12 @@ namespace SonicRetro.SonLVL.GUI
 			LevelData.Angles[CollisionSelector.SelectedIndex] = 0;
 			LevelData.RedrawCol(CollisionSelector.SelectedIndex, true);
 			CollisionSelector_SelectedIndexChanged(this, EventArgs.Empty);
+		}
+
+		private void usageCountsToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			using (StatisticsDialog dlg = new StatisticsDialog())
+				dlg.ShowDialog(this);
 		}
 	}
 
