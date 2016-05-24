@@ -2598,7 +2598,7 @@ namespace SonicRetro.SonLVL.API
 			{
 				for (int y = 0; y < map.Height; y++)
 				{
-					pcbmp.DrawBitmapComposited(
+					pcbmp.DrawBitmap(
 						TileToBmp8bpp(art, map.Tile.Tile + ti, (map.Tile.Palette + startpal) & 3),
 						x * 8, y * 8);
 					ti++;
@@ -2639,7 +2639,7 @@ namespace SonicRetro.SonLVL.API
 						);
 				}
 			}
-			CompBlockBmpBits[block].DrawBitmapComposited(BlockBmpBits[block][0], Point.Empty);
+			CompBlockBmpBits[block].DrawBitmap(BlockBmpBits[block][0], Point.Empty);
 			CompBlockBmpBits[block].DrawBitmapComposited(BlockBmpBits[block][1], Point.Empty);
 			BlockBmps[block][0] = BlockBmpBits[block][0].ToBitmap(BmpPal);
 			BlockBmps[block][1] = BlockBmpBits[block][1].ToBitmap(BmpPal);
@@ -2708,7 +2708,7 @@ namespace SonicRetro.SonLVL.API
 					}
 				}
 			}
-			CompChunkBmpBits[chunk].DrawBitmapComposited(ChunkBmpBits[chunk][0], Point.Empty);
+			CompChunkBmpBits[chunk].DrawBitmap(ChunkBmpBits[chunk][0], Point.Empty);
 			CompChunkBmpBits[chunk].DrawBitmapComposited(ChunkBmpBits[chunk][1], Point.Empty);
 			ChunkBmps[chunk][0] = ChunkBmpBits[chunk][0].ToBitmap(BmpPal);
 			ChunkBmps[chunk][1] = ChunkBmpBits[chunk][1].ToBitmap(BmpPal);

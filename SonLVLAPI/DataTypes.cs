@@ -2360,11 +2360,12 @@ namespace SonicRetro.SonLVL.API
 
 		public Sprite(IEnumerable<Sprite> sprites)
 		{
+			List<Sprite> sprlst = new List<Sprite>(sprites);
 			int left = 0;
 			int right = 0;
 			int top = 0;
 			int bottom = 0;
-			foreach (Sprite spr in sprites)
+			foreach (Sprite spr in sprlst)
 				if (spr.Image != null)
 				{
 					left = Math.Min(spr.Left, left);
@@ -2374,9 +2375,21 @@ namespace SonicRetro.SonLVL.API
 				}
 			Offset = new Point(left, top);
 			Image = new BitmapBits(right - left, bottom - top);
-			foreach (Sprite spr in sprites)
-				if (spr.Image != null)
-					Image.DrawBitmapComposited(spr.Image, new Point(spr.X - left, spr.Y - top));
+			for (int i = 0; i < sprlst.Count; i++)
+				if (sprlst[i].Image != null)
+				{
+					bool comp = false;
+					for (int j = 0; j < i; j++)
+						if (sprlst[j].Image != null && sprlst[i].Bounds.IntersectsWith(sprlst[j].Bounds))
+						{
+							comp = true;
+							break;
+						}
+					if (comp)
+						Image.DrawBitmapComposited(sprlst[i].Image, new Point(sprlst[i].X - left, sprlst[i].Y - top));
+					else
+						Image.DrawBitmap(sprlst[i].Image, new Point(sprlst[i].X - left, sprlst[i].Y - top));
+				}
 		}
 
 		public static Sprite LoadChaotixSprite(string filename) { return LoadChaotixSprite(File.ReadAllBytes(filename), 0); }
