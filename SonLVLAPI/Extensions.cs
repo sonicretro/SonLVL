@@ -308,6 +308,94 @@ namespace SonicRetro.SonLVL.API
 				return FastArrayEqualInternal(fp1, fp2, arr1.Length * 2);
 		}
 
+		private static unsafe bool FastArrayEqualInternal(void* fp1, ulong value, int length)
+		{
+			ulong* lp1 = (ulong*)fp1;
+			int longlen = length / 8;
+			for (int i = 0; i < longlen; i++)
+				if (*lp1++ != value) return false;
+			if ((length & 7) != 0)
+			{
+				byte* bp1 = (byte*)lp1;
+				if ((length & 4) == 4)
+					if (*(uint*)bp1 != (uint)value)
+						return false;
+					else
+						bp1 += 4;
+				if ((length & 2) == 2)
+					if (*(ushort*)bp1 != (ushort)value)
+						return false;
+					else
+						bp1 += 2;
+				if ((length & 1) == 1)
+					return *bp1 == (byte)value;
+			}
+			return true;
+		}
+
+		public static unsafe bool FastArrayEqual(this byte[] arr1, byte value)
+		{
+			ulong longval = (ulong)value;
+			longval |= longval << 8;
+			longval |= longval << 16;
+			longval |= longval << 32;
+			fixed (byte* fp1 = arr1)
+				return FastArrayEqualInternal(fp1, longval, arr1.Length);
+		}
+
+		public static unsafe bool FastArrayEqual(this sbyte[] arr1, sbyte value)
+		{
+			ulong longval = (ulong)(byte)value;
+			longval |= longval << 8;
+			longval |= longval << 16;
+			longval |= longval << 32;
+			fixed (sbyte* fp1 = arr1)
+				return FastArrayEqualInternal(fp1, longval, arr1.Length);
+		}
+
+		public static unsafe bool FastArrayEqual(this ushort[] arr1, ushort value)
+		{
+			ulong longval = (ulong)value;
+			longval |= longval << 16;
+			longval |= longval << 32;
+			fixed (ushort* fp1 = arr1)
+				return FastArrayEqualInternal(fp1, longval, arr1.Length * 2);
+		}
+
+		public static unsafe bool FastArrayEqual(this short[] arr1, short value)
+		{
+			ulong longval = (ulong)(ushort)value;
+			longval |= longval << 16;
+			longval |= longval << 32;
+			fixed (short* fp1 = arr1)
+				return FastArrayEqualInternal(fp1, longval, arr1.Length * 2);
+		}
+
+		public static unsafe bool FastArrayEqual(this uint[] arr1, uint value)
+		{
+			ulong longval = (ulong)value;
+			longval |= longval << 32;
+			fixed (uint* fp1 = arr1)
+				return FastArrayEqualInternal(fp1, longval, arr1.Length * 4);
+		}
+
+		public static unsafe bool FastArrayEqual(this int[] arr1, int value)
+		{
+			ulong longval = (ulong)(uint)value;
+			longval |= longval << 32;
+			fixed (int* fp1 = arr1)
+				return FastArrayEqualInternal(fp1, longval, arr1.Length * 4);
+		}
+
+		public static unsafe bool FastArrayEqual(this char[] arr1, char value)
+		{
+			ulong longval = (ulong)value;
+			longval |= longval << 16;
+			longval |= longval << 32;
+			fixed (char* fp1 = arr1)
+				return FastArrayEqualInternal(fp1, longval, arr1.Length * 2);
+		}
+
 		public static bool ListEqual<T>(this IList<T> lst1, IList<T> lst2)
 		{
 			if (lst1 == lst2) return true;

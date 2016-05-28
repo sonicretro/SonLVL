@@ -86,8 +86,8 @@ namespace SpriteSheetGen
 			art = tiles.ToArray();
 			tiles.Clear();
 			byte[] tmp = null;
-			using (Bitmap bmp = new Bitmap(1, 1, PixelFormat.Format8bppIndexed))
-				palette = bmp.Palette;
+			using (Bitmap palbmp = new Bitmap(1, 1, PixelFormat.Format8bppIndexed))
+				palette = palbmp.Palette;
 			for (int i = 0; i < 256; i++)
 				palette.Entries[i] = Color.Black;
 			foreach (PaletteInfo palent in spriteInfo.Palette)
@@ -132,7 +132,11 @@ namespace SpriteSheetGen
 			}
 			else
 				dplc = null;
-			List<Sprite> sprites = new List<Sprite>(map.Count);
+			List<BitmapBits> spritesLow = new List<BitmapBits>(map.Count);
+			List<BitmapBits> spritesHigh = new List<BitmapBits>(map.Count);
+			List<BitmapBits> spritesMerged = new List<BitmapBits>(map.Count);
+			List<Point> offsets = new List<Point>(map.Count);
+			List<Point> centers = new List<Point>(map.Count);
 			for (int i = 0; i < map.Count; i++)
 			{
 				if (map[i].TileCount == 0)
@@ -140,49 +144,64 @@ namespace SpriteSheetGen
 					//File.AppendAllText("log.txt", "Frame " + i + " empty.\r\n");
 					continue;
 				}
-				Sprite spr;
+				Sprite[] spr;
 				if (dplc != null)
-					spr = new Sprite(LevelData.MapFrameToBmp(art, map[i], dplc[i], spriteInfo.StartPalette));
+					spr = LevelData.MapFrameToBmp(art, map[i], dplc[i], spriteInfo.StartPalette);
 				else
-					spr = new Sprite(LevelData.MapFrameToBmp(art, map[i], spriteInfo.StartPalette));
-				for (int _x = 0; _x < spr.Width; _x++)
-					for (int _y = 0; _y < spr.Height; _y++)
-						if (spr.Image[_x, _y] != 0)
+					spr = LevelData.MapFrameToBmp(art, map[i], spriteInfo.StartPalette);
+				BitmapBits sprLow = spr[0].Image;
+				BitmapBits sprHigh = spr[1].Image;
+				BitmapBits sprMerged = new BitmapBits(sprLow);
+				sprMerged.DrawBitmapComposited(sprHigh, 0, 0);
+				centers.Add(new Point(-spr[0].X, -spr[0].Y));
+				for (int _x = 0; _x < sprMerged.Width; _x++)
+					for (int _y = 0; _y < sprMerged.Height; _y++)
+						if (sprMerged[_x, _y] != 0)
 						{
-							spr.Image = spr.Image.GetSection(_x, 0, spr.Width - _x, spr.Height);
+							sprMerged = sprMerged.GetSection(_x, 0, sprMerged.Width - _x, sprMerged.Height);
+							sprLow = sprLow.GetSection(_x, 0, sprLow.Width - _x, sprLow.Height);
+							sprHigh = sprHigh.GetSection(_x, 0, sprHigh.Width - _x, sprHigh.Height);
 							goto checkright;
 						}
 			checkright:
-				for (int _x = spr.Width - 1; _x >= 0; _x--)
-					for (int _y = 0; _y < spr.Height; _y++)
-						if (spr.Image[_x, _y] != 0)
+				for (int _x = sprMerged.Width - 1; _x >= 0; _x--)
+					for (int _y = 0; _y < sprMerged.Height; _y++)
+						if (sprMerged[_x, _y] != 0)
 						{
-							spr.Image = spr.Image.GetSection(0, 0, _x + 1, spr.Height);
+							sprMerged = sprMerged.GetSection(0, 0, _x + 1, sprMerged.Height);
+							sprLow = sprLow.GetSection(0, 0, _x + 1, sprLow.Height);
+							sprHigh = sprHigh.GetSection(0, 0, _x + 1, sprHigh.Height);
 							goto checktop;
 						}
 			checktop:
-				for (int _y = 0; _y < spr.Height; _y++)
-					for (int _x = 0; _x < spr.Width; _x++)
-						if (spr.Image[_x, _y] != 0)
+				for (int _y = 0; _y < sprMerged.Height; _y++)
+					for (int _x = 0; _x < sprMerged.Width; _x++)
+						if (sprMerged[_x, _y] != 0)
 						{
-							spr.Image = spr.Image.GetSection(0, _y, spr.Width, spr.Height - _y);
+							sprMerged = sprMerged.GetSection(0, _y, sprMerged.Width, sprMerged.Height - _y);
+							sprLow = sprLow.GetSection(0, _y, sprLow.Width, sprLow.Height - _y);
+							sprHigh = sprHigh.GetSection(0, _y, sprHigh.Width, sprHigh.Height - _y);
 							goto checkbottom;
 						}
 			checkbottom:
-				for (int _y = spr.Height - 1; _y >= 0; _y--)
-					for (int _x = 0; _x < spr.Width; _x++)
-						if (spr.Image[_x, _y] != 0)
+				for (int _y = sprMerged.Height - 1; _y >= 0; _y--)
+					for (int _x = 0; _x < sprMerged.Width; _x++)
+						if (sprMerged[_x, _y] != 0)
 						{
-							spr.Image = spr.Image.GetSection(0, 0, spr.Width, _y + 1);
+							sprMerged = sprMerged.GetSection(0, 0, sprMerged.Width, _y + 1);
+							sprLow = sprLow.GetSection(0, 0, sprLow.Width, _y + 1);
+							sprHigh = sprHigh.GetSection(0, 0, sprHigh.Width, _y + 1);
 							goto checkdone;
 						}
 			checkdone:
-				sprites.Add(spr);
+				spritesMerged.Add(sprMerged);
+				spritesLow.Add(sprLow);
+				spritesHigh.Add(sprHigh);
 			}
 			if (gridsize == 0)
 			{
-				for (int i = 0; i < sprites.Count; i++)
-					gridsize = Math.Max(gridsize, Math.Max(sprites[i].Width, sprites[i].Height));
+				for (int i = 0; i < spritesMerged.Count; i++)
+					gridsize = Math.Max(gridsize, Math.Max(spritesMerged[i].Width, spritesMerged[i].Height));
 				if (!fixedwidth)
 					width = (padding * 2 + gridsize) * columns;
 			}
@@ -191,9 +210,10 @@ namespace SpriteSheetGen
 			int height = 0;
 			int rowcnt = 0;
 			int rowheight = 0;
-			for (int i = 0; i < sprites.Count; i++)
+			for (int i = 0; i < spritesMerged.Count; i++)
 			{
-				Sprite spr = sprites[i];
+				BitmapBits spr = spritesMerged[i];
+				Point off;
 				if (gridsize == -1)
 				{
 					if (fixedwidth && x + spr.Width + padding > width)
@@ -202,7 +222,8 @@ namespace SpriteSheetGen
 						y += rowheight;
 						rowheight = 0;
 					}
-					spr.Offset = new System.Drawing.Point(x, y);
+					off = new System.Drawing.Point(x, y);
+					centers[i] = new Point(centers[i].X + off.X, centers[i].Y + off.Y);
 					if (!fixedwidth)
 						width = Math.Max(width, x + spr.Width + padding);
 					height = Math.Max(height, y + spr.Height + padding);
@@ -225,7 +246,8 @@ namespace SpriteSheetGen
 						x = padding;
 						y += gridsize + 2 * padding;
 					}
-					spr.Offset = new System.Drawing.Point(x + (gridsize - spr.Width) / 2, y + (gridsize - spr.Height) / 2);
+					off = new Point(x + (gridsize - spr.Width) / 2, y + (gridsize - spr.Height) / 2);
+					centers[i] = new Point(centers[i].X + off.X, centers[i].Y + off.Y);
 					height = Math.Max(height, y + gridsize + padding);
 					if (!fixedwidth && ++rowcnt == columns)
 					{
@@ -236,11 +258,20 @@ namespace SpriteSheetGen
 					else
 						x += gridsize + 2 * padding;
 				}
-				sprites[i] = spr;
+				offsets.Add(off);
 			}
-			BitmapBits bmp2 = new BitmapBits(width, height);
-			foreach (Sprite spr in sprites)
-				bmp2.DrawSprite(spr, 0, 0);
+			BitmapBits bmpMerged = new BitmapBits(width, height);
+			for (int i = 0; i < spritesMerged.Count; i++)
+				bmpMerged.DrawBitmap(spritesMerged[i], offsets[i]);
+			BitmapBits bmpLow = new BitmapBits(width, height);
+			for (int i = 0; i < spritesLow.Count; i++)
+				bmpLow.DrawBitmap(spritesLow[i], offsets[i]);
+			BitmapBits bmpHigh = new BitmapBits(width, height);
+			for (int i = 0; i < spritesHigh.Count; i++)
+				bmpHigh.DrawBitmap(spritesHigh[i], offsets[i]);
+			BitmapBits bmpCenter = new BitmapBits(width, height);
+			for (int i = 0; i < centers.Count; i++)
+				bmpCenter[centers[i].X, centers[i].Y] = 1;
 			Console.Write("Save as: ");
 			if (getopt.Optind + 1 >= args.Length)
 				filename = Console.ReadLine();
@@ -249,7 +280,14 @@ namespace SpriteSheetGen
 				filename = args[getopt.Optind + 1];
 				Console.WriteLine(filename);
 			}
-			bmp2.ToBitmap(palette).Save(filename);
+			filename = Path.GetFullPath(filename);
+			bmpMerged.ToBitmap(palette).Save(filename);
+			if (!bmpLow.Bits.FastArrayEqual(0) && !bmpHigh.Bits.FastArrayEqual(0))
+			{
+				bmpLow.ToBitmap(palette).Save(Path.Combine(Path.GetDirectoryName(filename), Path.GetFileNameWithoutExtension(filename) + "_low" + Path.GetExtension(filename)));
+				bmpHigh.ToBitmap(palette).Save(Path.Combine(Path.GetDirectoryName(filename), Path.GetFileNameWithoutExtension(filename) + "_high" + Path.GetExtension(filename)));
+			}
+			bmpCenter.ToBitmap1bpp(Color.Black, Color.White).Save(Path.Combine(Path.GetDirectoryName(filename), Path.GetFileNameWithoutExtension(filename) + "_center" + Path.GetExtension(filename)));
 		}
 	}
 

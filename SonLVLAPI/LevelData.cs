@@ -2581,13 +2581,13 @@ namespace SonicRetro.SonLVL.API
 				bottom = Math.Max(map[i].Y + (map[i].Height * 8), bottom);
 			}
 			Point offset = new Point(left, top);
-			Sprite[] spr = new Sprite[] { new Sprite(), new Sprite() };
+			BitmapBits[] img = new BitmapBits[] { new BitmapBits(right - left, bottom - top), new BitmapBits(right - left, bottom - top) };
 			for (int i = map.TileCount - 1; i >= 0; i--)
 			{
 				int pr = map[i].Tile.Priority ? 1 : 0;
-				spr[pr] = new Sprite(spr[pr], MapTileToBmp(art, map[i], startpal));
+				img[pr].DrawSprite(MapTileToBmp(art, map[i], startpal), -left, -top);
 			}
-			return spr;
+			return new Sprite[] { new Sprite(img[0], offset), new Sprite(img[1],offset) };
 		}
 
 		public static Sprite MapTileToBmp(byte[] art, MappingsTile map, int startpal)
