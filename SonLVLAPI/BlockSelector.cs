@@ -84,9 +84,9 @@ namespace SonicRetro.SonLVL.API
 			if (edSvc != null)
 			{
 				// Display an angle selection control and retrieve the value.
-				BlockControl idControl = new BlockControl(ushort.Parse((string)value, System.Globalization.NumberStyles.HexNumber), edSvc);
+				BlockControl idControl = new BlockControl((ushort)value, edSvc);
 				edSvc.DropDownControl(idControl);
-				return idControl.value.ToString("X");
+				return idControl.value;
 			}
 			return value;
 		}
@@ -98,7 +98,7 @@ namespace SonicRetro.SonLVL.API
 
 		public override void PaintValue(PaintValueEventArgs e)
 		{
-			ushort val = ushort.Parse((string)e.Value, System.Globalization.NumberStyles.HexNumber);
+			ushort val = (ushort)e.Value;
 			if (val >= LevelData.Blocks.Count) return;
 			e.Graphics.DrawImage(LevelData.CompBlockBmps[val].Resize(e.Bounds.Size), e.Bounds);
 		}

@@ -154,16 +154,15 @@ namespace SonicRetro.SonLVL.API
 		public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
 		{
 			if (!(context.Instance is ObjectEntry)) return value;
-			if (value == null) value = "0";
 			// Uses the IWindowsFormsEditorService to display a 
 			// drop-down UI in the Properties window.
 			IWindowsFormsEditorService edSvc = (IWindowsFormsEditorService)provider.GetService(typeof(IWindowsFormsEditorService));
 			if (edSvc != null)
 			{
 				// Display an angle selection control and retrieve the value.
-				IDControl idControl = new IDControl(byte.Parse((string)value, System.Globalization.NumberStyles.HexNumber), edSvc);
+				IDControl idControl = new IDControl((byte)value, edSvc);
 				edSvc.DropDownControl(idControl);
-				return idControl.Value.ToString("X2");
+				return idControl.Value;
 			}
 			return value;
 		}
@@ -175,8 +174,7 @@ namespace SonicRetro.SonLVL.API
 
 		public override void PaintValue(PaintValueEventArgs e)
 		{
-			if (e.Value == null) return;
-			byte val = byte.Parse((string)e.Value, System.Globalization.NumberStyles.HexNumber);
+			byte val = (byte)e.Value;
 			if (LevelData.ObjTypes.ContainsKey(val))
 				e.Graphics.DrawImage(LevelData.ObjTypes[val].Image.Image.ToBitmap(LevelData.BmpPal).Resize(e.Bounds.Size), e.Bounds);
 			else

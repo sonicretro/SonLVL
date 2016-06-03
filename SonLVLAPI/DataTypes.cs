@@ -166,7 +166,8 @@ namespace SonicRetro.SonLVL.API
 		public bool YFlip { get; set; }
 		private ushort _ind;
 
-		[Browsable(false)]
+		[Editor(typeof(TileEditor), typeof(System.Drawing.Design.UITypeEditor))]
+		[TypeConverter(typeof(UInt16HexConverter))]
 		public ushort Tile
 		{
 			get
@@ -176,20 +177,6 @@ namespace SonicRetro.SonLVL.API
 			set
 			{
 				_ind = (ushort)(value & 0x7FF);
-			}
-		}
-
-		[DisplayName("Tile")]
-		[Editor(typeof(TileEditor), typeof(System.Drawing.Design.UITypeEditor))]
-		public string _Tile
-		{
-			get
-			{
-				return _ind.ToString("X4");
-			}
-			set
-			{
-				_ind = (ushort)(ushort.Parse(value, System.Globalization.NumberStyles.HexNumber) & 0x7FF);
 			}
 		}
 
@@ -416,7 +403,8 @@ namespace SonicRetro.SonLVL.API
 		public bool XFlip { get; set; }
 		public bool YFlip { get; set; }
 		protected ushort _ind;
-		[Browsable(false)]
+		[Editor(typeof(BlockEditor), typeof(System.Drawing.Design.UITypeEditor))]
+		[TypeConverter(typeof(UInt16HexConverter))]
 		public ushort Block
 		{
 			get
@@ -426,20 +414,6 @@ namespace SonicRetro.SonLVL.API
 			set
 			{
 				_ind = (ushort)(value & 0x3FF);
-			}
-		}
-
-		[DisplayName("Block")]
-		[Editor(typeof(BlockEditor), typeof(System.Drawing.Design.UITypeEditor))]
-		public string _Block
-		{
-			get
-			{
-				return _ind.ToString("X4");
-			}
-			set
-			{
-				_ind = (ushort)(ushort.Parse(value, System.Globalization.NumberStyles.HexNumber) & 0x3FF);
 			}
 		}
 
@@ -706,17 +680,12 @@ namespace SonicRetro.SonLVL.API
 		[NonSerialized]
 		private Entry ent;
 		private ushort x, y;
-		[Browsable(false)]
-		public ushort X { get { if (ent != null) x = ent.X; return x; } set { x = value; if (ent != null) ent.X = value; } }
-		[Browsable(false)]
-		public ushort Y { get { if (ent != null) y = ent.Y; return y; } set { y = value; if (ent != null) ent.Y = value; } }
-
-		[DisplayName("X")]
 		[Description("The horizontal component of the position.")]
-		public string XHex { get { return X.ToString("X4"); } set { X = ushort.Parse(value, System.Globalization.NumberStyles.HexNumber); } }
-		[DisplayName("Y")]
+		[TypeConverter(typeof(UInt16HexConverter))]
+		public ushort X { get { if (ent != null) x = ent.X; return x; } set { x = value; if (ent != null) ent.X = value; } }
 		[Description("The vertical component of the position.")]
-		public string YHex { get { return Y.ToString("X4"); } set { Y = ushort.Parse(value, System.Globalization.NumberStyles.HexNumber); } }
+		[TypeConverter(typeof(UInt16HexConverter))]
+		public ushort Y { get { if (ent != null) y = ent.Y; return y; } set { y = value; if (ent != null) ent.Y = value; } }
 
 		public Position() { }
 
@@ -910,40 +879,16 @@ namespace SonicRetro.SonLVL.API
 		[Description("Flips the object horizontally.")]
 		[DisplayName("X Flip")]
 		public virtual bool XFlip { get; set; }
-		[Browsable(false)]
-		public virtual byte ID { get; set; }
-		[DefaultValue("00")]
+		[DefaultValue(0)]
 		[Description("The ID number of the object.")]
-		[DisplayName("ID")]
 		[Editor(typeof(IDEditor), typeof(System.Drawing.Design.UITypeEditor))]
-		public virtual string _ID
-		{
-			get
-			{
-				return ID.ToString("X2");
-			}
-			set
-			{
-				ID = byte.Parse(value, System.Globalization.NumberStyles.HexNumber);
-			}
-		}
-		[Browsable(false)]
-		public virtual byte SubType { get; set; }
-		[DefaultValue("00")]
+		[TypeConverter(typeof(ByteHexConverter))]
+		public virtual byte ID { get; set; }
+		[DefaultValue(0)]
 		[Description("The subtype of the object.")]
-		[DisplayName("Subtype")]
 		[Editor(typeof(SubTypeEditor), typeof(System.Drawing.Design.UITypeEditor))]
-		public virtual string _SubType
-		{
-			get
-			{
-				return SubType.ToString("X2");
-			}
-			set
-			{
-				SubType = byte.Parse(value, System.Globalization.NumberStyles.HexNumber);
-			}
-		}
+		[TypeConverter(typeof(ByteHexConverter))]
+		public virtual byte SubType { get; set; }
 
 		protected bool isLoaded = false;
 
@@ -1174,18 +1119,6 @@ namespace SonicRetro.SonLVL.API
 		[DisplayName("Remember State")]
 		public virtual bool RememberState { get; set; }
 
-		public override string _ID
-		{
-			get
-			{
-				return ID.ToString("X2");
-			}
-			set
-			{
-				ID = byte.Parse(value, System.Globalization.NumberStyles.HexNumber);
-			}
-		}
-
 		public override byte ID
 		{
 			get
@@ -1380,6 +1313,7 @@ namespace SonicRetro.SonLVL.API
 	[Serializable]
 	public class ChaotixObjectEntry : ObjectEntry
 	{
+		[Browsable(false)]
 		public override byte SubType
 		{
 			get
@@ -1393,21 +1327,17 @@ namespace SonicRetro.SonLVL.API
 		}
 
 		private ushort fullSubType;
+		[DefaultValue(0)]
+		[DisplayName("SubType")]
+		[Description("The subtype of the object.")]
+		[Editor(typeof(SubTypeEditor), typeof(System.Drawing.Design.UITypeEditor))]
+		[TypeConverter(typeof(UInt16HexConverter))]
 		public ushort FullSubType
 		{
 			get { return fullSubType; }
 			set { fullSubType = (ushort)(value & 0x1FFF); }
 		}
 
-		[DefaultValue("00")]
-		[Description("The subtype of the object.")]
-		[DisplayName("Subtype")]
-		[Editor(typeof(SubTypeEditor), typeof(System.Drawing.Design.UITypeEditor))]
-		public override string _SubType
-		{
-			get { return FullSubType.ToString("X4"); }
-			set { FullSubType = byte.Parse(value, System.Globalization.NumberStyles.HexNumber); }
-		}
 		[DefaultValue(false)]
 		[Description("If true, the object will be loaded when it is in horizontal range of the screen, regardless of its Y position.")]
 		[DisplayName("Make object manager ignore Y position")]
@@ -1490,23 +1420,10 @@ namespace SonicRetro.SonLVL.API
 	[Serializable]
 	public class CNZBumperEntry : Entry, IComparable<CNZBumperEntry>
 	{
-		[Browsable(false)]
-		public ushort ID { get; set; }
-
-		[DefaultValue("0000")]
+		[DefaultValue(0)]
 		[Description("The type of bumper.")]
-		[DisplayName("ID")]
-		public string _ID
-		{
-			get
-			{
-				return ID.ToString("X4");
-			}
-			set
-			{
-				ID = ushort.Parse(value, System.Globalization.NumberStyles.HexNumber);
-			}
-		}
+		[TypeConverter(typeof(UInt16HexConverter))]
+		public ushort ID { get; set; }
 
 		public static int Size { get { return 6; } }
 
