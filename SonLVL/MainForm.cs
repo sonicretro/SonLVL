@@ -4942,6 +4942,8 @@ namespace SonicRetro.SonLVL.GUI
 
 		private bool ImportImage(Bitmap bmp, Bitmap colbmp1, Bitmap colbmp2, Bitmap pribmp, byte[,] layout)
 		{
+			System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+			sw.Start();
 			int w = bmp.Width;
 			int h = bmp.Height;
 			Enabled = false;
@@ -4972,10 +4974,14 @@ namespace SonicRetro.SonLVL.GUI
 			List<byte[]> tiles = new List<byte[]>(LevelData.Tiles.Count);
 			if (LevelData.Level.TwoPlayerCompatible)
 				for (int i = 0; i < LevelData.Tiles.Count; i += 2)
-					tiles.Add(BitmapBits.FromTileInterlaced(LevelData.TileArray, i).Bits);
+				{
+					byte[] t = new byte[64];
+					Array.Copy(LevelData.TileArray, i * 32, t, 0, 64);
+					tiles.Add(t);
+				}
 			else
 				for (int i = 0; i < LevelData.Tiles.Count; i++)
-					tiles.Add(BitmapBits.FromTile(LevelData.Tiles[i], 0).Bits);
+					tiles.Add(LevelData.Tiles[i]);
 			Application.DoEvents();
 			List<byte[]> blocks = new List<byte[]>(LevelData.Blocks.Count);
 			for (int i = 0; i < LevelData.Blocks.Count; i++)
@@ -5096,6 +5102,8 @@ namespace SonicRetro.SonLVL.GUI
 			}
 			else if (newBlocks.Count > 0)
 				chunkBlockEditor.SelectedObjects = chunkBlockEditor.SelectedObjects;
+			sw.Stop();
+			MessageBox.Show(sw.Elapsed.ToString());
 			importProgressControl1.Hide();
 			Enabled = true;
 			UseWaitCursor = false;
@@ -5230,21 +5238,26 @@ namespace SonicRetro.SonLVL.GUI
 		private void ImportTile(BitmapInfo bmp, byte? forcepal, List<byte[]> tiles, List<byte[]> newTiles, Block blk, int x, int y)
 		{
 			int pal;
-			byte[] tile;
-			tile = LevelData.BmpToTile(new BitmapInfo(bmp, x * 8, y * 8, 8, 8), out pal);
+			byte[] tile = LevelData.BmpToTile(new BitmapInfo(bmp, x * 8, y * 8, 8, 8), out pal);
+			byte[] tileh = new byte[32];
+			for (int ty = 0; ty < 8; ty++)
+				for (int tx = 0; tx < 4; tx++)
+				{
+					byte px = tile[(ty * 4) + tx];
+					tileh[(ty * 4) + (3 - tx)] = (byte)((px >> 4) | (px << 4));
+				}
+			byte[] tilev = new byte[32];
+			for (int ty = 0; ty < 8; ty++)
+				Array.Copy(tile, ty * 4, tilev, (7 - ty) * 4, 4);
+			byte[] tilehv = new byte[32];
+			for (int ty = 0; ty < 8; ty++)
+				Array.Copy(tileh, ty * 4, tilehv, (7 - ty) * 4, 4);
 			if (blk != null)
 				blk.Tiles[x, y].Palette = forcepal ?? (byte)pal;
-			BitmapBits bits = BitmapBits.FromTile(tile, 0);
-			BitmapBits bitsh = new BitmapBits(bits);
-			bitsh.Flip(true, false);
-			BitmapBits bitsv = new BitmapBits(bits);
-			bitsv.Flip(false, true);
-			BitmapBits bitshv = new BitmapBits(bits);
-			bitshv.Flip(true, true);
 			for (int i = 0; i < tiles.Count; i++)
 			{
 				Application.DoEvents();
-				if (tiles[i].FastArrayEqual(bits.Bits))
+				if (tiles[i].FastArrayEqual(tile))
 				{
 					if (blk != null)
 						blk.Tiles[x, y].Tile = (ushort)i;
@@ -5252,7 +5265,7 @@ namespace SonicRetro.SonLVL.GUI
 					Application.DoEvents();
 					return;
 				}
-				if (tiles[i].FastArrayEqual(bitsh.Bits))
+				if (tiles[i].FastArrayEqual(tileh))
 				{
 					if (blk != null)
 					{
@@ -5263,7 +5276,7 @@ namespace SonicRetro.SonLVL.GUI
 					Application.DoEvents();
 					return;
 				}
-				if (tiles[i].FastArrayEqual(bitsv.Bits))
+				if (tiles[i].FastArrayEqual(tilev))
 				{
 					if (blk != null)
 					{
@@ -5274,7 +5287,7 @@ namespace SonicRetro.SonLVL.GUI
 					Application.DoEvents();
 					return;
 				}
-				if (tiles[i].FastArrayEqual(bitshv.Bits))
+				if (tiles[i].FastArrayEqual(tilehv))
 				{
 					if (blk != null)
 					{
@@ -5289,7 +5302,7 @@ namespace SonicRetro.SonLVL.GUI
 			}
 			importProgressControl1.CurrentProgress++;
 			Application.DoEvents();
-			tiles.Add(bits.Bits);
+			tiles.Add(tile);
 			newTiles.Add(tile);
 			if (blk != null)
 				blk.Tiles[x, y].Tile = (ushort)(LevelData.Tiles.Count + newTiles.Count - 1);
@@ -5298,21 +5311,26 @@ namespace SonicRetro.SonLVL.GUI
 		private void ImportTileInterlaced(BitmapInfo bmp, byte? forcepal, List<byte[]> tiles, List<byte[]> newTiles, Block blk, int x, int y)
 		{
 			int pal;
-			byte[] tile;
-			tile = LevelData.BmpToTileInterlaced(new BitmapInfo(bmp, x * 8, y * 16, 8, 16), out pal);
+			byte[] tile = LevelData.BmpToTileInterlaced(new BitmapInfo(bmp, x * 8, y * 16, 8, 16), out pal);
+			byte[] tileh = new byte[64];
+			for (int ty = 0; ty < 16; ty++)
+				for (int tx = 0; tx < 4; tx++)
+				{
+					byte px = tile[(ty * 4) + tx];
+					tileh[(ty * 4) + (3 - tx)] = (byte)((px >> 4) | (px << 4));
+				}
+			byte[] tilev = new byte[64];
+			for (int ty = 0; ty < 16; ty++)
+				Array.Copy(tile, ty * 4, tilev, (15 - ty) * 4, 4);
+			byte[] tilehv = new byte[64];
+			for (int ty = 0; ty < 16; ty++)
+				Array.Copy(tileh, ty * 4, tilehv, (15 - ty) * 4, 4);
 			if (blk != null)
 				blk.Tiles[x, 0].Palette = forcepal ?? (byte)pal;
-			BitmapBits bits = BitmapBits.FromTileInterlaced(tile, 0);
-			BitmapBits bitsh = new BitmapBits(bits);
-			bitsh.Flip(true, false);
-			BitmapBits bitsv = new BitmapBits(bits);
-			bitsv.Flip(false, true);
-			BitmapBits bitshv = new BitmapBits(bits);
-			bitshv.Flip(true, true);
 			for (int i = 0; i < tiles.Count; i++)
 			{
 				Application.DoEvents();
-				if (tiles[i].FastArrayEqual(bits.Bits))
+				if (tiles[i].FastArrayEqual(tile))
 				{
 					if (blk != null)
 						blk.Tiles[x, 0].Tile = (ushort)(i * 2);
@@ -5320,7 +5338,7 @@ namespace SonicRetro.SonLVL.GUI
 					Application.DoEvents();
 					return;
 				}
-				if (tiles[i].FastArrayEqual(bitsh.Bits))
+				if (tiles[i].FastArrayEqual(tileh))
 				{
 					if (blk != null)
 					{
@@ -5331,7 +5349,7 @@ namespace SonicRetro.SonLVL.GUI
 					Application.DoEvents();
 					return;
 				}
-				if (tiles[i].FastArrayEqual(bitsv.Bits))
+				if (tiles[i].FastArrayEqual(tilev))
 				{
 					if (blk != null)
 					{
@@ -5342,7 +5360,7 @@ namespace SonicRetro.SonLVL.GUI
 					Application.DoEvents();
 					return;
 				}
-				if (tiles[i].FastArrayEqual(bitshv.Bits))
+				if (tiles[i].FastArrayEqual(tilehv))
 				{
 					if (blk != null)
 					{
@@ -5357,7 +5375,7 @@ namespace SonicRetro.SonLVL.GUI
 			}
 			importProgressControl1.CurrentProgress++;
 			Application.DoEvents();
-			tiles.Add(bits.Bits);
+			tiles.Add(tile);
 			byte[] t1 = new byte[32];
 			Array.Copy(tile, 0, t1, 0, 32);
 			newTiles.Add(t1);
