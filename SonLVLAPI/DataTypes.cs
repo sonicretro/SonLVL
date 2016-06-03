@@ -316,7 +316,6 @@ namespace SonicRetro.SonLVL.API
 			Block result = Clone();
 			if (horizontal)
 				if (vertical)
-				{
 					for (int y = 0; y < 2; y++)
 						for (int x = 0; x < 2; x++)
 						{
@@ -325,9 +324,7 @@ namespace SonicRetro.SonLVL.API
 							tile.YFlip = !tile.YFlip;
 							result.Tiles[x, y] = tile;
 						}
-				}
 				else
-				{
 					for (int y = 0; y < 2; y++)
 						for (int x = 0; x < 2; x++)
 						{
@@ -335,9 +332,7 @@ namespace SonicRetro.SonLVL.API
 							tile.XFlip = !tile.XFlip;
 							result.Tiles[x, y] = tile;
 						}
-				}
 			else if (vertical)
-			{
 				for (int y = 0; y < 2; y++)
 					for (int x = 0; x < 2; x++)
 					{
@@ -345,8 +340,52 @@ namespace SonicRetro.SonLVL.API
 						tile.YFlip = !tile.YFlip;
 						result.Tiles[x, y] = tile;
 					}
-			}
 			return result;
+		}
+
+		public bool IsInterlacedCompatible
+		{
+			get
+			{
+				for (int x = 0; x < 2; x++)
+				{
+					PatternIndex tile = Tiles[x, 0];
+					PatternIndex tile2 = Tiles[x, 1];
+					if (tile.YFlip && tile.Tile % 2 == 0)
+						return false;
+					else if (tile.Tile % 2 == 1)
+						return false;
+					if (tile2.Tile != (tile.Tile ^ 1))
+						return false;
+					if (tile2.Palette != tile.Palette)
+						return false;
+					if (tile2.Priority != tile.Priority)
+						return false;
+					if (tile2.XFlip != tile.XFlip)
+						return false;
+					if (tile2.YFlip != tile.YFlip)
+						return false;
+				}
+				return true;
+			}
+		}
+
+		public void MakeInterlacedCompatible()
+		{
+			for (int x = 0; x < 2; x++)
+			{
+				PatternIndex tile = Tiles[x, 0];
+				PatternIndex tile2 = Tiles[x, 1];
+				if (tile.YFlip)
+					tile.Tile |= 1;
+				else
+					tile.Tile &= unchecked((ushort)~1);
+				tile2.Tile = (ushort)(tile.Tile ^ 1);
+				tile2.Palette = tile.Palette;
+				tile2.Priority = tile.Priority;
+				tile2.XFlip = tile.XFlip;
+				tile2.YFlip = tile.YFlip;
+			}
 		}
 	}
 

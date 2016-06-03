@@ -2146,6 +2146,24 @@ namespace SonicRetro.SonLVL.API
 				System.Runtime.InteropServices.Marshal.Copy(file, index * 32, bmpd.Scan0, 32);
 				bmp.UnlockBits(bmpd);
 			}
+			else
+				InvalidTile.ToBitmap4bpp(bmp);
+			ColorPalette pal = bmp.Palette;
+			for (int i = 0; i < 16; i++)
+				pal.Entries[i] = PaletteToColor(palette, i, false);
+			bmp.Palette = pal;
+			return bmp;
+		}
+
+		public static Bitmap InterlacedTileToBmp4bpp(byte[] file, int index, int palette)
+		{
+			Bitmap bmp = new Bitmap(8, 16, PixelFormat.Format4bppIndexed);
+			if (file != null && index * 32 + 64 <= file.Length)
+			{
+				BitmapData bmpd = bmp.LockBits(new Rectangle(0, 0, 8, 16), ImageLockMode.WriteOnly, PixelFormat.Format4bppIndexed);
+				System.Runtime.InteropServices.Marshal.Copy(file, index * 32, bmpd.Scan0, 64);
+				bmp.UnlockBits(bmpd);
+			}
 			ColorPalette pal = bmp.Palette;
 			for (int i = 0; i < 16; i++)
 				pal.Entries[i] = PaletteToColor(palette, i, false);
@@ -2171,6 +2189,40 @@ namespace SonicRetro.SonLVL.API
 			{
 				bmp = new BitmapBits(InvalidTile);
 				bmp.IncrementIndexes(pal * 16);
+			}
+			return bmp;
+		}
+
+		public static BitmapBits InterlacedTileToBmp8bpp(byte[] file, int index, int pal)
+		{
+			BitmapBits bmp = new BitmapBits(8, 16);
+			if (file != null && index * 32 + 64 <= file.Length)
+				for (int i = 0; i < 64; i++)
+				{
+					bmp.Bits[i * 2] = (byte)((file[i + (index * 32)] >> 4) + (pal * 16));
+					bmp.Bits[(i * 2) + 1] = (byte)((file[i + (index * 32)] & 0xF) + (pal * 16));
+					if (bmp.Bits[i * 2] % 16 == 0) bmp.Bits[i * 2] = 0;
+					if (bmp.Bits[(i * 2) + 1] % 16 == 0) bmp.Bits[(i * 2) + 1] = 0;
+				}
+			else if (file != null && index * 32 + 32 <= file.Length)
+			{
+				for (int i = 0; i < 32; i++)
+				{
+					bmp.Bits[i * 2] = (byte)((file[i + (index * 32)] >> 4) + (pal * 16));
+					bmp.Bits[(i * 2) + 1] = (byte)((file[i + (index * 32)] & 0xF) + (pal * 16));
+					if (bmp.Bits[i * 2] % 16 == 0) bmp.Bits[i * 2] = 0;
+					if (bmp.Bits[(i * 2) + 1] % 16 == 0) bmp.Bits[(i * 2) + 1] = 0;
+				}
+				BitmapBits tmp = new BitmapBits(InvalidTile);
+				tmp.IncrementIndexes(pal * 16);
+				bmp.DrawBitmap(tmp, 0, 8);
+			}
+			else
+			{
+				BitmapBits tmp = new BitmapBits(InvalidTile);
+				tmp.IncrementIndexes(pal * 16);
+				bmp.DrawBitmap(tmp, 0, 0);
+				bmp.DrawBitmap(tmp, 0, 8);
 			}
 			return bmp;
 		}
@@ -2930,40 +2982,24 @@ namespace SonicRetro.SonLVL.API
 			return result;
 		}
 
-		public static byte[] BmpToTile(Bitmap bmp, out int palette)
+		public static byte[] BmpToTile(BitmapInfo bmp, out int palette)
 		{
+			BitmapBits bmpbits = new BitmapBits(8, 8);
 			switch (bmp.PixelFormat)
 			{
 				case PixelFormat.Format1bppIndexed:
-				case PixelFormat.Format32bppArgb:
-				case PixelFormat.Format4bppIndexed:
-				case PixelFormat.Format8bppIndexed:
-					break;
-				default:
-					bmp = bmp.To32bpp();
-					break;
-			}
-			BitmapBits bmpbits = new BitmapBits(8, 8);
-			BitmapData bmpd = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, bmp.PixelFormat);
-			int stride = bmpd.Stride;
-			byte[] Bits = new byte[Math.Abs(stride) * bmpd.Height];
-			System.Runtime.InteropServices.Marshal.Copy(bmpd.Scan0, Bits, 0, Bits.Length);
-			bmp.UnlockBits(bmpd);
-			switch (bmpd.PixelFormat)
-			{
-				case PixelFormat.Format1bppIndexed:
-					LoadBitmap1BppIndexed(bmpbits, Bits, stride);
+					LoadBitmap1BppIndexed(bmpbits, bmp.Pixels, bmp.Stride);
 					palette = 0;
 					return bmpbits.ToTile();
 				case PixelFormat.Format32bppArgb:
-					LoadBitmap32BppArgb(bmpbits, Bits, stride, BmpPal.Entries);
+					LoadBitmap32BppArgb(bmpbits, bmp.Pixels, bmp.Stride, BmpPal.Entries);
 					break;
 				case PixelFormat.Format4bppIndexed:
-					LoadBitmap4BppIndexed(bmpbits, Bits, stride);
+					LoadBitmap4BppIndexed(bmpbits, bmp.Pixels, bmp.Stride);
 					palette = 0;
 					return bmpbits.ToTile();
 				case PixelFormat.Format8bppIndexed:
-					LoadBitmap8BppIndexed(bmpbits, Bits, stride);
+					LoadBitmap8BppIndexed(bmpbits, bmp.Pixels, bmp.Stride);
 					break;
 			}
 			int[] palcnt = new int[4];
@@ -2981,18 +3017,65 @@ namespace SonicRetro.SonLVL.API
 			Color[] newpal = new Color[16];
 			for (int i = 0; i < 16; i++)
 				newpal[i] = BmpPal.Entries[(palette * 16) + i];
-			switch (bmpd.PixelFormat)
+			switch (bmp.PixelFormat)
 			{
 				case PixelFormat.Format32bppArgb:
-					LoadBitmap32BppArgb(bmpbits, Bits, stride, newpal);
+					LoadBitmap32BppArgb(bmpbits, bmp.Pixels, bmp.Stride, newpal);
 					break;
 				case PixelFormat.Format8bppIndexed:
-					for (int y = 0; y < 8; y++)
-						for (int x = 0; x < 8; x++)
-							bmpbits[x, y] = (byte)(bmpbits[x, y] & 15);
+					for (int i = 0; i < bmpbits.Bits.Length; i++)
+						bmpbits.Bits[i] &= 15;
 					break;
 			}
 			return bmpbits.ToTile();
+		}
+
+		public static byte[] BmpToTileInterlaced(BitmapInfo bmp, out int palette)
+		{
+			BitmapBits bmpbits = new BitmapBits(8, 16);
+			switch (bmp.PixelFormat)
+			{
+				case PixelFormat.Format1bppIndexed:
+					LoadBitmap1BppIndexed(bmpbits, bmp.Pixels, bmp.Stride);
+					palette = 0;
+					return bmpbits.ToTileInterlaced();
+				case PixelFormat.Format32bppArgb:
+					LoadBitmap32BppArgb(bmpbits, bmp.Pixels, bmp.Stride, BmpPal.Entries);
+					break;
+				case PixelFormat.Format4bppIndexed:
+					LoadBitmap4BppIndexed(bmpbits, bmp.Pixels, bmp.Stride);
+					palette = 0;
+					return bmpbits.ToTileInterlaced();
+				case PixelFormat.Format8bppIndexed:
+					LoadBitmap8BppIndexed(bmpbits, bmp.Pixels, bmp.Stride);
+					break;
+			}
+			int[] palcnt = new int[4];
+			for (int y = 0; y < 16; y++)
+				for (int x = 0; x < 8; x++)
+					if ((bmpbits[x, y] & 15) > 0)
+						palcnt[bmpbits[x, y] / 16]++;
+			palette = 0;
+			if (palcnt[1] > palcnt[palette])
+				palette = 1;
+			if (palcnt[2] > palcnt[palette])
+				palette = 2;
+			if (palcnt[3] > palcnt[palette])
+				palette = 3;
+			Color[] newpal = new Color[16];
+			for (int i = 0; i < 16; i++)
+				newpal[i] = BmpPal.Entries[(palette * 16) + i];
+			switch (bmp.PixelFormat)
+			{
+				case PixelFormat.Format32bppArgb:
+					LoadBitmap32BppArgb(bmpbits, bmp.Pixels, bmp.Stride, newpal);
+					break;
+				case PixelFormat.Format8bppIndexed:
+					for (int i = 0; i < bmpbits.Bits.Length; i++)
+						bmpbits.Bits[i] &= 15;
+					break;
+			}
+			return bmpbits.ToTileInterlaced();
 		}
 
 		public static ColInfo[,] GetColMap(Bitmap bmp)
@@ -3319,6 +3402,95 @@ namespace SonicRetro.SonLVL.API
 			Solidity = solidity;
 			HeightMap = heightMap;
 			Angle = angle;
+		}
+	}
+
+	public class BitmapInfo
+	{
+		public int Width { get; private set; }
+		public int Height { get; private set; }
+		public Size Size { get { return new Size(Width, Height); } }
+		public PixelFormat PixelFormat { get; private set; }
+		public int Stride { get; private set; }
+		public byte[] Pixels { get; private set; }
+
+		public BitmapInfo(Bitmap bitmap)
+		{
+			Width = bitmap.Width;
+			Height = bitmap.Height;
+			switch (bitmap.PixelFormat)
+			{
+				case PixelFormat.Format1bppIndexed:
+				case PixelFormat.Format32bppArgb:
+				case PixelFormat.Format4bppIndexed:
+				case PixelFormat.Format8bppIndexed:
+					PixelFormat = bitmap.PixelFormat;
+					break;
+				default:
+					bitmap = bitmap.To32bpp();
+					PixelFormat = System.Drawing.Imaging.PixelFormat.Format32bppArgb;
+					break;
+			}
+			BitmapData bmpd = bitmap.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.ReadOnly, PixelFormat);
+			Stride = Math.Abs(bmpd.Stride);
+			Pixels = new byte[Stride * Height];
+			System.Runtime.InteropServices.Marshal.Copy(bmpd.Scan0, Pixels, 0, Pixels.Length);
+			bitmap.UnlockBits(bmpd);
+		}
+
+		public BitmapInfo(BitmapInfo source, int x, int y, int width, int height)
+		{
+			switch (source.PixelFormat)
+			{
+				case System.Drawing.Imaging.PixelFormat.Format1bppIndexed:
+					if (x % 8 != 0)
+						throw new FormatException("X coordinate of 1bpp image section must be multiple of 8.");
+					if (width % 8 != 0)
+						throw new FormatException("Width of 1bpp image section must be multiple of 8.");
+					break;
+				case System.Drawing.Imaging.PixelFormat.Format4bppIndexed:
+					if (x % 2 != 0)
+						throw new FormatException("X coordinate of 4bpp image section must be multiple of 2.");
+					if (width % 2 != 0)
+						throw new FormatException("Width of 4bpp image section must be multiple of 2.");
+					break;
+			}
+			Width = width;
+			Height = height;
+			PixelFormat = source.PixelFormat;
+			switch (PixelFormat)
+			{
+				case PixelFormat.Format1bppIndexed:
+					Stride = width / 8;
+					x /= 8;
+					break;
+				case PixelFormat.Format4bppIndexed:
+					Stride = width / 2;
+					x /= 2;
+					break;
+				case PixelFormat.Format8bppIndexed:
+					Stride = width;
+					break;
+				case PixelFormat.Format32bppArgb:
+					Stride = width * 4;
+					x *= 4;
+					break;
+			}
+			Pixels = new byte[height * Stride];
+			for (int v = 0; v < height; v++)
+				Array.Copy(source.Pixels, ((y + v) * source.Stride) + x, Pixels, v * Stride, Stride);
+		}
+
+		public Bitmap ToBitmap()
+		{
+			Bitmap bitmap = new Bitmap(Width, Height, PixelFormat);
+			BitmapData bmpd = bitmap.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.WriteOnly, PixelFormat);
+			byte[] bmpbits = new byte[Height * Math.Abs(bmpd.Stride)];
+			for (int y = 0; y < Height; y++)
+				Array.Copy(Pixels, y * Stride, bmpbits, y * Math.Abs(bmpd.Stride), Width);
+			System.Runtime.InteropServices.Marshal.Copy(bmpbits, 0, bmpd.Scan0, bmpbits.Length);
+			bitmap.UnlockBits(bmpd);
+			return bitmap;
 		}
 	}
 }

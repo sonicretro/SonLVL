@@ -447,6 +447,9 @@
         eULeQCkQrSaKL/3DgLJa3+ovZwP+hT/C2BP8Irgr7nRUzgAAAABJRU5ErkJggg==
 </value>
   </data>
+  <metadata name="panel11.GenerateMember" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>False</value>
+  </metadata>
   <metadata name="tileContextMenuStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>499, 17</value>
   </metadata>

@@ -94,6 +94,8 @@ namespace SonicRetro.SonLVL.API
 		public CompressionType AngleCompression { get; set; }
 		[IniName("angles")]
 		public string Angles { get; set; }
+		[IniName("2pcompat")]
+		public bool TwoPlayerCompatible { get; set; }
 		[IniName("buildscr")]
 		public string BuildScript { get; set; }
 		[IniName("romfile")]
@@ -371,6 +373,8 @@ namespace SonicRetro.SonLVL.API
 		[IniCollection(IniCollectionMode.SingleLine, Format = ",", ValueConverter = typeof(ByteHexConverter))]
 		[IniName("loopchunks")]
 		public List<byte> LoopChunks { get; set; }
+		[IniName("2pcompat")]
+		public bool TwoPlayerCompatible { get; set; }
 		[IniName("sprites")]
 		public string Sprites { get; set; }
 		[IniName("objlst")]

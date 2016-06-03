@@ -10,14 +10,15 @@ namespace SonicRetro.SonLVL
 {
 	public partial class TileRemappingDialog : Form
 	{
-		public TileRemappingDialog(string title, List<Bitmap> images, int imageSize)
+		public TileRemappingDialog(string title, List<Bitmap> images, int imageWidth, int imageHeight)
 		{
 			InitializeComponent();
 			Text += title;
 			SourceTileList.Images = images;
 			DestinationTileList.Images = new List<Bitmap>(images);
 			SourceTile.Maximum = DestinationTile.Maximum = images.Count - 1;
-			SourceTileList.ImageSize = DestinationTileList.ImageSize = imageSize;
+			SourceTileList.ImageWidth = DestinationTileList.ImageWidth = imageWidth;
+			SourceTileList.ImageHeight = DestinationTileList.ImageHeight = imageHeight;
 			SourceTileList.SelectedIndex = DestinationTileList.SelectedIndex = 0;
 			TileMap = new Dictionary<int, int>();
 		}

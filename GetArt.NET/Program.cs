@@ -83,8 +83,10 @@ namespace GetArt.NET
 				}
 			for (int i = 64; i < 256; i++)
 				LevelData.BmpPal.Entries[i] = Color.Transparent;
-			int w = img.Width;
-			int h = img.Height;
+			BitmapInfo bmpi = new BitmapInfo(img);
+			img.Dispose();
+			int w = bmpi.Width;
+			int h = bmpi.Height;
 			bool[,] priority = new bool[w / 8, h / 8];
 			bmpfile = null;
 			foreach (string extension in filetypes)
@@ -108,7 +110,7 @@ namespace GetArt.NET
 					for (int x = 0; x < w / 8; x++)
 					{
 						map = new PatternIndex() { Priority = priority[x, y] };
-						tile = LevelData.BmpToTile(img.Clone(new Rectangle(x * 8, y * 8, 8, 8), img.PixelFormat), out pal);
+						tile = LevelData.BmpToTile(new BitmapInfo(bmpi, x * 8, y * 8, 8, 8), out pal);
 						map.Palette = (byte)pal;
 						BitmapBits bits = BitmapBits.FromTile(tile, 0);
 						match = false;
@@ -158,7 +160,6 @@ namespace GetArt.NET
 						mapstr.Write(map.GetBytes(), 0, PatternIndex.Size);
 					}
 			}
-			img.Dispose();
 		}
 	}
 }

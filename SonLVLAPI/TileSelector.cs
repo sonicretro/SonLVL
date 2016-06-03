@@ -50,8 +50,15 @@ namespace SonicRetro.SonLVL.API
 		private void IDControl_Load(object sender, EventArgs e)
 		{
 			listView1.Images.Clear();
-			for (int i = 0; i < LevelData.Tiles.Count; i++)
-				listView1.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, 2));
+			if (LevelData.Level.TwoPlayerCompatible)
+			{
+				listView1.ImageHeight = 32;
+				for (int i = 0; i < LevelData.Tiles.Count - 1; i += 2)
+					listView1.Images.Add(LevelData.InterlacedTileToBmp4bpp(LevelData.TileArray, i, 2));
+			}
+			else
+				for (int i = 0; i < LevelData.Tiles.Count; i++)
+					listView1.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, 2));
 			listView1.ChangeSize();
 		}
 
@@ -104,7 +111,10 @@ namespace SonicRetro.SonLVL.API
 		{
 			ushort val = ushort.Parse((string)e.Value, System.Globalization.NumberStyles.HexNumber);
 			if (val >= LevelData.Tiles.Count) return;
-			e.Graphics.DrawImage(LevelData.TileToBmp4bpp(LevelData.Tiles[val], 0, 2).Resize(e.Bounds.Size), e.Bounds);
+			if (LevelData.Level.TwoPlayerCompatible)
+				e.Graphics.DrawImage(LevelData.InterlacedTileToBmp4bpp(LevelData.TileArray, val, 2).Resize(e.Bounds.Size), e.Bounds);
+			else
+				e.Graphics.DrawImage(LevelData.TileToBmp4bpp(LevelData.Tiles[val], 0, 2).Resize(e.Bounds.Size), e.Bounds);
 		}
 
 		public override bool IsDropDownResizable

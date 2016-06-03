@@ -475,10 +475,33 @@ namespace SonicRetro.SonLVL.API
 			return bmp;
 		}
 
+		public static BitmapBits FromTileInterlaced(byte[] art, int index)
+		{
+			BitmapBits bmp = new BitmapBits(8, 16);
+			if (index * 32 + 64 <= art.Length)
+			{
+				for (int i = 0; i < 64; i++)
+				{
+					bmp.Bits[i * 2] = (byte)(art[i + (index * 32)] >> 4);
+					bmp.Bits[(i * 2) + 1] = (byte)(art[i + (index * 32)] & 0xF);
+				}
+			}
+			return bmp;
+		}
+
 		public byte[] ToTile()
 		{
 			List<byte> res = new List<byte>();
 			for (int y = 0; y < 8; y++)
+				for (int x = 0; x < 8; x += 2)
+					res.Add((byte)(((this[x, y] & 0xF) << 4) | (this[x + 1, y] & 0xF)));
+			return res.ToArray();
+		}
+
+		public byte[] ToTileInterlaced()
+		{
+			List<byte> res = new List<byte>();
+			for (int y = 0; y < 16; y++)
 				for (int x = 0; x < 8; x += 2)
 					res.Add((byte)(((this[x, y] & 0xF) << 4) | (this[x + 1, y] & 0xF)));
 			return res.ToArray();
