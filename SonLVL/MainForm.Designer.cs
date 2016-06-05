@@ -321,6 +321,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.clearSolidsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.loadingAnimation1 = new SonicRetro.SonLVL.LoadingAnimation();
 			this.importProgressControl1 = new SonicRetro.SonLVL.ImportProgressControl();
+			this.replaceBlocksToolStripButton = new System.Windows.Forms.ToolStripButton();
 			toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
 			toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
 			label4 = new System.Windows.Forms.Label();
@@ -470,6 +471,7 @@ namespace SonicRetro.SonLVL.GUI
 			chunkListToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.importChunksToolStripButton,
             this.deleteUnusedChunksToolStripButton,
+            this.replaceBlocksToolStripButton,
             this.remapChunksButton,
             this.enableDraggingChunksButton});
 			chunkListToolStrip.Location = new System.Drawing.Point(0, 0);
@@ -3365,6 +3367,15 @@ namespace SonicRetro.SonLVL.GUI
 			this.importProgressControl1.Visible = false;
 			this.importProgressControl1.SizeChanged += new System.EventHandler(this.importProgressControl1_SizeChanged);
 			// 
+			// replaceBlocksToolStripButton
+			// 
+			this.replaceBlocksToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.replaceBlocksToolStripButton.Enabled = false;
+			this.replaceBlocksToolStripButton.Name = "replaceBlocksToolStripButton";
+			this.replaceBlocksToolStripButton.Size = new System.Drawing.Size(52, 22);
+			this.replaceBlocksToolStripButton.Text = "Replace";
+			this.replaceBlocksToolStripButton.Click += new System.EventHandler(this.replaceBlocksToolStripButton_Click);
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -3746,6 +3757,7 @@ namespace SonicRetro.SonLVL.GUI
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel9;
 		private System.Windows.Forms.ToolStripButton replaceForegroundToolStripButton;
 		private System.Windows.Forms.ToolStripButton replaceBackgroundToolStripButton;
+		private System.Windows.Forms.ToolStripButton replaceBlocksToolStripButton;
 
 	}
 }

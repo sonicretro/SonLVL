@@ -63,6 +63,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -80,6 +81,18 @@
     </Compile>
     <Compile Include="ChunkBlockEditor.Designer.cs">
       <DependentUpon>ChunkBlockEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ReplaceChunkBlocksDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ReplaceChunkBlocksDialog.Designer.cs">
+      <DependentUpon>ReplaceChunkBlocksDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ChunkBlockSearchControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ChunkBlockSearchControl.Designer.cs">
+      <DependentUpon>ChunkBlockSearchControl.cs</DependentUpon>
     </Compile>
     <Compile Include="CollisionSelector.cs">
       <SubType>Form</SubType>
@@ -214,6 +227,9 @@
     <EmbeddedResource Include="ChunkBlockEditor.resx">
       <DependentUpon>ChunkBlockEditor.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="ChunkBlockSearchControl.resx">
+      <DependentUpon>ChunkBlockSearchControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="CollisionSelector.resx">
       <DependentUpon>CollisionSelector.cs</DependentUpon>
     </EmbeddedResource>
@@ -253,6 +269,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="PatternIndexEditor.resx">
       <DependentUpon>PatternIndexEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ReplaceChunkBlocksDialog.resx">
+      <DependentUpon>ReplaceChunkBlocksDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ReplaceChunksDialog.resx">
       <DependentUpon>ReplaceChunksDialog.cs</DependentUpon>

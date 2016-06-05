@@ -173,7 +173,7 @@
 			this.Name = "ReplaceChunksDialog";
 			this.ShowIcon = false;
 			this.ShowInTaskbar = false;
-			this.Text = "Replace  Chunks";
+			this.Text = "Replace Chunks";
 			this.VisibleChanged += new System.EventHandler(this.ReplaceChunksDialog_VisibleChanged);
 			this.panel1.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.findChunk)).EndInit();

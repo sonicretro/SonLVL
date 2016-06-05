@@ -109,6 +109,7 @@ namespace SonicRetro.SonLVL.GUI
 		FindChunksDialog findBGChunksDialog;
 		ReplaceChunksDialog replaceFGChunksDialog;
 		ReplaceChunksDialog replaceBGChunksDialog;
+		ReplaceChunkBlocksDialog replaceChunkBlocksDialog;
 		List<LayoutSection> savedLayoutSections;
 		List<Bitmap> savedLayoutSectionImages;
 		int waterPalette;
@@ -303,6 +304,7 @@ namespace SonicRetro.SonLVL.GUI
 			findBGChunksDialog = new FindChunksDialog();
 			replaceFGChunksDialog = new ReplaceChunksDialog();
 			replaceBGChunksDialog = new ReplaceChunksDialog();
+			replaceChunkBlocksDialog = new ReplaceChunkBlocksDialog();
 			if (Program.Arguments.Length > 0)
 				LoadINI(Program.Arguments[0]);
 		}
@@ -747,7 +749,7 @@ namespace SonicRetro.SonLVL.GUI
 			BlockCount.Text = LevelData.Blocks.Count.ToString("X") + " / " + LevelData.GetBlockMax().ToString("X");
 			TileCount.Text = LevelData.Tiles.Count.ToString("X") + " / 800";
 			deleteUnusedTilesToolStripButton.Enabled = deleteUnusedBlocksToolStripButton.Enabled = deleteUnusedChunksToolStripButton.Enabled =
-				replaceBackgroundToolStripButton.Enabled = replaceForegroundToolStripButton.Enabled =
+				replaceBlocksToolStripButton.Enabled = replaceBackgroundToolStripButton.Enabled = replaceForegroundToolStripButton.Enabled =
 				clearBackgroundToolStripButton.Enabled = clearForegroundToolStripButton.Enabled = usageCountsToolStripMenuItem.Enabled = true;
 #if !DEBUG
 			loadingAnimation1.Hide();
@@ -8846,6 +8848,52 @@ namespace SonicRetro.SonLVL.GUI
 						}
 				MessageBox.Show(this, "Replaced " + cnt + " chunks.", "SonLVL");
 				DrawLevel();
+			}
+		}
+
+		private void replaceBlocksToolStripButton_Click(object sender, EventArgs e)
+		{
+			if (replaceChunkBlocksDialog.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+			{
+				var list = LevelData.Chunks.SelectMany((a, b) => a.Blocks.OfType<ChunkBlock>().Select(c => new KeyValuePair<int, ChunkBlock>(b, c))).ToList();
+				ushort? block = replaceChunkBlocksDialog.findBlock.Block;
+				if (block.HasValue)
+					list = list.Where(a => a.Value.Block == block.Value).ToList();
+				bool? xflip = replaceChunkBlocksDialog.findBlock.XFlip;
+				if (xflip.HasValue)
+					list = list.Where(a => a.Value.XFlip == xflip.Value).ToList();
+				bool? yflip = replaceChunkBlocksDialog.findBlock.YFlip;
+				if (yflip.HasValue)
+					list = list.Where(a => a.Value.YFlip = yflip.Value).ToList();
+				Solidity? solid1 = replaceChunkBlocksDialog.findBlock.Solidity1;
+				if (solid1.HasValue)
+					list = list.Where(a => a.Value.Solid1 == solid1.Value).ToList();
+				Solidity? solid2 = replaceChunkBlocksDialog.findBlock.Solidity2;
+				if (solid2.HasValue)
+					list = list.Where(a => ((S2ChunkBlock)a.Value).Solid2 == solid2.Value).ToList();
+				block = replaceChunkBlocksDialog.replaceBlock.Block;
+				xflip = replaceChunkBlocksDialog.replaceBlock.XFlip;
+				yflip = replaceChunkBlocksDialog.replaceBlock.YFlip;
+				solid1 = replaceChunkBlocksDialog.replaceBlock.Solidity1;
+				solid2 = replaceChunkBlocksDialog.replaceBlock.Solidity2;
+				foreach (ChunkBlock blk in list.Select(a => a.Value))
+				{
+					if (block.HasValue)
+						blk.Block = block.Value;
+					if (xflip.HasValue)
+						blk.XFlip = xflip.Value;
+					if (yflip.HasValue)
+						blk.YFlip = yflip.Value;
+					if (solid1.HasValue)
+						blk.Solid1 = solid1.Value;
+					if (solid2.HasValue)
+						((S2ChunkBlock)blk).Solid2 = solid2.Value;
+				}
+				foreach (int i in list.Select(a => a.Key).Distinct())
+					LevelData.RedrawChunk(i);
+				ChunkSelector.Invalidate();
+				DrawChunkPicture();
+				chunkBlockEditor.SelectedObjects = chunkBlockEditor.SelectedObjects;
 			}
 		}
 	}
