@@ -104,9 +104,11 @@ namespace SonicRetro.SonLVL.GUI
 		internal List<string> LogFile = new List<string>();
 		Dictionary<string, ToolStripMenuItem> levelMenuItems;
 		Dictionary<char, BitmapBits> HUDLetters, HUDNumbers;
-		internal FindObjectsDialog findObjectsDialog;
-		internal FindChunksDialog findFGChunksDialog;
-		internal FindChunksDialog findBGChunksDialog;
+		FindObjectsDialog findObjectsDialog;
+		FindChunksDialog findFGChunksDialog;
+		FindChunksDialog findBGChunksDialog;
+		ReplaceChunksDialog replaceFGChunksDialog;
+		ReplaceChunksDialog replaceBGChunksDialog;
 		List<LayoutSection> savedLayoutSections;
 		List<Bitmap> savedLayoutSectionImages;
 		int waterPalette;
@@ -299,6 +301,8 @@ namespace SonicRetro.SonLVL.GUI
 			findObjectsDialog = new FindObjectsDialog();
 			findFGChunksDialog = new FindChunksDialog();
 			findBGChunksDialog = new FindChunksDialog();
+			replaceFGChunksDialog = new ReplaceChunksDialog();
+			replaceBGChunksDialog = new ReplaceChunksDialog();
 			if (Program.Arguments.Length > 0)
 				LoadINI(Program.Arguments[0]);
 		}
@@ -743,6 +747,7 @@ namespace SonicRetro.SonLVL.GUI
 			BlockCount.Text = LevelData.Blocks.Count.ToString("X") + " / " + LevelData.GetBlockMax().ToString("X");
 			TileCount.Text = LevelData.Tiles.Count.ToString("X") + " / 800";
 			deleteUnusedTilesToolStripButton.Enabled = deleteUnusedBlocksToolStripButton.Enabled = deleteUnusedChunksToolStripButton.Enabled =
+				replaceBackgroundToolStripButton.Enabled = replaceForegroundToolStripButton.Enabled =
 				clearBackgroundToolStripButton.Enabled = clearForegroundToolStripButton.Enabled = usageCountsToolStripMenuItem.Enabled = true;
 #if !DEBUG
 			loadingAnimation1.Hide();
@@ -5103,7 +5108,30 @@ namespace SonicRetro.SonLVL.GUI
 			else if (newBlocks.Count > 0)
 				chunkBlockEditor.SelectedObjects = chunkBlockEditor.SelectedObjects;
 			sw.Stop();
-			MessageBox.Show(sw.Elapsed.ToString());
+			System.Text.StringBuilder msg = new System.Text.StringBuilder();
+			msg.AppendFormat("New tiles: {0:X}\n", newTiles.Count);
+			msg.AppendFormat("New blocks: {0:X}\n", newBlocks.Count);
+			msg.AppendFormat("New chunks: {0:X}\n", newChunks.Count);
+			msg.Append("\nCompleted in ");
+			if (sw.Elapsed.Hours > 0)
+			{
+				msg.AppendFormat("{0}:{1:00}:{2:00}", sw.Elapsed.Hours, sw.Elapsed.Minutes, sw.Elapsed.Seconds);
+				if (sw.Elapsed.Milliseconds > 0)
+					msg.AppendFormat(".{000}", sw.Elapsed.Milliseconds);
+			}
+			else if (sw.Elapsed.Minutes > 0)
+			{
+				msg.AppendFormat("{0}:{1:00}", sw.Elapsed.Minutes, sw.Elapsed.Seconds);
+				if (sw.Elapsed.Milliseconds > 0)
+					msg.AppendFormat(".{000}", sw.Elapsed.Milliseconds);
+			}
+			else
+			{
+				msg.AppendFormat("{0}", sw.Elapsed.Seconds);
+				if (sw.Elapsed.Milliseconds > 0)
+					msg.AppendFormat(".{000}", sw.Elapsed.Milliseconds);
+			}
+			MessageBox.Show(this, msg.ToString(), "Import Results");
 			importProgressControl1.Hide();
 			Enabled = true;
 			UseWaitCursor = false;
@@ -8781,6 +8809,44 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			using (StatisticsDialog dlg = new StatisticsDialog())
 				dlg.ShowDialog(this);
+		}
+
+		private void replaceForegroundToolStripButton_Click(object sender, EventArgs e)
+		{
+			if (replaceFGChunksDialog.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+			{
+				byte fc = (byte)replaceFGChunksDialog.findChunk.Value;
+				byte rc = (byte)replaceFGChunksDialog.replaceChunk.Value;
+				int cnt = 0;
+				for (int y = 0; y < LevelData.FGHeight; y++)
+					for (int x = 0; x < LevelData.FGWidth; x++)
+						if (LevelData.Layout.FGLayout[x,y] == fc)
+						{
+							LevelData.Layout.FGLayout[x, y] = rc;
+							cnt++;
+						}
+				MessageBox.Show(this, "Replaced " + cnt + " chunks.", "SonLVL");
+				DrawLevel();
+			}
+		}
+
+		private void replaceBackgroundToolStripButton_Click(object sender, EventArgs e)
+		{
+			if (replaceBGChunksDialog.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+			{
+				byte fc = (byte)replaceBGChunksDialog.findChunk.Value;
+				byte rc = (byte)replaceBGChunksDialog.replaceChunk.Value;
+				int cnt = 0;
+				for (int y = 0; y < LevelData.BGHeight; y++)
+					for (int x = 0; x < LevelData.BGWidth; x++)
+						if (LevelData.Layout.BGLayout[x, y] == fc)
+						{
+							LevelData.Layout.BGLayout[x, y] = rc;
+							cnt++;
+						}
+				MessageBox.Show(this, "Replaced " + cnt + " chunks.", "SonLVL");
+				DrawLevel();
+			}
 		}
 	}
 

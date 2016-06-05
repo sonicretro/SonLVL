@@ -163,6 +163,12 @@
     <Compile Include="PatternIndexEditor.Designer.cs">
       <DependentUpon>PatternIndexEditor.cs</DependentUpon>
     </Compile>
+    <Compile Include="ReplaceChunksDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ReplaceChunksDialog.Designer.cs">
+      <DependentUpon>ReplaceChunksDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="ResizeLevelDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -247,6 +253,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="PatternIndexEditor.resx">
       <DependentUpon>PatternIndexEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ReplaceChunksDialog.resx">
+      <DependentUpon>ReplaceChunksDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ResizeLevelDialog.resx">
       <DependentUpon>ResizeLevelDialog.cs</DependentUpon>

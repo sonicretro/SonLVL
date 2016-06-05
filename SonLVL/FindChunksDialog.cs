@@ -23,7 +23,7 @@ namespace SonicRetro.SonLVL
 		{
 			if (Visible)
 			{
-				tileList1.Images = new List<Bitmap>(LevelData.CompChunkBmps);
+				tileList1.Images = LevelData.CompChunkBmps;
 				tileList1.ImageWidth = LevelData.Level.ChunkWidth;
 				tileList1.ImageHeight = LevelData.Level.ChunkHeight;
 				chunkSelect.Maximum = LevelData.Chunks.Count;

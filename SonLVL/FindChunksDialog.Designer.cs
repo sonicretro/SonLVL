@@ -65,10 +65,10 @@ namespace SonicRetro.SonLVL
 			this.chunkSelect.Hexadecimal = true;
 			this.chunkSelect.Location = new System.Drawing.Point(0, 272);
 			this.chunkSelect.Maximum = new decimal(new int[] {
-			255,
-			0,
-			0,
-			0});
+            255,
+            0,
+            0,
+            0});
 			this.chunkSelect.Name = "chunkSelect";
 			this.chunkSelect.Size = new System.Drawing.Size(293, 20);
 			this.chunkSelect.TabIndex = 5;
@@ -120,7 +120,7 @@ namespace SonicRetro.SonLVL
 			this.Name = "FindChunksDialog";
 			this.ShowIcon = false;
 			this.ShowInTaskbar = false;
-			this.Text = "FindChunksDialog";
+			this.Text = "Find Chunks";
 			this.VisibleChanged += new System.EventHandler(this.FindChunksDialog_VisibleChanged);
 			this.panel1.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.chunkSelect)).EndInit();
