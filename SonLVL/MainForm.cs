@@ -737,7 +737,7 @@ namespace SonicRetro.SonLVL.GUI
 				savedLayoutSectionImages.Add(MakeLayoutSectionImage(sec));
 			}
 			layoutSectionListBox.EndUpdate();
-			lastfoundobj = null;
+			foundobjs = null;
 			SelectedObjectChanged();
 			ChunkCount.Text = LevelData.Chunks.Count.ToString("X") + " / 100";
 			BlockCount.Text = LevelData.Blocks.Count.ToString("X") + " / " + LevelData.GetBlockMax().ToString("X");
@@ -3408,7 +3408,7 @@ namespace SonicRetro.SonLVL.GUI
 			{
 				case Tab.Objects:
 					findToolStripMenuItem.Enabled = true;
-					findNextToolStripMenuItem.Enabled = findPreviousToolStripMenuItem.Enabled = lastfoundobj != null;
+					findNextToolStripMenuItem.Enabled = findPreviousToolStripMenuItem.Enabled = foundobjs == null;
 					objectPanel.Focus();
 					break;
 				case Tab.Foreground:
@@ -7044,9 +7044,8 @@ namespace SonicRetro.SonLVL.GUI
 			DrawLevel();
 		}
 
-		ObjectEntry lastfoundobj;
-		byte searchid;
-		byte? searchsub;
+		List<ObjectEntry> foundobjs;
+		int lastfoundobj;
 		Point? lastfoundfgchunk;
 		byte searchfgchunk;
 		Point? lastfoundbgchunk;
@@ -7056,44 +7055,48 @@ namespace SonicRetro.SonLVL.GUI
 			switch (CurrentTab)
 			{
 				case Tab.Objects:
-					switch (findObjectsDialog.ShowDialog(this))
+					DialogResult res = findObjectsDialog.ShowDialog(this);
+					if (res != System.Windows.Forms.DialogResult.Yes && res != System.Windows.Forms.DialogResult.OK)
+						return;
+					foundobjs = new List<ObjectEntry>(LevelData.Objects);
+					byte? id = findObjectsDialog.ID;
+					if (id.HasValue)
+						foundobjs = new List<ObjectEntry>(foundobjs.Where(a => a.ID == id.Value));
+					byte? sub = findObjectsDialog.SubType;
+					if (sub.HasValue)
+						foundobjs = new List<ObjectEntry>(foundobjs.Where(a => a.SubType == sub.Value));
+					bool? xf = findObjectsDialog.XFlip;
+					if (xf.HasValue)
+						foundobjs = new List<ObjectEntry>(foundobjs.Where(a => a.XFlip == xf.Value));
+					bool? yf = findObjectsDialog.YFlip;
+					if (yf.HasValue)
+						foundobjs = new List<ObjectEntry>(foundobjs.Where(a => a.YFlip == yf.Value));
+					SelectedItems.Clear();
+					switch (res)
 					{
 						case DialogResult.Yes:
-							SelectedItems.Clear();
-							foreach (ObjectEntry item in LevelData.Objects.Where(a => a.ID == findObjectsDialog.idSelect.Value))
-								if (!findObjectsDialog.findSubtype.Checked || item.SubType == findObjectsDialog.subtypeSelect.Value)
-									SelectedItems.Add(item);
+							SelectedItems.AddRange(foundobjs.OfType<Entry>());
 							if (SelectedItems.Count > 0)
 								MessageBox.Show(this, SelectedItems.Count + " object" + (SelectedItems.Count > 1 ? "s" : "") + " found.",
 									"SonLVL");
 							break;
 						case DialogResult.OK:
-							SelectedItems.Clear();
-							foreach (ObjectEntry item in LevelData.Objects)
-								if (item.ID == findObjectsDialog.idSelect.Value)
-									if (!findObjectsDialog.findSubtype.Checked || item.SubType == findObjectsDialog.subtypeSelect.Value)
-									{
-										SelectedItems.Add(item);
-										break;
-									}
+							if (foundobjs.Count > 0)
+								SelectedItems.Add(foundobjs[0]);
 							break;
-						default:
-							return;
 					}
 					if (SelectedItems.Count > 0)
 					{
 						ScrollToObject(SelectedItems[0]);
-						lastfoundobj = (ObjectEntry)SelectedItems[0];
-						searchid = findObjectsDialog.idSelect.Value;
-						searchsub = findObjectsDialog.findSubtype.Checked ? (byte?)findObjectsDialog.subtypeSelect.Value : null;
-						findNextToolStripMenuItem.Enabled = true;
+						lastfoundobj = 0;
+						findNextToolStripMenuItem.Enabled = foundobjs.Count > 1;
 						findPreviousToolStripMenuItem.Enabled = false;
 					}
 					else
 					{
 						MessageBox.Show(this, "No matching objects found.", "SonLVL");
 						findNextToolStripMenuItem.Enabled = findPreviousToolStripMenuItem.Enabled = false;
-						lastfoundobj = null;
+						foundobjs = null;
 					}
 					SelectedObjectChanged();
 					DrawLevel();
@@ -7188,31 +7191,20 @@ namespace SonicRetro.SonLVL.GUI
 			switch (CurrentTab)
 			{
 				case Tab.Objects:
-					ObjectProperties.SelectedObjects = null;
-					SelectedItems.Clear();
-					IEnumerable<ObjectEntry> list = LevelData.Objects;
-					if (LevelData.Objects.Contains(lastfoundobj))
-						list = System.Linq.Enumerable.Skip(list, LevelData.Objects.IndexOf(lastfoundobj) + 1);
-					foreach (ObjectEntry item in list)
-						if (item.ID == searchid)
-							if (!searchsub.HasValue || item.SubType == searchsub.Value)
-							{
-								SelectedItems.Add(item);
-								break;
-							}
-					if (SelectedItems.Count > 0)
+					if (lastfoundobj < foundobjs.Count - 1)
 					{
+						SelectedItems.Clear();
+						SelectedItems.Add(foundobjs[++lastfoundobj]);
 						ScrollToObject(SelectedItems[0]);
-						lastfoundobj = (ObjectEntry)SelectedItems[0];
-						findPreviousToolStripMenuItem.Enabled = true;	
+						findPreviousToolStripMenuItem.Enabled = true;
+						SelectedObjectChanged();
+						DrawLevel();
 					}
 					else
 					{
 						MessageBox.Show(this, "No more objects found.", "SonLVL");
 						findNextToolStripMenuItem.Enabled = false;
 					}
-					SelectedObjectChanged();
-					DrawLevel();
 					break;
 				case Tab.Foreground:
 					for (int x = 0; x < LevelData.FGWidth; x++)
@@ -7276,33 +7268,20 @@ namespace SonicRetro.SonLVL.GUI
 			switch (CurrentTab)
 			{
 				case Tab.Objects:
-					SelectedItems.Clear();
-					IEnumerable<ObjectEntry> list = LevelData.Objects;
-					if (LevelData.Objects.Contains(lastfoundobj))
+					if (lastfoundobj > 0)
 					{
-						list = System.Linq.Enumerable.Take(list, LevelData.Objects.IndexOf(lastfoundobj));
-						list = System.Linq.Enumerable.Reverse(list);
-					}
-					foreach (ObjectEntry item in list)
-						if (item.ID == searchid)
-							if (!searchsub.HasValue || item.SubType == searchsub.Value)
-							{
-								SelectedItems.Add(item);
-								break;
-							}
-					if (SelectedItems.Count > 0)
-					{
+						SelectedItems.Clear();
+						SelectedItems.Add(foundobjs[--lastfoundobj]);
 						ScrollToObject(SelectedItems[0]);
-						lastfoundobj = (ObjectEntry)SelectedItems[0];
 						findNextToolStripMenuItem.Enabled = true;
+						SelectedObjectChanged();
+						DrawLevel();
 					}
 					else
 					{
 						MessageBox.Show(this, "No more objects found.", "SonLVL");
 						findPreviousToolStripMenuItem.Enabled = false;
 					}
-					SelectedObjectChanged();
-					DrawLevel();
 					break;
 				case Tab.Foreground:
 					for (int x = (LevelData.FGWidth - 1); x >= 0; x--)

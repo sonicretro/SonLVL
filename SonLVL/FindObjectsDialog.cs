@@ -16,6 +16,18 @@ namespace SonicRetro.SonLVL
 			InitializeComponent();
 		}
 
+		private void findID_CheckedChanged(object sender, EventArgs e)
+		{
+			idSelect.Enabled = findID.Checked;
+			if (findID.Checked)
+				idSelect_ValueChanged(this, EventArgs.Empty);
+			else
+			{
+				subtypeList.Items.Clear();
+				imageList1.Images.Clear();
+			}
+		}
+
 		private void findSubtype_CheckedChanged(object sender, EventArgs e)
 		{
 			panel1.Enabled = findSubtype.Checked;
@@ -43,6 +55,50 @@ namespace SonicRetro.SonLVL
 		{
 			if (subtypeList.SelectedIndices.Count > 0)
 				subtypeSelect.Value = (byte)subtypeList.SelectedItems[0].Tag;
+		}
+
+		public byte? ID
+		{
+			get
+			{
+				if (findID.Checked)
+					return idSelect.Value;
+				else
+					return null;
+			}
+		}
+
+		public byte? SubType
+		{
+			get
+			{
+				if (findSubtype.Checked)
+					return (byte)subtypeSelect.Value;
+				else
+					return null;
+			}
+		}
+
+		public bool? XFlip
+		{
+			get
+			{
+				if (findXFlip.CheckState == CheckState.Indeterminate)
+					return null;
+				else
+					return findXFlip.Checked;
+			}
+		}
+
+		public bool? YFlip
+		{
+			get
+			{
+				if (findYFlip.CheckState == CheckState.Indeterminate)
+					return null;
+				else
+					return findYFlip.Checked;
+			}
 		}
 	}
 }
