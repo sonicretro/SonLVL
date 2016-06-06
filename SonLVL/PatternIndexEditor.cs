@@ -169,7 +169,9 @@ namespace SonicRetro.SonLVL
 						item.Tile = (ushort)tile.Value;
 				PropertyValueChanged(tile, EventArgs.Empty);
 				initializing = true;
-				if (LevelData.Level.TwoPlayerCompatible)
+				if (tile.Value >= LevelData.Tiles.Count)
+					tileList.SelectedIndex = -1;
+				else if (LevelData.Level.TwoPlayerCompatible)
 					tileList.SelectedIndex = (int)tile.Value / 2;
 				else
 					tileList.SelectedIndex = (int)tile.Value;

@@ -82,6 +82,18 @@
     <Compile Include="ChunkBlockEditor.Designer.cs">
       <DependentUpon>ChunkBlockEditor.cs</DependentUpon>
     </Compile>
+    <Compile Include="PatternIndexSearchControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PatternIndexSearchControl.Designer.cs">
+      <DependentUpon>PatternIndexSearchControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ReplaceBlockTilesDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ReplaceBlockTilesDialog.Designer.cs">
+      <DependentUpon>ReplaceBlockTilesDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="ReplaceChunkBlocksDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -269,6 +281,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="PatternIndexEditor.resx">
       <DependentUpon>PatternIndexEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PatternIndexSearchControl.resx">
+      <DependentUpon>PatternIndexSearchControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ReplaceBlockTilesDialog.resx">
+      <DependentUpon>ReplaceBlockTilesDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ReplaceChunkBlocksDialog.resx">
       <DependentUpon>ReplaceChunkBlocksDialog.cs</DependentUpon>

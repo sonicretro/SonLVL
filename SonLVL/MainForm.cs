@@ -110,6 +110,7 @@ namespace SonicRetro.SonLVL.GUI
 		ReplaceChunksDialog replaceFGChunksDialog;
 		ReplaceChunksDialog replaceBGChunksDialog;
 		ReplaceChunkBlocksDialog replaceChunkBlocksDialog;
+		ReplaceBlockTilesDialog replaceBlockTilesDialog;
 		List<LayoutSection> savedLayoutSections;
 		List<Bitmap> savedLayoutSectionImages;
 		int waterPalette;
@@ -305,6 +306,7 @@ namespace SonicRetro.SonLVL.GUI
 			replaceFGChunksDialog = new ReplaceChunksDialog();
 			replaceBGChunksDialog = new ReplaceChunksDialog();
 			replaceChunkBlocksDialog = new ReplaceChunkBlocksDialog();
+			replaceBlockTilesDialog = new ReplaceBlockTilesDialog();
 			if (Program.Arguments.Length > 0)
 				LoadINI(Program.Arguments[0]);
 		}
@@ -749,7 +751,7 @@ namespace SonicRetro.SonLVL.GUI
 			BlockCount.Text = LevelData.Blocks.Count.ToString("X") + " / " + LevelData.GetBlockMax().ToString("X");
 			TileCount.Text = LevelData.Tiles.Count.ToString("X") + " / 800";
 			deleteUnusedTilesToolStripButton.Enabled = deleteUnusedBlocksToolStripButton.Enabled = deleteUnusedChunksToolStripButton.Enabled =
-				replaceBlocksToolStripButton.Enabled = replaceBackgroundToolStripButton.Enabled = replaceForegroundToolStripButton.Enabled =
+				replaceBlockTilesToolStripButton.Enabled = replaceChunkBlocksToolStripButton.Enabled = replaceBackgroundToolStripButton.Enabled = replaceForegroundToolStripButton.Enabled =
 				clearBackgroundToolStripButton.Enabled = clearForegroundToolStripButton.Enabled = usageCountsToolStripMenuItem.Enabled = true;
 #if !DEBUG
 			loadingAnimation1.Hide();
@@ -8851,7 +8853,7 @@ namespace SonicRetro.SonLVL.GUI
 			}
 		}
 
-		private void replaceBlocksToolStripButton_Click(object sender, EventArgs e)
+		private void replaceChunkBlocksToolStripButton_Click(object sender, EventArgs e)
 		{
 			if (replaceChunkBlocksDialog.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
 			{
@@ -8894,6 +8896,54 @@ namespace SonicRetro.SonLVL.GUI
 				ChunkSelector.Invalidate();
 				DrawChunkPicture();
 				chunkBlockEditor.SelectedObjects = chunkBlockEditor.SelectedObjects;
+				MessageBox.Show(this, "Replaced " + list.Count + " chunk blocks.", "SonLVL");
+			}
+		}
+
+		private void replaceBlockTilesToolStripButton_Click(object sender, EventArgs e)
+		{
+			if (replaceBlockTilesDialog.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+			{
+				var list = LevelData.Blocks.SelectMany((a, b) => a.Tiles.OfType<PatternIndex>().Select(c => new KeyValuePair<int, PatternIndex>(b, c))).ToList();
+				ushort? tile = replaceBlockTilesDialog.findTile.Tile;
+				if (tile.HasValue)
+					list = list.Where(a => a.Value.Tile == tile.Value).ToList();
+				bool? xflip = replaceBlockTilesDialog.findTile.XFlip;
+				if (xflip.HasValue)
+					list = list.Where(a => a.Value.XFlip == xflip.Value).ToList();
+				bool? yflip = replaceBlockTilesDialog.findTile.YFlip;
+				if (yflip.HasValue)
+					list = list.Where(a => a.Value.YFlip = yflip.Value).ToList();
+				bool? priority = replaceBlockTilesDialog.findTile.Priority;
+				if (priority.HasValue)
+					list = list.Where(a => a.Value.Priority == priority.Value).ToList();
+				byte? palette = replaceBlockTilesDialog.findTile.Palette;
+				if (palette.HasValue)
+					list = list.Where(a => a.Value.Palette == palette.Value).ToList();
+				tile = replaceBlockTilesDialog.replaceTile.Tile;
+				xflip = replaceBlockTilesDialog.replaceTile.XFlip;
+				yflip = replaceBlockTilesDialog.replaceTile.YFlip;
+				priority = replaceBlockTilesDialog.replaceTile.Priority;
+				palette = replaceBlockTilesDialog.replaceTile.Palette;
+				foreach (PatternIndex blk in list.Select(a => a.Value))
+				{
+					if (tile.HasValue)
+						blk.Tile = tile.Value;
+					if (xflip.HasValue)
+						blk.XFlip = xflip.Value;
+					if (yflip.HasValue)
+						blk.YFlip = yflip.Value;
+					if (priority.HasValue)
+						blk.Priority = priority.Value;
+					if (palette.HasValue)
+						blk.Palette = palette.Value;
+				}
+				foreach (int i in list.Select(a => a.Key).Distinct())
+					LevelData.RedrawBlock(i, true);
+				BlockSelector.Invalidate();
+				DrawBlockPicture();
+				blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
+				MessageBox.Show(this, "Replaced " + list.Count + " block tiles.", "SonLVL");
 			}
 		}
 	}

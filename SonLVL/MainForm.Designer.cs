@@ -63,6 +63,7 @@ namespace SonicRetro.SonLVL.GUI
 			System.Windows.Forms.Panel panel11;
 			this.importChunksToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.deleteUnusedChunksToolStripButton = new System.Windows.Forms.ToolStripButton();
+			this.replaceChunkBlocksToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.remapChunksButton = new System.Windows.Forms.ToolStripButton();
 			this.enableDraggingChunksButton = new System.Windows.Forms.ToolStripButton();
 			this.panel10 = new System.Windows.Forms.Panel();
@@ -321,7 +322,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.clearSolidsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.loadingAnimation1 = new SonicRetro.SonLVL.LoadingAnimation();
 			this.importProgressControl1 = new SonicRetro.SonLVL.ImportProgressControl();
-			this.replaceBlocksToolStripButton = new System.Windows.Forms.ToolStripButton();
+			this.replaceBlockTilesToolStripButton = new System.Windows.Forms.ToolStripButton();
 			toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
 			toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
 			label4 = new System.Windows.Forms.Label();
@@ -471,7 +472,7 @@ namespace SonicRetro.SonLVL.GUI
 			chunkListToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.importChunksToolStripButton,
             this.deleteUnusedChunksToolStripButton,
-            this.replaceBlocksToolStripButton,
+            this.replaceChunkBlocksToolStripButton,
             this.remapChunksButton,
             this.enableDraggingChunksButton});
 			chunkListToolStrip.Location = new System.Drawing.Point(0, 0);
@@ -497,6 +498,15 @@ namespace SonicRetro.SonLVL.GUI
 			this.deleteUnusedChunksToolStripButton.Size = new System.Drawing.Size(87, 22);
 			this.deleteUnusedChunksToolStripButton.Text = "Delete Unused";
 			this.deleteUnusedChunksToolStripButton.Click += new System.EventHandler(this.deleteUnusedChunksToolStripButton_Click);
+			// 
+			// replaceBlocksToolStripButton
+			// 
+			this.replaceChunkBlocksToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.replaceChunkBlocksToolStripButton.Enabled = false;
+			this.replaceChunkBlocksToolStripButton.Name = "replaceBlocksToolStripButton";
+			this.replaceChunkBlocksToolStripButton.Size = new System.Drawing.Size(52, 22);
+			this.replaceChunkBlocksToolStripButton.Text = "Replace";
+			this.replaceChunkBlocksToolStripButton.Click += new System.EventHandler(this.replaceChunkBlocksToolStripButton_Click);
 			// 
 			// remapChunksButton
 			// 
@@ -580,6 +590,7 @@ namespace SonicRetro.SonLVL.GUI
 			blockListToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.importBlocksToolStripButton,
             this.deleteUnusedBlocksToolStripButton,
+            this.replaceBlockTilesToolStripButton,
             this.remapBlocksButton,
             this.enableDraggingBlocksButton});
 			blockListToolStrip.Location = new System.Drawing.Point(0, 0);
@@ -3367,14 +3378,14 @@ namespace SonicRetro.SonLVL.GUI
 			this.importProgressControl1.Visible = false;
 			this.importProgressControl1.SizeChanged += new System.EventHandler(this.importProgressControl1_SizeChanged);
 			// 
-			// replaceBlocksToolStripButton
+			// replaceBlockTilesToolStripButton
 			// 
-			this.replaceBlocksToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-			this.replaceBlocksToolStripButton.Enabled = false;
-			this.replaceBlocksToolStripButton.Name = "replaceBlocksToolStripButton";
-			this.replaceBlocksToolStripButton.Size = new System.Drawing.Size(52, 22);
-			this.replaceBlocksToolStripButton.Text = "Replace";
-			this.replaceBlocksToolStripButton.Click += new System.EventHandler(this.replaceBlocksToolStripButton_Click);
+			this.replaceBlockTilesToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.replaceBlockTilesToolStripButton.Enabled = false;
+			this.replaceBlockTilesToolStripButton.Name = "replaceBlockTilesToolStripButton";
+			this.replaceBlockTilesToolStripButton.Size = new System.Drawing.Size(52, 22);
+			this.replaceBlockTilesToolStripButton.Text = "Replace";
+			this.replaceBlockTilesToolStripButton.Click += new System.EventHandler(this.replaceBlockTilesToolStripButton_Click);
 			// 
 			// MainForm
 			// 
@@ -3757,7 +3768,8 @@ namespace SonicRetro.SonLVL.GUI
 		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel9;
 		private System.Windows.Forms.ToolStripButton replaceForegroundToolStripButton;
 		private System.Windows.Forms.ToolStripButton replaceBackgroundToolStripButton;
-		private System.Windows.Forms.ToolStripButton replaceBlocksToolStripButton;
+		private System.Windows.Forms.ToolStripButton replaceChunkBlocksToolStripButton;
+		private System.Windows.Forms.ToolStripButton replaceBlockTilesToolStripButton;
 
 	}
 }
