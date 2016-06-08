@@ -8577,7 +8577,7 @@ namespace SonicRetro.SonLVL.GUI
 						byte[,] layout = new byte[bmp.Width / LevelData.Level.ChunkWidth, bmp.Height / LevelData.Level.ChunkHeight];
 						if (!ImportImage(bmp, colbmp1, colbmp2, pribmp, layout))
 							return;
-						LayoutSection section = new LayoutSection(layout, LevelData.LayoutFormat.HasLoopFlag ? new bool[layout.GetLength(0), layout.GetLength(1)] : null, null);
+						LayoutSection section = new LayoutSection(layout, LevelData.LayoutFormat.HasLoopFlag ? new bool[layout.GetLength(0), layout.GetLength(1)] : null, new List<Entry>());
 						using (LayoutSectionNameDialog dlg = new LayoutSectionNameDialog() { Value = Path.GetFileNameWithoutExtension(opendlg.FileName) })
 						{
 							if (dlg.ShowDialog(this) == DialogResult.OK)
