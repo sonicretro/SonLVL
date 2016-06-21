@@ -40,19 +40,21 @@ namespace SonicRetro.SonLVL.API
 
 		public static Color FindNearestMatch(this Color col, params Color[] palette)
 		{
+			if (Array.IndexOf(palette, col) != -1)
+				return col;
 			Color nearest_color = Color.Empty;
-			double distance = 250000;
+			int distance = int.MaxValue;
 			foreach (Color o in palette)
 			{
-				double dbl_test_red = Math.Pow(o.R - col.R, 2.0);
-				double dbl_test_green = Math.Pow(o.G - col.G, 2.0);
-				double dbl_test_blue = Math.Pow(o.B - col.B, 2.0);
-				double temp = dbl_test_blue + dbl_test_green + dbl_test_red;
-				if (temp == 0.0)
-				{
-					nearest_color = o;
-					break;
-				}
+				int test_red = o.R - col.R;
+				test_red *= test_red;
+				int test_green = o.G - col.G;
+				test_green *= test_green;
+				int test_blue = o.B - col.B;
+				test_blue *= test_blue;
+				int temp = test_blue +  test_green +  test_red;
+				if (temp == 0)
+					return o;
 				else if (temp < distance)
 				{
 					distance = temp;
