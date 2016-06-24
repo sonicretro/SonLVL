@@ -751,6 +751,7 @@ namespace SonicRetro.SonLVL.GUI
 			BlockCount.Text = LevelData.Blocks.Count.ToString("X") + " / " + LevelData.GetBlockMax().ToString("X");
 			TileCount.Text = LevelData.Tiles.Count.ToString("X") + " / 800";
 			deleteUnusedTilesToolStripButton.Enabled = deleteUnusedBlocksToolStripButton.Enabled = deleteUnusedChunksToolStripButton.Enabled =
+				removeDuplicateTilesToolStripButton.Enabled = removeDuplicateBlocksToolStripButton.Enabled = removeDuplicateChunksToolStripButton.Enabled =
 				replaceBlockTilesToolStripButton.Enabled = replaceChunkBlocksToolStripButton.Enabled = replaceBackgroundToolStripButton.Enabled = replaceForegroundToolStripButton.Enabled =
 				clearBackgroundToolStripButton.Enabled = clearForegroundToolStripButton.Enabled = usageCountsToolStripMenuItem.Enabled = true;
 #if !DEBUG
@@ -8646,108 +8647,105 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void deleteUnusedTilesToolStripButton_Click(object sender, EventArgs e)
 		{
-			if (MessageBox.Show(this, "This action may break other levels that share part of the same tile set, or objects that have their art in this set.\n\nAre you sure you want to delete all tiles not used in blocks?", "Delete Unused Tiles", MessageBoxButtons.OKCancel) == DialogResult.OK)
+			if (MessageBox.Show(this, "This action may break other levels that share part of the same tile set, or objects that have their art in this set.\n\nAre you sure you want to delete all tiles not used in blocks?", "Delete Unused Tiles", MessageBoxButtons.OKCancel) != DialogResult.OK)
+				return;
+			bool[] tilesused = new bool[LevelData.Tiles.Count];
+			foreach (Block blk in LevelData.Blocks)
+				foreach (PatternIndex pat in blk.Tiles)
+					if (pat.Tile < tilesused.Length)
+						tilesused[pat.Tile] = true;
+			ushort c = 0;
+			Dictionary<ushort, ushort> tilemap = new Dictionary<ushort, ushort>();
+			for (ushort i = 0; i < tilesused.Length; i++)
+				if (tilesused[i])
+					tilemap[i] = c++;
+			foreach (Block blk in LevelData.Blocks)
+				foreach (PatternIndex pat in blk.Tiles)
+					if (tilemap.ContainsKey(pat.Tile))
+						pat.Tile = tilemap[pat.Tile];
+			for (int i = tilesused.Length - 1; i >= 0; i--)
 			{
-				bool[] tilesused = new bool[LevelData.Tiles.Count];
-				foreach (Block blk in LevelData.Blocks)
-					foreach (PatternIndex pat in blk.Tiles)
-						if (pat.Tile < tilesused.Length)
-							tilesused[pat.Tile] = true;
-				ushort c = 0;
-				Dictionary<ushort, ushort> tilemap = new Dictionary<ushort, ushort>();
-				for (ushort i = 0; i < tilesused.Length; i++)
-					if (tilesused[i])
-						tilemap[i] = c++;
-				foreach (Block blk in LevelData.Blocks)
-					foreach (PatternIndex pat in blk.Tiles)
-						if (tilemap.ContainsKey(pat.Tile))
-							pat.Tile = tilemap[pat.Tile];
-				for (int i = tilesused.Length - 1; i >= 0; i--)
-				{
-					if (tilesused[i]) continue;
-					LevelData.Tiles.RemoveAt(i);
-				}
-				LevelData.UpdateTileArray();
-				RefreshTileSelector();
-				TileSelector.SelectedIndex = Math.Min(TileSelector.SelectedIndex, TileSelector.Images.Count - 1);
-				blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
+				if (tilesused[i]) continue;
+				LevelData.Tiles.RemoveAt(i);
 			}
+			LevelData.UpdateTileArray();
+			RefreshTileSelector();
+			TileSelector.SelectedIndex = Math.Min(TileSelector.SelectedIndex, TileSelector.Images.Count - 1);
+			blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 		}
 
 		private void deleteUnusedBlocksToolStripButton_Click(object sender, EventArgs e)
 		{
-			if (MessageBox.Show(this, "This action may break other levels that share part of the same block set.\n\nAre you sure you want to delete all blocks not used in chunks?", "Delete Unused Blocks", MessageBoxButtons.OKCancel) == DialogResult.OK)
+			if (MessageBox.Show(this, "This action may break other levels that share part of the same block set.\n\nAre you sure you want to delete all blocks not used in chunks?", "Delete Unused Blocks", MessageBoxButtons.OKCancel) != DialogResult.OK)
+				return;
+			bool[] blocksused = new bool[LevelData.Blocks.Count];
+			foreach (Chunk cnk in LevelData.Chunks)
+				foreach (ChunkBlock blk in cnk.Blocks)
+					if (blk.Block < blocksused.Length)
+						blocksused[blk.Block] = true;
+			ushort c = 0;
+			Dictionary<ushort, ushort> blockmap = new Dictionary<ushort, ushort>();
+			for (ushort i = 0; i < blocksused.Length; i++)
+				if (blocksused[i])
+					blockmap[i] = c++;
+			foreach (Chunk cnk in LevelData.Chunks)
+				foreach (ChunkBlock blk in cnk.Blocks)
+					if (blockmap.ContainsKey(blk.Block))
+						blk.Block = blockmap[blk.Block];
+			for (int i = blocksused.Length - 1; i >= 0; i--)
 			{
-				bool[] blocksused = new bool[LevelData.Blocks.Count];
-				foreach (Chunk cnk in LevelData.Chunks)
-					foreach (ChunkBlock blk in cnk.Blocks)
-						if (blk.Block < blocksused.Length)
-							blocksused[blk.Block] = true;
-				ushort c = 0;
-				Dictionary<ushort, ushort> blockmap = new Dictionary<ushort, ushort>();
-				for (ushort i = 0; i < blocksused.Length; i++)
-					if (blocksused[i])
-						blockmap[i] = c++;
-				foreach (Chunk cnk in LevelData.Chunks)
-					foreach (ChunkBlock blk in cnk.Blocks)
-						if (blockmap.ContainsKey(blk.Block))
-							blk.Block = blockmap[blk.Block];
-				for (int i = blocksused.Length - 1; i >= 0; i--)
-				{
-					if (blocksused[i]) continue;
-					LevelData.Blocks.RemoveAt(i);
-					LevelData.BlockBmpBits.RemoveAt(i);
-					LevelData.BlockBmps.RemoveAt(i);
-					LevelData.CompBlockBmpBits.RemoveAt(i);
-					LevelData.CompBlockBmps.RemoveAt(i);
-					LevelData.ColInds1.RemoveAt(i);
-					if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2))
-						LevelData.ColInds2.RemoveAt(i);
-				}
-				SelectedBlock = BlockSelector.SelectedIndex = Math.Min(SelectedBlock, LevelData.Blocks.Count - 1);
-				chunkBlockEditor.SelectedObjects = chunkBlockEditor.SelectedObjects;
+				if (blocksused[i]) continue;
+				LevelData.Blocks.RemoveAt(i);
+				LevelData.BlockBmpBits.RemoveAt(i);
+				LevelData.BlockBmps.RemoveAt(i);
+				LevelData.CompBlockBmpBits.RemoveAt(i);
+				LevelData.CompBlockBmps.RemoveAt(i);
+				LevelData.ColInds1.RemoveAt(i);
+				if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2))
+					LevelData.ColInds2.RemoveAt(i);
 			}
+			SelectedBlock = BlockSelector.SelectedIndex = Math.Min(SelectedBlock, LevelData.Blocks.Count - 1);
+			chunkBlockEditor.SelectedObjects = chunkBlockEditor.SelectedObjects;
 		}
 
 		private void deleteUnusedChunksToolStripButton_Click(object sender, EventArgs e)
 		{
-			if (MessageBox.Show(this, "This action may break other levels that share the same chunk set, or levels that alter the level layout dynamically.\n\nAre you sure you want to delete all chunks not used in the layout?", "Delete Unused Chunks", MessageBoxButtons.OKCancel) == DialogResult.OK)
+			if (MessageBox.Show(this, "This action may break other levels that share the same chunk set, or levels that alter the level layout dynamically.\n\nAre you sure you want to delete all chunks not used in the layout?", "Delete Unused Chunks", MessageBoxButtons.OKCancel) != DialogResult.OK)
+				return;
+			bool[] chunksused = new bool[LevelData.Chunks.Count];
+			for (int y = 0; y < LevelData.FGHeight; y++)
+				for (int x = 0; x < LevelData.FGWidth; x++)
+					if (LevelData.Layout.FGLayout[x, y] < chunksused.Length)
+						chunksused[LevelData.Layout.FGLayout[x, y]] = true;
+			for (int y = 0; y < LevelData.BGHeight; y++)
+				for (int x = 0; x < LevelData.BGWidth; x++)
+					if (LevelData.Layout.BGLayout[x, y] < chunksused.Length)
+						chunksused[LevelData.Layout.BGLayout[x, y]] = true;
+			byte c = 0;
+			Dictionary<byte, byte> chunkmap = new Dictionary<byte, byte>();
+			for (int i = 0; i < chunksused.Length; i++)
+				if (chunksused[i])
+					chunkmap[(byte)i] = c++;
+			for (int y = 0; y < LevelData.FGHeight; y++)
+				for (int x = 0; x < LevelData.FGWidth; x++)
+					if (chunkmap.ContainsKey(LevelData.Layout.FGLayout[x, y]))
+						LevelData.Layout.FGLayout[x, y] = chunkmap[LevelData.Layout.FGLayout[x, y]];
+			for (int y = 0; y < LevelData.BGHeight; y++)
+				for (int x = 0; x < LevelData.BGWidth; x++)
+					if (chunkmap.ContainsKey(LevelData.Layout.BGLayout[x, y]))
+						LevelData.Layout.BGLayout[x, y] = chunkmap[LevelData.Layout.BGLayout[x, y]];
+			for (int i = chunksused.Length - 1; i >= 0; i--)
 			{
-				bool[] chunksused = new bool[LevelData.Chunks.Count];
-				for (int y = 0; y < LevelData.FGHeight; y++)
-					for (int x = 0; x < LevelData.FGWidth; x++)
-						if (LevelData.Layout.FGLayout[x, y] < chunksused.Length)
-							chunksused[LevelData.Layout.FGLayout[x, y]] = true;
-				for (int y = 0; y < LevelData.BGHeight; y++)
-					for (int x = 0; x < LevelData.BGWidth; x++)
-						if (LevelData.Layout.BGLayout[x, y] < chunksused.Length)
-							chunksused[LevelData.Layout.BGLayout[x, y]] = true;
-				byte c = 0;
-				Dictionary<byte, byte> chunkmap = new Dictionary<byte, byte>();
-				for (int i = 0; i < chunksused.Length; i++)
-					if (chunksused[i])
-						chunkmap[(byte)i] = c++;
-				for (int y = 0; y < LevelData.FGHeight; y++)
-					for (int x = 0; x < LevelData.FGWidth; x++)
-						if (chunkmap.ContainsKey(LevelData.Layout.FGLayout[x, y]))
-							LevelData.Layout.FGLayout[x, y] = chunkmap[LevelData.Layout.FGLayout[x, y]];
-				for (int y = 0; y < LevelData.BGHeight; y++)
-					for (int x = 0; x < LevelData.BGWidth; x++)
-						if (chunkmap.ContainsKey(LevelData.Layout.BGLayout[x, y]))
-							LevelData.Layout.BGLayout[x, y] = chunkmap[LevelData.Layout.BGLayout[x, y]];
-				for (int i = chunksused.Length - 1; i >= 0; i--)
-				{
-					if (chunksused[i]) continue;
-					LevelData.Chunks.RemoveAt(i);
-					LevelData.ChunkBmpBits.RemoveAt(i);
-					LevelData.ChunkBmps.RemoveAt(i);
-					LevelData.ChunkColBmpBits.RemoveAt(i);
-					LevelData.ChunkColBmps.RemoveAt(i);
-					LevelData.CompChunkBmpBits.RemoveAt(i);
-					LevelData.CompChunkBmps.RemoveAt(i);
-				}
-				ChunkSelector.SelectedIndex = SelectedChunk = Math.Min(SelectedChunk, (byte)(LevelData.Chunks.Count - 1));
+				if (chunksused[i]) continue;
+				LevelData.Chunks.RemoveAt(i);
+				LevelData.ChunkBmpBits.RemoveAt(i);
+				LevelData.ChunkBmps.RemoveAt(i);
+				LevelData.ChunkColBmpBits.RemoveAt(i);
+				LevelData.ChunkColBmps.RemoveAt(i);
+				LevelData.CompChunkBmpBits.RemoveAt(i);
+				LevelData.CompChunkBmps.RemoveAt(i);
 			}
+			ChunkSelector.SelectedIndex = SelectedChunk = Math.Min(SelectedChunk, (byte)(LevelData.Chunks.Count - 1));
 		}
 
 		private void clearForegroundToolStripButton_Click(object sender, EventArgs e)
@@ -8944,6 +8942,299 @@ namespace SonicRetro.SonLVL.GUI
 				DrawBlockPicture();
 				blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 				MessageBox.Show(this, "Replaced " + list.Count + " block tiles.", "SonLVL");
+			}
+		}
+
+		private void removeDuplicateChunksToolStripButton_Click(object sender, EventArgs e)
+		{
+			if (MessageBox.Show(this, "This action may break other levels that share the same chunk set, or levels that alter the level layout dynamically.\n\nAre you sure you want to remove all duplicate chunks?", "SonLVL", MessageBoxButtons.OKCancel) != DialogResult.OK)
+				return;
+			Dictionary<byte, byte[]> chunks = new Dictionary<byte, byte[]>(LevelData.Chunks.Count);
+			Dictionary<byte, byte> chunkMap = new Dictionary<byte, byte>(LevelData.Chunks.Count);
+			Stack<int> deleted = new Stack<int>();
+			for (int i = 0; i < LevelData.Chunks.Count; i++)
+			{
+				byte[] cnk = LevelData.Chunks[i].GetBytes();
+				foreach (var item in chunks)
+					if (cnk.FastArrayEqual(item.Value))
+					{
+						chunkMap[(byte)i] = item.Key;
+						deleted.Push(i);
+						break;
+					}
+				if (!chunkMap.ContainsKey((byte)i))
+				{
+					chunkMap[(byte)i] = (byte)chunks.Count;
+					chunks[(byte)chunks.Count] = cnk;
+				}
+			}
+			if (deleted.Count > 0)
+			{
+				foreach (int i in deleted)
+				{
+					LevelData.Chunks.RemoveAt(i);
+					LevelData.ChunkBmpBits.RemoveAt(i);
+					LevelData.ChunkBmps.RemoveAt(i);
+					LevelData.ChunkColBmpBits.RemoveAt(i);
+					LevelData.ChunkColBmps.RemoveAt(i);
+					LevelData.CompChunkBmpBits.RemoveAt(i);
+					LevelData.CompChunkBmps.RemoveAt(i);
+				}
+				ChunkSelector.SelectedIndex = Math.Min(ChunkSelector.SelectedIndex, LevelData.Chunks.Count - 1);
+				for (int y = 0; y < LevelData.FGHeight; y++)
+					for (int x = 0; x < LevelData.FGWidth; x++)
+						if (chunkMap.ContainsKey(LevelData.Layout.FGLayout[x, y]))
+							LevelData.Layout.FGLayout[x, y] = chunkMap[LevelData.Layout.FGLayout[x, y]];
+				for (int y = 0; y < LevelData.BGHeight; y++)
+					for (int x = 0; x < LevelData.BGWidth; x++)
+						if (chunkMap.ContainsKey(LevelData.Layout.BGLayout[x, y]))
+							LevelData.Layout.BGLayout[x, y] = chunkMap[LevelData.Layout.BGLayout[x, y]];
+				DrawLevel();
+			}
+			MessageBox.Show(this, "Removed " + deleted.Count + " duplicate chunks.", "SonLVL");
+		}
+
+		private void removeDuplicateBlocksToolStripButton_Click(object sender, EventArgs e)
+		{
+			if (MessageBox.Show(this, "This action may break other levels that share part of the same block set.\n\nAre you sure you want to remove all duplicate blocks?", "SonLVL", MessageBoxButtons.OKCancel) != DialogResult.OK)
+				return;
+			Dictionary<ushort, byte[]> blocks = new Dictionary<ushort, byte[]>(LevelData.Blocks.Count);
+			Dictionary<ushort, ChunkBlock> blockMap = new Dictionary<ushort, ChunkBlock>(LevelData.Blocks.Count);
+			Dictionary<int, int> colIndMap = new Dictionary<int, int>(LevelData.Blocks.Count);
+			Stack<int> deleted = new Stack<int>();
+			for (int i = 0; i < LevelData.Blocks.Count; i++)
+			{
+				byte[] blk = LevelData.Blocks[i].GetBytes();
+				byte[] blkh = LevelData.Blocks[i].Flip(true, false).GetBytes();
+				byte[] blkv = LevelData.Blocks[i].Flip(false, true).GetBytes();
+				byte[] blkhv = LevelData.Blocks[i].Flip(true, true).GetBytes();
+				foreach (var item in blocks)
+				{
+					if (LevelData.ColInds1[i] != LevelData.ColInds1[colIndMap[item.Key]])
+						continue;
+					if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2) && LevelData.ColInds2[i] != LevelData.ColInds2[colIndMap[item.Key]])
+						continue;
+					if (blk.FastArrayEqual(item.Value))
+					{
+						blockMap[(ushort)i] = new S1ChunkBlock() { Block = item.Key };
+						deleted.Push(i);
+						break;
+					}
+					if (blkh.FastArrayEqual(item.Value))
+					{
+						blockMap[(ushort)i] = new S1ChunkBlock() { Block = item.Key, XFlip = true };
+						deleted.Push(i);
+						break;
+					}
+					if (blkv.FastArrayEqual(item.Value))
+					{
+						blockMap[(ushort)i] = new S1ChunkBlock() { Block = item.Key, YFlip = true };
+						deleted.Push(i);
+						break;
+					}
+					if (blkhv.FastArrayEqual(item.Value))
+					{
+						blockMap[(ushort)i] = new S1ChunkBlock() { Block = item.Key, XFlip = true, YFlip = true };
+						deleted.Push(i);
+						break;
+					}
+				}
+				if (!blockMap.ContainsKey((ushort)i))
+				{
+					blockMap[(ushort)i] = new S1ChunkBlock() { Block = (ushort)blocks.Count };
+					blocks[(ushort)blocks.Count] = blk;
+					colIndMap[colIndMap.Count] = i;
+				}
+			}
+			if (deleted.Count > 0)
+			{
+				foreach (int i in deleted)
+				{
+					LevelData.Blocks.RemoveAt(i);
+					LevelData.BlockBmpBits.RemoveAt(i);
+					LevelData.BlockBmps.RemoveAt(i);
+					LevelData.CompBlockBmpBits.RemoveAt(i);
+					LevelData.CompBlockBmps.RemoveAt(i);
+					LevelData.ColInds1.RemoveAt(i);
+					if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2))
+						LevelData.ColInds2.RemoveAt(i);
+				}
+				BlockSelector.SelectedIndex = Math.Min(BlockSelector.SelectedIndex, LevelData.Blocks.Count - 1);
+				for (int i = 0; i < LevelData.Chunks.Count; i++)
+					foreach (ChunkBlock cb in LevelData.Chunks[i].Blocks)
+						if (blockMap.ContainsKey(cb.Block))
+						{
+							ChunkBlock nb = blockMap[cb.Block];
+							cb.Block = nb.Block;
+							cb.XFlip ^= nb.XFlip;
+							cb.YFlip ^= nb.YFlip;
+						}
+				chunkBlockEditor.SelectedObjects = chunkBlockEditor.SelectedObjects;
+				DrawLevel();
+			}
+			MessageBox.Show(this, "Removed " + deleted.Count + " duplicate blocks.", "SonLVL");
+		}
+
+		private void removeDuplicateTilesToolStripButton_Click(object sender, EventArgs e)
+		{
+			if (MessageBox.Show(this, "This action may break other levels that share part of the same tile set, or objects that have their art in this set.\n\nAre you sure you want to remove all duplicate tiles?", "SonLVL", MessageBoxButtons.OKCancel) != DialogResult.OK)
+				return;
+			if (LevelData.Level.TwoPlayerCompatible)
+			{
+				Dictionary<ushort, byte[]> tiles = new Dictionary<ushort, byte[]>(LevelData.Tiles.Count / 2);
+				Dictionary<ushort, PatternIndex> tileMap = new Dictionary<ushort, PatternIndex>(LevelData.Tiles.Count / 2);
+				Stack<int> deleted = new Stack<int>();
+				for (int i = 0; i < LevelData.Tiles.Count; i += 2)
+				{
+					byte[] tile = new byte[64];
+					Array.Copy(LevelData.TileArray, i * 32, tile, 0, 64);
+					byte[] tileh = new byte[64];
+					for (int ty = 0; ty < 16; ty++)
+						for (int tx = 0; tx < 4; tx++)
+						{
+							byte px = tile[(ty * 4) + tx];
+							tileh[(ty * 4) + (3 - tx)] = (byte)((px >> 4) | (px << 4));
+						}
+					byte[] tilev = new byte[64];
+					for (int ty = 0; ty < 16; ty++)
+						Array.Copy(tile, ty * 4, tilev, (15 - ty) * 4, 4);
+					byte[] tilehv = new byte[64];
+					for (int ty = 0; ty < 16; ty++)
+						Array.Copy(tileh, ty * 4, tilehv, (15 - ty) * 4, 4);
+					foreach (var item in tiles)
+					{
+						if (tile.FastArrayEqual(item.Value))
+						{
+							tileMap[(ushort)i] = new PatternIndex() { Tile = item.Key };
+							deleted.Push(i);
+							break;
+						}
+						if (tileh.FastArrayEqual(item.Value))
+						{
+							tileMap[(ushort)i] = new PatternIndex() { Tile = item.Key, XFlip = true };
+							deleted.Push(i);
+							break;
+						}
+						if (tilev.FastArrayEqual(item.Value))
+						{
+							tileMap[(ushort)i] = new PatternIndex() { Tile = item.Key, YFlip = true };
+							deleted.Push(i);
+							break;
+						}
+						if (tilehv.FastArrayEqual(item.Value))
+						{
+							tileMap[(ushort)i] = new PatternIndex() { Tile = item.Key, XFlip = true, YFlip = true };
+							deleted.Push(i);
+							break;
+						}
+					}
+					if (!tileMap.ContainsKey((ushort)i))
+					{
+						tileMap[(ushort)i] = new PatternIndex() { Tile = (ushort)(tiles.Count * 2) };
+						tiles[(ushort)(tiles.Count * 2)] = tile;
+					}
+				}
+				if (deleted.Count > 0)
+				{
+					foreach (int i in deleted)
+					{
+						LevelData.Tiles.RemoveAt(i);
+						LevelData.Tiles.RemoveAt(i);
+					}
+					LevelData.UpdateTileArray();
+					RefreshTileSelector();
+					TileSelector.SelectedIndex = Math.Min(TileSelector.SelectedIndex, TileSelector.Images.Count - 1);
+					for (int i = 0; i < LevelData.Blocks.Count; i++)
+						for (int x = 0; x < 2; x++)
+							if (tileMap.ContainsKey((ushort)(LevelData.Blocks[i].Tiles[x, 0].Tile & ~1)))
+							{
+								PatternIndex nb = tileMap[(ushort)(LevelData.Blocks[i].Tiles[x, 0].Tile & ~1)];
+								LevelData.Blocks[i].Tiles[x, 0].Tile = nb.Tile;
+								LevelData.Blocks[i].Tiles[x, 0].XFlip ^= nb.XFlip;
+								LevelData.Blocks[i].Tiles[x, 0].YFlip ^= nb.YFlip;
+								LevelData.Blocks[i].MakeInterlacedCompatible();
+							}
+					blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
+					DrawLevel();
+				}
+				MessageBox.Show(this, "Removed " + deleted.Count + " duplicate tiles.", "SonLVL");
+			}
+			else
+			{
+				Dictionary<ushort, byte[]> tiles = new Dictionary<ushort, byte[]>(LevelData.Tiles.Count);
+				Dictionary<ushort, PatternIndex> tileMap = new Dictionary<ushort, PatternIndex>(LevelData.Tiles.Count);
+				Stack<int> deleted = new Stack<int>();
+				for (int i = 0; i < LevelData.Tiles.Count; i++)
+				{
+					byte[] tile = LevelData.Tiles[i];
+					byte[] tileh = new byte[32];
+					for (int ty = 0; ty < 8; ty++)
+						for (int tx = 0; tx < 4; tx++)
+						{
+							byte px = tile[(ty * 4) + tx];
+							tileh[(ty * 4) + (3 - tx)] = (byte)((px >> 4) | (px << 4));
+						}
+					byte[] tilev = new byte[32];
+					for (int ty = 0; ty < 8; ty++)
+						Array.Copy(tile, ty * 4, tilev, (7 - ty) * 4, 4);
+					byte[] tilehv = new byte[32];
+					for (int ty = 0; ty < 8; ty++)
+						Array.Copy(tileh, ty * 4, tilehv, (7 - ty) * 4, 4);
+					foreach (var item in tiles)
+					{
+						if (tile.FastArrayEqual(item.Value))
+						{
+							tileMap[(ushort)i] = new PatternIndex() { Tile = item.Key };
+							deleted.Push(i);
+							break;
+						}
+						if (tileh.FastArrayEqual(item.Value))
+						{
+							tileMap[(ushort)i] = new PatternIndex() { Tile = item.Key, XFlip = true };
+							deleted.Push(i);
+							break;
+						}
+						if (tilev.FastArrayEqual(item.Value))
+						{
+							tileMap[(ushort)i] = new PatternIndex() { Tile = item.Key, YFlip = true };
+							deleted.Push(i);
+							break;
+						}
+						if (tilehv.FastArrayEqual(item.Value))
+						{
+							tileMap[(ushort)i] = new PatternIndex() { Tile = item.Key, XFlip = true, YFlip = true };
+							deleted.Push(i);
+							break;
+						}
+					}
+					if (!tileMap.ContainsKey((ushort)i))
+					{
+						tileMap[(ushort)i] = new PatternIndex() { Tile = (ushort)tiles.Count };
+						tiles[(ushort)tiles.Count] = tile;
+					}
+				}
+				if (deleted.Count > 0)
+				{
+					foreach (int i in deleted)
+					{
+						LevelData.Tiles.RemoveAt(i);
+						TileSelector.Images.RemoveAt(i);
+					}
+					LevelData.UpdateTileArray();
+					TileSelector.SelectedIndex = Math.Min(TileSelector.SelectedIndex, LevelData.Tiles.Count - 1);
+					for (int i = 0; i < LevelData.Blocks.Count; i++)
+						foreach (PatternIndex cb in LevelData.Blocks[i].Tiles)
+							if (tileMap.ContainsKey(cb.Tile))
+							{
+								PatternIndex nb = tileMap[cb.Tile];
+								cb.Tile = nb.Tile;
+								cb.XFlip ^= nb.XFlip;
+								cb.YFlip ^= nb.YFlip;
+							}
+					blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
+					DrawLevel();
+				}
+				MessageBox.Show(this, "Removed " + deleted.Count + " duplicate tiles.", "SonLVL");
 			}
 		}
 	}
