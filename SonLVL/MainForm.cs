@@ -8663,15 +8663,18 @@ namespace SonicRetro.SonLVL.GUI
 				foreach (PatternIndex pat in blk.Tiles)
 					if (tilemap.ContainsKey(pat.Tile))
 						pat.Tile = tilemap[pat.Tile];
+			int numdel = 0;
 			for (int i = tilesused.Length - 1; i >= 0; i--)
 			{
 				if (tilesused[i]) continue;
 				LevelData.Tiles.RemoveAt(i);
+				numdel++;
 			}
 			LevelData.UpdateTileArray();
 			RefreshTileSelector();
 			TileSelector.SelectedIndex = Math.Min(TileSelector.SelectedIndex, TileSelector.Images.Count - 1);
 			blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
+			MessageBox.Show(this, "Deleted " + numdel + " unused tiles.", "SonLVL");
 		}
 
 		private void deleteUnusedBlocksToolStripButton_Click(object sender, EventArgs e)
@@ -8692,6 +8695,7 @@ namespace SonicRetro.SonLVL.GUI
 				foreach (ChunkBlock blk in cnk.Blocks)
 					if (blockmap.ContainsKey(blk.Block))
 						blk.Block = blockmap[blk.Block];
+			int numdel = 0;
 			for (int i = blocksused.Length - 1; i >= 0; i--)
 			{
 				if (blocksused[i]) continue;
@@ -8703,9 +8707,11 @@ namespace SonicRetro.SonLVL.GUI
 				LevelData.ColInds1.RemoveAt(i);
 				if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2))
 					LevelData.ColInds2.RemoveAt(i);
+				numdel++;
 			}
 			SelectedBlock = BlockSelector.SelectedIndex = Math.Min(SelectedBlock, LevelData.Blocks.Count - 1);
 			chunkBlockEditor.SelectedObjects = chunkBlockEditor.SelectedObjects;
+			MessageBox.Show(this, "Deleted " + numdel + " unused blocks.", "SonLVL");
 		}
 
 		private void deleteUnusedChunksToolStripButton_Click(object sender, EventArgs e)
@@ -8734,6 +8740,7 @@ namespace SonicRetro.SonLVL.GUI
 				for (int x = 0; x < LevelData.BGWidth; x++)
 					if (chunkmap.ContainsKey(LevelData.Layout.BGLayout[x, y]))
 						LevelData.Layout.BGLayout[x, y] = chunkmap[LevelData.Layout.BGLayout[x, y]];
+			int numdel = 0;
 			for (int i = chunksused.Length - 1; i >= 0; i--)
 			{
 				if (chunksused[i]) continue;
@@ -8744,8 +8751,10 @@ namespace SonicRetro.SonLVL.GUI
 				LevelData.ChunkColBmps.RemoveAt(i);
 				LevelData.CompChunkBmpBits.RemoveAt(i);
 				LevelData.CompChunkBmps.RemoveAt(i);
+				numdel++;
 			}
 			ChunkSelector.SelectedIndex = SelectedChunk = Math.Min(SelectedChunk, (byte)(LevelData.Chunks.Count - 1));
+			MessageBox.Show(this, "Deleted " + numdel + " unused chunks.", "SonLVL");
 		}
 
 		private void clearForegroundToolStripButton_Click(object sender, EventArgs e)
