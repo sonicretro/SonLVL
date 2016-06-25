@@ -984,24 +984,31 @@ namespace SonicRetro.SonLVL.API
 					if (Level.CollisionIndex != null)
 					{
 						tmp = new List<byte>();
+						byte[] cif = null;
 						switch (Level.CollisionIndexSize)
 						{
 							case 0:
 							case 1:
-								for (int i = 0; i < 0x300; i++)
+								cif = new byte[0x600];
+								for (int i = 0; i < ColInds1.Count; i++)
 								{
 									tmp.Add(ColInds1[i]);
 									tmp.Add(ColInds2[i]);
 								}
+								tmp.CopyTo(0, cif, 0, Math.Min(tmp.Count, cif.Length));
 								break;
 							case 2:
+								cif = new byte[0xC00];
 								foreach (byte item in ColInds1)
 									tmp.AddRange(ByteConverter.GetBytes((ushort)item));
+								tmp.CopyTo(0, cif, 0, Math.Min(tmp.Count, 0x600));
+								tmp.Clear();
 								foreach (byte item in ColInds2)
 									tmp.AddRange(ByteConverter.GetBytes((ushort)item));
+								tmp.CopyTo(0, cif, 0x600, Math.Min(tmp.Count, 0x600));
 								break;
 						}
-						Compression.Compress(tmp.ToArray(), Level.CollisionIndex, Level.CollisionIndexCompression);
+						Compression.Compress(cif, Level.CollisionIndex, Level.CollisionIndexCompression);
 					}
 					break;
 			}
