@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ObjDef Namespace="SCDPCObjectDefinitions.PPZ1" TypeName="Spring" Language="cs" Name="Spring" Image="img1" RememberState="false" Debug="false">
+  <Images>
+    <ImageFromSprite id="img1" frame="479" />
+    <ImageFromSprite id="img2" frame="467" />
+    <ImageFromSprite id="img3" frame="482" />
+    <ImageFromSprite id="img4" frame="470" />
+    <ImageFromSprite id="img5" frame="485" />
+    <ImageFromSprite id="img6" frame="473" />
+  </Images>
+  <Subtypes>
+    <Subtype id="00" name="Vertical Red" image="img1" />
+    <Subtype id="02" name="Vertical Yellow" image="img2" />
+    <Subtype id="10" name="Horizontal Red" image="img3" />
+    <Subtype id="12" name="Horizontal Yellow" image="img4" />
+    <Subtype id="20" name="Diagonal Red" image="img5" />
+    <Subtype id="22" name="Diagonal Yellow" image="img6" />
+  </Subtypes>
+  <Properties>
+    <BitsProperty name="Direction" type="SpringDirection" startbit="4" length="2" />
+    <BitsProperty name="Color" type="SpringColor" startbit="1" length="1" />
+  </Properties>
+  <Enums>
+    <Enum name="SpringDirection">
+      <EnumMember name="Vertical" />
+      <EnumMember name="Horizontal" />
+      <EnumMember name="Diagonal" />
+      <EnumMember name="Invalid" />
+    </Enum>
+    <Enum name="SpringColor">
+      <EnumMember name="Red" />
+      <EnumMember name="Yellow" />
+    </Enum>
+  </Enums>
+  <Display>
+    <DisplayOption>
+      <Condition property="Direction" value="Vertical" />
+      <Condition property="Color" value="Red" />
+      <ImageRef image="img1" />
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Direction" value="Vertical" />
+      <Condition property="Color" value="Yellow" />
+      <ImageRef image="img2" />
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Direction" value="Horizontal" />
+      <Condition property="Color" value="Red" />
+      <ImageRef image="img3" />
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Direction" value="Horizontal" />
+      <Condition property="Color" value="Yellow" />
+      <ImageRef image="img4" />
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Direction" value="Diagonal" />
+      <Condition property="Color" value="Red" />
+      <ImageRef image="img5" />
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Direction" value="Diagonal" />
+      <Condition property="Color" value="Yellow" />
+      <ImageRef image="img6" />
+    </DisplayOption>
+  </Display>
+</ObjDef>

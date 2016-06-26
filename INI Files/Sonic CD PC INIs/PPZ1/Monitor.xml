@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ObjDef Namespace="SCDPCObjectDefinitions.PPZ1" TypeName="Monitor" Language="cs" Name="Monitor/Timepost" Image="monback" Debug="false">
+  <Images>
+    <ImageFromSprite id="monback" frame="286">
+      <offset X="-16" Y="-16" />
+    </ImageFromSprite>
+    <ImageFromSprite id="post" frame="285">
+      <offset X="-8" Y="-16" />
+    </ImageFromSprite>
+    <ImageFromSprite id="sonic" frame="272">
+      <offset X="-8" Y="-8" />
+    </ImageFromSprite>
+    <ImageFromSprite id="ring" frame="273">
+      <offset X="-8" Y="-8" />
+    </ImageFromSprite>
+    <ImageFromSprite id="shield" frame="274">
+      <offset X="-8" Y="-8" />
+    </ImageFromSprite>
+    <ImageFromSprite id="invincible" frame="275">
+      <offset X="-8" Y="-8" />
+    </ImageFromSprite>
+    <ImageFromSprite id="shoes" frame="276">
+      <offset X="-8" Y="-8" />
+    </ImageFromSprite>
+    <ImageFromSprite id="clock" frame="277">
+      <offset X="-8" Y="-8" />
+    </ImageFromSprite>
+    <ImageFromSprite id="bluering" frame="278">
+      <offset X="-8" Y="-8" />
+    </ImageFromSprite>
+    <ImageFromSprite id="s" frame="279">
+      <offset X="-8" Y="-8" />
+    </ImageFromSprite>
+    <ImageFromSprite id="static" frame="280">
+      <offset X="-8" Y="-8" />
+    </ImageFromSprite>
+    <ImageFromSprite id="past" frame="281">
+      <offset X="-16" Y="-6" />
+    </ImageFromSprite>
+    <ImageFromSprite id="future" frame="282">
+      <offset X="-16" Y="-6" />
+    </ImageFromSprite>
+  </Images>
+  <Subtypes>
+    <Subtype id="00" name="Sonic Monitor" image="sonic" />
+    <Subtype id="01" name="Rings Monitor" image="ring" />
+    <Subtype id="02" name="Shield Monitor" image="shield" />
+    <Subtype id="03" name="Invincibility Monitor" image="invincible" />
+    <Subtype id="04" name="Speed Shoes Monitor" image="shoes" />
+    <Subtype id="05" name="Clock Monitor" image="clock" />
+    <Subtype id="06" name="Silver Ring Monitor" image="bluering" />
+    <Subtype id="07" name="S Monitor" image="s" />
+    <Subtype id="08" name="Past Timepost" image="past" />
+    <Subtype id="09" name="Future Timepost" image="future" />
+  </Subtypes>
+  <Properties>
+    <BitsProperty name="Contents" type="MonitorType" startbit="0" length="4" />
+  </Properties>
+  <Enums>
+    <Enum name="MonitorType">
+      <EnumMember name="OneUp" />
+      <EnumMember name="Ring" />
+      <EnumMember name="Shield" />
+      <EnumMember name="Invincibility" />
+      <EnumMember name="Shoes" />
+      <EnumMember name="Clock" />
+      <EnumMember name="SilverRing" />
+      <EnumMember name="S" />
+      <EnumMember name="Past" />
+      <EnumMember name="Future" />
+      <EnumMember name="Invalid" />
+    </Enum>
+  </Enums>
+  <Display>
+    <DisplayOption>
+      <Condition property="Contents" value="OneUp" />
+      <ImageRef image="monback" />
+      <ImageRef image="sonic">
+        <Offset Y="-2" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Contents" value="Ring" />
+      <ImageRef image="monback" />
+      <ImageRef image="ring">
+        <Offset Y="-2" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Contents" value="Shield" />
+      <ImageRef image="monback" />
+      <ImageRef image="shield">
+        <Offset Y="-2" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Contents" value="Invincibility" />
+      <ImageRef image="monback" />
+      <ImageRef image="invincible">
+        <Offset Y="-2" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Contents" value="Shoes" />
+      <ImageRef image="monback" />
+      <ImageRef image="shoes">
+        <Offset Y="-2" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Contents" value="Clock" />
+      <ImageRef image="monback" />
+      <ImageRef image="clock">
+        <Offset Y="-2" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Contents" value="SilverRing" />
+      <ImageRef image="monback" />
+      <ImageRef image="bluering">
+        <Offset Y="-2" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Contents" value="S" />
+      <ImageRef image="monback" />
+      <ImageRef image="s">
+        <Offset Y="-2" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Contents" value="Past" />
+      <ImageRef image="post" />
+      <ImageRef image="past">
+        <Offset Y="-26" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Contents" value="Future" />
+      <ImageRef image="post" />
+      <ImageRef image="future">
+        <Offset Y="-26" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <ImageRef image="monback" />
+      <ImageRef image="static">
+        <Offset Y="-2" />
+      </ImageRef>
+    </DisplayOption>
+  </Display>
+</ObjDef>
