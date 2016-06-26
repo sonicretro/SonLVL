@@ -10,6 +10,17 @@ namespace SonicRetro.SonLVL.API
 		private List<List<T>> filedata = new List<List<T>>();
 		private List<int> fileoffs = new List<int>();
 		private List<bool> fixedoff = new List<bool>();
+		Func<T> defaultItem;
+
+		public MultiFileIndexer()
+		{
+			defaultItem = () => default(T);
+		}
+
+		public MultiFileIndexer(Func<T> defaultItem)
+		{
+			this.defaultItem = defaultItem;
+		}
 
 		public void AddFile(List<T> data, int offset)
 		{
@@ -28,6 +39,14 @@ namespace SonicRetro.SonLVL.API
 					return i;
 			}
 			return -1;
+		}
+
+		public void FillGaps()
+		{
+			int cnt = Count;
+			for (int i = 1; i < cnt; i++)
+				if (GetContainingFile(i) == -1)
+					InsertAfter(i - 1, defaultItem());
 		}
 
 		public T this[int index]
@@ -76,6 +95,7 @@ namespace SonicRetro.SonLVL.API
 			for (i++; i < FileCount; i++)
 				if (!fixedoff[i])
 					fileoffs[i]--;
+			FillGaps();
 			return true;
 		}
 
@@ -86,6 +106,7 @@ namespace SonicRetro.SonLVL.API
 			for (i++; i < FileCount; i++)
 				if (!fixedoff[i])
 					fileoffs[i]--;
+			FillGaps();
 		}
 
 		public void Clear()

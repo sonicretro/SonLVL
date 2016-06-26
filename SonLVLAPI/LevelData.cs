@@ -148,7 +148,7 @@ namespace SonicRetro.SonLVL.API
 				throw new ArgumentException("Chunk height must be divisible by 16!");
 			byte[] tmp = null;
 			List<byte> data = new List<byte>();
-			Tiles = new MultiFileIndexer<byte[]>();
+			Tiles = new MultiFileIndexer<byte[]>(() => new byte[32]);
 			if (Level.TileFormat != EngineVersion.SCDPC)
 			{
 				foreach (FileInfo tileent in Level.Tiles)
@@ -200,8 +200,9 @@ namespace SonicRetro.SonLVL.API
 					Tiles.AddFile(new List<byte[]>() { new byte[32] }, -1);
 				}
 			}
+			Tiles.FillGaps();
 			UpdateTileArray();
-			Blocks = new MultiFileIndexer<Block>();
+			Blocks = new MultiFileIndexer<Block>(() => new Block());
 			foreach (FileInfo tileent in Level.Blocks)
 			{
 				if (File.Exists(tileent.Filename))
@@ -226,7 +227,8 @@ namespace SonicRetro.SonLVL.API
 			}
 			if (Blocks.Count == 0)
 				Blocks.AddFile(new List<Block>() { new Block() }, -1);
-			Chunks = new MultiFileIndexer<Chunk>();
+			Blocks.FillGaps();
+			Chunks = new MultiFileIndexer<Chunk>(() => new Chunk());
 			data = new List<byte>();
 			int fileind = 0;
 			foreach (FileInfo tileent in Level.Chunks)
@@ -265,6 +267,7 @@ namespace SonicRetro.SonLVL.API
 			}
 			if (Chunks.Count == 0)
 				Chunks.AddFile(new List<Chunk>() { new Chunk() }, -1);
+			Chunks.FillGaps();
 			Layout = new LayoutData();
 			switch (Level.LayoutFormat)
 			{
