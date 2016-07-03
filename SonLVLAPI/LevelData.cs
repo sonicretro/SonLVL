@@ -36,7 +36,9 @@ namespace SonicRetro.SonLVL.API
 		public static int CurPal;
 		public static ColorPalette BmpPal;
 		public static List<ObjectEntry> Objects;
+		static bool objectterm;
 		public static List<RingEntry> Rings;
+		internal static bool ringstartterm, ringendterm;
 		public static RingFormat RingFormat;
 		public static List<CNZBumperEntry> Bumpers;
 		public static List<StartPositionEntry> StartPositions;
@@ -508,6 +510,7 @@ namespace SonicRetro.SonLVL.API
 				InitObjectDefinitions();
 			}
 			Objects = new List<ObjectEntry>();
+			objectterm = false;
 			if (Level.Objects != null)
 			{
 				if (File.Exists(Level.Objects))
@@ -519,21 +522,21 @@ namespace SonicRetro.SonLVL.API
 						case EngineVersion.S1:
 							for (int oa = 0; oa < tmp.Length; oa += S1ObjectEntry.Size)
 							{
-								if (ByteConverter.ToUInt16(tmp, oa) == 0xFFFF) break;
+								if (ByteConverter.ToUInt16(tmp, oa) == 0xFFFF) { objectterm = true; break; }
 								Objects.Add(new S1ObjectEntry(tmp, oa));
 							}
 							break;
 						case EngineVersion.S2:
 							for (int oa = 0; oa < tmp.Length; oa += S2ObjectEntry.Size)
 							{
-								if (ByteConverter.ToUInt16(tmp, oa) == 0xFFFF) break;
+								if (ByteConverter.ToUInt16(tmp, oa) == 0xFFFF) { objectterm = true; break; }
 								Objects.Add(new S2ObjectEntry(tmp, oa));
 							}
 							break;
 						case EngineVersion.S2NA:
 							for (int oa = 0; oa < tmp.Length; oa += S2NAObjectEntry.Size)
 							{
-								if (ByteConverter.ToUInt16(tmp, oa) == 0xFFFF) break;
+								if (ByteConverter.ToUInt16(tmp, oa) == 0xFFFF) { objectterm = true; break; }
 								Objects.Add(new S2NAObjectEntry(tmp, oa));
 							}
 							break;
@@ -541,7 +544,7 @@ namespace SonicRetro.SonLVL.API
 						case EngineVersion.SKC:
 							for (int oa = 0; oa < tmp.Length; oa += S3KObjectEntry.Size)
 							{
-								if (ByteConverter.ToUInt16(tmp, oa) == 0xFFFF) break;
+								if (ByteConverter.ToUInt16(tmp, oa) == 0xFFFF) { objectterm = true; break; }
 								Objects.Add(new S3KObjectEntry(tmp, oa));
 							}
 							break;
@@ -549,14 +552,14 @@ namespace SonicRetro.SonLVL.API
 						case EngineVersion.SCDPC:
 							for (int oa = 0; oa < tmp.Length; oa += SCDObjectEntry.Size)
 							{
-								if (ByteConverter.ToUInt64(tmp, oa) == 0xFFFFFFFFFFFFFFFF) break;
+								if (ByteConverter.ToUInt64(tmp, oa) == 0xFFFFFFFFFFFFFFFF) { objectterm = true; break; }
 								Objects.Add(new SCDObjectEntry(tmp, oa));
 							}
 							break;
 						case EngineVersion.Chaotix:
 							for (int oa = 0; oa < tmp.Length; oa += ChaotixObjectEntry.Size)
 							{
-								if (ByteConverter.ToUInt16(tmp, oa) == 0xFFFF) break;
+								if (ByteConverter.ToUInt16(tmp, oa) == 0xFFFF) { objectterm = true; break; }
 								Objects.Add(new ChaotixObjectEntry(tmp, oa));
 							}
 							break;
@@ -570,7 +573,7 @@ namespace SonicRetro.SonLVL.API
 			}
 			if (Level.Rings != null && RingFormat is RingLayoutFormat)
 			{
-				Rings = ((RingLayoutFormat)RingFormat).TryReadLayout(Level.Rings, Level.RingCompression);
+				Rings = ((RingLayoutFormat)RingFormat).TryReadLayout(Level.Rings, Level.RingCompression, out ringstartterm, out ringendterm);
 				if (loadGraphics)
 					foreach (RingEntry ring in Rings)
 						ring.UpdateSprite();
@@ -906,45 +909,46 @@ namespace SonicRetro.SonLVL.API
 				tmp = new List<byte>();
 				for (int oi = 0; oi < Objects.Count; oi++)
 					tmp.AddRange(Objects[oi].GetBytes());
-				switch (Level.ObjectFormat)
-				{
-					case EngineVersion.S1:
-						tmp.AddRange(new byte[] { 0xFF, 0xFF });
-						while (tmp.Count % S1ObjectEntry.Size > 0)
-							tmp.Add(0);
-						break;
-					case EngineVersion.S2:
-						tmp.AddRange(new byte[] { 0xFF, 0xFF });
-						while (tmp.Count % S2ObjectEntry.Size > 0)
-							tmp.Add(0);
-						break;
-					case EngineVersion.S2NA:
-						tmp.AddRange(new byte[] { 0xFF, 0xFF });
-						while (tmp.Count % S2NAObjectEntry.Size > 0)
-							tmp.Add(0);
-						break;
-					case EngineVersion.S3K:
-					case EngineVersion.SKC:
-						tmp.AddRange(new byte[] { 0xFF, 0xFF });
-						while (tmp.Count % S3KObjectEntry.Size > 0)
-							tmp.Add(0);
-						break;
-					case EngineVersion.SCD:
-					case EngineVersion.SCDPC:
-						tmp.Add(0xFF);
-						while (tmp.Count % SCDObjectEntry.Size > 0)
+				if (objectterm)
+					switch (Level.ObjectFormat)
+					{
+						case EngineVersion.S1:
+							tmp.AddRange(new byte[] { 0xFF, 0xFF });
+							while (tmp.Count % S1ObjectEntry.Size > 0)
+								tmp.Add(0);
+							break;
+						case EngineVersion.S2:
+							tmp.AddRange(new byte[] { 0xFF, 0xFF });
+							while (tmp.Count % S2ObjectEntry.Size > 0)
+								tmp.Add(0);
+							break;
+						case EngineVersion.S2NA:
+							tmp.AddRange(new byte[] { 0xFF, 0xFF });
+							while (tmp.Count % S2NAObjectEntry.Size > 0)
+								tmp.Add(0);
+							break;
+						case EngineVersion.S3K:
+						case EngineVersion.SKC:
+							tmp.AddRange(new byte[] { 0xFF, 0xFF });
+							while (tmp.Count % S3KObjectEntry.Size > 0)
+								tmp.Add(0);
+							break;
+						case EngineVersion.SCD:
+						case EngineVersion.SCDPC:
 							tmp.Add(0xFF);
-						break;
-					case EngineVersion.Chaotix:
-						tmp.AddRange(new byte[] { 0xFF, 0xFF });
-						break;
-				}
+							while (tmp.Count % SCDObjectEntry.Size > 0)
+								tmp.Add(0xFF);
+							break;
+						case EngineVersion.Chaotix:
+							tmp.AddRange(new byte[] { 0xFF, 0xFF });
+							break;
+					}
 				Compression.Compress(tmp.ToArray(), Level.Objects, Level.ObjectCompression);
 			}
 			if (Level.Rings != null && RingFormat is RingLayoutFormat)
 			{
 				Rings.Sort();
-				((RingLayoutFormat)RingFormat).WriteLayout(Rings, Level.RingCompression, Level.Rings);
+				((RingLayoutFormat)RingFormat).WriteLayout(Rings, Level.RingCompression, Level.Rings, ringstartterm, ringendterm);
 			}
 			if (Bumpers != null)
 			{

@@ -15,25 +15,36 @@ namespace SonicRetro.SonLVL.API.S3K
 			spr = ObjectHelper.UnknownObject;
 		}
 
-		public override List<RingEntry> ReadLayout(byte[] rawdata)
+		public override List<RingEntry> ReadLayout(byte[] rawdata, out bool startterm, out bool endterm)
 		{
+			startterm = false;
+			endterm = false;
 			List<RingEntry> rings = new List<RingEntry>();
-			for (int i = 0; i < rawdata.Length; i += S3KRingEntry.Size)
+			int i = 0;
+			if (rawdata.FastArrayEqual(0, 0, S3KRingEntry.Size))
 			{
-				if (ByteConverter.ToUInt16(rawdata, i) == 0xFFFF) break;
+				startterm = true;
+				i += S3KRingEntry.Size;
+			}
+			for (; i < rawdata.Length; i += S3KRingEntry.Size)
+			{
+				if (ByteConverter.ToUInt16(rawdata, i) == 0xFFFF) { endterm = true; break; }
 				S3KRingEntry ent = new S3KRingEntry(rawdata, i);
 				rings.Add(ent);
 			}
 			return rings;
 		}
 
-		public override byte[] WriteLayout(List<RingEntry> rings)
+		public override byte[] WriteLayout(List<RingEntry> rings, bool startterm, bool endterm)
 		{
 			rings.Sort();
-			List<byte> tmp = new List<byte>(S3KRingEntry.Size * (rings.Count + 1));
+			List<byte> tmp = new List<byte>(S3KRingEntry.Size * (rings.Count + 2));
+			if (startterm)
+				tmp.AddRange(new byte[S3KRingEntry.Size]);
 			foreach (RingEntry item in rings)
 				tmp.AddRange(item.GetBytes());
-			tmp.AddRange(new byte[] { 0xFF, 0xFF, 0, 0 });
+			if (endterm)
+				tmp.AddRange(new byte[] { 0xFF, 0xFF, 0, 0 });
 			return tmp.ToArray();
 		}
 

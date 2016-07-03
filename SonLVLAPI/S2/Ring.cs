@@ -66,25 +66,28 @@ namespace SonicRetro.SonLVL.API.S2
 			spacing = int.Parse(data.CustomProperties.GetValueOrDefault("spacing", "24"), System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo);
 		}
 
-		public override List<RingEntry> ReadLayout(byte[] rawdata)
+		public override List<RingEntry> ReadLayout(byte[] rawdata, out bool startterm, out bool endterm)
 		{
+			startterm = false;
+			endterm = false;
 			List<RingEntry> rings = new List<RingEntry>();
 			for (int i = 0; i < rawdata.Length; i += S2RingEntry.Size)
 			{
-				if (ByteConverter.ToUInt16(rawdata, i) == 0xFFFF) break;
+				if (ByteConverter.ToUInt16(rawdata, i) == 0xFFFF) { endterm = true; break; }
 				S2RingEntry ent = new S2RingEntry(rawdata, i);
 				rings.Add(ent);
 			}
 			return rings;
 		}
 
-		public override byte[] WriteLayout(List<RingEntry> rings)
+		public override byte[] WriteLayout(List<RingEntry> rings, bool startterm, bool endterm)
 		{
 			rings.Sort();
 			List<byte> tmp = new List<byte>(S2RingEntry.Size * (rings.Count + 1));
 			foreach (RingEntry item in rings)
 				tmp.AddRange(item.GetBytes());
-			tmp.AddRange(new byte[] { 0xFF, 0xFF, 0, 0 });
+			if (endterm)
+				tmp.AddRange(new byte[] { 0xFF, 0xFF, 0, 0 });
 			return tmp.ToArray();
 		}
 
