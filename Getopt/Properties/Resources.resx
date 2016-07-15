@@ -117,8 +117,34 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="HelpText" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\HelpText.txt;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  <data name="getoptAmbigious" xml:space="preserve">
+    <value>{0}: option ''{1}'' is ambiguous</value>
+  </data>
+  <data name="getoptArguments1" xml:space="preserve">
+    <value>{0}: option ''--{1}'' doesn't allow an argument</value>
+  </data>
+  <data name="getoptArguments2" xml:space="preserve">
+    <value>{0}: option ''{1}{2}'' doesn't allow an argument</value>
+  </data>
+  <data name="getoptIllegal" xml:space="preserve">
+    <value>{0}: illegal option -- {1}</value>
+  </data>
+  <data name="getoptInvalid" xml:space="preserve">
+    <value>{0}: invalid option -- {1}</value>
+  </data>
+  <data name="getoptInvalidValue" xml:space="preserve">
+    <value>Invalid value {0} for parameter 'has_arg' </value>
+  </data>
+  <data name="getoptRequires" xml:space="preserve">
+    <value>{0}: option ''{1}'' requires an argument</value>
+  </data>
+  <data name="getoptRequires2" xml:space="preserve">
+    <value>{0}: option requires an argument -- {1}</value>
+  </data>
+  <data name="getoptUnrecognized" xml:space="preserve">
+    <value>{0}: unrecognized option ''--{1}''</value>
+  </data>
+  <data name="getoptUnrecognized2" xml:space="preserve">
+    <value>{0}: unrecognized option ''{1}{2}''</value>
   </data>
 </root>

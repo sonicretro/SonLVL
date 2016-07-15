@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace SpriteSheetGen.Properties {
+namespace SpritePlotter.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace SpriteSheetGen.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("SpriteSheetGen.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("SpritePlotter.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,19 +61,8 @@ namespace SpriteSheetGen.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Usage: spritesheetgen [options] input output
-        ///
-        ///Input is an INI file containing art, mappings, palette, etc like SonLVL.
-        ///Output is a PNG file.
-        ///
-        ///Arguments:
-        ///
-        ///    -h, --help              Shows this help screen.
-        ///    -p, --padding=number    Pixels of padding between sprites. Default 2.
-        ///    -c, --columns=number    Number of columns per row. Default 8.
-        ///    -w, --width=number      Width of the image. As many sprites will be
-        ///                            placed in each row as possible.
-        ///    -g, --grid         [rest of string was truncated]&quot;;.
+        ///   Looks up a localized string similar to Usage: spriteplotter [options] input output
+        ///.
         /// </summary>
         internal static string HelpText {
             get {

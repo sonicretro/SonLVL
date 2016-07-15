@@ -489,23 +489,31 @@ namespace SonicRetro.SonLVL.API
 			return bmp;
 		}
 
-		public byte[] ToTile()
+		public byte[] ToTile(int x, int y)
 		{
 			List<byte> res = new List<byte>();
-			for (int y = 0; y < 8; y++)
-				for (int x = 0; x < 8; x += 2)
-					res.Add((byte)(((this[x, y] & 0xF) << 4) | (this[x + 1, y] & 0xF)));
+			for (int _y = 0; _y < 8; _y++)
+				for (int _x = 0; _x < 8; _x += 2)
+					res.Add((byte)(((this[x + _x, y + _y] & 0xF) << 4) | (this[x + _x + 1, y + _y] & 0xF)));
 			return res.ToArray();
 		}
 
-		public byte[] ToTileInterlaced()
+		public byte[] ToTile(Point pnt) { return ToTile(pnt.X, pnt.Y); }
+
+		public byte[] ToTile() { return ToTile(0, 0); }
+
+		public byte[] ToTileInterlaced(int x, int y)
 		{
 			List<byte> res = new List<byte>();
-			for (int y = 0; y < 16; y++)
-				for (int x = 0; x < 8; x += 2)
-					res.Add((byte)(((this[x, y] & 0xF) << 4) | (this[x + 1, y] & 0xF)));
+			for (int _y = 0; _y < 16; _y++)
+				for (int _x = 0; _x < 8; _x += 2)
+					res.Add((byte)(((this[x + _x, y + _y] & 0xF) << 4) | (this[x + _x + 1, y +_y] & 0xF)));
 			return res.ToArray();
 		}
+
+		public byte[] ToTileInterlaced(Point pnt) { return ToTileInterlaced(pnt.X, pnt.Y); }
+
+		public byte[] ToTileInterlaced() { return ToTileInterlaced(0, 0); }
 
 		public void Rotate(int R)
 		{
@@ -715,6 +723,8 @@ namespace SonicRetro.SonLVL.API
 				Array.Copy(this.Bits, GetPixelIndex(x, y + v), result.Bits, v * width, width);
 			return result;
 		}
+
+		public BitmapBits GetSection(Rectangle rect) { return GetSection(rect.X, rect.Y, rect.Width, rect.Height); }
 
 		public void DrawSprite(Sprite sprite, int x, int y)
 		{

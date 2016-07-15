@@ -1,4 +1,5 @@
-﻿using SonicRetro.SonLVL.API;
+﻿using GetoptNET;
+using SonicRetro.SonLVL.API;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -153,7 +154,8 @@ namespace SpriteSheetGen
 				BitmapBits sprHigh = spr[1].Image;
 				BitmapBits sprMerged = new BitmapBits(sprLow);
 				sprMerged.DrawBitmapComposited(sprHigh, 0, 0);
-				centers.Add(new Point(-spr[0].X, -spr[0].Y));
+				int cx = -spr[0].X;
+				int cy = -spr[0].Y;
 				for (int _x = 0; _x < sprMerged.Width; _x++)
 					for (int _y = 0; _y < sprMerged.Height; _y++)
 						if (sprMerged[_x, _y] != 0)
@@ -161,6 +163,7 @@ namespace SpriteSheetGen
 							sprMerged = sprMerged.GetSection(_x, 0, sprMerged.Width - _x, sprMerged.Height);
 							sprLow = sprLow.GetSection(_x, 0, sprLow.Width - _x, sprLow.Height);
 							sprHigh = sprHigh.GetSection(_x, 0, sprHigh.Width - _x, sprHigh.Height);
+							cx -= _x;
 							goto checkright;
 						}
 			checkright:
@@ -181,6 +184,7 @@ namespace SpriteSheetGen
 							sprMerged = sprMerged.GetSection(0, _y, sprMerged.Width, sprMerged.Height - _y);
 							sprLow = sprLow.GetSection(0, _y, sprLow.Width, sprLow.Height - _y);
 							sprHigh = sprHigh.GetSection(0, _y, sprHigh.Width, sprHigh.Height - _y);
+							cy -= _y;
 							goto checkbottom;
 						}
 			checkbottom:
@@ -197,6 +201,7 @@ namespace SpriteSheetGen
 				spritesMerged.Add(sprMerged);
 				spritesLow.Add(sprLow);
 				spritesHigh.Add(sprHigh);
+				centers.Add(new Point(cx, cy));
 			}
 			if (gridsize == 0)
 			{

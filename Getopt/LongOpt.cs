@@ -27,7 +27,7 @@ using System.Reflection;
 using System.Resources;
 using System.Text;
 
-namespace SpriteSheetGen
+namespace GetoptNET
 {
 	/// <summary>
 	/// Constant enumeration values used for the LongOpt <c>hasArg</c>

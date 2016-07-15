@@ -1698,14 +1698,17 @@ namespace SonicRetro.SonLVL.API
 				{
 					writer.WriteLine(name + ":\tmappingsTable");
 					foreach (MappingsFrame frame in frames)
-						writer.WriteLine("\tmappingsTableEntry.w\t" + frame.Name);
+						if (frame.TileCount > 0)
+							writer.WriteLine("\tmappingsTableEntry.w\t" + frame.Name);
+						else
+							writer.WriteLine("\tmappingsTableEntry.w\t" + name);
 					writer.WriteLine();
 					List<string> writtenFrames = new List<string>();
 					unchecked
 					{
 						foreach (MappingsFrame frame in frames)
 						{
-							if (writtenFrames.Contains(frame.Name)) continue;
+							if (frame.TileCount == 0 || writtenFrames.Contains(frame.Name)) continue;
 							writtenFrames.Add(frame.Name);
 							writer.WriteLine(frame.Name + ":\tspriteHeader");
 							for (int i = 0; i < frame.TileCount; i++)
@@ -1742,13 +1745,13 @@ namespace SonicRetro.SonLVL.API
 					List<string> writtenFrames = new List<string>();
 					writer.WriteLine(name + ":");
 					foreach (MappingsFrame frame in frames)
-						writer.WriteLine("\tdc.w\t" + frame.Name + "-" + name);
+						writer.WriteLine("\tdc.w\t" + (frame.TileCount > 0 ? frame.Name : name) + "-" + name);
 					writer.WriteLine();
 					unchecked
 					{
 						foreach (MappingsFrame frame in frames)
 						{
-							if (writtenFrames.Contains(frame.Name)) continue;
+							if (frame.TileCount == 0 || writtenFrames.Contains(frame.Name)) continue;
 							writtenFrames.Add(frame.Name);
 							writer.WriteLine(frame.Name + ":\tdc." + (version == EngineVersion.S1 || version == EngineVersion.SCD ? "b " + ((byte)frame.TileCount).ToHex68k() : "w " + ((ushort)frame.TileCount).ToHex68k()));
 							for (int i = 0; i < frame.TileCount; i++)
@@ -1980,6 +1983,7 @@ namespace SonicRetro.SonLVL.API
 
 		public static void ToASM(string file, string name, IList<DPLCFrame> frames, EngineVersion version, bool macros, bool s3kp)
 		{
+			if (s3kp) version = EngineVersion.S2;
 			using (FileStream stream = new FileStream(file, FileMode.Create, FileAccess.Write))
 			using (StreamWriter writer = new StreamWriter(stream, Encoding.ASCII))
 			{
@@ -1987,7 +1991,10 @@ namespace SonicRetro.SonLVL.API
 				{
 					writer.WriteLine(name + ":\tmappingsTable");
 					foreach (DPLCFrame frame in frames)
-						writer.WriteLine("\tmappingsTableEntry.w\t" + frame.Name);
+						if (version == EngineVersion.S3K || version == EngineVersion.SKC || frame.Count > 0)
+							writer.WriteLine("\tmappingsTableEntry.w\t" + frame.Name);
+						else
+							writer.WriteLine("\tmappingsTableEntry.w\t" + name);
 					writer.WriteLine();
 					List<string> writtenFrames = new List<string>();
 					string dplcHeader = s3kp ? "s3kPlayerDplcHeader" : "dplcHeader";
@@ -1996,7 +2003,7 @@ namespace SonicRetro.SonLVL.API
 					{
 						foreach (DPLCFrame frame in frames)
 						{
-							if (writtenFrames.Contains(frame.Name)) continue;
+							if (version != EngineVersion.S3K && version != EngineVersion.SKC && frame.Count == 0 && writtenFrames.Contains(frame.Name)) continue;
 							writtenFrames.Add(frame.Name);
 							writer.WriteLine(frame.Name + ":\t" + dplcHeader);
 							for (int i = 0; i < frame.Count; i++)
@@ -2014,17 +2021,19 @@ namespace SonicRetro.SonLVL.API
 				}
 				else
 				{
-					if (s3kp) version = EngineVersion.S2;
 					List<string> writtenFrames = new List<string>();
 					writer.WriteLine(name + ":");
 					foreach (DPLCFrame frame in frames)
-						writer.WriteLine("\tdc.w\t" + frame.Name + "-" + name);
+						if (version == EngineVersion.S3K || version == EngineVersion.SKC || frame.Count > 0)
+							writer.WriteLine("\tdc.w\t" + frame.Name + "-" + name);
+						else
+							writer.WriteLine("\tdc.w\t" + name + "-" + name);
 					writer.WriteLine();
 					unchecked
 					{
 						foreach (DPLCFrame frame in frames)
 						{
-							if (writtenFrames.Contains(frame.Name)) continue;
+							if (version != EngineVersion.S3K && version != EngineVersion.SKC && frame.Count == 0 && writtenFrames.Contains(frame.Name)) continue;
 							writtenFrames.Add(frame.Name);
 							writer.Write(frame.Name + ":\tdc.");
 							switch (version)
@@ -2074,7 +2083,7 @@ namespace SonicRetro.SonLVL.API
 			List<short> offs = new List<short>(dplcs.Count);
 			List<byte> mapbytes = new List<byte>();
 			for (int i = 0; i < dplcs.Count; i++)
-				if (i == 0 & dplcs[i].Count == 0 & version != EngineVersion.S3K & version != EngineVersion.SKC)
+				if (i == 0 && dplcs[i].Count == 0 && version != EngineVersion.S3K && version != EngineVersion.SKC)
 					offs.Add(0);
 				else
 				{

@@ -28,7 +28,7 @@ using System.Reflection;
 using System.Resources;
 using System.Text;
 
-namespace SpriteSheetGen
+namespace GetoptNET
 {
 	/// <summary>
 	/// This is a C# port of a Java port of GNU getopt, a class for parsing
