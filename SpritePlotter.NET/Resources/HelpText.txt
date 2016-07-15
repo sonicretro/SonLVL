@@ -11,6 +11,9 @@ Arguments:
     -f, --format=fmt        The format of mappings and DPLCs. One of
                             Binary, ASM, Macro. Default Binary.
     -g, --game=game         The target game. One of S1, S2, S3K, S3Kp.
+    -c, --artcmp=compress   Compression to use for art file. One of
+                            Uncompressed, Nemesis, Kosinski, KosinskiM.
+                            Default Uncompressed.
         --lowplane=file     Image to use for the low plane of sprites.
         --highplane=file    Image to use for the high plane of sprites.
         --palette=file      Image or MD palette file to use for the

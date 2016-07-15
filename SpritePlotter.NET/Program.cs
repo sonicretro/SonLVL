@@ -21,6 +21,7 @@ namespace SpritePlotter
 				new LongOpt("twoplayer", Argument.No, null, '2'),
 				new LongOpt("format", Argument.Required, null, 'f'),
 				new LongOpt("game", Argument.Required, null, 'g'),
+				new LongOpt("artcmp", Argument.Required, null, 'c'),
 				new LongOpt("lowplane", Argument.Required, null, 0),
 				new LongOpt("highplane", Argument.Required, null, 0),
 				new LongOpt("palette", Argument.Required, null, 0),
@@ -40,6 +41,7 @@ namespace SpritePlotter
 			MappingsFormat mapfmt = MappingsFormat.Binary;
 			EngineVersion mapgame = EngineVersion.Invalid;
 			bool s3kp = false;
+			CompressionType artcmp = CompressionType.Uncompressed;
 			Bitmap lowplanefile = null;
 			Bitmap highplanefile = null;
 			Color[] palette = null;
@@ -79,6 +81,9 @@ namespace SpritePlotter
 						}
 						else
 							mapgame = (EngineVersion)Enum.Parse(typeof(EngineVersion), getopt.Optarg, true);
+						break;
+					case 'c':
+						artcmp = (CompressionType)Enum.Parse(typeof(CompressionType), getopt.Optarg, true);
 						break;
 					case 0:
 						switch (opts[getopt.Longind].Name)
@@ -275,10 +280,13 @@ namespace SpritePlotter
 				if (highplane != null)
 					SpriteToMap(sprites[i], center, highplane, tiles, mapframe, dplcframe, startpal, true, twoplayer);
 			}
-			using (FileStream fs = File.Create(artfile))
-			using (BinaryWriter bw = new BinaryWriter(fs))
-				foreach (byte[] b in tiles)
-					bw.Write(b);
+			using (MemoryStream ms = new MemoryStream())
+			{
+				using (BinaryWriter bw = new BinaryWriter(ms))
+					foreach (byte[] b in tiles)
+						bw.Write(b);
+				Compression.Compress(ms.ToArray(), artfile, artcmp);
+			}
 			if (mapfmt == MappingsFormat.Binary)
 			{
 				File.WriteAllBytes(mapfile, MappingsFrame.GetBytes(map, mapgame));
