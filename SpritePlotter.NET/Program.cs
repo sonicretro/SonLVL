@@ -280,7 +280,7 @@ namespace SpritePlotter
 				if (highplane != null)
 					SpriteToMap(sprites[i], center, highplane, tiles, mapframe, dplcframe, startpal, true, twoplayer);
 			}
-			using (MemoryStream ms = new MemoryStream())
+			using (MemoryStream ms = new MemoryStream(tiles.Count * 32))
 			{
 				using (BinaryWriter bw = new BinaryWriter(ms))
 					foreach (byte[] b in tiles)

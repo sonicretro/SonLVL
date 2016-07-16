@@ -2003,7 +2003,7 @@ namespace SonicRetro.SonLVL.API
 					{
 						foreach (DPLCFrame frame in frames)
 						{
-							if (version != EngineVersion.S3K && version != EngineVersion.SKC && frame.Count == 0 && writtenFrames.Contains(frame.Name)) continue;
+							if ((version != EngineVersion.S3K && version != EngineVersion.SKC && frame.Count == 0) || writtenFrames.Contains(frame.Name)) continue;
 							writtenFrames.Add(frame.Name);
 							writer.WriteLine(frame.Name + ":\t" + dplcHeader);
 							for (int i = 0; i < frame.Count; i++)
@@ -2033,7 +2033,7 @@ namespace SonicRetro.SonLVL.API
 					{
 						foreach (DPLCFrame frame in frames)
 						{
-							if (version != EngineVersion.S3K && version != EngineVersion.SKC && frame.Count == 0 && writtenFrames.Contains(frame.Name)) continue;
+							if ((version != EngineVersion.S3K && version != EngineVersion.SKC && frame.Count == 0) || writtenFrames.Contains(frame.Name)) continue;
 							writtenFrames.Add(frame.Name);
 							writer.Write(frame.Name + ":\tdc.");
 							switch (version)
