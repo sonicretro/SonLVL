@@ -3006,40 +3006,64 @@ namespace SonicRetro.SonLVL.API
 					palette = 0;
 					return bmpbits.ToTile();
 				case PixelFormat.Format32bppArgb:
-					LoadBitmap32BppArgb(bmpbits, bmp.Pixels, bmp.Stride, BmpPal.Entries);
+					Color[,] pixels = new Color[8, 8];
+					for (int y = 0; y < bmp.Height; y++)
+					{
+						int srcaddr = y * Math.Abs(bmp.Stride);
+						for (int x = 0; x < bmp.Width; x++)
+							pixels[x, y] = Color.FromArgb(BitConverter.ToInt32(bmp.Pixels, srcaddr + (x * 4)));
+					}
+					palette = 0;
+					int mindist = int.MaxValue;
+					Color[] newpal = new Color[16];
+					for (int i = 0; i < 4; i++)
+					{
+						Array.Copy(BmpPal.Entries, i * 16, newpal, 0, 16);
+						int totdist = 0;
+						int dist;
+						for (int y = 0; y < 8; y++)
+							for (int x = 0; x < 8; x++)
+								if (pixels[x, y].A >= 128)
+								{
+									pixels[x, y].FindNearestMatch(out dist, newpal);
+									totdist += dist;
+								}
+						if (totdist < mindist)
+						{
+							palette = i;
+							mindist = totdist;
+						}
+					}
+					Array.Copy(BmpPal.Entries, palette * 16, newpal, 0, 16);
+					for (int y = 0; y < 8; y++)
+						for (int x = 0; x < 8; x++)
+							if (pixels[x, y].A >= 128)
+								bmpbits[x, y] = (byte)Array.IndexOf(newpal, pixels[x, y].FindNearestMatch(newpal));
 					break;
 				case PixelFormat.Format4bppIndexed:
 					LoadBitmap4BppIndexed(bmpbits, bmp.Pixels, bmp.Stride);
 					palette = 0;
-					return bmpbits.ToTile();
+					break;
 				case PixelFormat.Format8bppIndexed:
 					LoadBitmap8BppIndexed(bmpbits, bmp.Pixels, bmp.Stride);
+					int[] palcnt = new int[4];
+					for (int y = 0; y < 8; y++)
+						for (int x = 0; x < 8; x++)
+						{
+							if ((bmpbits[x, y] & 15) > 0)
+								palcnt[bmpbits[x, y] / 16]++;
+							bmpbits[x, y] &= 15;
+						}
+					palette = 0;
+					if (palcnt[1] > palcnt[palette])
+						palette = 1;
+					if (palcnt[2] > palcnt[palette])
+						palette = 2;
+					if (palcnt[3] > palcnt[palette])
+						palette = 3;
 					break;
-			}
-			int[] palcnt = new int[4];
-			for (int y = 0; y < 8; y++)
-				for (int x = 0; x < 8; x++)
-					if ((bmpbits[x, y] & 15) > 0)
-						palcnt[bmpbits[x, y] / 16]++;
-			palette = 0;
-			if (palcnt[1] > palcnt[palette])
-				palette = 1;
-			if (palcnt[2] > palcnt[palette])
-				palette = 2;
-			if (palcnt[3] > palcnt[palette])
-				palette = 3;
-			Color[] newpal = new Color[16];
-			for (int i = 0; i < 16; i++)
-				newpal[i] = BmpPal.Entries[(palette * 16) + i];
-			switch (bmp.PixelFormat)
-			{
-				case PixelFormat.Format32bppArgb:
-					LoadBitmap32BppArgb(bmpbits, bmp.Pixels, bmp.Stride, newpal);
-					break;
-				case PixelFormat.Format8bppIndexed:
-					for (int i = 0; i < bmpbits.Bits.Length; i++)
-						bmpbits.Bits[i] &= 15;
-					break;
+				default:
+					throw new Exception("wat");
 			}
 			return bmpbits.ToTile();
 		}
@@ -3052,42 +3076,66 @@ namespace SonicRetro.SonLVL.API
 				case PixelFormat.Format1bppIndexed:
 					LoadBitmap1BppIndexed(bmpbits, bmp.Pixels, bmp.Stride);
 					palette = 0;
-					return bmpbits.ToTileInterlaced();
+					return bmpbits.ToTile();
 				case PixelFormat.Format32bppArgb:
-					LoadBitmap32BppArgb(bmpbits, bmp.Pixels, bmp.Stride, BmpPal.Entries);
+					Color[,] pixels = new Color[8, 16];
+					for (int y = 0; y < bmp.Height; y++)
+					{
+						int srcaddr = y * Math.Abs(bmp.Stride);
+						for (int x = 0; x < bmp.Width; x++)
+							pixels[x, y] = Color.FromArgb(BitConverter.ToInt32(bmp.Pixels, srcaddr + (x * 4)));
+					}
+					palette = 0;
+					int mindist = int.MaxValue;
+					Color[] newpal = new Color[16];
+					for (int i = 0; i < 4; i++)
+					{
+						Array.Copy(BmpPal.Entries, i * 16, newpal, 0, 16);
+						int totdist = 0;
+						int dist;
+						for (int y = 0; y < 16; y++)
+							for (int x = 0; x < 8; x++)
+								if (pixels[x, y].A >= 128)
+								{
+									pixels[x, y].FindNearestMatch(out dist, newpal);
+									totdist += dist;
+								}
+						if (totdist < mindist)
+						{
+							palette = i;
+							mindist = totdist;
+						}
+					}
+					Array.Copy(BmpPal.Entries, palette * 16, newpal, 0, 16);
+					for (int y = 0; y < 16; y++)
+						for (int x = 0; x < 8; x++)
+							if (pixels[x, y].A >= 128)
+								bmpbits[x, y] = (byte)Array.IndexOf(newpal, pixels[x, y].FindNearestMatch(newpal));
 					break;
 				case PixelFormat.Format4bppIndexed:
 					LoadBitmap4BppIndexed(bmpbits, bmp.Pixels, bmp.Stride);
 					palette = 0;
-					return bmpbits.ToTileInterlaced();
+					break;
 				case PixelFormat.Format8bppIndexed:
 					LoadBitmap8BppIndexed(bmpbits, bmp.Pixels, bmp.Stride);
+					int[] palcnt = new int[4];
+					for (int y = 0; y < 16; y++)
+						for (int x = 0; x < 8; x++)
+						{
+							if ((bmpbits[x, y] & 15) > 0)
+								palcnt[bmpbits[x, y] / 16]++;
+							bmpbits[x, y] &= 15;
+						}
+					palette = 0;
+					if (palcnt[1] > palcnt[palette])
+						palette = 1;
+					if (palcnt[2] > palcnt[palette])
+						palette = 2;
+					if (palcnt[3] > palcnt[palette])
+						palette = 3;
 					break;
-			}
-			int[] palcnt = new int[4];
-			for (int y = 0; y < 16; y++)
-				for (int x = 0; x < 8; x++)
-					if ((bmpbits[x, y] & 15) > 0)
-						palcnt[bmpbits[x, y] / 16]++;
-			palette = 0;
-			if (palcnt[1] > palcnt[palette])
-				palette = 1;
-			if (palcnt[2] > palcnt[palette])
-				palette = 2;
-			if (palcnt[3] > palcnt[palette])
-				palette = 3;
-			Color[] newpal = new Color[16];
-			for (int i = 0; i < 16; i++)
-				newpal[i] = BmpPal.Entries[(palette * 16) + i];
-			switch (bmp.PixelFormat)
-			{
-				case PixelFormat.Format32bppArgb:
-					LoadBitmap32BppArgb(bmpbits, bmp.Pixels, bmp.Stride, newpal);
-					break;
-				case PixelFormat.Format8bppIndexed:
-					for (int i = 0; i < bmpbits.Bits.Length; i++)
-						bmpbits.Bits[i] &= 15;
-					break;
+				default:
+					throw new Exception("wat");
 			}
 			return bmpbits.ToTileInterlaced();
 		}
