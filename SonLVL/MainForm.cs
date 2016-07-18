@@ -5033,7 +5033,7 @@ namespace SonicRetro.SonLVL.GUI
 								ImportTile(bmpi, null, tiles, newTiles, null, x, y);
 					break;
 			}
-			if (newTiles.Count > 0 && LevelData.Tiles.Count + newTiles.Count >= 0x800)
+			if (newTiles.Count > 0 && LevelData.Tiles.Count + newTiles.Count > 0x800)
 			{
 				importProgressControl1.Hide();
 				Enabled = true;
@@ -5041,7 +5041,7 @@ namespace SonicRetro.SonLVL.GUI
 				MessageBox.Show(this, "There are " + (LevelData.Tiles.Count + newTiles.Count - 0x800) + " tiles over the limit.\nImport cannot proceed.", "SonLVL", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 				return false;
 			}
-			if (newBlocks.Count > 0 && LevelData.Blocks.Count + newBlocks.Count >= LevelData.GetBlockMax())
+			if (newBlocks.Count > 0 && LevelData.Blocks.Count + newBlocks.Count > LevelData.GetBlockMax())
 			{
 				importProgressControl1.Hide();
 				Enabled = true;
@@ -5049,7 +5049,7 @@ namespace SonicRetro.SonLVL.GUI
 				MessageBox.Show(this, "There are " + (LevelData.Blocks.Count + newBlocks.Count - LevelData.GetBlockMax()) + " blocks over the limit.\nImport cannot proceed.", "SonLVL", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 				return false;
 			}
-			if (newChunks.Count > 0 && LevelData.Chunks.Count + newChunks.Count >= 256)
+			if (newChunks.Count > 0 && LevelData.Chunks.Count + newChunks.Count > 256)
 			{
 				importProgressControl1.Hide();
 				Enabled = true;

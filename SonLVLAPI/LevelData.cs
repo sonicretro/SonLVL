@@ -3014,12 +3014,12 @@ namespace SonicRetro.SonLVL.API
 							pixels[x, y] = Color.FromArgb(BitConverter.ToInt32(bmp.Pixels, srcaddr + (x * 4)));
 					}
 					palette = 0;
-					int mindist = int.MaxValue;
+					long mindist = long.MaxValue;
 					Color[] newpal = new Color[16];
 					for (int i = 0; i < 4; i++)
 					{
 						Array.Copy(BmpPal.Entries, i * 16, newpal, 0, 16);
-						int totdist = 0;
+						long totdist = 0;
 						int dist;
 						for (int y = 0; y < 8; y++)
 							for (int x = 0; x < 8; x++)
