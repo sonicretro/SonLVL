@@ -3008,21 +3008,11 @@ namespace SonicRetro.SonLVL.API
 					for (int x = 0; x < bmpi.Width / 8; x++)
 					{
 						map = new PatternIndex() { Priority = priority[x, y] };
-						tile = BmpToTile(new BitmapInfo(bmpi, x * 8, y * 8, 8, 8), out pal);
-						tileh = new byte[32];
-						for (int ty = 0; ty < 8; ty++)
-							for (int tx = 0; tx < 4; tx++)
-							{
-								byte px = tile[(ty * 4) + tx];
-								tileh[(ty * 4) + (3 - tx)] = (byte)((px >> 4) | (px << 4));
-							}
-						tilev = new byte[32];
-						for (int ty = 0; ty < 8; ty++)
-							Array.Copy(tile, ty * 4, tilev, (7 - ty) * 4, 4);
-						tilehv = new byte[32];
-						for (int ty = 0; ty < 8; ty++)
-							Array.Copy(tileh, ty * 4, tilehv, (7 - ty) * 4, 4);
-						map.Palette = forcepal ?? (byte)pal;
+						tile = BmpToTile(new BitmapInfo(bmpi, x * 8, y * 8, 8, 8), forcepal, out pal);
+						tileh = FlipTile(tile, true, false);
+						tilev = FlipTile(tile, false, true);
+						tilehv = FlipTile(tileh, false, true);
+						map.Palette = (byte)pal;
 						match = false;
 						if (optimize)
 							for (int i = 0; i < tiles.Count; i++)
@@ -3069,20 +3059,10 @@ namespace SonicRetro.SonLVL.API
 					for (int x = 0; x < bmpi.Width / 8; x++)
 					{
 						map = new PatternIndex() { Priority = priority[x, y] };
-						tile = BmpToTileInterlaced(new BitmapInfo(bmpi, x * 8, y * 16, 8, 16), out pal);
-						tileh = new byte[64];
-						for (int ty = 0; ty < 16; ty++)
-							for (int tx = 0; tx < 4; tx++)
-							{
-								byte px = tile[(ty * 4) + tx];
-								tileh[(ty * 4) + (3 - tx)] = (byte)((px >> 4) | (px << 4));
-							}
-						tilev = new byte[64];
-						for (int ty = 0; ty < 16; ty++)
-							Array.Copy(tile, ty * 4, tilev, (15 - ty) * 4, 4);
-						tilehv = new byte[64];
-						for (int ty = 0; ty < 16; ty++)
-							Array.Copy(tileh, ty * 4, tilehv, (15 - ty) * 4, 4);
+						tile = BmpToTileInterlaced(new BitmapInfo(bmpi, x * 8, y * 16, 8, 16), forcepal, out pal);
+						tileh = FlipTileInterlaced(tile, true, false);
+						tilev = FlipTileInterlaced(tile, false, true);
+						tilehv = FlipTileInterlaced(tileh, false, true);
 						map.Palette = (byte)pal;
 						match = false;
 						if (optimize)
@@ -3135,14 +3115,14 @@ namespace SonicRetro.SonLVL.API
 			return result;
 		}
 
-		public static byte[] BmpToTile(BitmapInfo bmp, out int palette)
+		public static byte[] BmpToTile(BitmapInfo bmp, byte? forcepal, out int palette)
 		{
 			BitmapBits bmpbits = new BitmapBits(8, 8);
 			switch (bmp.PixelFormat)
 			{
 				case PixelFormat.Format1bppIndexed:
 					LoadBitmap1BppIndexed(bmpbits, bmp.Pixels, bmp.Stride);
-					palette = 0;
+					palette = forcepal ?? 0;
 					return bmpbits.ToTile();
 				case PixelFormat.Format32bppArgb:
 					Color[,] pixels = new Color[8, 8];
@@ -3152,25 +3132,28 @@ namespace SonicRetro.SonLVL.API
 						for (int x = 0; x < bmp.Width; x++)
 							pixels[x, y] = Color.FromArgb(BitConverter.ToInt32(bmp.Pixels, srcaddr + (x * 4)));
 					}
-					palette = 0;
-					long mindist = long.MaxValue;
+					palette = forcepal ?? 0;
 					Color[] newpal = new Color[16];
-					for (int i = 0; i < 4; i++)
+					if (!forcepal.HasValue)
 					{
-						Array.Copy(BmpPal.Entries, i * 16, newpal, 0, 16);
-						long totdist = 0;
-						int dist;
-						for (int y = 0; y < 8; y++)
-							for (int x = 0; x < 8; x++)
-								if (pixels[x, y].A >= 128)
-								{
-									pixels[x, y].FindNearestMatch(out dist, newpal);
-									totdist += dist;
-								}
-						if (totdist < mindist)
+						long mindist = long.MaxValue;
+						for (int i = 0; i < 4; i++)
 						{
-							palette = i;
-							mindist = totdist;
+							Array.Copy(BmpPal.Entries, i * 16, newpal, 0, 16);
+							long totdist = 0;
+							int dist;
+							for (int y = 0; y < 8; y++)
+								for (int x = 0; x < 8; x++)
+									if (pixels[x, y].A >= 128)
+									{
+										pixels[x, y].FindNearestMatch(out dist, newpal);
+										totdist += dist;
+									}
+							if (totdist < mindist)
+							{
+								palette = i;
+								mindist = totdist;
+							}
 						}
 					}
 					Array.Copy(BmpPal.Entries, palette * 16, newpal, 0, 16);
@@ -3181,7 +3164,7 @@ namespace SonicRetro.SonLVL.API
 					break;
 				case PixelFormat.Format4bppIndexed:
 					LoadBitmap4BppIndexed(bmpbits, bmp.Pixels, bmp.Stride);
-					palette = 0;
+					palette = forcepal ?? 0;
 					break;
 				case PixelFormat.Format8bppIndexed:
 					LoadBitmap8BppIndexed(bmpbits, bmp.Pixels, bmp.Stride);
@@ -3193,13 +3176,16 @@ namespace SonicRetro.SonLVL.API
 								palcnt[bmpbits[x, y] / 16]++;
 							bmpbits[x, y] &= 15;
 						}
-					palette = 0;
-					if (palcnt[1] > palcnt[palette])
-						palette = 1;
-					if (palcnt[2] > palcnt[palette])
-						palette = 2;
-					if (palcnt[3] > palcnt[palette])
-						palette = 3;
+					palette = forcepal ?? 0;
+					if (!forcepal.HasValue)
+					{
+						if (palcnt[1] > palcnt[palette])
+							palette = 1;
+						if (palcnt[2] > palcnt[palette])
+							palette = 2;
+						if (palcnt[3] > palcnt[palette])
+							palette = 3;
+					}
 					break;
 				default:
 					throw new Exception("wat");
@@ -3207,14 +3193,14 @@ namespace SonicRetro.SonLVL.API
 			return bmpbits.ToTile();
 		}
 
-		public static byte[] BmpToTileInterlaced(BitmapInfo bmp, out int palette)
+		public static byte[] BmpToTileInterlaced(BitmapInfo bmp, byte? forcepal, out int palette)
 		{
 			BitmapBits bmpbits = new BitmapBits(8, 16);
 			switch (bmp.PixelFormat)
 			{
 				case PixelFormat.Format1bppIndexed:
 					LoadBitmap1BppIndexed(bmpbits, bmp.Pixels, bmp.Stride);
-					palette = 0;
+					palette = forcepal ?? 0;
 					return bmpbits.ToTile();
 				case PixelFormat.Format32bppArgb:
 					Color[,] pixels = new Color[8, 16];
@@ -3224,25 +3210,28 @@ namespace SonicRetro.SonLVL.API
 						for (int x = 0; x < bmp.Width; x++)
 							pixels[x, y] = Color.FromArgb(BitConverter.ToInt32(bmp.Pixels, srcaddr + (x * 4)));
 					}
-					palette = 0;
-					int mindist = int.MaxValue;
+					palette = forcepal ?? 0;
 					Color[] newpal = new Color[16];
-					for (int i = 0; i < 4; i++)
+					if (!forcepal.HasValue)
 					{
-						Array.Copy(BmpPal.Entries, i * 16, newpal, 0, 16);
-						int totdist = 0;
-						int dist;
-						for (int y = 0; y < 16; y++)
-							for (int x = 0; x < 8; x++)
-								if (pixels[x, y].A >= 128)
-								{
-									pixels[x, y].FindNearestMatch(out dist, newpal);
-									totdist += dist;
-								}
-						if (totdist < mindist)
+						int mindist = int.MaxValue;
+						for (int i = 0; i < 4; i++)
 						{
-							palette = i;
-							mindist = totdist;
+							Array.Copy(BmpPal.Entries, i * 16, newpal, 0, 16);
+							int totdist = 0;
+							int dist;
+							for (int y = 0; y < 16; y++)
+								for (int x = 0; x < 8; x++)
+									if (pixels[x, y].A >= 128)
+									{
+										pixels[x, y].FindNearestMatch(out dist, newpal);
+										totdist += dist;
+									}
+							if (totdist < mindist)
+							{
+								palette = i;
+								mindist = totdist;
+							}
 						}
 					}
 					Array.Copy(BmpPal.Entries, palette * 16, newpal, 0, 16);
@@ -3253,7 +3242,7 @@ namespace SonicRetro.SonLVL.API
 					break;
 				case PixelFormat.Format4bppIndexed:
 					LoadBitmap4BppIndexed(bmpbits, bmp.Pixels, bmp.Stride);
-					palette = 0;
+					palette = forcepal ?? 0;
 					break;
 				case PixelFormat.Format8bppIndexed:
 					LoadBitmap8BppIndexed(bmpbits, bmp.Pixels, bmp.Stride);
@@ -3265,13 +3254,16 @@ namespace SonicRetro.SonLVL.API
 								palcnt[bmpbits[x, y] / 16]++;
 							bmpbits[x, y] &= 15;
 						}
-					palette = 0;
-					if (palcnt[1] > palcnt[palette])
-						palette = 1;
-					if (palcnt[2] > palcnt[palette])
-						palette = 2;
-					if (palcnt[3] > palcnt[palette])
-						palette = 3;
+					palette = forcepal ?? 0;
+					if (!forcepal.HasValue)
+					{
+						if (palcnt[1] > palcnt[palette])
+							palette = 1;
+						if (palcnt[2] > palcnt[palette])
+							palette = 2;
+						if (palcnt[3] > palcnt[palette])
+							palette = 3;
+					}
 					break;
 				default:
 					throw new Exception("wat");
@@ -3550,6 +3542,72 @@ namespace SonicRetro.SonLVL.API
 			if (index >= ColInds2.Count)
 				return 0;
 			return ColInds2[index];
+		}
+
+		public static byte[] FlipTile(byte[] tile, bool xflip, bool yflip)
+		{
+			int mode = (xflip ? 1 : 0) | (yflip ? 2 : 0);
+			switch (mode)
+			{
+				default:
+					return tile;
+				case 1:
+					byte[] tileh = new byte[32];
+					for (int ty = 0; ty < 8; ty++)
+						for (int tx = 0; tx < 4; tx++)
+						{
+							byte px = tile[(ty * 4) + tx];
+							tileh[(ty * 4) + (3 - tx)] = (byte)((px >> 4) | (px << 4));
+						}
+					return tileh;
+				case 2:
+					byte[] tilev = new byte[32];
+					for (int ty = 0; ty < 8; ty++)
+						Array.Copy(tile, ty * 4, tilev, (7 - ty) * 4, 4);
+					return tilev;
+				case 3:
+					byte[] tilehv = new byte[32];
+					for (int ty = 0; ty < 8; ty++)
+						for (int tx = 0; tx < 4; tx++)
+						{
+							byte px = tile[(ty * 4) + tx];
+							tilehv[((7 - ty) * 4) + (3 - tx)] = (byte)((px >> 4) | (px << 4));
+						}
+					return tilehv;
+			}
+		}
+
+		public static byte[] FlipTileInterlaced(byte[] tile, bool xflip, bool yflip)
+		{
+			int mode = (xflip ? 1 : 0) | (yflip ? 2 : 0);
+			switch (mode)
+			{
+				default:
+					return tile;
+				case 1:
+					byte[] tileh = new byte[64];
+					for (int ty = 0; ty < 16; ty++)
+						for (int tx = 0; tx < 4; tx++)
+						{
+							byte px = tile[(ty * 4) + tx];
+							tileh[(ty * 4) + (3 - tx)] = (byte)((px >> 4) | (px << 4));
+						}
+					return tileh;
+				case 2:
+					byte[] tilev = new byte[64];
+					for (int ty = 0; ty < 16; ty++)
+						Array.Copy(tile, ty * 4, tilev, (15 - ty) * 4, 4);
+					return tilev;
+				case 3:
+					byte[] tilehv = new byte[64];
+					for (int ty = 0; ty < 16; ty++)
+						for (int tx = 0; tx < 4; tx++)
+						{
+							byte px = tile[(ty * 4) + tx];
+							tilehv[((15 - ty) * 4) + (3 - tx)] = (byte)((px >> 4) | (px << 4));
+						}
+					return tilehv;
+			}
 		}
 	}
 

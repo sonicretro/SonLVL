@@ -9087,6 +9087,107 @@ namespace SonicRetro.SonLVL.GUI
 				MessageBox.Show(this, "Removed " + deleted.Count + " duplicate tiles.", "SonLVL");
 			}
 		}
+
+		private void importOverToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			using (OpenFileDialog opendlg = new OpenFileDialog())
+			{
+				opendlg.DefaultExt = "png";
+				opendlg.Filter = "Image Files|*.bmp;*.png;*.jpg;*.gif";
+				opendlg.RestoreDirectory = true;
+				if (opendlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+				{
+					BitmapInfo bmpi;
+					using (Bitmap bmp = new Bitmap(opendlg.FileName))
+						bmpi = new BitmapInfo(bmp);
+					switch (CurrentTab)
+					{
+						case Tab.Chunks:
+							if (bmpi.Width < LevelData.Level.ChunkWidth || bmpi.Height < LevelData.Level.ChunkHeight)
+							{
+								MessageBox.Show(this, "Image must be at least " + LevelData.Level.ChunkWidth + "x" + LevelData.Level.ChunkHeight + " to import chunk.", "SonLVL");
+								return;
+							}
+							break;
+						case Tab.Blocks:
+							if (bmpi.Width < 16 || bmpi.Height < 16)
+							{
+								MessageBox.Show(this, "Image must be at least 16x16 to import block.", "SonLVL");
+								return;
+							}
+							break;
+						case Tab.Tiles:
+							if (bmpi.Width < 8 || bmpi.Height < (LevelData.Level.TwoPlayerCompatible ? 16 : 8))
+							{
+								MessageBox.Show(this, "Image must be at least 8x" + (LevelData.Level.TwoPlayerCompatible ? "16" : "8") + " to import tile.", "SonLVL");
+								return;
+							}
+							break;
+					}
+					ImportResult res = LevelData.BitmapToTiles(bmpi, new bool[bmpi.Width / 8, bmpi.Height / 8], null, new List<byte[]>(), false, false, () => Application.DoEvents());
+					List<int> editedTiles = new List<int>();
+					switch (CurrentTab)
+					{
+						case Tab.Chunks:
+							Chunk cnk = LevelData.Chunks[SelectedChunk];
+							for (int by = 0; by < LevelData.Level.ChunkHeight / 16; by++)
+								for (int bx = 0; bx < LevelData.Level.ChunkWidth / 16; bx++)
+								{
+									Block blk = LevelData.Blocks[cnk.Blocks[bx, by].Block].Flip(cnk.Blocks[bx, by].XFlip, cnk.Blocks[bx, by].YFlip);
+									for (int y = 0; y < 2; y++)
+										for (int x = 0; x < 2; x++)
+											if (!editedTiles.Contains(blk.Tiles[x, y].Tile))
+											{
+												LevelData.Tiles[blk.Tiles[x, y].Tile] = LevelData.FlipTile(res.Art[res.Mappings[(bx * 2) + x, (by * 2) + y].Tile], blk.Tiles[x, y].XFlip, blk.Tiles[x, y].YFlip);
+												editedTiles.Add(blk.Tiles[x, y].Tile);
+											}
+								}
+							break;
+						case Tab.Blocks:
+							Block blk2 = LevelData.Blocks[SelectedBlock];
+							for (int y = 0; y < 2; y++)
+								for (int x = 0; x < 2; x++)
+									if (!editedTiles.Contains(blk2.Tiles[x, y].Tile))
+									{
+										LevelData.Tiles[blk2.Tiles[x, y].Tile] = LevelData.FlipTile(res.Art[res.Mappings[x, y].Tile], blk2.Tiles[x, y].XFlip, blk2.Tiles[x, y].YFlip);
+										editedTiles.Add(blk2.Tiles[x, y].Tile);
+									}
+							break;
+						case Tab.Tiles:
+							LevelData.Tiles[SelectedTile] = res.Art[res.Mappings[0, 0].Tile];
+							editedTiles.Add(SelectedTile);
+							if (LevelData.Level.TwoPlayerCompatible)
+								LevelData.Tiles[SelectedTile + 1] = res.Art[res.Mappings[0, 1].Tile];
+							break;
+					}
+					LevelData.UpdateTileArray();
+					RefreshTileSelector();
+					TileSelector.Invalidate();
+					if (editedTiles.Contains(SelectedTile))
+						TileSelector_SelectedIndexChanged(this, EventArgs.Empty);
+					blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
+					List<int> editedBlocks = new List<int>();
+					for (int i = 0; i < LevelData.Blocks.Count; i++)
+						if (LevelData.Blocks[i].Tiles.OfType<PatternIndex>().Any(a => editedTiles.Contains(a.Tile)))
+						{
+							editedBlocks.Add(i);
+							LevelData.RedrawBlock(i, false);
+						}
+					if (editedBlocks.Contains(SelectedBlock))
+						DrawBlockPicture();
+					BlockSelector.Invalidate();
+					chunkBlockEditor.SelectedObjects = chunkBlockEditor.SelectedObjects;
+					for (int i = 0; i < LevelData.Chunks.Count; i++)
+						if (LevelData.Chunks[i].Blocks.OfType<ChunkBlock>().Any(a => editedBlocks.Contains(a.Block)))
+						{
+							LevelData.RedrawChunk(i);
+							if (i == SelectedChunk)
+								DrawChunkPicture();
+						}
+					ChunkSelector.Invalidate();
+				}
+			}
+		}
 	}
 
 	public enum EditingMode { Draw, Select }
