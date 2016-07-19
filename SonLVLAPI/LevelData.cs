@@ -2996,6 +2996,145 @@ namespace SonicRetro.SonLVL.API
 			return result;
 		}
 
+		public static ImportResult BitmapToTiles(BitmapInfo bmpi, bool[,] priority, byte? forcepal, IList<byte[]> tiles, bool interlaced, bool optimize, Action updateProgress = null)
+		{
+			ImportResult result = new ImportResult(bmpi.Width / 8, bmpi.Height / 8);
+			int pal = 0;
+			bool match = false;
+			byte[] tile, tileh, tilev, tilehv;
+			PatternIndex map;
+			if (!interlaced)
+				for (int y = 0; y < bmpi.Height / 8; y++)
+					for (int x = 0; x < bmpi.Width / 8; x++)
+					{
+						map = new PatternIndex() { Priority = priority[x, y] };
+						tile = BmpToTile(new BitmapInfo(bmpi, x * 8, y * 8, 8, 8), out pal);
+						tileh = new byte[32];
+						for (int ty = 0; ty < 8; ty++)
+							for (int tx = 0; tx < 4; tx++)
+							{
+								byte px = tile[(ty * 4) + tx];
+								tileh[(ty * 4) + (3 - tx)] = (byte)((px >> 4) | (px << 4));
+							}
+						tilev = new byte[32];
+						for (int ty = 0; ty < 8; ty++)
+							Array.Copy(tile, ty * 4, tilev, (7 - ty) * 4, 4);
+						tilehv = new byte[32];
+						for (int ty = 0; ty < 8; ty++)
+							Array.Copy(tileh, ty * 4, tilehv, (7 - ty) * 4, 4);
+						map.Palette = forcepal ?? (byte)pal;
+						match = false;
+						if (optimize)
+							for (int i = 0; i < tiles.Count; i++)
+							{
+								if (tiles[i].FastArrayEqual(tile))
+								{
+									match = true;
+									map.Tile = (ushort)i;
+									break;
+								}
+								if (tiles[i].FastArrayEqual(tileh))
+								{
+									match = true;
+									map.Tile = (ushort)i;
+									map.XFlip = true;
+									break;
+								}
+								if (tiles[i].FastArrayEqual(tilev))
+								{
+									match = true;
+									map.Tile = (ushort)i;
+									map.YFlip = true;
+									break;
+								}
+								if (tiles[i].FastArrayEqual(tilehv))
+								{
+									match = true;
+									map.Tile = (ushort)i;
+									map.XFlip = true;
+									map.YFlip = true;
+									break;
+								}
+							}
+						if (!match)
+						{
+							tiles.Add(tile);
+							result.Art.Add(tile);
+							map.Tile = (ushort)(tiles.Count - 1);
+						}
+						result.Mappings[x, y] = map;
+					}
+			else
+				for (int y = 0; y < bmpi.Height / 16; y++)
+					for (int x = 0; x < bmpi.Width / 8; x++)
+					{
+						map = new PatternIndex() { Priority = priority[x, y] };
+						tile = BmpToTileInterlaced(new BitmapInfo(bmpi, x * 8, y * 16, 8, 16), out pal);
+						tileh = new byte[64];
+						for (int ty = 0; ty < 16; ty++)
+							for (int tx = 0; tx < 4; tx++)
+							{
+								byte px = tile[(ty * 4) + tx];
+								tileh[(ty * 4) + (3 - tx)] = (byte)((px >> 4) | (px << 4));
+							}
+						tilev = new byte[64];
+						for (int ty = 0; ty < 16; ty++)
+							Array.Copy(tile, ty * 4, tilev, (15 - ty) * 4, 4);
+						tilehv = new byte[64];
+						for (int ty = 0; ty < 16; ty++)
+							Array.Copy(tileh, ty * 4, tilehv, (15 - ty) * 4, 4);
+						map.Palette = (byte)pal;
+						match = false;
+						if (optimize)
+							for (int i = 0; i < tiles.Count; i++)
+							{
+								if (tiles[i].FastArrayEqual(tile))
+								{
+									match = true;
+									map.Tile = (ushort)i;
+									break;
+								}
+								if (tiles[i].FastArrayEqual(tileh))
+								{
+									match = true;
+									map.Tile = (ushort)i;
+									map.XFlip = true;
+									break;
+								}
+								if (tiles[i].FastArrayEqual(tilev))
+								{
+									match = true;
+									map.Tile = (ushort)i;
+									map.YFlip = true;
+									break;
+								}
+								if (tiles[i].FastArrayEqual(tilehv))
+								{
+									match = true;
+									map.Tile = (ushort)i;
+									map.XFlip = true;
+									map.YFlip = true;
+									break;
+								}
+							}
+						if (!match)
+						{
+							tiles.Add(tile);
+							byte[] t1 = new byte[32];
+							Array.Copy(tile, 0, t1, 0, 32);
+							result.Art.Add(t1);
+							byte[] t2 = new byte[32];
+							Array.Copy(tile, 32, t2, 0, 32);
+							result.Art.Add(t2);
+							map.Tile = (ushort)((tiles.Count - 1) * 2);
+						}
+						result.Mappings[x, y * 2] = map;
+						result.Mappings[x, y * 2 + 1] = map.Clone();
+						result.Mappings[x, y * 2 + 1].Tile ^= 1;
+					}
+			return result;
+		}
+
 		public static byte[] BmpToTile(BitmapInfo bmp, out int palette)
 		{
 			BitmapBits bmpbits = new BitmapBits(8, 8);
@@ -3553,6 +3692,18 @@ namespace SonicRetro.SonLVL.API
 			System.Runtime.InteropServices.Marshal.Copy(bmpbits, 0, bmpd.Scan0, bmpbits.Length);
 			bitmap.UnlockBits(bmpd);
 			return bitmap;
+		}
+	}
+
+	public class ImportResult
+	{
+		public PatternIndex[,] Mappings { get; private set; }
+		public List<byte[]> Art { get; private set; }
+
+		public ImportResult(int width, int height)
+		{
+			Mappings = new PatternIndex[width, height];
+			Art = new List<byte[]>();
 		}
 	}
 }

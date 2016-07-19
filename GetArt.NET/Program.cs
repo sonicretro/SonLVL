@@ -98,68 +98,16 @@ namespace GetArt.NET
 			if (bmpfile != null)
 				using (Bitmap pribmp = new Bitmap(bmpfile))
 					LevelData.GetPriMap(pribmp, priority);
-			int pal = 0;
-			bool match = false;
-			List<BitmapBits> tiles = new List<BitmapBits>();
-			using (FileStream art = File.Create("Art.bin"))
-			using (FileStream mapstr = File.Create("Map.bin"))
-			{
-				byte[] tile;
-				PatternIndex map;
-				for (int y = 0; y < h / 8; y++)
-					for (int x = 0; x < w / 8; x++)
-					{
-						map = new PatternIndex() { Priority = priority[x, y] };
-						tile = LevelData.BmpToTile(new BitmapInfo(bmpi, x * 8, y * 8, 8, 8), out pal);
-						map.Palette = (byte)pal;
-						BitmapBits bits = BitmapBits.FromTile(tile, 0);
-						match = false;
-						for (int i = 0; i < tiles.Count; i++)
-						{
-							if (tiles[i].Equals(bits))
-							{
-								match = true;
-								map.Tile = (ushort)i;
-								break;
-							}
-							BitmapBits flip = new BitmapBits(bits);
-							flip.Flip(true, false);
-							if (tiles[i].Equals(flip))
-							{
-								match = true;
-								map.Tile = (ushort)i;
-								map.XFlip = true;
-								break;
-							}
-							flip = new BitmapBits(bits);
-							flip.Flip(false, true);
-							if (tiles[i].Equals(flip))
-							{
-								match = true;
-								map.Tile = (ushort)i;
-								map.YFlip = true;
-								break;
-							}
-							flip = new BitmapBits(bits);
-							flip.Flip(true, true);
-							if (tiles[i].Equals(flip))
-							{
-								match = true;
-								map.Tile = (ushort)i;
-								map.XFlip = true;
-								map.YFlip = true;
-								break;
-							}
-						}
-						if (!match)
-						{
-							tiles.Add(bits);
-							art.Write(tile, 0, tile.Length);
-							map.Tile = (ushort)(tiles.Count - 1);
-						}
-						mapstr.Write(map.GetBytes(), 0, PatternIndex.Size);
-					}
-			}
+			ImportResult res = LevelData.BitmapToTiles(bmpi, priority, null, new List<byte[]>(), false, true);
+			using (FileStream fs = File.Create("Art.bin"))
+			using (BinaryWriter bw = new BinaryWriter(fs))
+				foreach (byte[] t in res.Art)
+					bw.Write(t);
+			using (FileStream fs = File.Create("Map.bin"))
+			using (BinaryWriter bw = new BinaryWriter(fs))
+				for (int y = 0; y < h; y++)
+					for (int x = 0; x < w; x++)
+						bw.Write(res.Mappings[x, y].GetBytes());
 		}
 	}
 }
