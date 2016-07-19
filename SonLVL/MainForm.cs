@@ -590,8 +590,11 @@ namespace SonicRetro.SonLVL.GUI
 			flipChunkHButton.Enabled = flipChunkVButton.Enabled = true;
 			remapChunksButton.Enabled = remapBlocksButton.Enabled = remapTilesButton.Enabled = true;
 			importChunksToolStripButton.Enabled = LevelData.Chunks.Count < 256;
+			drawChunkToolStripButton.Enabled = importChunksToolStripButton.Enabled;
 			importBlocksToolStripButton.Enabled = LevelData.Blocks.Count < LevelData.GetBlockMax();
+			drawBlockToolStripButton.Enabled = importBlocksToolStripButton.Enabled;
 			importTilesToolStripButton.Enabled = LevelData.Tiles.Count < 0x800;
+			drawTileToolStripButton.Enabled = importTilesToolStripButton.Enabled;
 			BlockSelector.SelectedIndex = 0;
 			if (LevelData.Level.TwoPlayerCompatible)
 			{
@@ -3074,6 +3077,7 @@ namespace SonicRetro.SonLVL.GUI
 			if (!loaded) return;
 			if (ChunkSelector.SelectedIndex == -1 | ChunkSelector.SelectedIndex >= LevelData.Chunks.Count) return;
 			importChunksToolStripButton.Enabled = LevelData.Chunks.Count < 256;
+			drawChunkToolStripButton.Enabled = importChunksToolStripButton.Enabled;
 			SelectedChunk = (byte)ChunkSelector.SelectedIndex;
 			SelectedChunkBlock = new Rectangle(0, 0, 1, 1);
 			chunkBlockEditor.SelectedObjects = new[] { LevelData.Chunks[SelectedChunk].Blocks[0, 0] };
@@ -3754,6 +3758,7 @@ namespace SonicRetro.SonLVL.GUI
 		private void BlockSelector_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			importBlocksToolStripButton.Enabled = LevelData.Blocks.Count < LevelData.GetBlockMax();
+			drawBlockToolStripButton.Enabled = importBlocksToolStripButton.Enabled;
 			if (BlockSelector.SelectedIndex > -1)
 			{
 				SelectedBlock = BlockSelector.SelectedIndex;
@@ -4151,6 +4156,7 @@ namespace SonicRetro.SonLVL.GUI
 		private void TileSelector_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			importTilesToolStripButton.Enabled = LevelData.Tiles.Count < 0x800;
+			drawTileToolStripButton.Enabled = importTilesToolStripButton.Enabled;
 			if (TileSelector.SelectedIndex > -1)
 			{
 				rotateTileRightButton.Enabled = flipTileHButton.Enabled = flipTileVButton.Enabled = true;
@@ -4255,10 +4261,9 @@ namespace SonicRetro.SonLVL.GUI
 				pasteOverToolStripMenuItem.Enabled = Clipboard.ContainsData(typeof(Chunk).AssemblyQualifiedName) || Clipboard.ContainsData(typeof(ChunkCopyData).AssemblyQualifiedName);
 				pasteBeforeToolStripMenuItem.Enabled = pasteOverToolStripMenuItem.Enabled && LevelData.Chunks.Count < 256;
 				pasteAfterToolStripMenuItem.Enabled = pasteBeforeToolStripMenuItem.Enabled;
-				drawToolStripMenuItem.Enabled = LevelData.Chunks.Count < 256;
-				insertAfterToolStripMenuItem.Enabled = drawToolStripMenuItem.Enabled;
-				insertBeforeToolStripMenuItem.Enabled = drawToolStripMenuItem.Enabled;
-				duplicateTilesToolStripMenuItem.Enabled = drawToolStripMenuItem.Enabled;
+				insertAfterToolStripMenuItem.Enabled = LevelData.Chunks.Count < 256;
+				insertBeforeToolStripMenuItem.Enabled = insertAfterToolStripMenuItem.Enabled;
+				duplicateTilesToolStripMenuItem.Enabled = insertAfterToolStripMenuItem.Enabled;
 				deleteTilesToolStripMenuItem.Enabled = LevelData.Chunks.Count > 1;
 				cutTilesToolStripMenuItem.Enabled = deleteTilesToolStripMenuItem.Enabled;
 				deepCopyToolStripMenuItem.Visible = true;
@@ -4275,10 +4280,9 @@ namespace SonicRetro.SonLVL.GUI
 				pasteOverToolStripMenuItem.Enabled = Clipboard.ContainsData(typeof(Block).AssemblyQualifiedName) || Clipboard.ContainsData(typeof(BlockCopyData).AssemblyQualifiedName);
 				pasteBeforeToolStripMenuItem.Enabled = pasteOverToolStripMenuItem.Enabled && LevelData.Blocks.Count <  blockmax;
 				pasteAfterToolStripMenuItem.Enabled = pasteBeforeToolStripMenuItem.Enabled;
-				drawToolStripMenuItem.Enabled = LevelData.Blocks.Count < blockmax;
-				insertAfterToolStripMenuItem.Enabled = drawToolStripMenuItem.Enabled;
-				insertBeforeToolStripMenuItem.Enabled = drawToolStripMenuItem.Enabled;
-				duplicateTilesToolStripMenuItem.Enabled = drawToolStripMenuItem.Enabled;
+				insertAfterToolStripMenuItem.Enabled = LevelData.Blocks.Count < blockmax;
+				insertBeforeToolStripMenuItem.Enabled = insertAfterToolStripMenuItem.Enabled;
+				duplicateTilesToolStripMenuItem.Enabled = insertAfterToolStripMenuItem.Enabled;
 				deleteTilesToolStripMenuItem.Enabled = LevelData.Blocks.Count > 1;
 				cutTilesToolStripMenuItem.Enabled = deleteTilesToolStripMenuItem.Enabled;
 				deepCopyToolStripMenuItem.Visible = true;
@@ -4294,10 +4298,9 @@ namespace SonicRetro.SonLVL.GUI
 				pasteOverToolStripMenuItem.Enabled = Clipboard.ContainsData(LevelData.Level.TwoPlayerCompatible ? "SonLVLTileInterlaced" : "SonLVLTile");
 				pasteBeforeToolStripMenuItem.Enabled = pasteOverToolStripMenuItem.Enabled && LevelData.Tiles.Count < 0x800;
 				pasteAfterToolStripMenuItem.Enabled = pasteBeforeToolStripMenuItem.Enabled;
-				drawToolStripMenuItem.Enabled = LevelData.Tiles.Count < 0x800;
-				insertAfterToolStripMenuItem.Enabled = drawToolStripMenuItem.Enabled;
-				insertBeforeToolStripMenuItem.Enabled = drawToolStripMenuItem.Enabled;
-				duplicateTilesToolStripMenuItem.Enabled = drawToolStripMenuItem.Enabled;
+				insertAfterToolStripMenuItem.Enabled = LevelData.Tiles.Count < 0x800;
+				insertBeforeToolStripMenuItem.Enabled = insertAfterToolStripMenuItem.Enabled;
+				duplicateTilesToolStripMenuItem.Enabled = insertAfterToolStripMenuItem.Enabled;
 				deleteTilesToolStripMenuItem.Enabled = TileSelector.Images.Count > 1;
 				cutTilesToolStripMenuItem.Enabled = deleteTilesToolStripMenuItem.Enabled;
 				deepCopyToolStripMenuItem.Visible = false;
@@ -4352,6 +4355,7 @@ namespace SonicRetro.SonLVL.GUI
 						LevelData.Layout.BGLayout[x, y]--;
 			ChunkSelector.SelectedIndex = Math.Min(ChunkSelector.SelectedIndex, LevelData.Chunks.Count - 1);
 			importChunksToolStripButton.Enabled = true;
+			drawChunkToolStripButton.Enabled = importChunksToolStripButton.Enabled;
 		}
 
 		private void DeleteBlock()
@@ -4378,6 +4382,7 @@ namespace SonicRetro.SonLVL.GUI
 			}
 			BlockSelector.SelectedIndex = Math.Min(BlockSelector.SelectedIndex, LevelData.Blocks.Count - 1);
 			importBlocksToolStripButton.Enabled = true;
+			drawBlockToolStripButton.Enabled = importBlocksToolStripButton.Enabled;
 		}
 
 		private void DeleteTile()
@@ -4416,6 +4421,7 @@ namespace SonicRetro.SonLVL.GUI
 			}
 			TileSelector.SelectedIndex = Math.Min(TileSelector.SelectedIndex, TileSelector.Images.Count - 1);
 			importTilesToolStripButton.Enabled = true;
+			drawTileToolStripButton.Enabled = importTilesToolStripButton.Enabled;
 		}
 
 		private void copyTilesToolStripMenuItem_Click(object sender, EventArgs e)
@@ -4461,6 +4467,7 @@ namespace SonicRetro.SonLVL.GUI
 			LevelData.RedrawChunk(SelectedChunk);
 			ChunkSelector.SelectedIndex = SelectedChunk;
 			importChunksToolStripButton.Enabled = LevelData.Chunks.Count < 256;
+			drawChunkToolStripButton.Enabled = importChunksToolStripButton.Enabled;
 		}
 
 		private void InsertBlock()
@@ -4480,6 +4487,7 @@ namespace SonicRetro.SonLVL.GUI
 			LevelData.RedrawBlock(SelectedBlock, false);
 			BlockSelector.SelectedIndex = SelectedBlock;
 			importBlocksToolStripButton.Enabled = LevelData.Blocks.Count < LevelData.GetBlockMax();
+			drawBlockToolStripButton.Enabled = importBlocksToolStripButton.Enabled;
 		}
 
 		private void InsertTile()
@@ -4510,6 +4518,7 @@ namespace SonicRetro.SonLVL.GUI
 					TileSelector.SelectedIndex = SelectedTile;
 				}
 			importTilesToolStripButton.Enabled = LevelData.Tiles.Count < 0x800;
+			drawTileToolStripButton.Enabled = importTilesToolStripButton.Enabled;
 		}
 
 		private void pasteBeforeToolStripMenuItem_Click(object sender, EventArgs e)
@@ -5384,7 +5393,7 @@ namespace SonicRetro.SonLVL.GUI
 			TilePicture.Invalidate();
 		}
 
-		private void drawToolStripMenuItem_Click(object sender, EventArgs e)
+		private void drawToolStripButton_Click(object sender, EventArgs e)
 		{
 			using (DrawTileDialog dlg = new DrawTileDialog())
 			{
