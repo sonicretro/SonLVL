@@ -5268,22 +5268,35 @@ namespace SonicRetro.SonLVL.GUI
 				SelectedCol = CollisionSelector.SelectedIndex;
 				ColAngle.Value = LevelData.Angles[SelectedCol];
 				ColID.Text = SelectedCol.ToString("X2");
-				ColPicture.Invalidate();
+				DrawColPicture();
+			}
+		}
+
+		private void DrawColPicture()
+		{
+			if (CollisionSelector.SelectedIndex == -1) return;
+			using (Graphics gfx = ColPicture.CreateGraphics())
+			{
+				gfx.SetOptions();
+				if (showBlockBehindCollisionCheckBox.Checked)
+				{
+					BitmapBits bmp = new BitmapBits(16, 16);
+					bmp.Bits.FastFill(0x20);
+					bmp.DrawBitmapComposited(LevelData.CompBlockBmpBits[SelectedBlock], 0, 0);
+					BitmapBits tmp = new BitmapBits(LevelData.ColBmpBits[SelectedCol]);
+					tmp.IncrementIndexes(LevelData.ColorWhite - 1);
+					bmp.DrawBitmapComposited(tmp, 0, 0);
+					gfx.Clear(LevelData.PaletteToColor(2, 0, false));
+					gfx.DrawImage(bmp.Scale(8).ToBitmap(LevelData.BmpPal), 0, 0, 128, 128);
+				}
+				else
+					gfx.DrawImage(LevelData.ColBmpBits[SelectedCol].Scale(8).ToBitmap(Color.Black, Color.White), 0, 0, 128, 128);
 			}
 		}
 
 		private void ColPicture_Paint(object sender, PaintEventArgs e)
 		{
-			if (CollisionSelector.SelectedIndex == -1) return;
-			e.Graphics.SetOptions();
-			if (showBlockBehindCollisionCheckBox.Checked)
-			{
-				e.Graphics.Clear(LevelData.PaletteToColor(2, 0, false));
-				e.Graphics.DrawImage(LevelData.CompBlockBmps[SelectedBlock], 0, 0, 128, 128);
-				e.Graphics.DrawImage(LevelData.ColBmpBits[SelectedCol].Scale(8).ToBitmap(Color.Transparent, Color.White), 0, 0, 128, 128);
-			}
-			else
-				e.Graphics.DrawImage(LevelData.ColBmpBits[SelectedCol].Scale(8).ToBitmap(Color.Black, Color.White), 0, 0, 128, 128);
+			DrawColPicture();
 		}
 
 		private void ColPicture_MouseDown(object sender, MouseEventArgs e)
@@ -5304,7 +5317,7 @@ namespace SonicRetro.SonLVL.GUI
 					break;
 			}
 			LevelData.RedrawCol(SelectedCol, false);
-			ColPicture.Invalidate();
+			DrawColPicture();
 			CollisionSelector.Images[SelectedCol] = LevelData.ColBmps[SelectedCol];
 		}
 
@@ -5320,7 +5333,7 @@ namespace SonicRetro.SonLVL.GUI
 				case MouseButtons.Left:
 					LevelData.ColArr1[SelectedCol][x] = (sbyte)(16 - y);
 					LevelData.RedrawCol(SelectedCol, false);
-					ColPicture.Invalidate();
+					DrawColPicture();
 					CollisionSelector.Images[SelectedCol] = LevelData.ColBmps[SelectedCol];
 					break;
 				case MouseButtons.Right:
@@ -5329,7 +5342,7 @@ namespace SonicRetro.SonLVL.GUI
 					else
 						LevelData.ColArr1[SelectedCol][x] = (sbyte)(-y - 1);
 					LevelData.RedrawCol(SelectedCol, false);
-					ColPicture.Invalidate();
+					DrawColPicture();
 					CollisionSelector.Images[SelectedCol] = LevelData.ColBmps[SelectedCol];
 					break;
 			}
@@ -5339,7 +5352,7 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			if (CollisionSelector.SelectedIndex == -1) return;
 			LevelData.RedrawCol(SelectedCol, true);
-			ColPicture.Invalidate();
+			DrawColPicture();
 			CollisionSelector.Images[SelectedCol] = LevelData.ColBmps[SelectedCol];
 		}
 
@@ -8008,7 +8021,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void showBlockBehindCollisionCheckBox_CheckedChanged(object sender, EventArgs e)
 		{
-			ColPicture.Invalidate();
+			DrawColPicture();
 		}
 
 		private void pasteOverToolStripMenuItem_Click(object sender, EventArgs e)
