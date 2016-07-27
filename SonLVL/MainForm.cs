@@ -3629,7 +3629,7 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			if (!loaded) return;
 			BitmapBits bmp = new BitmapBits(LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
-			bmp.FillRectangle(0x20, 0, 0, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
+			bmp.Bits.FastFill(0x20);
 			if (lowToolStripMenuItem.Checked)
 				bmp.DrawBitmap(LevelData.ChunkBmpBits[SelectedChunk][0], 0, 0);
 			if (highToolStripMenuItem.Checked)
@@ -3641,8 +3641,8 @@ namespace SonicRetro.SonLVL.GUI
 			bmp.DrawRectangle(LevelData.ColorWhite, SelectedChunkBlock.X * 16 - 1, SelectedChunkBlock.Y * 16 - 1, SelectedChunkBlock.Width * 16 + 2, SelectedChunkBlock.Height * 16 + 2);
 			using (Graphics gfx = ChunkPicture.CreateGraphics())
 			{
-				gfx.Clear(LevelData.PaletteToColor(2, 0, false));
-				gfx.DrawImage(bmp.ToBitmap(LevelData.BmpPal), 0, 0, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
+				gfx.SetOptions();
+				gfx.DrawImage(bmp.ToBitmap(LevelImgPalette), 0, 0, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
 			}
 		}
 
@@ -3801,7 +3801,7 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			if (!loaded) return;
 			BitmapBits bmp = new BitmapBits(16, 16);
-			bmp.FillRectangle(0x20, 0, 0, 16, 16);
+			bmp.Bits.FastFill(0x20);
 			if (lowToolStripMenuItem.Checked)
 				bmp.DrawBitmap(LevelData.BlockBmpBits[SelectedBlock][0], 0, 0);
 			if (highToolStripMenuItem.Checked)
@@ -3823,8 +3823,7 @@ namespace SonicRetro.SonLVL.GUI
 			using (Graphics gfx = BlockPicture.CreateGraphics())
 			{
 				gfx.SetOptions();
-				gfx.Clear(LevelData.PaletteToColor(2, 0, false));
-				gfx.DrawImage(bmp.ToBitmap(LevelData.BmpPal), 0, 0, 128, 128);
+				gfx.DrawImage(bmp.ToBitmap(LevelImgPalette), 0, 0, 128, 128);
 			}
 		}
 
@@ -5286,8 +5285,7 @@ namespace SonicRetro.SonLVL.GUI
 					BitmapBits tmp = new BitmapBits(LevelData.ColBmpBits[SelectedCol]);
 					tmp.IncrementIndexes(LevelData.ColorWhite - 1);
 					bmp.DrawBitmapComposited(tmp, 0, 0);
-					gfx.Clear(LevelData.PaletteToColor(2, 0, false));
-					gfx.DrawImage(bmp.Scale(8).ToBitmap(LevelData.BmpPal), 0, 0, 128, 128);
+					gfx.DrawImage(bmp.Scale(8).ToBitmap(LevelImgPalette), 0, 0, 128, 128);
 				}
 				else
 					gfx.DrawImage(LevelData.ColBmpBits[SelectedCol].Scale(8).ToBitmap(Color.Black, Color.White), 0, 0, 128, 128);
