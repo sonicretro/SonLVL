@@ -802,7 +802,7 @@ namespace SonicRetro.SonLVL.API
 					XMLDef.BitsProperty property = (XMLDef.BitsProperty)item;
 					int mask = 0;
 					for (int i = 0; i < property.length; i++)
-						mask += (int)Math.Pow(2, property.startbit + i);
+						mask |= 1 << (property.startbit + i);
 					Func<ObjectEntry, object> getMethod;
 					Action<ObjectEntry, object> setMethod;
 					if (enums.ContainsKey(property.type))
@@ -888,8 +888,10 @@ namespace SonicRetro.SonLVL.API
 				if (item.subtype == subtype)
 					if (item.Images != null)
 						return ReadImageRefs(item.Images);
-					else
+					else if (item.image != null)
 						return images[item.image];
+					else
+						return unkobj;
 			return unkobj;
 		}
 
