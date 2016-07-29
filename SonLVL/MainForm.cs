@@ -3809,13 +3809,13 @@ namespace SonicRetro.SonLVL.GUI
 			if (path1ToolStripMenuItem.Checked)
 			{
 				BitmapBits tmp = new BitmapBits(LevelData.ColBmpBits[LevelData.GetColInd1(SelectedBlock)]);
-				tmp.IncrementIndexes(LevelData.ColorWhite);
+				tmp.IncrementIndexes(LevelData.ColorWhite - 1);
 				bmp.DrawBitmapComposited(tmp, 0, 0);
 			}
 			if (path2ToolStripMenuItem.Checked)
 			{
 				BitmapBits tmp = new BitmapBits(LevelData.ColBmpBits[LevelData.GetColInd2(SelectedBlock)]);
-				tmp.IncrementIndexes(LevelData.ColorWhite);
+				tmp.IncrementIndexes(LevelData.ColorWhite - 1);
 				bmp.DrawBitmapComposited(tmp, 0, 0);
 			}
 			bmp = bmp.Scale(8);
