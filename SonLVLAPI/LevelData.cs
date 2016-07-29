@@ -37,6 +37,7 @@ namespace SonicRetro.SonLVL.API
 		public static ColorPalette BmpPal;
 		public static List<ObjectEntry> Objects;
 		static bool objectterm;
+		public static ObjectLayoutFormat ObjectFormat;
 		public static List<RingEntry> Rings;
 		internal static bool ringstartterm, ringendterm;
 		public static RingFormat RingFormat;
@@ -293,56 +294,7 @@ namespace SonicRetro.SonLVL.API
 					LayoutFormat = new SCDPC.Layout();
 					break;
 				case EngineVersion.Custom:
-					string dllfile = System.IO.Path.Combine("dllcache", Level.LayoutCodeType + ".dll");
-					DateTime modDate = DateTime.MinValue;
-					if (System.IO.File.Exists(dllfile))
-						modDate = System.IO.File.GetLastWriteTime(dllfile);
-					string fp = Level.LayoutCodeFile.Replace('/', System.IO.Path.DirectorySeparatorChar);
-					Log("Loading layout format type " + Level.LayoutCodeType + " from \"" + fp + "\"...");
-					if (modDate >= File.GetLastWriteTime(fp) & modDate > File.GetLastWriteTime(Application.ExecutablePath))
-					{
-						Log("Loading type from cached assembly \"" + dllfile + "\"...");
-						LayoutFormat = (LayoutFormat)Activator.CreateInstance(System.Reflection.Assembly.LoadFile(Path.Combine(Environment.CurrentDirectory, dllfile)).GetType(Level.LayoutCodeType));
-					}
-					else
-					{
-						Log("Compiling code file...");
-						string ext = System.IO.Path.GetExtension(fp);
-						CodeDomProvider pr = null;
-						switch (ext.ToLowerInvariant())
-						{
-							case ".cs":
-								pr = new Microsoft.CSharp.CSharpCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v3.5" } });
-								break;
-							case ".vb":
-								pr = new Microsoft.VisualBasic.VBCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v3.5" } });
-								break;
-#if false
-									case ".js":
-										pr = new Microsoft.JScript.JScriptCodeProvider();
-										break;
-#endif
-						}
-						CompilerParameters para = new CompilerParameters(new string[] { "System.dll", "System.Core.dll", "System.Drawing.dll", System.Reflection.Assembly.GetExecutingAssembly().Location });
-						para.GenerateExecutable = false;
-						para.GenerateInMemory = false;
-						para.IncludeDebugInformation = true;
-						para.OutputAssembly = System.IO.Path.Combine(Environment.CurrentDirectory, dllfile);
-						CompilerResults res = pr.CompileAssemblyFromFile(para, fp);
-						if (res.Errors.HasErrors)
-						{
-							Log("Compile failed.", "Errors:");
-							foreach (CompilerError item in res.Errors)
-								Log(item.ToString());
-							Log(string.Empty);
-							throw new Exception("Failed compiling layout format.");
-						}
-						else
-						{
-							Log("Compile succeeded.");
-							LayoutFormat = (LayoutFormat)Activator.CreateInstance(res.CompiledAssembly.GetType(Level.LayoutCodeType));
-						}
-					}
+					LayoutFormat = CompileCodeFile<LayoutFormat>(Level.LayoutCodeFile, Level.LayoutCodeType);
 					break;
 			}
 			if (LayoutFormat.IsCombinedLayout)
@@ -389,6 +341,30 @@ namespace SonicRetro.SonLVL.API
 				}
 			}
 			CurPal = 0;
+			switch (Level.ObjectFormat)
+			{
+				case EngineVersion.S1:
+					ObjectFormat = new S1.Object();
+					break;
+				case EngineVersion.S2:
+				case EngineVersion.S2NA:
+					ObjectFormat = new S2.Object();
+					break;
+				case EngineVersion.S3K:
+				case EngineVersion.SKC:
+					ObjectFormat = new S3K.Object();
+					break;
+				case EngineVersion.SCD:
+				case EngineVersion.SCDPC:
+					ObjectFormat = new SCD.Object();
+					break;
+				case EngineVersion.Chaotix:
+					ObjectFormat = new Chaotix.Object();
+					break;
+				case EngineVersion.Custom:
+					ObjectFormat = CompileCodeFile<ObjectLayoutFormat>(Level.ObjectCodeFile, Level.ObjectCodeType);
+					break;
+			}
 			switch (Level.RingFormat)
 			{
 				case EngineVersion.S1:
@@ -405,56 +381,7 @@ namespace SonicRetro.SonLVL.API
 					RingFormat = new S3K.Ring();
 					break;
 				case EngineVersion.Custom:
-					string dllfile = System.IO.Path.Combine("dllcache", Level.RingCodeType + ".dll");
-					DateTime modDate = DateTime.MinValue;
-					if (System.IO.File.Exists(dllfile))
-						modDate = System.IO.File.GetLastWriteTime(dllfile);
-					string fp = Level.RingCodeFile.Replace('/', System.IO.Path.DirectorySeparatorChar);
-					Log("Loading ring format type " + Level.RingCodeType + " from \"" + fp + "\"...");
-					if (modDate >= File.GetLastWriteTime(fp) & modDate > File.GetLastWriteTime(Application.ExecutablePath))
-					{
-						Log("Loading type from cached assembly \"" + dllfile + "\"...");
-						RingFormat = (RingFormat)Activator.CreateInstance(System.Reflection.Assembly.LoadFile(Path.Combine(Environment.CurrentDirectory, dllfile)).GetType(Level.RingCodeType));
-					}
-					else
-					{
-						Log("Compiling code file...");
-						string ext = System.IO.Path.GetExtension(fp);
-						CodeDomProvider pr = null;
-						switch (ext.ToLowerInvariant())
-						{
-							case ".cs":
-								pr = new Microsoft.CSharp.CSharpCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v3.5" } });
-								break;
-							case ".vb":
-								pr = new Microsoft.VisualBasic.VBCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v3.5" } });
-								break;
-#if false
-									case ".js":
-										pr = new Microsoft.JScript.JScriptCodeProvider();
-										break;
-#endif
-						}
-						CompilerParameters para = new CompilerParameters(new string[] { "System.dll", "System.Core.dll", "System.Drawing.dll", System.Reflection.Assembly.GetExecutingAssembly().Location });
-						para.GenerateExecutable = false;
-						para.GenerateInMemory = false;
-						para.IncludeDebugInformation = true;
-						para.OutputAssembly = System.IO.Path.Combine(Environment.CurrentDirectory, dllfile);
-						CompilerResults res = pr.CompileAssemblyFromFile(para, fp);
-						if (res.Errors.HasErrors)
-						{
-							Log("Compile failed.", "Errors:");
-							foreach (CompilerError item in res.Errors)
-								Log(item.ToString());
-							Log(string.Empty);
-							throw new Exception("Failed compiling ring format.");
-						}
-						else
-						{
-							Log("Compile succeeded.");
-							RingFormat = (RingFormat)Activator.CreateInstance(res.CompiledAssembly.GetType(Level.RingCodeType));
-						}
-					}
+					RingFormat = CompileCodeFile<RingFormat>(Level.RingCodeFile, Level.RingCodeType);
 					break;
 			}
 			Sprites = new List<Sprite>();
@@ -509,68 +436,15 @@ namespace SonicRetro.SonLVL.API
 						LoadObjectDefinitionFile(item);
 				InitObjectDefinitions();
 			}
-			Objects = new List<ObjectEntry>();
-			objectterm = false;
 			if (Level.Objects != null)
 			{
-				if (File.Exists(Level.Objects))
-				{
-					Log("Loading objects from file \"" + Level.Objects + "\", using compression " + Level.ObjectCompression + "...");
-					tmp = Compression.Decompress(Level.Objects, Level.ObjectCompression);
-					switch (Level.ObjectFormat)
-					{
-						case EngineVersion.S1:
-							for (int oa = 0; oa < tmp.Length; oa += S1ObjectEntry.Size)
-							{
-								if (ByteConverter.ToUInt16(tmp, oa) == 0xFFFF) { objectterm = true; break; }
-								Objects.Add(new S1ObjectEntry(tmp, oa));
-							}
-							break;
-						case EngineVersion.S2:
-							for (int oa = 0; oa < tmp.Length; oa += S2ObjectEntry.Size)
-							{
-								if (ByteConverter.ToUInt16(tmp, oa) == 0xFFFF) { objectterm = true; break; }
-								Objects.Add(new S2ObjectEntry(tmp, oa));
-							}
-							break;
-						case EngineVersion.S2NA:
-							for (int oa = 0; oa < tmp.Length; oa += S2NAObjectEntry.Size)
-							{
-								if (ByteConverter.ToUInt16(tmp, oa) == 0xFFFF) { objectterm = true; break; }
-								Objects.Add(new S2NAObjectEntry(tmp, oa));
-							}
-							break;
-						case EngineVersion.S3K:
-						case EngineVersion.SKC:
-							for (int oa = 0; oa < tmp.Length; oa += S3KObjectEntry.Size)
-							{
-								if (ByteConverter.ToUInt16(tmp, oa) == 0xFFFF) { objectterm = true; break; }
-								Objects.Add(new S3KObjectEntry(tmp, oa));
-							}
-							break;
-						case EngineVersion.SCD:
-						case EngineVersion.SCDPC:
-							for (int oa = 0; oa < tmp.Length; oa += SCDObjectEntry.Size)
-							{
-								if (ByteConverter.ToUInt64(tmp, oa) == 0xFFFFFFFFFFFFFFFF) { objectterm = true; break; }
-								Objects.Add(new SCDObjectEntry(tmp, oa));
-							}
-							break;
-						case EngineVersion.Chaotix:
-							for (int oa = 0; oa < tmp.Length; oa += ChaotixObjectEntry.Size)
-							{
-								if (ByteConverter.ToUInt16(tmp, oa) == 0xFFFF) { objectterm = true; break; }
-								Objects.Add(new ChaotixObjectEntry(tmp, oa));
-							}
-							break;
-					}
-					if (loadGraphics)
-						for (int i = 0; i < Objects.Count; i++)
-							Objects[i].UpdateSprite();
-				}
-				else
-					Log("Object file \"" + Level.Objects + "\" not found.");
+				Objects = ObjectFormat.TryReadLayout(Level.Objects, Level.ObjectCompression, out objectterm);
+				if (loadGraphics)
+					for (int i = 0; i < Objects.Count; i++)
+						Objects[i].UpdateSprite();
 			}
+			else
+				Objects = new List<ObjectEntry>();
 			if (Level.Rings != null && RingFormat is RingLayoutFormat)
 			{
 				Rings = ((RingLayoutFormat)RingFormat).TryReadLayout(Level.Rings, Level.RingCompression, out ringstartterm, out ringendterm);
@@ -745,6 +619,60 @@ namespace SonicRetro.SonLVL.API
 			}
 		}
 
+		private static T CompileCodeFile<T>(string codefile, string typename)
+		{
+			string dllfile = System.IO.Path.Combine("dllcache", typename + ".dll");
+			DateTime modDate = DateTime.MinValue;
+			if (System.IO.File.Exists(dllfile))
+				modDate = System.IO.File.GetLastWriteTime(dllfile);
+			string fp = codefile.Replace('/', System.IO.Path.DirectorySeparatorChar);
+			Log("Loading type " + typename + " from \"" + fp + "\"...");
+			if (modDate >= File.GetLastWriteTime(fp) & modDate > File.GetLastWriteTime(Application.ExecutablePath))
+			{
+				Log("Loading type from cached assembly \"" + dllfile + "\"...");
+				return (T)Activator.CreateInstance(System.Reflection.Assembly.LoadFile(Path.Combine(Environment.CurrentDirectory, dllfile)).GetType(typename));
+			}
+			else
+			{
+				Log("Compiling code file...");
+				string ext = System.IO.Path.GetExtension(fp);
+				CodeDomProvider pr = null;
+				switch (ext.ToLowerInvariant())
+				{
+					case ".cs":
+						pr = new Microsoft.CSharp.CSharpCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v3.5" } });
+						break;
+					case ".vb":
+						pr = new Microsoft.VisualBasic.VBCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v3.5" } });
+						break;
+#if false
+									case ".js":
+										pr = new Microsoft.JScript.JScriptCodeProvider();
+										break;
+#endif
+				}
+				CompilerParameters para = new CompilerParameters(new string[] { "System.dll", "System.Core.dll", "System.Drawing.dll", System.Reflection.Assembly.GetExecutingAssembly().Location });
+				para.GenerateExecutable = false;
+				para.GenerateInMemory = false;
+				para.IncludeDebugInformation = true;
+				para.OutputAssembly = System.IO.Path.Combine(Environment.CurrentDirectory, dllfile);
+				CompilerResults res = pr.CompileAssemblyFromFile(para, fp);
+				if (res.Errors.HasErrors)
+				{
+					Log("Compile failed.", "Errors:");
+					foreach (CompilerError item in res.Errors)
+						Log(item.ToString());
+					Log(string.Empty);
+					throw new Exception("Failed compiling file.");
+				}
+				else
+				{
+					Log("Compile succeeded.");
+					return (T)Activator.CreateInstance(res.CompiledAssembly.GetType(typename));
+				}
+			}
+		}
+
 		public static void SaveLevel()
 		{
 			Log("Saving " + Level.DisplayName + "...");
@@ -906,44 +834,7 @@ namespace SonicRetro.SonLVL.API
 			if (Level.Objects != null)
 			{
 				Objects.Sort();
-				tmp = new List<byte>();
-				for (int oi = 0; oi < Objects.Count; oi++)
-					tmp.AddRange(Objects[oi].GetBytes());
-				if (objectterm)
-					switch (Level.ObjectFormat)
-					{
-						case EngineVersion.S1:
-							tmp.AddRange(new byte[] { 0xFF, 0xFF });
-							while (tmp.Count % S1ObjectEntry.Size > 0)
-								tmp.Add(0);
-							break;
-						case EngineVersion.S2:
-							tmp.AddRange(new byte[] { 0xFF, 0xFF });
-							while (tmp.Count % S2ObjectEntry.Size > 0)
-								tmp.Add(0);
-							break;
-						case EngineVersion.S2NA:
-							tmp.AddRange(new byte[] { 0xFF, 0xFF });
-							while (tmp.Count % S2NAObjectEntry.Size > 0)
-								tmp.Add(0);
-							break;
-						case EngineVersion.S3K:
-						case EngineVersion.SKC:
-							tmp.AddRange(new byte[] { 0xFF, 0xFF });
-							while (tmp.Count % S3KObjectEntry.Size > 0)
-								tmp.Add(0);
-							break;
-						case EngineVersion.SCD:
-						case EngineVersion.SCDPC:
-							tmp.Add(0xFF);
-							while (tmp.Count % SCDObjectEntry.Size > 0)
-								tmp.Add(0xFF);
-							break;
-						case EngineVersion.Chaotix:
-							tmp.AddRange(new byte[] { 0xFF, 0xFF });
-							break;
-					}
-				Compression.Compress(tmp.ToArray(), Level.Objects, Level.ObjectCompression);
+				ObjectFormat.WriteLayout(Objects, Level.ObjectCompression, Level.Objects, objectterm);
 			}
 			if (Level.Rings != null && RingFormat is RingLayoutFormat)
 			{
@@ -1150,9 +1041,9 @@ namespace SonicRetro.SonLVL.API
 		{
 			if (allTimeZones)
 				return true;
-			if (obj is SCDObjectEntry)
+			if (obj is SonicRetro.SonLVL.API.SCD.SCDObjectEntry)
 			{
-				SCDObjectEntry scdobj = (SCDObjectEntry)obj;
+				SonicRetro.SonLVL.API.SCD.SCDObjectEntry scdobj = (SonicRetro.SonLVL.API.SCD.SCDObjectEntry)obj;
 				switch (Level.TimeZone)
 				{
 					case API.TimeZone.Past:
@@ -1277,33 +1168,7 @@ namespace SonicRetro.SonLVL.API
 							else
 							{
 								Log("Building code file...");
-								Type basetype;
-								switch (Level.ObjectFormat)
-								{
-									case EngineVersion.S1:
-										basetype = typeof(S1ObjectEntry);
-										break;
-									case EngineVersion.S2:
-										basetype = typeof(S2ObjectEntry);
-										break;
-									case EngineVersion.S2NA:
-										basetype = typeof(S2NAObjectEntry);
-										break;
-									case EngineVersion.S3K:
-									case EngineVersion.SKC:
-										basetype = typeof(S3KObjectEntry);
-										break;
-									case EngineVersion.SCD:
-									case EngineVersion.SCDPC:
-										basetype = typeof(SCDObjectEntry);
-										break;
-									case EngineVersion.Chaotix:
-										basetype = typeof(ChaotixObjectEntry);
-										break;
-									default:
-										basetype = typeof(ObjectEntry);
-										break;
-								}
+								Type basetype = ObjectFormat.ObjectType;
 								CodeTypeReferenceExpression objhelprefex = new CodeTypeReferenceExpression(typeof(ObjectHelper));
 								CodeThisReferenceExpression thisref = new CodeThisReferenceExpression();
 								CodeTypeReferenceExpression typeref = new CodeTypeReferenceExpression(xdef.TypeName);
@@ -2796,35 +2661,11 @@ namespace SonicRetro.SonLVL.API
 		public static ObjectEntry CreateObject(byte ID)
 		{
 			ObjectDefinition def = GetObjectDefinition(ID);
-			ObjectEntry oe;
-			switch (Level.ObjectFormat)
-			{
-				case EngineVersion.S1:
-					oe = new S1ObjectEntry() { RememberState = def.RememberState };
-					break;
-				case EngineVersion.S2:
-					oe = new S2ObjectEntry() { RememberState = def.RememberState };
-					break;
-				case EngineVersion.S2NA:
-					oe = new S2NAObjectEntry() { RememberState = def.RememberState };
-					break;
-				case EngineVersion.S3K:
-				case EngineVersion.SKC:
-					oe = new S3KObjectEntry();
-					break;
-				case EngineVersion.SCD:
-				case EngineVersion.SCDPC:
-					oe = new SCDObjectEntry() { RememberState = def.RememberState };
-					break;
-				case EngineVersion.Chaotix:
-					oe = new ChaotixObjectEntry();
-					break;
-				default:
-					oe = null;
-					break;
-			}
+			ObjectEntry oe = ObjectFormat.CreateObject();
 			oe.ID = ID;
 			oe.SubType = def.DefaultSubtype;
+			if (oe is RememberStateObjectEntry)
+				((RememberStateObjectEntry)oe).RememberState = def.RememberState;
 			return oe;
 		}
 

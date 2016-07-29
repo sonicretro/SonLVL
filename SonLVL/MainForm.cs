@@ -1,3 +1,4 @@
+using SonicRetro.SonLVL.API;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -5,10 +6,13 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Windows.Forms;
-using SonicRetro.SonLVL.API;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Windows.Forms;
+using ChaotixObjectEntry = SonicRetro.SonLVL.API.Chaotix.ChaotixObjectEntry;
+using S1ObjectEntry = SonicRetro.SonLVL.API.S1.S1ObjectEntry;
+using S2ObjectEntry = SonicRetro.SonLVL.API.S2.S2ObjectEntry;
+using SCDObjectEntry = SonicRetro.SonLVL.API.SCD.SCDObjectEntry;
 
 namespace SonicRetro.SonLVL.GUI
 {
@@ -2455,7 +2459,7 @@ namespace SonicRetro.SonLVL.GUI
 						{
 							if (ModifierKeys != Keys.Control || LevelData.Bumpers == null)
 							{
-								if (LevelData.Level.ObjectFormat == EngineVersion.Chaotix)
+								if (typeof(ChaotixObjectEntry).IsAssignableFrom(LevelData.ObjectFormat.ObjectType))
 									ObjectSelect.numericUpDown2.Maximum = 0x1FFF;
 								else
 									ObjectSelect.numericUpDown2.Maximum = 0xFF;
@@ -2469,7 +2473,7 @@ namespace SonicRetro.SonLVL.GUI
 										ent.SubType = (byte)ObjectSelect.numericUpDown2.Value;
 									ent.X = (ushort)gridx;
 									ent.Y = (ushort)gridy;
-									if (ent is SCDObjectEntry)
+									if (ent is SonicRetro.SonLVL.API.SCD.SCDObjectEntry)
 									{
 										SCDObjectEntry entcd = (SCDObjectEntry)ent;
 										switch (LevelData.Level.TimeZone)
@@ -2676,7 +2680,8 @@ namespace SonicRetro.SonLVL.GUI
 					if (!objdrag && LevelData.Bumpers != null)
 						foreach (CNZBumperEntry item in LevelData.Bumpers)
 						{
-							Rectangle bound = LevelData.unkobj.GetBounds(new S2ObjectEntry() { X = item.X, Y = item.Y }, Point.Empty);
+							item.UpdateSprite();
+							Rectangle bound = LevelData.unkobj.GetBounds(new SonicRetro.SonLVL.API.S2.S2ObjectEntry() { X = item.X, Y = item.Y }, Point.Empty);
 							if (bound.Contains(curx, cury))
 							{
 								if (!SelectedItems.Contains(item))
@@ -3207,9 +3212,12 @@ namespace SonicRetro.SonLVL.GUI
 				byte sub = (byte)ObjectSelect.numericUpDown2.Value;
 				using (AddGroupDialog dlg = new AddGroupDialog())
 				{
+					ObjectEntry tmp = LevelData.ObjectFormat.CreateObject();
+					tmp.SubType = sub;
+					Rectangle bnd = LevelData.GetObjectDefinition(ID).GetBounds(tmp, Point.Empty);
 					dlg.Text = "Add Group of Objects";
-					dlg.XDist.Value = LevelData.GetObjectDefinition(ID).GetBounds(new S2ObjectEntry() { SubType = sub }, Point.Empty).Width;
-					dlg.YDist.Value = LevelData.GetObjectDefinition(ID).GetBounds(new S2ObjectEntry() { SubType = sub }, Point.Empty).Height;
+					dlg.XDist.Value = bnd.Width;
+					dlg.YDist.Value = bnd.Height;
 					if (dlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
 					{
 						double gs = 1 << ObjGrid;

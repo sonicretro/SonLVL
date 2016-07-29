@@ -374,28 +374,7 @@ namespace ObjDefEditor
 			conditionProperty.Items.Clear();
 			conditionProperty.BeginUpdate();
 			List<TypeCode> codes = new List<TypeCode>();
-			Type basetype;
-			switch (LevelData.Level.ObjectFormat)
-			{
-				case EngineVersion.S1:
-					basetype = typeof(S1ObjectEntry);
-					break;
-				case EngineVersion.S2:
-				case EngineVersion.S2NA:
-					basetype = typeof(S2ObjectEntry);
-					break;
-				case EngineVersion.S3K:
-				case EngineVersion.SKC:
-					basetype = typeof(S3KObjectEntry);
-					break;
-				case EngineVersion.SCD:
-				case EngineVersion.SCDPC:
-					basetype = typeof(SCDObjectEntry);
-					break;
-				default:
-					basetype = typeof(ObjectEntry);
-					break;
-			}
+			Type basetype = LevelData.ObjectFormat.ObjectType;
 			foreach (System.Reflection.PropertyInfo info in basetype.GetProperties())
 			{
 				if (info.GetGetMethod() == null | info.GetSetMethod() == null) continue;

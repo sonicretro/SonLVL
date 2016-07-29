@@ -5,6 +5,10 @@ using System.IO;
 using System.Windows.Forms;
 using SonicRetro.SonLVL.API;
 using System.Linq;
+using S1ObjectEntry = SonicRetro.SonLVL.API.S1.S1ObjectEntry;
+using S2ObjectEntry = SonicRetro.SonLVL.API.S2.S2ObjectEntry;
+using S3KObjectEntry = SonicRetro.SonLVL.API.S3K.S3KObjectEntry;
+using SCDObjectEntry = SonicRetro.SonLVL.API.SCD.SCDObjectEntry;
 
 namespace SonicRetro.SonLVL.LevelConverter
 {

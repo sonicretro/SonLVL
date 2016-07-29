@@ -1067,34 +1067,7 @@ namespace SonicRetro.SonLVL.API
 					}
 					else
 					{
-						Type basetype;
-						switch (LevelData.Level.ObjectFormat)
-						{
-							case EngineVersion.S1:
-								basetype = typeof(S1ObjectEntry);
-								break;
-							case EngineVersion.S2:
-								basetype = typeof(S2ObjectEntry);
-								break;
-							case EngineVersion.S2NA:
-								basetype = typeof(S2NAObjectEntry);
-								break;
-							case EngineVersion.S3K:
-							case EngineVersion.SKC:
-								basetype = typeof(S3KObjectEntry);
-								break;
-							case EngineVersion.SCD:
-							case EngineVersion.SCDPC:
-								basetype = typeof(SCDObjectEntry);
-								break;
-							case EngineVersion.Chaotix:
-								basetype = typeof(ChaotixObjectEntry);
-								break;
-							default:
-								basetype = typeof(ObjectEntry);
-								break;
-						}
-						System.Reflection.PropertyInfo prop = basetype.GetProperty(cond.property);
+						System.Reflection.PropertyInfo prop = LevelData.ObjectFormat.ObjectType.GetProperty(cond.property);
 						object value = prop.GetValue(obj, null);
 						if (!object.Equals(value, prop.PropertyType.InvokeMember("Parse", System.Reflection.BindingFlags.DeclaredOnly | System.Reflection.BindingFlags.InvokeMethod | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static, null, null, new[] { cond.value })))
 							return false;

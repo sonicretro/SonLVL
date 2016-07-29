@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using SonicRetro.SonLVL.API;
+using S1ObjectEntry = SonicRetro.SonLVL.API.S1.S1ObjectEntry;
+using S2ObjectEntry = SonicRetro.SonLVL.API.S2.S2ObjectEntry;
+using S2NAObjectEntry = SonicRetro.SonLVL.API.S2NA.S2NAObjectEntry;
+using S3KObjectEntry = SonicRetro.SonLVL.API.S3K.S3KObjectEntry;
+using SCDObjectEntry = SonicRetro.SonLVL.API.SCD.SCDObjectEntry;
 
 namespace ObjectLayoutDiff
 {

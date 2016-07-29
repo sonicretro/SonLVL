@@ -62,6 +62,10 @@ namespace SonicRetro.SonLVL.API
 		public EngineVersion ObjectFormat { get; set; }
 		[IniName("objectcmp")]
 		public CompressionType ObjectCompression { get; set; }
+		[IniName("objectcodefile")]
+		public string ObjectCodeFile { get; set; }
+		[IniName("objectcodetype")]
+		public string ObjectCodeType { get; set; }
 		[IniName("ringfmt")]
 		public EngineVersion RingFormat { get; set; }
 		[IniName("ringcmp")]
@@ -323,6 +327,10 @@ namespace SonicRetro.SonLVL.API
 		public EngineVersion ObjectFormat { get; set; }
 		[IniName("objectcmp")]
 		public CompressionType ObjectCompression { get; set; }
+		[IniName("objectcodefile")]
+		public string ObjectCodeFile { get; set; }
+		[IniName("objectcodetype")]
+		public string ObjectCodeType { get; set; }
 		[IniName("objects")]
 		public string Objects { get; set; }
 		[IniName("ringfmt")]
