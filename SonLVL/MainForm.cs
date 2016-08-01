@@ -3068,7 +3068,7 @@ namespace SonicRetro.SonLVL.GUI
 			switch (BGMode)
 			{
 				case EditingMode.Draw:
-					if (locs.Count > 0) AddUndo(new LayoutEditUndoAction(1, locs, tiles));
+					if (locs.Count > 0) AddUndo(new LayoutEditUndoAction(2, locs, tiles));
 					DrawLevel();
 					break;
 				case EditingMode.Select:
@@ -9388,7 +9388,7 @@ namespace SonicRetro.SonLVL.GUI
 				case 2:
 					for (int i = 0; i < locations.Count; i++)
 					{
-						t = LevelData.Layout.FGLayout[locations[i].X, locations[i].Y];
+						t = LevelData.Layout.BGLayout[locations[i].X, locations[i].Y];
 						LevelData.Layout.BGLayout[locations[i].X, locations[i].Y] = oldtiles[i];
 						oldtiles[i] = t;
 					}
