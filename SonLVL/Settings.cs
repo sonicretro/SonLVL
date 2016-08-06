@@ -112,9 +112,7 @@ namespace SonicRetro.SonLVL
 		Objects,
 		Foreground,
 		Background,
-		Chunks,
-		Blocks,
-		Tiles,
+		Art,
 		Solids
 	}
 

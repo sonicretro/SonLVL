@@ -135,6 +135,12 @@ namespace SonicRetro.SonLVL.GUI
 			set { tabControl1.SelectedIndex = (int)value; }
 		}
 
+		ArtTab CurrentArtTab
+		{
+			get { return (ArtTab)tabControl4.SelectedIndex; }
+			set { tabControl4.SelectedIndex = (int)value; }
+		}
+
 		private class UpdateInfo
 		{
 			[IniName("revision")]
@@ -311,6 +317,7 @@ namespace SonicRetro.SonLVL.GUI
 			replaceBGChunksDialog = new ReplaceChunksDialog();
 			replaceChunkBlocksDialog = new ReplaceChunkBlocksDialog();
 			replaceBlockTilesDialog = new ReplaceBlockTilesDialog();
+			panel4.Padding = new Padding(0, 0, SystemInformation.VerticalScrollBarWidth, 0);
 			if (Program.Arguments.Length > 0)
 				LoadINI(Program.Arguments[0]);
 		}
@@ -2065,20 +2072,10 @@ namespace SonicRetro.SonLVL.GUI
 				case Keys.D4:
 				case Keys.NumPad4:
 					if (e.Control)
-						CurrentTab = Tab.Chunks;
+						CurrentTab = Tab.Art;
 					break;
 				case Keys.D5:
 				case Keys.NumPad5:
-					if (e.Control)
-						CurrentTab = Tab.Blocks;
-					break;
-				case Keys.D6:
-				case Keys.NumPad6:
-					if (e.Control)
-						CurrentTab = Tab.Tiles;
-					break;
-				case Keys.D7:
-				case Keys.NumPad7:
 					if (e.Control)
 						CurrentTab = Tab.Solids;
 					break;
@@ -3449,7 +3446,7 @@ namespace SonicRetro.SonLVL.GUI
 					ChunkSelector.AllowDrop = false;
 					backgroundPanel.Focus();
 					break;
-				case Tab.Chunks:
+				case Tab.Art:
 					findToolStripMenuItem.Enabled = findNextToolStripMenuItem.Enabled = findPreviousToolStripMenuItem.Enabled = false;
 					panel10.Controls.Add(ChunkSelector);
 					ChunkSelector.AllowDrop = true;
@@ -4263,7 +4260,7 @@ namespace SonicRetro.SonLVL.GUI
 		private void ChunkSelector_MouseDown(object sender, MouseEventArgs e)
 		{
 			if (!loaded) return;
-			if (CurrentTab == Tab.Chunks & e.Button == MouseButtons.Right)
+			if (CurrentTab == Tab.Art & e.Button == MouseButtons.Right)
 			{
 				pasteOverToolStripMenuItem.Enabled = Clipboard.ContainsData(typeof(Chunk).AssemblyQualifiedName) || Clipboard.ContainsData(typeof(ChunkCopyData).AssemblyQualifiedName);
 				pasteBeforeToolStripMenuItem.Enabled = pasteOverToolStripMenuItem.Enabled && LevelData.Chunks.Count < 256;
@@ -4317,17 +4314,17 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void cutTilesToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			switch (CurrentTab)
+			switch (CurrentArtTab)
 			{
-				case Tab.Chunks:
+				case ArtTab.Chunks:
 					Clipboard.SetData(typeof(Chunk).AssemblyQualifiedName, LevelData.Chunks[SelectedChunk].GetBytes());
 					DeleteChunk();
 					break;
-				case Tab.Blocks:
+				case ArtTab.Blocks:
 					Clipboard.SetData(typeof(Block).AssemblyQualifiedName, LevelData.Blocks[SelectedBlock].GetBytes());
 					DeleteBlock();
 					break;
-				case Tab.Tiles:
+				case ArtTab.Tiles:
 					if (LevelData.Level.TwoPlayerCompatible)
 					{
 						byte[][] data = new byte[2][];
@@ -4433,15 +4430,15 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void copyTilesToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			switch (CurrentTab)
+			switch (CurrentArtTab)
 			{
-				case Tab.Chunks:
+				case ArtTab.Chunks:
 					Clipboard.SetData(typeof(Chunk).AssemblyQualifiedName, LevelData.Chunks[SelectedChunk].GetBytes());
 					break;
-				case Tab.Blocks:
+				case ArtTab.Blocks:
 					Clipboard.SetData(typeof(Block).AssemblyQualifiedName, LevelData.Blocks[SelectedBlock].GetBytes());
 					break;
-				case Tab.Tiles:
+				case ArtTab.Tiles:
 					if (LevelData.Level.TwoPlayerCompatible)
 					{
 						byte[][] data = new byte[2][];
@@ -4530,9 +4527,9 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void pasteBeforeToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			switch (CurrentTab)
+			switch (CurrentArtTab)
 			{
-				case Tab.Chunks:
+				case ArtTab.Chunks:
 					if (Clipboard.ContainsData(typeof(ChunkCopyData).AssemblyQualifiedName))
 					{
 						ChunkCopyData cnkcpy = (ChunkCopyData)Clipboard.GetData(typeof(ChunkCopyData).AssemblyQualifiedName);
@@ -4624,7 +4621,7 @@ namespace SonicRetro.SonLVL.GUI
 					}
 					InsertChunk();
 					break;
-				case Tab.Blocks:
+				case ArtTab.Blocks:
 					if (Clipboard.ContainsData(typeof(BlockCopyData).AssemblyQualifiedName))
 					{
 						BlockCopyData blkcpy = (BlockCopyData)Clipboard.GetData(typeof(BlockCopyData).AssemblyQualifiedName);
@@ -4666,7 +4663,7 @@ namespace SonicRetro.SonLVL.GUI
 					}
 					InsertBlock();
 					break;
-				case Tab.Tiles:
+				case ArtTab.Tiles:
 					if (LevelData.Level.TwoPlayerCompatible)
 					{
 						byte[][] t = (byte[][])Clipboard.GetData("SonLVLTileInterlaced");
@@ -4685,9 +4682,9 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void pasteAfterToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			switch (CurrentTab)
+			switch (CurrentArtTab)
 			{
-				case Tab.Chunks:
+				case ArtTab.Chunks:
 					if (Clipboard.ContainsData(typeof(ChunkCopyData).AssemblyQualifiedName))
 					{
 						ChunkCopyData cnkcpy = (ChunkCopyData)Clipboard.GetData(typeof(ChunkCopyData).AssemblyQualifiedName);
@@ -4778,7 +4775,7 @@ namespace SonicRetro.SonLVL.GUI
 					SelectedChunk++;
 					InsertChunk();
 					break;
-				case Tab.Blocks:
+				case ArtTab.Blocks:
 					if (Clipboard.ContainsData(typeof(BlockCopyData).AssemblyQualifiedName))
 					{
 						BlockCopyData blkcpy = (BlockCopyData)Clipboard.GetData(typeof(BlockCopyData).AssemblyQualifiedName);
@@ -4820,7 +4817,7 @@ namespace SonicRetro.SonLVL.GUI
 					SelectedBlock++;
 					InsertBlock();
 					break;
-				case Tab.Tiles:
+				case ArtTab.Tiles:
 					if (LevelData.Level.TwoPlayerCompatible)
 					{
 						byte[][] t = (byte[][])Clipboard.GetData("SonLVLTileInterlaced");
@@ -4841,19 +4838,19 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void duplicateTilesToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			switch (CurrentTab)
+			switch (CurrentArtTab)
 			{
-				case Tab.Chunks:
+				case ArtTab.Chunks:
 					LevelData.Chunks.InsertAfter(SelectedChunk, LevelData.Chunks[SelectedChunk].Clone());
 					SelectedChunk++;
 					InsertChunk();
 					break;
-				case Tab.Blocks:
+				case ArtTab.Blocks:
 					LevelData.Blocks.InsertAfter(SelectedBlock, LevelData.Blocks[SelectedBlock].Clone());
 					SelectedBlock++;
 					InsertBlock();
 					break;
-				case Tab.Tiles:
+				case ArtTab.Tiles:
 					if (LevelData.Level.TwoPlayerCompatible)
 					{
 						LevelData.Tiles.InsertAfter(SelectedTile + 1, (byte[])LevelData.Tiles[SelectedTile + 1].Clone());
@@ -4869,17 +4866,17 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void insertBeforeToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			switch (CurrentTab)
+			switch (CurrentArtTab)
 			{
-				case Tab.Chunks:
+				case ArtTab.Chunks:
 					LevelData.Chunks.InsertBefore(SelectedChunk, new Chunk());
 					InsertChunk();
 					break;
-				case Tab.Blocks:
+				case ArtTab.Blocks:
 					LevelData.Blocks.InsertBefore(SelectedBlock, new Block());
 					InsertBlock();
 					break;
-				case Tab.Tiles:
+				case ArtTab.Tiles:
 					if (LevelData.Level.TwoPlayerCompatible)
 						LevelData.Tiles.InsertAfter(SelectedTile, new byte[32]);
 					LevelData.Tiles.InsertAfter(SelectedTile, new byte[32]);
@@ -4890,20 +4887,20 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void insertAfterToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			switch (CurrentTab)
+			switch (CurrentArtTab)
 			{
-				case Tab.Chunks:
+				case ArtTab.Chunks:
 
 					LevelData.Chunks.InsertAfter(SelectedChunk, new Chunk());
 					SelectedChunk++;
 					InsertChunk();
 					break;
-				case Tab.Blocks:
+				case ArtTab.Blocks:
 					LevelData.Blocks.InsertAfter(SelectedBlock, new Block());
 					SelectedBlock++;
 					InsertBlock();
 					break;
-				case Tab.Tiles:
+				case ArtTab.Tiles:
 					if (LevelData.Level.TwoPlayerCompatible)
 					{
 						LevelData.Tiles.InsertAfter(SelectedTile, new byte[32]);
@@ -4922,15 +4919,15 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void deleteTilesToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			switch (CurrentTab)
+			switch (CurrentArtTab)
 			{
-				case Tab.Chunks:
+				case ArtTab.Chunks:
 					DeleteChunk();
 					break;
-				case Tab.Blocks:
+				case ArtTab.Blocks:
 					DeleteBlock();
 					break;
-				case Tab.Tiles:
+				case ArtTab.Tiles:
 					DeleteTile();
 					break;
 			}
@@ -4946,7 +4943,7 @@ namespace SonicRetro.SonLVL.GUI
 				if (opendlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
 				{
 					Bitmap colbmp1 = null, colbmp2 = null, pribmp = null;
-					if (CurrentTab != Tab.Tiles)
+					if (CurrentArtTab != ArtTab.Tiles)
 					{
 						string fmt = Path.Combine(Path.GetDirectoryName(opendlg.FileName),
 							Path.GetFileNameWithoutExtension(opendlg.FileName) + "_{0}" + Path.GetExtension(opendlg.FileName));
@@ -5028,19 +5025,28 @@ namespace SonicRetro.SonLVL.GUI
 			List<Chunk> newChunks = new List<Chunk>();
 			switch (CurrentTab)
 			{
-				case Tab.Chunks:
 				case Tab.Foreground:
 				case Tab.Background:
 					for (int cy = 0; cy < h / LevelData.Level.ChunkHeight; cy++)
 						for (int cx = 0; cx < w / LevelData.Level.ChunkWidth; cx++)
 							ImportChunk(ir.Mappings, blockcoldata, blocks, chunks, colInds1, colInds2, newBlocks, newChunks, newColInds1, newColInds2, layout, cx, cy);
 					break;
-				case Tab.Blocks:
-					for (int by = 0; by < h / 16; by++)
-						for (int bx = 0; bx < w / 16; bx++)
-							ImportBlock(ir.Mappings, blockcoldata, blocks, colInds1, colInds2, newBlocks, newColInds1, newColInds2, null, 0, 0, bx, by);
-					break;
-				case Tab.Tiles:
+				case Tab.Art:
+					switch (CurrentArtTab)
+					{
+						case ArtTab.Chunks:
+							for (int cy = 0; cy < h / LevelData.Level.ChunkHeight; cy++)
+								for (int cx = 0; cx < w / LevelData.Level.ChunkWidth; cx++)
+									ImportChunk(ir.Mappings, blockcoldata, blocks, chunks, colInds1, colInds2, newBlocks, newChunks, newColInds1, newColInds2, layout, cx, cy);
+							break;
+						case ArtTab.Blocks:
+							for (int by = 0; by < h / 16; by++)
+								for (int bx = 0; bx < w / 16; bx++)
+									ImportBlock(ir.Mappings, blockcoldata, blocks, colInds1, colInds2, newBlocks, newColInds1, newColInds2, null, 0, 0, bx, by);
+							break;
+						case ArtTab.Tiles:
+							break;
+					}
 					break;
 			}
 			if (newTiles.Count > 0 && LevelData.Tiles.Count + newTiles.Count > 0x800)
@@ -5416,15 +5422,15 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			using (DrawTileDialog dlg = new DrawTileDialog())
 			{
-				switch (CurrentTab)
+				switch (CurrentArtTab)
 				{
-					case Tab.Chunks:
+					case ArtTab.Chunks:
 						dlg.tile = new BitmapBits(LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
 						break;
-					case Tab.Blocks:
+					case ArtTab.Blocks:
 						dlg.tile = new BitmapBits(16, 16);
 						break;
-					case Tab.Tiles:
+					case ArtTab.Tiles:
 						dlg.tile = new BitmapBits(8, LevelData.Level.TwoPlayerCompatible ? 16 : 8);
 						break;
 				}
@@ -5445,51 +5451,51 @@ namespace SonicRetro.SonLVL.GUI
 						break;
 					case Keys.D:
 						if (e.Control)
-							switch (CurrentTab)
+							switch (CurrentArtTab)
 							{
-								case Tab.Chunks:
+								case ArtTab.Chunks:
 									if (LevelData.Chunks.Count < 0x100)
 										duplicateTilesToolStripMenuItem_Click(sender, EventArgs.Empty);
 									break;
-								case Tab.Blocks:
+								case ArtTab.Blocks:
 									if (LevelData.Blocks.Count < LevelData.GetBlockMax())
 										duplicateTilesToolStripMenuItem_Click(sender, EventArgs.Empty);
 									break;
-								case Tab.Tiles:
+								case ArtTab.Tiles:
 									if (LevelData.Tiles.Count < 0x800)
 										duplicateTilesToolStripMenuItem_Click(sender, EventArgs.Empty);
 									break;
 							}
 						break;
 					case Keys.Delete:
-						switch (CurrentTab)
+						switch (CurrentArtTab)
 						{
-							case Tab.Chunks:
+							case ArtTab.Chunks:
 								if (LevelData.Chunks.Count > 1)
 									deleteTilesToolStripMenuItem_Click(sender, EventArgs.Empty);
 								break;
-							case Tab.Blocks:
+							case ArtTab.Blocks:
 								if (LevelData.Blocks.Count > 1)
 									deleteTilesToolStripMenuItem_Click(sender, EventArgs.Empty);
 								break;
-							case Tab.Tiles:
+							case ArtTab.Tiles:
 								if (TileSelector.Images.Count > 1)
 									deleteTilesToolStripMenuItem_Click(sender, EventArgs.Empty);
 								break;
 						}
 						break;
 					case Keys.Insert:
-						switch (CurrentTab)
+						switch (CurrentArtTab)
 						{
-							case Tab.Chunks:
+							case ArtTab.Chunks:
 								if (LevelData.Chunks.Count < 0x100)
 									insertBeforeToolStripMenuItem_Click(sender, EventArgs.Empty);
 								break;
-							case Tab.Blocks:
+							case ArtTab.Blocks:
 								if (LevelData.Blocks.Count < LevelData.GetBlockMax())
 									insertBeforeToolStripMenuItem_Click(sender, EventArgs.Empty);
 								break;
-							case Tab.Tiles:
+							case ArtTab.Tiles:
 								if (LevelData.Tiles.Count < 0x800)
 									insertBeforeToolStripMenuItem_Click(sender, EventArgs.Empty);
 								break;
@@ -5497,17 +5503,17 @@ namespace SonicRetro.SonLVL.GUI
 						break;
 					case Keys.V:
 						if (e.Control)
-							switch (CurrentTab)
+							switch (CurrentArtTab)
 							{
-								case Tab.Chunks:
+								case ArtTab.Chunks:
 									if ((Clipboard.ContainsData(typeof(ChunkCopyData).AssemblyQualifiedName) || Clipboard.ContainsData(typeof(Chunk).AssemblyQualifiedName)) && LevelData.Chunks.Count < 0x100)
 										pasteAfterToolStripMenuItem_Click(sender, EventArgs.Empty);
 									break;
-								case Tab.Blocks:
+								case ArtTab.Blocks:
 									if ((Clipboard.ContainsData(typeof(BlockCopyData).AssemblyQualifiedName) || Clipboard.ContainsData(typeof(Block).AssemblyQualifiedName)) && LevelData.Blocks.Count < LevelData.GetBlockMax())
 										pasteAfterToolStripMenuItem_Click(sender, EventArgs.Empty);
 									break;
-								case Tab.Tiles:
+								case ArtTab.Tiles:
 									if (Clipboard.ContainsData(LevelData.Level.TwoPlayerCompatible ? "SonLVLTileInterlaced" : "SonLVLTile") & LevelData.Tiles.Count < 0x800)
 										pasteAfterToolStripMenuItem_Click(sender, EventArgs.Empty);
 									break;
@@ -5515,17 +5521,17 @@ namespace SonicRetro.SonLVL.GUI
 						break;
 					case Keys.X:
 						if (e.Control)
-							switch (CurrentTab)
+							switch (CurrentArtTab)
 							{
-								case Tab.Chunks:
+								case ArtTab.Chunks:
 									if (LevelData.Chunks.Count > 1)
 										cutTilesToolStripMenuItem_Click(sender, EventArgs.Empty);
 									break;
-								case Tab.Blocks:
+								case ArtTab.Blocks:
 									if (LevelData.Blocks.Count > 1)
 										cutTilesToolStripMenuItem_Click(sender, EventArgs.Empty);
 									break;
-								case Tab.Tiles:
+								case ArtTab.Tiles:
 									if (TileSelector.Images.Count > 1)
 										cutTilesToolStripMenuItem_Click(sender, EventArgs.Empty);
 									break;
@@ -7265,7 +7271,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void ChunkSelector_ItemDrag(object sender, EventArgs e)
 		{
-			if (CurrentTab == Tab.Chunks && enableDraggingChunksButton.Checked)
+			if (CurrentTab == Tab.Art && enableDraggingChunksButton.Checked)
 				DoDragDrop(new DataObject("SonLVLChunkIndex_" + pid, ChunkSelector.SelectedIndex), DragDropEffects.Move);
 		}
 
@@ -7922,12 +7928,12 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void deepCopyToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			switch (CurrentTab)
+			switch (CurrentArtTab)
 			{
-				case Tab.Chunks:
+				case ArtTab.Chunks:
 					Clipboard.SetData(typeof(ChunkCopyData).AssemblyQualifiedName, new ChunkCopyData(LevelData.Chunks[SelectedChunk]));
 					break;
-				case Tab.Blocks:
+				case ArtTab.Blocks:
 					Clipboard.SetData(typeof(BlockCopyData).AssemblyQualifiedName, new BlockCopyData(LevelData.Blocks[SelectedBlock]));
 					break;
 			}
@@ -8032,9 +8038,9 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void pasteOverToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			switch (CurrentTab)
+			switch (CurrentArtTab)
 			{
-				case Tab.Chunks:
+				case ArtTab.Chunks:
 					if (Clipboard.ContainsData(typeof(ChunkCopyData).AssemblyQualifiedName))
 					{
 						ChunkCopyData cnkcpy = (ChunkCopyData)Clipboard.GetData(typeof(ChunkCopyData).AssemblyQualifiedName);
@@ -8122,7 +8128,7 @@ namespace SonicRetro.SonLVL.GUI
 						LevelData.Chunks[SelectedChunk] = new Chunk((byte[])Clipboard.GetData(typeof(Chunk).AssemblyQualifiedName), 0);
 					LevelData.RedrawChunk(SelectedChunk);
 					break;
-				case Tab.Blocks:
+				case ArtTab.Blocks:
 					if (Clipboard.ContainsData(typeof(BlockCopyData).AssemblyQualifiedName))
 					{
 						BlockCopyData blkcpy = (BlockCopyData)Clipboard.GetData(typeof(BlockCopyData).AssemblyQualifiedName);
@@ -8161,7 +8167,7 @@ namespace SonicRetro.SonLVL.GUI
 						LevelData.Blocks[SelectedBlock] = new Block((byte[])Clipboard.GetData(typeof(Block).AssemblyQualifiedName), 0);
 					LevelData.RedrawBlock(SelectedBlock, true);
 					break;
-				case Tab.Tiles:
+				case ArtTab.Tiles:
 					if (LevelData.Level.TwoPlayerCompatible)
 					{
 						byte[][] t = (byte[][])Clipboard.GetData("SonLVLTileInterlaced");
@@ -9119,23 +9125,23 @@ namespace SonicRetro.SonLVL.GUI
 					BitmapInfo bmpi;
 					using (Bitmap bmp = new Bitmap(opendlg.FileName))
 						bmpi = new BitmapInfo(bmp);
-					switch (CurrentTab)
+					switch (CurrentArtTab)
 					{
-						case Tab.Chunks:
+						case ArtTab.Chunks:
 							if (bmpi.Width < LevelData.Level.ChunkWidth || bmpi.Height < LevelData.Level.ChunkHeight)
 							{
 								MessageBox.Show(this, "Image must be at least " + LevelData.Level.ChunkWidth + "x" + LevelData.Level.ChunkHeight + " to import chunk.", "SonLVL");
 								return;
 							}
 							break;
-						case Tab.Blocks:
+						case ArtTab.Blocks:
 							if (bmpi.Width < 16 || bmpi.Height < 16)
 							{
 								MessageBox.Show(this, "Image must be at least 16x16 to import block.", "SonLVL");
 								return;
 							}
 							break;
-						case Tab.Tiles:
+						case ArtTab.Tiles:
 							if (bmpi.Width < 8 || bmpi.Height < (LevelData.Level.TwoPlayerCompatible ? 16 : 8))
 							{
 								MessageBox.Show(this, "Image must be at least 8x" + (LevelData.Level.TwoPlayerCompatible ? "16" : "8") + " to import tile.", "SonLVL");
@@ -9145,9 +9151,9 @@ namespace SonicRetro.SonLVL.GUI
 					}
 					ImportResult res = LevelData.BitmapToTiles(bmpi, new bool[bmpi.Width / 8, bmpi.Height / 8], null, new List<byte[]>(), false, false, () => Application.DoEvents());
 					List<int> editedTiles = new List<int>();
-					switch (CurrentTab)
+					switch (CurrentArtTab)
 					{
-						case Tab.Chunks:
+						case ArtTab.Chunks:
 							Chunk cnk = LevelData.Chunks[SelectedChunk];
 							for (int by = 0; by < LevelData.Level.ChunkHeight / 16; by++)
 								for (int bx = 0; bx < LevelData.Level.ChunkWidth / 16; bx++)
@@ -9162,7 +9168,7 @@ namespace SonicRetro.SonLVL.GUI
 											}
 								}
 							break;
-						case Tab.Blocks:
+						case ArtTab.Blocks:
 							Block blk2 = LevelData.Blocks[SelectedBlock];
 							for (int y = 0; y < 2; y++)
 								for (int x = 0; x < 2; x++)
@@ -9172,7 +9178,7 @@ namespace SonicRetro.SonLVL.GUI
 										editedTiles.Add(blk2.Tiles[x, y].Tile);
 									}
 							break;
-						case Tab.Tiles:
+						case ArtTab.Tiles:
 							LevelData.Tiles[SelectedTile] = res.Art[res.Mappings[0, 0].Tile];
 							editedTiles.Add(SelectedTile);
 							if (LevelData.Level.TwoPlayerCompatible)
@@ -9210,6 +9216,8 @@ namespace SonicRetro.SonLVL.GUI
 	}
 
 	public enum EditingMode { Draw, Select }
+
+	public enum ArtTab { Chunks, Blocks, Tiles }
 
 	[Serializable]
 	public class LayoutSection

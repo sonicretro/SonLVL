@@ -66,9 +66,6 @@ namespace SonicRetro.SonLVL
 						block.Minimum = -1;
 						block.Value = -1;
 					}
-					blockList.Images = LevelData.CompBlockBmps;
-					blockList.ChangeSize();
-					blockList.SelectedIndex = block.Value >= LevelData.Blocks.Count ? -1 : (int)block.Value;
 				}
 				initializing = false;
 			}
@@ -122,18 +119,6 @@ namespace SonicRetro.SonLVL
 				foreach (ChunkBlock item in selectedObjects)
 					item.Block = (ushort)block.Value;
 				PropertyValueChanged(block, EventArgs.Empty);
-				initializing = true;
-				blockList.SelectedIndex = block.Value >= LevelData.Blocks.Count ? -1 : (int)block.Value;
-				initializing = false;
-			}
-		}
-
-		private void blockList_SelectedIndexChanged(object sender, EventArgs e)
-		{
-			if (!initializing && blockList.SelectedIndex > -1)
-			{
-				block.Maximum = Math.Max(LevelData.GetBlockMax(), LevelData.Blocks.Count) - 1;
-				block.Value = blockList.SelectedIndex;
 			}
 		}
 	}

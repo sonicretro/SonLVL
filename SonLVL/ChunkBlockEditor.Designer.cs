@@ -34,7 +34,6 @@ namespace SonicRetro.SonLVL
 			this.solidity1 = new System.Windows.Forms.ComboBox();
 			this.xFlip = new System.Windows.Forms.CheckBox();
 			this.yFlip = new System.Windows.Forms.CheckBox();
-			this.blockList = new SonicRetro.SonLVL.API.TileList();
 			this.block = new SonicRetro.SonLVL.NumericUpDownMulti();
 			groupBox1 = new System.Windows.Forms.GroupBox();
 			label2 = new System.Windows.Forms.Label();
@@ -61,10 +60,10 @@ namespace SonicRetro.SonLVL
 			this.solidity2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.solidity2.FormattingEnabled = true;
 			this.solidity2.Items.AddRange(new object[] {
-			"Not Solid",
-			"Top Solid",
-			"Left/Right/Bottom Solid",
-			"All Solid"});
+            "Not Solid",
+            "Top Solid",
+            "Left/Right/Bottom Solid",
+            "All Solid"});
 			this.solidity2.Location = new System.Drawing.Point(6, 46);
 			this.solidity2.Name = "solidity2";
 			this.solidity2.Size = new System.Drawing.Size(121, 21);
@@ -76,10 +75,10 @@ namespace SonicRetro.SonLVL
 			this.solidity1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.solidity1.FormattingEnabled = true;
 			this.solidity1.Items.AddRange(new object[] {
-			"Not Solid",
-			"Top Solid",
-			"Left/Right/Bottom Solid",
-			"All Solid"});
+            "Not Solid",
+            "Top Solid",
+            "Left/Right/Bottom Solid",
+            "All Solid"});
 			this.solidity1.Location = new System.Drawing.Point(6, 19);
 			this.solidity1.Name = "solidity1";
 			this.solidity1.Size = new System.Drawing.Size(121, 21);
@@ -117,30 +116,15 @@ namespace SonicRetro.SonLVL
 			this.yFlip.UseVisualStyleBackColor = true;
 			this.yFlip.CheckedChanged += new System.EventHandler(this.yFlip_CheckedChanged);
 			// 
-			// blockList
-			// 
-			this.blockList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-			| System.Windows.Forms.AnchorStyles.Left) 
-			| System.Windows.Forms.AnchorStyles.Right)));
-			this.blockList.BackColor = System.Drawing.SystemColors.Window;
-			this.blockList.ImageSize = 64;
-			this.blockList.Location = new System.Drawing.Point(3, 141);
-			this.blockList.Name = "blockList";
-			this.blockList.ScrollValue = 0;
-			this.blockList.SelectedIndex = -1;
-			this.blockList.Size = new System.Drawing.Size(138, 140);
-			this.blockList.TabIndex = 3;
-			this.blockList.SelectedIndexChanged += new System.EventHandler(this.blockList_SelectedIndexChanged);
-			// 
 			// block
 			// 
 			this.block.Hexadecimal = true;
 			this.block.Location = new System.Drawing.Point(46, 115);
 			this.block.Maximum = new decimal(new int[] {
-			2047,
-			0,
-			0,
-			0});
+            2047,
+            0,
+            0,
+            0});
 			this.block.Name = "block";
 			this.block.Size = new System.Drawing.Size(53, 20);
 			this.block.TabIndex = 10;
@@ -150,14 +134,15 @@ namespace SonicRetro.SonLVL
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.AutoSize = true;
+			this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.Controls.Add(this.block);
 			this.Controls.Add(label2);
-			this.Controls.Add(this.blockList);
 			this.Controls.Add(groupBox1);
 			this.Controls.Add(this.yFlip);
 			this.Controls.Add(this.xFlip);
 			this.Name = "ChunkBlockEditor";
-			this.Size = new System.Drawing.Size(144, 284);
+			this.Size = new System.Drawing.Size(139, 138);
 			this.Load += new System.EventHandler(this.ChunkBlockEditor_Load);
 			groupBox1.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.block)).EndInit();
@@ -172,7 +157,6 @@ namespace SonicRetro.SonLVL
 		private System.Windows.Forms.CheckBox yFlip;
 		private System.Windows.Forms.ComboBox solidity1;
 		private System.Windows.Forms.ComboBox solidity2;
-		private API.TileList blockList;
 		private NumericUpDownMulti block;
 	}
 }

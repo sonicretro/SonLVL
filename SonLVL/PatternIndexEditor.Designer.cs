@@ -32,7 +32,6 @@ namespace SonicRetro.SonLVL
 			System.Windows.Forms.Label label2;
 			this.xFlip = new System.Windows.Forms.CheckBox();
 			this.yFlip = new System.Windows.Forms.CheckBox();
-			this.tileList = new SonicRetro.SonLVL.API.TileList();
 			this.priority = new System.Windows.Forms.CheckBox();
 			this.palette = new System.Windows.Forms.NumericUpDown();
 			this.tile = new SonicRetro.SonLVL.NumericUpDownMulti();
@@ -82,21 +81,6 @@ namespace SonicRetro.SonLVL
 			this.yFlip.UseVisualStyleBackColor = true;
 			this.yFlip.CheckedChanged += new System.EventHandler(this.yFlip_CheckedChanged);
 			// 
-			// tileList
-			// 
-			this.tileList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-			| System.Windows.Forms.AnchorStyles.Left) 
-			| System.Windows.Forms.AnchorStyles.Right)));
-			this.tileList.BackColor = System.Drawing.SystemColors.Window;
-			this.tileList.ImageSize = 64;
-			this.tileList.Location = new System.Drawing.Point(3, 78);
-			this.tileList.Name = "tileList";
-			this.tileList.ScrollValue = 0;
-			this.tileList.SelectedIndex = -1;
-			this.tileList.Size = new System.Drawing.Size(175, 203);
-			this.tileList.TabIndex = 3;
-			this.tileList.SelectedIndexChanged += new System.EventHandler(this.tileList_SelectedIndexChanged);
-			// 
 			// priority
 			// 
 			this.priority.AutoSize = true;
@@ -112,10 +96,10 @@ namespace SonicRetro.SonLVL
 			// 
 			this.palette.Location = new System.Drawing.Point(52, 26);
 			this.palette.Maximum = new decimal(new int[] {
-			3,
-			0,
-			0,
-			0});
+            3,
+            0,
+            0,
+            0});
 			this.palette.Name = "palette";
 			this.palette.Size = new System.Drawing.Size(37, 20);
 			this.palette.TabIndex = 6;
@@ -126,10 +110,10 @@ namespace SonicRetro.SonLVL
 			this.tile.Hexadecimal = true;
 			this.tile.Location = new System.Drawing.Point(36, 52);
 			this.tile.Maximum = new decimal(new int[] {
-			2047,
-			0,
-			0,
-			0});
+            2047,
+            0,
+            0,
+            0});
 			this.tile.Name = "tile";
 			this.tile.Size = new System.Drawing.Size(53, 20);
 			this.tile.TabIndex = 8;
@@ -139,16 +123,17 @@ namespace SonicRetro.SonLVL
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.AutoSize = true;
+			this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.Controls.Add(this.tile);
 			this.Controls.Add(label2);
 			this.Controls.Add(this.palette);
 			this.Controls.Add(label1);
 			this.Controls.Add(this.priority);
-			this.Controls.Add(this.tileList);
 			this.Controls.Add(this.yFlip);
 			this.Controls.Add(this.xFlip);
 			this.Name = "PatternIndexEditor";
-			this.Size = new System.Drawing.Size(181, 284);
+			this.Size = new System.Drawing.Size(179, 75);
 			this.Load += new System.EventHandler(this.PatternIndexEditor_Load);
 			((System.ComponentModel.ISupportInitialize)(this.palette)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.tile)).EndInit();
@@ -161,7 +146,6 @@ namespace SonicRetro.SonLVL
 
 		private System.Windows.Forms.CheckBox xFlip;
 		private System.Windows.Forms.CheckBox yFlip;
-		private API.TileList tileList;
 		private System.Windows.Forms.CheckBox priority;
 		private System.Windows.Forms.NumericUpDown palette;
 		private NumericUpDownMulti tile;
