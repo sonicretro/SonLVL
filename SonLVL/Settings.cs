@@ -57,6 +57,7 @@ namespace SonicRetro.SonLVL
 		[DefaultValue("1x")]
 		public string ZoomLevel { get; set; }
 		public Tab CurrentTab { get; set; }
+		public ArtTab CurrentArtTab { get; set; }
 		public GUI.EditingMode ForegroundMode { get; set; }
 		public GUI.EditingMode BackgroundMode { get; set; }
 		public bool SwitchChunkBlockMouseButtons { get; set; }
@@ -68,7 +69,25 @@ namespace SonicRetro.SonLVL
 		{
 			filename = Path.Combine(Application.StartupPath, "SonLVL.ini");
 			if (File.Exists(filename))
-				return IniSerializer.Deserialize<Settings>(filename);
+			{
+				Settings result = IniSerializer.Deserialize<Settings>(filename);
+				switch (result.CurrentTab)
+				{
+					case Tab.Chunks:
+						result.CurrentTab = Tab.Art;
+						result.CurrentArtTab = ArtTab.Chunks;
+						break;
+					case Tab.Blocks:
+						result.CurrentTab = Tab.Art;
+						result.CurrentArtTab = ArtTab.Blocks;
+						break;
+					case Tab.Tiles:
+						result.CurrentTab = Tab.Art;
+						result.CurrentArtTab = ArtTab.Tiles;
+						break;
+				}
+				return result;
+			}
 			else
 			{
 				Settings result = new Settings();
@@ -113,7 +132,17 @@ namespace SonicRetro.SonLVL
 		Foreground,
 		Background,
 		Art,
-		Solids
+		Solids,
+		Chunks, // compatibility only
+		Blocks,
+		Tiles
+	}
+
+	public enum ArtTab
+	{
+		Chunks,
+		Blocks,
+		Tiles
 	}
 
 	public enum WindowMode

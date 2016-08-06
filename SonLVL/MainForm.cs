@@ -260,6 +260,7 @@ namespace SonicRetro.SonLVL.GUI
 			hideDebugObjectsToolStripMenuItem.Checked = Settings.HideDebugObjectsExport;
 			exportArtcollisionpriorityToolStripMenuItem.Checked = Settings.ExportArtCollisionPriority;
 			CurrentTab = Settings.CurrentTab;
+			CurrentArtTab = Settings.CurrentArtTab;
 			FGMode = Settings.ForegroundMode;
 			if (FGMode == EditingMode.Select)
 			{
@@ -352,6 +353,7 @@ namespace SonicRetro.SonLVL.GUI
 				Settings.ObjectGridSize = ObjGrid;
 				Settings.IncludeObjectsInForegroundSelection = includeObjectsWithForegroundSelectionToolStripMenuItem.Checked;
 				Settings.CurrentTab = CurrentTab;
+				Settings.CurrentArtTab = CurrentArtTab;
 				if (TopMost)
 					Settings.WindowMode = WindowMode.Fullscreen;
 				else if (WindowState == FormWindowState.Maximized)
@@ -9216,8 +9218,6 @@ namespace SonicRetro.SonLVL.GUI
 	}
 
 	public enum EditingMode { Draw, Select }
-
-	public enum ArtTab { Chunks, Blocks, Tiles }
 
 	[Serializable]
 	public class LayoutSection
