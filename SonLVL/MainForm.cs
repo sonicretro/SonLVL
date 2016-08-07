@@ -3784,20 +3784,6 @@ namespace SonicRetro.SonLVL.GUI
 				BlockID.Text = SelectedBlock.ToString("X3");
 				BlockCount.Text = LevelData.Blocks.Count.ToString("X") + " / " + LevelData.GetBlockMax().ToString("X");
 				DrawBlockPicture();
-				switch (LevelData.Level.ChunkFormat)
-				{
-					case EngineVersion.S1:
-					case EngineVersion.SCD:
-					case EngineVersion.SCDPC:
-						copiedChunkBlock = new S1ChunkBlock();
-						break;
-					case EngineVersion.S2NA:
-					case EngineVersion.S2:
-					case EngineVersion.S3K:
-					case EngineVersion.SKC:
-						copiedChunkBlock = new S2ChunkBlock();
-						break;
-				}
 				copiedChunkBlock.Block = (ushort)SelectedBlock;
 			}
 			else
@@ -4180,7 +4166,8 @@ namespace SonicRetro.SonLVL.GUI
 				}
 				TileCount.Text = LevelData.Tiles.Count.ToString("X") + " / 800";
 				DrawTilePicture();
-				copiedBlockTile = new PatternIndex() { Tile = (ushort)SelectedTile, Palette = (byte)SelectedColor.Y };
+				copiedBlockTile.Tile = (ushort)SelectedTile;
+				copiedBlockTile.Palette = (byte)SelectedColor.Y;
 			}
 			else
 				rotateTileRightButton.Enabled = flipTileHButton.Enabled = flipTileVButton.Enabled = false;
