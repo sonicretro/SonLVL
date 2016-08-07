@@ -9202,6 +9202,20 @@ namespace SonicRetro.SonLVL.GUI
 				}
 			}
 		}
+
+		private void BlockSelector_MouseDoubleClick(object sender, MouseEventArgs e)
+		{
+			if (loaded && e.Button == MouseButtons.Left)
+				foreach (ChunkBlock blk in GetSelectedChunkBlocks())
+					blk.Block = (ushort)BlockSelector.SelectedIndex;
+		}
+
+		private void TileSelector_MouseDoubleClick(object sender, MouseEventArgs e)
+		{
+			if (loaded && e.Button == MouseButtons.Left)
+				foreach (PatternIndex til in GetSelectedBlockTiles())
+					til.Tile = (ushort)TileSelector.SelectedIndex;
+		}
 	}
 
 	public enum EditingMode { Draw, Select }
