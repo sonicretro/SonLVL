@@ -2811,6 +2811,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.ColIndBox.Controls.Add(this.button1);
 			this.ColIndBox.Controls.Add(this.BlockCollision2);
 			this.ColIndBox.Controls.Add(this.BlockCollision1);
+			this.ColIndBox.Enabled = false;
 			this.ColIndBox.Location = new System.Drawing.Point(0, 286);
 			this.ColIndBox.Name = "ColIndBox";
 			this.ColIndBox.Size = new System.Drawing.Size(192, 50);
