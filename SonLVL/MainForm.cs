@@ -571,6 +571,20 @@ namespace SonicRetro.SonLVL.GUI
 				curpal = new Color[16];
 				for (int i = 0; i < 16; i++)
 					curpal[i] = LevelData.PaletteToColor(0, i, false);
+				switch (LevelData.Level.ChunkFormat)
+				{
+					case EngineVersion.S1:
+					case EngineVersion.SCD:
+					case EngineVersion.SCDPC:
+						copiedChunkBlock = new S1ChunkBlock();
+						break;
+					case EngineVersion.S2NA:
+					case EngineVersion.S2:
+					case EngineVersion.S3K:
+					case EngineVersion.SKC:
+						copiedChunkBlock = new S2ChunkBlock();
+						break;
+				}
 #if !DEBUG
 			}
 			catch (Exception ex) { initerror = ex; }
@@ -3463,7 +3477,7 @@ namespace SonicRetro.SonLVL.GUI
 		int SelectedBlock, SelectedTile;
 		Rectangle SelectedChunkBlock, SelectedBlockTile;
 		Point SelectedColor;
-		PatternIndex copiedBlockTile;
+		PatternIndex copiedBlockTile = new PatternIndex();
 		ChunkBlock copiedChunkBlock;
 
 		private void ChunkPicture_MouseMove(object sender, MouseEventArgs e)
