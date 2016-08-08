@@ -318,7 +318,6 @@ namespace SonicRetro.SonLVL.GUI
 			replaceBGChunksDialog = new ReplaceChunksDialog();
 			replaceChunkBlocksDialog = new ReplaceChunkBlocksDialog();
 			replaceBlockTilesDialog = new ReplaceBlockTilesDialog();
-			panel4.Padding = new Padding(0, 0, SystemInformation.VerticalScrollBarWidth, 0);
 			if (Program.Arguments.Length > 0)
 				LoadINI(Program.Arguments[0]);
 		}
