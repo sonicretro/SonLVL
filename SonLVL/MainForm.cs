@@ -3086,8 +3086,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void ChunkSelector_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			if (!loaded) return;
-			if (ChunkSelector.SelectedIndex == -1 | ChunkSelector.SelectedIndex >= LevelData.Chunks.Count) return;
+			if (ChunkSelector.SelectedIndex == -1 || ChunkSelector.SelectedIndex >= LevelData.Chunks.Count) return;
 			importChunksToolStripButton.Enabled = LevelData.Chunks.Count < 256;
 			drawChunkToolStripButton.Enabled = importChunksToolStripButton.Enabled;
 			SelectedChunk = (byte)ChunkSelector.SelectedIndex;
