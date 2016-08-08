@@ -85,6 +85,10 @@ namespace SonicRetro.SonLVL
 						result.CurrentTab = Tab.Art;
 						result.CurrentArtTab = ArtTab.Tiles;
 						break;
+					case Tab.Solids:
+						result.CurrentTab = Tab.Art;
+						result.CurrentArtTab = ArtTab.Solids;
+						break;
 				}
 				return result;
 			}
@@ -132,17 +136,19 @@ namespace SonicRetro.SonLVL
 		Foreground,
 		Background,
 		Art,
-		Solids,
-		Chunks, // compatibility only
+		// compatibility only
+		Chunks,
 		Blocks,
-		Tiles
+		Tiles,
+		Solids
 	}
 
 	public enum ArtTab
 	{
 		Chunks,
 		Blocks,
-		Tiles
+		Tiles,
+		Solids
 	}
 
 	public enum WindowMode

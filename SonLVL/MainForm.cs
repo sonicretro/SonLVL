@@ -2089,11 +2089,6 @@ namespace SonicRetro.SonLVL.GUI
 					if (e.Control)
 						CurrentTab = Tab.Art;
 					break;
-				case Keys.D5:
-				case Keys.NumPad5:
-					if (e.Control)
-						CurrentTab = Tab.Solids;
-					break;
 			}
 		}
 
