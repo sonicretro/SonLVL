@@ -58,6 +58,8 @@ namespace SonicRetro.SonLVL.GUI
 			System.Windows.Forms.ToolStripSeparator toolStripSeparator15;
 			System.Windows.Forms.Label label1;
 			System.Windows.Forms.Panel panel11;
+			System.Windows.Forms.TableLayoutPanel tableLayoutPanel5;
+			System.Windows.Forms.Panel panel1;
 			this.importChunksToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.drawChunkToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.deleteUnusedChunksToolStripButton = new System.Windows.Forms.ToolStripButton();
@@ -91,10 +93,16 @@ namespace SonicRetro.SonLVL.GUI
 			this.TileID = new System.Windows.Forms.TextBox();
 			this.rotateTileRightButton = new System.Windows.Forms.Button();
 			this.TileCount = new System.Windows.Forms.Label();
+			this.ChunkPicture = new SonicRetro.SonLVL.API.KeyboardPanel();
+			this.flipChunkVButton = new System.Windows.Forms.Button();
+			this.chunkBlockEditor = new SonicRetro.SonLVL.ChunkBlockEditor();
+			this.flipChunkHButton = new System.Windows.Forms.Button();
+			this.ChunkCount = new System.Windows.Forms.Label();
+			this.chunkCtrlLabel = new System.Windows.Forms.Label();
+			this.ChunkID = new System.Windows.Forms.TextBox();
 			this.TileSelector = new SonicRetro.SonLVL.API.TileList();
 			this.BlockSelector = new SonicRetro.SonLVL.API.TileList();
 			this.panel10 = new System.Windows.Forms.Panel();
-			this.chunkCtrlLabel = new System.Windows.Forms.Label();
 			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.changeLevelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -249,12 +257,6 @@ namespace SonicRetro.SonLVL.GUI
 			this.tabPage4 = new System.Windows.Forms.TabPage();
 			this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
 			this.panel4 = new System.Windows.Forms.Panel();
-			this.flipChunkVButton = new System.Windows.Forms.Button();
-			this.chunkBlockEditor = new SonicRetro.SonLVL.ChunkBlockEditor();
-			this.flipChunkHButton = new System.Windows.Forms.Button();
-			this.ChunkCount = new System.Windows.Forms.Label();
-			this.ChunkID = new System.Windows.Forms.TextBox();
-			this.ChunkPicture = new SonicRetro.SonLVL.API.KeyboardPanel();
 			this.tabControl4 = new System.Windows.Forms.TabControl();
 			this.tabPage12 = new System.Windows.Forms.TabPage();
 			this.tabPage13 = new System.Windows.Forms.TabPage();
@@ -351,6 +353,8 @@ namespace SonicRetro.SonLVL.GUI
 			toolStripSeparator15 = new System.Windows.Forms.ToolStripSeparator();
 			label1 = new System.Windows.Forms.Label();
 			panel11 = new System.Windows.Forms.Panel();
+			tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
+			panel1 = new System.Windows.Forms.Panel();
 			chunkListToolStrip.SuspendLayout();
 			blockListToolStrip.SuspendLayout();
 			tileListToolStrip.SuspendLayout();
@@ -363,6 +367,8 @@ namespace SonicRetro.SonLVL.GUI
 			layoutSectionListToolStrip.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.layoutSectionPreview)).BeginInit();
 			panel11.SuspendLayout();
+			tableLayoutPanel5.SuspendLayout();
+			panel1.SuspendLayout();
 			this.menuStrip1.SuspendLayout();
 			this.objectContextMenuStrip.SuspendLayout();
 			this.tableLayoutPanel1.SuspendLayout();
@@ -990,6 +996,116 @@ namespace SonicRetro.SonLVL.GUI
 			this.TileCount.TabIndex = 4;
 			this.TileCount.Text = "0 / 800";
 			// 
+			// tableLayoutPanel5
+			// 
+			tableLayoutPanel5.AutoSize = true;
+			tableLayoutPanel5.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			tableLayoutPanel5.ColumnCount = 1;
+			tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+			tableLayoutPanel5.Controls.Add(this.ChunkPicture, 0, 0);
+			tableLayoutPanel5.Controls.Add(panel1, 0, 1);
+			tableLayoutPanel5.Location = new System.Drawing.Point(0, 0);
+			tableLayoutPanel5.Margin = new System.Windows.Forms.Padding(0);
+			tableLayoutPanel5.Name = "tableLayoutPanel5";
+			tableLayoutPanel5.RowCount = 2;
+			tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle());
+			tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle());
+			tableLayoutPanel5.Size = new System.Drawing.Size(262, 474);
+			tableLayoutPanel5.TabIndex = 9;
+			// 
+			// ChunkPicture
+			// 
+			this.ChunkPicture.Location = new System.Drawing.Point(3, 3);
+			this.ChunkPicture.Name = "ChunkPicture";
+			this.ChunkPicture.Size = new System.Drawing.Size(256, 256);
+			this.ChunkPicture.TabIndex = 1;
+			this.ChunkPicture.Paint += new System.Windows.Forms.PaintEventHandler(this.ChunkPicture_Paint);
+			this.ChunkPicture.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ChunkPicture_KeyDown);
+			this.ChunkPicture.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ChunkPicture_MouseDown);
+			this.ChunkPicture.MouseMove += new System.Windows.Forms.MouseEventHandler(this.ChunkPicture_MouseMove);
+			this.ChunkPicture.MouseUp += new System.Windows.Forms.MouseEventHandler(this.ChunkPicture_MouseUp);
+			// 
+			// panel1
+			// 
+			panel1.AutoSize = true;
+			panel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			panel1.Controls.Add(this.flipChunkVButton);
+			panel1.Controls.Add(this.chunkBlockEditor);
+			panel1.Controls.Add(this.flipChunkHButton);
+			panel1.Controls.Add(this.ChunkCount);
+			panel1.Controls.Add(this.chunkCtrlLabel);
+			panel1.Controls.Add(this.ChunkID);
+			panel1.Location = new System.Drawing.Point(0, 262);
+			panel1.Margin = new System.Windows.Forms.Padding(0);
+			panel1.Name = "panel1";
+			panel1.Size = new System.Drawing.Size(259, 212);
+			panel1.TabIndex = 2;
+			// 
+			// flipChunkVButton
+			// 
+			this.flipChunkVButton.AutoSize = true;
+			this.flipChunkVButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.flipChunkVButton.Enabled = false;
+			this.flipChunkVButton.Location = new System.Drawing.Point(99, 3);
+			this.flipChunkVButton.Name = "flipChunkVButton";
+			this.flipChunkVButton.Size = new System.Drawing.Size(78, 23);
+			this.flipChunkVButton.TabIndex = 6;
+			this.flipChunkVButton.Text = "Flip Vertically";
+			this.flipChunkVButton.UseVisualStyleBackColor = true;
+			this.flipChunkVButton.Click += new System.EventHandler(this.flipChunkVButton_Click);
+			// 
+			// chunkBlockEditor
+			// 
+			this.chunkBlockEditor.AutoSize = true;
+			this.chunkBlockEditor.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.chunkBlockEditor.Location = new System.Drawing.Point(3, 71);
+			this.chunkBlockEditor.Name = "chunkBlockEditor";
+			this.chunkBlockEditor.SelectedObjects = null;
+			this.chunkBlockEditor.Size = new System.Drawing.Size(139, 138);
+			this.chunkBlockEditor.TabIndex = 3;
+			this.chunkBlockEditor.PropertyValueChanged += new System.EventHandler(this.chunkBlockEditor_PropertyValueChanged);
+			// 
+			// flipChunkHButton
+			// 
+			this.flipChunkHButton.AutoSize = true;
+			this.flipChunkHButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.flipChunkHButton.Enabled = false;
+			this.flipChunkHButton.Location = new System.Drawing.Point(3, 3);
+			this.flipChunkHButton.Name = "flipChunkHButton";
+			this.flipChunkHButton.Size = new System.Drawing.Size(90, 23);
+			this.flipChunkHButton.TabIndex = 5;
+			this.flipChunkHButton.Text = "Flip Horizontally";
+			this.flipChunkHButton.UseVisualStyleBackColor = true;
+			this.flipChunkHButton.Click += new System.EventHandler(this.flipChunkHButton_Click);
+			// 
+			// ChunkCount
+			// 
+			this.ChunkCount.AutoSize = true;
+			this.ChunkCount.Location = new System.Drawing.Point(3, 55);
+			this.ChunkCount.Name = "ChunkCount";
+			this.ChunkCount.Size = new System.Drawing.Size(42, 13);
+			this.ChunkCount.TabIndex = 3;
+			this.ChunkCount.Text = "0 / 100";
+			// 
+			// chunkCtrlLabel
+			// 
+			this.chunkCtrlLabel.AutoSize = true;
+			this.chunkCtrlLabel.Location = new System.Drawing.Point(109, 29);
+			this.chunkCtrlLabel.Name = "chunkCtrlLabel";
+			this.chunkCtrlLabel.Size = new System.Drawing.Size(147, 26);
+			this.chunkCtrlLabel.TabIndex = 4;
+			this.chunkCtrlLabel.Text = "LMB: Paint w/ selected block\r\nRMB: Select block";
+			this.chunkCtrlLabel.TextAlign = System.Drawing.ContentAlignment.TopRight;
+			// 
+			// ChunkID
+			// 
+			this.ChunkID.Location = new System.Drawing.Point(3, 32);
+			this.ChunkID.Name = "ChunkID";
+			this.ChunkID.ReadOnly = true;
+			this.ChunkID.Size = new System.Drawing.Size(100, 20);
+			this.ChunkID.TabIndex = 2;
+			this.ChunkID.Text = "0";
+			// 
 			// TileSelector
 			// 
 			this.TileSelector.AllowDrop = true;
@@ -1048,16 +1164,6 @@ namespace SonicRetro.SonLVL.GUI
 			this.panel10.Name = "panel10";
 			this.panel10.Size = new System.Drawing.Size(0, 334);
 			this.panel10.TabIndex = 4;
-			// 
-			// chunkCtrlLabel
-			// 
-			this.chunkCtrlLabel.AutoSize = true;
-			this.chunkCtrlLabel.Location = new System.Drawing.Point(109, 291);
-			this.chunkCtrlLabel.Name = "chunkCtrlLabel";
-			this.chunkCtrlLabel.Size = new System.Drawing.Size(147, 26);
-			this.chunkCtrlLabel.TabIndex = 4;
-			this.chunkCtrlLabel.Text = "LMB: Paint w/ selected block\r\nRMB: Select block";
-			this.chunkCtrlLabel.TextAlign = System.Drawing.ContentAlignment.TopRight;
 			// 
 			// fileToolStripMenuItem
 			// 
@@ -2595,84 +2701,12 @@ namespace SonicRetro.SonLVL.GUI
 			// 
 			this.panel4.AutoScroll = true;
 			this.panel4.AutoSize = true;
-			this.panel4.Controls.Add(this.flipChunkVButton);
-			this.panel4.Controls.Add(this.chunkBlockEditor);
-			this.panel4.Controls.Add(this.flipChunkHButton);
-			this.panel4.Controls.Add(this.chunkCtrlLabel);
-			this.panel4.Controls.Add(this.ChunkCount);
-			this.panel4.Controls.Add(this.ChunkID);
-			this.panel4.Controls.Add(this.ChunkPicture);
+			this.panel4.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.panel4.Controls.Add(tableLayoutPanel5);
 			this.panel4.Location = new System.Drawing.Point(3, 3);
 			this.panel4.Name = "panel4";
 			this.panel4.Size = new System.Drawing.Size(262, 391);
 			this.panel4.TabIndex = 0;
-			// 
-			// flipChunkVButton
-			// 
-			this.flipChunkVButton.AutoSize = true;
-			this.flipChunkVButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-			this.flipChunkVButton.Enabled = false;
-			this.flipChunkVButton.Location = new System.Drawing.Point(99, 265);
-			this.flipChunkVButton.Name = "flipChunkVButton";
-			this.flipChunkVButton.Size = new System.Drawing.Size(78, 23);
-			this.flipChunkVButton.TabIndex = 6;
-			this.flipChunkVButton.Text = "Flip Vertically";
-			this.flipChunkVButton.UseVisualStyleBackColor = true;
-			this.flipChunkVButton.Click += new System.EventHandler(this.flipChunkVButton_Click);
-			// 
-			// chunkBlockEditor
-			// 
-			this.chunkBlockEditor.AutoSize = true;
-			this.chunkBlockEditor.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-			this.chunkBlockEditor.Location = new System.Drawing.Point(3, 333);
-			this.chunkBlockEditor.Name = "chunkBlockEditor";
-			this.chunkBlockEditor.SelectedObjects = null;
-			this.chunkBlockEditor.Size = new System.Drawing.Size(139, 138);
-			this.chunkBlockEditor.TabIndex = 3;
-			this.chunkBlockEditor.PropertyValueChanged += new System.EventHandler(this.chunkBlockEditor_PropertyValueChanged);
-			// 
-			// flipChunkHButton
-			// 
-			this.flipChunkHButton.AutoSize = true;
-			this.flipChunkHButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-			this.flipChunkHButton.Enabled = false;
-			this.flipChunkHButton.Location = new System.Drawing.Point(3, 265);
-			this.flipChunkHButton.Name = "flipChunkHButton";
-			this.flipChunkHButton.Size = new System.Drawing.Size(90, 23);
-			this.flipChunkHButton.TabIndex = 5;
-			this.flipChunkHButton.Text = "Flip Horizontally";
-			this.flipChunkHButton.UseVisualStyleBackColor = true;
-			this.flipChunkHButton.Click += new System.EventHandler(this.flipChunkHButton_Click);
-			// 
-			// ChunkCount
-			// 
-			this.ChunkCount.AutoSize = true;
-			this.ChunkCount.Location = new System.Drawing.Point(3, 317);
-			this.ChunkCount.Name = "ChunkCount";
-			this.ChunkCount.Size = new System.Drawing.Size(42, 13);
-			this.ChunkCount.TabIndex = 3;
-			this.ChunkCount.Text = "0 / 100";
-			// 
-			// ChunkID
-			// 
-			this.ChunkID.Location = new System.Drawing.Point(3, 294);
-			this.ChunkID.Name = "ChunkID";
-			this.ChunkID.ReadOnly = true;
-			this.ChunkID.Size = new System.Drawing.Size(100, 20);
-			this.ChunkID.TabIndex = 2;
-			this.ChunkID.Text = "0";
-			// 
-			// ChunkPicture
-			// 
-			this.ChunkPicture.Location = new System.Drawing.Point(3, 3);
-			this.ChunkPicture.Name = "ChunkPicture";
-			this.ChunkPicture.Size = new System.Drawing.Size(256, 256);
-			this.ChunkPicture.TabIndex = 1;
-			this.ChunkPicture.Paint += new System.Windows.Forms.PaintEventHandler(this.ChunkPicture_Paint);
-			this.ChunkPicture.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ChunkPicture_KeyDown);
-			this.ChunkPicture.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ChunkPicture_MouseDown);
-			this.ChunkPicture.MouseMove += new System.Windows.Forms.MouseEventHandler(this.ChunkPicture_MouseMove);
-			this.ChunkPicture.MouseUp += new System.Windows.Forms.MouseEventHandler(this.ChunkPicture_MouseUp);
 			// 
 			// tabControl4
 			// 
@@ -3407,6 +3441,10 @@ namespace SonicRetro.SonLVL.GUI
 			((System.ComponentModel.ISupportInitialize)(this.layoutSectionPreview)).EndInit();
 			panel11.ResumeLayout(false);
 			panel11.PerformLayout();
+			tableLayoutPanel5.ResumeLayout(false);
+			tableLayoutPanel5.PerformLayout();
+			panel1.ResumeLayout(false);
+			panel1.PerformLayout();
 			this.menuStrip1.ResumeLayout(false);
 			this.menuStrip1.PerformLayout();
 			this.objectContextMenuStrip.ResumeLayout(false);
