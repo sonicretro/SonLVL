@@ -5983,8 +5983,8 @@ namespace SonicRetro.SonLVL.GUI
 						cursize = LevelData.BGSize;
 					else
 						cursize = LevelData.FGSize;
-					dg.levelWidth.Value = cursize.Width;
 					dg.levelHeight.Value = cursize.Height;
+					dg.levelWidth.Value = cursize.Width;
 					if (dg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
 					{
 						if (CurrentTab == Tab.Background)
