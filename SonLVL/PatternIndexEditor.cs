@@ -75,26 +75,6 @@ namespace SonicRetro.SonLVL
 						tile.Minimum = -1;
 						tile.Value = -1;
 					}
-					tileList.Images.Clear();
-					if (LevelData.Level.TwoPlayerCompatible)
-					{
-						tileList.ImageHeight = 128;
-						for (int i = 0; i < LevelData.Tiles.Count - 1; i += 2)
-							tileList.Images.Add(LevelData.InterlacedTileToBmp4bpp(LevelData.TileArray, i, first.Palette));
-					}
-					else
-					{
-						tileList.ImageHeight = 64;
-						for (int i = 0; i < LevelData.Tiles.Count; i++)
-							tileList.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, first.Palette));
-					}
-					tileList.ChangeSize();
-					if (tile.Value >= LevelData.Tiles.Count)
-						tileList.SelectedIndex = -1;
-					else if (LevelData.Level.TwoPlayerCompatible)
-						tileList.SelectedIndex = (int)tile.Value / 2;
-					else
-						tileList.SelectedIndex = (int)tile.Value;
 				}
 				initializing = false;
 			}
@@ -142,17 +122,6 @@ namespace SonicRetro.SonLVL
 				foreach (PatternIndex item in selectedObjects)
 					item.Palette = (byte)palette.Value;
 				PropertyValueChanged(palette, EventArgs.Empty);
-				initializing = true;
-				int t = tileList.SelectedIndex;
-				tileList.Images.Clear();
-				if (LevelData.Level.TwoPlayerCompatible)
-					for (int i = 0; i < LevelData.Tiles.Count - 1; i += 2)
-						tileList.Images.Add(LevelData.InterlacedTileToBmp4bpp(LevelData.TileArray, i, (byte)palette.Value));
-				else
-					for (int i = 0; i < LevelData.Tiles.Count; i++)
-						tileList.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, (byte)palette.Value));
-				tileList.SelectedIndex = t;
-				initializing = false;
 			}
 		}
 
@@ -168,21 +137,7 @@ namespace SonicRetro.SonLVL
 					else
 						item.Tile = (ushort)tile.Value;
 				PropertyValueChanged(tile, EventArgs.Empty);
-				initializing = true;
-				if (tile.Value >= LevelData.Tiles.Count)
-					tileList.SelectedIndex = -1;
-				else if (LevelData.Level.TwoPlayerCompatible)
-					tileList.SelectedIndex = (int)tile.Value / 2;
-				else
-					tileList.SelectedIndex = (int)tile.Value;
-				initializing = false;
 			}
-		}
-
-		private void tileList_SelectedIndexChanged(object sender, EventArgs e)
-		{
-			if (!initializing && tileList.SelectedIndex > -1)
-				tile.Value = LevelData.Level.TwoPlayerCompatible ? tileList.SelectedIndex * 2 : tileList.SelectedIndex;
 		}
 	}
 }
