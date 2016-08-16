@@ -666,12 +666,10 @@ namespace SonicRetro.SonLVL.API
 
 		public void DrawRectangle(byte index, int x, int y, int width, int height)
 		{
-			int ex = x + width - 1;
-			int ey = y + height - 1;
-			DrawLine(index, x, y, ex, y);
-			DrawLine(index, x, y, x, ey);
-			DrawLine(index, ex, y, ex, ey);
-			DrawLine(index, x, ey, ex, ey);
+			DrawLine(index, x, y, x + width, y);
+			DrawLine(index, x, y, x, y + height);
+			DrawLine(index, x + width, y, x + width, y + height);
+			DrawLine(index, x, y + height, x + width, y + height);
 		}
 
 		public void DrawRectangle(byte index, Rectangle rect) { DrawRectangle(index, rect.X, rect.Y, rect.Width, rect.Height); }
