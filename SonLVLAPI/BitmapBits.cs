@@ -698,9 +698,9 @@ namespace SonicRetro.SonLVL.API
 			}
 		}
 
-		public void FillRectangle(byte index, Point loc, Size size) { DrawRectangle(index, loc.X, loc.Y, size.Width, size.Height); }
+		public void FillRectangle(byte index, Point loc, Size size) { FillRectangle(index, loc.X, loc.Y, size.Width, size.Height); }
 
-		public void FillRectangle(byte index, Rectangle rect) { DrawRectangle(index, rect.X, rect.Y, rect.Width, rect.Height); }
+		public void FillRectangle(byte index, Rectangle rect) { FillRectangle(index, rect.X, rect.Y, rect.Width, rect.Height); }
 
 		public override bool Equals(object obj)
 		{
