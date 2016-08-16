@@ -3656,7 +3656,7 @@ namespace SonicRetro.SonLVL.GUI
 				bmp.DrawBitmapComposited(LevelData.ChunkColBmpBits[SelectedChunk][0], 0, 0);
 			if (path2ToolStripMenuItem.Checked)
 				bmp.DrawBitmapComposited(LevelData.ChunkColBmpBits[SelectedChunk][1], 0, 0);
-			bmp.DrawRectangle(LevelData.ColorWhite, SelectedChunkBlock.X * 16 - 1, SelectedChunkBlock.Y * 16 - 1, SelectedChunkBlock.Width * 16 + 2, SelectedChunkBlock.Height * 16 + 2);
+			bmp.DrawRectangle(LevelData.ColorWhite, SelectedChunkBlock.X * 16 - 1, SelectedChunkBlock.Y * 16 - 1, SelectedChunkBlock.Width * 16 + 1, SelectedChunkBlock.Height * 16 + 1);
 			using (Graphics gfx = ChunkPicture.CreateGraphics())
 			{
 				gfx.SetOptions();
@@ -3822,7 +3822,7 @@ namespace SonicRetro.SonLVL.GUI
 				bmp.DrawBitmapComposited(tmp, 0, 0);
 			}
 			bmp = bmp.Scale(8);
-			bmp.DrawRectangle(LevelData.ColorWhite, SelectedBlockTile.X * 64 - 1, SelectedBlockTile.Y * 64 - 1, SelectedBlockTile.Width * 64 + 2, LevelData.Level.TwoPlayerCompatible ? 130 : SelectedBlockTile.Height * 64 + 2);
+			bmp.DrawRectangle(LevelData.ColorWhite, SelectedBlockTile.X * 64 - 1, SelectedBlockTile.Y * 64 - 1, SelectedBlockTile.Width * 64 + 1, LevelData.Level.TwoPlayerCompatible ? 130 : SelectedBlockTile.Height * 64 + 1);
 			using (Graphics gfx = BlockPicture.CreateGraphics())
 			{
 				gfx.SetOptions();
