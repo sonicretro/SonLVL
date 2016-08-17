@@ -28,6 +28,7 @@ namespace SonicRetro.SonLVL.API
 		public static List<Bitmap[]> ChunkBmps;
 		public static List<Bitmap> CompChunkBmps;
 		public static LayoutData Layout;
+		public static Dictionary<string, KeyValuePair<CompressionType, LayoutData>> AdditionalLayouts;
 		public static LayoutFormat LayoutFormat;
 		public static List<string> PalName;
 		public static List<SonLVLColor[,]> Palette;
@@ -272,6 +273,7 @@ namespace SonicRetro.SonLVL.API
 				Chunks.AddFile(new List<Chunk>() { new Chunk() }, -1);
 			Chunks.FillGaps();
 			Layout = new LayoutData();
+			AdditionalLayouts = new Dictionary<string,KeyValuePair<CompressionType,LayoutData>>();
 			switch (Level.LayoutFormat)
 			{
 				case EngineVersion.S1:
@@ -298,9 +300,47 @@ namespace SonicRetro.SonLVL.API
 					break;
 			}
 			if (LayoutFormat.IsCombinedLayout)
-				((LayoutFormatCombined)LayoutFormat).TryReadLayout(Level.Layout, Level.LayoutCompression, Layout);
+			{
+				LayoutFormatCombined lfc = (LayoutFormatCombined)LayoutFormat;
+				lfc.TryReadLayout(Level.Layout, Level.LayoutCompression, Layout);
+				foreach (string lvlname in Game.Levels.Keys)
+					if (lvlname != levelname)
+					{
+						LevelInfo lvlinf = Game.GetLevelInfo(lvlname);
+						if (Level.Layout != lvlinf.Layout && !AdditionalLayouts.ContainsKey(lvlinf.Layout)
+							&& Level.LayoutFormat == lvlinf.LayoutFormat && Level.Chunks.ArrayEqual(lvlinf.Chunks))
+						{
+							LayoutData ld = new LayoutData();
+							lfc.TryReadLayout(lvlinf.Layout, lvlinf.LayoutCompression, ld);
+							AdditionalLayouts.Add(lvlinf.Layout, new KeyValuePair<CompressionType, LayoutData>(lvlinf.LayoutCompression, ld));
+						}
+					}
+			}
 			else
-				((LayoutFormatSeparate)LayoutFormat).TryReadLayout(Level.FGLayout, Level.BGLayout, Level.FGLayoutCompression, Level.BGLayoutCompression, Layout);
+			{
+				LayoutFormatSeparate lfs = (LayoutFormatSeparate)LayoutFormat;
+				lfs.TryReadLayout(Level.FGLayout, Level.BGLayout, Level.FGLayoutCompression, Level.BGLayoutCompression, Layout);
+				foreach (string lvlname in Game.Levels.Keys)
+					if (lvlname != levelname)
+					{
+						LevelInfo lvlinf = Game.GetLevelInfo(lvlname);
+						if (Level.LayoutFormat == lvlinf.LayoutFormat && Level.Chunks.ArrayEqual(lvlinf.Chunks))
+						{
+							if (Level.FGLayout != lvlinf.FGLayout && !AdditionalLayouts.ContainsKey(lvlinf.FGLayout))
+							{
+								LayoutData ld = new LayoutData();
+								lfs.TryReadFG(lvlinf.FGLayout, Level.FGLayoutCompression, Layout);
+								AdditionalLayouts.Add(lvlinf.FGLayout, new KeyValuePair<CompressionType, LayoutData>(lvlinf.FGLayoutCompression, ld));
+							}
+							if (Level.BGLayout != lvlinf.BGLayout && !AdditionalLayouts.ContainsKey(lvlinf.BGLayout))
+							{
+								LayoutData ld = new LayoutData();
+								lfs.TryReadBG(lvlinf.BGLayout, Level.BGLayoutCompression, Layout);
+								AdditionalLayouts.Add(lvlinf.BGLayout, new KeyValuePair<CompressionType, LayoutData>(lvlinf.BGLayoutCompression, ld));
+							}
+						}
+					}
+			}
 			PalName = new List<string>();
 			Palette = new List<SonLVLColor[,]>();
 			PalNum = new List<byte[,]>();
@@ -776,9 +816,22 @@ namespace SonicRetro.SonLVL.API
 				Compression.Compress(tmp.ToArray(), tileent.Filename, Level.ChunkCompression);
 			}
 			if (LayoutFormat.IsCombinedLayout)
-				((LayoutFormatCombined)LayoutFormat).WriteLayout(Layout, Level.LayoutCompression, Level.Layout);
+			{
+				LayoutFormatCombined lfc = (LayoutFormatCombined)LayoutFormat;
+				lfc.WriteLayout(Layout, Level.LayoutCompression, Level.Layout);
+				foreach (var item in AdditionalLayouts)
+					lfc.WriteLayout(item.Value.Value, item.Value.Key, item.Key);
+			}
 			else
-				((LayoutFormatSeparate)LayoutFormat).WriteLayout(Layout, Level.FGLayoutCompression, Level.BGLayoutCompression, Level.FGLayout, Level.BGLayout);
+			{
+				LayoutFormatSeparate lfs = (LayoutFormatSeparate)LayoutFormat;
+				lfs.WriteLayout(Layout, Level.FGLayoutCompression, Level.BGLayoutCompression, Level.FGLayout, Level.BGLayout);
+				foreach (var item in AdditionalLayouts)
+					if (item.Value.Value.FGLayout != null)
+						lfs.WriteFG(item.Value.Value, item.Value.Key, item.Key);
+					else
+						lfs.WriteBG(item.Value.Value, item.Value.Key, item.Key);
+			}
 			if (Level.PaletteFormat != EngineVersion.SCDPC)
 			{
 				byte[] paltmp;
@@ -2636,6 +2689,27 @@ namespace SonicRetro.SonLVL.API
 							tilehv[((15 - ty) * 4) + (3 - tx)] = (byte)((px >> 4) | (px << 4));
 						}
 					return tilehv;
+			}
+		}
+
+		public static void RemapLayouts(Action<byte[,], int, int> func)
+		{
+			for (int y = 0; y < FGHeight; y++)
+				for (int x = 0; x < FGWidth; x++)
+					func(Layout.FGLayout, x, y);
+			for (int y = 0; y < BGHeight; y++)
+				for (int x = 0; x < BGWidth; x++)
+					func(Layout.BGLayout, x, y);
+			foreach (var item in AdditionalLayouts.Values)
+			{
+				if (item.Value.FGLayout != null)
+					for (int y = 0; y < item.Value.FGLayout.GetLength(1); y++)
+						for (int x = 0; x < item.Value.FGLayout.GetLength(0); x++)
+							func(item.Value.FGLayout, x, y);
+				if (item.Value.BGLayout != null)
+					for (int y = 0; y < item.Value.BGLayout.GetLength(1); y++)
+						for (int x = 0; x < item.Value.BGLayout.GetLength(0); x++)
+							func(item.Value.BGLayout, x, y);
 			}
 		}
 	}

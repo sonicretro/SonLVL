@@ -418,6 +418,16 @@ namespace SonicRetro.SonLVL.API
 			else
 				return Filename;
 		}
+
+		public override bool Equals(object obj)
+		{
+			return obj is FileInfo && Filename == ((FileInfo)obj).Filename && Offset == ((FileInfo)obj).Offset;
+		}
+
+		public override int GetHashCode()
+		{
+			return Filename.GetHashCode() ^ Offset.GetHashCode();
+		}
 	}
 
 	[TypeConverter(typeof(StringConverter<NamedPaletteList>))]
