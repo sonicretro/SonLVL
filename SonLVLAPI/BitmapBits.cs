@@ -596,8 +596,11 @@ namespace SonicRetro.SonLVL.API
 					x1 = x2;
 					x2 = tmp;
 				}
-				int start = y1 * Width + Math.Max(x1, 0);
-				Bits.FastFill(index, start, (y1 * Width + Math.Min(x2, Width - 1)) - start);
+				if (x1 >= Width || x2 < 0)
+					return;
+				x1 = Math.Max(x1, 0);
+				x2 = Math.Min(x2, Width - 1);
+				Bits.FastFill(index, GetPixelIndex(x1, y1), x2 - x1 + 1);
 				return;
 			}
 			if (x1 == x2)
@@ -610,8 +613,12 @@ namespace SonicRetro.SonLVL.API
 					y1 = y2;
 					y2 = tmp;
 				}
-				int end = Math.Min(y2, Height - 1) * Width + x1;
-				for (int i = Math.Max(y1, 0) * Width + x1; i <= end; i += Width)
+				if (y1 >= Height || y2 < 0)
+					return;
+				y1 = Math.Max(y1, 0);
+				y2 = Math.Min(y2, Height - 1);
+				int end = GetPixelIndex(x1, y2);
+				for (int i = GetPixelIndex(x1, y1); i <= end; i += Width)
 					Bits[i] = index;
 				return;
 			}
@@ -640,24 +647,27 @@ namespace SonicRetro.SonLVL.API
 			double deltaerr = (double)deltay / (double)deltax;
 			int ystep;
 			int y = y1;
-			if (y1 < y2) ystep = 1; else ystep = -1;
+			if (y1 < y2)
+				ystep = 1;
+			else
+				ystep = -1;
 			for (int x = x1; x <= x2; x++)
 			{
 				if (steep)
 				{
-					if (x >= 0 & x < Height & y >= 0 & y < Width)
+					if (x >= 0 && x < Height && y >= 0 && y < Width)
 						this[y, x] = index;
 				}
 				else
 				{
-					if (y >= 0 & y < Height & x >= 0 & x < Width)
+					if (y >= 0 && y < Height && x >= 0 && x < Width)
 						this[x, y] = index;
 				}
-				error = error + deltaerr;
+				error += deltaerr;
 				if (error >= 0.5)
 				{
-					y = y + ystep;
-					error = error - 1.0;
+					y += ystep;
+					error -= 1.0;
 				}
 			}
 		}
