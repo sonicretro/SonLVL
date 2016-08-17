@@ -8554,6 +8554,10 @@ namespace SonicRetro.SonLVL.GUI
 			if (MessageBox.Show(this, "This action may break other levels that share part of the same chunk set, or levels that alter the level layout dynamically.\n\nAre you sure you want to delete all chunks not used in the layout?", "Delete Unused Chunks", MessageBoxButtons.OKCancel) != DialogResult.OK)
 				return;
 			bool[] chunksused = new bool[LevelData.Chunks.Count];
+			// kind of hacky but whatever
+			if (LevelData.Level.LoopChunks != null)
+				foreach (byte ch in LevelData.Level.LoopChunks)
+					chunksused[ch] = true;
 			LevelData.RemapLayouts((layout, x, y) =>
 			{
 				if (layout[x, y] < chunksused.Length)
