@@ -329,13 +329,13 @@ namespace SonicRetro.SonLVL.API
 							if (Level.FGLayout != lvlinf.FGLayout && !AdditionalLayouts.ContainsKey(lvlinf.FGLayout))
 							{
 								LayoutData ld = new LayoutData();
-								lfs.TryReadFG(lvlinf.FGLayout, Level.FGLayoutCompression, Layout);
+								lfs.TryReadFG(lvlinf.FGLayout, lvlinf.FGLayoutCompression, ld);
 								AdditionalLayouts.Add(lvlinf.FGLayout, new KeyValuePair<CompressionType, LayoutData>(lvlinf.FGLayoutCompression, ld));
 							}
 							if (Level.BGLayout != lvlinf.BGLayout && !AdditionalLayouts.ContainsKey(lvlinf.BGLayout))
 							{
 								LayoutData ld = new LayoutData();
-								lfs.TryReadBG(lvlinf.BGLayout, Level.BGLayoutCompression, Layout);
+								lfs.TryReadBG(lvlinf.BGLayout, lvlinf.BGLayoutCompression, ld);
 								AdditionalLayouts.Add(lvlinf.BGLayout, new KeyValuePair<CompressionType, LayoutData>(lvlinf.BGLayoutCompression, ld));
 							}
 						}
