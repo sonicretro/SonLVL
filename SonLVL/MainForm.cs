@@ -6618,6 +6618,42 @@ namespace SonicRetro.SonLVL.GUI
 				return LevelData.unkobj.GetBounds(new S2ObjectEntry() { X = item.X, Y = item.Y }, Point.Empty);
 		}
 
+		private bool alignWall_common(int x, int y, Solidity solidity)
+		{
+			int cnkx = x / LevelData.Level.ChunkWidth;
+			int cnky = y / LevelData.Level.ChunkHeight;
+			int blkx = (x % LevelData.Level.ChunkWidth) / 16;
+			int blky = (y % LevelData.Level.ChunkHeight) / 16;
+			int colx = x % 16;
+			int coly = y % 16;
+			
+			ChunkBlock blk = LevelData.Chunks[LevelData.Layout.FGLayout[cnkx, cnky]].Blocks[blkx, blky];
+			Solidity solid;
+			int colind;
+			if (path2ToolStripMenuItem.Checked)
+			{
+				solid = ((S2ChunkBlock)blk).Solid2;
+				colind = LevelData.GetColInd2(blk.Block);
+			}
+			else
+			{
+				solid = blk.Solid1;
+				colind = LevelData.GetColInd1(blk.Block);
+			}
+			if ((solid & solidity) == solidity)
+			{
+				sbyte height = LevelData.ColArr1[colind][colx];
+				if (height < 0)
+				{
+					if (coly < -height)
+						return true;
+				}
+				else if (15 - coly < height)
+					return true;
+			}
+			return false;
+		}
+
 		private void alignLeftWallToolStripButton_Click(object sender, EventArgs e)
 		{
 			foreach (Entry item in SelectedItems)
@@ -6625,51 +6661,10 @@ namespace SonicRetro.SonLVL.GUI
 				Rectangle bounds = GetBounds(item);
 				int x = bounds.Left - 1;
 				int y = bounds.Top + (bounds.Height / 2);
-				int cnkx = x / LevelData.Level.ChunkWidth;
-				int cnky = y / LevelData.Level.ChunkHeight;
-				int blkx = (x % LevelData.Level.ChunkWidth) / 16;
-				int blky = (y % LevelData.Level.ChunkHeight) / 16;
-				int colx = x % 16;
-				int coly = y % 16;
 				while (x > 0)
 				{
-					ChunkBlock blk = LevelData.Chunks[LevelData.Layout.FGLayout[cnkx, cnky]].Blocks[blkx, blky];
-					Solidity solid;
-					int colind;
-					if (path2ToolStripMenuItem.Checked)
-					{
-						solid = ((S2ChunkBlock)blk).Solid2;
-						colind = LevelData.GetColInd2(blk.Block);
-					}
-					else
-					{
-						solid = blk.Solid1;
-						colind = LevelData.GetColInd1(blk.Block);
-					}
-					if ((solid & Solidity.LRBSolid) == Solidity.LRBSolid)
-					{
-						sbyte height = LevelData.ColArr1[colind][colx];
-						if (height < 0)
-						{
-							if (coly < -height)
-								break;
-						}
-						else if (15 - coly < height)
-							break;
-					}
-					if (colx == 0)
-					{
-						colx = 15;
-						if (blkx == 0)
-						{
-							blkx = LevelData.Level.ChunkWidth / 16 - 1;
-							cnkx--;
-						}
-						else
-							blkx--;
-					}
-					else
-						colx--;
+					if (alignWall_common(x, y, Solidity.LRBSolid))
+						break;
 					x--;
 				}
 				item.X = (ushort)(x + 1 + (item.X - bounds.Left));
@@ -6685,51 +6680,10 @@ namespace SonicRetro.SonLVL.GUI
 				Rectangle bounds = GetBounds(item);
 				int x = bounds.Left + (bounds.Width / 2);
 				int y = bounds.Bottom + 1;
-				int cnkx = x / LevelData.Level.ChunkWidth;
-				int cnky = y / LevelData.Level.ChunkHeight;
-				int blkx = (x % LevelData.Level.ChunkWidth) / 16;
-				int blky = (y % LevelData.Level.ChunkHeight) / 16;
-				int colx = x % 16;
-				int coly = y % 16;
 				while (y < LevelData.FGHeight * LevelData.Level.ChunkHeight - 1)
 				{
-					ChunkBlock blk = LevelData.Chunks[LevelData.Layout.FGLayout[cnkx, cnky]].Blocks[blkx, blky];
-					Solidity solid;
-					int colind;
-					if (path2ToolStripMenuItem.Checked)
-					{
-						solid = ((S2ChunkBlock)blk).Solid2;
-						colind = LevelData.GetColInd2(blk.Block);
-					}
-					else
-					{
-						solid = blk.Solid1;
-						colind = LevelData.GetColInd1(blk.Block);
-					}
-					if ((solid & Solidity.TopSolid) == Solidity.TopSolid)
-					{
-						sbyte height = LevelData.ColArr1[colind][colx];
-						if (height < 0)
-						{
-							if (coly < -height)
-								break;
-						}
-						else if (15 - coly < height)
-							break;
-					}
-					if (coly == 15)
-					{
-						coly = 0;
-						if (blky == LevelData.Level.ChunkHeight / 16 - 1)
-						{
-							blky = 0;
-							cnky++;
-						}
-						else
-							blky++;
-					}
-					else
-						coly++;
+					if (alignWall_common(x, y, Solidity.TopSolid))
+						break;
 					y++;
 				}
 				item.Y = (ushort)(y + (item.Y - bounds.Bottom));
@@ -6745,51 +6699,10 @@ namespace SonicRetro.SonLVL.GUI
 				Rectangle bounds = GetBounds(item);
 				int x = bounds.Right + 1;
 				int y = bounds.Top + (bounds.Height / 2);
-				int cnkx = x / LevelData.Level.ChunkWidth;
-				int cnky = y / LevelData.Level.ChunkHeight;
-				int blkx = (x % LevelData.Level.ChunkWidth) / 16;
-				int blky = (y % LevelData.Level.ChunkHeight) / 16;
-				int colx = x % 16;
-				int coly = y % 16;
 				while (x < LevelData.FGWidth * LevelData.Level.ChunkWidth - 1)
 				{
-					ChunkBlock blk = LevelData.Chunks[LevelData.Layout.FGLayout[cnkx, cnky]].Blocks[blkx, blky];
-					Solidity solid;
-					int colind;
-					if (path2ToolStripMenuItem.Checked)
-					{
-						solid = ((S2ChunkBlock)blk).Solid2;
-						colind = LevelData.GetColInd2(blk.Block);
-					}
-					else
-					{
-						solid = blk.Solid1;
-						colind = LevelData.GetColInd1(blk.Block);
-					}
-					if ((solid & Solidity.LRBSolid) == Solidity.LRBSolid)
-					{
-						sbyte height = LevelData.ColArr1[colind][colx];
-						if (height < 0)
-						{
-							if (coly < -height)
-								break;
-						}
-						else if (15 - coly < height)
-							break;
-					}
-					if (colx == 15)
-					{
-						colx = 0;
-						if (blkx == LevelData.Level.ChunkWidth / 16 - 1)
-						{
-							blkx = 0;
-							cnkx++;
-						}
-						else
-							blkx++;
-					}
-					else
-						colx++;
+					if (alignWall_common(x, y, Solidity.LRBSolid))
+						break;
 					x++;
 				}
 				item.X = (ushort)(x + (item.X - bounds.Right));
@@ -6805,51 +6718,10 @@ namespace SonicRetro.SonLVL.GUI
 				Rectangle bounds = GetBounds(item);
 				int x = bounds.Left + (bounds.Width / 2);
 				int y = bounds.Top - 1;
-				int cnkx = x / LevelData.Level.ChunkWidth;
-				int cnky = y / LevelData.Level.ChunkHeight;
-				int blkx = (x % LevelData.Level.ChunkWidth) / 16;
-				int blky = (y % LevelData.Level.ChunkHeight) / 16;
-				int colx = x % 16;
-				int coly = y % 16;
 				while (y > 0)
 				{
-					ChunkBlock blk = LevelData.Chunks[LevelData.Layout.FGLayout[cnkx, cnky]].Blocks[blkx, blky];
-					Solidity solid;
-					int colind;
-					if (path2ToolStripMenuItem.Checked)
-					{
-						solid = ((S2ChunkBlock)blk).Solid2;
-						colind = LevelData.GetColInd2(blk.Block);
-					}
-					else
-					{
-						solid = blk.Solid1;
-						colind = LevelData.GetColInd1(blk.Block);
-					}
-					if ((solid & Solidity.LRBSolid) == Solidity.LRBSolid)
-					{
-						sbyte height = LevelData.ColArr1[colind][colx];
-						if (height < 0)
-						{
-							if (coly < -height)
-								break;
-						}
-						else if (15 - coly < height)
-							break;
-					}
-					if (coly == 0)
-					{
-						coly = 15;
-						if (blky == 0)
-						{
-							blky = LevelData.Level.ChunkHeight / 16 - 1;
-							cnky--;
-						}
-						else
-							blky--;
-					}
-					else
-						coly--;
+					if (alignWall_common(x, y, Solidity.LRBSolid))
+						break;
 					y--;
 				}
 				item.Y = (ushort)(y + 1 + (item.Y - bounds.Top));
