@@ -803,14 +803,15 @@ namespace SonicRetro.SonLVL.API
 				foreach (XMLDef.BitsProperty property in xmldef.Properties.Items.OfType<XMLDef.BitsProperty>())
 				{
 					int mask = 0;
+					int prop_startbit = property.startbit;
 					for (int i = 0; i < property.length; i++)
 						mask |= 1 << (property.startbit + i);
 					Func<ObjectEntry, object> getMethod;
 					Action<ObjectEntry, object> setMethod;
 					if (enums.ContainsKey(property.type))
 					{
-						getMethod = (obj) => (obj.SubType & mask) >> property.startbit;
-						setMethod = (obj, val) => obj.SubType = (byte)((obj.SubType & ~mask) | (((int)val << property.startbit) & mask));
+						getMethod = (obj) => (obj.SubType & mask) >> prop_startbit;
+						setMethod = (obj, val) => obj.SubType = (byte)((obj.SubType & ~mask) | (((int)val << prop_startbit) & mask));
 						custprops.Add(new PropertySpec(property.displayname ?? property.name, typeof(int), "Extended", property.description, null, typeof(EnumConverter), enums[property.type], getMethod, setMethod));
 						propinf.Add(property.name, new PropertyInfo(typeof(int), enums[property.type], getMethod, setMethod));
 					}
@@ -819,13 +820,13 @@ namespace SonicRetro.SonLVL.API
 						Type type = Type.GetType(LevelData.ExpandTypeName(property.type));
 						if (type != typeof(bool))
 						{
-							getMethod = (obj) => (obj.SubType & mask) >> property.startbit;
-							setMethod = (obj, val) => obj.SubType = (byte)((obj.SubType & ~mask) | (((int)val << property.startbit) & mask));
+							getMethod = (obj) => (obj.SubType & mask) >> prop_startbit;
+							setMethod = (obj, val) => obj.SubType = (byte)((obj.SubType & ~mask) | (((int)val << prop_startbit) & mask));
 						}
 						else
 						{
-							getMethod = (obj) => ((obj.SubType & mask) >> property.startbit) != 0;
-							setMethod = (obj, val) => obj.SubType = (byte)((obj.SubType & ~mask) | (((bool)val ? 1 : 0) << property.startbit));
+							getMethod = (obj) => ((obj.SubType & mask) >> prop_startbit) != 0;
+							setMethod = (obj, val) => obj.SubType = (byte)((obj.SubType & ~mask) | (((bool)val ? 1 : 0) << prop_startbit));
 						}
 						custprops.Add(new PropertySpec(property.displayname ?? property.name, type, "Extended", property.description, null, getMethod, setMethod));
 						propinf.Add(property.name, new PropertyInfo(type, getMethod, setMethod));
