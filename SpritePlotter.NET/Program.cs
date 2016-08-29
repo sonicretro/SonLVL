@@ -220,7 +220,7 @@ namespace SpritePlotter
 			for (int y = 0; y < combinedplanes.Height; y++)
 				for (int x = 0; x < combinedplanes.Width; x++)
 				{
-					if (combinedplanes[x,y] % 16 != 0)
+					if (combinedplanes[x, y] % 16 != 0)
 					{
 						Rectangle newrect = new Rectangle(x - padding, y - padding, (padding * 2) + 1, (padding * 2) + 1);
 						for (int i = 0; i < sprites.Count; i++)
@@ -236,7 +236,9 @@ namespace SpritePlotter
 			List<Rectangle> rows = new List<Rectangle>();
 			for (int i = 0; i < sprites.Count; i++)
 			{
-				sprites[i].Inflate(-padding, -padding);
+				Rectangle rect = sprites[i];
+				rect.Inflate(-padding, -padding);
+				sprites[i] = rect;
 				if (rows.Count > 0 && sprites[i].IntersectsWith(rows[rows.Count - 1]))
 					rows[rows.Count - 1] = Rectangle.Union(sprites[i], rows[rows.Count - 1]);
 				else
@@ -308,18 +310,7 @@ namespace SpritePlotter
 
 		private static void SpriteToMap(Rectangle sprite, Point center, BitmapBits plane, List<byte[]> tiles, MappingsFrame mapframe, DPLCFrame dplcframe, byte startpal, bool pri, bool twoplayer)
 		{
-			int l = int.MaxValue, t = int.MaxValue, r = int.MinValue, b = int.MinValue;
-			for (int y = sprite.Top; y < sprite.Bottom; y++)
-				for (int x = sprite.Left; x < sprite.Right; x++)
-					if (plane[x, y] % 16 != 0)
-					{
-						l = Math.Min(l, x);
-						t = Math.Min(t, y);
-						r = Math.Max(r, x);
-						b = Math.Max(b, y);
-					}
-			center -= new Size(l - sprite.Left, t - sprite.Top);
-			BitmapBits bmp = plane.GetSection(Rectangle.FromLTRB(l, t, r + 1, b + 1));
+			BitmapBits bmp = plane.GetSection(sprite);
 			if (bmp.Width % 8 != 0 || bmp.Height % 8 != 0)
 			{
 				int w = bmp.Width;
