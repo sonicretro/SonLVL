@@ -87,7 +87,6 @@ namespace SonicRetro.SonLVL.GUI
 		internal byte SelectedChunk;
 		internal List<Entry> SelectedItems;
 		ObjectList ObjectSelect;
-		EditingMode FGMode, BGMode;
 		Rectangle FGSelection, BGSelection;
 		internal ColorPalette LevelImgPalette;
 		double ZoomLevel = 1;
@@ -261,18 +260,6 @@ namespace SonicRetro.SonLVL.GUI
 			exportArtcollisionpriorityToolStripMenuItem.Checked = Settings.ExportArtCollisionPriority;
 			CurrentTab = Settings.CurrentTab;
 			CurrentArtTab = Settings.CurrentArtTab;
-			FGMode = Settings.ForegroundMode;
-			if (FGMode == EditingMode.Select)
-			{
-				fgDrawToolStripButton.Checked = false;
-				fgSelectToolStripButton.Checked = true;
-			}
-			BGMode = Settings.BackgroundMode;
-			if (BGMode == EditingMode.Select)
-			{
-				bgDrawToolStripButton.Checked = false;
-				bgSelectToolStripButton.Checked = true;
-			}
 			switchMouseButtonsInChunkAndBlockEditorsToolStripMenuItem.Checked = Settings.SwitchChunkBlockMouseButtons;
 			switch (Settings.WindowMode)
 			{
@@ -1852,24 +1839,17 @@ namespace SonicRetro.SonLVL.GUI
 							for (int x = Math.Max(camera.X / LevelData.Level.ChunkWidth, 0); x <= Math.Min(((camera.X + (foregroundPanel.Width - 1) / ZoomLevel)) / LevelData.Level.ChunkWidth, LevelData.FGWidth - 1); x++)
 								if (LevelData.Layout.FGLoop[x, y])
 									LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Yellow)) { Width = (int)(3 * ZoomLevel) }, x * LevelData.Level.ChunkWidth - camera.X, y * LevelData.Level.ChunkHeight - camera.Y, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
-					switch (FGMode)
+					if (!selecting && SelectedChunk < LevelData.Chunks.Count)
+						LevelGfx.DrawImage(LevelData.CompChunkBmps[SelectedChunk],
+						new Rectangle(((((int)(pnlcur.X / ZoomLevel) + camera.X) / LevelData.Level.ChunkWidth) * LevelData.Level.ChunkWidth) - camera.X, ((((int)(pnlcur.Y / ZoomLevel) + camera.Y) / LevelData.Level.ChunkHeight) * LevelData.Level.ChunkHeight) - camera.Y, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight),
+						0, 0, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight,
+						GraphicsUnit.Pixel, imageTransparency);
+					if (!FGSelection.IsEmpty)
 					{
-						case EditingMode.Draw:
-							if (SelectedChunk < LevelData.Chunks.Count)
-								LevelGfx.DrawImage(LevelData.CompChunkBmps[SelectedChunk],
-								new Rectangle(((((int)(pnlcur.X / ZoomLevel) + camera.X) / LevelData.Level.ChunkWidth) * LevelData.Level.ChunkWidth) - camera.X, ((((int)(pnlcur.Y / ZoomLevel) + camera.Y) / LevelData.Level.ChunkHeight) * LevelData.Level.ChunkHeight) - camera.Y, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight),
-								0, 0, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight,
-								GraphicsUnit.Pixel, imageTransparency);
-							break;
-						case EditingMode.Select:
-							if (!FGSelection.IsEmpty)
-							{
-								Rectangle selbnds = FGSelection.Scale(LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
-								selbnds.Offset(-camera.X, -camera.Y);
-								LevelGfx.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.White)), selbnds);
-								LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, selbnds);
-							}
-							break;
+						Rectangle selbnds = FGSelection.Scale(LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
+						selbnds.Offset(-camera.X, -camera.Y);
+						LevelGfx.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.White)), selbnds);
+						LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, selbnds);
 					}
 					Panel2Gfx.DrawImage(LevelBmp, 0, 0, foregroundPanel.Width, foregroundPanel.Height);
 					break;
@@ -1929,24 +1909,17 @@ namespace SonicRetro.SonLVL.GUI
 							for (int x = Math.Max(camera.X / LevelData.Level.ChunkWidth, 0); x <= Math.Min(((camera.X + (backgroundPanel.Width - 1) / ZoomLevel)) / LevelData.Level.ChunkWidth, LevelData.BGWidth - 1); x++)
 								if (LevelData.Layout.BGLoop[x, y])
 									LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Yellow)) { Width = (int)(3 * ZoomLevel) }, x * LevelData.Level.ChunkWidth - camera.X, y * LevelData.Level.ChunkHeight - camera.Y, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
-					switch (BGMode)
+					if (!selecting && SelectedChunk < LevelData.Chunks.Count)
+						LevelGfx.DrawImage(LevelData.CompChunkBmps[SelectedChunk],
+						new Rectangle(((((int)(pnlcur.X / ZoomLevel) + camera.X) / LevelData.Level.ChunkWidth) * LevelData.Level.ChunkWidth) - camera.X, ((((int)(pnlcur.Y / ZoomLevel) + camera.Y) / LevelData.Level.ChunkHeight) * LevelData.Level.ChunkHeight) - camera.Y, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight),
+						0, 0, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight,
+						GraphicsUnit.Pixel, imageTransparency);
+					if (!BGSelection.IsEmpty)
 					{
-						case EditingMode.Draw:
-							if (SelectedChunk < LevelData.Chunks.Count)
-								LevelGfx.DrawImage(LevelData.CompChunkBmps[SelectedChunk],
-								new Rectangle(((((int)(pnlcur.X / ZoomLevel) + camera.X) / LevelData.Level.ChunkWidth) * LevelData.Level.ChunkWidth) - camera.X, ((((int)(pnlcur.Y / ZoomLevel) + camera.Y) / LevelData.Level.ChunkHeight) * LevelData.Level.ChunkHeight) - camera.Y, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight),
-								0, 0, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight,
-								GraphicsUnit.Pixel, imageTransparency);
-							break;
-						case EditingMode.Select:
-							if (!BGSelection.IsEmpty)
-							{
-								Rectangle selbnds = BGSelection.Scale(LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
-								selbnds.Offset(-camera.X, -camera.Y);
-								LevelGfx.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.White)), selbnds);
-								LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, selbnds);
-							}
-							break;
+						Rectangle selbnds = BGSelection.Scale(LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
+						selbnds.Offset(-camera.X, -camera.Y);
+						LevelGfx.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.White)), selbnds);
+						LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, selbnds);
 					}
 					Panel3Gfx.DrawImage(LevelBmp, 0, 0, backgroundPanel.Width, backgroundPanel.Height);
 					break;
@@ -2869,57 +2842,34 @@ namespace SonicRetro.SonLVL.GUI
 			if (!loaded) return;
 			Point chunkpoint = new Point(((int)(e.X / ZoomLevel) + hScrollBar2.Value) / LevelData.Level.ChunkWidth, ((int)(e.Y / ZoomLevel) + vScrollBar2.Value) / LevelData.Level.ChunkHeight);
 			if (chunkpoint.X >= LevelData.FGWidth | chunkpoint.Y >= LevelData.FGHeight) return;
-			switch (FGMode)
+			switch (e.Button)
 			{
-				case EditingMode.Draw:
-					switch (e.Button)
+				case MouseButtons.Left:
+					FGSelection = Rectangle.Empty;
+					if (LevelData.LayoutFormat.HasLoopFlag && e.Clicks >= 2)
+						LevelData.Layout.FGLoop[chunkpoint.X, chunkpoint.Y] = !LevelData.Layout.FGLoop[chunkpoint.X, chunkpoint.Y];
+					else
 					{
-						case MouseButtons.Left:
-							if (LevelData.LayoutFormat.HasLoopFlag && e.Clicks >= 2)
-								LevelData.Layout.FGLoop[chunkpoint.X, chunkpoint.Y] = !LevelData.Layout.FGLoop[chunkpoint.X, chunkpoint.Y];
-							else
-							{
-								locs = new List<Point>();
-								tiles = new List<byte>();
-								byte t = LevelData.Layout.FGLayout[chunkpoint.X, chunkpoint.Y];
-								if (t != SelectedChunk)
-								{
-									locs.Add(chunkpoint);
-									tiles.Add(t);
-									LevelData.Layout.FGLayout[chunkpoint.X, chunkpoint.Y] = SelectedChunk;
-									if (LevelData.LayoutFormat.HasLoopFlag)
-										LevelData.Layout.FGLoop[chunkpoint.X, chunkpoint.Y] = LevelData.Level.LoopChunks.Contains(SelectedChunk);
-									DrawLevel();
-								}
-							}
-							break;
-						case MouseButtons.Right:
-							SelectedChunk = LevelData.Layout.FGLayout[chunkpoint.X, chunkpoint.Y];
-							if (SelectedChunk < LevelData.Chunks.Count)
-								ChunkSelector.SelectedIndex = SelectedChunk;
-							DrawLevel();
-							break;
+						locs = new List<Point>();
+						tiles = new List<byte>();
+						byte t = LevelData.Layout.FGLayout[chunkpoint.X, chunkpoint.Y];
+						if (t != SelectedChunk)
+						{
+							locs.Add(chunkpoint);
+							tiles.Add(t);
+							LevelData.Layout.FGLayout[chunkpoint.X, chunkpoint.Y] = SelectedChunk;
+							if (LevelData.LayoutFormat.HasLoopFlag)
+								LevelData.Layout.FGLoop[chunkpoint.X, chunkpoint.Y] = LevelData.Level.LoopChunks.Contains(SelectedChunk);
+						}
 					}
+					DrawLevel();
 					break;
-				case EditingMode.Select:
-					switch (e.Button)
+				case MouseButtons.Right:
+					menuLoc = chunkpoint;
+					if (!FGSelection.Contains(chunkpoint))
 					{
-						case MouseButtons.Left:
-							selecting = true;
-							FGSelection = new Rectangle(chunkpoint, new Size(1, 1));
-							DrawLevel();
-							break;
-						case MouseButtons.Right:
-							menuLoc = chunkpoint;
-							if (!FGSelection.Contains(chunkpoint))
-							{
-								FGSelection = new Rectangle(chunkpoint, new Size(1, 1));
-								DrawLevel();
-							}
-							pasteOnceToolStripMenuItem.Enabled = pasteRepeatingToolStripMenuItem.Enabled = Clipboard.ContainsData(typeof(LayoutSection).AssemblyQualifiedName);
-							pasteSectionOnceToolStripMenuItem.Enabled = pasteSectionRepeatingToolStripMenuItem.Enabled = layoutSectionListBox.SelectedIndex != -1;
-							layoutContextMenuStrip.Show(foregroundPanel, e.Location);
-							break;
+						FGSelection = Rectangle.Empty;
+						DrawLevel();
 					}
 					break;
 			}
@@ -2934,11 +2884,9 @@ namespace SonicRetro.SonLVL.GUI
 			Point mouse = new Point((int)(e.X / ZoomLevel) + hScrollBar2.Value, (int)(e.Y / ZoomLevel) + vScrollBar2.Value);
 			Point chunkpoint = new Point(mouse.X / LevelData.Level.ChunkWidth, mouse.Y / LevelData.Level.ChunkHeight);
 			if (chunkpoint.X >= LevelData.FGWidth | chunkpoint.Y >= LevelData.FGHeight) return;
-			switch (FGMode)
+			switch (e.Button)
 			{
-				case EditingMode.Draw:
-					if (e.Button == MouseButtons.Left)
-					{
+				case MouseButtons.Left:
 						byte t = LevelData.Layout.FGLayout[chunkpoint.X, chunkpoint.Y];
 						if (t != SelectedChunk)
 						{
@@ -2947,28 +2895,50 @@ namespace SonicRetro.SonLVL.GUI
 							LevelData.Layout.FGLayout[chunkpoint.X, chunkpoint.Y] = SelectedChunk;
 							if (LevelData.LayoutFormat.HasLoopFlag)
 								LevelData.Layout.FGLoop[chunkpoint.X, chunkpoint.Y] = LevelData.Level.LoopChunks.Contains(SelectedChunk);
+							DrawLevel();
 						}
-					}
 					break;
-				case EditingMode.Select:
-					if (e.Button == MouseButtons.Left && selecting)
+				case MouseButtons.Right:
+					selecting = true;
+					if (FGSelection.IsEmpty)
+						FGSelection = new Rectangle(chunkpoint, new Size(1, 1));
+					else
 						FGSelection = Rectangle.FromLTRB(Math.Min(FGSelection.Left, chunkpoint.X), Math.Min(FGSelection.Top, chunkpoint.Y), Math.Max(FGSelection.Right, chunkpoint.X + 1), Math.Max(FGSelection.Bottom, chunkpoint.Y + 1));
+					DrawLevel();
+					break;
+				default:
+					if (chunkpoint != lastchunkpoint)
+						DrawLevel();
 					break;
 			}
-			if (chunkpoint != lastchunkpoint) DrawLevel();
 			lastchunkpoint = chunkpoint;
 			lastmouse = mouse;
 		}
 
 		private void foregroundPanel_MouseUp(object sender, MouseEventArgs e)
 		{
-			switch (FGMode)
+			switch (e.Button)
 			{
-				case EditingMode.Draw:
+				case MouseButtons.Left:
 					if (locs.Count > 0) AddUndo(new LayoutEditUndoAction(1, locs, tiles));
 					DrawLevel();
 					break;
-				case EditingMode.Select:
+				case MouseButtons.Right:
+					Point mouse = new Point((int)(e.X / ZoomLevel) + hScrollBar2.Value, (int)(e.Y / ZoomLevel) + vScrollBar2.Value);
+					Point chunkpoint = new Point(mouse.X / LevelData.Level.ChunkWidth, mouse.Y / LevelData.Level.ChunkHeight);
+					if (FGSelection.IsEmpty)
+					{
+						SelectedChunk = LevelData.Layout.FGLayout[chunkpoint.X, chunkpoint.Y];
+						if (SelectedChunk < LevelData.Chunks.Count)
+							ChunkSelector.SelectedIndex = SelectedChunk;
+						DrawLevel();
+					}
+					else if (!selecting)
+					{
+						pasteOnceToolStripMenuItem.Enabled = pasteRepeatingToolStripMenuItem.Enabled = Clipboard.ContainsData(typeof(LayoutSection).AssemblyQualifiedName);
+						pasteSectionOnceToolStripMenuItem.Enabled = pasteSectionRepeatingToolStripMenuItem.Enabled = layoutSectionListBox.SelectedIndex != -1;
+						layoutContextMenuStrip.Show(foregroundPanel, e.Location);
+					}
 					selecting = false;
 					break;
 			}
@@ -2979,57 +2949,34 @@ namespace SonicRetro.SonLVL.GUI
 			if (!loaded) return;
 			Point chunkpoint = new Point(((int)(e.X / ZoomLevel) + hScrollBar3.Value) / LevelData.Level.ChunkWidth, ((int)(e.Y / ZoomLevel) + vScrollBar3.Value) / LevelData.Level.ChunkHeight);
 			if (chunkpoint.X >= LevelData.BGWidth | chunkpoint.Y >= LevelData.BGHeight) return;
-			switch (BGMode)
+			switch (e.Button)
 			{
-				case EditingMode.Draw:
-					switch (e.Button)
+				case MouseButtons.Left:
+					BGSelection = Rectangle.Empty;
+					if (LevelData.LayoutFormat.HasLoopFlag && e.Clicks >= 2)
+						LevelData.Layout.BGLoop[chunkpoint.X, chunkpoint.Y] = !LevelData.Layout.BGLoop[chunkpoint.X, chunkpoint.Y];
+					else
 					{
-						case MouseButtons.Left:
-							if (LevelData.LayoutFormat.HasLoopFlag && e.Clicks >= 2)
-								LevelData.Layout.BGLoop[chunkpoint.X, chunkpoint.Y] = !LevelData.Layout.BGLoop[chunkpoint.X, chunkpoint.Y];
-							else
-							{
-								locs = new List<Point>();
-								tiles = new List<byte>();
-								byte tb = LevelData.Layout.BGLayout[chunkpoint.X, chunkpoint.Y];
-								if (tb != SelectedChunk)
-								{
-									locs.Add(chunkpoint);
-									tiles.Add(tb);
-									LevelData.Layout.BGLayout[chunkpoint.X, chunkpoint.Y] = SelectedChunk;
-									if (LevelData.LayoutFormat.HasLoopFlag)
-										LevelData.Layout.BGLoop[chunkpoint.X, chunkpoint.Y] = LevelData.Level.LoopChunks.Contains(SelectedChunk);
-									DrawLevel();
-								}
-							}
-							break;
-						case MouseButtons.Right:
-							SelectedChunk = LevelData.Layout.BGLayout[chunkpoint.X, chunkpoint.Y];
-							if (SelectedChunk < LevelData.Chunks.Count)
-								ChunkSelector.SelectedIndex = SelectedChunk;
-							DrawLevel();
-							break;
+						locs = new List<Point>();
+						tiles = new List<byte>();
+						byte t = LevelData.Layout.BGLayout[chunkpoint.X, chunkpoint.Y];
+						if (t != SelectedChunk)
+						{
+							locs.Add(chunkpoint);
+							tiles.Add(t);
+							LevelData.Layout.BGLayout[chunkpoint.X, chunkpoint.Y] = SelectedChunk;
+							if (LevelData.LayoutFormat.HasLoopFlag)
+								LevelData.Layout.BGLoop[chunkpoint.X, chunkpoint.Y] = LevelData.Level.LoopChunks.Contains(SelectedChunk);
+						}
 					}
+					DrawLevel();
 					break;
-				case EditingMode.Select:
-					switch (e.Button)
+				case MouseButtons.Right:
+					menuLoc = chunkpoint;
+					if (!BGSelection.Contains(chunkpoint))
 					{
-						case MouseButtons.Left:
-							selecting = true;
-							BGSelection = new Rectangle(chunkpoint, new Size(1, 1));
-							DrawLevel();
-							break;
-						case MouseButtons.Right:
-							menuLoc = chunkpoint;
-							if (!BGSelection.Contains(chunkpoint))
-							{
-								BGSelection = new Rectangle(chunkpoint, new Size(1, 1));
-								DrawLevel();
-							}
-							pasteOnceToolStripMenuItem.Enabled = pasteRepeatingToolStripMenuItem.Enabled = Clipboard.ContainsData(typeof(LayoutSection).AssemblyQualifiedName);
-							pasteSectionOnceToolStripMenuItem.Enabled = pasteSectionRepeatingToolStripMenuItem.Enabled = layoutSectionListBox.SelectedIndex != -1;
-							layoutContextMenuStrip.Show(backgroundPanel, e.Location);
-							break;
+						BGSelection = Rectangle.Empty;
+						DrawLevel();
 					}
 					break;
 			}
@@ -3044,41 +2991,61 @@ namespace SonicRetro.SonLVL.GUI
 			Point mouse = new Point((int)(e.X / ZoomLevel) + hScrollBar3.Value, (int)(e.Y / ZoomLevel) + vScrollBar3.Value);
 			Point chunkpoint = new Point(mouse.X / LevelData.Level.ChunkWidth, mouse.Y / LevelData.Level.ChunkHeight);
 			if (chunkpoint.X >= LevelData.BGWidth | chunkpoint.Y >= LevelData.BGHeight) return;
-			switch (BGMode)
+			switch (e.Button)
 			{
-				case EditingMode.Draw:
-					if (e.Button == MouseButtons.Left)
+				case MouseButtons.Left:
+					byte t = LevelData.Layout.BGLayout[chunkpoint.X, chunkpoint.Y];
+					if (t != SelectedChunk)
 					{
-						byte t = LevelData.Layout.BGLayout[chunkpoint.X, chunkpoint.Y];
-						if (t != SelectedChunk)
-						{
-							locs.Add(chunkpoint);
-							tiles.Add(t);
-							LevelData.Layout.BGLayout[chunkpoint.X, chunkpoint.Y] = SelectedChunk;
-							if (LevelData.LayoutFormat.HasLoopFlag)
-								LevelData.Layout.BGLoop[chunkpoint.X, chunkpoint.Y] = LevelData.Level.LoopChunks.Contains(SelectedChunk);
-						}
+						locs.Add(chunkpoint);
+						tiles.Add(t);
+						LevelData.Layout.BGLayout[chunkpoint.X, chunkpoint.Y] = SelectedChunk;
+						if (LevelData.LayoutFormat.HasLoopFlag)
+							LevelData.Layout.BGLoop[chunkpoint.X, chunkpoint.Y] = LevelData.Level.LoopChunks.Contains(SelectedChunk);
+						DrawLevel();
 					}
 					break;
-				case EditingMode.Select:
-					if (e.Button == MouseButtons.Left && selecting)
+				case MouseButtons.Right:
+					selecting = true;
+					if (BGSelection.IsEmpty)
+						BGSelection = new Rectangle(chunkpoint, new Size(1, 1));
+					else
 						BGSelection = Rectangle.FromLTRB(Math.Min(BGSelection.Left, chunkpoint.X), Math.Min(BGSelection.Top, chunkpoint.Y), Math.Max(BGSelection.Right, chunkpoint.X + 1), Math.Max(BGSelection.Bottom, chunkpoint.Y + 1));
+					DrawLevel();
+					break;
+				default:
+					if (chunkpoint != lastchunkpoint)
+						DrawLevel();
 					break;
 			}
-			if (chunkpoint != lastchunkpoint) DrawLevel();
 			lastchunkpoint = chunkpoint;
 			lastmouse = mouse;
 		}
 
 		private void backgroundPanel_MouseUp(object sender, MouseEventArgs e)
 		{
-			switch (BGMode)
+			switch (e.Button)
 			{
-				case EditingMode.Draw:
+				case MouseButtons.Left:
 					if (locs.Count > 0) AddUndo(new LayoutEditUndoAction(2, locs, tiles));
 					DrawLevel();
 					break;
-				case EditingMode.Select:
+				case MouseButtons.Right:
+					Point mouse = new Point((int)(e.X / ZoomLevel) + hScrollBar3.Value, (int)(e.Y / ZoomLevel) + vScrollBar3.Value);
+					Point chunkpoint = new Point(mouse.X / LevelData.Level.ChunkWidth, mouse.Y / LevelData.Level.ChunkHeight);
+					if (BGSelection.IsEmpty)
+					{
+						SelectedChunk = LevelData.Layout.BGLayout[chunkpoint.X, chunkpoint.Y];
+						if (SelectedChunk < LevelData.Chunks.Count)
+							ChunkSelector.SelectedIndex = SelectedChunk;
+						DrawLevel();
+					}
+					else if (!selecting)
+					{
+						pasteOnceToolStripMenuItem.Enabled = pasteRepeatingToolStripMenuItem.Enabled = Clipboard.ContainsData(typeof(LayoutSection).AssemblyQualifiedName);
+						pasteSectionOnceToolStripMenuItem.Enabled = pasteSectionRepeatingToolStripMenuItem.Enabled = layoutSectionListBox.SelectedIndex != -1;
+						layoutContextMenuStrip.Show(backgroundPanel, e.Location);
+					}
 					selecting = false;
 					break;
 			}
@@ -5559,20 +5526,6 @@ namespace SonicRetro.SonLVL.GUI
 			SelectedObjectChanged();
 		}
 
-		private void fgDrawToolStripButton_Click(object sender, EventArgs e)
-		{
-			fgDrawToolStripButton.Checked = true;
-			fgSelectToolStripButton.Checked = false;
-			Settings.ForegroundMode = FGMode = EditingMode.Draw;
-		}
-
-		private void fgSelectToolStripButton_Click(object sender, EventArgs e)
-		{
-			fgDrawToolStripButton.Checked = false;
-			fgSelectToolStripButton.Checked = true;
-			Settings.ForegroundMode = FGMode = EditingMode.Select;
-		}
-
 		private void cutToolStripMenuItem1_Click(object sender, EventArgs e)
 		{
 			byte[,] layout;
@@ -5945,20 +5898,6 @@ namespace SonicRetro.SonLVL.GUI
 						loop[x, y] = false;
 				}
 			DrawLevel();
-		}
-
-		private void bgDrawToolStripButton_Click(object sender, EventArgs e)
-		{
-			bgDrawToolStripButton.Checked = true;
-			bgSelectToolStripButton.Checked = false;
-			Settings.BackgroundMode = BGMode = EditingMode.Draw;
-		}
-
-		private void bgSelectToolStripButton_Click(object sender, EventArgs e)
-		{
-			bgDrawToolStripButton.Checked = false;
-			bgSelectToolStripButton.Checked = true;
-			Settings.BackgroundMode = BGMode = EditingMode.Select;
 		}
 
 		private void resizeLevelToolStripMenuItem_Click(object sender, EventArgs e)
