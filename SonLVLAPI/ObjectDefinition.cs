@@ -538,6 +538,7 @@ namespace SonicRetro.SonLVL.API
 				spr = ObjectHelper.UnknownObject;
 				debug = true;
 			}
+			spr = spr.Trim();
 			rememberstate = data.RememberState;
 			defsub = data.DefaultSubtype;
 			debug = debug | data.Debug;
@@ -772,7 +773,7 @@ namespace SonicRetro.SonLVL.API
 						if (!sprimg.offset.IsEmpty)
 							sprite.Offset = new Point(sprite.X + sprimg.offset.X, sprite.Y + sprimg.offset.Y);
 					}
-					images.Add(item.id, sprite);
+					images.Add(item.id, sprite.Trim());
 				}
 			if (xmldef.Subtypes == null)
 				xmldef.Subtypes = new XMLDef.SubtypeList();
@@ -1362,6 +1363,7 @@ namespace SonicRetro.SonLVL.API
 				spr = ObjectHelper.UnknownObject;
 				debug = true;
 			}
+			spr = spr.Trim();
 		}
 
 		public string Name { get { return name; } }
