@@ -8799,19 +8799,9 @@ namespace SonicRetro.SonLVL.GUI
 				{
 					byte[] tile = new byte[64];
 					Array.Copy(LevelData.TileArray, i * 32, tile, 0, 64);
-					byte[] tileh = new byte[64];
-					for (int ty = 0; ty < 16; ty++)
-						for (int tx = 0; tx < 4; tx++)
-						{
-							byte px = tile[(ty * 4) + tx];
-							tileh[(ty * 4) + (3 - tx)] = (byte)((px >> 4) | (px << 4));
-						}
-					byte[] tilev = new byte[64];
-					for (int ty = 0; ty < 16; ty++)
-						Array.Copy(tile, ty * 4, tilev, (15 - ty) * 4, 4);
-					byte[] tilehv = new byte[64];
-					for (int ty = 0; ty < 16; ty++)
-						Array.Copy(tileh, ty * 4, tilehv, (15 - ty) * 4, 4);
+					byte[] tileh = LevelData.FlipTileInterlaced(tile, true, false);
+					byte[] tilev = LevelData.FlipTileInterlaced(tile, false, true);
+					byte[] tilehv = LevelData.FlipTileInterlaced(tile, true, true);
 					foreach (var item in tiles)
 					{
 						if (tile.FastArrayEqual(item.Value))
@@ -8878,19 +8868,9 @@ namespace SonicRetro.SonLVL.GUI
 				for (int i = 0; i < LevelData.Tiles.Count; i++)
 				{
 					byte[] tile = LevelData.Tiles[i];
-					byte[] tileh = new byte[32];
-					for (int ty = 0; ty < 8; ty++)
-						for (int tx = 0; tx < 4; tx++)
-						{
-							byte px = tile[(ty * 4) + tx];
-							tileh[(ty * 4) + (3 - tx)] = (byte)((px >> 4) | (px << 4));
-						}
-					byte[] tilev = new byte[32];
-					for (int ty = 0; ty < 8; ty++)
-						Array.Copy(tile, ty * 4, tilev, (7 - ty) * 4, 4);
-					byte[] tilehv = new byte[32];
-					for (int ty = 0; ty < 8; ty++)
-						Array.Copy(tileh, ty * 4, tilehv, (7 - ty) * 4, 4);
+					byte[] tileh = LevelData.FlipTile(tile, true, false);
+					byte[] tilev = LevelData.FlipTile(tile, false, true);
+					byte[] tilehv = LevelData.FlipTile(tile, true, true);
 					foreach (var item in tiles)
 					{
 						if (tile.FastArrayEqual(item.Value))
