@@ -8429,7 +8429,7 @@ namespace SonicRetro.SonLVL.GUI
 			// kind of hacky but whatever
 			if (LevelData.Level.LoopChunks != null)
 				foreach (byte ch in LevelData.Level.LoopChunks)
-					chunksused[ch] = true;
+					chunksused[ch+1] = true;
 			LevelData.RemapLayouts((layout, x, y) =>
 			{
 				if (layout[x, y] < chunksused.Length)
