@@ -3166,8 +3166,8 @@ namespace SonicRetro.SonLVL.GUI
 				else
 					ent.SubType = (byte)ObjectSelect.numericUpDown2.Value;
 				double gs = 1 << ObjGrid;
-				ent.X = (ushort)(Math.Round((menuLoc.X * ZoomLevel + hScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs);
-				ent.Y = (ushort)(Math.Round((menuLoc.Y * ZoomLevel + vScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs);
+				ent.X = (ushort)(Math.Round((menuLoc.X / ZoomLevel + hScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs);
+				ent.Y = (ushort)(Math.Round((menuLoc.Y / ZoomLevel + vScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs);
 				if (ent is SCDObjectEntry)
 				{
 					SCDObjectEntry entcd = (SCDObjectEntry)ent;
@@ -3198,8 +3198,8 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			double gs = 1 << ObjGrid;
 			Entry ent = LevelData.RingFormat.CreateRing();
-			ent.X = (ushort)(Math.Round((menuLoc.X * ZoomLevel + hScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs);
-			ent.Y = (ushort)(Math.Round((menuLoc.Y * ZoomLevel + vScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs);
+			ent.X = (ushort)(Math.Round((menuLoc.X / ZoomLevel + hScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs);
+			ent.Y = (ushort)(Math.Round((menuLoc.Y / ZoomLevel + vScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs);
 			if (ent is ObjectEntry)
 			{
 				LevelData.Objects.Add((ObjectEntry)ent);
@@ -3236,8 +3236,8 @@ namespace SonicRetro.SonLVL.GUI
 					{
 						double gs = 1 << ObjGrid;
 						Point pt = new Point(
-							(ushort)(Math.Round((menuLoc.X * ZoomLevel + hScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs),
-							(ushort)(Math.Round((menuLoc.Y * ZoomLevel + vScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs)
+							(ushort)(Math.Round((menuLoc.X / ZoomLevel + hScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs),
+							(ushort)(Math.Round((menuLoc.Y / ZoomLevel + vScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs)
 							);
 						int xst = pt.X;
 						Size xsz = new Size((int)dlg.XDist.Value, 0);
@@ -3294,8 +3294,8 @@ namespace SonicRetro.SonLVL.GUI
 				{
 					double gs = 1 << ObjGrid;
 					Point pt = new Point(
-						(ushort)(Math.Round((menuLoc.X * ZoomLevel + hScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs),
-						(ushort)(Math.Round((menuLoc.Y * ZoomLevel + vScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs)
+						(ushort)(Math.Round((menuLoc.X / ZoomLevel + hScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs),
+						(ushort)(Math.Round((menuLoc.Y / ZoomLevel + vScrollBar1.Value) / gs, MidpointRounding.AwayFromZero) * gs)
 						);
 					int xst = pt.X;
 					Size xsz = new Size((int)dlg.XDist.Value, 0);
