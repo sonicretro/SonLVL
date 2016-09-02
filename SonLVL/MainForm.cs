@@ -2895,11 +2895,11 @@ namespace SonicRetro.SonLVL.GUI
 			switch (e.Button)
 			{
 				case MouseButtons.Left:
-						byte t = LevelData.Layout.FGLayout[chunkpoint.X, chunkpoint.Y];
-						if (t != SelectedChunk)
+						byte c = LevelData.Layout.FGLayout[chunkpoint.X, chunkpoint.Y];
+						if (c != SelectedChunk)
 						{
 							locs.Add(chunkpoint);
-							tiles.Add(t);
+							tiles.Add(c);
 							LevelData.Layout.FGLayout[chunkpoint.X, chunkpoint.Y] = SelectedChunk;
 							if (LevelData.LayoutFormat.HasLoopFlag)
 								LevelData.Layout.FGLoop[chunkpoint.X, chunkpoint.Y] = LevelData.Level.LoopChunks.Contains(SelectedChunk);
@@ -2911,7 +2911,21 @@ namespace SonicRetro.SonLVL.GUI
 					if (FGSelection.IsEmpty)
 						FGSelection = new Rectangle(chunkpoint, new Size(1, 1));
 					else
-						FGSelection = Rectangle.FromLTRB(Math.Min(FGSelection.Left, chunkpoint.X), Math.Min(FGSelection.Top, chunkpoint.Y), Math.Max(FGSelection.Right, chunkpoint.X + 1), Math.Max(FGSelection.Bottom, chunkpoint.Y + 1));
+					{
+						int l = Math.Min(FGSelection.Left, chunkpoint.X);
+						int t = Math.Min(FGSelection.Top, chunkpoint.Y);
+						int r = Math.Max(FGSelection.Right, chunkpoint.X + 1);
+						int b = Math.Max(FGSelection.Bottom, chunkpoint.Y + 1);
+						if (FGSelection.Width > 1 && lastchunkpoint.X == l && chunkpoint.X > lastchunkpoint.X)
+							l = chunkpoint.X;
+						if (FGSelection.Height > 1 && lastchunkpoint.Y == t && chunkpoint.Y > lastchunkpoint.Y)
+							t = chunkpoint.Y;
+						if (FGSelection.Width > 1 && lastchunkpoint.X == r - 1 && chunkpoint.X < lastchunkpoint.X)
+							r = chunkpoint.X + 1;
+						if (FGSelection.Height > 1 && lastchunkpoint.Y == b - 1 && chunkpoint.Y < lastchunkpoint.Y)
+							b = chunkpoint.Y + 1;
+						FGSelection = Rectangle.FromLTRB(l, t, r, b);
+					}
 					DrawLevel();
 					break;
 				default:
@@ -3002,11 +3016,11 @@ namespace SonicRetro.SonLVL.GUI
 			switch (e.Button)
 			{
 				case MouseButtons.Left:
-					byte t = LevelData.Layout.BGLayout[chunkpoint.X, chunkpoint.Y];
-					if (t != SelectedChunk)
+					byte c = LevelData.Layout.BGLayout[chunkpoint.X, chunkpoint.Y];
+					if (c != SelectedChunk)
 					{
 						locs.Add(chunkpoint);
-						tiles.Add(t);
+						tiles.Add(c);
 						LevelData.Layout.BGLayout[chunkpoint.X, chunkpoint.Y] = SelectedChunk;
 						if (LevelData.LayoutFormat.HasLoopFlag)
 							LevelData.Layout.BGLoop[chunkpoint.X, chunkpoint.Y] = LevelData.Level.LoopChunks.Contains(SelectedChunk);
@@ -3018,7 +3032,21 @@ namespace SonicRetro.SonLVL.GUI
 					if (BGSelection.IsEmpty)
 						BGSelection = new Rectangle(chunkpoint, new Size(1, 1));
 					else
-						BGSelection = Rectangle.FromLTRB(Math.Min(BGSelection.Left, chunkpoint.X), Math.Min(BGSelection.Top, chunkpoint.Y), Math.Max(BGSelection.Right, chunkpoint.X + 1), Math.Max(BGSelection.Bottom, chunkpoint.Y + 1));
+					{
+						int l = Math.Min(BGSelection.Left, chunkpoint.X);
+						int t = Math.Min(BGSelection.Top, chunkpoint.Y);
+						int r = Math.Max(BGSelection.Right, chunkpoint.X + 1);
+						int b = Math.Max(BGSelection.Bottom, chunkpoint.Y + 1);
+						if (BGSelection.Width > 1 && lastchunkpoint.X == l && chunkpoint.X > lastchunkpoint.X)
+							l = chunkpoint.X;
+						if (BGSelection.Height > 1 && lastchunkpoint.Y == t && chunkpoint.Y > lastchunkpoint.Y)
+							t = chunkpoint.Y;
+						if (BGSelection.Width > 1 && lastchunkpoint.X == r - 1 && chunkpoint.X < lastchunkpoint.X)
+							r = chunkpoint.X + 1;
+						if (BGSelection.Height > 1 && lastchunkpoint.Y == b - 1 && chunkpoint.Y < lastchunkpoint.Y)
+							b = chunkpoint.Y + 1;
+						BGSelection = Rectangle.FromLTRB(l, t, r, b);
+					}
 					DrawLevel();
 					break;
 				default:
