@@ -9019,8 +9019,6 @@ namespace SonicRetro.SonLVL.GUI
 		}
 	}
 
-	public enum EditingMode { Draw, Select }
-
 	[Serializable]
 	public class LayoutSection
 	{
