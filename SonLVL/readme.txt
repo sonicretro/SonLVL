@@ -2,7 +2,7 @@ How to use: http://info.sonicretro.org/SCHG_How-to:Set_Up_SonLVL
 
 Controls:
 Up, Down, Left, Right: Move the camera by 16 pixels.
-Hold Shift: Move the camera by 256 or 128 pixels.
+Hold Shift: Move the camera by the size of a chunk (usually 256 or 128 pixels).
 Hold Ctrl: Move the camera to the edge of the level.
 Ctrl+O: Open
 Ctrl+S: Save
@@ -15,10 +15,7 @@ Ctrl+Shift+Tab: Switch to previous tab.
 Ctrl+1: Switch to Objects tab.
 Ctrl+2: Switch to Foreground tab.
 Ctrl+3: Switch to Background tab.
-Ctrl+4: Switch to Chunks tab.
-Ctrl+5: Switch to Blocks tab.
-Ctrl+6: Switch to Tiles tab.
-Ctrl+7: Switch to Solids tab.
+Ctrl+4: Switch to Art tab.
 Q: Disable collision viewing.
 W: View collision path 1.
 E: View collision path 2.
@@ -58,6 +55,8 @@ Level Editing:
 Left click: Draw with the selected chunk.
 In Sonic 1 mode: Double click to toggle the loop flag.
 Right click: Select the chunk under the cursor.
+Right click, drag: Select an area.
+Right click inside selected area: Open context menu.
 A: Decrease index of selected chunk.
 Z: Increase index of selected chunk.
 Use the list on the right to select a chunk.
