@@ -47,7 +47,7 @@ X: Increase subtype of all selected objects. (no undo)
 J: Increase grid size.
 M: Decrease grid size.
 Ctrl+X: Cut selected objects.
-Ctrl+Y: Copy selected objects.
+Ctrl+C: Copy selected objects.
 Ctrl+V: Paste copied objects.
 Use the property grid on the right to edit the selected object(s)/ring group(s).
 
