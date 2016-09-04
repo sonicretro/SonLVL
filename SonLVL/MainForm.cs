@@ -6644,6 +6644,8 @@ namespace SonicRetro.SonLVL.GUI
 				item.X = (ushort)(x + 1 + (item.X - bounds.Left));
 				item.UpdateSprite();
 			}
+			SelectedObjectChanged();
+			ScrollToObject(SelectedItems[0]);
 			DrawLevel();
 		}
 
@@ -6653,7 +6655,7 @@ namespace SonicRetro.SonLVL.GUI
 			{
 				Rectangle bounds = GetBounds(item);
 				int x = bounds.Left + (bounds.Width / 2);
-				int y = bounds.Bottom + 1;
+				int y = bounds.Bottom;
 				while (y < LevelData.FGHeight * LevelData.Level.ChunkHeight - 1)
 				{
 					if (alignWall_common(x, y, Solidity.TopSolid))
@@ -6663,6 +6665,8 @@ namespace SonicRetro.SonLVL.GUI
 				item.Y = (ushort)(y + (item.Y - bounds.Bottom));
 				item.UpdateSprite();
 			}
+			SelectedObjectChanged();
+			ScrollToObject(SelectedItems[0]);
 			DrawLevel();
 		}
 
@@ -6671,7 +6675,7 @@ namespace SonicRetro.SonLVL.GUI
 			foreach (Entry item in SelectedItems)
 			{
 				Rectangle bounds = GetBounds(item);
-				int x = bounds.Right + 1;
+				int x = bounds.Right;
 				int y = bounds.Top + (bounds.Height / 2);
 				while (x < LevelData.FGWidth * LevelData.Level.ChunkWidth - 1)
 				{
@@ -6682,6 +6686,8 @@ namespace SonicRetro.SonLVL.GUI
 				item.X = (ushort)(x + (item.X - bounds.Right));
 				item.UpdateSprite();
 			}
+			SelectedObjectChanged();
+			ScrollToObject(SelectedItems[0]);
 			DrawLevel();
 		}
 
@@ -6701,6 +6707,8 @@ namespace SonicRetro.SonLVL.GUI
 				item.Y = (ushort)(y + 1 + (item.Y - bounds.Top));
 				item.UpdateSprite();
 			}
+			SelectedObjectChanged();
+			ScrollToObject(SelectedItems[0]);
 			DrawLevel();
 		}
 
@@ -6714,6 +6722,8 @@ namespace SonicRetro.SonLVL.GUI
 				item.X = (ushort)(left + (item.X - GetBounds(item).Left));
 				item.UpdateSprite();
 			}
+			SelectedObjectChanged();
+			ScrollToObject(SelectedItems[0]);
 			DrawLevel();
 		}
 
@@ -6731,6 +6741,8 @@ namespace SonicRetro.SonLVL.GUI
 				item.X = (ushort)(left + (item.X - (bounds.Left + (bounds.Width / 2))));
 				item.UpdateSprite();
 			}
+			SelectedObjectChanged();
+			ScrollToObject(SelectedItems[0]);
 			DrawLevel();
 		}
 
@@ -6744,6 +6756,8 @@ namespace SonicRetro.SonLVL.GUI
 				item.X = (ushort)(right + (item.X - GetBounds(item).Right));
 				item.UpdateSprite();
 			}
+			SelectedObjectChanged();
+			ScrollToObject(SelectedItems[0]);
 			DrawLevel();
 		}
 
@@ -6757,6 +6771,8 @@ namespace SonicRetro.SonLVL.GUI
 				item.Y = (ushort)(top + (item.Y - GetBounds(item).Top));
 				item.UpdateSprite();
 			}
+			SelectedObjectChanged();
+			ScrollToObject(SelectedItems[0]);
 			DrawLevel();
 		}
 
@@ -6774,6 +6790,8 @@ namespace SonicRetro.SonLVL.GUI
 				item.Y = (ushort)(top + (item.Y - (bounds.Top + (bounds.Height / 2))));
 				item.UpdateSprite();
 			}
+			SelectedObjectChanged();
+			ScrollToObject(SelectedItems[0]);
 			DrawLevel();
 		}
 
@@ -6787,6 +6805,8 @@ namespace SonicRetro.SonLVL.GUI
 				item.Y = (ushort)(bottom + (item.Y - GetBounds(item).Bottom));
 				item.UpdateSprite();
 			}
+			SelectedObjectChanged();
+			ScrollToObject(SelectedItems[0]);
 			DrawLevel();
 		}
 
