@@ -6730,15 +6730,18 @@ namespace SonicRetro.SonLVL.GUI
 		private void alignCentersToolStripButton_Click(object sender, EventArgs e)
 		{
 			int left = int.MaxValue;
+			int right = int.MinValue;
 			foreach (Entry item in SelectedItems)
 			{
 				Rectangle bounds = GetBounds(item);
-				left = Math.Min(left, bounds.Left + (bounds.Width / 2));
+				left = Math.Min(left, bounds.Left);
+				right = Math.Max(right, bounds.Right);
 			}
+			int center = left + (right - left) / 2;
 			foreach (Entry item in SelectedItems)
 			{
 				Rectangle bounds = GetBounds(item);
-				item.X = (ushort)(left + (item.X - (bounds.Left + (bounds.Width / 2))));
+				item.X = (ushort)(center + (item.X - (bounds.Left + (bounds.Width / 2))));
 				item.UpdateSprite();
 			}
 			SelectedObjectChanged();
@@ -6779,15 +6782,18 @@ namespace SonicRetro.SonLVL.GUI
 		private void alignMiddlesToolStripButton_Click(object sender, EventArgs e)
 		{
 			int top = int.MaxValue;
+			int bottom = int.MinValue;
 			foreach (Entry item in SelectedItems)
 			{
 				Rectangle bounds = GetBounds(item);
-				top = Math.Min(top, bounds.Top + (bounds.Height / 2));
+				top = Math.Min(top, bounds.Top);
+				bottom = Math.Max(bottom, bounds.Bottom);
 			}
+			int middle = top + (bottom - top) / 2;
 			foreach (Entry item in SelectedItems)
 			{
 				Rectangle bounds = GetBounds(item);
-				item.Y = (ushort)(top + (item.Y - (bounds.Top + (bounds.Height / 2))));
+				item.Y = (ushort)(middle + (item.Y - (bounds.Top + (bounds.Height / 2))));
 				item.UpdateSprite();
 			}
 			SelectedObjectChanged();
