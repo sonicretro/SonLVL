@@ -82,7 +82,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		ImageAttributes imageTransparency = new ImageAttributes();
 		Bitmap LevelBmp;
-		Graphics LevelGfx, Panel1Gfx, Panel2Gfx, Panel3Gfx;
+		Graphics LevelGfx, objectPanelGfx, foregroundPanelGfx, backgroundPanelGfx;
 		internal bool loaded;
 		internal byte SelectedChunk;
 		internal List<Entry> SelectedItems;
@@ -353,12 +353,12 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void LoadINI(string filename)
 		{
-			Panel1Gfx = objectPanel.CreateGraphics();
-			Panel1Gfx.SetOptions();
-			Panel2Gfx = foregroundPanel.CreateGraphics();
-			Panel2Gfx.SetOptions();
-			Panel3Gfx = backgroundPanel.CreateGraphics();
-			Panel3Gfx.SetOptions();
+			objectPanelGfx = objectPanel.CreateGraphics();
+			objectPanelGfx.SetOptions();
+			foregroundPanelGfx = foregroundPanel.CreateGraphics();
+			foregroundPanelGfx.SetOptions();
+			backgroundPanelGfx = backgroundPanel.CreateGraphics();
+			backgroundPanelGfx.SetOptions();
 			LevelData.LoadGame(filename);
 			changeLevelToolStripMenuItem.DropDownItems.Clear();
 			levelMenuItems = new Dictionary<string, ToolStripMenuItem>();
@@ -1659,17 +1659,58 @@ namespace SonicRetro.SonLVL.GUI
 		internal void DrawLevel()
 		{
 			if (!loaded) return;
-			Point pnlcur;
+			Control panel;
+			Graphics gfx;
 			Point camera;
+			Rectangle selection;
 			switch (CurrentTab)
 			{
 				case Tab.Objects:
-					pnlcur = objectPanel.PointToClient(Cursor.Position);
+					panel = objectPanel;
+					gfx = objectPanelGfx;
 					camera = new Point(hScrollBar1.Value, vScrollBar1.Value);
-					LevelImg8bpp = LevelData.DrawForeground(new Rectangle(camera.X, camera.Y, (int)(objectPanel.Width / ZoomLevel), (int)(objectPanel.Height / ZoomLevel)), true, true, objectsAboveHighPlaneToolStripMenuItem.Checked, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked, allToolStripMenuItem.Checked);
+					selection = Rectangle.Empty;
+					break;
+				case Tab.Foreground:
+					panel = foregroundPanel;
+					gfx = foregroundPanelGfx;
+					camera = new Point(hScrollBar2.Value, vScrollBar2.Value);
+					selection = FGSelection;
+					break;
+				case Tab.Background:
+					panel = backgroundPanel;
+					gfx = backgroundPanelGfx;
+					camera = new Point(hScrollBar3.Value, vScrollBar3.Value);
+					selection = BGSelection;
+					break;
+				default:
+					return;
+			}
+			Size lvlsize = Size.Empty;
+			byte[,] layout = null;
+			bool[,] loop = null;
+			Rectangle dispRect = new Rectangle(camera.X, camera.Y, (int)(panel.Width / ZoomLevel), (int)(panel.Height / ZoomLevel));
+			switch (CurrentTab)
+			{
+				case Tab.Objects:
+				case Tab.Foreground:
+					lvlsize = LevelData.FGSize;
+					layout = LevelData.Layout.FGLayout;
+					loop = LevelData.Layout.FGLoop;
+					LevelImg8bpp = LevelData.DrawForeground(dispRect, true, true, objectsAboveHighPlaneToolStripMenuItem.Checked, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked, allToolStripMenuItem.Checked);
 					if (waterPalette != -1 && camera.Y + LevelImg8bpp.Height > waterHeight)
-						for (int i = Math.Max(waterHeight - camera.Y, 0) * LevelImg8bpp.Width; i < LevelImg8bpp.Bits.Length; i++)
-							LevelImg8bpp.Bits[i] += 64;
+						LevelImg8bpp.ApplyWaterPalette(Math.Max(waterHeight - camera.Y, 0));
+					break;
+				case Tab.Background:
+					lvlsize = LevelData.BGSize;
+					layout = LevelData.Layout.BGLayout;
+					loop = LevelData.Layout.BGLoop;
+					LevelImg8bpp = LevelData.DrawBackground(dispRect, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked);
+					break;
+			}
+			switch (CurrentTab)
+			{
+				case Tab.Objects:
 					if (enableGridToolStripMenuItem.Checked && ObjGrid > 0)
 					{
 						int gs = 1 << ObjGrid;
@@ -1678,55 +1719,91 @@ namespace SonicRetro.SonLVL.GUI
 						for (int y = (gs - (camera.Y % gs)) % gs; y < LevelImg8bpp.Height; y += gs)
 							LevelImg8bpp.DrawLine(131, 0, y, LevelImg8bpp.Width - 1, y);
 					}
-					if (anglesToolStripMenuItem.Checked && !noneToolStripMenuItem1.Checked)
-						for (int y = Math.Max(camera.Y / LevelData.Level.ChunkHeight, 0); y <= Math.Min(((camera.Y + (objectPanel.Height - 1) / ZoomLevel)) / LevelData.Level.ChunkHeight, LevelData.FGHeight - 1); y++)
-							for (int x = Math.Max(camera.X / LevelData.Level.ChunkWidth, 0); x <= Math.Min(((camera.X + (objectPanel.Width - 1) / ZoomLevel)) / LevelData.Level.ChunkWidth, LevelData.FGWidth - 1); x++)
-								for (int b = 0; b < LevelData.Level.ChunkHeight / 16; b++)
-									for (int a = 0; a < LevelData.Level.ChunkWidth / 16; a++)
-										if (LevelData.Layout.FGLayout[x, y] < LevelData.Chunks.Count)
-										{
-											ChunkBlock blk = LevelData.Chunks[LevelData.Layout.FGLayout[x, y]].Blocks[a, b];
-											if (blk.Block > LevelData.Blocks.Count) continue;
-											Solidity solid = path2ToolStripMenuItem.Checked ? ((S2ChunkBlock)blk).Solid2 : blk.Solid1;
-											if (solid == Solidity.NotSolid) continue;
-											byte coli = path2ToolStripMenuItem.Checked ? LevelData.GetColInd2(blk.Block) : LevelData.GetColInd1(blk.Block);
-											byte angle = LevelData.Angles[coli];
-											if (angle != 0xFF)
-											{
-												if (blk.XFlip)
-													angle = (byte)(-angle & 0xFF);
-												if (blk.YFlip)
-													angle = (byte)((-(angle + 0x40) - 0x40) & 0xFF);
-											}
-											DrawHUDNum(x * LevelData.Level.ChunkWidth + a * 16 - camera.X, y * LevelData.Level.ChunkHeight + b * 16 - camera.Y, angle.ToString("X2"));
-										}
-					Rectangle hudbnd = Rectangle.Empty;
-					Rectangle tmpbnd;
-					int ringcnt;
-					if (LevelData.RingFormat is RingLayoutFormat)
-						ringcnt = ((RingLayoutFormat)LevelData.RingFormat).CountRings(LevelData.Rings);
-					else
-						ringcnt = ((RingObjectFormat)LevelData.RingFormat).CountRings(LevelData.Objects);
-					if (hUDToolStripMenuItem.Checked)
+					break;
+				case Tab.Foreground:
+				case Tab.Background:
+					if (enableGridToolStripMenuItem.Checked)
 					{
-						tmpbnd = hudbnd = DrawHUDStr(8, 8, "Screen Pos: ");
-						hudbnd = Rectangle.Union(hudbnd, DrawHUDNum(tmpbnd.Right, tmpbnd.Top, camera.X.ToString("X4") + ' ' + camera.Y.ToString("X4")));
-						tmpbnd = DrawHUDStr(hudbnd.Left, hudbnd.Bottom, "Level Size: ");
-						hudbnd = Rectangle.Union(hudbnd, tmpbnd);
-						hudbnd = Rectangle.Union(hudbnd, DrawHUDNum(tmpbnd.Right, tmpbnd.Top, (LevelData.FGWidth * LevelData.Level.ChunkWidth).ToString("X4") + ' ' + (LevelData.FGHeight * LevelData.Level.ChunkHeight).ToString("X4")));
+						for (int x = (LevelData.Level.ChunkWidth - (camera.X % LevelData.Level.ChunkWidth)) % LevelData.Level.ChunkWidth; x < LevelImg8bpp.Width; x += LevelData.Level.ChunkWidth)
+							LevelImg8bpp.DrawLine(131, x, 0, x, LevelImg8bpp.Height - 1);
+						for (int y = (LevelData.Level.ChunkHeight - (camera.Y % LevelData.Level.ChunkHeight)) % LevelData.Level.ChunkHeight; y < LevelImg8bpp.Height; y += LevelData.Level.ChunkHeight)
+							LevelImg8bpp.DrawLine(131, 0, y, LevelImg8bpp.Width - 1, y);
+					}
+					break;
+			}
+			if (anglesToolStripMenuItem.Checked && !noneToolStripMenuItem1.Checked)
+				for (int y = Math.Max(camera.Y / LevelData.Level.ChunkHeight, 0); y <= Math.Min(((camera.Y + (panel.Height - 1) / ZoomLevel)) / LevelData.Level.ChunkHeight, lvlsize.Height - 1); y++)
+					for (int x = Math.Max(camera.X / LevelData.Level.ChunkWidth, 0); x <= Math.Min(((camera.X + (panel.Width - 1) / ZoomLevel)) / LevelData.Level.ChunkWidth, lvlsize.Width - 1); x++)
+						for (int b = 0; b < LevelData.Level.ChunkHeight / 16; b++)
+							for (int a = 0; a < LevelData.Level.ChunkWidth / 16; a++)
+								if (layout[x, y] < LevelData.Chunks.Count)
+								{
+									ChunkBlock blk = LevelData.Chunks[layout[x, y]].Blocks[a, b];
+									if (blk.Block > LevelData.Blocks.Count) continue;
+									Solidity solid = path2ToolStripMenuItem.Checked ? ((S2ChunkBlock)blk).Solid2 : blk.Solid1;
+									if (solid == Solidity.NotSolid) continue;
+									byte coli = path2ToolStripMenuItem.Checked ? LevelData.GetColInd2(blk.Block) : LevelData.GetColInd1(blk.Block);
+									byte angle = LevelData.Angles[coli];
+									if (angle != 0xFF)
+									{
+										if (blk.XFlip)
+											angle = (byte)(-angle & 0xFF);
+										if (blk.YFlip)
+											angle = (byte)((-(angle + 0x40) - 0x40) & 0xFF);
+									}
+									DrawHUDNum(x * LevelData.Level.ChunkWidth + a * 16 - camera.X, y * LevelData.Level.ChunkHeight + b * 16 - camera.Y, angle.ToString("X2"));
+								}
+			if (hUDToolStripMenuItem.Checked)
+			{
+				Rectangle hudbnd = Rectangle.Empty;
+				Rectangle tmpbnd;
+				tmpbnd = hudbnd = DrawHUDStr(8, 8, "Screen Pos: ");
+				hudbnd = Rectangle.Union(hudbnd, DrawHUDNum(tmpbnd.Right, tmpbnd.Top, camera.X.ToString("X4") + ' ' + camera.Y.ToString("X4")));
+				tmpbnd = DrawHUDStr(hudbnd.Left, hudbnd.Bottom, "Level Size: ");
+				hudbnd = Rectangle.Union(hudbnd, tmpbnd);
+				hudbnd = Rectangle.Union(hudbnd, DrawHUDNum(tmpbnd.Right, tmpbnd.Top, (lvlsize.Width * LevelData.Level.ChunkWidth).ToString("X4") + ' ' + (lvlsize.Height * LevelData.Level.ChunkHeight).ToString("X4")));
+				switch (CurrentTab)
+				{
+					case Tab.Objects:
+					case Tab.Foreground:
+						int ringcnt;
+						if (LevelData.RingFormat is RingLayoutFormat)
+							ringcnt = ((RingLayoutFormat)LevelData.RingFormat).CountRings(LevelData.Rings);
+						else
+							ringcnt = ((RingObjectFormat)LevelData.RingFormat).CountRings(LevelData.Objects);
 						hudbnd = Rectangle.Union(hudbnd, DrawHUDStr(hudbnd.Left, hudbnd.Bottom,
 							"Objects: " + LevelData.Objects.Count + '\n' +
 							"Rings: " + ringcnt));
-						if (path1ToolStripMenuItem.Checked)
-							hudbnd = Rectangle.Union(hudbnd, DrawHUDStr(hudbnd.Left, hudbnd.Bottom, "Path 1"));
-						else if (path2ToolStripMenuItem.Checked)
-							hudbnd = Rectangle.Union(hudbnd, DrawHUDStr(hudbnd.Left, hudbnd.Bottom, "Path 2"));
-					}
-					if (dragdrop)
-						LevelImg8bpp.DrawSprite(LevelData.GetObjectDefinition(dragobj).Image, dragpoint);
-					LevelBmp = LevelImg8bpp.ToBitmap(LevelImgPalette).To32bpp();
-					LevelGfx = Graphics.FromImage(LevelBmp);
-					LevelGfx.SetOptions();
+						break;
+				}
+				switch (CurrentTab)
+				{
+					case Tab.Foreground:
+					case Tab.Background:
+						tmpbnd = DrawHUDStr(hudbnd.Left, hudbnd.Bottom, "Chunk: ");
+						hudbnd = Rectangle.Union(hudbnd, tmpbnd);
+						hudbnd = Rectangle.Union(hudbnd, DrawHUDNum(tmpbnd.Right, tmpbnd.Top, SelectedChunk.ToString("X2")));
+						break;
+				}
+				if (path1ToolStripMenuItem.Checked)
+					hudbnd = Rectangle.Union(hudbnd, DrawHUDStr(hudbnd.Left, hudbnd.Bottom, "Path 1"));
+				else if (path2ToolStripMenuItem.Checked)
+					hudbnd = Rectangle.Union(hudbnd, DrawHUDStr(hudbnd.Left, hudbnd.Bottom, "Path 2"));
+			}
+			if (CurrentTab == Tab.Objects && dragdrop)
+				LevelImg8bpp.DrawSprite(LevelData.GetObjectDefinition(dragobj).Image, dragpoint);
+			LevelBmp = LevelImg8bpp.ToBitmap(LevelImgPalette).To32bpp();
+			LevelGfx = Graphics.FromImage(LevelBmp);
+			LevelGfx.SetOptions();
+			if (LevelData.LayoutFormat.HasLoopFlag)
+				for (int y = Math.Max(camera.Y / LevelData.Level.ChunkHeight, 0); y <= Math.Min(((camera.Y + (panel.Height - 1) / ZoomLevel)) / LevelData.Level.ChunkHeight, lvlsize.Height - 1); y++)
+					for (int x = Math.Max(camera.X / LevelData.Level.ChunkWidth, 0); x <= Math.Min(((camera.X + (panel.Width - 1) / ZoomLevel)) / LevelData.Level.ChunkWidth, lvlsize.Width - 1); x++)
+						if (loop[x, y])
+							LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Yellow)) { Width = 3 }, x * LevelData.Level.ChunkWidth - camera.X, y * LevelData.Level.ChunkHeight - camera.Y, LevelData.Level.ChunkWidth - 1, LevelData.Level.ChunkHeight - 1);
+			Point pnlcur = panel.PointToClient(Cursor.Position);
+			switch (CurrentTab)
+			{
+				case Tab.Objects:
 					foreach (Entry item in SelectedItems)
 					{
 						if (item is ObjectEntry)
@@ -1761,11 +1838,6 @@ namespace SonicRetro.SonLVL.GUI
 							LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, bnd);
 						}
 					}
-					if (LevelData.LayoutFormat.HasLoopFlag)
-						for (int y = Math.Max(camera.Y / LevelData.Level.ChunkHeight, 0); y <= Math.Min(((camera.Y + (objectPanel.Height - 1) / ZoomLevel)) / LevelData.Level.ChunkHeight, LevelData.FGHeight - 1); y++)
-							for (int x = Math.Max(camera.X / LevelData.Level.ChunkWidth, 0); x <= Math.Min(((camera.X + (objectPanel.Width - 1) / ZoomLevel)) / LevelData.Level.ChunkWidth, LevelData.FGWidth - 1); x++)
-								if (LevelData.Layout.FGLoop[x, y])
-									LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Yellow)) { Width = 3 }, x * LevelData.Level.ChunkWidth - camera.X, y * LevelData.Level.ChunkHeight - camera.Y, LevelData.Level.ChunkWidth - 1, LevelData.Level.ChunkHeight - 1);
 					if (selecting)
 					{
 						Rectangle selbnds = Rectangle.FromLTRB(
@@ -1777,161 +1849,25 @@ namespace SonicRetro.SonLVL.GUI
 						selbnds.Width--;	selbnds.Height--;
 						LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, selbnds);
 					}
-					Panel1Gfx.DrawImage(LevelBmp, 0, 0, objectPanel.Width, objectPanel.Height);
 					break;
 				case Tab.Foreground:
-					pnlcur = foregroundPanel.PointToClient(Cursor.Position);
-					camera = new Point(hScrollBar2.Value, vScrollBar2.Value);
-					LevelImg8bpp = LevelData.DrawForeground(new Rectangle(camera.X, camera.Y, (int)(foregroundPanel.Width / ZoomLevel), (int)(foregroundPanel.Height / ZoomLevel)), true, true, objectsAboveHighPlaneToolStripMenuItem.Checked, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked, allToolStripMenuItem.Checked);
-					if (waterPalette != -1 && camera.Y + LevelImg8bpp.Height > waterHeight)
-						for (int i = Math.Max(waterHeight - camera.Y, 0) * LevelImg8bpp.Width; i < LevelImg8bpp.Bits.Length; i++)
-							LevelImg8bpp.Bits[i] += 64;
-					if (enableGridToolStripMenuItem.Checked)
-					{
-						for (int x = (LevelData.Level.ChunkWidth - (camera.X % LevelData.Level.ChunkWidth)) % LevelData.Level.ChunkWidth; x < LevelImg8bpp.Width; x += LevelData.Level.ChunkWidth)
-							LevelImg8bpp.DrawLine(131, x, 0, x, LevelImg8bpp.Height - 1);
-						for (int y = (LevelData.Level.ChunkHeight - (camera.Y % LevelData.Level.ChunkHeight)) % LevelData.Level.ChunkHeight; y < LevelImg8bpp.Height; y += LevelData.Level.ChunkHeight)
-							LevelImg8bpp.DrawLine(131, 0, y, LevelImg8bpp.Width - 1, y);
-					}
-					if (anglesToolStripMenuItem.Checked & !noneToolStripMenuItem1.Checked)
-						for (int y = Math.Max(camera.Y / LevelData.Level.ChunkHeight, 0); y <= Math.Min(((camera.Y + (foregroundPanel.Height - 1) / ZoomLevel)) / LevelData.Level.ChunkHeight, LevelData.FGHeight - 1); y++)
-							for (int x = Math.Max(camera.X / LevelData.Level.ChunkWidth, 0); x <= Math.Min(((camera.X + (foregroundPanel.Width - 1) / ZoomLevel)) / LevelData.Level.ChunkWidth, LevelData.FGWidth - 1); x++)
-								for (int b = 0; b < LevelData.Level.ChunkHeight / 16; b++)
-									for (int a = 0; a < LevelData.Level.ChunkWidth / 16; a++)
-										if (LevelData.Layout.FGLayout[x, y] < LevelData.Chunks.Count)
-										{
-											ChunkBlock blk = LevelData.Chunks[LevelData.Layout.FGLayout[x, y]].Blocks[a, b];
-											if (blk.Block > LevelData.Blocks.Count) continue;
-											Solidity solid = path2ToolStripMenuItem.Checked ? ((S2ChunkBlock)blk).Solid2 : blk.Solid1;
-											if (solid == Solidity.NotSolid) continue;
-											byte coli = path2ToolStripMenuItem.Checked ? LevelData.GetColInd2(blk.Block) : LevelData.GetColInd1(blk.Block);
-											byte angle = LevelData.Angles[coli];
-											if (angle != 0xFF)
-											{
-												if (blk.XFlip)
-													angle = (byte)(-angle & 0xFF);
-												if (blk.YFlip)
-													angle = (byte)((-(angle + 0x40) - 0x40) & 0xFF);
-											}
-											DrawHUDNum(x * LevelData.Level.ChunkWidth + a * 16 - camera.X, y * LevelData.Level.ChunkHeight + b * 16 - camera.Y, angle.ToString("X2"));
-										}
-					if (LevelData.RingFormat is RingLayoutFormat)
-						ringcnt = ((RingLayoutFormat)LevelData.RingFormat).CountRings(LevelData.Rings);
-					else
-						ringcnt = ((RingObjectFormat)LevelData.RingFormat).CountRings(LevelData.Objects);
-					if (hUDToolStripMenuItem.Checked)
-					{
-						tmpbnd = hudbnd = DrawHUDStr(8, 8, "Screen Pos: ");
-						hudbnd = Rectangle.Union(hudbnd, DrawHUDNum(tmpbnd.Right, tmpbnd.Top, camera.X.ToString("X4") + ' ' + camera.Y.ToString("X4")));
-						tmpbnd = DrawHUDStr(hudbnd.Left, hudbnd.Bottom, "Level Size: ");
-						hudbnd = Rectangle.Union(hudbnd, tmpbnd);
-						hudbnd = Rectangle.Union(hudbnd, DrawHUDNum(tmpbnd.Right, tmpbnd.Top, (LevelData.FGWidth * LevelData.Level.ChunkWidth).ToString("X4") + ' ' + (LevelData.FGHeight * LevelData.Level.ChunkHeight).ToString("X4")));
-						hudbnd = Rectangle.Union(hudbnd, DrawHUDStr(hudbnd.Left, hudbnd.Bottom,
-							"Objects: " + LevelData.Objects.Count + '\n' +
-							"Rings: " + ringcnt));
-						tmpbnd = DrawHUDStr(hudbnd.Left, hudbnd.Bottom, "Chunk: ");
-						hudbnd = Rectangle.Union(hudbnd, tmpbnd);
-						hudbnd = Rectangle.Union(hudbnd, DrawHUDNum(tmpbnd.Right, tmpbnd.Top, SelectedChunk.ToString("X2")));
-						if (path1ToolStripMenuItem.Checked)
-							hudbnd = Rectangle.Union(hudbnd, DrawHUDStr(hudbnd.Left, hudbnd.Bottom, "Path 1"));
-						else if (path2ToolStripMenuItem.Checked)
-							hudbnd = Rectangle.Union(hudbnd, DrawHUDStr(hudbnd.Left, hudbnd.Bottom, "Path 2"));
-					}
-					LevelBmp = LevelImg8bpp.ToBitmap(LevelImgPalette).To32bpp();
-					LevelGfx = Graphics.FromImage(LevelBmp);
-					LevelGfx.SetOptions();
-					if (LevelData.LayoutFormat.HasLoopFlag)
-						for (int y = Math.Max(camera.Y / LevelData.Level.ChunkHeight, 0); y <= Math.Min(((camera.Y + (foregroundPanel.Height - 1) / ZoomLevel)) / LevelData.Level.ChunkHeight, LevelData.FGHeight - 1); y++)
-							for (int x = Math.Max(camera.X / LevelData.Level.ChunkWidth, 0); x <= Math.Min(((camera.X + (foregroundPanel.Width - 1) / ZoomLevel)) / LevelData.Level.ChunkWidth, LevelData.FGWidth - 1); x++)
-								if (LevelData.Layout.FGLoop[x, y])
-									LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Yellow)) { Width = (int)(3 * ZoomLevel) }, x * LevelData.Level.ChunkWidth - camera.X, y * LevelData.Level.ChunkHeight - camera.Y, LevelData.Level.ChunkWidth - 1, LevelData.Level.ChunkHeight - 1);
-					if (!selecting && SelectedChunk < LevelData.Chunks.Count)
-						LevelGfx.DrawImage(LevelData.CompChunkBmps[SelectedChunk],
-						new Rectangle(((((int)(pnlcur.X / ZoomLevel) + camera.X) / LevelData.Level.ChunkWidth) * LevelData.Level.ChunkWidth) - camera.X, ((((int)(pnlcur.Y / ZoomLevel) + camera.Y) / LevelData.Level.ChunkHeight) * LevelData.Level.ChunkHeight) - camera.Y, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight),
-						0, 0, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight,
-						GraphicsUnit.Pixel, imageTransparency);
-					if (!FGSelection.IsEmpty)
-					{
-						Rectangle selbnds = FGSelection.Scale(LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
-						selbnds.Offset(-camera.X, -camera.Y);
-						LevelGfx.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.White)), selbnds);
-								selbnds.Width--;	selbnds.Height--;
-						LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, selbnds);
-					}
-					Panel2Gfx.DrawImage(LevelBmp, 0, 0, foregroundPanel.Width, foregroundPanel.Height);
-					break;
 				case Tab.Background:
-					pnlcur = backgroundPanel.PointToClient(Cursor.Position);
-					camera = new Point(hScrollBar3.Value, vScrollBar3.Value);
-					LevelImg8bpp = LevelData.DrawBackground(new Rectangle(camera.X, camera.Y, (int)(backgroundPanel.Width / ZoomLevel), (int)(backgroundPanel.Height / ZoomLevel)), lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked);
-					if (enableGridToolStripMenuItem.Checked)
-					{
-						for (int x = (LevelData.Level.ChunkWidth - (camera.X % LevelData.Level.ChunkWidth)) % LevelData.Level.ChunkWidth; x < LevelImg8bpp.Width; x += LevelData.Level.ChunkWidth)
-							LevelImg8bpp.DrawLine(131, x, 0, x, LevelImg8bpp.Height - 1);
-						for (int y = (LevelData.Level.ChunkHeight - (camera.Y % LevelData.Level.ChunkHeight)) % LevelData.Level.ChunkHeight; y < LevelImg8bpp.Height; y += LevelData.Level.ChunkHeight)
-							LevelImg8bpp.DrawLine(131, 0, y, LevelImg8bpp.Width - 1, y);
-					}
-					if (anglesToolStripMenuItem.Checked & !noneToolStripMenuItem1.Checked)
-						for (int y = Math.Max(camera.Y / LevelData.Level.ChunkHeight, 0); y <= Math.Min(((camera.Y + (backgroundPanel.Height - 1) / ZoomLevel)) / LevelData.Level.ChunkHeight, LevelData.BGHeight - 1); y++)
-							for (int x = Math.Max(camera.X / LevelData.Level.ChunkWidth, 0); x <= Math.Min(((camera.X + (backgroundPanel.Width - 1) / ZoomLevel)) / LevelData.Level.ChunkWidth, LevelData.BGWidth - 1); x++)
-								for (int b = 0; b < LevelData.Level.ChunkHeight / 16; b++)
-									for (int a = 0; a < LevelData.Level.ChunkWidth / 16; a++)
-										if (LevelData.Layout.BGLayout[x, y] < LevelData.Chunks.Count)
-										{
-											ChunkBlock blk = LevelData.Chunks[LevelData.Layout.BGLayout[x, y]].Blocks[a, b];
-											if (blk.Block > LevelData.Blocks.Count) continue;
-											Solidity solid = path2ToolStripMenuItem.Checked ? ((S2ChunkBlock)blk).Solid2 : blk.Solid1;
-											if (solid == Solidity.NotSolid) continue;
-											byte coli = path2ToolStripMenuItem.Checked ? LevelData.GetColInd2(blk.Block) : LevelData.GetColInd1(blk.Block);
-											byte angle = LevelData.Angles[coli];
-											if (angle != 0xFF)
-											{
-												if (blk.XFlip)
-													angle = (byte)(-angle & 0xFF);
-												if (blk.YFlip)
-													angle = (byte)((-(angle + 0x40) - 0x40) & 0xFF);
-											}
-											DrawHUDNum(x * LevelData.Level.ChunkWidth + a * 16 - camera.X, y * LevelData.Level.ChunkHeight + b * 16 - camera.Y, angle.ToString("X2"));
-										}
-					if (hUDToolStripMenuItem.Checked)
-					{
-						tmpbnd = hudbnd = DrawHUDStr(8, 8, "Screen Pos: ");
-						hudbnd = Rectangle.Union(hudbnd, DrawHUDNum(tmpbnd.Right, tmpbnd.Top, camera.X.ToString("X4") + ' ' + camera.Y.ToString("X4")));
-						tmpbnd = DrawHUDStr(hudbnd.Left, hudbnd.Bottom, "Level Size: ");
-						hudbnd = Rectangle.Union(hudbnd, tmpbnd);
-						hudbnd = Rectangle.Union(hudbnd, DrawHUDNum(tmpbnd.Right, tmpbnd.Top, (LevelData.BGWidth * LevelData.Level.ChunkWidth).ToString("X4") + ' ' + (LevelData.BGHeight * LevelData.Level.ChunkHeight).ToString("X4")));
-						tmpbnd = DrawHUDStr(hudbnd.Left, hudbnd.Bottom, "Chunk: ");
-						hudbnd = Rectangle.Union(hudbnd, tmpbnd);
-						hudbnd = Rectangle.Union(hudbnd, DrawHUDNum(tmpbnd.Right, tmpbnd.Top, SelectedChunk.ToString("X2")));
-						if (path1ToolStripMenuItem.Checked)
-							hudbnd = Rectangle.Union(hudbnd, DrawHUDStr(hudbnd.Left, hudbnd.Bottom, "Path 1"));
-						else if (path2ToolStripMenuItem.Checked)
-							hudbnd = Rectangle.Union(hudbnd, DrawHUDStr(hudbnd.Left, hudbnd.Bottom, "Path 2"));
-					}
-					LevelBmp = LevelImg8bpp.ToBitmap(LevelImgPalette).To32bpp();
-					LevelGfx = Graphics.FromImage(LevelBmp);
-					LevelGfx.SetOptions();
-					if (LevelData.LayoutFormat.HasLoopFlag)
-						for (int y = Math.Max(camera.Y / LevelData.Level.ChunkHeight, 0); y <= Math.Min(((camera.Y + (backgroundPanel.Height - 1) / ZoomLevel)) / LevelData.Level.ChunkHeight, LevelData.BGHeight - 1); y++)
-							for (int x = Math.Max(camera.X / LevelData.Level.ChunkWidth, 0); x <= Math.Min(((camera.X + (backgroundPanel.Width - 1) / ZoomLevel)) / LevelData.Level.ChunkWidth, LevelData.BGWidth - 1); x++)
-								if (LevelData.Layout.BGLoop[x, y])
-									LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Yellow)) { Width = (int)(3 * ZoomLevel) }, x * LevelData.Level.ChunkWidth - camera.X, y * LevelData.Level.ChunkHeight - camera.Y, LevelData.Level.ChunkWidth - 1, LevelData.Level.ChunkHeight - 1);
 					if (!selecting && SelectedChunk < LevelData.Chunks.Count)
 						LevelGfx.DrawImage(LevelData.CompChunkBmps[SelectedChunk],
 						new Rectangle(((((int)(pnlcur.X / ZoomLevel) + camera.X) / LevelData.Level.ChunkWidth) * LevelData.Level.ChunkWidth) - camera.X, ((((int)(pnlcur.Y / ZoomLevel) + camera.Y) / LevelData.Level.ChunkHeight) * LevelData.Level.ChunkHeight) - camera.Y, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight),
 						0, 0, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight,
 						GraphicsUnit.Pixel, imageTransparency);
-					if (!BGSelection.IsEmpty)
+					if (!selection.IsEmpty)
 					{
-						Rectangle selbnds = BGSelection.Scale(LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
+						Rectangle selbnds = selection.Scale(LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
 						selbnds.Offset(-camera.X, -camera.Y);
 						LevelGfx.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.White)), selbnds);
-								selbnds.Width--;	selbnds.Height--;
+						selbnds.Width--; selbnds.Height--;
 						LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, selbnds);
 					}
-					Panel3Gfx.DrawImage(LevelBmp, 0, 0, backgroundPanel.Width, backgroundPanel.Height);
 					break;
 			}
+			gfx.DrawImage(LevelBmp, 0, 0, panel.Width, panel.Height);
 		}
 
 		public Rectangle DrawHUDStr(int X, int Y, string str)
@@ -3132,12 +3068,12 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void panel_Resize(object sender, EventArgs e)
 		{
-			Panel1Gfx = objectPanel.CreateGraphics();
-			Panel1Gfx.SetOptions();
-			Panel2Gfx = foregroundPanel.CreateGraphics();
-			Panel2Gfx.SetOptions();
-			Panel3Gfx = backgroundPanel.CreateGraphics();
-			Panel3Gfx.SetOptions();
+			objectPanelGfx = objectPanel.CreateGraphics();
+			objectPanelGfx.SetOptions();
+			foregroundPanelGfx = foregroundPanel.CreateGraphics();
+			foregroundPanelGfx.SetOptions();
+			backgroundPanelGfx = backgroundPanel.CreateGraphics();
+			backgroundPanelGfx.SetOptions();
 			if (!loaded) return;
 			loaded = false;
 			UpdateScrollBars();
