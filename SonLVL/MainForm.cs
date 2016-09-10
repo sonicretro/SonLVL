@@ -2800,6 +2800,7 @@ namespace SonicRetro.SonLVL.GUI
 						FGSelection = Rectangle.Empty;
 						DrawLevel();
 					}
+					lastmouse = new Point((int)(e.X / ZoomLevel) + foregroundPanel.HScrollValue, (int)(e.Y / ZoomLevel) + foregroundPanel.VScrollValue);
 					break;
 			}
 		}
@@ -2826,7 +2827,11 @@ namespace SonicRetro.SonLVL.GUI
 						}
 					break;
 				case MouseButtons.Right:
-					selecting = true;
+					if (!selecting)
+						if (Math.Sqrt(Math.Pow(e.X - lastmouse.X, 2) + Math.Pow(e.Y - lastmouse.Y, 2)) > 5)
+							selecting = true;
+						else
+							break;
 					if (FGSelection.IsEmpty)
 						FGSelection = new Rectangle(chunkpoint, new Size(1, 1));
 					else
@@ -2853,7 +2858,6 @@ namespace SonicRetro.SonLVL.GUI
 					break;
 			}
 			lastchunkpoint = chunkpoint;
-			lastmouse = mouse;
 		}
 
 		private void foregroundPanel_MouseUp(object sender, MouseEventArgs e)
@@ -2919,6 +2923,7 @@ namespace SonicRetro.SonLVL.GUI
 						BGSelection = Rectangle.Empty;
 						DrawLevel();
 					}
+					lastmouse = new Point((int)(e.X / ZoomLevel) + foregroundPanel.HScrollValue, (int)(e.Y / ZoomLevel) + foregroundPanel.VScrollValue);
 					break;
 			}
 		}
@@ -2945,7 +2950,11 @@ namespace SonicRetro.SonLVL.GUI
 					}
 					break;
 				case MouseButtons.Right:
-					selecting = true;
+					if (!selecting)
+						if (Math.Sqrt(Math.Pow(e.X - lastmouse.X, 2) + Math.Pow(e.Y - lastmouse.Y, 2)) > 5)
+							selecting = true;
+						else
+							break;
 					if (BGSelection.IsEmpty)
 						BGSelection = new Rectangle(chunkpoint, new Size(1, 1));
 					else
@@ -2972,7 +2981,6 @@ namespace SonicRetro.SonLVL.GUI
 					break;
 			}
 			lastchunkpoint = chunkpoint;
-			lastmouse = mouse;
 		}
 
 		private void backgroundPanel_MouseUp(object sender, MouseEventArgs e)
