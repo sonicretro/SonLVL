@@ -210,10 +210,6 @@ namespace SonicRetro.SonLVL.GUI
 			this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
 			this.selectAllObjectsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.selectAllRingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.hScrollBar1 = new System.Windows.Forms.HScrollBar();
-			this.vScrollBar1 = new System.Windows.Forms.VScrollBar();
-			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-			this.objectPanel = new SonicRetro.SonLVL.API.KeyboardPanel();
 			this.ObjectProperties = new System.Windows.Forms.PropertyGrid();
 			this.tabControl1 = new System.Windows.Forms.TabControl();
 			this.tabPage1 = new System.Windows.Forms.TabPage();
@@ -221,6 +217,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.splitContainer4 = new System.Windows.Forms.SplitContainer();
 			this.objectTypeList = new System.Windows.Forms.ListView();
 			this.objectTypeImages = new System.Windows.Forms.ImageList(this.components);
+			this.objectPanel = new SonicRetro.SonLVL.ScrollingPanel();
 			this.objToolStrip = new System.Windows.Forms.ToolStrip();
 			this.objGridSizeDropDownButton = new System.Windows.Forms.ToolStripDropDownButton();
 			this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
@@ -246,22 +243,16 @@ namespace SonicRetro.SonLVL.GUI
 			this.alignBottomsToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.tabPage2 = new System.Windows.Forms.TabPage();
 			this.splitContainer2 = new System.Windows.Forms.SplitContainer();
-			this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-			this.foregroundPanel = new SonicRetro.SonLVL.API.KeyboardPanel();
-			this.vScrollBar2 = new System.Windows.Forms.VScrollBar();
-			this.hScrollBar2 = new System.Windows.Forms.HScrollBar();
+			this.foregroundPanel = new SonicRetro.SonLVL.ScrollingPanel();
 			this.fgToolStrip = new System.Windows.Forms.ToolStrip();
 			this.replaceForegroundToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.clearForegroundToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.tabPage3 = new System.Windows.Forms.TabPage();
 			this.splitContainer3 = new System.Windows.Forms.SplitContainer();
-			this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
+			this.backgroundPanel = new SonicRetro.SonLVL.ScrollingPanel();
 			this.bgToolStrip = new System.Windows.Forms.ToolStrip();
 			this.replaceBackgroundToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.clearBackgroundToolStripButton = new System.Windows.Forms.ToolStripButton();
-			this.backgroundPanel = new SonicRetro.SonLVL.API.KeyboardPanel();
-			this.vScrollBar3 = new System.Windows.Forms.VScrollBar();
-			this.hScrollBar3 = new System.Windows.Forms.HScrollBar();
 			this.tabControl3 = new System.Windows.Forms.TabControl();
 			this.tabPage10 = new System.Windows.Forms.TabPage();
 			this.tabPage11 = new System.Windows.Forms.TabPage();
@@ -372,7 +363,6 @@ namespace SonicRetro.SonLVL.GUI
 			tableLayoutPanel6.SuspendLayout();
 			this.menuStrip1.SuspendLayout();
 			this.objectContextMenuStrip.SuspendLayout();
-			this.tableLayoutPanel1.SuspendLayout();
 			this.tabControl1.SuspendLayout();
 			this.tabPage1.SuspendLayout();
 			this.splitContainer1.Panel1.SuspendLayout();
@@ -386,13 +376,11 @@ namespace SonicRetro.SonLVL.GUI
 			this.splitContainer2.Panel1.SuspendLayout();
 			this.splitContainer2.Panel2.SuspendLayout();
 			this.splitContainer2.SuspendLayout();
-			this.tableLayoutPanel2.SuspendLayout();
 			this.fgToolStrip.SuspendLayout();
 			this.tabPage3.SuspendLayout();
 			this.splitContainer3.Panel1.SuspendLayout();
 			this.splitContainer3.Panel2.SuspendLayout();
 			this.splitContainer3.SuspendLayout();
-			this.tableLayoutPanel3.SuspendLayout();
 			this.bgToolStrip.SuspendLayout();
 			this.tabControl3.SuspendLayout();
 			this.tabPage4.SuspendLayout();
@@ -2141,72 +2129,6 @@ namespace SonicRetro.SonLVL.GUI
 			this.selectAllRingsToolStripMenuItem.Text = "S&elect All Rings";
 			this.selectAllRingsToolStripMenuItem.Click += new System.EventHandler(this.selectAllRingsToolStripMenuItem_Click);
 			// 
-			// hScrollBar1
-			// 
-			this.hScrollBar1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.hScrollBar1.Enabled = false;
-			this.hScrollBar1.LargeChange = 128;
-			this.hScrollBar1.Location = new System.Drawing.Point(0, 355);
-			this.hScrollBar1.Maximum = 128;
-			this.hScrollBar1.Name = "hScrollBar1";
-			this.hScrollBar1.Size = new System.Drawing.Size(331, 17);
-			this.hScrollBar1.SmallChange = 16;
-			this.hScrollBar1.TabIndex = 3;
-			this.hScrollBar1.ValueChanged += new System.EventHandler(this.ScrollBar_ValueChanged);
-			// 
-			// vScrollBar1
-			// 
-			this.vScrollBar1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-			this.vScrollBar1.Enabled = false;
-			this.vScrollBar1.LargeChange = 128;
-			this.vScrollBar1.Location = new System.Drawing.Point(331, 0);
-			this.vScrollBar1.Maximum = 128;
-			this.vScrollBar1.Name = "vScrollBar1";
-			this.vScrollBar1.Size = new System.Drawing.Size(17, 355);
-			this.vScrollBar1.SmallChange = 16;
-			this.vScrollBar1.TabIndex = 2;
-			this.vScrollBar1.ValueChanged += new System.EventHandler(this.ScrollBar_ValueChanged);
-			// 
-			// tableLayoutPanel1
-			// 
-			this.tableLayoutPanel1.ColumnCount = 2;
-			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-			this.tableLayoutPanel1.Controls.Add(this.objectPanel, 0, 0);
-			this.tableLayoutPanel1.Controls.Add(this.vScrollBar1, 1, 0);
-			this.tableLayoutPanel1.Controls.Add(this.hScrollBar1, 0, 1);
-			this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 25);
-			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-			this.tableLayoutPanel1.RowCount = 2;
-			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-			this.tableLayoutPanel1.Size = new System.Drawing.Size(348, 372);
-			this.tableLayoutPanel1.TabIndex = 2;
-			// 
-			// objectPanel
-			// 
-			this.objectPanel.AllowDrop = true;
-			this.objectPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.objectPanel.Location = new System.Drawing.Point(0, 0);
-			this.objectPanel.Margin = new System.Windows.Forms.Padding(0);
-			this.objectPanel.Name = "objectPanel";
-			this.objectPanel.Size = new System.Drawing.Size(331, 355);
-			this.objectPanel.TabIndex = 1;
-			this.objectPanel.DragDrop += new System.Windows.Forms.DragEventHandler(this.objectPanel_DragDrop);
-			this.objectPanel.DragEnter += new System.Windows.Forms.DragEventHandler(this.objectPanel_DragEnter);
-			this.objectPanel.DragOver += new System.Windows.Forms.DragEventHandler(this.objectPanel_DragOver);
-			this.objectPanel.DragLeave += new System.EventHandler(this.objectPanel_DragLeave);
-			this.objectPanel.Paint += new System.Windows.Forms.PaintEventHandler(this.panel_Paint);
-			this.objectPanel.KeyDown += new System.Windows.Forms.KeyEventHandler(this.objectPanel_KeyDown);
-			this.objectPanel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.objectPanel_MouseDown);
-			this.objectPanel.MouseMove += new System.Windows.Forms.MouseEventHandler(this.objectPanel_MouseMove);
-			this.objectPanel.MouseUp += new System.Windows.Forms.MouseEventHandler(this.objectPanel_MouseUp);
-			this.objectPanel.Resize += new System.EventHandler(this.panel_Resize);
-			// 
 			// ObjectProperties
 			// 
 			this.ObjectProperties.CategoryForeColor = System.Drawing.SystemColors.InactiveCaptionText;
@@ -2279,7 +2201,7 @@ namespace SonicRetro.SonLVL.GUI
 			// 
 			// splitContainer4.Panel2
 			// 
-			this.splitContainer4.Panel2.Controls.Add(this.tableLayoutPanel1);
+			this.splitContainer4.Panel2.Controls.Add(this.objectPanel);
 			this.splitContainer4.Panel2.Controls.Add(this.objToolStrip);
 			this.splitContainer4.Size = new System.Drawing.Size(450, 397);
 			this.splitContainer4.SplitterDistance = 98;
@@ -2302,6 +2224,39 @@ namespace SonicRetro.SonLVL.GUI
 			this.objectTypeImages.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
 			this.objectTypeImages.ImageSize = new System.Drawing.Size(32, 32);
 			this.objectTypeImages.TransparentColor = System.Drawing.Color.Transparent;
+			// 
+			// objectPanel
+			// 
+			this.objectPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.objectPanel.HScrollEnabled = false;
+			this.objectPanel.HScrollLargeChange = 128;
+			this.objectPanel.HScrollMaximum = 128;
+			this.objectPanel.HScrollMinimum = 0;
+			this.objectPanel.HScrollSmallChange = 16;
+			this.objectPanel.HScrollValue = 0;
+			this.objectPanel.Location = new System.Drawing.Point(0, 25);
+			this.objectPanel.Name = "objectPanel";
+			this.objectPanel.PanelAllowDrop = true;
+			this.objectPanel.PanelCursor = System.Windows.Forms.Cursors.Default;
+			this.objectPanel.Size = new System.Drawing.Size(348, 372);
+			this.objectPanel.TabIndex = 5;
+			this.objectPanel.VScrollEnabled = false;
+			this.objectPanel.VScrollLargeChange = 128;
+			this.objectPanel.VScrollMaximum = 128;
+			this.objectPanel.VScrollMinimum = 0;
+			this.objectPanel.VScrollSmallChange = 16;
+			this.objectPanel.VScrollValue = 0;
+			this.objectPanel.PanelPaint += new System.Windows.Forms.PaintEventHandler(this.panel_Paint);
+			this.objectPanel.PanelKeyDown += new System.Windows.Forms.KeyEventHandler(this.objectPanel_KeyDown);
+			this.objectPanel.PanelMouseDown += new System.Windows.Forms.MouseEventHandler(this.objectPanel_MouseDown);
+			this.objectPanel.PanelMouseUp += new System.Windows.Forms.MouseEventHandler(this.objectPanel_MouseUp);
+			this.objectPanel.PanelMouseMove += new System.Windows.Forms.MouseEventHandler(this.objectPanel_MouseMove);
+			this.objectPanel.PanelDragEnter += new System.Windows.Forms.DragEventHandler(this.objectPanel_DragEnter);
+			this.objectPanel.PanelDragOver += new System.Windows.Forms.DragEventHandler(this.objectPanel_DragOver);
+			this.objectPanel.PanelDragLeave += new System.EventHandler(this.objectPanel_DragLeave);
+			this.objectPanel.PanelDragDrop += new System.Windows.Forms.DragEventHandler(this.objectPanel_DragDrop);
+			this.objectPanel.ScrollBarValueChanged += new System.EventHandler(this.ScrollBar_ValueChanged);
+			this.objectPanel.Resize += new System.EventHandler(this.panel_Resize);
 			// 
 			// objToolStrip
 			// 
@@ -2546,7 +2501,8 @@ namespace SonicRetro.SonLVL.GUI
 			// 
 			// splitContainer2.Panel1
 			// 
-			this.splitContainer2.Panel1.Controls.Add(this.tableLayoutPanel2);
+			this.splitContainer2.Panel1.Controls.Add(this.foregroundPanel);
+			this.splitContainer2.Panel1.Controls.Add(this.fgToolStrip);
 			// 
 			// splitContainer2.Panel2
 			// 
@@ -2555,71 +2511,37 @@ namespace SonicRetro.SonLVL.GUI
 			this.splitContainer2.SplitterDistance = 360;
 			this.splitContainer2.TabIndex = 4;
 			// 
-			// tableLayoutPanel2
-			// 
-			this.tableLayoutPanel2.ColumnCount = 2;
-			this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-			this.tableLayoutPanel2.Controls.Add(this.foregroundPanel, 0, 1);
-			this.tableLayoutPanel2.Controls.Add(this.vScrollBar2, 1, 1);
-			this.tableLayoutPanel2.Controls.Add(this.hScrollBar2, 0, 2);
-			this.tableLayoutPanel2.Controls.Add(this.fgToolStrip, 0, 0);
-			this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.tableLayoutPanel2.Location = new System.Drawing.Point(0, 0);
-			this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-			this.tableLayoutPanel2.RowCount = 3;
-			this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
-			this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 66.66666F));
-			this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
-			this.tableLayoutPanel2.Size = new System.Drawing.Size(360, 397);
-			this.tableLayoutPanel2.TabIndex = 3;
-			// 
 			// foregroundPanel
 			// 
 			this.foregroundPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.foregroundPanel.HScrollEnabled = false;
+			this.foregroundPanel.HScrollLargeChange = 128;
+			this.foregroundPanel.HScrollMaximum = 128;
+			this.foregroundPanel.HScrollMinimum = 0;
+			this.foregroundPanel.HScrollSmallChange = 16;
+			this.foregroundPanel.HScrollValue = 0;
 			this.foregroundPanel.Location = new System.Drawing.Point(0, 25);
-			this.foregroundPanel.Margin = new System.Windows.Forms.Padding(0);
 			this.foregroundPanel.Name = "foregroundPanel";
-			this.foregroundPanel.Size = new System.Drawing.Size(343, 355);
-			this.foregroundPanel.TabIndex = 1;
-			this.foregroundPanel.Paint += new System.Windows.Forms.PaintEventHandler(this.panel_Paint);
-			this.foregroundPanel.KeyDown += new System.Windows.Forms.KeyEventHandler(this.foregroundPanel_KeyDown);
-			this.foregroundPanel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.foregroundPanel_MouseDown);
-			this.foregroundPanel.MouseMove += new System.Windows.Forms.MouseEventHandler(this.foregroundPanel_MouseMove);
-			this.foregroundPanel.MouseUp += new System.Windows.Forms.MouseEventHandler(this.foregroundPanel_MouseUp);
+			this.foregroundPanel.PanelAllowDrop = false;
+			this.foregroundPanel.PanelCursor = System.Windows.Forms.Cursors.Default;
+			this.foregroundPanel.Size = new System.Drawing.Size(360, 372);
+			this.foregroundPanel.TabIndex = 5;
+			this.foregroundPanel.VScrollEnabled = false;
+			this.foregroundPanel.VScrollLargeChange = 128;
+			this.foregroundPanel.VScrollMaximum = 128;
+			this.foregroundPanel.VScrollMinimum = 0;
+			this.foregroundPanel.VScrollSmallChange = 16;
+			this.foregroundPanel.VScrollValue = 0;
+			this.foregroundPanel.PanelPaint += new System.Windows.Forms.PaintEventHandler(this.panel_Paint);
+			this.foregroundPanel.PanelKeyDown += new System.Windows.Forms.KeyEventHandler(this.foregroundPanel_KeyDown);
+			this.foregroundPanel.PanelMouseDown += new System.Windows.Forms.MouseEventHandler(this.foregroundPanel_MouseDown);
+			this.foregroundPanel.PanelMouseUp += new System.Windows.Forms.MouseEventHandler(this.foregroundPanel_MouseUp);
+			this.foregroundPanel.PanelMouseMove += new System.Windows.Forms.MouseEventHandler(this.foregroundPanel_MouseMove);
+			this.foregroundPanel.ScrollBarValueChanged += new System.EventHandler(this.ScrollBar_ValueChanged);
 			this.foregroundPanel.Resize += new System.EventHandler(this.panel_Resize);
-			// 
-			// vScrollBar2
-			// 
-			this.vScrollBar2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-			this.vScrollBar2.Enabled = false;
-			this.vScrollBar2.LargeChange = 128;
-			this.vScrollBar2.Location = new System.Drawing.Point(343, 25);
-			this.vScrollBar2.Maximum = 128;
-			this.vScrollBar2.Name = "vScrollBar2";
-			this.vScrollBar2.Size = new System.Drawing.Size(17, 355);
-			this.vScrollBar2.SmallChange = 16;
-			this.vScrollBar2.TabIndex = 2;
-			this.vScrollBar2.ValueChanged += new System.EventHandler(this.ScrollBar_ValueChanged);
-			// 
-			// hScrollBar2
-			// 
-			this.hScrollBar2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.hScrollBar2.Enabled = false;
-			this.hScrollBar2.LargeChange = 128;
-			this.hScrollBar2.Location = new System.Drawing.Point(0, 380);
-			this.hScrollBar2.Maximum = 128;
-			this.hScrollBar2.Name = "hScrollBar2";
-			this.hScrollBar2.Size = new System.Drawing.Size(343, 17);
-			this.hScrollBar2.SmallChange = 16;
-			this.hScrollBar2.TabIndex = 3;
-			this.hScrollBar2.ValueChanged += new System.EventHandler(this.ScrollBar_ValueChanged);
 			// 
 			// fgToolStrip
 			// 
-			this.tableLayoutPanel2.SetColumnSpan(this.fgToolStrip, 2);
 			this.fgToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			this.fgToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.replaceForegroundToolStripButton,
@@ -2669,7 +2591,8 @@ namespace SonicRetro.SonLVL.GUI
 			// 
 			// splitContainer3.Panel1
 			// 
-			this.splitContainer3.Panel1.Controls.Add(this.tableLayoutPanel3);
+			this.splitContainer3.Panel1.Controls.Add(this.backgroundPanel);
+			this.splitContainer3.Panel1.Controls.Add(this.bgToolStrip);
 			// 
 			// splitContainer3.Panel2
 			// 
@@ -2678,29 +2601,37 @@ namespace SonicRetro.SonLVL.GUI
 			this.splitContainer3.SplitterDistance = 360;
 			this.splitContainer3.TabIndex = 4;
 			// 
-			// tableLayoutPanel3
+			// backgroundPanel
 			// 
-			this.tableLayoutPanel3.ColumnCount = 2;
-			this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-			this.tableLayoutPanel3.Controls.Add(this.bgToolStrip, 0, 0);
-			this.tableLayoutPanel3.Controls.Add(this.backgroundPanel, 0, 1);
-			this.tableLayoutPanel3.Controls.Add(this.vScrollBar3, 1, 1);
-			this.tableLayoutPanel3.Controls.Add(this.hScrollBar3, 0, 2);
-			this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 0);
-			this.tableLayoutPanel3.Name = "tableLayoutPanel3";
-			this.tableLayoutPanel3.RowCount = 3;
-			this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
-			this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
-			this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-			this.tableLayoutPanel3.Size = new System.Drawing.Size(360, 397);
-			this.tableLayoutPanel3.TabIndex = 3;
+			this.backgroundPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.backgroundPanel.HScrollEnabled = false;
+			this.backgroundPanel.HScrollLargeChange = 128;
+			this.backgroundPanel.HScrollMaximum = 128;
+			this.backgroundPanel.HScrollMinimum = 0;
+			this.backgroundPanel.HScrollSmallChange = 16;
+			this.backgroundPanel.HScrollValue = 0;
+			this.backgroundPanel.Location = new System.Drawing.Point(0, 25);
+			this.backgroundPanel.Name = "backgroundPanel";
+			this.backgroundPanel.PanelAllowDrop = false;
+			this.backgroundPanel.PanelCursor = System.Windows.Forms.Cursors.Default;
+			this.backgroundPanel.Size = new System.Drawing.Size(360, 372);
+			this.backgroundPanel.TabIndex = 6;
+			this.backgroundPanel.VScrollEnabled = false;
+			this.backgroundPanel.VScrollLargeChange = 128;
+			this.backgroundPanel.VScrollMaximum = 128;
+			this.backgroundPanel.VScrollMinimum = 0;
+			this.backgroundPanel.VScrollSmallChange = 16;
+			this.backgroundPanel.VScrollValue = 0;
+			this.backgroundPanel.PanelPaint += new System.Windows.Forms.PaintEventHandler(this.panel_Paint);
+			this.backgroundPanel.PanelKeyDown += new System.Windows.Forms.KeyEventHandler(this.backgroundPanel_KeyDown);
+			this.backgroundPanel.PanelMouseDown += new System.Windows.Forms.MouseEventHandler(this.backgroundPanel_MouseDown);
+			this.backgroundPanel.PanelMouseUp += new System.Windows.Forms.MouseEventHandler(this.backgroundPanel_MouseUp);
+			this.backgroundPanel.PanelMouseMove += new System.Windows.Forms.MouseEventHandler(this.backgroundPanel_MouseMove);
+			this.backgroundPanel.ScrollBarValueChanged += new System.EventHandler(this.ScrollBar_ValueChanged);
+			this.backgroundPanel.Resize += new System.EventHandler(this.panel_Resize);
 			// 
 			// bgToolStrip
 			// 
-			this.tableLayoutPanel3.SetColumnSpan(this.bgToolStrip, 2);
 			this.bgToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			this.bgToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.replaceBackgroundToolStripButton,
@@ -2728,49 +2659,6 @@ namespace SonicRetro.SonLVL.GUI
 			this.clearBackgroundToolStripButton.Size = new System.Drawing.Size(38, 22);
 			this.clearBackgroundToolStripButton.Text = "Clear";
 			this.clearBackgroundToolStripButton.Click += new System.EventHandler(this.clearBackgroundToolStripButton_Click);
-			// 
-			// backgroundPanel
-			// 
-			this.backgroundPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.backgroundPanel.Location = new System.Drawing.Point(0, 25);
-			this.backgroundPanel.Margin = new System.Windows.Forms.Padding(0);
-			this.backgroundPanel.Name = "backgroundPanel";
-			this.backgroundPanel.Size = new System.Drawing.Size(343, 355);
-			this.backgroundPanel.TabIndex = 1;
-			this.backgroundPanel.Paint += new System.Windows.Forms.PaintEventHandler(this.panel_Paint);
-			this.backgroundPanel.KeyDown += new System.Windows.Forms.KeyEventHandler(this.backgroundPanel_KeyDown);
-			this.backgroundPanel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.backgroundPanel_MouseDown);
-			this.backgroundPanel.MouseMove += new System.Windows.Forms.MouseEventHandler(this.backgroundPanel_MouseMove);
-			this.backgroundPanel.MouseUp += new System.Windows.Forms.MouseEventHandler(this.backgroundPanel_MouseUp);
-			this.backgroundPanel.Resize += new System.EventHandler(this.panel_Resize);
-			// 
-			// vScrollBar3
-			// 
-			this.vScrollBar3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-			this.vScrollBar3.Enabled = false;
-			this.vScrollBar3.LargeChange = 128;
-			this.vScrollBar3.Location = new System.Drawing.Point(343, 25);
-			this.vScrollBar3.Maximum = 128;
-			this.vScrollBar3.Name = "vScrollBar3";
-			this.vScrollBar3.Size = new System.Drawing.Size(17, 355);
-			this.vScrollBar3.SmallChange = 16;
-			this.vScrollBar3.TabIndex = 2;
-			this.vScrollBar3.ValueChanged += new System.EventHandler(this.ScrollBar_ValueChanged);
-			// 
-			// hScrollBar3
-			// 
-			this.hScrollBar3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.hScrollBar3.Enabled = false;
-			this.hScrollBar3.LargeChange = 128;
-			this.hScrollBar3.Location = new System.Drawing.Point(0, 380);
-			this.hScrollBar3.Maximum = 128;
-			this.hScrollBar3.Name = "hScrollBar3";
-			this.hScrollBar3.Size = new System.Drawing.Size(343, 17);
-			this.hScrollBar3.SmallChange = 16;
-			this.hScrollBar3.TabIndex = 3;
-			this.hScrollBar3.ValueChanged += new System.EventHandler(this.ScrollBar_ValueChanged);
 			// 
 			// tabControl3
 			// 
@@ -3400,7 +3288,6 @@ namespace SonicRetro.SonLVL.GUI
 			this.menuStrip1.ResumeLayout(false);
 			this.menuStrip1.PerformLayout();
 			this.objectContextMenuStrip.ResumeLayout(false);
-			this.tableLayoutPanel1.ResumeLayout(false);
 			this.tabControl1.ResumeLayout(false);
 			this.tabPage1.ResumeLayout(false);
 			this.splitContainer1.Panel1.ResumeLayout(false);
@@ -3414,18 +3301,16 @@ namespace SonicRetro.SonLVL.GUI
 			this.objToolStrip.PerformLayout();
 			this.tabPage2.ResumeLayout(false);
 			this.splitContainer2.Panel1.ResumeLayout(false);
+			this.splitContainer2.Panel1.PerformLayout();
 			this.splitContainer2.Panel2.ResumeLayout(false);
 			this.splitContainer2.ResumeLayout(false);
-			this.tableLayoutPanel2.ResumeLayout(false);
-			this.tableLayoutPanel2.PerformLayout();
 			this.fgToolStrip.ResumeLayout(false);
 			this.fgToolStrip.PerformLayout();
 			this.tabPage3.ResumeLayout(false);
 			this.splitContainer3.Panel1.ResumeLayout(false);
+			this.splitContainer3.Panel1.PerformLayout();
 			this.splitContainer3.Panel2.ResumeLayout(false);
 			this.splitContainer3.ResumeLayout(false);
-			this.tableLayoutPanel3.ResumeLayout(false);
-			this.tableLayoutPanel3.PerformLayout();
 			this.bgToolStrip.ResumeLayout(false);
 			this.bgToolStrip.PerformLayout();
 			this.tabControl3.ResumeLayout(false);
@@ -3514,22 +3399,10 @@ namespace SonicRetro.SonLVL.GUI
 		private System.Windows.Forms.ToolStripMenuItem lowToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem highToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem setupEmulatorToolStripMenuItem;
-		private System.Windows.Forms.HScrollBar hScrollBar1;
-		private System.Windows.Forms.VScrollBar vScrollBar1;
-		private SonicRetro.SonLVL.API.KeyboardPanel objectPanel;
-		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
 		private System.Windows.Forms.TabControl tabControl1;
 		private System.Windows.Forms.TabPage tabPage1;
 		private System.Windows.Forms.TabPage tabPage2;
 		private System.Windows.Forms.TabPage tabPage3;
-		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
-		private SonicRetro.SonLVL.API.KeyboardPanel foregroundPanel;
-		private System.Windows.Forms.VScrollBar vScrollBar2;
-		private System.Windows.Forms.HScrollBar hScrollBar2;
-		private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
-		private SonicRetro.SonLVL.API.KeyboardPanel backgroundPanel;
-		private System.Windows.Forms.VScrollBar vScrollBar3;
-		private System.Windows.Forms.HScrollBar hScrollBar3;
 		private System.Windows.Forms.TabPage tabPage4;
 		private System.Windows.Forms.PropertyGrid ObjectProperties;
 		private System.Windows.Forms.SplitContainer splitContainer1;
@@ -3585,7 +3458,6 @@ namespace SonicRetro.SonLVL.GUI
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
 		private System.Windows.Forms.ToolStripMenuItem selectAllObjectsToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem selectAllRingsToolStripMenuItem;
-		private System.Windows.Forms.ToolStrip fgToolStrip;
 		private System.Windows.Forms.ContextMenuStrip layoutContextMenuStrip;
 		private System.Windows.Forms.ToolStripMenuItem cutToolStripMenuItem1;
 		private System.Windows.Forms.ToolStripMenuItem copyToolStripMenuItem1;
@@ -3685,7 +3557,6 @@ namespace SonicRetro.SonLVL.GUI
 		private System.Windows.Forms.ToolStripButton deleteUnusedTilesToolStripButton;
 		private System.Windows.Forms.ToolStripButton deleteUnusedBlocksToolStripButton;
 		private System.Windows.Forms.ToolStripButton deleteUnusedChunksToolStripButton;
-		private System.Windows.Forms.ToolStripButton clearForegroundToolStripButton;
 		private System.Windows.Forms.ToolStripButton clearBackgroundToolStripButton;
 		private System.Windows.Forms.Button calculateAngleButton;
 		private System.Windows.Forms.ContextMenuStrip solidsContextMenuStrip;
@@ -3696,7 +3567,6 @@ namespace SonicRetro.SonLVL.GUI
 		private System.Windows.Forms.ToolStripMenuItem usageCountsToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem3;
 		private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem12;
-		private System.Windows.Forms.ToolStripButton replaceForegroundToolStripButton;
 		private System.Windows.Forms.ToolStripButton replaceBackgroundToolStripButton;
 		private System.Windows.Forms.ToolStripButton replaceChunkBlocksToolStripButton;
 		private System.Windows.Forms.ToolStripButton replaceBlockTilesToolStripButton;
@@ -3717,6 +3587,12 @@ namespace SonicRetro.SonLVL.GUI
 		private API.KeyboardPanel BlockPicture;
 		private System.Windows.Forms.Panel TilePicture;
 		private System.Windows.Forms.Panel ColPicture;
+		private ScrollingPanel objectPanel;
+		private ScrollingPanel foregroundPanel;
+		private System.Windows.Forms.ToolStrip fgToolStrip;
+		private System.Windows.Forms.ToolStripButton replaceForegroundToolStripButton;
+		private System.Windows.Forms.ToolStripButton clearForegroundToolStripButton;
+		private ScrollingPanel backgroundPanel;
 
 	}
 }

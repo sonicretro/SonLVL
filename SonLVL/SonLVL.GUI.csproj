@@ -214,6 +214,12 @@
     <Compile Include="AlternatePaletteDialog.Designer.cs">
       <DependentUpon>AlternatePaletteDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="ScrollingPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ScrollingPanel.Designer.cs">
+      <DependentUpon>ScrollingPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="Settings.cs" />
     <Compile Include="StatisticsDialog.cs">
       <SubType>Form</SubType>
@@ -312,6 +318,9 @@
     </Compile>
     <EmbeddedResource Include="AlternatePaletteDialog.resx">
       <DependentUpon>AlternatePaletteDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ScrollingPanel.resx">
+      <DependentUpon>ScrollingPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="StatisticsDialog.resx">
       <DependentUpon>StatisticsDialog.cs</DependentUpon>
