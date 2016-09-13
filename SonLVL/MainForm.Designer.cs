@@ -128,7 +128,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.recentProjectsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.noneToolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
 			this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+			this.mainMenuStrip = new System.Windows.Forms.MenuStrip();
 			this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.undoCtrlZToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.redoCtrlYToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -136,14 +136,12 @@ namespace SonicRetro.SonLVL.GUI
 			this.findNextToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.findPreviousToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
-			this.blendAlternatePaletteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.resizeLevelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.includeObjectsWithForegroundSelectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.switchMouseButtonsInChunkAndBlockEditorsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.objectsAboveHighPlaneToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.hUDToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.paletteToolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
 			this.waterPaletteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.selectPaletteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.setPositionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -273,6 +271,10 @@ namespace SonicRetro.SonLVL.GUI
 			this.colorBlue = new System.Windows.Forms.NumericUpDown();
 			this.colorGreen = new System.Windows.Forms.NumericUpDown();
 			this.colorRed = new System.Windows.Forms.NumericUpDown();
+			this.paletteToolStrip = new System.Windows.Forms.ToolStrip();
+			this.paletteToolStripDropDownButton = new System.Windows.Forms.ToolStripDropDownButton();
+			this.blendAlternatePaletteToolStripButton = new System.Windows.Forms.ToolStripButton();
+			this.importPaletteToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.tileContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.cutTilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.copyTilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -285,8 +287,6 @@ namespace SonicRetro.SonLVL.GUI
 			this.insertBeforeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.insertAfterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.deleteTilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.paletteContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
-			this.importToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
 			this.layoutContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.cutToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
 			this.copyToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
@@ -361,7 +361,7 @@ namespace SonicRetro.SonLVL.GUI
 			panel9.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.ColAngle)).BeginInit();
 			tableLayoutPanel6.SuspendLayout();
-			this.menuStrip1.SuspendLayout();
+			this.mainMenuStrip.SuspendLayout();
 			this.objectContextMenuStrip.SuspendLayout();
 			this.tabControl1.SuspendLayout();
 			this.tabPage1.SuspendLayout();
@@ -396,8 +396,8 @@ namespace SonicRetro.SonLVL.GUI
 			((System.ComponentModel.ISupportInitialize)(this.colorBlue)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.colorGreen)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.colorRed)).BeginInit();
+			this.paletteToolStrip.SuspendLayout();
 			this.tileContextMenuStrip.SuspendLayout();
-			this.paletteContextMenuStrip.SuspendLayout();
 			this.layoutContextMenuStrip.SuspendLayout();
 			this.solidsContextMenuStrip.SuspendLayout();
 			this.SuspendLayout();
@@ -691,7 +691,7 @@ namespace SonicRetro.SonLVL.GUI
 			tabControl2.Location = new System.Drawing.Point(0, 0);
 			tabControl2.Name = "tabControl2";
 			tabControl2.SelectedIndex = 0;
-			tabControl2.Size = new System.Drawing.Size(286, 397);
+			tabControl2.Size = new System.Drawing.Size(286, 372);
 			tabControl2.TabIndex = 2;
 			// 
 			// tabPage8
@@ -699,7 +699,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.tabPage8.Controls.Add(this.ChunkSelector);
 			this.tabPage8.Location = new System.Drawing.Point(4, 22);
 			this.tabPage8.Name = "tabPage8";
-			this.tabPage8.Size = new System.Drawing.Size(278, 371);
+			this.tabPage8.Size = new System.Drawing.Size(278, 346);
 			this.tabPage8.TabIndex = 0;
 			this.tabPage8.Text = "Chunks";
 			this.tabPage8.UseVisualStyleBackColor = true;
@@ -716,7 +716,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.ChunkSelector.Name = "ChunkSelector";
 			this.ChunkSelector.ScrollValue = 0;
 			this.ChunkSelector.SelectedIndex = -1;
-			this.ChunkSelector.Size = new System.Drawing.Size(278, 371);
+			this.ChunkSelector.Size = new System.Drawing.Size(278, 346);
 			this.ChunkSelector.TabIndex = 1;
 			this.ChunkSelector.SelectedIndexChanged += new System.EventHandler(this.ChunkSelector_SelectedIndexChanged);
 			this.ChunkSelector.ItemDrag += new System.EventHandler(this.ChunkSelector_ItemDrag);
@@ -733,7 +733,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.tabPage9.Controls.Add(this.layoutSectionSplitContainer);
 			this.tabPage9.Location = new System.Drawing.Point(4, 22);
 			this.tabPage9.Name = "tabPage9";
-			this.tabPage9.Size = new System.Drawing.Size(278, 371);
+			this.tabPage9.Size = new System.Drawing.Size(278, 346);
 			this.tabPage9.TabIndex = 1;
 			this.tabPage9.Text = "Layout Sections";
 			this.tabPage9.UseVisualStyleBackColor = true;
@@ -754,8 +754,8 @@ namespace SonicRetro.SonLVL.GUI
 			// layoutSectionSplitContainer.Panel2
 			// 
 			this.layoutSectionSplitContainer.Panel2.Controls.Add(this.layoutSectionPreview);
-			this.layoutSectionSplitContainer.Size = new System.Drawing.Size(278, 371);
-			this.layoutSectionSplitContainer.SplitterDistance = 168;
+			this.layoutSectionSplitContainer.Size = new System.Drawing.Size(278, 346);
+			this.layoutSectionSplitContainer.SplitterDistance = 156;
 			this.layoutSectionSplitContainer.TabIndex = 0;
 			// 
 			// layoutSectionListBox
@@ -765,7 +765,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.layoutSectionListBox.IntegralHeight = false;
 			this.layoutSectionListBox.Location = new System.Drawing.Point(0, 25);
 			this.layoutSectionListBox.Name = "layoutSectionListBox";
-			this.layoutSectionListBox.Size = new System.Drawing.Size(278, 143);
+			this.layoutSectionListBox.Size = new System.Drawing.Size(278, 131);
 			this.layoutSectionListBox.TabIndex = 0;
 			this.layoutSectionListBox.SelectedIndexChanged += new System.EventHandler(this.layoutSectionListBox_SelectedIndexChanged);
 			this.layoutSectionListBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.layoutSectionListBox_KeyDown);
@@ -795,7 +795,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.layoutSectionPreview.Location = new System.Drawing.Point(0, 0);
 			this.layoutSectionPreview.Margin = new System.Windows.Forms.Padding(0);
 			this.layoutSectionPreview.Name = "layoutSectionPreview";
-			this.layoutSectionPreview.Size = new System.Drawing.Size(278, 199);
+			this.layoutSectionPreview.Size = new System.Drawing.Size(278, 186);
 			this.layoutSectionPreview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
 			this.layoutSectionPreview.TabIndex = 0;
 			this.layoutSectionPreview.TabStop = false;
@@ -1421,19 +1421,19 @@ namespace SonicRetro.SonLVL.GUI
 			this.exitToolStripMenuItem.Text = "E&xit";
 			this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
 			// 
-			// menuStrip1
+			// mainMenuStrip
 			// 
-			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this.mainMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.editToolStripMenuItem,
             this.viewToolStripMenuItem,
             this.exportToolStripMenuItem,
             this.helpToolStripMenuItem});
-			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-			this.menuStrip1.Name = "menuStrip1";
-			this.menuStrip1.Size = new System.Drawing.Size(658, 24);
-			this.menuStrip1.TabIndex = 0;
-			this.menuStrip1.Text = "menuStrip1";
+			this.mainMenuStrip.Location = new System.Drawing.Point(0, 0);
+			this.mainMenuStrip.Name = "mainMenuStrip";
+			this.mainMenuStrip.Size = new System.Drawing.Size(658, 24);
+			this.mainMenuStrip.TabIndex = 0;
+			this.mainMenuStrip.Text = "menuStrip1";
 			// 
 			// editToolStripMenuItem
 			// 
@@ -1444,7 +1444,6 @@ namespace SonicRetro.SonLVL.GUI
             this.findNextToolStripMenuItem,
             this.findPreviousToolStripMenuItem,
             this.toolStripSeparator3,
-            this.blendAlternatePaletteToolStripMenuItem,
             this.resizeLevelToolStripMenuItem,
             this.includeObjectsWithForegroundSelectionToolStripMenuItem,
             this.switchMouseButtonsInChunkAndBlockEditorsToolStripMenuItem});
@@ -1500,13 +1499,6 @@ namespace SonicRetro.SonLVL.GUI
 			this.toolStripSeparator3.Name = "toolStripSeparator3";
 			this.toolStripSeparator3.Size = new System.Drawing.Size(332, 6);
 			// 
-			// blendAlternatePaletteToolStripMenuItem
-			// 
-			this.blendAlternatePaletteToolStripMenuItem.Name = "blendAlternatePaletteToolStripMenuItem";
-			this.blendAlternatePaletteToolStripMenuItem.Size = new System.Drawing.Size(335, 22);
-			this.blendAlternatePaletteToolStripMenuItem.Text = "&Blend Alternate Palette...";
-			this.blendAlternatePaletteToolStripMenuItem.Click += new System.EventHandler(this.blendAlternatePaletteToolStripMenuItem_Click);
-			// 
 			// resizeLevelToolStripMenuItem
 			// 
 			this.resizeLevelToolStripMenuItem.Name = "resizeLevelToolStripMenuItem";
@@ -1534,7 +1526,6 @@ namespace SonicRetro.SonLVL.GUI
 			this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.objectsAboveHighPlaneToolStripMenuItem,
             this.hUDToolStripMenuItem,
-            this.paletteToolStripMenuItem2,
             this.waterPaletteToolStripMenuItem,
             this.layersToolStripMenuItem,
             this.collisionToolStripMenuItem,
@@ -1567,14 +1558,6 @@ namespace SonicRetro.SonLVL.GUI
 			this.hUDToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
 			this.hUDToolStripMenuItem.Text = "&HUD";
 			// 
-			// paletteToolStripMenuItem2
-			// 
-			this.paletteToolStripMenuItem2.Name = "paletteToolStripMenuItem2";
-			this.paletteToolStripMenuItem2.ShortcutKeyDisplayString = "[ ]";
-			this.paletteToolStripMenuItem2.Size = new System.Drawing.Size(222, 22);
-			this.paletteToolStripMenuItem2.Text = "&Palette";
-			this.paletteToolStripMenuItem2.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.paletteToolStripMenuItem2_DropDownItemClicked);
-			// 
 			// waterPaletteToolStripMenuItem
 			// 
 			this.waterPaletteToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -1588,14 +1571,14 @@ namespace SonicRetro.SonLVL.GUI
 			// selectPaletteToolStripMenuItem
 			// 
 			this.selectPaletteToolStripMenuItem.Name = "selectPaletteToolStripMenuItem";
-			this.selectPaletteToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
+			this.selectPaletteToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.selectPaletteToolStripMenuItem.Text = "Select &Palette";
 			this.selectPaletteToolStripMenuItem.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.selectPaletteToolStripMenuItem_DropDownItemClicked);
 			// 
 			// setPositionToolStripMenuItem
 			// 
 			this.setPositionToolStripMenuItem.Name = "setPositionToolStripMenuItem";
-			this.setPositionToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
+			this.setPositionToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.setPositionToolStripMenuItem.Text = "Set P&osition...";
 			this.setPositionToolStripMenuItem.Click += new System.EventHandler(this.setPositionToolStripMenuItem_Click);
 			// 
@@ -1860,14 +1843,14 @@ namespace SonicRetro.SonLVL.GUI
             toolStripSeparator2,
             fullToolStripMenuItem});
 			this.pNGToolStripMenuItem.Name = "pNGToolStripMenuItem";
-			this.pNGToolStripMenuItem.Size = new System.Drawing.Size(126, 22);
+			this.pNGToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.pNGToolStripMenuItem.Text = "&PNG";
 			this.pNGToolStripMenuItem.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.pNGToolStripMenuItem_DropDownItemClicked);
 			// 
 			// yYCHRToolStripMenuItem
 			// 
 			this.yYCHRToolStripMenuItem.Name = "yYCHRToolStripMenuItem";
-			this.yYCHRToolStripMenuItem.Size = new System.Drawing.Size(126, 22);
+			this.yYCHRToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.yYCHRToolStripMenuItem.Text = "&YY-CHR";
 			this.yYCHRToolStripMenuItem.Click += new System.EventHandler(this.yYCHRToolStripMenuItem_Click);
 			// 
@@ -1881,7 +1864,7 @@ namespace SonicRetro.SonLVL.GUI
             toolStripSeparator13,
             fullToolStripMenuItem1});
 			this.jASCPALToolStripMenuItem.Name = "jASCPALToolStripMenuItem";
-			this.jASCPALToolStripMenuItem.Size = new System.Drawing.Size(126, 22);
+			this.jASCPALToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.jASCPALToolStripMenuItem.Text = "JASC-PAL";
 			this.jASCPALToolStripMenuItem.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.jASCPALToolStripMenuItem_DropDownItemClicked);
 			// 
@@ -1900,25 +1883,25 @@ namespace SonicRetro.SonLVL.GUI
 			// paletteLine0ToolStripMenuItem
 			// 
 			this.paletteLine0ToolStripMenuItem.Name = "paletteLine0ToolStripMenuItem";
-			this.paletteLine0ToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
+			this.paletteLine0ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.paletteLine0ToolStripMenuItem.Text = "Palette line &0";
 			// 
 			// paletteLine1ToolStripMenuItem
 			// 
 			this.paletteLine1ToolStripMenuItem.Name = "paletteLine1ToolStripMenuItem";
-			this.paletteLine1ToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
+			this.paletteLine1ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.paletteLine1ToolStripMenuItem.Text = "Palette line &1";
 			// 
 			// paletteLine2ToolStripMenuItem
 			// 
 			this.paletteLine2ToolStripMenuItem.Name = "paletteLine2ToolStripMenuItem";
-			this.paletteLine2ToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
+			this.paletteLine2ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.paletteLine2ToolStripMenuItem.Text = "Palette line &2";
 			// 
 			// paletteLine3ToolStripMenuItem
 			// 
 			this.paletteLine3ToolStripMenuItem.Name = "paletteLine3ToolStripMenuItem";
-			this.paletteLine3ToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
+			this.paletteLine3ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
 			this.paletteLine3ToolStripMenuItem.Text = "Palette line &3";
 			// 
 			// blocksToolStripMenuItem
@@ -2137,7 +2120,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.ObjectProperties.Margin = new System.Windows.Forms.Padding(0);
 			this.ObjectProperties.Name = "ObjectProperties";
 			this.ObjectProperties.PropertySort = System.Windows.Forms.PropertySort.Alphabetical;
-			this.ObjectProperties.Size = new System.Drawing.Size(196, 397);
+			this.ObjectProperties.Size = new System.Drawing.Size(196, 372);
 			this.ObjectProperties.TabIndex = 12;
 			this.ObjectProperties.ToolbarVisible = false;
 			this.ObjectProperties.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.ObjectProperties_PropertyValueChanged);
@@ -2150,11 +2133,11 @@ namespace SonicRetro.SonLVL.GUI
 			this.tabControl1.Controls.Add(this.tabPage3);
 			this.tabControl1.Controls.Add(this.tabPage4);
 			this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.tabControl1.Location = new System.Drawing.Point(0, 104);
+			this.tabControl1.Location = new System.Drawing.Point(0, 129);
 			this.tabControl1.Multiline = true;
 			this.tabControl1.Name = "tabControl1";
 			this.tabControl1.SelectedIndex = 0;
-			this.tabControl1.Size = new System.Drawing.Size(658, 423);
+			this.tabControl1.Size = new System.Drawing.Size(658, 398);
 			this.tabControl1.TabIndex = 3;
 			this.tabControl1.SelectedIndexChanged += new System.EventHandler(this.tabControl1_SelectedIndexChanged);
 			// 
@@ -2164,7 +2147,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.tabPage1.Location = new System.Drawing.Point(4, 22);
 			this.tabPage1.Margin = new System.Windows.Forms.Padding(0);
 			this.tabPage1.Name = "tabPage1";
-			this.tabPage1.Size = new System.Drawing.Size(650, 397);
+			this.tabPage1.Size = new System.Drawing.Size(650, 372);
 			this.tabPage1.TabIndex = 0;
 			this.tabPage1.Text = "Objects";
 			this.tabPage1.UseVisualStyleBackColor = true;
@@ -2184,7 +2167,7 @@ namespace SonicRetro.SonLVL.GUI
 			// splitContainer1.Panel2
 			// 
 			this.splitContainer1.Panel2.Controls.Add(this.ObjectProperties);
-			this.splitContainer1.Size = new System.Drawing.Size(650, 397);
+			this.splitContainer1.Size = new System.Drawing.Size(650, 372);
 			this.splitContainer1.SplitterDistance = 450;
 			this.splitContainer1.TabIndex = 3;
 			// 
@@ -2203,7 +2186,7 @@ namespace SonicRetro.SonLVL.GUI
 			// 
 			this.splitContainer4.Panel2.Controls.Add(this.objectPanel);
 			this.splitContainer4.Panel2.Controls.Add(this.objToolStrip);
-			this.splitContainer4.Size = new System.Drawing.Size(450, 397);
+			this.splitContainer4.Size = new System.Drawing.Size(450, 372);
 			this.splitContainer4.SplitterDistance = 98;
 			this.splitContainer4.TabIndex = 3;
 			// 
@@ -2214,7 +2197,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.objectTypeList.Location = new System.Drawing.Point(0, 0);
 			this.objectTypeList.MultiSelect = false;
 			this.objectTypeList.Name = "objectTypeList";
-			this.objectTypeList.Size = new System.Drawing.Size(98, 397);
+			this.objectTypeList.Size = new System.Drawing.Size(98, 372);
 			this.objectTypeList.TabIndex = 0;
 			this.objectTypeList.UseCompatibleStateImageBehavior = false;
 			this.objectTypeList.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.objectTypeList_ItemDrag);
@@ -2238,7 +2221,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.objectPanel.Name = "objectPanel";
 			this.objectPanel.PanelAllowDrop = true;
 			this.objectPanel.PanelCursor = System.Windows.Forms.Cursors.Default;
-			this.objectPanel.Size = new System.Drawing.Size(348, 372);
+			this.objectPanel.Size = new System.Drawing.Size(348, 347);
 			this.objectPanel.TabIndex = 5;
 			this.objectPanel.VScrollEnabled = false;
 			this.objectPanel.VScrollLargeChange = 128;
@@ -2486,7 +2469,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.tabPage2.Location = new System.Drawing.Point(4, 22);
 			this.tabPage2.Margin = new System.Windows.Forms.Padding(0);
 			this.tabPage2.Name = "tabPage2";
-			this.tabPage2.Size = new System.Drawing.Size(650, 397);
+			this.tabPage2.Size = new System.Drawing.Size(650, 372);
 			this.tabPage2.TabIndex = 1;
 			this.tabPage2.Text = "Foreground";
 			this.tabPage2.UseVisualStyleBackColor = true;
@@ -2507,7 +2490,7 @@ namespace SonicRetro.SonLVL.GUI
 			// splitContainer2.Panel2
 			// 
 			this.splitContainer2.Panel2.Controls.Add(tabControl2);
-			this.splitContainer2.Size = new System.Drawing.Size(650, 397);
+			this.splitContainer2.Size = new System.Drawing.Size(650, 372);
 			this.splitContainer2.SplitterDistance = 360;
 			this.splitContainer2.TabIndex = 4;
 			// 
@@ -2524,7 +2507,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.foregroundPanel.Name = "foregroundPanel";
 			this.foregroundPanel.PanelAllowDrop = false;
 			this.foregroundPanel.PanelCursor = System.Windows.Forms.Cursors.Default;
-			this.foregroundPanel.Size = new System.Drawing.Size(360, 372);
+			this.foregroundPanel.Size = new System.Drawing.Size(360, 347);
 			this.foregroundPanel.TabIndex = 5;
 			this.foregroundPanel.VScrollEnabled = false;
 			this.foregroundPanel.VScrollLargeChange = 128;
@@ -2576,7 +2559,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.tabPage3.Location = new System.Drawing.Point(4, 22);
 			this.tabPage3.Margin = new System.Windows.Forms.Padding(0);
 			this.tabPage3.Name = "tabPage3";
-			this.tabPage3.Size = new System.Drawing.Size(650, 397);
+			this.tabPage3.Size = new System.Drawing.Size(650, 372);
 			this.tabPage3.TabIndex = 2;
 			this.tabPage3.Text = "Background";
 			this.tabPage3.UseVisualStyleBackColor = true;
@@ -2597,7 +2580,7 @@ namespace SonicRetro.SonLVL.GUI
 			// splitContainer3.Panel2
 			// 
 			this.splitContainer3.Panel2.Controls.Add(this.tabControl3);
-			this.splitContainer3.Size = new System.Drawing.Size(650, 397);
+			this.splitContainer3.Size = new System.Drawing.Size(650, 372);
 			this.splitContainer3.SplitterDistance = 360;
 			this.splitContainer3.TabIndex = 4;
 			// 
@@ -2614,7 +2597,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.backgroundPanel.Name = "backgroundPanel";
 			this.backgroundPanel.PanelAllowDrop = false;
 			this.backgroundPanel.PanelCursor = System.Windows.Forms.Cursors.Default;
-			this.backgroundPanel.Size = new System.Drawing.Size(360, 372);
+			this.backgroundPanel.Size = new System.Drawing.Size(360, 347);
 			this.backgroundPanel.TabIndex = 6;
 			this.backgroundPanel.VScrollEnabled = false;
 			this.backgroundPanel.VScrollLargeChange = 128;
@@ -2668,14 +2651,14 @@ namespace SonicRetro.SonLVL.GUI
 			this.tabControl3.Location = new System.Drawing.Point(0, 0);
 			this.tabControl3.Name = "tabControl3";
 			this.tabControl3.SelectedIndex = 0;
-			this.tabControl3.Size = new System.Drawing.Size(286, 397);
+			this.tabControl3.Size = new System.Drawing.Size(286, 372);
 			this.tabControl3.TabIndex = 0;
 			// 
 			// tabPage10
 			// 
 			this.tabPage10.Location = new System.Drawing.Point(4, 22);
 			this.tabPage10.Name = "tabPage10";
-			this.tabPage10.Size = new System.Drawing.Size(278, 371);
+			this.tabPage10.Size = new System.Drawing.Size(278, 346);
 			this.tabPage10.TabIndex = 0;
 			this.tabPage10.Text = "Chunks";
 			this.tabPage10.UseVisualStyleBackColor = true;
@@ -2684,7 +2667,7 @@ namespace SonicRetro.SonLVL.GUI
 			// 
 			this.tabPage11.Location = new System.Drawing.Point(4, 22);
 			this.tabPage11.Name = "tabPage11";
-			this.tabPage11.Size = new System.Drawing.Size(278, 371);
+			this.tabPage11.Size = new System.Drawing.Size(278, 346);
 			this.tabPage11.TabIndex = 1;
 			this.tabPage11.Text = "Layout Sections";
 			this.tabPage11.UseVisualStyleBackColor = true;
@@ -2695,7 +2678,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.tabPage4.Location = new System.Drawing.Point(4, 22);
 			this.tabPage4.Margin = new System.Windows.Forms.Padding(0);
 			this.tabPage4.Name = "tabPage4";
-			this.tabPage4.Size = new System.Drawing.Size(650, 397);
+			this.tabPage4.Size = new System.Drawing.Size(650, 372);
 			this.tabPage4.TabIndex = 3;
 			this.tabPage4.Text = "Art";
 			this.tabPage4.UseVisualStyleBackColor = true;
@@ -2721,7 +2704,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.tableLayoutPanel4.RowCount = 2;
 			this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle());
 			this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle());
-			this.tableLayoutPanel4.Size = new System.Drawing.Size(650, 397);
+			this.tableLayoutPanel4.Size = new System.Drawing.Size(650, 372);
 			this.tableLayoutPanel4.TabIndex = 1;
 			// 
 			// tabControl4
@@ -2856,18 +2839,22 @@ namespace SonicRetro.SonLVL.GUI
 			// 
 			// tableLayoutPanel8
 			// 
+			this.tableLayoutPanel8.AutoSize = true;
+			this.tableLayoutPanel8.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			this.tableLayoutPanel8.ColumnCount = 2;
 			this.tableLayoutPanel8.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
 			this.tableLayoutPanel8.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tableLayoutPanel8.Controls.Add(this.panel8, 1, 0);
-			this.tableLayoutPanel8.Controls.Add(this.colorEditingPanel, 0, 0);
+			this.tableLayoutPanel8.Controls.Add(this.panel8, 1, 1);
+			this.tableLayoutPanel8.Controls.Add(this.colorEditingPanel, 0, 1);
+			this.tableLayoutPanel8.Controls.Add(this.paletteToolStrip, 0, 0);
 			this.tableLayoutPanel8.Dock = System.Windows.Forms.DockStyle.Top;
 			this.tableLayoutPanel8.Location = new System.Drawing.Point(0, 24);
 			this.tableLayoutPanel8.Margin = new System.Windows.Forms.Padding(0);
 			this.tableLayoutPanel8.Name = "tableLayoutPanel8";
-			this.tableLayoutPanel8.RowCount = 1;
+			this.tableLayoutPanel8.RowCount = 2;
+			this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle());
 			this.tableLayoutPanel8.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-			this.tableLayoutPanel8.Size = new System.Drawing.Size(658, 80);
+			this.tableLayoutPanel8.Size = new System.Drawing.Size(658, 105);
 			this.tableLayoutPanel8.TabIndex = 4;
 			// 
 			// panel8
@@ -2875,7 +2862,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.panel8.AutoScroll = true;
 			this.panel8.Controls.Add(this.PalettePanel);
 			this.panel8.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.panel8.Location = new System.Drawing.Point(106, 0);
+			this.panel8.Location = new System.Drawing.Point(106, 25);
 			this.panel8.Margin = new System.Windows.Forms.Padding(0);
 			this.panel8.Name = "panel8";
 			this.panel8.Size = new System.Drawing.Size(552, 80);
@@ -2903,7 +2890,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.colorEditingPanel.Controls.Add(this.colorRed);
 			this.colorEditingPanel.Controls.Add(label2);
 			this.colorEditingPanel.Enabled = false;
-			this.colorEditingPanel.Location = new System.Drawing.Point(0, 0);
+			this.colorEditingPanel.Location = new System.Drawing.Point(0, 25);
 			this.colorEditingPanel.Margin = new System.Windows.Forms.Padding(0);
 			this.colorEditingPanel.Name = "colorEditingPanel";
 			this.colorEditingPanel.Size = new System.Drawing.Size(106, 78);
@@ -2932,6 +2919,45 @@ namespace SonicRetro.SonLVL.GUI
 			this.colorRed.Size = new System.Drawing.Size(53, 20);
 			this.colorRed.TabIndex = 1;
 			this.colorRed.ValueChanged += new System.EventHandler(this.color_ValueChanged);
+			// 
+			// paletteToolStrip
+			// 
+			this.tableLayoutPanel8.SetColumnSpan(this.paletteToolStrip, 2);
+			this.paletteToolStrip.Enabled = false;
+			this.paletteToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+			this.paletteToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.paletteToolStripDropDownButton,
+            this.blendAlternatePaletteToolStripButton,
+            this.importPaletteToolStripButton});
+			this.paletteToolStrip.Location = new System.Drawing.Point(0, 0);
+			this.paletteToolStrip.Name = "paletteToolStrip";
+			this.paletteToolStrip.Size = new System.Drawing.Size(658, 25);
+			this.paletteToolStrip.TabIndex = 6;
+			this.paletteToolStrip.Text = "toolStrip1";
+			// 
+			// paletteToolStripDropDownButton
+			// 
+			this.paletteToolStripDropDownButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.paletteToolStripDropDownButton.Name = "paletteToolStripDropDownButton";
+			this.paletteToolStripDropDownButton.Size = new System.Drawing.Size(56, 22);
+			this.paletteToolStripDropDownButton.Text = "&Palette";
+			this.paletteToolStripDropDownButton.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.paletteToolStripDropDownButton_DropDownItemClicked);
+			// 
+			// blendAlternatePaletteToolStripButton
+			// 
+			this.blendAlternatePaletteToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.blendAlternatePaletteToolStripButton.Name = "blendAlternatePaletteToolStripButton";
+			this.blendAlternatePaletteToolStripButton.Size = new System.Drawing.Size(140, 22);
+			this.blendAlternatePaletteToolStripButton.Text = "&Blend Alternate Palette...";
+			this.blendAlternatePaletteToolStripButton.Click += new System.EventHandler(this.blendAlternatePaletteToolStripButton_Click);
+			// 
+			// importPaletteToolStripButton
+			// 
+			this.importPaletteToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.importPaletteToolStripButton.Name = "importPaletteToolStripButton";
+			this.importPaletteToolStripButton.Size = new System.Drawing.Size(56, 22);
+			this.importPaletteToolStripButton.Text = "&Import...";
+			this.importPaletteToolStripButton.Click += new System.EventHandler(this.importPaletteToolStripButton_Click);
 			// 
 			// tileContextMenuStrip
 			// 
@@ -3033,20 +3059,6 @@ namespace SonicRetro.SonLVL.GUI
 			this.deleteTilesToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
 			this.deleteTilesToolStripMenuItem.Text = "&Delete";
 			this.deleteTilesToolStripMenuItem.Click += new System.EventHandler(this.deleteTilesToolStripMenuItem_Click);
-			// 
-			// paletteContextMenuStrip
-			// 
-			this.paletteContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.importToolStripMenuItem1});
-			this.paletteContextMenuStrip.Name = "contextMenuStrip2";
-			this.paletteContextMenuStrip.Size = new System.Drawing.Size(111, 26);
-			// 
-			// importToolStripMenuItem1
-			// 
-			this.importToolStripMenuItem1.Name = "importToolStripMenuItem1";
-			this.importToolStripMenuItem1.Size = new System.Drawing.Size(110, 22);
-			this.importToolStripMenuItem1.Text = "&Import";
-			this.importToolStripMenuItem1.Click += new System.EventHandler(this.importToolStripMenuItem1_Click);
 			// 
 			// layoutContextMenuStrip
 			// 
@@ -3241,12 +3253,12 @@ namespace SonicRetro.SonLVL.GUI
 			this.ClientSize = new System.Drawing.Size(658, 527);
 			this.Controls.Add(this.tabControl1);
 			this.Controls.Add(this.tableLayoutPanel8);
-			this.Controls.Add(this.menuStrip1);
+			this.Controls.Add(this.mainMenuStrip);
 			this.Controls.Add(this.loadingAnimation1);
 			this.Controls.Add(this.importProgressControl1);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.KeyPreview = true;
-			this.MainMenuStrip = this.menuStrip1;
+			this.MainMenuStrip = this.mainMenuStrip;
 			this.Name = "MainForm";
 			this.Text = "SonLVL";
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
@@ -3285,8 +3297,8 @@ namespace SonicRetro.SonLVL.GUI
 			((System.ComponentModel.ISupportInitialize)(this.ColAngle)).EndInit();
 			tableLayoutPanel6.ResumeLayout(false);
 			tableLayoutPanel6.PerformLayout();
-			this.menuStrip1.ResumeLayout(false);
-			this.menuStrip1.PerformLayout();
+			this.mainMenuStrip.ResumeLayout(false);
+			this.mainMenuStrip.PerformLayout();
 			this.objectContextMenuStrip.ResumeLayout(false);
 			this.tabControl1.ResumeLayout(false);
 			this.tabPage1.ResumeLayout(false);
@@ -3334,8 +3346,9 @@ namespace SonicRetro.SonLVL.GUI
 			((System.ComponentModel.ISupportInitialize)(this.colorBlue)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.colorGreen)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.colorRed)).EndInit();
+			this.paletteToolStrip.ResumeLayout(false);
+			this.paletteToolStrip.PerformLayout();
 			this.tileContextMenuStrip.ResumeLayout(false);
-			this.paletteContextMenuStrip.ResumeLayout(false);
 			this.layoutContextMenuStrip.ResumeLayout(false);
 			this.solidsContextMenuStrip.ResumeLayout(false);
 			this.ResumeLayout(false);
@@ -3350,7 +3363,7 @@ namespace SonicRetro.SonLVL.GUI
 		private System.Windows.Forms.ToolStripMenuItem changeLevelToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
-		private System.Windows.Forms.MenuStrip menuStrip1;
+		private System.Windows.Forms.MenuStrip mainMenuStrip;
 		private System.Windows.Forms.ToolStripMenuItem noneToolStripMenuItem;
 		private System.ComponentModel.BackgroundWorker backgroundLevelLoader;
 		private System.Windows.Forms.ToolStripMenuItem exportToolStripMenuItem;
@@ -3381,12 +3394,10 @@ namespace SonicRetro.SonLVL.GUI
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
 		private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
 		internal System.Windows.Forms.ToolStripMenuItem logToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem blendAlternatePaletteToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem collisionToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem noneToolStripMenuItem1;
 		private System.Windows.Forms.ToolStripMenuItem path1ToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem path2ToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem paletteToolStripMenuItem2;
 		private System.Windows.Forms.ToolStripMenuItem hideDebugObjectsToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem addGroupOfObjectsToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem addGroupOfRingsToolStripMenuItem;
@@ -3439,8 +3450,6 @@ namespace SonicRetro.SonLVL.GUI
 		private System.Windows.Forms.ToolStripMenuItem insertBeforeToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem insertAfterToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem deleteTilesToolStripMenuItem;
-		private System.Windows.Forms.ContextMenuStrip paletteContextMenuStrip;
-		private System.Windows.Forms.ToolStripMenuItem importToolStripMenuItem1;
 		private System.Windows.Forms.Panel panel10;
 		private System.Windows.Forms.ToolStripMenuItem gridToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem enableGridToolStripMenuItem;
@@ -3593,6 +3602,10 @@ namespace SonicRetro.SonLVL.GUI
 		private System.Windows.Forms.ToolStripButton replaceForegroundToolStripButton;
 		private System.Windows.Forms.ToolStripButton clearForegroundToolStripButton;
 		private ScrollingPanel backgroundPanel;
+		private System.Windows.Forms.ToolStrip paletteToolStrip;
+		private System.Windows.Forms.ToolStripDropDownButton paletteToolStripDropDownButton;
+		private System.Windows.Forms.ToolStripButton blendAlternatePaletteToolStripButton;
+		private System.Windows.Forms.ToolStripButton importPaletteToolStripButton;
 
 	}
 }

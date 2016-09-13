@@ -64,7 +64,7 @@ namespace SonicRetro.SonLVL.GUI
 			for (int i = 0; i < 16; i++)
 				curpal[i] = LevelData.PaletteToColor(SelectedColor.Y, i, false);
 			PalettePanel.Invalidate();
-			TilePicture.Invalidate();
+			DrawTilePicture();
 			RefreshTileSelector();
 			TileSelector.Invalidate();
 		}
@@ -275,7 +275,7 @@ namespace SonicRetro.SonLVL.GUI
 					Bounds = Screen.FromControl(this).Bounds;
 					break;
 			}
-			menuStrip1.Visible = Settings.ShowMenu;
+			mainMenuStrip.Visible = Settings.ShowMenu;
 			if (System.Diagnostics.Debugger.IsAttached)
 				logToolStripMenuItem_Click(sender, e);
 			if (!string.IsNullOrEmpty(Settings.Emulator))
@@ -346,7 +346,7 @@ namespace SonicRetro.SonLVL.GUI
 					Settings.WindowMode = WindowMode.Maximized;
 				else
 					Settings.WindowMode = WindowMode.Normal;
-				Settings.ShowMenu = menuStrip1.Visible;
+				Settings.ShowMenu = mainMenuStrip.Visible;
 				Settings.Save();
 			}
 		}
@@ -704,6 +704,7 @@ namespace SonicRetro.SonLVL.GUI
 					break;
 			}
 			colorEditingPanel.Enabled = true;
+			paletteToolStrip.Enabled = true;
 			loaded = true;
 			SelectedItems = new List<Entry>();
 			undoCtrlZToolStripMenuItem.DropDownItems.Clear();
@@ -711,13 +712,14 @@ namespace SonicRetro.SonLVL.GUI
 			saveToolStripMenuItem.Enabled = true;
 			editToolStripMenuItem.Enabled = true;
 			exportToolStripMenuItem.Enabled = true;
-			paletteToolStripMenuItem2.DropDownItems.Clear();
+			paletteToolStripDropDownButton.DropDownItems.Clear();
 			foreach (string item in LevelData.PalName)
-				paletteToolStripMenuItem2.DropDownItems.Add(new ToolStripMenuItem(item));
-			((ToolStripMenuItem)paletteToolStripMenuItem2.DropDownItems[0]).Checked = true;
+				paletteToolStripDropDownButton.DropDownItems.Add(new ToolStripMenuItem(item));
+			((ToolStripMenuItem)paletteToolStripDropDownButton.DropDownItems[0]).Checked = true;
+			paletteToolStripDropDownButton.Text = "Palette: " + LevelData.PalName[0];
 			if (LevelData.Palette.Count > 1)
 			{
-				blendAlternatePaletteToolStripMenuItem.Enabled = waterPaletteToolStripMenuItem.Visible = true;
+				blendAlternatePaletteToolStripButton.Enabled = waterPaletteToolStripMenuItem.Visible = true;
 				selectPaletteToolStripMenuItem.DropDownItems.Clear();
 				selectPaletteToolStripMenuItem.DropDownItems.Add(new ToolStripMenuItem("None") { Checked = LevelData.Level.WaterPalette < 2, Tag = -1 });
 				for (int i = 1; i < LevelData.PalName.Count; i++)
@@ -733,7 +735,7 @@ namespace SonicRetro.SonLVL.GUI
 			}
 			else
 			{
-				blendAlternatePaletteToolStripMenuItem.Enabled = waterPaletteToolStripMenuItem.Visible = false;
+				blendAlternatePaletteToolStripButton.Enabled = waterPaletteToolStripMenuItem.Visible = false;
 				waterPalette = -1;
 			}
 			timeZoneToolStripMenuItem.Visible = LevelData.Level.TimeZone != API.TimeZone.None;
@@ -909,49 +911,6 @@ namespace SonicRetro.SonLVL.GUI
 			SelectedObjectChanged();
 			DrawLevel();
 		}
-
-		private void blendAlternatePaletteToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			using (AlternatePaletteDialog dlg = new AlternatePaletteDialog())
-				if (dlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
-				{
-					int underwater = LevelData.CurPal;
-					LevelData.CurPal = 0;
-					Color[,] pal = new Color[4, 16];
-					for (int l = 0; l < 4; l++)
-					{
-						bool doblend = false;
-						switch (l)
-						{
-							case 0:
-								doblend = dlg.Line1;
-								break;
-							case 1:
-								doblend = dlg.Line2;
-								break;
-							case 2:
-								doblend = dlg.Line3;
-								break;
-							case 3:
-								doblend = dlg.Line4;
-								break;
-						}
-						if (!doblend) continue;
-						for (int i = 0; i < 16; i++)
-						{
-							Color col = LevelData.PaletteToColor(l, i, false);
-							if (dlg.radioButton1.Checked)
-								LevelData.Palette[dlg.paletteIndex.SelectedIndex + 1][l, i] = new SonLVLColor(col.Blend(dlg.BlendColor));
-							else if (dlg.radioButton2.Checked)
-								LevelData.Palette[dlg.paletteIndex.SelectedIndex + 1][l, i] = new SonLVLColor(Color.FromArgb(Math.Min(col.R + dlg.BlendColor.R, 255), Math.Min(col.G + dlg.BlendColor.G, 255), Math.Min(col.B + dlg.BlendColor.B, 255)));
-							else
-								LevelData.Palette[dlg.paletteIndex.SelectedIndex + 1][l, i] = new SonLVLColor(Color.FromArgb(Math.Max(col.R - dlg.BlendColor.R, 0), Math.Max(col.G - dlg.BlendColor.G, 0), Math.Max(col.B - dlg.BlendColor.B, 0)));
-						}
-					}
-					LevelData.CurPal = underwater;
-					LevelData.PaletteChanged();
-				}
-		}
 		#endregion
 
 		#region View Menu
@@ -961,12 +920,13 @@ namespace SonicRetro.SonLVL.GUI
 			DrawLevel();
 		}
 
-		private void paletteToolStripMenuItem2_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+		private void paletteToolStripDropDownButton_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
 		{
-			foreach (ToolStripMenuItem item in paletteToolStripMenuItem2.DropDownItems)
+			foreach (ToolStripMenuItem item in paletteToolStripDropDownButton.DropDownItems)
 				item.Checked = false;
 			((ToolStripMenuItem)e.ClickedItem).Checked = true;
-			LevelData.CurPal = paletteToolStripMenuItem2.DropDownItems.IndexOf(e.ClickedItem);
+			LevelData.CurPal = paletteToolStripDropDownButton.DropDownItems.IndexOf(e.ClickedItem);
+			paletteToolStripDropDownButton.Text = "Palette: " + e.ClickedItem.Text;
 			if (waterPalette == LevelData.CurPal)
 				waterPalette = -1;
 			selectPaletteToolStripMenuItem.DropDownItems.Clear();
@@ -1971,7 +1931,7 @@ namespace SonicRetro.SonLVL.GUI
 					}
 					break;
 				case Keys.F5:
-					menuStrip1.ShowHide();
+					mainMenuStrip.ShowHide();
 					break;
 				case Keys.D1:
 				case Keys.NumPad1:
@@ -3020,7 +2980,7 @@ namespace SonicRetro.SonLVL.GUI
 			SelectedChunk = (byte)ChunkSelector.SelectedIndex;
 			SelectedChunkBlock = new Rectangle(0, 0, 1, 1);
 			chunkBlockEditor.SelectedObjects = new[] { LevelData.Chunks[SelectedChunk].Blocks[0, 0] };
-			ChunkPicture.Invalidate();
+			DrawChunkPicture();
 			ChunkID.Text = SelectedChunk.ToString("X2");
 			ChunkCount.Text = LevelData.Chunks.Count.ToString("X") + " / 100";
 			DrawLevel();
@@ -3854,6 +3814,38 @@ namespace SonicRetro.SonLVL.GUI
 			copiedBlockTile = (blockTileEditor.SelectedObjects = tiles)[0];
 		}
 
+		private void BlockCollision1_ValueChanged(object sender, EventArgs e)
+		{
+			if (!loaded) return;
+			LevelData.ColInds1[SelectedBlock] = (byte)BlockCollision1.Value;
+			if (Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2))
+				BlockCollision2.Value = BlockCollision1.Value;
+		}
+
+		void BlockCollision1_TextChanged(object sender, EventArgs e)
+		{
+			if (!loaded) return;
+			byte value;
+			if (byte.TryParse(BlockCollision1.Text, System.Globalization.NumberStyles.HexNumber, null, out value))
+				BlockCollision1.Value = value;
+		}
+
+		private void BlockCollision2_ValueChanged(object sender, EventArgs e)
+		{
+			if (!loaded) return;
+			LevelData.ColInds2[SelectedBlock] = (byte)BlockCollision2.Value;
+			if (Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2))
+				BlockCollision1.Value = BlockCollision2.Value;
+		}
+
+		void BlockCollision2_TextChanged(object sender, EventArgs e)
+		{
+			if (!loaded) return;
+			byte value;
+			if (byte.TryParse(BlockCollision2.Text, System.Globalization.NumberStyles.HexNumber, null, out value))
+				BlockCollision2.Value = value;
+		}
+
 		private void PalettePanel_Paint(object sender, PaintEventArgs e)
 		{
 			if (!loaded) return;
@@ -3889,11 +3881,11 @@ namespace SonicRetro.SonLVL.GUI
 				PalettePanel.Invalidate();
 				LevelData.PaletteChanged();
 				ChunkSelector.Invalidate();
-				ChunkPicture.Invalidate();
+				DrawChunkPicture();
 				BlockSelector.Invalidate();
-				BlockPicture.Invalidate();
+				DrawBlockPicture();
 				TileSelector.Invalidate();
-				TilePicture.Invalidate();
+				DrawTilePicture();
 				DrawLevel();
 			}
 			cols = a.CustomColors;
@@ -3924,44 +3916,12 @@ namespace SonicRetro.SonLVL.GUI
 			PalettePanel.Invalidate();
 			LevelData.PaletteChanged();
 			ChunkSelector.Invalidate();
-			ChunkPicture.Invalidate();
+			DrawChunkPicture();
 			BlockSelector.Invalidate();
-			BlockPicture.Invalidate();
+			DrawBlockPicture();
 			TileSelector.Invalidate();
-			TilePicture.Invalidate();
+			DrawTilePicture();
 			DrawLevel();
-		}
-
-		private void BlockCollision1_ValueChanged(object sender, EventArgs e)
-		{
-			if (!loaded) return;
-			LevelData.ColInds1[SelectedBlock] = (byte)BlockCollision1.Value;
-			if (Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2))
-				BlockCollision2.Value = BlockCollision1.Value;
-		}
-
-		void BlockCollision1_TextChanged(object sender, EventArgs e)
-		{
-			if (!loaded) return;
-			byte value;
-			if (byte.TryParse(BlockCollision1.Text, System.Globalization.NumberStyles.HexNumber, null, out value))
-				BlockCollision1.Value = value;
-		}
-
-		private void BlockCollision2_ValueChanged(object sender, EventArgs e)
-		{
-			if (!loaded) return;
-			LevelData.ColInds2[SelectedBlock] = (byte)BlockCollision2.Value;
-			if (Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2))
-				BlockCollision1.Value = BlockCollision2.Value;
-		}
-
-		void BlockCollision2_TextChanged(object sender, EventArgs e)
-		{
-			if (!loaded) return;
-			byte value;
-			if (byte.TryParse(BlockCollision2.Text, System.Globalization.NumberStyles.HexNumber, null, out value))
-				BlockCollision2.Value = value;
 		}
 
 		private Color[] curpal;
@@ -3970,8 +3930,6 @@ namespace SonicRetro.SonLVL.GUI
 			if (!loaded) return;
 			bool newpal = e.Y / 20 != SelectedColor.Y;
 			SelectedColor = new Point(e.X / 20, e.Y / 20);
-			if (e.Button == System.Windows.Forms.MouseButtons.Right)
-				paletteContextMenuStrip.Show(PalettePanel, e.Location);
 			PalettePanel.Invalidate();
 			if (newpal)
 			{
@@ -3979,7 +3937,7 @@ namespace SonicRetro.SonLVL.GUI
 				for (int i = 0; i < 16; i++)
 					curpal[i] = LevelData.PaletteToColor(SelectedColor.Y, i, false);
 			}
-			TilePicture.Invalidate();
+			DrawTilePicture();
 			RefreshTileSelector();
 			TileSelector.Invalidate();
 			loaded = false;
@@ -3999,7 +3957,50 @@ namespace SonicRetro.SonLVL.GUI
 			loaded = true;
 		}
 
-		private void importToolStripMenuItem1_Click(object sender, EventArgs e)
+		private void blendAlternatePaletteToolStripButton_Click(object sender, EventArgs e)
+		{
+			using (AlternatePaletteDialog dlg = new AlternatePaletteDialog())
+				if (dlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+				{
+					int underwater = LevelData.CurPal;
+					LevelData.CurPal = 0;
+					Color[,] pal = new Color[4, 16];
+					for (int l = 0; l < 4; l++)
+					{
+						bool doblend = false;
+						switch (l)
+						{
+							case 0:
+								doblend = dlg.Line1;
+								break;
+							case 1:
+								doblend = dlg.Line2;
+								break;
+							case 2:
+								doblend = dlg.Line3;
+								break;
+							case 3:
+								doblend = dlg.Line4;
+								break;
+						}
+						if (!doblend) continue;
+						for (int i = 0; i < 16; i++)
+						{
+							Color col = LevelData.PaletteToColor(l, i, false);
+							if (dlg.radioButton1.Checked)
+								LevelData.Palette[dlg.paletteIndex.SelectedIndex + 1][l, i] = new SonLVLColor(col.Blend(dlg.BlendColor));
+							else if (dlg.radioButton2.Checked)
+								LevelData.Palette[dlg.paletteIndex.SelectedIndex + 1][l, i] = new SonLVLColor(Color.FromArgb(Math.Min(col.R + dlg.BlendColor.R, 255), Math.Min(col.G + dlg.BlendColor.G, 255), Math.Min(col.B + dlg.BlendColor.B, 255)));
+							else
+								LevelData.Palette[dlg.paletteIndex.SelectedIndex + 1][l, i] = new SonLVLColor(Color.FromArgb(Math.Max(col.R - dlg.BlendColor.R, 0), Math.Max(col.G - dlg.BlendColor.G, 0), Math.Max(col.B - dlg.BlendColor.B, 0)));
+						}
+					}
+					LevelData.CurPal = underwater;
+					LevelData.PaletteChanged();
+				}
+		}
+
+		private void importPaletteToolStripButton_Click(object sender, EventArgs e)
 		{
 			using (OpenFileDialog a = new OpenFileDialog())
 			{
@@ -4072,11 +4073,11 @@ namespace SonicRetro.SonLVL.GUI
 			}
 			LevelData.PaletteChanged();
 			ChunkSelector.Invalidate();
-			ChunkPicture.Invalidate();
+			DrawChunkPicture();
 			BlockSelector.Invalidate();
-			BlockPicture.Invalidate();
+			DrawBlockPicture();
 			TileSelector.Invalidate();
-			TilePicture.Invalidate();
+			DrawTilePicture();
 			DrawLevel();
 		}
 
@@ -5337,7 +5338,7 @@ namespace SonicRetro.SonLVL.GUI
 			}
 			TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y);
 			blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
-			TilePicture.Invalidate();
+			DrawTilePicture();
 		}
 
 		private void drawToolStripButton_Click(object sender, EventArgs e)
@@ -7707,7 +7708,7 @@ namespace SonicRetro.SonLVL.GUI
 			copiedBlockTile = (blockTileEditor.SelectedObjects = GetSelectedBlockTiles())[0];
 			if (copiedBlockTile.Tile < LevelData.Tiles.Count)
 				TileSelector.SelectedIndex = LevelData.Level.TwoPlayerCompatible ? copiedBlockTile.Tile / 2 : copiedBlockTile.Tile;
-			BlockPicture.Invalidate();
+			DrawBlockPicture();
 			BlockSelector.Invalidate();
 		}
 
@@ -7719,7 +7720,7 @@ namespace SonicRetro.SonLVL.GUI
 			copiedBlockTile = (blockTileEditor.SelectedObjects = GetSelectedBlockTiles())[0];
 			if (copiedBlockTile.Tile < LevelData.Tiles.Count)
 				TileSelector.SelectedIndex = LevelData.Level.TwoPlayerCompatible ? copiedBlockTile.Tile / 2 : copiedBlockTile.Tile;
-			BlockPicture.Invalidate();
+			DrawBlockPicture();
 			BlockSelector.Invalidate();
 		}
 
