@@ -3870,7 +3870,7 @@ namespace SonicRetro.SonLVL.GUI
 		int[] cols;
 		private void PalettePanel_MouseDoubleClick(object sender, MouseEventArgs e)
 		{
-			if (!loaded) return;
+			if (!loaded || e.Button != MouseButtons.Left) return;
 			int line = e.Y / 20;
 			int index = e.X / 20;
 			SelectedColor = new Point(index, line);
