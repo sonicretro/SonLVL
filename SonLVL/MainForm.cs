@@ -56,17 +56,20 @@ namespace SonicRetro.SonLVL.GUI
 			LevelImgPalette.Entries[LevelData.ColorYellow] = Color.Yellow;
 			LevelImgPalette.Entries[LevelData.ColorBlack] = Color.Black;
 			LevelImgPalette.Entries[131] = Settings.GridColor;
+			ChunkSelector.Invalidate();
 			DrawChunkPicture();
 			chunkBlockEditor.Invalidate();
+			BlockSelector.Invalidate();
 			DrawBlockPicture();
 			blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 			curpal = new Color[16];
 			for (int i = 0; i < 16; i++)
 				curpal[i] = LevelData.PaletteToColor(SelectedColor.Y, i, false);
-			PalettePanel.Invalidate();
+			DrawPalette();
 			DrawTilePicture();
 			RefreshTileSelector();
 			TileSelector.Invalidate();
+			DrawLevel();
 		}
 
 		void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
@@ -82,7 +85,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		ImageAttributes imageTransparency = new ImageAttributes();
 		Bitmap LevelBmp;
-		Graphics LevelGfx;
+		Graphics LevelGfx, PalettePanelGfx;
 		internal bool loaded;
 		internal byte SelectedChunk;
 		internal List<Entry> SelectedItems;
@@ -205,6 +208,7 @@ namespace SonicRetro.SonLVL.GUI
 			System.Drawing.Imaging.ColorMatrix x = new System.Drawing.Imaging.ColorMatrix();
 			x.Matrix33 = 0.75f;
 			imageTransparency.SetColorMatrix(x, System.Drawing.Imaging.ColorMatrixFlag.Default, System.Drawing.Imaging.ColorAdjustType.Bitmap);
+			PalettePanelGfx = PalettePanel.CreateGraphics();
 			string HUDpath = Path.Combine(Application.StartupPath, "HUD");
 			HUDLetters = new Dictionary<char, BitmapBits>();
 			Dictionary<char, string> huditems = IniSerializer.Deserialize<Dictionary<char, string>>(Path.Combine(HUDpath, "HUD.ini"));
@@ -3846,17 +3850,21 @@ namespace SonicRetro.SonLVL.GUI
 				BlockCollision2.Value = value;
 		}
 
-		private void PalettePanel_Paint(object sender, PaintEventArgs e)
+		private void DrawPalette()
 		{
 			if (!loaded) return;
-			e.Graphics.Clear(Color.Black);
 			for (int y = 0; y <= 3; y++)
 				for (int x = 0; x <= 15; x++)
 				{
-					e.Graphics.FillRectangle(new SolidBrush(LevelData.PaletteToColor(y, x, false)), x * 20, y * 20, 20, 20);
-					e.Graphics.DrawRectangle(Pens.White, x * 20, y * 20, 19, 19);
+					PalettePanelGfx.FillRectangle(new SolidBrush(LevelData.PaletteToColor(y, x, false)), x * 20, y * 20, 20, 20);
+					PalettePanelGfx.DrawRectangle(Pens.White, x * 20, y * 20, 19, 19);
 				}
-			e.Graphics.DrawRectangle(new Pen(Color.Yellow, 2), SelectedColor.X * 20, SelectedColor.Y * 20, 20, 20);
+			PalettePanelGfx.DrawRectangle(new Pen(Color.Yellow, 2), SelectedColor.X * 20, SelectedColor.Y * 20, 20, 20);
+		}
+
+		private void PalettePanel_Paint(object sender, PaintEventArgs e)
+		{
+			DrawPalette();
 		}
 
 		int[] cols;
@@ -3878,15 +3886,7 @@ namespace SonicRetro.SonLVL.GUI
 			if (a.ShowDialog() == System.Windows.Forms.DialogResult.OK)
 			{
 				LevelData.ColorToPalette(line, index, a.Color);
-				PalettePanel.Invalidate();
 				LevelData.PaletteChanged();
-				ChunkSelector.Invalidate();
-				DrawChunkPicture();
-				BlockSelector.Invalidate();
-				DrawBlockPicture();
-				TileSelector.Invalidate();
-				DrawTilePicture();
-				DrawLevel();
 			}
 			cols = a.CustomColors;
 			loaded = false;
@@ -3913,48 +3913,70 @@ namespace SonicRetro.SonLVL.GUI
 				LevelData.Palette[LevelData.CurPal][SelectedColor.Y, SelectedColor.X] = new SonLVLColor((byte)colorRed.Value, (byte)colorGreen.Value, (byte)colorBlue.Value);
 			else
 				LevelData.Palette[LevelData.CurPal][SelectedColor.Y, SelectedColor.X] = new SonLVLColor((ushort)((int)colorRed.Value | (int)colorGreen.Value << 4 | (int)colorBlue.Value << 8));
-			PalettePanel.Invalidate();
 			LevelData.PaletteChanged();
-			ChunkSelector.Invalidate();
-			DrawChunkPicture();
-			BlockSelector.Invalidate();
-			DrawBlockPicture();
-			TileSelector.Invalidate();
-			DrawTilePicture();
-			DrawLevel();
 		}
 
 		private Color[] curpal;
 		private void PalettePanel_MouseDown(object sender, MouseEventArgs e)
 		{
 			if (!loaded) return;
-			bool newpal = e.Y / 20 != SelectedColor.Y;
-			SelectedColor = new Point(e.X / 20, e.Y / 20);
-			PalettePanel.Invalidate();
-			if (newpal)
+			Point mouseColor = new Point(e.X / 20, e.Y / 20);
+			if (mouseColor == SelectedColor) return;
+			bool newpal = mouseColor.Y != SelectedColor.Y;
+			switch (e.Button)
 			{
-				curpal = new Color[16];
-				for (int i = 0; i < 16; i++)
-					curpal[i] = LevelData.PaletteToColor(SelectedColor.Y, i, false);
+				case MouseButtons.Left:
+					SelectedColor = mouseColor;
+					DrawPalette();
+					if (newpal)
+					{
+						curpal = new Color[16];
+						for (int i = 0; i < 16; i++)
+							curpal[i] = LevelData.PaletteToColor(SelectedColor.Y, i, false);
+						DrawTilePicture();
+						RefreshTileSelector();
+					}
+					loaded = false;
+					if (LevelData.Level.PaletteFormat == EngineVersion.SCDPC)
+					{
+						colorRed.Value = LevelData.Palette[LevelData.CurPal][SelectedColor.Y, SelectedColor.X].R;
+						colorGreen.Value = LevelData.Palette[LevelData.CurPal][SelectedColor.Y, SelectedColor.X].G;
+						colorBlue.Value = LevelData.Palette[LevelData.CurPal][SelectedColor.Y, SelectedColor.X].B;
+					}
+					else
+					{
+						ushort md = LevelData.Palette[LevelData.CurPal][SelectedColor.Y, SelectedColor.X].MDColor;
+						colorRed.Value = md & 0xF;
+						colorGreen.Value = (md >> 4) & 0xF;
+						colorBlue.Value = (md >> 8) & 0xF;
+					}
+					loaded = true;
+					break;
+				case MouseButtons.Right:
+					if (!newpal)
+					{
+						int start = Math.Min(SelectedColor.X, mouseColor.X);
+						int end = Math.Max(SelectedColor.X, mouseColor.X);
+						if (end - start == 1) return;
+						Color startcol = LevelData.PaletteToColor(SelectedColor.Y, start, false);
+						Color endcol = LevelData.PaletteToColor(SelectedColor.Y, end, false);
+						double r = startcol.R;
+						double g = startcol.G;
+						double b = startcol.B;
+						double radd = (endcol.R - startcol.R) / (double)(end - start);
+						double gadd = (endcol.G - startcol.G) / (double)(end - start);
+						double badd = (endcol.B - startcol.B) / (double)(end - start);
+						for (int x = start + 1; x < end; x++)
+						{
+							r += radd;
+							g += gadd;
+							b += badd;
+							LevelData.ColorToPalette(SelectedColor.Y, x, Color.FromArgb((int)Math.Round(r, MidpointRounding.AwayFromZero), (int)Math.Round(g, MidpointRounding.AwayFromZero), (int)Math.Round(b, MidpointRounding.AwayFromZero)));
+						}
+						LevelData.PaletteChanged();
+					}
+					break;
 			}
-			DrawTilePicture();
-			RefreshTileSelector();
-			TileSelector.Invalidate();
-			loaded = false;
-			if (LevelData.Level.PaletteFormat == EngineVersion.SCDPC)
-			{
-				colorRed.Value = LevelData.Palette[LevelData.CurPal][SelectedColor.Y, SelectedColor.X].R;
-				colorGreen.Value = LevelData.Palette[LevelData.CurPal][SelectedColor.Y, SelectedColor.X].G;
-				colorBlue.Value = LevelData.Palette[LevelData.CurPal][SelectedColor.Y, SelectedColor.X].B;
-			}
-			else
-			{
-				ushort md = LevelData.Palette[LevelData.CurPal][SelectedColor.Y, SelectedColor.X].MDColor;
-				colorRed.Value = md & 0xF;
-				colorGreen.Value = (md >> 4) & 0xF;
-				colorBlue.Value = (md >> 8) & 0xF;
-			}
-			loaded = true;
 		}
 
 		private void blendAlternatePaletteToolStripButton_Click(object sender, EventArgs e)
@@ -4072,13 +4094,6 @@ namespace SonicRetro.SonLVL.GUI
 				}
 			}
 			LevelData.PaletteChanged();
-			ChunkSelector.Invalidate();
-			DrawChunkPicture();
-			BlockSelector.Invalidate();
-			DrawBlockPicture();
-			TileSelector.Invalidate();
-			DrawTilePicture();
-			DrawLevel();
 		}
 
 		private BitmapBits tile;
@@ -4140,7 +4155,7 @@ namespace SonicRetro.SonLVL.GUI
 			else if (e.Button == MouseButtons.Right)
 			{
 				SelectedColor = new Point(tile[e.X / 16, e.Y / 16], SelectedColor.Y);
-				PalettePanel.Invalidate();
+				DrawPalette();
 			}
 		}
 
