@@ -1792,6 +1792,51 @@ namespace SonicRetro.SonLVL.API
 			Palette[CurPal][line, index] = new SonLVLColor(color);
 		}
 
+		public static void RedrawBlocksUsingTiles(IEnumerable<int> tiles, bool drawChunks)
+		{
+			List<int> blocks = new List<int>();
+			foreach (int tile in tiles)
+			{
+					for (int i = 0; i < Blocks.Count; i++)
+					{
+						if (blocks.Contains(i)) continue;
+						for (int k = 0; k < 2; k++)
+							for (int j = 0; j < 2; j++)
+								if (Blocks[i].Tiles[j, k].Tile == tile)
+								{
+									blocks.Add(i);
+									goto nextblock;
+								}
+					nextblock: ;
+					}
+			}
+			RedrawBlocks(blocks, drawChunks);
+		}
+
+		public static void RedrawBlocks(IEnumerable<int> blocks, bool drawChunks)
+		{
+			List<int> chunks = new List<int>();
+			foreach (int block in blocks)
+			{
+				RedrawBlock(block, false);
+				if (drawChunks)
+					for (int i = 0; i < Chunks.Count; i++)
+					{
+						if (chunks.Contains(i)) continue;
+						for (int k = 0; k < Level.ChunkHeight / 16; k++)
+							for (int j = 0; j < Level.ChunkWidth / 16; j++)
+								if (Chunks[i].Blocks[j, k].Block == block)
+								{
+									chunks.Add(i);
+									goto nextchunk;
+								}
+					nextchunk: ;
+					}
+			}
+			if (drawChunks)
+				RedrawChunks(chunks);
+		}
+
 		public static void RedrawBlock(int block, bool drawChunks)
 		{
 			BlockBmpBits[block][0] = new BitmapBits(16, 16);
@@ -1829,6 +1874,12 @@ namespace SonicRetro.SonLVL.API
 						RedrawChunk(i);
 				}
 			}
+		}
+
+		public static void RedrawChunks(IEnumerable<int> chunks)
+		{
+			foreach (int chunk in chunks)
+				RedrawChunk(chunk);
 		}
 
 		public static void RedrawChunk(int chunk)

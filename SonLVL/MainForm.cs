@@ -3850,16 +3850,30 @@ namespace SonicRetro.SonLVL.GUI
 				BlockCollision2.Value = value;
 		}
 
+		Color[,] disppal = null;
 		private void DrawPalette()
 		{
 			if (!loaded) return;
+			Color[,] pal = disppal;
+			if (pal == null)
+			{
+				pal = new Color[4, 16];
+				for (int y = 0; y <= 3; y++)
+					for (int x = 0; x <= 15; x++)
+						pal[y, x] = LevelData.PaletteToColor(y, x, false);
+			}
 			for (int y = 0; y <= 3; y++)
 				for (int x = 0; x <= 15; x++)
 				{
-					PalettePanelGfx.FillRectangle(new SolidBrush(LevelData.PaletteToColor(y, x, false)), x * 20, y * 20, 20, 20);
+					PalettePanelGfx.FillRectangle(new SolidBrush(pal[y, x]), x * 20, y * 20, 20, 20);
 					PalettePanelGfx.DrawRectangle(Pens.White, x * 20, y * 20, 19, 19);
 				}
-			PalettePanelGfx.DrawRectangle(new Pen(Color.Yellow, 2), SelectedColor.X * 20, SelectedColor.Y * 20, 20, 20);
+			if (disppal == null)
+				PalettePanelGfx.DrawRectangle(new Pen(Color.Yellow, 2), SelectedColor.X * 20, SelectedColor.Y * 20, 20, 20);
+			else if (lastmouse.Y == SelectedColor.Y)
+				PalettePanelGfx.DrawRectangle(new Pen(Color.Yellow, 2), lastmouse.X * 20, lastmouse.Y * 20, 20, 20);
+			else
+				PalettePanelGfx.DrawRectangle(new Pen(Color.Yellow, 2), 0, lastmouse.Y * 20, 320, 20);
 		}
 
 		private void PalettePanel_Paint(object sender, PaintEventArgs e)
@@ -3927,6 +3941,7 @@ namespace SonicRetro.SonLVL.GUI
 			{
 				case MouseButtons.Left:
 					SelectedColor = mouseColor;
+					lastmouse = mouseColor;
 					DrawPalette();
 					if (newpal)
 					{
@@ -3977,6 +3992,115 @@ namespace SonicRetro.SonLVL.GUI
 					}
 					break;
 			}
+		}
+
+		private void PalettePanel_MouseMove(object sender, MouseEventArgs e)
+		{
+			if (!loaded || e.Button != MouseButtons.Left) return;
+			Point mouseColor = new Point(e.X / 20, e.Y / 20);
+			if (mouseColor == lastmouse) return;
+			if (mouseColor == SelectedColor)
+			{
+				disppal = null;
+				lastmouse = mouseColor;
+				DrawPalette();
+			}
+			if (mouseColor.X < 0 || mouseColor.Y < 0 || mouseColor.X > 15 || mouseColor.Y > 3) return;
+			List<List<Point>> palidxs = new List<List<Point>>();
+			for (int y = 0; y < 4; y++)
+			{
+				List<Point> l = new List<Point>();
+				for (int x = 0; x < 16; x++)
+					l.Add(new Point(x, y));
+				palidxs.Add(l);
+			}
+			if (mouseColor.Y != SelectedColor.Y)
+			{
+				if (mouseColor.Y == lastmouse.Y)
+				{
+					lastmouse = mouseColor;
+					return;
+				}
+				if ((ModifierKeys & Keys.Control) == Keys.Control)
+					palidxs.Swap(SelectedColor.Y, mouseColor.Y);
+				else
+					palidxs.Move(SelectedColor.Y, mouseColor.Y > SelectedColor.Y ? mouseColor.Y + 1 : mouseColor.Y);
+			}
+			else
+			{
+				if ((ModifierKeys & Keys.Control) == Keys.Control)
+					palidxs[mouseColor.Y].Swap(SelectedColor.X, mouseColor.X);
+				else
+					palidxs[mouseColor.Y].Move(SelectedColor.X, mouseColor.X > SelectedColor.X ? mouseColor.X + 1 : mouseColor.X);
+			}
+			disppal = new Color[4, 16];
+			for (int y = 0; y < 4; y++)
+				for (int x = 0; x < 16; x++)
+					disppal[y, x] = LevelData.PaletteToColor(palidxs[y][x].Y, palidxs[y][x].X, false);
+			lastmouse = mouseColor;
+			DrawPalette();
+		}
+
+		private void PalettePanel_MouseUp(object sender, MouseEventArgs e)
+		{
+			if (!loaded || e.Button != MouseButtons.Left) return;
+			Point mouseColor = lastmouse;
+			if (mouseColor == SelectedColor) return;
+			disppal = null;
+			List<List<Point>> palidxs = new List<List<Point>>();
+			for (int y = 0; y < 4; y++)
+			{
+				List<Point> l = new List<Point>();
+				for (int x = 0; x < 16; x++)
+					l.Add(new Point(x, y));
+				palidxs.Add(l);
+			}
+			if (mouseColor.Y != SelectedColor.Y)
+			{
+				if ((ModifierKeys & Keys.Control) == Keys.Control)
+					palidxs.Swap(SelectedColor.Y, mouseColor.Y);
+				else
+					palidxs.Move(SelectedColor.Y, mouseColor.Y > SelectedColor.Y ? mouseColor.Y + 1 : mouseColor.Y);
+				foreach (Block block in LevelData.Blocks)
+					for (int y = 0; y < 2; y++)
+						for (int x = 0; x < 2; x++)
+							block.Tiles[x, y].Palette = (byte)palidxs.FindIndex(a => a[0].Y == block.Tiles[x, y].Palette);
+				LevelData.RedrawBlocks(Enumerable.Range(0, LevelData.Blocks.Count), true);
+			}
+			else
+			{
+				if ((ModifierKeys & Keys.Control) == Keys.Control)
+					palidxs[mouseColor.Y].Swap(SelectedColor.X, mouseColor.X);
+				else
+					palidxs[mouseColor.Y].Move(SelectedColor.X, mouseColor.X > SelectedColor.X ? mouseColor.X + 1 : mouseColor.X);
+				List<int> tiles = new List<int>();
+				foreach (Block block in LevelData.Blocks)
+					for (int y = 0; y < 2; y++)
+						for (int x = 0; x < 2; x++)
+							if (block.Tiles[x, y].Palette == mouseColor.Y && !tiles.Contains(block.Tiles[x,y].Tile))
+							{
+								int t = block.Tiles[x, y].Tile;
+								BitmapBits bmp = BitmapBits.FromTile(LevelData.Tiles[t], 0);
+								for (int i = 0; i < bmp.Bits.Length; i++)
+									bmp.Bits[i] = (byte)palidxs[mouseColor.Y].FindIndex((a) => a.X == bmp.Bits[i]);
+								LevelData.Tiles[t] = bmp.ToTile();
+								tiles.Add(t);
+							}
+				if (tiles.Count > 0)
+				{
+					LevelData.UpdateTileArray();
+					LevelData.RedrawBlocksUsingTiles(tiles, true);
+				}
+			}
+			Color[,] newpal = new Color[4, 16];
+			for (int y = 0; y < 4; y++)
+				for (int x = 0; x < 16; x++)
+					newpal[y, x] = LevelData.PaletteToColor(palidxs[y][x].Y, palidxs[y][x].X, false);
+			for (int y = 0; y < 4; y++)
+				for (int x = 0; x < 16; x++)
+					LevelData.ColorToPalette(y, x, newpal[y, x]);
+			SelectedColor = mouseColor;
+			LevelData.PaletteChanged();
 		}
 
 		private void blendAlternatePaletteToolStripButton_Click(object sender, EventArgs e)
