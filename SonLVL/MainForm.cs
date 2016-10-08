@@ -3449,6 +3449,12 @@ namespace SonicRetro.SonLVL.GUI
 					else
 						return;
 					break;
+				case Keys.End:
+					ChunkSelector.SelectedIndex = ChunkSelector.Images.Count - 1;
+					return;
+				case Keys.Home:
+					ChunkSelector.SelectedIndex = 0;
+					break;
 				case Keys.Left:
 					if (SelectedChunkBlock.X > 0)
 					{
@@ -3461,6 +3467,14 @@ namespace SonicRetro.SonLVL.GUI
 					else
 						return;
 					break;
+				case Keys.PageDown:
+					if (ChunkSelector.SelectedIndex < ChunkSelector.Images.Count - 1)
+						ChunkSelector.SelectedIndex++;
+					return;
+				case Keys.PageUp:
+					if (ChunkSelector.SelectedIndex > 0)
+						ChunkSelector.SelectedIndex--;
+					return;
 				case Keys.Right:
 					if (SelectedChunkBlock.X < (LevelData.Level.ChunkWidth / 16) - 1)
 					{
@@ -3746,6 +3760,12 @@ namespace SonicRetro.SonLVL.GUI
 					else
 						return;
 					break;
+				case Keys.End:
+					BlockSelector.SelectedIndex = BlockSelector.Images.Count - 1;
+					return;
+				case Keys.Home:
+					BlockSelector.SelectedIndex = 0;
+					break;
 				case Keys.Left:
 					if (SelectedBlockTile.X > 0)
 					{
@@ -3762,6 +3782,14 @@ namespace SonicRetro.SonLVL.GUI
 					foreach (PatternIndex item in tiles)
 						item.Priority = !item.Priority;
 					break;
+				case Keys.PageDown:
+					if (BlockSelector.SelectedIndex < BlockSelector.Images.Count - 1)
+						BlockSelector.SelectedIndex++;
+					return;
+				case Keys.PageUp:
+					if (BlockSelector.SelectedIndex > 0)
+						BlockSelector.SelectedIndex--;
+					return;
 				case Keys.Right:
 					if (SelectedBlockTile.X < 1)
 					{
