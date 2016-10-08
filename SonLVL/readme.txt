@@ -64,6 +64,7 @@ Use the list on the right to select a chunk.
 Chunk Editing:
 Click and drag chunks in the chunk list to re-order them, hold Ctrl to swap two chunks.
 On the chunk preview:
+Page Up, Page Down, Home, End: Change current chunk.
 Up, Down, Left, Right: Change selected chunk block.
 X: Flip horizontally.
 Y: Flip vertically.
@@ -77,6 +78,7 @@ Shift+B: Decrement block index.
 Block Editing:
 Click and drag blocks in the block list to re-order them, hold Ctrl to swap two blocks.
 On the block preview:
+Page Up, Page Down, Home, End: Change current block.
 Up, Down, Left, Right: Change selected block tile.
 X: Flip horizontally.
 Y: Flip vertically.
