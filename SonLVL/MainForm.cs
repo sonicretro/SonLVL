@@ -4663,7 +4663,7 @@ namespace SonicRetro.SonLVL.GUI
 								LevelData.Blocks.Add(block);
 								LevelData.ColInds1.AddOrSet(bi, cnkcpy.ColInds1[i]);
 								if (LevelData.ColInds2 != null && LevelData.ColInds2 != LevelData.ColInds1)
-									LevelData.ColInds2.AddOrSet(bi, cnkcpy.ColInds2[i]);
+									LevelData.ColInds2.AddOrSet(bi, cnkcpy.ColInds2?[i] ?? cnkcpy.ColInds1[i]);
 								LevelData.BlockBmps.Add(new Bitmap[2]);
 								LevelData.BlockBmpBits.Add(new BitmapBits[2]);
 								LevelData.CompBlockBmps.Add(null);
@@ -4817,7 +4817,7 @@ namespace SonicRetro.SonLVL.GUI
 								LevelData.Blocks.Add(block);
 								LevelData.ColInds1.AddOrSet(bi, cnkcpy.ColInds1[i]);
 								if (LevelData.ColInds2 != null && LevelData.ColInds2 != LevelData.ColInds1)
-									LevelData.ColInds2.AddOrSet(bi, cnkcpy.ColInds2[i]);
+									LevelData.ColInds2.AddOrSet(bi, cnkcpy.ColInds2?[i] ?? cnkcpy.ColInds1[i]);
 								LevelData.BlockBmps.Add(new Bitmap[2]);
 								LevelData.BlockBmpBits.Add(new BitmapBits[2]);
 								LevelData.CompBlockBmps.Add(null);
@@ -8010,7 +8010,7 @@ namespace SonicRetro.SonLVL.GUI
 								LevelData.Blocks.Add(block);
 								LevelData.ColInds1.AddOrSet(bi, cnkcpy.ColInds1[i]);
 								if (LevelData.ColInds2 != null && LevelData.ColInds2 != LevelData.ColInds1)
-									LevelData.ColInds2.AddOrSet(bi, cnkcpy.ColInds2[i]);
+									LevelData.ColInds2.AddOrSet(bi, cnkcpy.ColInds2?[i] ?? cnkcpy.ColInds1[i]);
 								LevelData.BlockBmps.Add(new Bitmap[2]);
 								LevelData.BlockBmpBits.Add(new BitmapBits[2]);
 								LevelData.CompBlockBmps.Add(null);
