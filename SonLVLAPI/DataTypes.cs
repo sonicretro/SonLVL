@@ -441,6 +441,40 @@ namespace SonicRetro.SonLVL.API
 		{
 			return (ChunkBlock)MemberwiseClone();
 		}
+
+		public static Type GetTypeForFormat() { return GetTypeForFormat(LevelData.Level.ChunkFormat); }
+
+		public static Type GetTypeForFormat(EngineVersion fmt)
+		{
+			switch (LevelData.Level.ChunkFormat)
+			{
+				case EngineVersion.S1:
+				case EngineVersion.SCD:
+				case EngineVersion.SCDPC:
+					return typeof(S1ChunkBlock);
+				case EngineVersion.S2:
+				case EngineVersion.S2NA:
+				case EngineVersion.S3K:
+				case EngineVersion.SKC:
+					return typeof(S2ChunkBlock);
+				default:
+					throw new ArgumentOutOfRangeException("fmt", "Format '" + fmt.ToString() + "' has no chunk block type associated with it.");
+			}
+		}
+
+		public static ChunkBlock Create() { return Create(LevelData.Level.ChunkFormat); }
+
+		public static ChunkBlock Create(EngineVersion fmt)
+		{
+			return (ChunkBlock)Activator.CreateInstance(GetTypeForFormat(fmt));
+		}
+
+		public static ChunkBlock Create(byte[] file, int address) { return Create(LevelData.Level.ChunkFormat, file, address); }
+
+		public static ChunkBlock Create(EngineVersion fmt, byte[] file, int address)
+		{
+			return (ChunkBlock)Activator.CreateInstance(GetTypeForFormat(fmt), file, address);
+		}
 	}
 
 	[Serializable]

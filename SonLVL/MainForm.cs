@@ -3359,6 +3359,38 @@ namespace SonicRetro.SonLVL.GUI
 		PatternIndex copiedBlockTile = new PatternIndex();
 		ChunkBlock copiedChunkBlock;
 
+		private ChunkBlock[] GetSelectedChunkBlocks()
+		{
+			ChunkBlock[] blocks = new ChunkBlock[SelectedChunkBlock.Width * SelectedChunkBlock.Height];
+			int i = 0;
+			for (int y = SelectedChunkBlock.Top; y < SelectedChunkBlock.Bottom; y++)
+				for (int x = SelectedChunkBlock.Left; x < SelectedChunkBlock.Right; x++)
+					blocks[i++] = LevelData.Chunks[SelectedChunk].Blocks[x, y];
+			return blocks;
+		}
+
+		private void ChunkPicture_MouseDown(object sender, MouseEventArgs e)
+		{
+			if (!loaded) return;
+			if (e.Button == chunkblockMouseDraw)
+				ChunkPicture_MouseMove(sender, e);
+			else if (e.Button == chunkblockMouseSelect)
+			{
+				if (!SelectedChunkBlock.Contains(e.X / 16, e.Y / 16))
+				{
+					SelectedChunkBlock = new Rectangle(e.X / 16, e.Y / 16, 1, 1);
+					copiedChunkBlock = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
+					if (copiedChunkBlock.Block < LevelData.Blocks.Count)
+						BlockSelector.SelectedIndex = copiedChunkBlock.Block;
+					chunkBlockEditor.SelectedObjects = new[] { copiedChunkBlock };
+					DrawChunkPicture();
+					selecting = true; // don't show the context menu when starting a new selection
+				}
+				else
+					lastmouse = e.Location;
+			}
+		}
+
 		private void ChunkPicture_MouseMove(object sender, MouseEventArgs e)
 		{
 			if (!loaded) return;
@@ -3380,47 +3412,39 @@ namespace SonicRetro.SonLVL.GUI
 				}
 				else if (e.Button == chunkblockMouseSelect)
 				{
+					if (!selecting)
+						if (Math.Sqrt(Math.Pow(e.X - lastmouse.X, 2) + Math.Pow(e.Y - lastmouse.Y, 2)) > 5)
+							selecting = true;
+						else
+							return;
 					SelectedChunkBlock = Rectangle.FromLTRB(Math.Min(SelectedChunkBlock.Left, e.X / 16), Math.Min(SelectedChunkBlock.Top, e.Y / 16), Math.Max(SelectedChunkBlock.Right, e.X / 16 + 1), Math.Max(SelectedChunkBlock.Bottom, e.Y / 16 + 1));
 					copiedChunkBlock = (chunkBlockEditor.SelectedObjects = GetSelectedChunkBlocks())[0];
 					DrawChunkPicture();
 				}
 		}
 
-		private ChunkBlock[] GetSelectedChunkBlocks()
-		{
-			ChunkBlock[] blocks = new ChunkBlock[SelectedChunkBlock.Width * SelectedChunkBlock.Height];
-			int i = 0;
-			for (int y = SelectedChunkBlock.Top; y < SelectedChunkBlock.Bottom; y++)
-				for (int x = SelectedChunkBlock.Left; x < SelectedChunkBlock.Right; x++)
-					blocks[i++] = LevelData.Chunks[SelectedChunk].Blocks[x, y];
-			return blocks;
-		}
+		enum ChunkBlockMenuMode { Chunks, Blocks }
 
-		private void ChunkPicture_MouseDown(object sender, MouseEventArgs e)
+		private ChunkBlockMenuMode chunkBlockMenuMode;
+		private void ChunkPicture_MouseUp(object sender, MouseEventArgs e)
 		{
 			if (!loaded) return;
 			if (e.Button == chunkblockMouseDraw)
-				ChunkPicture_MouseMove(sender, e);
-			else if (e.Button == chunkblockMouseSelect)
-			{
-				SelectedChunkBlock = new Rectangle(e.X / 16, e.Y / 16, 1, 1);
-				copiedChunkBlock = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
-				if (copiedChunkBlock.Block < LevelData.Blocks.Count)
-					BlockSelector.SelectedIndex = copiedChunkBlock.Block;
-				chunkBlockEditor.SelectedObjects = new[] { copiedChunkBlock };
-				DrawChunkPicture();
-				ChunkSelector.Invalidate();
-			}
-		}
-
-		private void ChunkPicture_MouseUp(object sender, MouseEventArgs e)
-		{
-			if (loaded && e.Button == chunkblockMouseDraw)
 			{
 				LevelData.RedrawChunk(SelectedChunk);
 				DrawLevel();
 				DrawChunkPicture();
 				ChunkSelector.Invalidate();
+			}
+			else if (e.Button == chunkblockMouseSelect)
+			{
+				if (!selecting)
+				{
+					pasteChunkBlocksToolStripMenuItem.Enabled = Clipboard.ContainsData(ChunkBlock.GetTypeForFormat().MakeArrayType(2).AssemblyQualifiedName);
+					chunkBlockMenuMode = ChunkBlockMenuMode.Chunks;
+					chunkBlockContextMenuStrip.Show(ChunkPicture, e.Location);
+				}
+				selecting = false;
 			}
 		}
 
@@ -3593,6 +3617,39 @@ namespace SonicRetro.SonLVL.GUI
 			ChunkSelector.Invalidate();
 		}
 
+		private PatternIndex[] GetSelectedBlockTiles()
+		{
+			PatternIndex[] tiles = new PatternIndex[SelectedBlockTile.Width * SelectedBlockTile.Height];
+			int i = 0;
+			for (int y = SelectedBlockTile.Top; y < SelectedBlockTile.Bottom; y++)
+				for (int x = SelectedBlockTile.Left; x < SelectedBlockTile.Right; x++)
+					tiles[i++] = LevelData.Blocks[SelectedBlock].Tiles[x, y];
+			return tiles;
+		}
+
+		private void BlockPicture_MouseDown(object sender, MouseEventArgs e)
+		{
+			if (!loaded) return;
+			if (e.Button == chunkblockMouseDraw)
+				BlockPicture_MouseMove(sender, e);
+			else if (e.Button == chunkblockMouseSelect)
+			{
+				int y = LevelData.Level.TwoPlayerCompatible ? 0 : e.Y / 64;
+				if (!SelectedBlockTile.Contains(e.X / 64, y))
+				{
+					SelectedBlockTile = new Rectangle(e.X / 64, y, 1, 1);
+					copiedBlockTile = LevelData.Blocks[SelectedBlock].Tiles[e.X / 64, y];
+					if (copiedBlockTile.Tile < LevelData.Tiles.Count)
+						TileSelector.SelectedIndex = LevelData.Level.TwoPlayerCompatible ? copiedBlockTile.Tile / 2 : copiedBlockTile.Tile;
+					blockTileEditor.SelectedObjects = new[] { copiedBlockTile };
+					DrawBlockPicture();
+					selecting = true; // don't show the context menu when starting a new selection
+				}
+				else
+					lastmouse = e.Location;
+			}
+		}
+
 		private void BlockPicture_MouseMove(object sender, MouseEventArgs e)
 		{
 			if (!loaded) return;
@@ -3614,37 +3671,15 @@ namespace SonicRetro.SonLVL.GUI
 				}
 				else if (e.Button == chunkblockMouseSelect)
 				{
+					if (!selecting)
+						if (Math.Sqrt(Math.Pow(e.X - lastmouse.X, 2) + Math.Pow(e.Y - lastmouse.Y, 2)) > 5)
+							selecting = true;
+						else
+							return;
 					SelectedBlockTile = Rectangle.FromLTRB(Math.Min(SelectedBlockTile.Left, e.X / 64), Math.Min(SelectedBlockTile.Top, y), Math.Max(SelectedBlockTile.Right, e.X / 64 + 1), Math.Max(SelectedBlockTile.Bottom, y + 1));
 					copiedBlockTile = (blockTileEditor.SelectedObjects = GetSelectedBlockTiles())[0];
 					DrawBlockPicture();
 				}
-		}
-
-		private PatternIndex[] GetSelectedBlockTiles()
-		{
-			PatternIndex[] tiles = new PatternIndex[SelectedBlockTile.Width * SelectedBlockTile.Height];
-			int i = 0;
-			for (int y = SelectedBlockTile.Top; y < SelectedBlockTile.Bottom; y++)
-				for (int x = SelectedBlockTile.Left; x < SelectedBlockTile.Right; x++)
-					tiles[i++] = LevelData.Blocks[SelectedBlock].Tiles[x, y];
-			return tiles;
-		}
-
-		private void BlockPicture_MouseDown(object sender, MouseEventArgs e)
-		{
-			if (!loaded) return;
-			if (e.Button == chunkblockMouseDraw)
-				BlockPicture_MouseMove(sender, e);
-			else if (e.Button == chunkblockMouseSelect)
-			{
-				int y = LevelData.Level.TwoPlayerCompatible ? 0 : e.Y / 64;
-				SelectedBlockTile = new Rectangle(e.X / 64, y, 1, 1);
-				copiedBlockTile = LevelData.Blocks[SelectedBlock].Tiles[e.X / 64, y];
-				if (copiedBlockTile.Tile < LevelData.Tiles.Count)
-					TileSelector.SelectedIndex = LevelData.Level.TwoPlayerCompatible ? copiedBlockTile.Tile / 2 : copiedBlockTile.Tile;
-				blockTileEditor.SelectedObjects = new[] { copiedBlockTile };
-				DrawBlockPicture();
-			}
 		}
 
 		private void BlockPicture_MouseUp(object sender, MouseEventArgs e)
@@ -3655,6 +3690,16 @@ namespace SonicRetro.SonLVL.GUI
 				DrawLevel();
 				DrawBlockPicture();
 				BlockSelector.Invalidate();
+			}
+			else if (e.Button == chunkblockMouseSelect)
+			{
+				if (!selecting)
+				{
+					pasteChunkBlocksToolStripMenuItem.Enabled = Clipboard.ContainsData(typeof(PatternIndex[,]).AssemblyQualifiedName);
+					chunkBlockMenuMode = ChunkBlockMenuMode.Blocks;
+					chunkBlockContextMenuStrip.Show(BlockPicture, e.Location);
+				}
+				selecting = false;
 			}
 		}
 
@@ -8790,6 +8835,175 @@ namespace SonicRetro.SonLVL.GUI
 				DrawLevel();
 			}
 			MessageBox.Show(this, "Removed " + deleted.Count + " duplicate chunks.", "SonLVL");
+		}
+
+		private void flipChunkBlocksHorizontallyToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			switch (chunkBlockMenuMode)
+			{
+				case ChunkBlockMenuMode.Chunks:
+					Chunk chunk = LevelData.Chunks[SelectedChunk];
+					ChunkBlock[,] blocks = (ChunkBlock[,])chunk.Blocks.Clone();
+					for (int y = 0; y < SelectedChunkBlock.Height; y++)
+						for (int x = 0; x < SelectedChunkBlock.Width; x++)
+						{
+							ChunkBlock blk = blocks[SelectedChunkBlock.Right - 1 - x, SelectedChunkBlock.Y + y];
+							blk.XFlip = !blk.XFlip;
+							chunk.Blocks[SelectedChunkBlock.X + x, SelectedChunkBlock.Y + y] = blk;
+						}
+					LevelData.RedrawChunk(SelectedChunk);
+					copiedChunkBlock = (chunkBlockEditor.SelectedObjects = GetSelectedChunkBlocks())[0];
+					if (copiedChunkBlock.Block < LevelData.Blocks.Count)
+						BlockSelector.SelectedIndex = chunk.Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y].Block;
+					ChunkSelector.Invalidate();
+					DrawChunkPicture();
+					break;
+				case ChunkBlockMenuMode.Blocks:
+					Block block = LevelData.Blocks[SelectedBlock];
+					PatternIndex[,] tiles = (PatternIndex[,])block.Tiles.Clone();
+					for (int y = 0; y < SelectedBlockTile.Height; y++)
+						for (int x = 0; x < SelectedBlockTile.Width; x++)
+						{
+							PatternIndex til = tiles[SelectedBlockTile.Right - 1 - x, SelectedBlockTile.Y + y];
+							til.XFlip = !til.XFlip;
+							block.Tiles[SelectedBlockTile.X + x, SelectedBlockTile.Y + y] = til;
+						}
+					LevelData.RedrawBlock(SelectedBlock, true);
+					copiedBlockTile = (blockTileEditor.SelectedObjects = GetSelectedBlockTiles())[0];
+					if (copiedBlockTile.Tile < LevelData.Tiles.Count)
+						TileSelector.SelectedIndex = LevelData.Level.TwoPlayerCompatible ? copiedBlockTile.Tile / 2 : copiedBlockTile.Tile;
+					BlockSelector.Invalidate();
+					DrawBlockPicture();
+					break;
+			}
+		}
+
+		private void flipChunkBlocksVerticallyToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			switch (chunkBlockMenuMode)
+			{
+				case ChunkBlockMenuMode.Chunks:
+					Chunk chunk = LevelData.Chunks[SelectedChunk];
+					ChunkBlock[,] blocks = (ChunkBlock[,])chunk.Blocks.Clone();
+					for (int y = 0; y < SelectedChunkBlock.Height; y++)
+						for (int x = 0; x < SelectedChunkBlock.Width; x++)
+						{
+							ChunkBlock blk = blocks[SelectedChunkBlock.X + x, SelectedChunkBlock.Bottom - 1 - y];
+							blk.YFlip = !blk.YFlip;
+							chunk.Blocks[SelectedChunkBlock.X + x, SelectedChunkBlock.Y + y] = blk;
+						}
+					LevelData.RedrawChunk(SelectedChunk);
+					copiedChunkBlock = (chunkBlockEditor.SelectedObjects = GetSelectedChunkBlocks())[0];
+					if (copiedChunkBlock.Block < LevelData.Blocks.Count)
+						BlockSelector.SelectedIndex = chunk.Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y].Block;
+					ChunkSelector.Invalidate();
+					DrawChunkPicture();
+					break;
+				case ChunkBlockMenuMode.Blocks:
+					Block block = LevelData.Blocks[SelectedBlock];
+					PatternIndex[,] tiles = (PatternIndex[,])block.Tiles.Clone();
+					for (int y = 0; y < SelectedBlockTile.Height; y++)
+						for (int x = 0; x < SelectedBlockTile.Width; x++)
+						{
+							PatternIndex til = tiles[SelectedBlockTile.X + x, SelectedBlockTile.Bottom - 1 - y];
+							til.YFlip = !til.YFlip;
+							block.Tiles[SelectedBlockTile.X + x, SelectedBlockTile.Y + y] = til;
+						}
+					LevelData.RedrawBlock(SelectedBlock, true);
+					copiedBlockTile = (blockTileEditor.SelectedObjects = GetSelectedBlockTiles())[0];
+					if (copiedBlockTile.Tile < LevelData.Tiles.Count)
+						TileSelector.SelectedIndex = LevelData.Level.TwoPlayerCompatible ? copiedBlockTile.Tile / 2 : copiedBlockTile.Tile;
+					BlockSelector.Invalidate();
+					DrawBlockPicture();
+					break;
+			}
+		}
+
+		private void copyChunkBlocksToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			switch (chunkBlockMenuMode)
+			{
+				case ChunkBlockMenuMode.Chunks:
+					Chunk chunk = LevelData.Chunks[SelectedChunk];
+					ChunkBlock[,] blocks = new ChunkBlock[SelectedChunkBlock.Width, SelectedChunkBlock.Height];
+					for (int y = 0; y < SelectedChunkBlock.Height; y++)
+						for (int x = 0; x < SelectedChunkBlock.Width; x++)
+							blocks[x, y] = chunk.Blocks[SelectedChunkBlock.X + x, SelectedChunkBlock.Y + y];
+					Clipboard.SetData(ChunkBlock.GetTypeForFormat().MakeArrayType(2).AssemblyQualifiedName, blocks);
+					break;
+				case ChunkBlockMenuMode.Blocks:
+					Block block = LevelData.Blocks[SelectedBlock];
+					PatternIndex[,] tiles = new PatternIndex[SelectedBlockTile.Width, SelectedBlockTile.Height];
+					for (int y = 0; y < SelectedBlockTile.Height; y++)
+						for (int x = 0; x < SelectedBlockTile.Width; x++)
+							tiles[x, y] = block.Tiles[SelectedBlockTile.X + x, SelectedBlockTile.Y + y];
+					Clipboard.SetData(typeof(PatternIndex[,]).AssemblyQualifiedName, tiles);
+					break;
+			}
+		}
+
+		private void pasteChunkBlocksToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			switch (chunkBlockMenuMode)
+			{
+				case ChunkBlockMenuMode.Chunks:
+					Chunk chunk = LevelData.Chunks[SelectedChunk];
+					ChunkBlock[,] blocks = (ChunkBlock[,])Clipboard.GetData(ChunkBlock.GetTypeForFormat().MakeArrayType(2).AssemblyQualifiedName);
+					for (int y = 0; y < Math.Min(blocks.GetLength(1), (LevelData.Level.ChunkHeight / 16) - SelectedChunkBlock.Y); y++)
+						for (int x = 0; x < Math.Min(blocks.GetLength(0), (LevelData.Level.ChunkWidth / 16) - SelectedChunkBlock.X); x++)
+							chunk.Blocks[SelectedChunkBlock.X + x, SelectedChunkBlock.Y + y] = blocks[x, y].Clone();
+					LevelData.RedrawChunk(SelectedChunk);
+					copiedChunkBlock = (chunkBlockEditor.SelectedObjects = GetSelectedChunkBlocks())[0];
+					if (copiedChunkBlock.Block < LevelData.Blocks.Count)
+						BlockSelector.SelectedIndex = chunk.Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y].Block;
+					ChunkSelector.Invalidate();
+					DrawChunkPicture();
+					break;
+				case ChunkBlockMenuMode.Blocks:
+					Block block = LevelData.Blocks[SelectedBlock];
+					PatternIndex[,] tiles = (PatternIndex[,])Clipboard.GetData(typeof(PatternIndex[,]).AssemblyQualifiedName);
+					for (int y = 0; y < Math.Min(tiles.GetLength(1), 2 - SelectedBlockTile.Y); y++)
+						for (int x = 0; x < Math.Min(tiles.GetLength(0), 2 - SelectedBlockTile.X); x++)
+							block.Tiles[SelectedBlockTile.X + x, SelectedBlockTile.Y + y] = tiles[x, y].Clone();
+					LevelData.RedrawBlock(SelectedBlock, true);
+					copiedBlockTile = (blockTileEditor.SelectedObjects = GetSelectedBlockTiles())[0];
+					if (copiedBlockTile.Tile < LevelData.Tiles.Count)
+						TileSelector.SelectedIndex = block.Tiles[SelectedBlockTile.X, SelectedBlockTile.Y].Tile;
+					BlockSelector.Invalidate();
+					DrawBlockPicture();
+					break;
+			}
+		}
+
+		private void clearChunkBlocksToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			switch (chunkBlockMenuMode)
+			{
+				case ChunkBlockMenuMode.Chunks:
+					Chunk chunk = LevelData.Chunks[SelectedChunk];
+					for (int y = 0; y < SelectedChunkBlock.Height; y++)
+						for (int x = 0; x < SelectedChunkBlock.Width; x++)
+							chunk.Blocks[SelectedChunkBlock.X + x, SelectedChunkBlock.Y + y] = ChunkBlock.Create();
+					LevelData.RedrawChunk(SelectedChunk);
+					copiedChunkBlock = (chunkBlockEditor.SelectedObjects = GetSelectedChunkBlocks())[0];
+					if (copiedChunkBlock.Block < LevelData.Blocks.Count)
+						BlockSelector.SelectedIndex = chunk.Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y].Block;
+					ChunkSelector.Invalidate();
+					DrawChunkPicture();
+					break;
+				case ChunkBlockMenuMode.Blocks:
+					Block block = LevelData.Blocks[SelectedBlock];
+					for (int y = 0; y < SelectedBlockTile.Height; y++)
+						for (int x = 0; x < SelectedBlockTile.Width; x++)
+							block.Tiles[SelectedBlockTile.X + x, SelectedBlockTile.Y + y] = new PatternIndex();
+					LevelData.RedrawBlock(SelectedBlock, true);
+					copiedBlockTile = (blockTileEditor.SelectedObjects = GetSelectedBlockTiles())[0];
+					if (copiedBlockTile.Tile < LevelData.Tiles.Count)
+						TileSelector.SelectedIndex = LevelData.Level.TwoPlayerCompatible ? copiedBlockTile.Tile / 2 : copiedBlockTile.Tile;
+					BlockSelector.Invalidate();
+					DrawBlockPicture();
+					break;
+			}
 		}
 
 		private void removeDuplicateBlocksToolStripButton_Click(object sender, EventArgs e)

@@ -309,6 +309,12 @@ namespace SonicRetro.SonLVL.GUI
 			this.clearSolidsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.loadingAnimation1 = new SonicRetro.SonLVL.LoadingAnimation();
 			this.importProgressControl1 = new SonicRetro.SonLVL.ImportProgressControl();
+			this.chunkBlockContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.flipChunkBlocksHorizontallyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.flipChunkBlocksVerticallyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.copyChunkBlocksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.pasteChunkBlocksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.clearChunkBlocksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
 			toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
 			label4 = new System.Windows.Forms.Label();
@@ -400,6 +406,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.tileContextMenuStrip.SuspendLayout();
 			this.layoutContextMenuStrip.SuspendLayout();
 			this.solidsContextMenuStrip.SuspendLayout();
+			this.chunkBlockContextMenuStrip.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// toolStripSeparator8
@@ -3248,6 +3255,57 @@ namespace SonicRetro.SonLVL.GUI
 			this.importProgressControl1.Visible = false;
 			this.importProgressControl1.SizeChanged += new System.EventHandler(this.importProgressControl1_SizeChanged);
 			// 
+			// chunkBlockContextMenuStrip
+			// 
+			this.chunkBlockContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.flipChunkBlocksHorizontallyToolStripMenuItem,
+            this.flipChunkBlocksVerticallyToolStripMenuItem,
+            this.copyChunkBlocksToolStripMenuItem,
+            this.pasteChunkBlocksToolStripMenuItem,
+            this.clearChunkBlocksToolStripMenuItem});
+			this.chunkBlockContextMenuStrip.Name = "solidsContextMenuStrip";
+			this.chunkBlockContextMenuStrip.Size = new System.Drawing.Size(161, 136);
+			// 
+			// flipChunkBlocksHorizontallyToolStripMenuItem
+			// 
+			this.flipChunkBlocksHorizontallyToolStripMenuItem.Image = global::SonicRetro.SonLVL.Properties.Resources.fliph;
+			this.flipChunkBlocksHorizontallyToolStripMenuItem.Name = "flipChunkBlocksHorizontallyToolStripMenuItem";
+			this.flipChunkBlocksHorizontallyToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+			this.flipChunkBlocksHorizontallyToolStripMenuItem.Text = "Flip &Horizontally";
+			this.flipChunkBlocksHorizontallyToolStripMenuItem.Click += new System.EventHandler(this.flipChunkBlocksHorizontallyToolStripMenuItem_Click);
+			// 
+			// flipChunkBlocksVerticallyToolStripMenuItem
+			// 
+			this.flipChunkBlocksVerticallyToolStripMenuItem.Image = global::SonicRetro.SonLVL.Properties.Resources.flipv;
+			this.flipChunkBlocksVerticallyToolStripMenuItem.Name = "flipChunkBlocksVerticallyToolStripMenuItem";
+			this.flipChunkBlocksVerticallyToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+			this.flipChunkBlocksVerticallyToolStripMenuItem.Text = "Flip &Vertically";
+			this.flipChunkBlocksVerticallyToolStripMenuItem.Click += new System.EventHandler(this.flipChunkBlocksVerticallyToolStripMenuItem_Click);
+			// 
+			// copyChunkBlocksToolStripMenuItem
+			// 
+			this.copyChunkBlocksToolStripMenuItem.Image = global::SonicRetro.SonLVL.Properties.Resources.copy;
+			this.copyChunkBlocksToolStripMenuItem.Name = "copyChunkBlocksToolStripMenuItem";
+			this.copyChunkBlocksToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+			this.copyChunkBlocksToolStripMenuItem.Text = "&Copy";
+			this.copyChunkBlocksToolStripMenuItem.Click += new System.EventHandler(this.copyChunkBlocksToolStripMenuItem_Click);
+			// 
+			// pasteChunkBlocksToolStripMenuItem
+			// 
+			this.pasteChunkBlocksToolStripMenuItem.Image = global::SonicRetro.SonLVL.Properties.Resources.paste;
+			this.pasteChunkBlocksToolStripMenuItem.Name = "pasteChunkBlocksToolStripMenuItem";
+			this.pasteChunkBlocksToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+			this.pasteChunkBlocksToolStripMenuItem.Text = "&Paste";
+			this.pasteChunkBlocksToolStripMenuItem.Click += new System.EventHandler(this.pasteChunkBlocksToolStripMenuItem_Click);
+			// 
+			// clearChunkBlocksToolStripMenuItem
+			// 
+			this.clearChunkBlocksToolStripMenuItem.Image = global::SonicRetro.SonLVL.Properties.Resources.delete;
+			this.clearChunkBlocksToolStripMenuItem.Name = "clearChunkBlocksToolStripMenuItem";
+			this.clearChunkBlocksToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
+			this.clearChunkBlocksToolStripMenuItem.Text = "&Clear";
+			this.clearChunkBlocksToolStripMenuItem.Click += new System.EventHandler(this.clearChunkBlocksToolStripMenuItem_Click);
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -3353,6 +3411,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.tileContextMenuStrip.ResumeLayout(false);
 			this.layoutContextMenuStrip.ResumeLayout(false);
 			this.solidsContextMenuStrip.ResumeLayout(false);
+			this.chunkBlockContextMenuStrip.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -3608,6 +3667,11 @@ namespace SonicRetro.SonLVL.GUI
 		private System.Windows.Forms.ToolStripDropDownButton paletteToolStripDropDownButton;
 		private System.Windows.Forms.ToolStripButton blendAlternatePaletteToolStripButton;
 		private System.Windows.Forms.ToolStripButton importPaletteToolStripButton;
-
+		private System.Windows.Forms.ContextMenuStrip chunkBlockContextMenuStrip;
+		private System.Windows.Forms.ToolStripMenuItem copyChunkBlocksToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem pasteChunkBlocksToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem clearChunkBlocksToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem flipChunkBlocksHorizontallyToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem flipChunkBlocksVerticallyToolStripMenuItem;
 	}
 }
