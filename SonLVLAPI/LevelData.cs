@@ -2272,7 +2272,8 @@ namespace SonicRetro.SonLVL.API
 						long mindist = long.MaxValue;
 						for (int i = 0; i < 4; i++)
 						{
-							Array.Copy(BmpPal.Entries, i * 16, newpal, 0, 16);
+							for (int j = 0; j < 16; j++)
+								newpal[j] = PaletteToColor(i, j, false);
 							long totdist = 0;
 							int dist;
 							for (int y = 0; y < 8; y++)
@@ -2289,7 +2290,8 @@ namespace SonicRetro.SonLVL.API
 							}
 						}
 					}
-					Array.Copy(BmpPal.Entries, palette * 16, newpal, 0, 16);
+					for (int j = 0; j < 16; j++)
+						newpal[j] = PaletteToColor(palette, j, false);
 					for (int y = 0; y < 8; y++)
 						for (int x = 0; x < 8; x++)
 							if (pixels[x, y].A >= 128)
@@ -2350,7 +2352,8 @@ namespace SonicRetro.SonLVL.API
 						int mindist = int.MaxValue;
 						for (int i = 0; i < 4; i++)
 						{
-							Array.Copy(BmpPal.Entries, i * 16, newpal, 0, 16);
+							for (int j = 0; j < 16; j++)
+								newpal[j] = PaletteToColor(i, j, false);
 							int totdist = 0;
 							int dist;
 							for (int y = 0; y < 16; y++)
@@ -2367,7 +2370,8 @@ namespace SonicRetro.SonLVL.API
 							}
 						}
 					}
-					Array.Copy(BmpPal.Entries, palette * 16, newpal, 0, 16);
+					for (int j = 0; j < 16; j++)
+						newpal[j] = PaletteToColor(palette, j, false);
 					for (int y = 0; y < 16; y++)
 						for (int x = 0; x < 8; x++)
 							if (pixels[x, y].A >= 128)
