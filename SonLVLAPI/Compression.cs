@@ -1,57 +1,12 @@
 using System;
 using System.IO;
 using SonicRetro.KensSharp;
-using System.Runtime.InteropServices;
 
 namespace SonicRetro.SonLVL.API
 {
 	[System.Diagnostics.DebuggerNonUserCode]
 	public class Compression
 	{
-		private static class Comper
-		{
-			[DllImport("comper", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
-			private static extern int compress_comper(byte[] src, int src_len, out IntPtr dst);
-
-			[DllImport("comper", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
-			private static extern int decompress_comper(byte[] src, int src_len, out IntPtr dst);
-
-			[DllImport("comper", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
-			private static extern void free_buffer(IntPtr buffer);
-
-			static Comper()
-			{
-				string dir = Environment.CurrentDirectory;
-				Environment.CurrentDirectory = Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName);
-				Environment.CurrentDirectory = Path.Combine(Environment.CurrentDirectory, IntPtr.Size == 8 ? "lib64" : "lib32");
-				IntPtr dst;
-				compress_comper(new byte[2], 2, out dst);
-				free_buffer(dst);
-				Environment.CurrentDirectory = dir;
-			}
-
-			public static void Compress(byte[] sourceData, string destinationFilePath)
-			{
-				IntPtr dst;
-				int dst_len = compress_comper(sourceData, sourceData.Length, out dst);
-				byte[] result = new byte[dst_len];
-				Marshal.Copy(dst, result, 0, dst_len);
-				free_buffer(dst);
-				File.WriteAllBytes(destinationFilePath, result);
-			}
-
-			public static byte[] Decompress(string sourceFilePath)
-			{
-				byte[] sourceData = File.ReadAllBytes(sourceFilePath);
-				IntPtr dst;
-				int dst_len = decompress_comper(sourceData, sourceData.Length, out dst);
-				byte[] result = new byte[dst_len];
-				Marshal.Copy(dst, result, 0, dst_len);
-				free_buffer(dst);
-				return result;
-			}
-		}
-
 		public static byte[] Decompress(string file, CompressionType cmp)
 		{
 			byte[] ret = new byte[0];

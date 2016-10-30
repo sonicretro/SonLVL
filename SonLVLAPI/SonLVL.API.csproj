@@ -38,6 +38,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Dependencies\SonicRetro.KensSharp.Common.dll</HintPath>
     </Reference>
+    <Reference Include="SonicRetro.KensSharp.Comper">
+      <HintPath>..\Dependencies\SonicRetro.KensSharp.Comper.dll</HintPath>
+    </Reference>
     <Reference Include="SonicRetro.KensSharp.Enigma, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Dependencies\SonicRetro.KensSharp.Enigma.dll</HintPath>
