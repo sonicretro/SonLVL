@@ -2835,6 +2835,7 @@ namespace SonicRetro.SonLVL.GUI
 				case MouseButtons.Right:
 					Point mouse = new Point((int)(e.X / ZoomLevel) + foregroundPanel.HScrollValue, (int)(e.Y / ZoomLevel) + foregroundPanel.VScrollValue);
 					Point chunkpoint = new Point(mouse.X / LevelData.Level.ChunkWidth, mouse.Y / LevelData.Level.ChunkHeight);
+					if (chunkpoint.X < 0 || chunkpoint.Y < 0 || chunkpoint.X >= LevelData.FGWidth || chunkpoint.Y >= LevelData.FGHeight) return;
 					if (FGSelection.IsEmpty)
 					{
 						SelectedChunk = LevelData.Layout.FGLayout[chunkpoint.X, chunkpoint.Y];
@@ -2958,6 +2959,7 @@ namespace SonicRetro.SonLVL.GUI
 				case MouseButtons.Right:
 					Point mouse = new Point((int)(e.X / ZoomLevel) + backgroundPanel.HScrollValue, (int)(e.Y / ZoomLevel) + backgroundPanel.VScrollValue);
 					Point chunkpoint = new Point(mouse.X / LevelData.Level.ChunkWidth, mouse.Y / LevelData.Level.ChunkHeight);
+					if (chunkpoint.X < 0 || chunkpoint.Y < 0 || chunkpoint.X >= LevelData.BGWidth || chunkpoint.Y >= LevelData.BGHeight) return;
 					if (BGSelection.IsEmpty)
 					{
 						SelectedChunk = LevelData.Layout.BGLayout[chunkpoint.X, chunkpoint.Y];
