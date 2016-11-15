@@ -2113,6 +2113,90 @@ namespace SonicRetro.SonLVL.GUI
 						DrawLevel();
 					}
 					break;
+				case Keys.NumPad1:
+					if (!loaded || e.Control) return;
+					gs = 1 << ObjGrid;
+					foreach (Entry ent in SelectedItems)
+					{
+						ent.X -= (ushort)gs;
+						ent.Y += (ushort)gs;
+						ent.UpdateSprite();
+					}
+					DrawLevel();
+					break;
+				case Keys.NumPad2:
+					if (!loaded || e.Control) return;
+					gs = 1 << ObjGrid;
+					foreach (Entry ent in SelectedItems)
+					{
+						ent.Y += (ushort)gs;
+						ent.UpdateSprite();
+					}
+					DrawLevel();
+					break;
+				case Keys.NumPad3:
+					if (!loaded || e.Control) return;
+					gs = 1 << ObjGrid;
+					foreach (Entry ent in SelectedItems)
+					{
+						ent.X += (ushort)gs;
+						ent.Y += (ushort)gs;
+						ent.UpdateSprite();
+					}
+					DrawLevel();
+					break;
+				case Keys.NumPad4:
+					if (!loaded || e.Control) return;
+					gs = 1 << ObjGrid;
+					foreach (Entry ent in SelectedItems)
+					{
+						ent.X -= (ushort)gs;
+						ent.UpdateSprite();
+					}
+					DrawLevel();
+					break;
+				case Keys.NumPad6:
+					if (!loaded) return;
+					gs = 1 << ObjGrid;
+					foreach (Entry ent in SelectedItems)
+					{
+						ent.X += (ushort)gs;
+						ent.UpdateSprite();
+					}
+					DrawLevel();
+					break;
+				case Keys.NumPad7:
+					if (!loaded) return;
+					gs = 1 << ObjGrid;
+					foreach (Entry ent in SelectedItems)
+					{
+						ent.X -= (ushort)gs;
+						ent.Y -= (ushort)gs;
+						ent.UpdateSprite();
+					}
+					DrawLevel();
+					break;
+				case Keys.NumPad8:
+					if (!loaded) return;
+					gs = 1 << ObjGrid;
+					foreach (Entry ent in SelectedItems)
+					{
+						ent.Y -= (ushort)gs;
+						ent.UpdateSprite();
+					}
+					DrawLevel();
+					break;
+				case Keys.NumPad9:
+					if (!loaded) return;
+					gs = 1 << ObjGrid;
+					foreach (Entry ent in SelectedItems)
+					{
+						ent.X += (ushort)gs;
+						ent.Y -= (ushort)gs;
+						ent.UpdateSprite();
+					}
+					DrawLevel();
+					break;
 			}
 			panel_KeyDown(sender, e);
 		}
@@ -2346,9 +2430,9 @@ namespace SonicRetro.SonLVL.GUI
 										((ChaotixObjectEntry)ent).FullSubType = (ushort)ObjectSelect.numericUpDown2.Value;
 									else
 										ent.SubType = (byte)ObjectSelect.numericUpDown2.Value;
-									ent.X = (ushort)gridx;
-									ent.Y = (ushort)gridy;
-									if (ent is SonicRetro.SonLVL.API.SCD.SCDObjectEntry)
+									ent.X = gridx;
+									ent.Y = gridy;
+									if (ent is SCDObjectEntry)
 									{
 										SCDObjectEntry entcd = (SCDObjectEntry)ent;
 										switch (LevelData.Level.TimeZone)

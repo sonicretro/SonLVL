@@ -40,6 +40,7 @@ Shift + Double left click: Create a new ring group.
 Ctrl + Double left click: Create a new special bumper. (Casino Night only)
 Right click: Bring up a context menu.
 Delete: Delete all selected objects.
+Numpad 12346789: Move selected objects by grid size in direction of number.
 A: Decrease type of all selected objects. (no undo)
 Z: Increase type of all selected objects. (no undo)
 S: Decrease subtype of all selected objects. (no undo)
