@@ -315,6 +315,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.copyChunkBlocksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.pasteChunkBlocksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.clearChunkBlocksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.enableDraggingPaletteButton = new System.Windows.Forms.ToolStripButton();
 			toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
 			toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
 			label4 = new System.Windows.Forms.Label();
@@ -2937,7 +2938,8 @@ namespace SonicRetro.SonLVL.GUI
 			this.paletteToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.paletteToolStripDropDownButton,
             this.blendAlternatePaletteToolStripButton,
-            this.importPaletteToolStripButton});
+            this.importPaletteToolStripButton,
+            this.enableDraggingPaletteButton});
 			this.paletteToolStrip.Location = new System.Drawing.Point(0, 0);
 			this.paletteToolStrip.Name = "paletteToolStrip";
 			this.paletteToolStrip.Size = new System.Drawing.Size(658, 25);
@@ -3264,7 +3266,7 @@ namespace SonicRetro.SonLVL.GUI
             this.pasteChunkBlocksToolStripMenuItem,
             this.clearChunkBlocksToolStripMenuItem});
 			this.chunkBlockContextMenuStrip.Name = "solidsContextMenuStrip";
-			this.chunkBlockContextMenuStrip.Size = new System.Drawing.Size(161, 136);
+			this.chunkBlockContextMenuStrip.Size = new System.Drawing.Size(161, 114);
 			// 
 			// flipChunkBlocksHorizontallyToolStripMenuItem
 			// 
@@ -3305,6 +3307,16 @@ namespace SonicRetro.SonLVL.GUI
 			this.clearChunkBlocksToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
 			this.clearChunkBlocksToolStripMenuItem.Text = "&Clear";
 			this.clearChunkBlocksToolStripMenuItem.Click += new System.EventHandler(this.clearChunkBlocksToolStripMenuItem_Click);
+			// 
+			// enableDraggingPaletteButton
+			// 
+			this.enableDraggingPaletteButton.Checked = true;
+			this.enableDraggingPaletteButton.CheckOnClick = true;
+			this.enableDraggingPaletteButton.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.enableDraggingPaletteButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.enableDraggingPaletteButton.Name = "enableDraggingPaletteButton";
+			this.enableDraggingPaletteButton.Size = new System.Drawing.Size(98, 22);
+			this.enableDraggingPaletteButton.Text = "Enable &Dragging";
 			// 
 			// MainForm
 			// 
@@ -3673,5 +3685,6 @@ namespace SonicRetro.SonLVL.GUI
 		private System.Windows.Forms.ToolStripMenuItem clearChunkBlocksToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem flipChunkBlocksHorizontallyToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem flipChunkBlocksVerticallyToolStripMenuItem;
+		private System.Windows.Forms.ToolStripButton enableDraggingPaletteButton;
 	}
 }

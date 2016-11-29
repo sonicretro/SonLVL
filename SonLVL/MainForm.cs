@@ -4056,7 +4056,7 @@ namespace SonicRetro.SonLVL.GUI
 			};
 			if (cols != null)
 				a.CustomColors = cols;
-			if (a.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+			if (a.ShowDialog() == DialogResult.OK)
 			{
 				LevelData.ColorToPalette(line, index, a.Color);
 				LevelData.PaletteChanged();
@@ -4155,7 +4155,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void PalettePanel_MouseMove(object sender, MouseEventArgs e)
 		{
-			if (!loaded || e.Button != MouseButtons.Left) return;
+			if (!loaded || e.Button != MouseButtons.Left || !enableDraggingPaletteButton.Checked) return;
 			Point mouseColor = new Point(e.X / 20, e.Y / 20);
 			if (mouseColor == lastmouse) return;
 			if (mouseColor == SelectedColor)
@@ -4202,7 +4202,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void PalettePanel_MouseUp(object sender, MouseEventArgs e)
 		{
-			if (!loaded || e.Button != MouseButtons.Left) return;
+			if (!loaded || e.Button != MouseButtons.Left || !enableDraggingPaletteButton.Checked) return;
 			Point mouseColor = lastmouse;
 			if (mouseColor == SelectedColor) return;
 			disppal = null;
@@ -4265,7 +4265,7 @@ namespace SonicRetro.SonLVL.GUI
 		private void blendAlternatePaletteToolStripButton_Click(object sender, EventArgs e)
 		{
 			using (AlternatePaletteDialog dlg = new AlternatePaletteDialog())
-				if (dlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+				if (dlg.ShowDialog(this) == DialogResult.OK)
 				{
 					int underwater = LevelData.CurPal;
 					LevelData.CurPal = 0;
@@ -4312,7 +4312,7 @@ namespace SonicRetro.SonLVL.GUI
 				a.DefaultExt = "bin";
 				a.Filter = "MD Palettes|*.bin|Image Files|*.bmp;*.png;*.jpg;*.gif";
 				a.RestoreDirectory = true;
-				if (a.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+				if (a.ShowDialog(this) == DialogResult.OK)
 				{
 					int l = SelectedColor.Y;
 					int x = SelectedColor.X;
