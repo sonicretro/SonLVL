@@ -44,7 +44,7 @@ namespace SonicRetro.SonLVL.API.S3K
 			foreach (RingEntry item in rings)
 				tmp.AddRange(item.GetBytes());
 			if (endterm)
-				tmp.AddRange(new byte[] { 0xFF, 0xFF, 0, 0 });
+				tmp.AddRange(new byte[] { 0xFF, 0xFF, 0xFF, 0xFF });
 			return tmp.ToArray();
 		}
 
