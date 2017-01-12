@@ -275,6 +275,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.paletteToolStripDropDownButton = new System.Windows.Forms.ToolStripDropDownButton();
 			this.blendAlternatePaletteToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.importPaletteToolStripButton = new System.Windows.Forms.ToolStripButton();
+			this.enableDraggingPaletteButton = new System.Windows.Forms.ToolStripButton();
 			this.tileContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.cutTilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.copyTilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -315,7 +316,6 @@ namespace SonicRetro.SonLVL.GUI
 			this.copyChunkBlocksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.pasteChunkBlocksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.clearChunkBlocksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.enableDraggingPaletteButton = new System.Windows.Forms.ToolStripButton();
 			toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
 			toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
 			label4 = new System.Windows.Forms.Label();
@@ -1362,7 +1362,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.openToolStripMenuItem.Name = "openToolStripMenuItem";
 			this.openToolStripMenuItem.ShortcutKeyDisplayString = "";
 			this.openToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-			this.openToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+			this.openToolStripMenuItem.Size = new System.Drawing.Size(176, 22);
 			this.openToolStripMenuItem.Text = "&Open...";
 			this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
 			// 
@@ -1371,7 +1371,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.changeLevelToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.noneToolStripMenuItem});
 			this.changeLevelToolStripMenuItem.Name = "changeLevelToolStripMenuItem";
-			this.changeLevelToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+			this.changeLevelToolStripMenuItem.Size = new System.Drawing.Size(176, 22);
 			this.changeLevelToolStripMenuItem.Text = "&Change Level...";
 			// 
 			// noneToolStripMenuItem
@@ -1386,7 +1386,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.saveToolStripMenuItem.Enabled = false;
 			this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
 			this.saveToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
-			this.saveToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+			this.saveToolStripMenuItem.Size = new System.Drawing.Size(176, 22);
 			this.saveToolStripMenuItem.Text = "&Save";
 			this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
 			// 
@@ -1394,14 +1394,15 @@ namespace SonicRetro.SonLVL.GUI
 			// 
 			this.buildAndRunToolStripMenuItem.Enabled = false;
 			this.buildAndRunToolStripMenuItem.Name = "buildAndRunToolStripMenuItem";
-			this.buildAndRunToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+			this.buildAndRunToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F5;
+			this.buildAndRunToolStripMenuItem.Size = new System.Drawing.Size(176, 22);
 			this.buildAndRunToolStripMenuItem.Text = "&Build and Run...";
 			this.buildAndRunToolStripMenuItem.Click += new System.EventHandler(this.buildAndRunToolStripMenuItem_Click);
 			// 
 			// setupEmulatorToolStripMenuItem
 			// 
 			this.setupEmulatorToolStripMenuItem.Name = "setupEmulatorToolStripMenuItem";
-			this.setupEmulatorToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+			this.setupEmulatorToolStripMenuItem.Size = new System.Drawing.Size(176, 22);
 			this.setupEmulatorToolStripMenuItem.Text = "Setup E&mulator...";
 			this.setupEmulatorToolStripMenuItem.Click += new System.EventHandler(this.setupEmulatorToolStripMenuItem_Click);
 			// 
@@ -1410,7 +1411,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.recentProjectsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.noneToolStripMenuItem2});
 			this.recentProjectsToolStripMenuItem.Name = "recentProjectsToolStripMenuItem";
-			this.recentProjectsToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+			this.recentProjectsToolStripMenuItem.Size = new System.Drawing.Size(176, 22);
 			this.recentProjectsToolStripMenuItem.Text = "&Recent Projects";
 			this.recentProjectsToolStripMenuItem.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.recentProjectsToolStripMenuItem_DropDownItemClicked);
 			// 
@@ -1425,7 +1426,7 @@ namespace SonicRetro.SonLVL.GUI
 			// 
 			this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
 			this.exitToolStripMenuItem.ShortcutKeyDisplayString = "Alt+F4";
-			this.exitToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+			this.exitToolStripMenuItem.Size = new System.Drawing.Size(176, 22);
 			this.exitToolStripMenuItem.Text = "E&xit";
 			this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
 			// 
@@ -2970,6 +2971,16 @@ namespace SonicRetro.SonLVL.GUI
 			this.importPaletteToolStripButton.Text = "&Import...";
 			this.importPaletteToolStripButton.Click += new System.EventHandler(this.importPaletteToolStripButton_Click);
 			// 
+			// enableDraggingPaletteButton
+			// 
+			this.enableDraggingPaletteButton.Checked = true;
+			this.enableDraggingPaletteButton.CheckOnClick = true;
+			this.enableDraggingPaletteButton.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.enableDraggingPaletteButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.enableDraggingPaletteButton.Name = "enableDraggingPaletteButton";
+			this.enableDraggingPaletteButton.Size = new System.Drawing.Size(98, 22);
+			this.enableDraggingPaletteButton.Text = "Enable &Dragging";
+			// 
 			// tileContextMenuStrip
 			// 
 			this.tileContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -3307,16 +3318,6 @@ namespace SonicRetro.SonLVL.GUI
 			this.clearChunkBlocksToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
 			this.clearChunkBlocksToolStripMenuItem.Text = "&Clear";
 			this.clearChunkBlocksToolStripMenuItem.Click += new System.EventHandler(this.clearChunkBlocksToolStripMenuItem_Click);
-			// 
-			// enableDraggingPaletteButton
-			// 
-			this.enableDraggingPaletteButton.Checked = true;
-			this.enableDraggingPaletteButton.CheckOnClick = true;
-			this.enableDraggingPaletteButton.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.enableDraggingPaletteButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-			this.enableDraggingPaletteButton.Name = "enableDraggingPaletteButton";
-			this.enableDraggingPaletteButton.Size = new System.Drawing.Size(98, 22);
-			this.enableDraggingPaletteButton.Text = "Enable &Dragging";
 			// 
 			// MainForm
 			// 
