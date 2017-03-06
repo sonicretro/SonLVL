@@ -100,5 +100,10 @@ namespace SonicRetro.SonLVL.GUI
 			else
 				list[index] = item;
 		}
+
+		public static Color Invert(this Color color)
+		{
+			return Color.FromArgb(color.A, 255 - color.R, 255 - color.G, 255 - color.B);
+		}
 	}
 }

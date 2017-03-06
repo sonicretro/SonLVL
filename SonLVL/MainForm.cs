@@ -51,6 +51,9 @@ namespace SonicRetro.SonLVL.GUI
 				for (int i = 65; i < 128; i++)
 					LevelImgPalette.Entries[i] = LevelData.Palette[waterPalette][(i - 64) / 16, i % 16].RGBColor;
 			}
+			if (invertColorsToolStripMenuItem.Checked)
+				for (int i = 0; i < 128; i++)
+					LevelImgPalette.Entries[i] = LevelImgPalette.Entries[i].Invert();
 			LevelImgPalette.Entries[LevelData.ColorTransparent] = LevelData.PaletteToColor(2, 0, false);
 			LevelImgPalette.Entries[LevelData.ColorWhite] = Color.White;
 			LevelImgPalette.Entries[LevelData.ColorYellow] = Color.Yellow;
@@ -65,6 +68,9 @@ namespace SonicRetro.SonLVL.GUI
 			curpal = new Color[16];
 			for (int i = 0; i < 16; i++)
 				curpal[i] = LevelData.PaletteToColor(SelectedColor.Y, i, false);
+			if (invertColorsToolStripMenuItem.Checked)
+				for (int i = 0; i < 16; i++)
+					curpal[i] = curpal[i].Invert();
 			DrawPalette();
 			DrawTilePicture();
 			RefreshTileSelector();
@@ -922,6 +928,11 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			objectsAboveHighPlaneToolStripMenuItem.Checked = !objectsAboveHighPlaneToolStripMenuItem.Checked;
 			DrawLevel();
+		}
+
+		private void invertColorsToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			LevelData_PaletteChangedEvent();
 		}
 
 		private void paletteToolStripDropDownButton_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
@@ -4107,6 +4118,9 @@ namespace SonicRetro.SonLVL.GUI
 						curpal = new Color[16];
 						for (int i = 0; i < 16; i++)
 							curpal[i] = LevelData.PaletteToColor(SelectedColor.Y, i, false);
+						if (invertColorsToolStripMenuItem.Checked)
+							for (int i = 0; i < 16; i++)
+								curpal[i] = curpal[i].Invert();
 						DrawTilePicture();
 						RefreshTileSelector();
 					}

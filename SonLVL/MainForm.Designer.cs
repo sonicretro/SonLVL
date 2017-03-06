@@ -316,6 +316,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.copyChunkBlocksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.pasteChunkBlocksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.clearChunkBlocksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.invertColorsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			toolStripSeparator8 = new System.Windows.Forms.ToolStripSeparator();
 			toolStripSeparator9 = new System.Windows.Forms.ToolStripSeparator();
 			label4 = new System.Windows.Forms.Label();
@@ -1535,6 +1536,7 @@ namespace SonicRetro.SonLVL.GUI
 			this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.objectsAboveHighPlaneToolStripMenuItem,
             this.hUDToolStripMenuItem,
+            this.invertColorsToolStripMenuItem,
             this.waterPaletteToolStripMenuItem,
             this.layersToolStripMenuItem,
             this.collisionToolStripMenuItem,
@@ -3319,6 +3321,14 @@ namespace SonicRetro.SonLVL.GUI
 			this.clearChunkBlocksToolStripMenuItem.Text = "&Clear";
 			this.clearChunkBlocksToolStripMenuItem.Click += new System.EventHandler(this.clearChunkBlocksToolStripMenuItem_Click);
 			// 
+			// invertColorsToolStripMenuItem
+			// 
+			this.invertColorsToolStripMenuItem.CheckOnClick = true;
+			this.invertColorsToolStripMenuItem.Name = "invertColorsToolStripMenuItem";
+			this.invertColorsToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
+			this.invertColorsToolStripMenuItem.Text = "I&nvert Colors";
+			this.invertColorsToolStripMenuItem.Click += new System.EventHandler(this.invertColorsToolStripMenuItem_Click);
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -3687,5 +3697,6 @@ namespace SonicRetro.SonLVL.GUI
 		private System.Windows.Forms.ToolStripMenuItem flipChunkBlocksHorizontallyToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem flipChunkBlocksVerticallyToolStripMenuItem;
 		private System.Windows.Forms.ToolStripButton enableDraggingPaletteButton;
+		private System.Windows.Forms.ToolStripMenuItem invertColorsToolStripMenuItem;
 	}
 }
