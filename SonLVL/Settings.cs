@@ -1,10 +1,10 @@
+using SonicRetro.SonLVL.API;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using SonicRetro.SonLVL.API;
 
 namespace SonicRetro.SonLVL
 {
@@ -47,6 +47,7 @@ namespace SonicRetro.SonLVL
 		public bool UseHexadecimalIndexesExport { get; set; }
 		public bool ExportArtCollisionPriority { get; set; }
 		public bool ObjectsAboveHighPlane { get; set; }
+		public bool InvertColors { get; set; }
 		[DefaultValue(true)]
 		public bool ViewLowPlane { get; set; }
 		[DefaultValue(true)]

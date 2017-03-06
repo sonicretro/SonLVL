@@ -43,7 +43,8 @@ namespace SonicRetro.SonLVL.GUI
 
 		void LevelData_PaletteChangedEvent()
 		{
-			for (int i = 0; i < 64; i++)
+			LevelImgPalette.Entries[LevelData.ColorTransparent] = LevelData.PaletteToColor(2, 0, false);
+			for (int i = 1; i < 64; i++)
 				LevelImgPalette.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, false);
 			if (waterPalette != -1)
 			{
@@ -54,7 +55,6 @@ namespace SonicRetro.SonLVL.GUI
 			if (invertColorsToolStripMenuItem.Checked)
 				for (int i = 0; i < 128; i++)
 					LevelImgPalette.Entries[i] = LevelImgPalette.Entries[i].Invert();
-			LevelImgPalette.Entries[LevelData.ColorTransparent] = LevelData.PaletteToColor(2, 0, false);
 			LevelImgPalette.Entries[LevelData.ColorWhite] = Color.White;
 			LevelImgPalette.Entries[LevelData.ColorYellow] = Color.Yellow;
 			LevelImgPalette.Entries[LevelData.ColorBlack] = Color.Black;
@@ -211,9 +211,9 @@ namespace SonicRetro.SonLVL.GUI
 #endif
 			}
 			Settings = Settings.Load();
-			System.Drawing.Imaging.ColorMatrix x = new System.Drawing.Imaging.ColorMatrix();
+			ColorMatrix x = new ColorMatrix();
 			x.Matrix33 = 0.75f;
-			imageTransparency.SetColorMatrix(x, System.Drawing.Imaging.ColorMatrixFlag.Default, System.Drawing.Imaging.ColorAdjustType.Bitmap);
+			imageTransparency.SetColorMatrix(x, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
 			PalettePanelGfx = PalettePanel.CreateGraphics();
 			string HUDpath = Path.Combine(Application.StartupPath, "HUD");
 			HUDLetters = new Dictionary<char, BitmapBits>();
@@ -236,6 +236,7 @@ namespace SonicRetro.SonLVL.GUI
 			}
 			objectsAboveHighPlaneToolStripMenuItem.Checked = Settings.ObjectsAboveHighPlane;
 			hUDToolStripMenuItem.Checked = Settings.ShowHUD;
+			invertColorsToolStripMenuItem.Checked = Settings.InvertColors;
 			lowToolStripMenuItem.Checked = Settings.ViewLowPlane;
 			highToolStripMenuItem.Checked = Settings.ViewHighPlane;
 			switch (Settings.ViewCollision)
@@ -336,6 +337,7 @@ namespace SonicRetro.SonLVL.GUI
 			if (Settings != null)
 			{
 				Settings.ShowHUD = hUDToolStripMenuItem.Checked;
+				Settings.InvertColors = invertColorsToolStripMenuItem.Checked;
 				if (path1ToolStripMenuItem.Checked)
 					Settings.ViewCollision = CollisionPath.Path1;
 				else if (path2ToolStripMenuItem.Checked)
@@ -559,8 +561,6 @@ namespace SonicRetro.SonLVL.GUI
 				LevelImgPalette.Entries[LevelData.ColorBlack] = Color.Black;
 				LevelImgPalette.Entries[131] = Settings.GridColor;
 				curpal = new Color[16];
-				for (int i = 0; i < 16; i++)
-					curpal[i] = LevelData.PaletteToColor(0, i, false);
 				switch (LevelData.Level.ChunkFormat)
 				{
 					case EngineVersion.S1:
@@ -747,6 +747,13 @@ namespace SonicRetro.SonLVL.GUI
 			{
 				blendAlternatePaletteToolStripButton.Enabled = waterPaletteToolStripMenuItem.Visible = false;
 				waterPalette = -1;
+			}
+			if (invertColorsToolStripMenuItem.Checked)
+			{
+				for (int i = 0; i < 128; i++)
+					LevelImgPalette.Entries[i] = LevelImgPalette.Entries[i].Invert();
+				for (int i = 0; i < 16; i++)
+					curpal[i] = curpal[i].Invert();
 			}
 			timeZoneToolStripMenuItem.Visible = LevelData.Level.TimeZone != API.TimeZone.None;
 			findNextToolStripMenuItem.Enabled = findPreviousToolStripMenuItem.Enabled = false;
