@@ -830,6 +830,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void buildAndRunToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+            LevelData.SaveLevel();
 			System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Path.Combine(Environment.CurrentDirectory, LevelData.Game.BuildScript)) { WorkingDirectory = Path.GetDirectoryName(Path.Combine(Environment.CurrentDirectory, LevelData.Game.BuildScript)) }).WaitForExit();
 			string romfile = LevelData.Game.ROMFile ?? LevelData.Game.RunCommand;
 			if (LevelData.Game.UseEmulator)
