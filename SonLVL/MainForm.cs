@@ -1579,8 +1579,8 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void reportBugToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			using (BugReportDialog err = new BugReportDialog())
-				err.ShowDialog();
+            using (BugReportDialog err = new BugReportDialog("SonLVL", string.Join(Environment.NewLine, LogFile.ToArray())))
+                err.ShowDialog();
 		}
 		#endregion
 		#endregion

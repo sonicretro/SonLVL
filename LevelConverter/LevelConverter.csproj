@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -46,12 +46,6 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BugReportDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="BugReportDialog.Designer.cs">
-      <DependentUpon>BugReportDialog.cs</DependentUpon>
-    </Compile>
     <Compile Include="ErrorDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -73,9 +67,6 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="BugReportDialog.resx">
-      <DependentUpon>BugReportDialog.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="ErrorDialog.resx">
       <DependentUpon>ErrorDialog.cs</DependentUpon>
     </EmbeddedResource>

@@ -1,9 +1,10 @@
+using SonicRetro.SonLVL.API;
 using System;
 using System.Windows.Forms;
 
 namespace ObjDefEditor
 {
-	public partial class ErrorDialog : Form
+    public partial class ErrorDialog : Form
 	{
 		public ErrorDialog(string message, bool allowContinue)
 		{
@@ -24,8 +25,8 @@ namespace ObjDefEditor
 
 		private void button1_Click(object sender, EventArgs e)
 		{
-			using (BugReportDialog err = new BugReportDialog())
-				err.ShowDialog();
+            using (BugReportDialog err = new BugReportDialog("Object Definition Editor", string.Join(Environment.NewLine, MainForm.Instance.LogFile.ToArray())))
+                err.ShowDialog();
 		}
 	}
 }

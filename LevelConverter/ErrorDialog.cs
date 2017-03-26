@@ -1,3 +1,4 @@
+using SonicRetro.SonLVL.API;
 using System;
 using System.Windows.Forms;
 
@@ -24,7 +25,7 @@ namespace SonicRetro.SonLVL.LevelConverter
 
 		private void button1_Click(object sender, EventArgs e)
 		{
-			using (BugReportDialog err = new BugReportDialog())
+			using (BugReportDialog err = new BugReportDialog("LevelConverter", string.Join(Environment.NewLine, MainForm.Instance.LogFile.ToArray())))
 				err.ShowDialog();
 		}
 	}

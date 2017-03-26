@@ -291,7 +291,7 @@ namespace ObjDefEditor
 
 		private void reportBugToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			using (BugReportDialog dlg = new BugReportDialog())
+			using (BugReportDialog dlg = new BugReportDialog("Object Definition Editor", string.Join(Environment.NewLine, LogFile.ToArray())))
 				dlg.ShowDialog(this);
 		}
 		#endregion

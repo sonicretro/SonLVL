@@ -110,12 +110,6 @@
     <Compile Include="ErrorDialog.Designer.cs">
       <DependentUpon>ErrorDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="BugReportDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="BugReportDialog.Designer.cs">
-      <DependentUpon>BugReportDialog.cs</DependentUpon>
-    </Compile>
     <Compile Include="Extensions.cs" />
     <Compile Include="FindChunksDialog.cs">
       <SubType>Form</SubType>
@@ -242,9 +236,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ErrorDialog.resx">
       <DependentUpon>ErrorDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="BugReportDialog.resx">
-      <DependentUpon>BugReportDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FindChunksDialog.resx">
       <DependentUpon>FindChunksDialog.cs</DependentUpon>
