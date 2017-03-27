@@ -22,11 +22,6 @@
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
-    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
-    <CodeAnalysisFailOnMissingRules>true</CodeAnalysisFailOnMissingRules>
-    <WarningLevel>4</WarningLevel>
-    <Optimize>false</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <OutputPath>bin\Release\</OutputPath>
@@ -35,9 +30,6 @@
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
-    <CodeAnalysisFailOnMissingRules>true</CodeAnalysisFailOnMissingRules>
-    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -62,6 +54,12 @@
     </Compile>
     <Compile Include="ChunkBlockEditor.Designer.cs">
       <DependentUpon>ChunkBlockEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LoadErrorDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LoadErrorDialog.Designer.cs">
+      <DependentUpon>LoadErrorDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="PatternIndexSearchControl.cs">
       <SubType>UserControl</SubType>
@@ -251,6 +249,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="LayoutSectionNameDialog.resx">
       <DependentUpon>LayoutSectionNameDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LoadErrorDialog.resx">
+      <DependentUpon>LoadErrorDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="LoadingAnimation.resx">
       <DependentUpon>LoadingAnimation.cs</DependentUpon>

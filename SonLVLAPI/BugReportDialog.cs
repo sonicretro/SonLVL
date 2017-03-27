@@ -40,6 +40,7 @@ namespace SonicRetro.SonLVL.API
 			text.AppendLine(Environment.OSVersion.ToString());
             text.AppendLine("Log:");
 			text.AppendLine(log);
+            textBox1.Text = text.ToString();
 		}
 	}
 }

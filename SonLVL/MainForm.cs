@@ -365,8 +365,17 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void LoadINI(string filename)
 		{
-			LevelData.LoadGame(filename);
-			changeLevelToolStripMenuItem.DropDownItems.Clear();
+            try
+            {
+                LevelData.LoadGame(filename);
+            }
+            catch (Exception ex)
+            {
+                using (LoadErrorDialog ed = new LoadErrorDialog(false, ex.GetType().Name + ": " + ex.Message))
+                    ed.ShowDialog(this);
+                return;
+            }
+            changeLevelToolStripMenuItem.DropDownItems.Clear();
 			levelMenuItems = new Dictionary<string, ToolStripMenuItem>();
 			foreach (KeyValuePair<string, LevelInfo> item in LevelData.Game.Levels)
 			{
@@ -586,9 +595,9 @@ namespace SonicRetro.SonLVL.GUI
 			if (initerror != null)
 			{
 				Log(initerror.ToString().Split(new string[] { Environment.NewLine }, StringSplitOptions.None));
-				System.IO.File.WriteAllLines("SonLVL.log", LogFile.ToArray());
-				using (ErrorDialog ed = new ErrorDialog(initerror.GetType().Name + ": " + initerror.Message + "\nLog file has been saved to " + System.IO.Path.Combine(Environment.CurrentDirectory, "SonLVL.log") + ".\nSend this to MainMemory on the Sonic Retro forums.", true))
-					if (ed.ShowDialog(this) == System.Windows.Forms.DialogResult.Cancel) Close();
+				File.WriteAllLines("SonLVL.log", LogFile.ToArray());
+                using (LoadErrorDialog ed = new LoadErrorDialog(true, initerror.GetType().Name + ": " + initerror.Message))
+                    ed.ShowDialog(this);
 				Text = "SonLVL - " + LevelData.Game.EngineVersion.ToString();
 				Enabled = true;
 				loadingAnimation1.Hide();
