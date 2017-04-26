@@ -146,6 +146,31 @@ namespace SonicRetro.SonLVL
 			PanelMouseMove(sender, e);
 		}
 
+		private void panel_MouseWheel(object sender, MouseEventArgs e)
+		{
+			bool shiftHeld = 0 != (ModifierKeys & Keys.Shift);
+			bool ctrlHeld = 0 != (ModifierKeys & Keys.Control);
+
+			int smallChange = shiftHeld ? VScrollSmallChange : HScrollSmallChange;
+			int largeChange = shiftHeld ? VScrollLargeChange : HScrollLargeChange;
+
+			int delta;
+			if (ctrlHeld) {
+				delta = largeChange * e.Delta / -120;
+			}
+			else {
+				int lines = SystemInformation.MouseWheelScrollLines < 1 ? 3 : SystemInformation.MouseWheelScrollLines;
+				delta = smallChange * lines * e.Delta / -120;
+			}
+
+			if(shiftHeld && VScrollEnabled) {
+				VScrollValue = (int)Math.Min(Math.Max(VScrollValue + delta, VScrollMinimum), VScrollMaximum);
+			}
+			else if(!shiftHeld && HScrollEnabled) {
+				HScrollValue = (int)Math.Min(Math.Max(HScrollValue + delta, HScrollMinimum), HScrollMaximum);
+			}
+		}
+
 		private void panel_DragEnter(object sender, DragEventArgs e)
 		{
 			PanelDragEnter(sender, e);
