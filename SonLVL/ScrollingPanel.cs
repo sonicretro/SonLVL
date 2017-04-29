@@ -121,6 +121,9 @@ namespace SonicRetro.SonLVL
 			set { hScrollBar.Enabled = value; }
 		}
 
+		private bool bPan = false;
+		private Point origPoint, origScroll;
+
 		private void panel_Paint(object sender, PaintEventArgs e)
 		{
 			PanelPaint(sender, e);
@@ -133,6 +136,11 @@ namespace SonicRetro.SonLVL
 
 		private void panel_MouseDown(object sender, MouseEventArgs e)
 		{
+			if (e.Button == MouseButtons.Middle) {
+				origPoint = e.Location;
+				origScroll = new Point(HScrollValue, VScrollValue);
+				bPan = true;
+			}
 			PanelMouseDown(sender, e);
 		}
 
@@ -143,6 +151,14 @@ namespace SonicRetro.SonLVL
 
 		private void panel_MouseMove(object sender, MouseEventArgs e)
 		{
+			if((MouseButtons & MouseButtons.Middle) != MouseButtons.Middle) {
+				bPan = false;
+			}
+			if (bPan) {
+				Point p = origScroll - (Size)(e.Location - (Size)origPoint);
+				VScrollValue = (int)Math.Min(Math.Max(p.Y, VScrollMinimum), VScrollMaximum);
+				HScrollValue = (int)Math.Min(Math.Max(p.X, HScrollMinimum), HScrollMaximum);
+			}
 			PanelMouseMove(sender, e);
 		}
 
