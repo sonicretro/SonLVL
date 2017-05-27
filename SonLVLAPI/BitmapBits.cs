@@ -518,7 +518,7 @@ namespace SonicRetro.SonLVL.API
 		public void Rotate(int R)
 		{
 			byte[] tmppix = new byte[Bits.Length];
-			switch (R)
+			switch (R & 3)
 			{
 				case 1:
 					for (int y = 0; y < Height; y++)
