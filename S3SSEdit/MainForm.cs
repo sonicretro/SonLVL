@@ -1144,7 +1144,12 @@ namespace S3SSEdit
 		private void layoutPanel_MouseUp(object sender, MouseEventArgs e)
 		{
 			if (tool == Tool.Select && e.Button == MouseButtons.Right)
+			{
+				pasteOnceToolStripMenuItem.Enabled = pasteRepeatingToolStripMenuItem.Enabled = Clipboard.ContainsData(typeof(SphereType[,]).AssemblyQualifiedName);
+				rotateLeftToolStripMenuItem.Enabled = rotateRightToolStripMenuItem.Enabled = selection.Width == selection.Height;
 				layoutContextMenuStrip.Show(layoutPanel, e.Location);
+			}
+
 			if (!drawing) return;
 			drawing = false;
 			Point gridloc = new Point(e.X / 24, e.Y / 24);
