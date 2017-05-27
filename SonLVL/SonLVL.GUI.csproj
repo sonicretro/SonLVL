@@ -340,9 +340,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\UnknownImg.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\paste.png" />
     <None Include="Resources\delete.png" />
     <None Include="Resources\cut.png" />
@@ -354,9 +351,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\lightningmon.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\UnknownImg3K.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\clockmon.ico" />
