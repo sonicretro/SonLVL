@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.6
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SonLVL.GUI", "SonLVL\SonLVL.GUI.csproj", "{934ED80F-F466-423E-8203-9A3F35583323}"
 EndProject
@@ -28,6 +28,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpritePlotter.NET", "SpritePlotter.NET\SpritePlotter.NET.csproj", "{BC3377EC-C285-4758-A49E-641C3A675DFB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Getopt", "Getopt\Getopt.csproj", "{0FCCB190-03C5-4031-AEEB-AAD65B0510CA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "S3SSEdit", "S3SSEdit\S3SSEdit.csproj", "{6D1D6A5F-2C62-4944-8409-2D0A40819BEB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -87,6 +89,10 @@ Global
 		{0FCCB190-03C5-4031-AEEB-AAD65B0510CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0FCCB190-03C5-4031-AEEB-AAD65B0510CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0FCCB190-03C5-4031-AEEB-AAD65B0510CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D1D6A5F-2C62-4944-8409-2D0A40819BEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D1D6A5F-2C62-4944-8409-2D0A40819BEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D1D6A5F-2C62-4944-8409-2D0A40819BEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D1D6A5F-2C62-4944-8409-2D0A40819BEB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
