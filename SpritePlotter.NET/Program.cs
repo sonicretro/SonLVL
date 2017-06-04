@@ -22,6 +22,7 @@ namespace SpritePlotter
 				new LongOpt("format", Argument.Required, null, 'f'),
 				new LongOpt("game", Argument.Required, null, 'g'),
 				new LongOpt("artcmp", Argument.Required, null, 'c'),
+				new LongOpt("searchradius", Argument.Required, null, 'r'),
 				new LongOpt("lowplane", Argument.Required, null, 0),
 				new LongOpt("highplane", Argument.Required, null, 0),
 				new LongOpt("palette", Argument.Required, null, 0),
@@ -42,6 +43,7 @@ namespace SpritePlotter
 			EngineVersion mapgame = EngineVersion.Invalid;
 			bool s3kp = false;
 			CompressionType artcmp = CompressionType.Uncompressed;
+			int searchradius = 0;
 			Bitmap lowplanefile = null;
 			Bitmap highplanefile = null;
 			Color[] palette = null;
@@ -84,6 +86,9 @@ namespace SpritePlotter
 						break;
 					case 'c':
 						artcmp = (CompressionType)Enum.Parse(typeof(CompressionType), getopt.Optarg, true);
+						break;
+					case 'r':
+						searchradius = int.Parse(getopt.Optarg);
 						break;
 					case 0:
 						switch (opts[getopt.Longind].Name)
@@ -263,12 +268,20 @@ namespace SpritePlotter
 			{
 				Point center = new Point(sprites[i].Width / 2, sprites[i].Height / 2);
 				if (centers != null)
-					foreach (Point item in centers)
-						if (sprites[i].Contains(item))
-						{
-							center = new Point(item.X - sprites[i].Left, item.Y - sprites[i].Top);
-							break;
-						}
+				{
+					Rectangle r = sprites[i];
+					for (int j = 0; j <= searchradius; j++)
+					{
+						foreach (Point item in centers)
+							if (sprites[i].Contains(item))
+							{
+								center = new Point(item.X - sprites[i].Left, item.Y - sprites[i].Top);
+								goto foundcenter;
+							}
+						r.Inflate(1, 1);
+					}
+				}
+				foundcenter:
 				MappingsFrame mapframe = new MappingsFrame(map.Name + "_" + i);
 				map.Add(mapframe);
 				DPLCFrame dplcframe = null;

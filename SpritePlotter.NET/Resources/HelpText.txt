@@ -14,6 +14,8 @@ Arguments:
     -c, --artcmp=compress   Compression to use for art file. One of
                             Uncompressed, Nemesis, Kosinski, KosinskiM.
                             Default Uncompressed.
+    -r, --searchradius=num  Pixels to expand the sprites' rectangles
+                            when searching for a center point.
         --lowplane=file     Image to use for the low plane of sprites.
         --highplane=file    Image to use for the high plane of sprites.
         --palette=file      Image or MD palette file to use for the
