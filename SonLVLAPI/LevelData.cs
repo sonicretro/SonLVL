@@ -869,7 +869,7 @@ namespace SonicRetro.SonLVL.API
 				{
 					PaletteList palent = Level.Palettes[0].Palettes;
 					for (byte pn = 0; pn < palent.Collection.Length; pn++)
-						palfiles.Add(System.IO.File.ReadAllBytes(palent[pn].Filename));
+						palfiles.Add(File.ReadAllBytes(palent[pn].Filename));
 					for (int pl = 0; pl < 4; pl++)
 					{
 						for (int pi = 0; pi < 16; pi++)
@@ -912,6 +912,7 @@ namespace SonicRetro.SonLVL.API
 					if (File.Exists(item.Filename))
 						fc = File.ReadAllBytes(item.Filename);
 					StartPositions[i++].GetBytes().CopyTo(fc, item.Offset == -1 ? 0 : item.Offset);
+					Directory.CreateDirectory(Path.GetDirectoryName(item.Filename));
 					File.WriteAllBytes(item.Filename, fc);
 				}
 			}

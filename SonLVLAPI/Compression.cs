@@ -51,6 +51,7 @@ namespace SonicRetro.SonLVL.API
 		{
 			try
 			{
+				Directory.CreateDirectory(Path.GetDirectoryName(destination));
 				switch (cmp)
 				{
 					case CompressionType.Uncompressed:
@@ -58,27 +59,15 @@ namespace SonicRetro.SonLVL.API
 						break;
 					case CompressionType.Kosinski:
 						using (MemoryStream input = new MemoryStream(file))
-						{
-							using (FileStream output = File.Create(destination))
-							{
-								using (PaddedStream paddedOutput = new PaddedStream(output, 2, PaddedStreamMode.Write))
-								{
-									Kosinski.Compress(input, paddedOutput);
-								}
-							}
-						}
+						using (FileStream output = File.Create(destination))
+						using (PaddedStream paddedOutput = new PaddedStream(output, 2, PaddedStreamMode.Write))
+							Kosinski.Compress(input, paddedOutput);
 						break;
 					case CompressionType.KosinskiM:
 						using (MemoryStream input = new MemoryStream(file))
-						{
-							using (FileStream output = File.Create(destination))
-							{
-								using (PaddedStream paddedOutput = new PaddedStream(output, 2, PaddedStreamMode.Write))
-								{
-									ModuledKosinski.Compress(input, paddedOutput, LevelData.littleendian ? Endianness.LittleEndian : Endianness.BigEndian);
-								}
-							}
-						}
+						using (FileStream output = File.Create(destination))
+						using (PaddedStream paddedOutput = new PaddedStream(output, 2, PaddedStreamMode.Write))
+							ModuledKosinski.Compress(input, paddedOutput, LevelData.littleendian ? Endianness.LittleEndian : Endianness.BigEndian);
 						break;
 					case CompressionType.Nemesis:
 						Nemesis.Compress(file, destination);
