@@ -41,6 +41,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="LayoutData.cs" />
+    <Compile Include="LayoutSectionNameDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LayoutSectionNameDialog.Designer.cs">
+      <DependentUpon>LayoutSectionNameDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -49,6 +55,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="LayoutSectionNameDialog.resx">
+      <DependentUpon>LayoutSectionNameDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>

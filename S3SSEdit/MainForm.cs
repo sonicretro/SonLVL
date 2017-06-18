@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Windows.Forms;
 
@@ -23,6 +24,8 @@ namespace S3SSEdit
 		Dictionary<SphereType, BitmapBits> spherebmps = new Dictionary<SphereType, BitmapBits>(5);
 		BitmapBits[] startbmps = new BitmapBits[4];
 		Bitmap[] startbmps32 = new Bitmap[4];
+		List<LayoutSection> layoutSections = new List<LayoutSection>();
+		List<Bitmap> layoutSectionImages = new List<Bitmap>();
 		internal LayoutData layout = new LayoutData();
 		string filename = null;
 		SphereType fgsphere = SphereType.Blue;
@@ -76,8 +79,34 @@ namespace S3SSEdit
 			paletteRing.Image = spherebmps[SphereType.Ring].ToBitmap(palette).To32bpp();
 			paletteYellow.Image = spherebmps[SphereType.Yellow].ToBitmap(palette).To32bpp();
 			palette.Entries[0] = SystemColors.Control;
+			if (File.Exists("LayoutSections.sls"))
+				using (FileStream fs = File.OpenRead("LayoutSections.sls"))
+					layoutSections = (List<LayoutSection>)new BinaryFormatter().Deserialize(fs);
+			layoutSectionListBox.Items.Clear();
+			layoutSectionListBox.BeginUpdate();
+			foreach (LayoutSection sec in layoutSections)
+			{
+				layoutSectionListBox.Items.Add(sec.Name);
+				layoutSectionImages.Add(MakeLayoutSectionImage(sec));
+			}
+			layoutSectionListBox.EndUpdate();
 			layoutgfx = layoutPanel.CreateGraphics();
 			layoutgfx.SetOptions();
+		}
+
+		private Bitmap MakeLayoutSectionImage(LayoutSection section)
+		{
+			int w = section.Spheres.GetLength(0);
+			int h = section.Spheres.GetLength(1);
+			BitmapBits bmp = new BitmapBits(w * 24, h * 24);
+			for (int y = 0; y < h; y++)
+				for (int x = 0; x < w; x++)
+				{
+					SphereType sp = section.Spheres[x, y];
+					if (sp != SphereType.Empty)
+						bmp.DrawBitmapComposited(spherebmps[sp], x * 24, y * 24);
+				}
+			return bmp.ToBitmap(palette).To32bpp();
 		}
 
 		private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -1147,6 +1176,7 @@ namespace S3SSEdit
 			if (tool == Tool.Select && e.Button == MouseButtons.Right)
 			{
 				pasteOnceToolStripMenuItem.Enabled = pasteRepeatingToolStripMenuItem.Enabled = Clipboard.ContainsData(typeof(SphereType[,]).AssemblyQualifiedName);
+				pasteSectionOnceToolStripMenuItem.Enabled = pasteSectionRepeatingToolStripMenuItem.Enabled = layoutSectionListBox.SelectedIndex != -1;
 				rotateLeftToolStripMenuItem.Enabled = rotateRightToolStripMenuItem.Enabled = selection.Width == selection.Height;
 				layoutContextMenuStrip.Show(layoutPanel, e.Location);
 			}
@@ -1308,23 +1338,87 @@ namespace S3SSEdit
 
 		private void saveSectionToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-
+			using (LayoutSectionNameDialog dlg = new LayoutSectionNameDialog())
+			{
+				dlg.Value = "Section " + (layoutSections.Count + 1);
+				if (dlg.ShowDialog(this) == DialogResult.OK)
+				{
+					LayoutSection sec = new LayoutSection(dlg.Value, null);
+					layoutSections.Add(sec);
+					layoutSectionImages.Add(MakeLayoutSectionImage(sec));
+					layoutSectionListBox.Items.Add(sec.Name);
+					layoutSectionListBox.SelectedIndex = layoutSections.Count - 1;
+					using (FileStream fs = File.Create("LayoutSections.sls"))
+						new BinaryFormatter().Serialize(fs, layoutSections);
+				}
+			}
 		}
 
 		private void pasteSectionOnceToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-
+			DoAction(new PasteOnceAction(layoutSections[layoutSectionListBox.SelectedIndex].Spheres, selection.Location));
+			DrawLayout();
 		}
 
 		private void pasteSectionRepeatingToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+			Rectangle area = selection;
+			if (area.IsEmpty)
+				area = new Rectangle(0, 0, 32, 32);
+			SphereType[,] sect = new SphereType[area.Width, area.Height];
+			SphereType[,] copy = layoutSections[layoutSectionListBox.SelectedIndex].Spheres;
+			int copywidth = copy.GetLength(0);
+			int copyheight = copy.GetLength(1);
+			for (int y = 0; y < area.Height; y++)
+				for (int x = 0; x < area.Width; x++)
+					sect[x, y] = copy[x % copywidth, y % copyheight];
+			DoAction(new PasteRepeatingAction(sect, selection.Location));
+			DrawLayout();
+		}
 
+		private void layoutSectionListBox_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			if (layoutSectionListBox.SelectedIndex == -1)
+				layoutSectionPreview.Image = null;
+			else
+				layoutSectionPreview.Image = layoutSectionImages[layoutSectionListBox.SelectedIndex];
+		}
+
+		private void layoutSectionListBox_KeyDown(object sender, KeyEventArgs e)
+		{
+			if (layoutSectionListBox.SelectedIndex != -1 && e.KeyCode == Keys.Delete
+				&& MessageBox.Show(this, "Are you sure you want to delete layout section \"" + layoutSections[layoutSectionListBox.SelectedIndex].Name + "\"?", "S3SSEdit", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK)
+			{
+				layoutSections.RemoveAt(layoutSectionListBox.SelectedIndex);
+				layoutSectionImages.RemoveAt(layoutSectionListBox.SelectedIndex);
+				layoutSectionListBox.Items.RemoveAt(layoutSectionListBox.SelectedIndex);
+				string levelname = LevelData.Level.DisplayName;
+				foreach (char c in Path.GetInvalidFileNameChars())
+					levelname = levelname.Replace(c, '_');
+				using (FileStream fs = File.Create(levelname + ".sls"))
+					new BinaryFormatter().Serialize(fs, layoutSections);
+			}
 		}
 	}
 
 	enum Tool { Select, Pencil, Fill, Line, Rectangle, Diamond, Oval, Start }
 
 	enum ShapeMode { Edge, FillEdge, Fill }
+
+	[Serializable]
+	public class LayoutSection
+	{
+		public string Name { get; set; }
+		public SphereType[,] Spheres { get; set; }
+
+		public LayoutSection() { }
+
+		public LayoutSection(string name, SphereType[,] spheres)
+		{
+			Name = name;
+			Spheres = spheres;
+		}
+	}
 
 	class SphereLoc : IEquatable<SphereLoc>
 	{

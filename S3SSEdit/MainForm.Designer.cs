@@ -40,6 +40,7 @@
 			System.Windows.Forms.Panel panel5;
 			System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
 			System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+			System.Windows.Forms.ToolStrip layoutSectionListToolStrip;
 			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -50,6 +51,26 @@
 			this.undoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.redoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolOptionsPanel = new System.Windows.Forms.Panel();
+			this.perfectCount = new System.Windows.Forms.NumericUpDown();
+			this.layoutPanel = new System.Windows.Forms.UserControl();
+			this.label3 = new System.Windows.Forms.Label();
+			this.panel2 = new System.Windows.Forms.Panel();
+			this.panel3 = new System.Windows.Forms.Panel();
+			this.layoutContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.importToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.saveSectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.stageLayoutOptionsPanel = new System.Windows.Forms.Panel();
+			this.layoutSectionSplitContainer = new System.Windows.Forms.SplitContainer();
+			this.layoutSectionListBox = new System.Windows.Forms.ListBox();
+			this.importToolStripButton = new System.Windows.Forms.ToolStripButton();
+			this.foreSpherePicture = new System.Windows.Forms.PictureBox();
+			this.backSpherePicture = new System.Windows.Forms.PictureBox();
+			this.paletteYellow = new System.Windows.Forms.PictureBox();
+			this.paletteRing = new System.Windows.Forms.PictureBox();
+			this.paletteBumper = new System.Windows.Forms.PictureBox();
+			this.paletteBlue = new System.Windows.Forms.PictureBox();
+			this.paletteRed = new System.Windows.Forms.PictureBox();
+			this.paletteErase = new System.Windows.Forms.PictureBox();
 			this.startButton = new System.Windows.Forms.RadioButton();
 			this.lineButton = new System.Windows.Forms.RadioButton();
 			this.fillButton = new System.Windows.Forms.RadioButton();
@@ -58,30 +79,15 @@
 			this.rectangleButton = new System.Windows.Forms.RadioButton();
 			this.diamondButton = new System.Windows.Forms.RadioButton();
 			this.ovalButton = new System.Windows.Forms.RadioButton();
-			this.paletteBlue = new System.Windows.Forms.PictureBox();
-			this.paletteRed = new System.Windows.Forms.PictureBox();
-			this.paletteErase = new System.Windows.Forms.PictureBox();
-			this.paletteBumper = new System.Windows.Forms.PictureBox();
-			this.paletteRing = new System.Windows.Forms.PictureBox();
-			this.paletteYellow = new System.Windows.Forms.PictureBox();
-			this.backSpherePicture = new System.Windows.Forms.PictureBox();
-			this.foreSpherePicture = new System.Windows.Forms.PictureBox();
-			this.perfectCount = new System.Windows.Forms.NumericUpDown();
-			this.layoutPanel = new System.Windows.Forms.UserControl();
-			this.label3 = new System.Windows.Forms.Label();
-			this.panel2 = new System.Windows.Forms.Panel();
-			this.panel3 = new System.Windows.Forms.Panel();
-			this.layoutContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.layoutSectionPreview = new System.Windows.Forms.PictureBox();
 			this.cutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.pasteOnceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.pasteRepeatingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.importToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.flipHorizontallyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.flipVerticallyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.rotateLeftToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.rotateRightToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.saveSectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.pasteSectionOnceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.pasteSectionRepeatingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			menuStrip1 = new System.Windows.Forms.MenuStrip();
@@ -94,23 +100,30 @@
 			panel5 = new System.Windows.Forms.Panel();
 			toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+			layoutSectionListToolStrip = new System.Windows.Forms.ToolStrip();
 			menuStrip1.SuspendLayout();
 			panel1.SuspendLayout();
 			tableLayoutPanel1.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.paletteBlue)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.paletteRed)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.paletteErase)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.paletteBumper)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.paletteRing)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.paletteYellow)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.backSpherePicture)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.foreSpherePicture)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.perfectCount)).BeginInit();
 			panel4.SuspendLayout();
 			panel5.SuspendLayout();
 			this.panel2.SuspendLayout();
 			this.panel3.SuspendLayout();
 			this.layoutContextMenuStrip.SuspendLayout();
+			this.stageLayoutOptionsPanel.SuspendLayout();
+			this.layoutSectionSplitContainer.Panel1.SuspendLayout();
+			this.layoutSectionSplitContainer.Panel2.SuspendLayout();
+			this.layoutSectionSplitContainer.SuspendLayout();
+			layoutSectionListToolStrip.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.foreSpherePicture)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.backSpherePicture)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.paletteYellow)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.paletteRing)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.paletteBumper)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.paletteBlue)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.paletteRed)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.paletteErase)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.layoutSectionPreview)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// menuStrip1
@@ -263,6 +276,327 @@
 			tableLayoutPanel1.Size = new System.Drawing.Size(60, 120);
 			tableLayoutPanel1.TabIndex = 0;
 			// 
+			// perfectCount
+			// 
+			this.perfectCount.Location = new System.Drawing.Point(53, 6);
+			this.perfectCount.Maximum = new decimal(new int[] {
+            1023,
+            0,
+            0,
+            0});
+			this.perfectCount.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            -2147483648});
+			this.perfectCount.Name = "perfectCount";
+			this.perfectCount.Size = new System.Drawing.Size(52, 20);
+			this.perfectCount.TabIndex = 6;
+			toolTip1.SetToolTip(this.perfectCount, "The number of rings required to get a Perfect Bonus.");
+			this.perfectCount.ValueChanged += new System.EventHandler(this.perfectCount_ValueChanged);
+			// 
+			// countButton
+			// 
+			countButton.AutoSize = true;
+			countButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			countButton.Location = new System.Drawing.Point(111, 3);
+			countButton.Name = "countButton";
+			countButton.Size = new System.Drawing.Size(45, 23);
+			countButton.TabIndex = 7;
+			countButton.Text = "Count";
+			toolTip1.SetToolTip(countButton, "Automatically calculates the number of rings in the stage.");
+			countButton.UseVisualStyleBackColor = true;
+			countButton.Visible = false;
+			countButton.Click += new System.EventHandler(this.countButton_Click);
+			// 
+			// panel4
+			// 
+			panel4.AutoScroll = true;
+			panel4.BackColor = System.Drawing.SystemColors.ControlDark;
+			panel4.Controls.Add(this.layoutPanel);
+			panel4.Dock = System.Windows.Forms.DockStyle.Fill;
+			panel4.Location = new System.Drawing.Point(60, 62);
+			panel4.Name = "panel4";
+			panel4.Size = new System.Drawing.Size(349, 499);
+			panel4.TabIndex = 1;
+			// 
+			// layoutPanel
+			// 
+			this.layoutPanel.BackColor = System.Drawing.SystemColors.Control;
+			this.layoutPanel.Location = new System.Drawing.Point(0, 0);
+			this.layoutPanel.Margin = new System.Windows.Forms.Padding(0);
+			this.layoutPanel.Name = "layoutPanel";
+			this.layoutPanel.Size = new System.Drawing.Size(896, 896);
+			this.layoutPanel.TabIndex = 0;
+			this.layoutPanel.Paint += new System.Windows.Forms.PaintEventHandler(this.layoutPanel_Paint);
+			this.layoutPanel.KeyDown += new System.Windows.Forms.KeyEventHandler(this.layoutPanel_KeyDown);
+			this.layoutPanel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.layoutPanel_MouseDown);
+			this.layoutPanel.MouseMove += new System.Windows.Forms.MouseEventHandler(this.layoutPanel_MouseMove);
+			this.layoutPanel.MouseUp += new System.Windows.Forms.MouseEventHandler(this.layoutPanel_MouseUp);
+			// 
+			// panel5
+			// 
+			panel5.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			panel5.Controls.Add(this.layoutSectionSplitContainer);
+			panel5.Controls.Add(this.stageLayoutOptionsPanel);
+			panel5.Dock = System.Windows.Forms.DockStyle.Right;
+			panel5.Location = new System.Drawing.Point(409, 24);
+			panel5.Name = "panel5";
+			panel5.Size = new System.Drawing.Size(175, 537);
+			panel5.TabIndex = 2;
+			// 
+			// label3
+			// 
+			this.label3.AutoSize = true;
+			this.label3.Location = new System.Drawing.Point(3, 8);
+			this.label3.Name = "label3";
+			this.label3.Size = new System.Drawing.Size(44, 13);
+			this.label3.TabIndex = 5;
+			this.label3.Text = "Perfect:";
+			// 
+			// toolStripSeparator1
+			// 
+			toolStripSeparator1.Name = "toolStripSeparator1";
+			toolStripSeparator1.Size = new System.Drawing.Size(197, 6);
+			// 
+			// toolStripSeparator2
+			// 
+			toolStripSeparator2.Name = "toolStripSeparator2";
+			toolStripSeparator2.Size = new System.Drawing.Size(197, 6);
+			toolStripSeparator2.Visible = false;
+			// 
+			// panel2
+			// 
+			this.panel2.AutoSize = true;
+			this.panel2.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.panel2.Controls.Add(this.panel3);
+			this.panel2.Controls.Add(this.paletteYellow);
+			this.panel2.Controls.Add(this.paletteRing);
+			this.panel2.Controls.Add(this.paletteBumper);
+			this.panel2.Controls.Add(this.paletteBlue);
+			this.panel2.Controls.Add(this.paletteRed);
+			this.panel2.Controls.Add(this.paletteErase);
+			this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
+			this.panel2.Location = new System.Drawing.Point(60, 24);
+			this.panel2.Name = "panel2";
+			this.panel2.Size = new System.Drawing.Size(349, 38);
+			this.panel2.TabIndex = 4;
+			// 
+			// panel3
+			// 
+			this.panel3.Controls.Add(this.foreSpherePicture);
+			this.panel3.Controls.Add(this.backSpherePicture);
+			this.panel3.Location = new System.Drawing.Point(6, 3);
+			this.panel3.Name = "panel3";
+			this.panel3.Size = new System.Drawing.Size(32, 32);
+			this.panel3.TabIndex = 0;
+			// 
+			// layoutContextMenuStrip
+			// 
+			this.layoutContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cutToolStripMenuItem,
+            this.copyToolStripMenuItem,
+            this.pasteOnceToolStripMenuItem,
+            this.pasteRepeatingToolStripMenuItem,
+            this.importToolStripMenuItem,
+            toolStripSeparator1,
+            this.flipHorizontallyToolStripMenuItem,
+            this.flipVerticallyToolStripMenuItem,
+            this.rotateLeftToolStripMenuItem,
+            this.rotateRightToolStripMenuItem,
+            toolStripSeparator2,
+            this.saveSectionToolStripMenuItem,
+            this.pasteSectionOnceToolStripMenuItem,
+            this.pasteSectionRepeatingToolStripMenuItem});
+			this.layoutContextMenuStrip.Name = "layoutContextMenuStrip";
+			this.layoutContextMenuStrip.Size = new System.Drawing.Size(201, 280);
+			// 
+			// importToolStripMenuItem
+			// 
+			this.importToolStripMenuItem.Name = "importToolStripMenuItem";
+			this.importToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+			this.importToolStripMenuItem.Text = "I&mport...";
+			this.importToolStripMenuItem.Visible = false;
+			this.importToolStripMenuItem.Click += new System.EventHandler(this.importToolStripMenuItem_Click);
+			// 
+			// saveSectionToolStripMenuItem
+			// 
+			this.saveSectionToolStripMenuItem.Name = "saveSectionToolStripMenuItem";
+			this.saveSectionToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+			this.saveSectionToolStripMenuItem.Text = "&Save Section...";
+			this.saveSectionToolStripMenuItem.Click += new System.EventHandler(this.saveSectionToolStripMenuItem_Click);
+			// 
+			// stageLayoutOptionsPanel
+			// 
+			this.stageLayoutOptionsPanel.AutoSize = true;
+			this.stageLayoutOptionsPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.stageLayoutOptionsPanel.Controls.Add(this.label3);
+			this.stageLayoutOptionsPanel.Controls.Add(countButton);
+			this.stageLayoutOptionsPanel.Controls.Add(this.perfectCount);
+			this.stageLayoutOptionsPanel.Dock = System.Windows.Forms.DockStyle.Top;
+			this.stageLayoutOptionsPanel.Location = new System.Drawing.Point(0, 0);
+			this.stageLayoutOptionsPanel.Margin = new System.Windows.Forms.Padding(0);
+			this.stageLayoutOptionsPanel.Name = "stageLayoutOptionsPanel";
+			this.stageLayoutOptionsPanel.Size = new System.Drawing.Size(175, 29);
+			this.stageLayoutOptionsPanel.TabIndex = 8;
+			// 
+			// layoutSectionSplitContainer
+			// 
+			this.layoutSectionSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.layoutSectionSplitContainer.Location = new System.Drawing.Point(0, 29);
+			this.layoutSectionSplitContainer.Margin = new System.Windows.Forms.Padding(0);
+			this.layoutSectionSplitContainer.Name = "layoutSectionSplitContainer";
+			this.layoutSectionSplitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
+			// 
+			// layoutSectionSplitContainer.Panel1
+			// 
+			this.layoutSectionSplitContainer.Panel1.Controls.Add(this.layoutSectionListBox);
+			this.layoutSectionSplitContainer.Panel1.Controls.Add(layoutSectionListToolStrip);
+			// 
+			// layoutSectionSplitContainer.Panel2
+			// 
+			this.layoutSectionSplitContainer.Panel2.Controls.Add(this.layoutSectionPreview);
+			this.layoutSectionSplitContainer.Size = new System.Drawing.Size(175, 508);
+			this.layoutSectionSplitContainer.SplitterDistance = 229;
+			this.layoutSectionSplitContainer.TabIndex = 9;
+			// 
+			// layoutSectionListBox
+			// 
+			this.layoutSectionListBox.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.layoutSectionListBox.FormattingEnabled = true;
+			this.layoutSectionListBox.IntegralHeight = false;
+			this.layoutSectionListBox.Location = new System.Drawing.Point(0, 0);
+			this.layoutSectionListBox.Name = "layoutSectionListBox";
+			this.layoutSectionListBox.Size = new System.Drawing.Size(175, 229);
+			this.layoutSectionListBox.TabIndex = 0;
+			toolTip1.SetToolTip(this.layoutSectionListBox, "Layout Sections");
+			this.layoutSectionListBox.SelectedIndexChanged += new System.EventHandler(this.layoutSectionListBox_SelectedIndexChanged);
+			this.layoutSectionListBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.layoutSectionListBox_KeyDown);
+			// 
+			// layoutSectionListToolStrip
+			// 
+			layoutSectionListToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+			layoutSectionListToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.importToolStripButton});
+			layoutSectionListToolStrip.Location = new System.Drawing.Point(0, 0);
+			layoutSectionListToolStrip.Name = "layoutSectionListToolStrip";
+			layoutSectionListToolStrip.Size = new System.Drawing.Size(209, 25);
+			layoutSectionListToolStrip.TabIndex = 1;
+			layoutSectionListToolStrip.Text = "toolStrip1";
+			layoutSectionListToolStrip.Visible = false;
+			// 
+			// importToolStripButton
+			// 
+			this.importToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.importToolStripButton.Name = "importToolStripButton";
+			this.importToolStripButton.Size = new System.Drawing.Size(56, 22);
+			this.importToolStripButton.Text = "I&mport...";
+			// 
+			// foreSpherePicture
+			// 
+			this.foreSpherePicture.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.foreSpherePicture.Location = new System.Drawing.Point(0, 0);
+			this.foreSpherePicture.Margin = new System.Windows.Forms.Padding(0);
+			this.foreSpherePicture.Name = "foreSpherePicture";
+			this.foreSpherePicture.Size = new System.Drawing.Size(20, 20);
+			this.foreSpherePicture.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this.foreSpherePicture.TabIndex = 1;
+			this.foreSpherePicture.TabStop = false;
+			toolTip1.SetToolTip(this.foreSpherePicture, "Click To Swap");
+			this.foreSpherePicture.Click += new System.EventHandler(this.foreSpherePicture_Click);
+			// 
+			// backSpherePicture
+			// 
+			this.backSpherePicture.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.backSpherePicture.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.backSpherePicture.Location = new System.Drawing.Point(12, 12);
+			this.backSpherePicture.Margin = new System.Windows.Forms.Padding(0);
+			this.backSpherePicture.Name = "backSpherePicture";
+			this.backSpherePicture.Size = new System.Drawing.Size(20, 20);
+			this.backSpherePicture.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this.backSpherePicture.TabIndex = 0;
+			this.backSpherePicture.TabStop = false;
+			toolTip1.SetToolTip(this.backSpherePicture, "Click To Swap");
+			this.backSpherePicture.Click += new System.EventHandler(this.foreSpherePicture_Click);
+			// 
+			// paletteYellow
+			// 
+			this.paletteYellow.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+			this.paletteYellow.Location = new System.Drawing.Point(181, 5);
+			this.paletteYellow.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
+			this.paletteYellow.Name = "paletteYellow";
+			this.paletteYellow.Size = new System.Drawing.Size(28, 28);
+			this.paletteYellow.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+			this.paletteYellow.TabIndex = 5;
+			this.paletteYellow.TabStop = false;
+			toolTip1.SetToolTip(this.paletteYellow, "Yellow Sphere");
+			this.paletteYellow.MouseClick += new System.Windows.Forms.MouseEventHandler(this.paletteYellow_MouseClick);
+			// 
+			// paletteRing
+			// 
+			this.paletteRing.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+			this.paletteRing.Location = new System.Drawing.Point(153, 5);
+			this.paletteRing.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
+			this.paletteRing.Name = "paletteRing";
+			this.paletteRing.Size = new System.Drawing.Size(28, 28);
+			this.paletteRing.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+			this.paletteRing.TabIndex = 4;
+			this.paletteRing.TabStop = false;
+			toolTip1.SetToolTip(this.paletteRing, "Ring");
+			this.paletteRing.MouseClick += new System.Windows.Forms.MouseEventHandler(this.paletteRing_MouseClick);
+			// 
+			// paletteBumper
+			// 
+			this.paletteBumper.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+			this.paletteBumper.Location = new System.Drawing.Point(125, 5);
+			this.paletteBumper.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
+			this.paletteBumper.Name = "paletteBumper";
+			this.paletteBumper.Size = new System.Drawing.Size(28, 28);
+			this.paletteBumper.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+			this.paletteBumper.TabIndex = 3;
+			this.paletteBumper.TabStop = false;
+			toolTip1.SetToolTip(this.paletteBumper, "Bumper");
+			this.paletteBumper.MouseClick += new System.Windows.Forms.MouseEventHandler(this.paletteBumper_MouseClick);
+			// 
+			// paletteBlue
+			// 
+			this.paletteBlue.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+			this.paletteBlue.Location = new System.Drawing.Point(97, 5);
+			this.paletteBlue.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
+			this.paletteBlue.Name = "paletteBlue";
+			this.paletteBlue.Size = new System.Drawing.Size(28, 28);
+			this.paletteBlue.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+			this.paletteBlue.TabIndex = 2;
+			this.paletteBlue.TabStop = false;
+			toolTip1.SetToolTip(this.paletteBlue, "Blue Sphere");
+			this.paletteBlue.MouseClick += new System.Windows.Forms.MouseEventHandler(this.paletteBlue_MouseClick);
+			// 
+			// paletteRed
+			// 
+			this.paletteRed.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+			this.paletteRed.Location = new System.Drawing.Point(69, 5);
+			this.paletteRed.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
+			this.paletteRed.Name = "paletteRed";
+			this.paletteRed.Size = new System.Drawing.Size(28, 28);
+			this.paletteRed.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+			this.paletteRed.TabIndex = 1;
+			this.paletteRed.TabStop = false;
+			toolTip1.SetToolTip(this.paletteRed, "Red Sphere");
+			this.paletteRed.MouseClick += new System.Windows.Forms.MouseEventHandler(this.paletteRed_MouseClick);
+			// 
+			// paletteErase
+			// 
+			this.paletteErase.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+			this.paletteErase.Location = new System.Drawing.Point(41, 5);
+			this.paletteErase.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
+			this.paletteErase.Name = "paletteErase";
+			this.paletteErase.Size = new System.Drawing.Size(28, 28);
+			this.paletteErase.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+			this.paletteErase.TabIndex = 0;
+			this.paletteErase.TabStop = false;
+			toolTip1.SetToolTip(this.paletteErase, "Erase");
+			this.paletteErase.MouseClick += new System.Windows.Forms.MouseEventHandler(this.paletteErase_MouseClick);
+			// 
 			// startButton
 			// 
 			this.startButton.Anchor = System.Windows.Forms.AnchorStyles.None;
@@ -377,247 +711,17 @@
 			this.ovalButton.UseVisualStyleBackColor = true;
 			this.ovalButton.CheckedChanged += new System.EventHandler(this.ovalButton_CheckedChanged);
 			// 
-			// paletteBlue
+			// layoutSectionPreview
 			// 
-			this.paletteBlue.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-			this.paletteBlue.Location = new System.Drawing.Point(97, 5);
-			this.paletteBlue.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
-			this.paletteBlue.Name = "paletteBlue";
-			this.paletteBlue.Size = new System.Drawing.Size(28, 28);
-			this.paletteBlue.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
-			this.paletteBlue.TabIndex = 2;
-			this.paletteBlue.TabStop = false;
-			toolTip1.SetToolTip(this.paletteBlue, "Blue Sphere");
-			this.paletteBlue.MouseClick += new System.Windows.Forms.MouseEventHandler(this.paletteBlue_MouseClick);
-			// 
-			// paletteRed
-			// 
-			this.paletteRed.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-			this.paletteRed.Location = new System.Drawing.Point(69, 5);
-			this.paletteRed.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
-			this.paletteRed.Name = "paletteRed";
-			this.paletteRed.Size = new System.Drawing.Size(28, 28);
-			this.paletteRed.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
-			this.paletteRed.TabIndex = 1;
-			this.paletteRed.TabStop = false;
-			toolTip1.SetToolTip(this.paletteRed, "Red Sphere");
-			this.paletteRed.MouseClick += new System.Windows.Forms.MouseEventHandler(this.paletteRed_MouseClick);
-			// 
-			// paletteErase
-			// 
-			this.paletteErase.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-			this.paletteErase.Location = new System.Drawing.Point(41, 5);
-			this.paletteErase.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
-			this.paletteErase.Name = "paletteErase";
-			this.paletteErase.Size = new System.Drawing.Size(28, 28);
-			this.paletteErase.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
-			this.paletteErase.TabIndex = 0;
-			this.paletteErase.TabStop = false;
-			toolTip1.SetToolTip(this.paletteErase, "Erase");
-			this.paletteErase.MouseClick += new System.Windows.Forms.MouseEventHandler(this.paletteErase_MouseClick);
-			// 
-			// paletteBumper
-			// 
-			this.paletteBumper.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-			this.paletteBumper.Location = new System.Drawing.Point(125, 5);
-			this.paletteBumper.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
-			this.paletteBumper.Name = "paletteBumper";
-			this.paletteBumper.Size = new System.Drawing.Size(28, 28);
-			this.paletteBumper.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
-			this.paletteBumper.TabIndex = 3;
-			this.paletteBumper.TabStop = false;
-			toolTip1.SetToolTip(this.paletteBumper, "Bumper");
-			this.paletteBumper.MouseClick += new System.Windows.Forms.MouseEventHandler(this.paletteBumper_MouseClick);
-			// 
-			// paletteRing
-			// 
-			this.paletteRing.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-			this.paletteRing.Location = new System.Drawing.Point(153, 5);
-			this.paletteRing.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
-			this.paletteRing.Name = "paletteRing";
-			this.paletteRing.Size = new System.Drawing.Size(28, 28);
-			this.paletteRing.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
-			this.paletteRing.TabIndex = 4;
-			this.paletteRing.TabStop = false;
-			toolTip1.SetToolTip(this.paletteRing, "Ring");
-			this.paletteRing.MouseClick += new System.Windows.Forms.MouseEventHandler(this.paletteRing_MouseClick);
-			// 
-			// paletteYellow
-			// 
-			this.paletteYellow.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-			this.paletteYellow.Location = new System.Drawing.Point(181, 5);
-			this.paletteYellow.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
-			this.paletteYellow.Name = "paletteYellow";
-			this.paletteYellow.Size = new System.Drawing.Size(28, 28);
-			this.paletteYellow.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
-			this.paletteYellow.TabIndex = 5;
-			this.paletteYellow.TabStop = false;
-			toolTip1.SetToolTip(this.paletteYellow, "Yellow Sphere");
-			this.paletteYellow.MouseClick += new System.Windows.Forms.MouseEventHandler(this.paletteYellow_MouseClick);
-			// 
-			// backSpherePicture
-			// 
-			this.backSpherePicture.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.backSpherePicture.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.backSpherePicture.Location = new System.Drawing.Point(12, 12);
-			this.backSpherePicture.Margin = new System.Windows.Forms.Padding(0);
-			this.backSpherePicture.Name = "backSpherePicture";
-			this.backSpherePicture.Size = new System.Drawing.Size(20, 20);
-			this.backSpherePicture.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-			this.backSpherePicture.TabIndex = 0;
-			this.backSpherePicture.TabStop = false;
-			toolTip1.SetToolTip(this.backSpherePicture, "Click To Swap");
-			this.backSpherePicture.Click += new System.EventHandler(this.foreSpherePicture_Click);
-			// 
-			// foreSpherePicture
-			// 
-			this.foreSpherePicture.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.foreSpherePicture.Location = new System.Drawing.Point(0, 0);
-			this.foreSpherePicture.Margin = new System.Windows.Forms.Padding(0);
-			this.foreSpherePicture.Name = "foreSpherePicture";
-			this.foreSpherePicture.Size = new System.Drawing.Size(20, 20);
-			this.foreSpherePicture.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-			this.foreSpherePicture.TabIndex = 1;
-			this.foreSpherePicture.TabStop = false;
-			toolTip1.SetToolTip(this.foreSpherePicture, "Click To Swap");
-			this.foreSpherePicture.Click += new System.EventHandler(this.foreSpherePicture_Click);
-			// 
-			// perfectCount
-			// 
-			this.perfectCount.Location = new System.Drawing.Point(53, 6);
-			this.perfectCount.Maximum = new decimal(new int[] {
-            1023,
-            0,
-            0,
-            0});
-			this.perfectCount.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            -2147483648});
-			this.perfectCount.Name = "perfectCount";
-			this.perfectCount.Size = new System.Drawing.Size(52, 20);
-			this.perfectCount.TabIndex = 6;
-			toolTip1.SetToolTip(this.perfectCount, "The number of rings required to get a Perfect Bonus.");
-			this.perfectCount.ValueChanged += new System.EventHandler(this.perfectCount_ValueChanged);
-			// 
-			// countButton
-			// 
-			countButton.AutoSize = true;
-			countButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-			countButton.Location = new System.Drawing.Point(111, 3);
-			countButton.Name = "countButton";
-			countButton.Size = new System.Drawing.Size(45, 23);
-			countButton.TabIndex = 7;
-			countButton.Text = "Count";
-			toolTip1.SetToolTip(countButton, "Automatically calculates the number of rings in the stage.");
-			countButton.UseVisualStyleBackColor = true;
-			countButton.Visible = false;
-			countButton.Click += new System.EventHandler(this.countButton_Click);
-			// 
-			// panel4
-			// 
-			panel4.AutoScroll = true;
-			panel4.BackColor = System.Drawing.SystemColors.ControlDark;
-			panel4.Controls.Add(this.layoutPanel);
-			panel4.Dock = System.Windows.Forms.DockStyle.Fill;
-			panel4.Location = new System.Drawing.Point(60, 62);
-			panel4.Name = "panel4";
-			panel4.Size = new System.Drawing.Size(365, 499);
-			panel4.TabIndex = 1;
-			// 
-			// layoutPanel
-			// 
-			this.layoutPanel.BackColor = System.Drawing.SystemColors.Control;
-			this.layoutPanel.Location = new System.Drawing.Point(0, 0);
-			this.layoutPanel.Margin = new System.Windows.Forms.Padding(0);
-			this.layoutPanel.Name = "layoutPanel";
-			this.layoutPanel.Size = new System.Drawing.Size(896, 896);
-			this.layoutPanel.TabIndex = 0;
-			this.layoutPanel.Paint += new System.Windows.Forms.PaintEventHandler(this.layoutPanel_Paint);
-			this.layoutPanel.KeyDown += new System.Windows.Forms.KeyEventHandler(this.layoutPanel_KeyDown);
-			this.layoutPanel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.layoutPanel_MouseDown);
-			this.layoutPanel.MouseMove += new System.Windows.Forms.MouseEventHandler(this.layoutPanel_MouseMove);
-			this.layoutPanel.MouseUp += new System.Windows.Forms.MouseEventHandler(this.layoutPanel_MouseUp);
-			// 
-			// panel5
-			// 
-			panel5.AutoSize = true;
-			panel5.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-			panel5.Controls.Add(countButton);
-			panel5.Controls.Add(this.perfectCount);
-			panel5.Controls.Add(this.label3);
-			panel5.Dock = System.Windows.Forms.DockStyle.Right;
-			panel5.Location = new System.Drawing.Point(425, 24);
-			panel5.Name = "panel5";
-			panel5.Size = new System.Drawing.Size(159, 537);
-			panel5.TabIndex = 2;
-			// 
-			// label3
-			// 
-			this.label3.AutoSize = true;
-			this.label3.Location = new System.Drawing.Point(3, 8);
-			this.label3.Name = "label3";
-			this.label3.Size = new System.Drawing.Size(44, 13);
-			this.label3.TabIndex = 5;
-			this.label3.Text = "Perfect:";
-			// 
-			// toolStripSeparator1
-			// 
-			toolStripSeparator1.Name = "toolStripSeparator1";
-			toolStripSeparator1.Size = new System.Drawing.Size(197, 6);
-			// 
-			// toolStripSeparator2
-			// 
-			toolStripSeparator2.Name = "toolStripSeparator2";
-			toolStripSeparator2.Size = new System.Drawing.Size(197, 6);
-			toolStripSeparator2.Visible = false;
-			// 
-			// panel2
-			// 
-			this.panel2.AutoSize = true;
-			this.panel2.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-			this.panel2.Controls.Add(this.panel3);
-			this.panel2.Controls.Add(this.paletteYellow);
-			this.panel2.Controls.Add(this.paletteRing);
-			this.panel2.Controls.Add(this.paletteBumper);
-			this.panel2.Controls.Add(this.paletteBlue);
-			this.panel2.Controls.Add(this.paletteRed);
-			this.panel2.Controls.Add(this.paletteErase);
-			this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
-			this.panel2.Location = new System.Drawing.Point(60, 24);
-			this.panel2.Name = "panel2";
-			this.panel2.Size = new System.Drawing.Size(365, 38);
-			this.panel2.TabIndex = 4;
-			// 
-			// panel3
-			// 
-			this.panel3.Controls.Add(this.foreSpherePicture);
-			this.panel3.Controls.Add(this.backSpherePicture);
-			this.panel3.Location = new System.Drawing.Point(6, 3);
-			this.panel3.Name = "panel3";
-			this.panel3.Size = new System.Drawing.Size(32, 32);
-			this.panel3.TabIndex = 0;
-			// 
-			// layoutContextMenuStrip
-			// 
-			this.layoutContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.cutToolStripMenuItem,
-            this.copyToolStripMenuItem,
-            this.pasteOnceToolStripMenuItem,
-            this.pasteRepeatingToolStripMenuItem,
-            this.importToolStripMenuItem,
-            toolStripSeparator1,
-            this.flipHorizontallyToolStripMenuItem,
-            this.flipVerticallyToolStripMenuItem,
-            this.rotateLeftToolStripMenuItem,
-            this.rotateRightToolStripMenuItem,
-            toolStripSeparator2,
-            this.saveSectionToolStripMenuItem,
-            this.pasteSectionOnceToolStripMenuItem,
-            this.pasteSectionRepeatingToolStripMenuItem});
-			this.layoutContextMenuStrip.Name = "layoutContextMenuStrip";
-			this.layoutContextMenuStrip.Size = new System.Drawing.Size(201, 280);
+			this.layoutSectionPreview.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.layoutSectionPreview.Location = new System.Drawing.Point(0, 0);
+			this.layoutSectionPreview.Margin = new System.Windows.Forms.Padding(0);
+			this.layoutSectionPreview.Name = "layoutSectionPreview";
+			this.layoutSectionPreview.Size = new System.Drawing.Size(175, 275);
+			this.layoutSectionPreview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+			this.layoutSectionPreview.TabIndex = 0;
+			this.layoutSectionPreview.TabStop = false;
+			toolTip1.SetToolTip(this.layoutSectionPreview, "Layout Section Preview");
 			// 
 			// cutToolStripMenuItem
 			// 
@@ -651,14 +755,6 @@
 			this.pasteRepeatingToolStripMenuItem.Text = "Paste &Repeating";
 			this.pasteRepeatingToolStripMenuItem.Click += new System.EventHandler(this.pasteRepeatingToolStripMenuItem_Click);
 			// 
-			// importToolStripMenuItem
-			// 
-			this.importToolStripMenuItem.Name = "importToolStripMenuItem";
-			this.importToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
-			this.importToolStripMenuItem.Text = "I&mport...";
-			this.importToolStripMenuItem.Visible = false;
-			this.importToolStripMenuItem.Click += new System.EventHandler(this.importToolStripMenuItem_Click);
-			// 
 			// flipHorizontallyToolStripMenuItem
 			// 
 			this.flipHorizontallyToolStripMenuItem.Image = global::S3SSEdit.Properties.Resources.fliph;
@@ -691,21 +787,12 @@
 			this.rotateRightToolStripMenuItem.Text = "Rotate R&ight";
 			this.rotateRightToolStripMenuItem.Click += new System.EventHandler(this.rotateRightToolStripMenuItem_Click);
 			// 
-			// saveSectionToolStripMenuItem
-			// 
-			this.saveSectionToolStripMenuItem.Name = "saveSectionToolStripMenuItem";
-			this.saveSectionToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
-			this.saveSectionToolStripMenuItem.Text = "&Save Section...";
-			this.saveSectionToolStripMenuItem.Visible = false;
-			this.saveSectionToolStripMenuItem.Click += new System.EventHandler(this.saveSectionToolStripMenuItem_Click);
-			// 
 			// pasteSectionOnceToolStripMenuItem
 			// 
 			this.pasteSectionOnceToolStripMenuItem.Image = global::S3SSEdit.Properties.Resources.paste;
 			this.pasteSectionOnceToolStripMenuItem.Name = "pasteSectionOnceToolStripMenuItem";
 			this.pasteSectionOnceToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
 			this.pasteSectionOnceToolStripMenuItem.Text = "P&aste Section Once";
-			this.pasteSectionOnceToolStripMenuItem.Visible = false;
 			this.pasteSectionOnceToolStripMenuItem.Click += new System.EventHandler(this.pasteSectionOnceToolStripMenuItem_Click);
 			// 
 			// pasteSectionRepeatingToolStripMenuItem
@@ -714,7 +801,6 @@
 			this.pasteSectionRepeatingToolStripMenuItem.Name = "pasteSectionRepeatingToolStripMenuItem";
 			this.pasteSectionRepeatingToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
 			this.pasteSectionRepeatingToolStripMenuItem.Text = "Paste Section R&epeating";
-			this.pasteSectionRepeatingToolStripMenuItem.Visible = false;
 			this.pasteSectionRepeatingToolStripMenuItem.Click += new System.EventHandler(this.pasteSectionRepeatingToolStripMenuItem_Click);
 			// 
 			// MainForm
@@ -740,14 +826,6 @@
 			panel1.ResumeLayout(false);
 			panel1.PerformLayout();
 			tableLayoutPanel1.ResumeLayout(false);
-			((System.ComponentModel.ISupportInitialize)(this.paletteBlue)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.paletteRed)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.paletteErase)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.paletteBumper)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.paletteRing)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.paletteYellow)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.backSpherePicture)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.foreSpherePicture)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.perfectCount)).EndInit();
 			panel4.ResumeLayout(false);
 			panel5.ResumeLayout(false);
@@ -755,6 +833,23 @@
 			this.panel2.ResumeLayout(false);
 			this.panel3.ResumeLayout(false);
 			this.layoutContextMenuStrip.ResumeLayout(false);
+			this.stageLayoutOptionsPanel.ResumeLayout(false);
+			this.stageLayoutOptionsPanel.PerformLayout();
+			this.layoutSectionSplitContainer.Panel1.ResumeLayout(false);
+			this.layoutSectionSplitContainer.Panel1.PerformLayout();
+			this.layoutSectionSplitContainer.Panel2.ResumeLayout(false);
+			this.layoutSectionSplitContainer.ResumeLayout(false);
+			layoutSectionListToolStrip.ResumeLayout(false);
+			layoutSectionListToolStrip.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.foreSpherePicture)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.backSpherePicture)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.paletteYellow)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.paletteRing)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.paletteBumper)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.paletteBlue)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.paletteRed)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.paletteErase)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.layoutSectionPreview)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -806,6 +901,11 @@
 		private System.Windows.Forms.ToolStripMenuItem flipVerticallyToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem rotateLeftToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem rotateRightToolStripMenuItem;
+		private System.Windows.Forms.SplitContainer layoutSectionSplitContainer;
+		private System.Windows.Forms.ListBox layoutSectionListBox;
+		private System.Windows.Forms.ToolStripButton importToolStripButton;
+		private System.Windows.Forms.PictureBox layoutSectionPreview;
+		private System.Windows.Forms.Panel stageLayoutOptionsPanel;
 	}
 }
 
