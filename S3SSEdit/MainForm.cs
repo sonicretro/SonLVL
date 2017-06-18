@@ -18,6 +18,7 @@ namespace S3SSEdit
 			InitializeComponent();
 		}
 
+		const int gridsize = 28;
 		ColorPalette palette;
 		Dictionary<SphereType, BitmapBits> spherebmps = new Dictionary<SphereType, BitmapBits>(5);
 		BitmapBits[] startbmps = new BitmapBits[4];
@@ -26,7 +27,7 @@ namespace S3SSEdit
 		string filename = null;
 		SphereType fgsphere = SphereType.Blue;
 		SphereType bgsphere = SphereType.Empty;
-		BitmapBits layoutbmp = new BitmapBits(24 * 32, 24 * 32);
+		BitmapBits layoutbmp = new BitmapBits(32 * gridsize, 32 * gridsize);
 		Graphics layoutgfx;
 		ImageAttributes imageTransparency = new ImageAttributes();
 		Tool tool = Tool.Pencil;
@@ -456,7 +457,7 @@ namespace S3SSEdit
 		{
 			layoutbmp.Clear();
 			Point gridloc = layoutPanel.PointToClient(Cursor.Position);
-			gridloc = new Point(gridloc.X / 24, gridloc.Y / 24);
+			gridloc = new Point(gridloc.X / gridsize, gridloc.Y / gridsize);
 			SphereType[,] tmplayout = (SphereType[,])layout.Layout.Clone();
 			if (drawing)
 				switch (tool)
@@ -467,7 +468,7 @@ namespace S3SSEdit
 							tmplayout[loc.X, loc.Y] = loc.Sphere;
 						break;
 					case Tool.Rectangle:
-						gridloc = new Point(Math.Min(gridloc.X, firstloc.X / 24), Math.Min(gridloc.Y, firstloc.Y / 24));
+						gridloc = new Point(Math.Min(gridloc.X, firstloc.X / gridsize), Math.Min(gridloc.Y, firstloc.Y / gridsize));
 						switch (rectmode)
 						{
 							case ShapeMode.Edge:
@@ -483,7 +484,7 @@ namespace S3SSEdit
 						}
 						break;
 					case Tool.Diamond:
-						gridloc = new Point(Math.Min(gridloc.X, firstloc.X / 24), Math.Min(gridloc.Y, firstloc.Y / 24));
+						gridloc = new Point(Math.Min(gridloc.X, firstloc.X / gridsize), Math.Min(gridloc.Y, firstloc.Y / gridsize));
 						switch (diammode)
 						{
 							case ShapeMode.Edge:
@@ -500,7 +501,7 @@ namespace S3SSEdit
 						}
 						break;
 					case Tool.Oval:
-						gridloc = new Point(Math.Min(gridloc.X, firstloc.X / 24), Math.Min(gridloc.Y, firstloc.Y / 24));
+						gridloc = new Point(Math.Min(gridloc.X, firstloc.X / gridsize), Math.Min(gridloc.Y, firstloc.Y / gridsize));
 						for (int y = 0; y < drawrect.GetLength(1); y++)
 							for (int x = 0; x < drawrect.GetLength(0); x++)
 								if (drawrect[x, y].HasValue)
@@ -512,9 +513,9 @@ namespace S3SSEdit
 				{
 					SphereType sp = tmplayout[x, y];
 					if (sp != SphereType.Empty)
-						layoutbmp.DrawBitmapComposited(spherebmps[sp], x * 24, y * 24);
+						layoutbmp.DrawBitmapComposited(spherebmps[sp], x * gridsize + 2, y * gridsize + 2);
 				}
-			layoutbmp.DrawBitmapComposited(startbmps[layout.Angle >> 14], startloc.X * 24, startloc.Y * 24);
+			layoutbmp.DrawBitmapComposited(startbmps[layout.Angle >> 14], startloc.X * gridsize + 2, startloc.Y * gridsize + 2);
 			using (Bitmap bmp = layoutbmp.ToBitmap(palette).To32bpp())
 			{
 				Graphics gfx = Graphics.FromImage(bmp);
@@ -522,7 +523,7 @@ namespace S3SSEdit
 				{
 					if (!selection.IsEmpty)
 					{
-						Rectangle selbnds = new Rectangle(selection.X * 24, selection.Y * 24, selection.Width * 24, selection.Height * 24);
+						Rectangle selbnds = new Rectangle(selection.X * gridsize, selection.Y * gridsize, selection.Width * gridsize, selection.Height * gridsize);
 						gfx.FillRectangle(new SolidBrush(Color.FromArgb(128, SystemColors.Highlight)), selbnds);
 						selbnds.Width--; selbnds.Height--;
 						gfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = System.Drawing.Drawing2D.DashStyle.Dot }, selbnds);
@@ -531,9 +532,9 @@ namespace S3SSEdit
 				else if (!drawing)
 				{
 					if (tool == Tool.Start)
-						gfx.DrawImage(startbmps32[layout.Angle >> 14], new Rectangle(gridloc.X * 24, gridloc.Y * 24, 24, 24), 0, 0, 24, 24, GraphicsUnit.Pixel, imageTransparency);
+						gfx.DrawImage(startbmps32[layout.Angle >> 14], new Rectangle(gridloc.X * gridsize + 2, gridloc.Y * gridsize + 2, 24, 24), 0, 0, 24, 24, GraphicsUnit.Pixel, imageTransparency);
 					else
-						gfx.DrawImage(foreSpherePicture.Image, new Rectangle(gridloc.X * 24, gridloc.Y * 24, 24, 24), 0, 0, 24, 24, GraphicsUnit.Pixel, imageTransparency);
+						gfx.DrawImage(foreSpherePicture.Image, new Rectangle(gridloc.X * gridsize + 2, gridloc.Y * gridsize + 2, 24, 24), 0, 0, 24, 24, GraphicsUnit.Pixel, imageTransparency);
 				}
 				layoutgfx.DrawImage(bmp, 0, 0, layoutPanel.Width, layoutPanel.Height);
 			}
@@ -559,7 +560,7 @@ namespace S3SSEdit
 		private void layoutPanel_MouseDown(object sender, MouseEventArgs e)
 		{
 			Point loc = e.Location;
-			Point gridloc = new Point(loc.X / 24, loc.Y / 24);
+			Point gridloc = new Point(loc.X / gridsize, loc.Y / gridsize);
 			if (tool == Tool.Select)
 			{
 				if (e.Button == MouseButtons.Left)
@@ -832,8 +833,8 @@ namespace S3SSEdit
 				prevloc = loc;
 				return;
 			}
-			Point gridloc = new Point(loc.X / 24, loc.Y / 24);
-			if (gridloc == new Point(prevloc.X / 24, prevloc.Y / 24))
+			Point gridloc = new Point(loc.X / gridsize, loc.Y / gridsize);
+			if (gridloc == new Point(prevloc.X / gridsize, prevloc.Y / gridsize))
 				return;
 			SphereType sphere = SphereType.Empty;
 			SphereType bgsphere = SphereType.Empty;
@@ -852,10 +853,10 @@ namespace S3SSEdit
 			{
 				case Tool.Select:
 					selection = new Rectangle(
-						Math.Min(gridloc.X, firstloc.X / 24),
-						Math.Min(gridloc.Y, firstloc.Y / 24),
-						Math.Abs(gridloc.X - firstloc.X / 24) + 1,
-						Math.Abs(gridloc.Y - firstloc.Y / 24) + 1);
+						Math.Min(gridloc.X, firstloc.X / gridsize),
+						Math.Min(gridloc.Y, firstloc.Y / gridsize),
+						Math.Abs(gridloc.X - firstloc.X / gridsize) + 1,
+						Math.Abs(gridloc.Y - firstloc.Y / gridsize) + 1);
 					break;
 				case Tool.Pencil:
 					{
@@ -865,7 +866,7 @@ namespace S3SSEdit
 						int y2 = loc.Y;
 						if (y1 == y2)
 						{
-							if (y1 >= 32 * 24 || y1 < 0)
+							if (y1 >= 32 * gridsize || y1 < 0)
 								return;
 							if (x1 > x2)
 							{
@@ -873,20 +874,20 @@ namespace S3SSEdit
 								x1 = x2;
 								x2 = tmp;
 							}
-							if (x1 >= 32 * 24 || x2 < 0)
+							if (x1 >= 32 * gridsize || x2 < 0)
 								return;
 							x1 = Math.Max(x1, 0);
-							x2 = Math.Min(x2, 32 * 24 - 1);
+							x2 = Math.Min(x2, 32 * gridsize - 1);
 							for (int x = x1; x <= x2; x++)
 							{
-								SphereLoc s = new SphereLoc(sphere, x / 24, y1 / 24);
+								SphereLoc s = new SphereLoc(sphere, x / gridsize, y1 / gridsize);
 								if (!drawlist.Contains(s))
 									drawlist.Add(s);
 							}
 						}
 						else if (x1 == x2)
 						{
-							if (x1 >= 32 * 24 || x1 < 0)
+							if (x1 >= 32 * gridsize || x1 < 0)
 								return;
 							if (y1 > y2)
 							{
@@ -894,13 +895,13 @@ namespace S3SSEdit
 								y1 = y2;
 								y2 = tmp;
 							}
-							if (y1 >= 32 * 24 || y2 < 0)
+							if (y1 >= 32 * gridsize || y2 < 0)
 								return;
 							y1 = Math.Max(y1, 0);
-							y2 = Math.Min(y2, 32 * 24 - 1);
+							y2 = Math.Min(y2, 32 * gridsize - 1);
 							for (int y = y1; y <= y2; y++)
 							{
-								SphereLoc s = new SphereLoc(sphere, x1 / 24, y / 24);
+								SphereLoc s = new SphereLoc(sphere, x1 / gridsize, y / gridsize);
 								if (!drawlist.Contains(s))
 									drawlist.Add(s);
 							}
@@ -940,18 +941,18 @@ namespace S3SSEdit
 							{
 								if (steep)
 								{
-									if (x >= 0 && x < 32 * 24 && y >= 0 && y < 32 * 24)
+									if (x >= 0 && x < 32 * gridsize && y >= 0 && y < 32 * gridsize)
 									{
-										SphereLoc s = new SphereLoc(sphere, y / 24, x / 24);
+										SphereLoc s = new SphereLoc(sphere, y / gridsize, x / gridsize);
 										if (!drawlist.Contains(s))
 											drawlist.Add(s);
 									}
 								}
 								else
 								{
-									if (y >= 0 && y < 32 * 24 && x >= 0 && x < 32 * 24)
+									if (y >= 0 && y < 32 * gridsize && x >= 0 && x < 32 * gridsize)
 									{
-										SphereLoc s = new SphereLoc(sphere, x / 24, y / 24);
+										SphereLoc s = new SphereLoc(sphere, x / gridsize, y / gridsize);
 										if (!drawlist.Contains(s))
 											drawlist.Add(s);
 									}
@@ -970,12 +971,12 @@ namespace S3SSEdit
 					return;
 				case Tool.Line:
 					drawlist = new List<SphereLoc>();
-					DrawLine(sphere, firstloc.X / 24, firstloc.Y / 24, gridloc.X, gridloc.Y);
+					DrawLine(sphere, firstloc.X / gridsize, firstloc.Y / gridsize, gridloc.X, gridloc.Y);
 					break;
 				case Tool.Rectangle:
 					{
-						int width = Math.Abs(gridloc.X - firstloc.X / 24) + 1;
-						int height = Math.Abs(gridloc.Y - firstloc.Y / 24) + 1;
+						int width = Math.Abs(gridloc.X - firstloc.X / gridsize) + 1;
+						int height = Math.Abs(gridloc.Y - firstloc.Y / gridsize) + 1;
 						if (ModifierKeys == Keys.Control)
 							height = width = Math.Max(width, height);
 						switch (rectmode)
@@ -983,8 +984,8 @@ namespace S3SSEdit
 							case ShapeMode.Edge:
 								{
 									drawlist = new List<SphereLoc>();
-									int x = Math.Min(gridloc.X, firstloc.X / 24);
-									int y = Math.Min(gridloc.Y, firstloc.Y / 24);
+									int x = Math.Min(gridloc.X, firstloc.X / gridsize);
+									int y = Math.Min(gridloc.Y, firstloc.Y / gridsize);
 									DrawLine(sphere, x, y, x + width - 1, y);
 									DrawLine(sphere, x, y, x, y + height - 1);
 									DrawLine(sphere, x, y + height - 1, x + width - 1, y + height - 1);
@@ -1023,8 +1024,8 @@ namespace S3SSEdit
 					break;
 				case Tool.Diamond:
 					{
-						int width = Math.Abs(gridloc.X - firstloc.X / 24) + 1;
-						int height = Math.Abs(gridloc.Y - firstloc.Y / 24) + 1;
+						int width = Math.Abs(gridloc.X - firstloc.X / gridsize) + 1;
+						int height = Math.Abs(gridloc.Y - firstloc.Y / gridsize) + 1;
 						if (ModifierKeys == Keys.Control)
 							height = width = Math.Max(width, height);
 						switch (diammode)
@@ -1032,8 +1033,8 @@ namespace S3SSEdit
 							case ShapeMode.Edge:
 								{
 									drawlist = new List<SphereLoc>();
-									int x = Math.Min(gridloc.X, firstloc.X / 24);
-									int y = Math.Min(gridloc.Y, firstloc.Y / 24);
+									int x = Math.Min(gridloc.X, firstloc.X / gridsize);
+									int y = Math.Min(gridloc.Y, firstloc.Y / gridsize);
 									DrawLine(sphere, x + width / 2, y, x + width - 1, y + height / 2);
 									DrawLine(sphere, x + width - 1, y + height / 2, x + width / 2, y + height - 1);
 									DrawLine(sphere, x + width / 2, y + height - 1, x, y + height / 2);
@@ -1086,8 +1087,8 @@ namespace S3SSEdit
 					break;
 				case Tool.Oval:
 					{
-						int width = Math.Abs(gridloc.X - firstloc.X / 24) + 1;
-						int height = Math.Abs(gridloc.Y - firstloc.Y / 24) + 1;
+						int width = Math.Abs(gridloc.X - firstloc.X / gridsize) + 1;
+						int height = Math.Abs(gridloc.Y - firstloc.Y / gridsize) + 1;
 						if (ModifierKeys == Keys.Control)
 							height = width = Math.Max(width, height);
 						drawrect = new SphereType?[width, height];
@@ -1152,7 +1153,7 @@ namespace S3SSEdit
 
 			if (!drawing) return;
 			drawing = false;
-			Point gridloc = new Point(e.X / 24, e.Y / 24);
+			Point gridloc = new Point(e.X / gridsize, e.Y / gridsize);
 			switch (tool)
 			{
 				case Tool.Pencil:
@@ -1171,7 +1172,7 @@ namespace S3SSEdit
 							break;
 						case ShapeMode.FillEdge:
 						case ShapeMode.Fill:
-							DoAction(new RectangleFillAction(fillrect, Math.Min(gridloc.X, firstloc.X / 24), Math.Min(gridloc.Y, firstloc.Y / 24)));
+							DoAction(new RectangleFillAction(fillrect, Math.Min(gridloc.X, firstloc.X / gridsize), Math.Min(gridloc.Y, firstloc.Y / gridsize)));
 							break;
 					}
 					break;
@@ -1183,12 +1184,12 @@ namespace S3SSEdit
 							break;
 						case ShapeMode.FillEdge:
 						case ShapeMode.Fill:
-							DoAction(new DiamondFillAction(drawrect, Math.Min(gridloc.X, firstloc.X / 24), Math.Min(gridloc.Y, firstloc.Y / 24)));
+							DoAction(new DiamondFillAction(drawrect, Math.Min(gridloc.X, firstloc.X / gridsize), Math.Min(gridloc.Y, firstloc.Y / gridsize)));
 							break;
 					}
 					break;
 				case Tool.Oval:
-					DoAction(new OvalAction(drawrect, Math.Min(gridloc.X, firstloc.X / 24), Math.Min(gridloc.Y, firstloc.Y / 24)));
+					DoAction(new OvalAction(drawrect, Math.Min(gridloc.X, firstloc.X / gridsize), Math.Min(gridloc.Y, firstloc.Y / gridsize)));
 					break;
 				case Tool.Start:
 					if (gridloc.X == layout.StartX / 0x100 && gridloc.Y == layout.StartY / 0x100)

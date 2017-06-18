@@ -224,7 +224,7 @@
 			panel1.Dock = System.Windows.Forms.DockStyle.Left;
 			panel1.Location = new System.Drawing.Point(0, 24);
 			panel1.Name = "panel1";
-			panel1.Size = new System.Drawing.Size(60, 538);
+			panel1.Size = new System.Drawing.Size(60, 537);
 			panel1.TabIndex = 2;
 			// 
 			// toolOptionsPanel
@@ -523,7 +523,7 @@
 			panel4.Dock = System.Windows.Forms.DockStyle.Fill;
 			panel4.Location = new System.Drawing.Point(60, 62);
 			panel4.Name = "panel4";
-			panel4.Size = new System.Drawing.Size(365, 500);
+			panel4.Size = new System.Drawing.Size(365, 499);
 			panel4.TabIndex = 1;
 			// 
 			// layoutPanel
@@ -532,7 +532,7 @@
 			this.layoutPanel.Location = new System.Drawing.Point(0, 0);
 			this.layoutPanel.Margin = new System.Windows.Forms.Padding(0);
 			this.layoutPanel.Name = "layoutPanel";
-			this.layoutPanel.Size = new System.Drawing.Size(768, 768);
+			this.layoutPanel.Size = new System.Drawing.Size(896, 896);
 			this.layoutPanel.TabIndex = 0;
 			this.layoutPanel.Paint += new System.Windows.Forms.PaintEventHandler(this.layoutPanel_Paint);
 			this.layoutPanel.KeyDown += new System.Windows.Forms.KeyEventHandler(this.layoutPanel_KeyDown);
@@ -550,7 +550,7 @@
 			panel5.Dock = System.Windows.Forms.DockStyle.Right;
 			panel5.Location = new System.Drawing.Point(425, 24);
 			panel5.Name = "panel5";
-			panel5.Size = new System.Drawing.Size(159, 538);
+			panel5.Size = new System.Drawing.Size(159, 537);
 			panel5.TabIndex = 2;
 			// 
 			// label3
@@ -721,7 +721,7 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(584, 562);
+			this.ClientSize = new System.Drawing.Size(584, 561);
 			this.Controls.Add(panel4);
 			this.Controls.Add(this.panel2);
 			this.Controls.Add(panel1);
