@@ -90,6 +90,7 @@
 			this.rotateRightToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.pasteSectionOnceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.pasteSectionRepeatingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.saveUndoHistoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			menuStrip1 = new System.Windows.Forms.MenuStrip();
 			imageList1 = new System.Windows.Forms.ImageList(this.components);
 			panel1 = new System.Windows.Forms.Panel();
@@ -192,7 +193,8 @@
 			// 
 			this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.undoToolStripMenuItem,
-            this.redoToolStripMenuItem});
+            this.redoToolStripMenuItem,
+            this.saveUndoHistoryToolStripMenuItem});
 			this.editToolStripMenuItem.Name = "editToolStripMenuItem";
 			this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
 			this.editToolStripMenuItem.Text = "&Edit";
@@ -202,7 +204,7 @@
 			this.undoToolStripMenuItem.Enabled = false;
 			this.undoToolStripMenuItem.Name = "undoToolStripMenuItem";
 			this.undoToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Z";
-			this.undoToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+			this.undoToolStripMenuItem.Size = new System.Drawing.Size(171, 22);
 			this.undoToolStripMenuItem.Text = "&Undo";
 			this.undoToolStripMenuItem.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.undoToolStripMenuItem_DropDownItemClicked);
 			// 
@@ -211,7 +213,7 @@
 			this.redoToolStripMenuItem.Enabled = false;
 			this.redoToolStripMenuItem.Name = "redoToolStripMenuItem";
 			this.redoToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl+Y";
-			this.redoToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+			this.redoToolStripMenuItem.Size = new System.Drawing.Size(171, 22);
 			this.redoToolStripMenuItem.Text = "&Redo";
 			this.redoToolStripMenuItem.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.redoToolStripMenuItem_DropDownItemClicked);
 			// 
@@ -803,6 +805,15 @@
 			this.pasteSectionRepeatingToolStripMenuItem.Text = "Paste Section R&epeating";
 			this.pasteSectionRepeatingToolStripMenuItem.Click += new System.EventHandler(this.pasteSectionRepeatingToolStripMenuItem_Click);
 			// 
+			// saveUndoHistoryToolStripMenuItem
+			// 
+			this.saveUndoHistoryToolStripMenuItem.Checked = true;
+			this.saveUndoHistoryToolStripMenuItem.CheckOnClick = true;
+			this.saveUndoHistoryToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.saveUndoHistoryToolStripMenuItem.Name = "saveUndoHistoryToolStripMenuItem";
+			this.saveUndoHistoryToolStripMenuItem.Size = new System.Drawing.Size(171, 22);
+			this.saveUndoHistoryToolStripMenuItem.Text = "&Save Undo History";
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -906,6 +917,7 @@
 		private System.Windows.Forms.ToolStripButton importToolStripButton;
 		private System.Windows.Forms.PictureBox layoutSectionPreview;
 		private System.Windows.Forms.Panel stageLayoutOptionsPanel;
+		private System.Windows.Forms.ToolStripMenuItem saveUndoHistoryToolStripMenuItem;
 	}
 }
 

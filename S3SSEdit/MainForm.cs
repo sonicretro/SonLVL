@@ -174,6 +174,17 @@ namespace S3SSEdit
 			undoToolStripMenuItem.Enabled = false;
 			redoToolStripMenuItem.DropDownItems.Clear();
 			redoToolStripMenuItem.Enabled = false;
+			if (saveUndoHistoryToolStripMenuItem.Checked && filename != null && File.Exists(Path.ChangeExtension(filename, ".undo")))
+			{
+				using (FileStream fs = File.OpenRead(Path.ChangeExtension(filename, ".undo")))
+				using (System.IO.Compression.DeflateStream ds = new System.IO.Compression.DeflateStream(fs, System.IO.Compression.CompressionMode.Decompress))
+					undoList = (Stack<Action>)new BinaryFormatter().Deserialize(ds);
+				foreach (Action a in undoList)
+					undoToolStripMenuItem.DropDownItems.Add(a.Name);
+				lastSaveUndoCount = undoList.Count;
+				if (undoList.Count > 0)
+					undoToolStripMenuItem.Enabled = true;
+			}
 			UpdateText();
 			UpdateControls();
 			DrawLayout();
@@ -190,21 +201,32 @@ namespace S3SSEdit
 			if (filename == null)
 				saveAsToolStripMenuItem_Click(sender, e);
 			else
+				SaveLayout();
+		}
+
+		private void SaveLayout()
+		{
+			File.WriteAllBytes(filename, layout.GetBytes());
+			if (saveUndoHistoryToolStripMenuItem.Checked)
 			{
-				File.WriteAllBytes(filename, layout.GetBytes());
-				lastSaveUndoCount = undoList.Count;
+				if (undoList.Count > 0)
+					using (FileStream fs = File.Create(Path.ChangeExtension(filename, ".undo")))
+					using (System.IO.Compression.DeflateStream ds = new System.IO.Compression.DeflateStream(fs, System.IO.Compression.CompressionMode.Compress))
+						new BinaryFormatter().Serialize(ds, undoList);
+				else if (File.Exists(Path.ChangeExtension(filename, ".undo")))
+					File.Delete(Path.ChangeExtension(filename, ".undo"));
 			}
+			lastSaveUndoCount = undoList.Count;
+			UpdateText();
 		}
 
 		private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			using (SaveFileDialog dlg = new SaveFileDialog() { DefaultExt = "bin", Filter = "Binary Files|*.bin|All Files|*.*", FileName = filename ?? "New Stage.bin" })
-				if (dlg.ShowDialog(this)== DialogResult.OK)
+				if (dlg.ShowDialog(this) == DialogResult.OK)
 				{
 					filename = dlg.FileName;
-					File.WriteAllBytes(filename, layout.GetBytes());
-					lastSaveUndoCount = undoList.Count;
-					UpdateText();
+					SaveLayout();
 				}
 		}
 
@@ -1420,6 +1442,7 @@ namespace S3SSEdit
 		}
 	}
 
+	[Serializable]
 	class SphereLoc : IEquatable<SphereLoc>
 	{
 		public SphereType Sphere { get; set; }
@@ -1458,12 +1481,14 @@ namespace S3SSEdit
 		}
 	}
 
+	[Serializable]
 	abstract class Action
 	{
 		public abstract string Name { get; }
 		public abstract void Do(LayoutData layout);
 	}
 
+	[Serializable]
 	abstract class SphereListAction : Action
 	{
 		public SphereListAction(List<SphereLoc> spheres)
@@ -1484,6 +1509,7 @@ namespace S3SSEdit
 		}
 	}
 
+	[Serializable]
 	abstract class AreaFillAction : Action
 	{
 		public AreaFillAction(SphereType[,] spheres, Point position)
@@ -1511,6 +1537,7 @@ namespace S3SSEdit
 		}
 	}
 
+	[Serializable]
 	abstract class AreaAction : Action
 	{
 		public AreaAction(SphereType?[,] spheres)
@@ -1566,6 +1593,7 @@ namespace S3SSEdit
 		}
 	}
 
+	[Serializable]
 	abstract class RotateAction : Action
 	{
 		public RotateAction(Rectangle area, bool right)
@@ -1596,6 +1624,7 @@ namespace S3SSEdit
 		}
 	}
 
+	[Serializable]
 	class PencilAction : SphereListAction
 	{
 		public PencilAction(List<SphereLoc> spheres) : base(spheres) { }
@@ -1603,6 +1632,7 @@ namespace S3SSEdit
 		public override string Name => "Draw";
 	}
 
+	[Serializable]
 	class FillAction : AreaAction
 	{
 		public FillAction(SphereType?[,] spheres) : base(spheres) { }
@@ -1610,6 +1640,7 @@ namespace S3SSEdit
 		public override string Name => "Fill";
 	}
 
+	[Serializable]
 	class LineAction : SphereListAction
 	{
 		public LineAction(List<SphereLoc> spheres) : base(spheres) { }
@@ -1617,6 +1648,7 @@ namespace S3SSEdit
 		public override string Name => "Line";
 	}
 
+	[Serializable]
 	class RectangleEdgeAction : SphereListAction
 	{
 		public RectangleEdgeAction(List<SphereLoc> spheres) : base(spheres) { }
@@ -1624,6 +1656,7 @@ namespace S3SSEdit
 		public override string Name => "Rectangle";
 	}
 
+	[Serializable]
 	class RectangleFillAction : AreaFillAction
 	{
 		public RectangleFillAction(SphereType[,] spheres, Point position) : base(spheres, position) { }
@@ -1633,6 +1666,7 @@ namespace S3SSEdit
 		public override string Name => "Rectangle";
 	}
 
+	[Serializable]
 	class DiamondEdgeAction : SphereListAction
 	{
 		public DiamondEdgeAction(List<SphereLoc> spheres) : base(spheres) { }
@@ -1640,6 +1674,7 @@ namespace S3SSEdit
 		public override string Name => "Diamond";
 	}
 
+	[Serializable]
 	class DiamondFillAction : AreaAction
 	{
 		public DiamondFillAction(SphereType?[,] spheres, Point position) : base(spheres, position) { }
@@ -1649,6 +1684,7 @@ namespace S3SSEdit
 		public override string Name => "Diamond";
 	}
 
+	[Serializable]
 	class OvalAction : AreaAction
 	{
 		public OvalAction(SphereType?[,] spheres, Point position) : base(spheres, position) { }
@@ -1658,6 +1694,7 @@ namespace S3SSEdit
 		public override string Name => "Oval";
 	}
 
+	[Serializable]
 	class StartPositionAction : Action
 	{
 		public StartPositionAction(Point position)
@@ -1678,6 +1715,7 @@ namespace S3SSEdit
 		public override string Name => "Start Position";
 	}
 
+	[Serializable]
 	class StartAngleAction : Action
 	{
 		public StartAngleAction(ushort angle)
@@ -1697,6 +1735,7 @@ namespace S3SSEdit
 		public override string Name => "Start Angle";
 	}
 
+	[Serializable]
 	class PerfectCountAction : Action
 	{
 		public PerfectCountAction(short count)
@@ -1716,6 +1755,7 @@ namespace S3SSEdit
 		public override string Name => "Perfect Count";
 	}
 
+	[Serializable]
 	class CutAction : AreaFillAction
 	{
 		public CutAction(SphereType[,] spheres, Point position) : base(spheres, position) { }
@@ -1725,6 +1765,7 @@ namespace S3SSEdit
 		public override string Name => "Cut";
 	}
 
+	[Serializable]
 	class PasteOnceAction : AreaFillAction
 	{
 		public PasteOnceAction(SphereType[,] spheres, Point position) : base(spheres, position) { }
@@ -1734,6 +1775,7 @@ namespace S3SSEdit
 		public override string Name => "Paste Once";
 	}
 
+	[Serializable]
 	class PasteRepeatingAction : AreaFillAction
 	{
 		public PasteRepeatingAction(SphereType[,] spheres, Point position) : base(spheres, position) { }
@@ -1743,6 +1785,7 @@ namespace S3SSEdit
 		public override string Name => "Paste Repeating";
 	}
 
+	[Serializable]
 	class FlipHorizontallyAction : Action
 	{
 		public FlipHorizontallyAction(Rectangle area)
@@ -1763,6 +1806,7 @@ namespace S3SSEdit
 		public override string Name => "Flip Horizontally";
 	}
 
+	[Serializable]
 	class FlipVerticallyAction : Action
 	{
 		public FlipVerticallyAction(Rectangle area)
@@ -1783,6 +1827,7 @@ namespace S3SSEdit
 		public override string Name => "Flip Vertically";
 	}
 
+	[Serializable]
 	class RotateLeftAction : RotateAction
 	{
 		public RotateLeftAction(Rectangle area) : base(area, false) { }
@@ -1790,6 +1835,7 @@ namespace S3SSEdit
 		public override string Name => "Rotate Left";
 	}
 
+	[Serializable]
 	class RotateRightAction : RotateAction
 	{
 		public RotateRightAction(Rectangle area) : base(area, true) { }
