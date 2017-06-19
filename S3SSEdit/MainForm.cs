@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Windows.Forms;
+using System.IO.Compression;
 
 namespace S3SSEdit
 {
@@ -80,8 +81,7 @@ namespace S3SSEdit
 			paletteYellow.Image = spherebmps[SphereType.Yellow].ToBitmap(palette).To32bpp();
 			palette.Entries[0] = SystemColors.Control;
 			if (File.Exists("LayoutSections.sls"))
-				using (FileStream fs = File.OpenRead("LayoutSections.sls"))
-					layoutSections = (List<LayoutSection>)new BinaryFormatter().Deserialize(fs);
+				layoutSections = DeserializeCompressed<List<LayoutSection>>("LayoutSections.sls");
 			layoutSectionListBox.Items.Clear();
 			layoutSectionListBox.BeginUpdate();
 			foreach (LayoutSection sec in layoutSections)
@@ -92,6 +92,13 @@ namespace S3SSEdit
 			layoutSectionListBox.EndUpdate();
 			layoutgfx = layoutPanel.CreateGraphics();
 			layoutgfx.SetOptions();
+		}
+
+		private static T DeserializeCompressed<T>(string fn)
+		{
+			using (FileStream fs = File.OpenRead(fn))
+			using (DeflateStream ds = new DeflateStream(fs, CompressionMode.Decompress))
+				return (T)new BinaryFormatter().Deserialize(ds);
 		}
 
 		private Bitmap MakeLayoutSectionImage(LayoutSection section)
@@ -176,9 +183,7 @@ namespace S3SSEdit
 			redoToolStripMenuItem.Enabled = false;
 			if (saveUndoHistoryToolStripMenuItem.Checked && filename != null && File.Exists(Path.ChangeExtension(filename, ".undo")))
 			{
-				using (FileStream fs = File.OpenRead(Path.ChangeExtension(filename, ".undo")))
-				using (System.IO.Compression.DeflateStream ds = new System.IO.Compression.DeflateStream(fs, System.IO.Compression.CompressionMode.Decompress))
-					undoList = (Stack<Action>)new BinaryFormatter().Deserialize(ds);
+				undoList = DeserializeCompressed<Stack<Action>>(Path.ChangeExtension(filename, ".undo"));
 				foreach (Action a in undoList)
 					undoToolStripMenuItem.DropDownItems.Add(a.Name);
 				lastSaveUndoCount = undoList.Count;
@@ -209,15 +214,21 @@ namespace S3SSEdit
 			File.WriteAllBytes(filename, layout.GetBytes());
 			if (saveUndoHistoryToolStripMenuItem.Checked)
 			{
+				string fn = Path.ChangeExtension(filename, ".undo");
 				if (undoList.Count > 0)
-					using (FileStream fs = File.Create(Path.ChangeExtension(filename, ".undo")))
-					using (System.IO.Compression.DeflateStream ds = new System.IO.Compression.DeflateStream(fs, System.IO.Compression.CompressionMode.Compress))
-						new BinaryFormatter().Serialize(ds, undoList);
-				else if (File.Exists(Path.ChangeExtension(filename, ".undo")))
-					File.Delete(Path.ChangeExtension(filename, ".undo"));
+					SerializeCompressed(fn, undoList);
+				else if (File.Exists(fn))
+					File.Delete(fn);
 			}
 			lastSaveUndoCount = undoList.Count;
 			UpdateText();
+		}
+
+		private static void SerializeCompressed(string fn, object obj)
+		{
+			using (FileStream fs = File.Create(fn))
+			using (DeflateStream ds = new DeflateStream(fs, CompressionMode.Compress))
+				new BinaryFormatter().Serialize(ds, obj);
 		}
 
 		private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1365,13 +1376,19 @@ namespace S3SSEdit
 				dlg.Value = "Section " + (layoutSections.Count + 1);
 				if (dlg.ShowDialog(this) == DialogResult.OK)
 				{
-					LayoutSection sec = new LayoutSection(dlg.Value, null);
+					Rectangle area = selection;
+					if (area.IsEmpty)
+						area = new Rectangle(0, 0, 32, 32);
+					SphereType[,] sect = new SphereType[area.Width, area.Height];
+					for (int y = 0; y < area.Height; y++)
+						for (int x = 0; x < area.Width; x++)
+							sect[x, y] = layout.Layout[area.X + x, area.Y + y];
+					LayoutSection sec = new LayoutSection(dlg.Value, sect);
 					layoutSections.Add(sec);
 					layoutSectionImages.Add(MakeLayoutSectionImage(sec));
 					layoutSectionListBox.Items.Add(sec.Name);
 					layoutSectionListBox.SelectedIndex = layoutSections.Count - 1;
-					using (FileStream fs = File.Create("LayoutSections.sls"))
-						new BinaryFormatter().Serialize(fs, layoutSections);
+					SerializeCompressed("LayoutSections.sls", layoutSections);
 				}
 			}
 		}
@@ -1414,11 +1431,7 @@ namespace S3SSEdit
 				layoutSections.RemoveAt(layoutSectionListBox.SelectedIndex);
 				layoutSectionImages.RemoveAt(layoutSectionListBox.SelectedIndex);
 				layoutSectionListBox.Items.RemoveAt(layoutSectionListBox.SelectedIndex);
-				string levelname = LevelData.Level.DisplayName;
-				foreach (char c in Path.GetInvalidFileNameChars())
-					levelname = levelname.Replace(c, '_');
-				using (FileStream fs = File.Create(levelname + ".sls"))
-					new BinaryFormatter().Serialize(fs, layoutSections);
+				SerializeCompressed("LayoutSections.sls", layoutSections);
 			}
 		}
 	}
