@@ -1308,7 +1308,9 @@ namespace S3SSEdit
 
 		private void pasteOnceToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			DoAction(new PasteOnceAction((SphereType[,])Clipboard.GetData(typeof(SphereType[,]).AssemblyQualifiedName), selection.Location));
+			SphereType[,] data = (SphereType[,])Clipboard.GetData(typeof(SphereType[,]).AssemblyQualifiedName);
+			DoAction(new PasteOnceAction(data, selection.Location));
+			selection.Size = new Size(data.GetLength(0), data.GetLength(1));
 			DrawLayout();
 		}
 
@@ -1396,6 +1398,7 @@ namespace S3SSEdit
 		private void pasteSectionOnceToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			DoAction(new PasteOnceAction(layoutSections[layoutSectionListBox.SelectedIndex].Spheres, selection.Location));
+			selection.Size = new Size(layoutSections[layoutSectionListBox.SelectedIndex].Spheres.GetLength(0), layoutSections[layoutSectionListBox.SelectedIndex].Spheres.GetLength(1));
 			DrawLayout();
 		}
 
