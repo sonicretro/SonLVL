@@ -45,8 +45,8 @@ namespace S3SSEdit
 			int height = layout.GetLength(1);
 			int off = (gridsize - 24) / 2;
 			BitmapBits layoutbmp = new BitmapBits(width * gridsize, height * gridsize);
-			for (int y = 0; y < layoutbmp.Height; y += gridsize * 2)
-				for (int x = 0; x < layoutbmp.Width; x += gridsize * 2)
+			for (int y = -gridsize / 2; y < layoutbmp.Height; y += gridsize * 2)
+				for (int x = -gridsize / 2; x < layoutbmp.Width; x += gridsize * 2)
 					layoutbmp.FillRectangle(1, x, y, gridsize, gridsize);
 			for (int y = 0; y < height; y++)
 				for (int x = 0; x < width; x++)
