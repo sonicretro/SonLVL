@@ -685,9 +685,11 @@ namespace S3SSEdit
 					if (!selection.IsEmpty)
 					{
 						Rectangle selbnds = new Rectangle(selection.X * gridsize, selection.Y * gridsize, selection.Width * gridsize, selection.Height * gridsize);
-						gfx.FillRectangle(new SolidBrush(Color.FromArgb(128, SystemColors.Highlight)), selbnds);
+						using (SolidBrush brush = new SolidBrush(Color.FromArgb(128, SystemColors.Highlight)))
+							gfx.FillRectangle(brush, selbnds);
 						selbnds.Width--; selbnds.Height--;
-						gfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = System.Drawing.Drawing2D.DashStyle.Dot }, selbnds);
+						using (Pen pen = new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = System.Drawing.Drawing2D.DashStyle.Dot })
+							gfx.DrawRectangle(pen, selbnds);
 					}
 				}
 				else if (!drawing)
@@ -695,7 +697,17 @@ namespace S3SSEdit
 					if (tool == Tool.Start)
 						gfx.DrawImage(startbmps32[layout.Angle >> 14], new Rectangle(gridloc.X * gridsize + 2, gridloc.Y * gridsize + 2, 24, 24), 0, 0, 24, 24, GraphicsUnit.Pixel, imageTransparency);
 					else
+					{
 						gfx.DrawImage(foreSpherePicture.Image, new Rectangle(gridloc.X * gridsize + 2, gridloc.Y * gridsize + 2, 24, 24), 0, 0, 24, 24, GraphicsUnit.Pixel, imageTransparency);
+						if (fgsphere == SphereType.Yellow)
+							using (SolidBrush brush = new SolidBrush(Color.FromArgb(128, Color.Yellow)))
+							{
+								gfx.FillRectangle(brush, gridloc.X * gridsize, ((gridloc.Y - 6) & 31) * gridsize, gridsize, gridsize);
+								gfx.FillRectangle(brush, ((gridloc.X + 6) & 31) * gridsize, gridloc.Y * gridsize, gridsize, gridsize);
+								gfx.FillRectangle(brush, gridloc.X * gridsize, ((gridloc.Y + 6) & 31) * gridsize, gridsize, gridsize);
+								gfx.FillRectangle(brush, ((gridloc.X - 6) & 31) * gridsize, gridloc.Y * gridsize, gridsize, gridsize);
+							}
+					}
 				}
 				layoutgfx.DrawImage(bmp, 0, 0, layoutPanel.Width, layoutPanel.Height);
 			}
