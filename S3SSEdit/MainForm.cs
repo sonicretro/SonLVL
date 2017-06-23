@@ -21,17 +21,17 @@ namespace S3SSEdit
 		}
 
 		const int gridsize = 28;
-		ColorPalette palette;
-		Dictionary<SphereType, BitmapBits> spherebmps = new Dictionary<SphereType, BitmapBits>(5);
-		BitmapBits[] startbmps = new BitmapBits[4];
 		Bitmap[] startbmps32 = new Bitmap[4];
 		List<LayoutSection> layoutSections = new List<LayoutSection>();
 		List<Bitmap> layoutSectionImages = new List<Bitmap>();
 		internal LayoutData layout = new LayoutData();
+		ProjectFile project = null;
+		LayoutMode layoutmode = LayoutMode.S3;
+		int stagenum = 0;
 		string filename = null;
+		StageSelectDialog stageseldlg;
 		SphereType fgsphere = SphereType.Blue;
 		SphereType bgsphere = SphereType.Empty;
-		BitmapBits layoutbmp = new BitmapBits(32 * gridsize, 32 * gridsize);
 		Graphics layoutgfx;
 		ImageAttributes imageTransparency = new ImageAttributes();
 		Tool tool = Tool.Pencil;
@@ -52,34 +52,15 @@ namespace S3SSEdit
 		private void MainForm_Load(object sender, EventArgs e)
 		{
 			imageTransparency.SetColorMatrix(new ColorMatrix() { Matrix33 = 0.75f }, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-			using (Bitmap tmp = new Bitmap(1, 1, PixelFormat.Format8bppIndexed))
-				palette = tmp.Palette;
-			Bitmap[] bmplist = { Properties.Resources.red, Properties.Resources.blue, Properties.Resources.bumper, Properties.Resources.ring, Properties.Resources.yellow };
-			int palind = 0;
-			for (int i = 0; i < bmplist.Length; i++)
-			{
-				bmplist[i].Palette.Entries.CopyTo(palette.Entries, palind);
-				BitmapBits bmp = new BitmapBits(bmplist[i]);
-				bmp.IncrementIndexes(palind);
-				spherebmps[(SphereType)(i + 1)] = bmp;
-				palind += 16;
-			}
-			palette.Entries[0] = Color.Transparent;
-			bmplist = new[] { Properties.Resources.north, Properties.Resources.east, Properties.Resources.south, Properties.Resources.west };
-			bmplist[0].Palette.Entries.CopyTo(palette.Entries, palind);
-			for (int i = 0; i < bmplist.Length; i++)
-			{
-				BitmapBits bmp = new BitmapBits(bmplist[i]);
-				bmp.IncrementIndexes(palind);
-				startbmps[i] = bmp;
-				startbmps32[i] = bmp.ToBitmap(palette).To32bpp();
-			}
-			paletteRed.Image = spherebmps[SphereType.Red].ToBitmap(palette).To32bpp();
-			foreSpherePicture.Image = paletteBlue.Image = spherebmps[SphereType.Blue].ToBitmap(palette).To32bpp();
-			paletteBumper.Image = spherebmps[SphereType.Bumper].ToBitmap(palette).To32bpp();
-			paletteRing.Image = spherebmps[SphereType.Ring].ToBitmap(palette).To32bpp();
-			paletteYellow.Image = spherebmps[SphereType.Yellow].ToBitmap(palette).To32bpp();
-			palette.Entries[0] = SystemColors.Control;
+			LayoutDrawer.Init();
+			for (int i = 0; i < LayoutDrawer.StartBmps.Length; i++)
+				startbmps32[i] = LayoutDrawer.StartBmps[i].ToBitmap(LayoutDrawer.Palette).To32bpp();
+			paletteRed.Image = LayoutDrawer.SphereBmps[SphereType.Red].ToBitmap(LayoutDrawer.Palette).To32bpp();
+			foreSpherePicture.Image = paletteBlue.Image = LayoutDrawer.SphereBmps[SphereType.Blue].ToBitmap(LayoutDrawer.Palette).To32bpp();
+			paletteBumper.Image = LayoutDrawer.SphereBmps[SphereType.Bumper].ToBitmap(LayoutDrawer.Palette).To32bpp();
+			paletteRing.Image = LayoutDrawer.SphereBmps[SphereType.Ring].ToBitmap(LayoutDrawer.Palette).To32bpp();
+			paletteYellow.Image = LayoutDrawer.SphereBmps[SphereType.Yellow].ToBitmap(LayoutDrawer.Palette).To32bpp();
+			LayoutDrawer.Palette.Entries[0] = LayoutDrawer.Palette.Entries[1] = SystemColors.Control;
 			if (File.Exists("LayoutSections.sls"))
 				layoutSections = DeserializeCompressed<List<LayoutSection>>("LayoutSections.sls");
 			layoutSectionListBox.Items.Clear();
@@ -103,17 +84,8 @@ namespace S3SSEdit
 
 		private Bitmap MakeLayoutSectionImage(LayoutSection section)
 		{
-			int w = section.Spheres.GetLength(0);
-			int h = section.Spheres.GetLength(1);
-			BitmapBits bmp = new BitmapBits(w * 24, h * 24);
-			for (int y = 0; y < h; y++)
-				for (int x = 0; x < w; x++)
-				{
-					SphereType sp = section.Spheres[x, y];
-					if (sp != SphereType.Empty)
-						bmp.DrawBitmapComposited(spherebmps[sp], x * 24, y * 24);
-				}
-			return bmp.ToBitmap(palette).To32bpp();
+			LayoutDrawer.Palette.Entries[0] = LayoutDrawer.Palette.Entries[1] = SystemColors.Control;
+			return LayoutDrawer.DrawLayout(section.Spheres, 24).ToBitmap(LayoutDrawer.Palette).To32bpp();
 		}
 
 		private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -144,7 +116,7 @@ namespace S3SSEdit
 
 		private void newToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			if (MessageBox.Show(this, "Unload the current stage and start a new one?", "S3SSEdit", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.OK)
+			if (MessageBox.Show(this, $"Unload the current {(project != null ? "project" : "stage")} and start a new one?", "S3SSEdit", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.OK)
 			{
 				layout = new LayoutData();
 				filename = null;
@@ -163,17 +135,80 @@ namespace S3SSEdit
 						saveToolStripMenuItem_Click(this, EventArgs.Empty);
 						break;
 				}
-			using (OpenFileDialog dlg = new OpenFileDialog() { DefaultExt = "bin", Filter = "Binary Files|*.bin|All Files|*.*" })
-				if (dlg.ShowDialog(this)== DialogResult.OK)
+			using (OpenFileDialog dlg = new OpenFileDialog() { DefaultExt = "bin", Filter = "All Supported Files|*.bin;*.ini|Binary Files|*.bin|Project Files|*.ini|All Files|*.*" })
+				if (dlg.ShowDialog(this) == DialogResult.OK)
 				{
 					filename = dlg.FileName;
-					layout = new LayoutData(File.ReadAllBytes(filename));
-					LoadFile();
+					if (Path.GetExtension(filename).Equals(".ini", StringComparison.OrdinalIgnoreCase))
+					{
+						project = ProjectFile.Load(filename);
+						changeStageToolStripMenuItem.Enabled = true;
+						if (stageseldlg != null)
+							stageseldlg.Dispose();
+						stageseldlg = new StageSelectDialog(filename, project);
+						if (!SelectProjectStage())
+							newToolStripMenuItem_Click(this, EventArgs.Empty);
+					}
+					else
+					{
+						layout = new LayoutData(File.ReadAllBytes(filename));
+						LoadFile();
+					}
 				}
+		}
+
+		private bool SelectProjectStage()
+		{
+			if (stageseldlg.ShowDialog(this) != DialogResult.OK)
+				return false;
+			string path = Path.GetDirectoryName(filename);
+			layoutmode = stageseldlg.Category;
+			stagenum = stageseldlg.StageNumber;
+			switch (layoutmode)
+			{
+				case LayoutMode.S3:
+					layout = new LayoutData(File.ReadAllBytes(Path.Combine(path, project.S3Stages[stagenum])));
+					break;
+				case LayoutMode.SK:
+					layout = new LayoutData(Compression.Decompress(Path.Combine(path, project.SKStageSet), CompressionType.Kosinski), stagenum * LayoutData.Size);
+					break;
+				case LayoutMode.BSChunk:
+					break;
+				case LayoutMode.BSLayout:
+					break;
+			}
+			lastSaveUndoCount = 0;
+			undoList.Clear();
+			redoList.Clear();
+			undoToolStripMenuItem.DropDownItems.Clear();
+			undoToolStripMenuItem.Enabled = false;
+			redoToolStripMenuItem.DropDownItems.Clear();
+			redoToolStripMenuItem.Enabled = false;
+			if (saveUndoHistoryToolStripMenuItem.Checked && File.Exists(Path.ChangeExtension(filename, ".undo")))
+			{
+				Dictionary<LayoutMode, Dictionary<int, Stack<Action>>> undodict = DeserializeCompressed<Dictionary<LayoutMode, Dictionary<int, Stack<Action>>>>(Path.ChangeExtension(filename, ".undo"));
+				if (undodict.ContainsKey(layoutmode) && undodict[layoutmode].ContainsKey(stagenum))
+				{
+					undoList = undodict[layoutmode][stagenum];
+					foreach (Action a in undoList)
+						undoToolStripMenuItem.DropDownItems.Add(a.Name);
+					lastSaveUndoCount = undoList.Count;
+					if (undoList.Count > 0)
+						undoToolStripMenuItem.Enabled = true;
+				}
+			}
+			UpdateText();
+			UpdateControls();
+			DrawLayout();
+			return true;
 		}
 
 		private void LoadFile()
 		{
+			changeStageToolStripMenuItem.Enabled = false;
+			project = null;
+			stagenum = 0;
+			layoutmode = LayoutMode.S3;
 			lastSaveUndoCount = 0;
 			undoList.Clear();
 			redoList.Clear();
@@ -201,6 +236,11 @@ namespace S3SSEdit
 			perfectCount.Value = layout.Perfect;
 		}
 
+		private void changeStageToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			SelectProjectStage();
+		}
+
 		private void saveToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			if (filename == null)
@@ -211,14 +251,62 @@ namespace S3SSEdit
 
 		private void SaveLayout()
 		{
-			File.WriteAllBytes(filename, layout.GetBytes());
-			if (saveUndoHistoryToolStripMenuItem.Checked)
+			if (project != null)
 			{
-				string fn = Path.ChangeExtension(filename, ".undo");
-				if (undoList.Count > 0)
-					SerializeCompressed(fn, undoList);
-				else if (File.Exists(fn))
-					File.Delete(fn);
+				string path = Path.GetDirectoryName(filename);
+				switch (layoutmode)
+				{
+					case LayoutMode.S3:
+						File.WriteAllBytes(Path.Combine(path, project.S3Stages[stagenum]), layout.GetBytes());
+						break;
+					case LayoutMode.SK:
+						{
+							byte[] tmp = Compression.Decompress(Path.Combine(path, project.SKStageSet), CompressionType.Kosinski);
+							layout.GetBytes().CopyTo(tmp, stagenum * LayoutData.Size);
+							Compression.Compress(tmp, Path.Combine(path, project.SKStageSet), CompressionType.Kosinski);
+						}
+						break;
+					case LayoutMode.BSChunk:
+						break;
+					case LayoutMode.BSLayout:
+						break;
+				}
+				if (saveUndoHistoryToolStripMenuItem.Checked)
+				{
+					string fn = Path.ChangeExtension(filename, ".undo");
+					Dictionary<LayoutMode, Dictionary<int, Stack<Action>>> undodict = new Dictionary<LayoutMode, Dictionary<int, Stack<Action>>>();
+					if (File.Exists(fn))
+						undodict = DeserializeCompressed<Dictionary<LayoutMode, Dictionary<int, Stack<Action>>>>(fn);
+					if (undoList.Count > 0)
+					{
+						if (!undodict.ContainsKey(layoutmode))
+							undodict.Add(layoutmode, new Dictionary<int, Stack<Action>>());
+						undodict[layoutmode][stagenum] = undoList;
+					}
+					else if (undodict.ContainsKey(layoutmode))
+					{
+						if (undodict[layoutmode].ContainsKey(stagenum))
+							undodict[layoutmode].Remove(stagenum);
+						if (undodict[layoutmode].Count == 0)
+							undodict.Remove(layoutmode);
+					}
+					if (undodict.Count > 0)
+						SerializeCompressed(fn, undodict);
+					else if (File.Exists(fn))
+						File.Delete(fn);
+				}
+			}
+			else
+			{
+				File.WriteAllBytes(filename, layout.GetBytes());
+				if (saveUndoHistoryToolStripMenuItem.Checked)
+				{
+					string fn = Path.ChangeExtension(filename, ".undo");
+					if (undoList.Count > 0)
+						SerializeCompressed(fn, undoList);
+					else if (File.Exists(fn))
+						File.Delete(fn);
+				}
 			}
 			lastSaveUndoCount = undoList.Count;
 			UpdateText();
@@ -233,12 +321,26 @@ namespace S3SSEdit
 
 		private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+			if (project != null)
+				switch (MessageBox.Show(this, "Do you want to unload the current project?", "S3SSEdit", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2))
+				{
+					case DialogResult.Cancel:
+						return;
+					case DialogResult.Yes:
+						project = null;
+						stagenum = 0;
+						layoutmode = LayoutMode.S3;
+						break;
+				}
 			using (SaveFileDialog dlg = new SaveFileDialog() { DefaultExt = "bin", Filter = "Binary Files|*.bin|All Files|*.*", FileName = filename ?? "New Stage.bin" })
 				if (dlg.ShowDialog(this) == DialogResult.OK)
-				{
-					filename = dlg.FileName;
-					SaveLayout();
-				}
+					if (project != null)
+						File.WriteAllBytes(dlg.FileName, layout.GetBytes());
+					else
+					{
+						filename = dlg.FileName;
+						SaveLayout();
+					}
 		}
 
 		private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -317,6 +419,7 @@ namespace S3SSEdit
 			}
 		}
 
+#region Sphere Palette
 		// Also handles backSpherePicture.Click
 		private void foreSpherePicture_Click(object sender, EventArgs e)
 		{
@@ -377,7 +480,9 @@ namespace S3SSEdit
 		{
 			ChangeSelectedSphere(e, SphereType.Yellow, paletteYellow.Image, PictureBoxSizeMode.Zoom);
 		}
+		#endregion
 
+#region Tool Palette
 		private void selectButton_CheckedChanged(object sender, EventArgs e)
 		{
 			if (selectButton.Checked)
@@ -509,6 +614,7 @@ namespace S3SSEdit
 			}
 			toolOptionsPanel.Invalidate();
 		}
+#endregion
 
 		private void layoutPanel_Paint(object sender, PaintEventArgs e)
 		{
@@ -517,7 +623,6 @@ namespace S3SSEdit
 
 		private void DrawLayout()
 		{
-			layoutbmp.Clear();
 			Point gridloc = layoutPanel.PointToClient(Cursor.Position);
 			gridloc = new Point(gridloc.X / gridsize, gridloc.Y / gridsize);
 			SphereType[,] tmplayout = (SphereType[,])layout.Layout.Clone();
@@ -570,15 +675,9 @@ namespace S3SSEdit
 									tmplayout[(x + gridloc.X) & 31, (y + gridloc.Y) & 31] = drawrect[x, y].Value;
 						break;
 				}
-			for (int y = 0; y < 32; y++)
-				for (int x = 0; x < 32; x++)
-				{
-					SphereType sp = tmplayout[x, y];
-					if (sp != SphereType.Empty)
-						layoutbmp.DrawBitmapComposited(spherebmps[sp], x * gridsize + 2, y * gridsize + 2);
-				}
-			layoutbmp.DrawBitmapComposited(startbmps[layout.Angle >> 14], startloc.X * gridsize + 2, startloc.Y * gridsize + 2);
-			using (Bitmap bmp = layoutbmp.ToBitmap(palette).To32bpp())
+			BitmapBits layoutbmp = LayoutDrawer.DrawLayout(tmplayout, gridsize);
+			layoutbmp.DrawBitmapComposited(LayoutDrawer.StartBmps[layout.Angle >> 14], startloc.X * gridsize + 2, startloc.Y * gridsize + 2);
+			using (Bitmap bmp = layoutbmp.ToBitmap(LayoutDrawer.Palette).To32bpp())
 			{
 				Graphics gfx = Graphics.FromImage(bmp);
 				if (tool == Tool.Select)
@@ -1438,6 +1537,8 @@ namespace S3SSEdit
 			}
 		}
 	}
+
+	enum LayoutMode { S3, SK, BSChunk, BSLayout }
 
 	enum Tool { Select, Pencil, Fill, Line, Rectangle, Diamond, Oval, Start }
 
