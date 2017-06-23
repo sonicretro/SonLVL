@@ -1,4 +1,4 @@
-﻿using SonicRetro.SonLVL.API;
+using SonicRetro.SonLVL.API;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -452,7 +452,7 @@ namespace S3SSEdit
 			DrawLayout();
 		}
 
-		private void DrawLayout()
+		private void DrawLayout(bool saveToFile = false, string path = "")
 		{
 			layoutbmp.Clear();
 			Point gridloc = layoutPanel.PointToClient(Cursor.Position);
@@ -535,8 +535,10 @@ namespace S3SSEdit
 					else
 						gfx.DrawImage(foreSpherePicture.Image, new Rectangle(gridloc.X * 24, gridloc.Y * 24, 24, 24), 0, 0, 24, 24, GraphicsUnit.Pixel, imageTransparency);
 				}
-				layoutgfx.DrawImage(bmp, 0, 0, layoutPanel.Width, layoutPanel.Height);
-			}
+                layoutgfx.DrawImage(bmp, 0, 0, layoutPanel.Width, layoutPanel.Height);
+                if (saveToFile)
+                    bmp.Save(path);
+            }
 		}
 
 		private void DoAction(Action action)
@@ -1314,8 +1316,13 @@ namespace S3SSEdit
 		{
 
 		}
+        private void saveImageToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if(saveScreenshotDialog.ShowDialog() == DialogResult.OK)
+                DrawLayout(true, saveScreenshotDialog.FileName);
+        }
 
-		private void pasteSectionRepeatingToolStripMenuItem_Click(object sender, EventArgs e)
+        private void pasteSectionRepeatingToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 
 		}
