@@ -1,4 +1,4 @@
-﻿using SonicRetro.SonLVL.API;
+using SonicRetro.SonLVL.API;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,6 +10,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Windows.Forms;
 using System.IO.Compression;
+using System.Diagnostics;
 
 namespace S3SSEdit
 {
@@ -621,7 +622,7 @@ namespace S3SSEdit
 			DrawLayout();
 		}
 
-		private void DrawLayout()
+		private void DrawLayout(bool save = false, string savePath = "")
 		{
 			Point gridloc = layoutPanel.PointToClient(Cursor.Position);
 			gridloc = new Point(gridloc.X / gridsize, gridloc.Y / gridsize);
@@ -710,7 +711,19 @@ namespace S3SSEdit
 					}
 				}
 				layoutgfx.DrawImage(bmp, 0, 0, layoutPanel.Width, layoutPanel.Height);
-			}
+                trySave: if (save) try
+                         {
+                            bmp.Save(savePath);
+                            Process.Start(savePath); // Show the saved image to the user through the default image viewer
+                         }
+                         catch (Exception ex)
+                         {
+                            if (MessageBox.Show($"An exception has occured while saving the bitmap! Exception details::\r\n{ex.Message}", "Exception!", MessageBoxButtons.AbortRetryIgnore,
+                                MessageBoxIcon.Error)
+                                 == DialogResult.Retry) // If user pressed "Retry", try to save the file again
+                            goto trySave;
+                         }
+            }
 		}
 
 		private void DoAction(Action action)
@@ -1537,7 +1550,13 @@ namespace S3SSEdit
 				layoutSectionPreview.Image = layoutSectionImages[layoutSectionListBox.SelectedIndex];
 		}
 
-		private void layoutSectionListBox_KeyDown(object sender, KeyEventArgs e)
+        private void saveSnapshotToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (saveSnapshotDlg.ShowDialog() == DialogResult.OK)
+                DrawLayout(true, saveSnapshotDlg.FileName);
+        }
+
+        private void layoutSectionListBox_KeyDown(object sender, KeyEventArgs e)
 		{
 			if (layoutSectionListBox.SelectedIndex != -1 && e.KeyCode == Keys.Delete
 				&& MessageBox.Show(this, "Are you sure you want to delete layout section \"" + layoutSections[layoutSectionListBox.SelectedIndex].Name + "\"?", "S3SSEdit", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK)
