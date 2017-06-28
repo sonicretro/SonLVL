@@ -365,17 +365,17 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void LoadINI(string filename)
 		{
-            try
-            {
-                LevelData.LoadGame(filename);
-            }
-            catch (Exception ex)
-            {
-                using (LoadErrorDialog ed = new LoadErrorDialog(false, ex.GetType().Name + ": " + ex.Message))
-                    ed.ShowDialog(this);
-                return;
-            }
-            changeLevelToolStripMenuItem.DropDownItems.Clear();
+			try
+			{
+				LevelData.LoadGame(filename);
+			}
+			catch (Exception ex)
+			{
+				using (LoadErrorDialog ed = new LoadErrorDialog(false, ex.GetType().Name + ": " + ex.Message))
+					ed.ShowDialog(this);
+				return;
+			}
+			changeLevelToolStripMenuItem.DropDownItems.Clear();
 			levelMenuItems = new Dictionary<string, ToolStripMenuItem>();
 			foreach (KeyValuePair<string, LevelInfo> item in LevelData.Game.Levels)
 			{
@@ -596,8 +596,8 @@ namespace SonicRetro.SonLVL.GUI
 			{
 				Log(initerror.ToString().Split(new string[] { Environment.NewLine }, StringSplitOptions.None));
 				File.WriteAllLines("SonLVL.log", LogFile.ToArray());
-                using (LoadErrorDialog ed = new LoadErrorDialog(true, initerror.GetType().Name + ": " + initerror.Message))
-                    ed.ShowDialog(this);
+				using (LoadErrorDialog ed = new LoadErrorDialog(true, initerror.GetType().Name + ": " + initerror.Message))
+					ed.ShowDialog(this);
 				Text = "SonLVL - " + LevelData.Game.EngineVersion.ToString();
 				Enabled = true;
 				loadingAnimation1.Hide();
@@ -839,7 +839,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void buildAndRunToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-            LevelData.SaveLevel();
+			LevelData.SaveLevel();
 			System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Path.Combine(Environment.CurrentDirectory, LevelData.Game.BuildScript)) { WorkingDirectory = Path.GetDirectoryName(Path.Combine(Environment.CurrentDirectory, LevelData.Game.BuildScript)) }).WaitForExit();
 			string romfile = LevelData.Game.ROMFile ?? LevelData.Game.RunCommand;
 			if (LevelData.Game.UseEmulator)
@@ -1588,8 +1588,8 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void reportBugToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-            using (BugReportDialog err = new BugReportDialog("SonLVL", string.Join(Environment.NewLine, LogFile.ToArray())))
-                err.ShowDialog();
+			using (BugReportDialog err = new BugReportDialog("SonLVL", string.Join(Environment.NewLine, LogFile.ToArray())))
+				err.ShowDialog();
 		}
 		#endregion
 		#endregion

@@ -214,7 +214,6 @@ namespace SonicRetro.SonLVL.API
 
 		private void TileList_MouseMove(object sender, MouseEventArgs e)
 		{
-            
 			if (e.Button == MouseButtons.Left && dragRect.HasValue)
 				if (!dragRect.Value.Contains(e.Location))
 				{

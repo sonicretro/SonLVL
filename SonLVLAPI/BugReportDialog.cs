@@ -9,19 +9,19 @@ namespace SonicRetro.SonLVL.API
 {
 	public partial class BugReportDialog : Form
 	{
-        private string programName, log;
+		private string programName, log;
 
 		public BugReportDialog(string programName, string log)
 		{
 			InitializeComponent();
-            this.programName = programName;
-            this.log = log;
+			this.programName = programName;
+			this.log = log;
 		}
 
 		private void okButton_Click(object sender, EventArgs e)
 		{
-            System.Diagnostics.Process.Start("https://github.com/sonicretro/SonLVL/issues");
-            Close();
+			System.Diagnostics.Process.Start("https://github.com/sonicretro/SonLVL/issues");
+			Close();
 		}
 
 		private void cancelButton_Click(object sender, EventArgs e)
@@ -29,18 +29,18 @@ namespace SonicRetro.SonLVL.API
 			Close();
 		}
 
-        private void ErrorReportDialog_Load(object sender, EventArgs e)
+		private void ErrorReportDialog_Load(object sender, EventArgs e)
 		{
-            StringBuilder text = new StringBuilder();
-            text.Append("Program: ");
-            text.AppendLine(programName);
-            text.Append("Build Date: ");
-            text.AppendLine(File.GetLastWriteTimeUtc(Application.ExecutablePath).ToString(CultureInfo.InvariantCulture));
-            text.Append("OS Version: ");
+			StringBuilder text = new StringBuilder();
+			text.Append("Program: ");
+			text.AppendLine(programName);
+			text.Append("Build Date: ");
+			text.AppendLine(File.GetLastWriteTimeUtc(Application.ExecutablePath).ToString(CultureInfo.InvariantCulture));
+			text.Append("OS Version: ");
 			text.AppendLine(Environment.OSVersion.ToString());
-            text.AppendLine("Log:");
+			text.AppendLine("Log:");
 			text.AppendLine(log);
-            textBox1.Text = text.ToString();
+			textBox1.Text = text.ToString();
 		}
 	}
 }

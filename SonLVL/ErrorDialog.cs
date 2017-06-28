@@ -24,8 +24,8 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void button1_Click(object sender, EventArgs e)
 		{
-            using (API.BugReportDialog err = new API.BugReportDialog("SonLVL", string.Join(Environment.NewLine, MainForm.Instance.LogFile.ToArray())))
-                err.ShowDialog();
+			using (API.BugReportDialog err = new API.BugReportDialog("SonLVL", string.Join(Environment.NewLine, MainForm.Instance.LogFile.ToArray())))
+				err.ShowDialog();
 		}
 	}
 }
