@@ -1,0 +1,3 @@
+root=ture
+[*.cs]
+indent_style=tab

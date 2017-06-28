@@ -15,7 +15,7 @@ namespace SonicRetro.SonLVL.API
 		internal ListView listView1;
 		private byte id;
 		private NumericUpDown numericUpDown1;
-    
+
 		public byte value { get; private set; }
 		private IWindowsFormsEditorService edSvc;
 

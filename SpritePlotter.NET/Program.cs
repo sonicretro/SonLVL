@@ -14,7 +14,7 @@ namespace SpritePlotter
 		static void Main(string[] args)
 		{
 			LongOpt[] opts = new[] {
-                new LongOpt("help", Argument.No, null, 'h'),
+				new LongOpt("help", Argument.No, null, 'h'),
 				new LongOpt("padding", Argument.Required, null, 'p'),
 				new LongOpt("startpal", Argument.Required, null, 's'),
 				new LongOpt("nullfirst", Argument.No, null, 'n'),
@@ -31,7 +31,7 @@ namespace SpritePlotter
 				new LongOpt("mapfile", Argument.Required, null, 0),
 				new LongOpt("dplcfile", Argument.Required, null, 0),
 				new LongOpt("palfile", Argument.Required, null, 0)
-            };
+			};
 			if (args.Length == 0)
 				args = new string[] { "-h" };
 			Getopt getopt = new Getopt("SpritePlotter.NET", args, Getopt.digest(opts), opts);
