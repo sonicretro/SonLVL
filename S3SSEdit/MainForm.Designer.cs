@@ -44,6 +44,7 @@
 			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.changeStageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -91,7 +92,7 @@
 			this.saveSectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.pasteSectionOnceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.pasteSectionRepeatingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.changeStageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.exportImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			menuStrip1 = new System.Windows.Forms.MenuStrip();
 			imageList1 = new System.Windows.Forms.ImageList(this.components);
 			panel1 = new System.Windows.Forms.Panel();
@@ -147,6 +148,7 @@
             this.changeStageToolStripMenuItem,
             this.saveToolStripMenuItem,
             this.saveAsToolStripMenuItem,
+            this.exportImageToolStripMenuItem,
             this.exitToolStripMenuItem});
 			this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
 			this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
@@ -167,6 +169,14 @@
 			this.openToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
 			this.openToolStripMenuItem.Text = "&Open...";
 			this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
+			// 
+			// changeStageToolStripMenuItem
+			// 
+			this.changeStageToolStripMenuItem.Enabled = false;
+			this.changeStageToolStripMenuItem.Name = "changeStageToolStripMenuItem";
+			this.changeStageToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
+			this.changeStageToolStripMenuItem.Text = "&Change Stage...";
+			this.changeStageToolStripMenuItem.Click += new System.EventHandler(this.changeStageToolStripMenuItem_Click);
 			// 
 			// saveToolStripMenuItem
 			// 
@@ -816,13 +826,12 @@
 			this.pasteSectionRepeatingToolStripMenuItem.Text = "Paste Section R&epeating";
 			this.pasteSectionRepeatingToolStripMenuItem.Click += new System.EventHandler(this.pasteSectionRepeatingToolStripMenuItem_Click);
 			// 
-			// changeStageToolStripMenuItem
+			// exportImageToolStripMenuItem
 			// 
-			this.changeStageToolStripMenuItem.Enabled = false;
-			this.changeStageToolStripMenuItem.Name = "changeStageToolStripMenuItem";
-			this.changeStageToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
-			this.changeStageToolStripMenuItem.Text = "&Change Stage...";
-			this.changeStageToolStripMenuItem.Click += new System.EventHandler(this.changeStageToolStripMenuItem_Click);
+			this.exportImageToolStripMenuItem.Name = "exportImageToolStripMenuItem";
+			this.exportImageToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
+			this.exportImageToolStripMenuItem.Text = "&Export Image...";
+			this.exportImageToolStripMenuItem.Click += new System.EventHandler(this.exportImageToolStripMenuItem_Click);
 			// 
 			// MainForm
 			// 
@@ -929,6 +938,7 @@
 		private System.Windows.Forms.Panel stageLayoutOptionsPanel;
 		private System.Windows.Forms.ToolStripMenuItem saveUndoHistoryToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem changeStageToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem exportImageToolStripMenuItem;
 	}
 }
 

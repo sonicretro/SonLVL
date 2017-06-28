@@ -343,6 +343,14 @@ namespace S3SSEdit
 					}
 		}
 
+		private void exportImageToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			using (SaveFileDialog dlg = new SaveFileDialog() { DefaultExt = "png", Filter = "PNG Files|*.png" })
+				if (dlg.ShowDialog(this) == DialogResult.OK)
+					using (Bitmap bmp = LayoutDrawer.DrawLayout(layout, gridsize).ToBitmap(LayoutDrawer.Palette))
+						bmp.Save(dlg.FileName);
+		}
+
 		private void exitToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			Close();
