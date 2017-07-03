@@ -91,7 +91,7 @@ namespace S1SSEdit
 				for (int x = 0; x < width; x++)
 				{
 					byte sp = layout[x, y];
-					if (sp != 0)
+					if (sp != 0 && ObjectBmps.ContainsKey(sp))
 						layoutbmp.DrawBitmapComposited(ObjectBmps[sp], x * 24, y * 24);
 				}
 			return layoutbmp;
