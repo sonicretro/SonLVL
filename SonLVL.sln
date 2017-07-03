@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.6
+VisualStudioVersion = 15.0.26430.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SonLVL.GUI", "SonLVL\SonLVL.GUI.csproj", "{934ED80F-F466-423E-8203-9A3F35583323}"
 EndProject
@@ -30,6 +30,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Getopt", "Getopt\Getopt.csproj", "{0FCCB190-03C5-4031-AEEB-AAD65B0510CA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "S3SSEdit", "S3SSEdit\S3SSEdit.csproj", "{6D1D6A5F-2C62-4944-8409-2D0A40819BEB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "S1SSEdit", "S1SSEdit\S1SSEdit.csproj", "{D265BCEE-20A2-40F2-94C9-3FCEF23F3491}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -93,6 +95,10 @@ Global
 		{6D1D6A5F-2C62-4944-8409-2D0A40819BEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D1D6A5F-2C62-4944-8409-2D0A40819BEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D1D6A5F-2C62-4944-8409-2D0A40819BEB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D265BCEE-20A2-40F2-94C9-3FCEF23F3491}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D265BCEE-20A2-40F2-94C9-3FCEF23F3491}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D265BCEE-20A2-40F2-94C9-3FCEF23F3491}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D265BCEE-20A2-40F2-94C9-3FCEF23F3491}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
