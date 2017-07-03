@@ -1090,7 +1090,7 @@ namespace S1SSEdit
 						if (ModifierKeys == Keys.Control)
 							height = width = Math.Max(width, height);
 						drawrect = new byte?[width, height];
-						for (double a = 0; a < 2 * Math.PI; a += 0.04)
+						for (double a = 0; a < 2 * Math.PI; a += 0.02)
 						{
 							int x = (int)(Math.Cos(a) * (width / 2.01) + (width / 2.0));
 							int y = (int)(Math.Sin(a) * (height / 2.01) + (height / 2.0));
