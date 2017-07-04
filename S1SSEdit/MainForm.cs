@@ -280,6 +280,11 @@ namespace S1SSEdit
 			DrawLayout();
 		}
 
+		private void showGridToolStripMenuItem_CheckStateChanged(object sender, EventArgs e)
+		{
+			DrawLayout();
+		}
+
 		private void MainForm_KeyDown(object sender, KeyEventArgs e)
 		{
 			switch (e.KeyCode)
@@ -531,6 +536,13 @@ namespace S1SSEdit
 						break;
 				}
 			BitmapBits layoutbmp = LayoutDrawer.DrawLayout(tmplayout, showNumbersOnWallsToolStripMenuItem.Checked);
+			if (showGridToolStripMenuItem.Checked)
+			{
+				for (int x = gridsize; x < layoutbmp.Width; x += gridsize)
+					layoutbmp.DrawLine(0xC, x, 0, x, layoutbmp.Height);
+				for (int y = gridsize; y < layoutbmp.Height; y += gridsize)
+					layoutbmp.DrawLine(0xC, 0, y, layoutbmp.Width, y);
+			}
 			LayoutDrawer.Palette.Entries[0] = SystemColors.Control;
 			using (Bitmap bmp = layoutbmp.ToBitmap(LayoutDrawer.Palette).To32bpp())
 			{
