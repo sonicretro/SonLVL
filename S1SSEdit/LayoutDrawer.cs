@@ -8,7 +8,8 @@ namespace S1SSEdit
 	static class LayoutDrawer
 	{
 		public static ColorPalette Palette { get; private set; }
-		public static Dictionary<byte, BitmapBits> ObjectBmps { get; private set; } = new Dictionary<byte, BitmapBits>(5);
+		public static Dictionary<byte, BitmapBits> ObjectBmps { get; private set; } = new Dictionary<byte, BitmapBits>();
+		public static Dictionary<byte, BitmapBits> ObjectBmpsNoNum { get; private set; }
 
 		public static void Init()
 		{
@@ -80,9 +81,16 @@ namespace S1SSEdit
 			ObjectBmps[ind++] = sprites[20];
 			ObjectBmps[0x4A] = new BitmapBits(sprites[20]);
 			ObjectBmps[0x4A].DrawBitmapComposited(font[10], 4, 8);
+			ObjectBmpsNoNum = new Dictionary<byte, BitmapBits>(ObjectBmps);
+			for (int p = 0; p < 4; p++)
+			{
+				BitmapBits tmp = ObjectBmps[(byte)(p * 9 + 1)];
+				for (int i = 1; i < 9; i++)
+					ObjectBmpsNoNum[(byte)(p * 9 + 1 + i)] = tmp;
+			}
 		}
 
-		public static BitmapBits DrawLayout(byte[,] layout)
+		public static BitmapBits DrawLayout(byte[,] layout, bool shownum)
 		{
 			int width = layout.GetLength(0);
 			int height = layout.GetLength(1);
@@ -92,7 +100,7 @@ namespace S1SSEdit
 				{
 					byte sp = layout[x, y];
 					if (sp != 0 && ObjectBmps.ContainsKey(sp))
-						layoutbmp.DrawBitmapComposited(ObjectBmps[sp], x * 24, y * 24);
+						layoutbmp.DrawBitmapComposited(shownum ? ObjectBmps[sp] : ObjectBmpsNoNum[sp], x * 24, y * 24);
 				}
 			return layoutbmp;
 		}

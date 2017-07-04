@@ -81,6 +81,8 @@
 			this.saveSectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.pasteSectionOnceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.pasteSectionRepeatingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.showNumbersOnWallsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			menuStrip1 = new System.Windows.Forms.MenuStrip();
 			imageList1 = new System.Windows.Forms.ImageList(this.components);
 			panel1 = new System.Windows.Forms.Panel();
@@ -110,7 +112,8 @@
 			// 
 			menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
-            this.editToolStripMenuItem});
+            this.editToolStripMenuItem,
+            this.viewToolStripMenuItem});
 			menuStrip1.Location = new System.Drawing.Point(0, 0);
 			menuStrip1.Name = "menuStrip1";
 			menuStrip1.Size = new System.Drawing.Size(584, 24);
@@ -645,6 +648,24 @@
 			this.pasteSectionRepeatingToolStripMenuItem.Text = "Paste Section R&epeating";
 			this.pasteSectionRepeatingToolStripMenuItem.Click += new System.EventHandler(this.pasteSectionRepeatingToolStripMenuItem_Click);
 			// 
+			// viewToolStripMenuItem
+			// 
+			this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.showNumbersOnWallsToolStripMenuItem});
+			this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
+			this.viewToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
+			this.viewToolStripMenuItem.Text = "&View";
+			// 
+			// showNumbersOnWallsToolStripMenuItem
+			// 
+			this.showNumbersOnWallsToolStripMenuItem.Checked = true;
+			this.showNumbersOnWallsToolStripMenuItem.CheckOnClick = true;
+			this.showNumbersOnWallsToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.showNumbersOnWallsToolStripMenuItem.Name = "showNumbersOnWallsToolStripMenuItem";
+			this.showNumbersOnWallsToolStripMenuItem.Size = new System.Drawing.Size(205, 22);
+			this.showNumbersOnWallsToolStripMenuItem.Text = "Show &Numbers On Walls";
+			this.showNumbersOnWallsToolStripMenuItem.CheckStateChanged += new System.EventHandler(this.showNumbersOnWallsToolStripMenuItem_CheckStateChanged);
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -730,6 +751,8 @@
 		private System.Windows.Forms.ToolStripMenuItem saveUndoHistoryToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem exportImageToolStripMenuItem;
 		private System.Windows.Forms.Panel objectPalette;
+		private System.Windows.Forms.ToolStripMenuItem viewToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem showNumbersOnWallsToolStripMenuItem;
 	}
 }
 

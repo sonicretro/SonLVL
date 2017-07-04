@@ -85,7 +85,7 @@ namespace S1SSEdit
 
 		private Bitmap MakeLayoutSectionImage(LayoutSection section)
 		{
-			return LayoutDrawer.DrawLayout(section.Layout).ToBitmap(LayoutDrawer.Palette).To32bpp();
+			return LayoutDrawer.DrawLayout(section.Layout, true).ToBitmap(LayoutDrawer.Palette).To32bpp();
 		}
 
 		private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -220,7 +220,7 @@ namespace S1SSEdit
 		{
 			using (SaveFileDialog dlg = new SaveFileDialog() { DefaultExt = "png", Filter = "PNG Files|*.png" })
 				if (dlg.ShowDialog(this) == DialogResult.OK)
-					using (Bitmap bmp = LayoutDrawer.DrawLayout(layout).ToBitmap(LayoutDrawer.Palette))
+					using (Bitmap bmp = LayoutDrawer.DrawLayout(layout, showNumbersOnWallsToolStripMenuItem.Checked).ToBitmap(LayoutDrawer.Palette))
 						bmp.Save(dlg.FileName);
 		}
 
@@ -272,6 +272,11 @@ namespace S1SSEdit
 			if (redoList.Count == 0)
 				redoToolStripMenuItem.Enabled = false;
 			UpdateText();
+			DrawLayout();
+		}
+
+		private void showNumbersOnWallsToolStripMenuItem_CheckStateChanged(object sender, EventArgs e)
+		{
 			DrawLayout();
 		}
 
@@ -525,7 +530,7 @@ namespace S1SSEdit
 							}
 						break;
 				}
-			BitmapBits layoutbmp = LayoutDrawer.DrawLayout(tmplayout);
+			BitmapBits layoutbmp = LayoutDrawer.DrawLayout(tmplayout, showNumbersOnWallsToolStripMenuItem.Checked);
 			LayoutDrawer.Palette.Entries[0] = SystemColors.Control;
 			using (Bitmap bmp = layoutbmp.ToBitmap(LayoutDrawer.Palette).To32bpp())
 			{
