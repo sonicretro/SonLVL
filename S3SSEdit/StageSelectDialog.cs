@@ -38,6 +38,8 @@ namespace S3SSEdit
 			if (categoryS3.Checked)
 			{
 				Category = LayoutMode.S3;
+				chunkSelector.Visible = false;
+				stageList.Visible = true;
 				if (stageList.SelectedIndex != 0)
 					stageList.SelectedIndex = 0;
 				else
@@ -50,6 +52,8 @@ namespace S3SSEdit
 			if (categorySK.Checked)
 			{
 				Category = LayoutMode.SK;
+				chunkSelector.Visible = false;
+				stageList.Visible = true;
 				if (stageList.SelectedIndex != 0)
 					stageList.SelectedIndex = 0;
 				else
@@ -62,6 +66,8 @@ namespace S3SSEdit
 			if (categoryBSChunk.Checked)
 			{
 				Category = LayoutMode.BSChunk;
+				stageList.Visible = false;
+				chunkSelector.Visible = true;
 				if (stageList.SelectedIndex != 0)
 					stageList.SelectedIndex = 0;
 				else
@@ -87,17 +93,24 @@ namespace S3SSEdit
 			}
 		}
 
+		private void chunkSelector_ValueChanged(object sender, EventArgs e)
+		{
+			StageNumber = (int)chunkSelector.Value;
+			DrawPreview();
+		}
+
 		private void DrawPreview()
 		{
 			switch (Category)
 			{
 				case LayoutMode.S3:
-					pictureBox1.Image = LayoutDrawer.DrawLayout(new LayoutData(File.ReadAllBytes(Path.Combine(path, project.S3Stages[StageNumber]))), 28).ToBitmap(LayoutDrawer.Palette);
+					pictureBox1.Image = LayoutDrawer.DrawLayout(new SSLayoutData(File.ReadAllBytes(Path.Combine(path, project.S3Stages[StageNumber]))), 28).ToBitmap(LayoutDrawer.Palette);
 					break;
 				case LayoutMode.SK:
-					pictureBox1.Image = LayoutDrawer.DrawLayout(new LayoutData(Compression.Decompress(Path.Combine(path, project.SKStageSet), CompressionType.Kosinski), StageNumber * LayoutData.Size), 28).ToBitmap(LayoutDrawer.Palette);
+					pictureBox1.Image = LayoutDrawer.DrawLayout(new SSLayoutData(Compression.Decompress(Path.Combine(path, project.SKStageSet), CompressionType.Kosinski), StageNumber * SSLayoutData.Size), 28).ToBitmap(LayoutDrawer.Palette);
 					break;
 				case LayoutMode.BSChunk:
+					pictureBox1.Image = LayoutDrawer.DrawLayout(new BSChunkLayoutData(Compression.Decompress(Path.Combine(path, project.BlueSphereChunkSet), CompressionType.Kosinski), StageNumber), 28).ToBitmap(LayoutDrawer.Palette);
 					break;
 				case LayoutMode.BSLayout:
 					break;

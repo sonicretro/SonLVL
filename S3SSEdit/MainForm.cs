@@ -1,15 +1,13 @@
 ﻿using SonicRetro.SonLVL.API;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
+using System.IO.Compression;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Windows.Forms;
-using System.IO.Compression;
 
 namespace S3SSEdit
 {
@@ -24,10 +22,11 @@ namespace S3SSEdit
 		Bitmap[] startbmps32 = new Bitmap[4];
 		List<LayoutSection> layoutSections = new List<LayoutSection>();
 		List<Bitmap> layoutSectionImages = new List<Bitmap>();
-		internal LayoutData layout = new LayoutData();
+		internal LayoutData layout = new SSLayoutData();
 		ProjectFile project = null;
 		LayoutMode layoutmode = LayoutMode.S3;
 		int stagenum = 0;
+		string stgname = "New Stage";
 		string filename = null;
 		StageSelectDialog stageseldlg;
 		SphereType fgsphere = SphereType.Blue;
@@ -105,10 +104,7 @@ namespace S3SSEdit
 		private void UpdateText()
 		{
 			StringBuilder sb = new StringBuilder("S3SSEdit - ");
-			if (filename == null)
-				sb.Append("New Stage");
-			else
-				sb.Append(Path.GetFileName(filename));
+			sb.Append(stgname);
 			if (undoList.Count != lastSaveUndoCount)
 				sb.Append(" *");
 			Text = sb.ToString();
@@ -118,8 +114,9 @@ namespace S3SSEdit
 		{
 			if (MessageBox.Show(this, $"Unload the current {(project != null ? "project" : "stage")} and start a new one?", "S3SSEdit", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.OK)
 			{
-				layout = new LayoutData();
+				layout = new SSLayoutData();
 				filename = null;
+				stgname = "New Stage";
 				LoadFile();
 			}
 		}
@@ -151,7 +148,8 @@ namespace S3SSEdit
 					}
 					else
 					{
-						layout = new LayoutData(File.ReadAllBytes(filename));
+						layout = new SSLayoutData(File.ReadAllBytes(filename));
+						stgname = Path.GetFileNameWithoutExtension(filename);
 						LoadFile();
 					}
 				}
@@ -167,16 +165,34 @@ namespace S3SSEdit
 			switch (layoutmode)
 			{
 				case LayoutMode.S3:
-					layout = new LayoutData(File.ReadAllBytes(Path.Combine(path, project.S3Stages[stagenum])));
+					layout = new SSLayoutData(File.ReadAllBytes(Path.Combine(path, project.S3Stages[stagenum])));
+					stgname = $"Sonic 3 Stage {stagenum + 1}";
+					startButton.Visible = true;
+					bsChunkOptionsPanel.Visible = false;
+					stageLayoutOptionsPanel.Visible = true;
 					break;
 				case LayoutMode.SK:
-					layout = new LayoutData(Compression.Decompress(Path.Combine(path, project.SKStageSet), CompressionType.Kosinski), stagenum * LayoutData.Size);
+					layout = new SSLayoutData(Compression.Decompress(Path.Combine(path, project.SKStageSet), CompressionType.Kosinski), stagenum * SSLayoutData.Size);
+					stgname = $"Sonic & Knuckles Stage {stagenum + 1}";
+					startButton.Visible = true;
+					bsChunkOptionsPanel.Visible = false;
+					stageLayoutOptionsPanel.Visible = true;
 					break;
 				case LayoutMode.BSChunk:
+					layout = new BSChunkLayoutData(Compression.Decompress(Path.Combine(path, project.BlueSphereChunkSet), CompressionType.Kosinski), stagenum);
+					stgname = $"Blue Sphere Chunk {stagenum}";
+					startButton.Visible = false;
+					if (startButton.Checked)
+						pencilButton.Checked = true;
+					stageLayoutOptionsPanel.Visible = false;
+					bsChunkOptionsPanel.Visible = true;
 					break;
 				case LayoutMode.BSLayout:
 					break;
 			}
+			layoutPanel.Width = layoutPanel.Height = layout.Layout.Size * gridsize;
+			layoutgfx = layoutPanel.CreateGraphics();
+			layoutgfx.SetOptions();
 			lastSaveUndoCount = 0;
 			undoList.Clear();
 			redoList.Clear();
@@ -209,6 +225,12 @@ namespace S3SSEdit
 			project = null;
 			stagenum = 0;
 			layoutmode = LayoutMode.S3;
+			startButton.Visible = true;
+			bsChunkOptionsPanel.Visible = false;
+			stageLayoutOptionsPanel.Visible = true;
+			layoutPanel.Width = layoutPanel.Height = layout.Layout.Size * gridsize;
+			layoutgfx = layoutPanel.CreateGraphics();
+			layoutgfx.SetOptions();
 			lastSaveUndoCount = 0;
 			undoList.Clear();
 			redoList.Clear();
@@ -232,8 +254,16 @@ namespace S3SSEdit
 
 		private void UpdateControls()
 		{
-			startloc = new Point(layout.StartX / 0x100, layout.StartY / 0x100);
-			perfectCount.Value = layout.Perfect;
+			if (layout is SSLayoutData)
+			{
+				startloc = new Point(((SSLayoutData)layout).StartX / 0x100, ((SSLayoutData)layout).StartY / 0x100);
+				stageLayoutPerfectCount.Value = ((SSLayoutData)layout).Perfect;
+			}
+			else if (layout is BSChunkLayoutData)
+			{
+				bsChunkPerfectCount.Value = ((BSChunkLayoutData)layout).Perfect;
+				bsChunkDifficulty.Value = ((BSChunkLayoutData)layout).Difficulty;
+			}
 		}
 
 		private void changeStageToolStripMenuItem_Click(object sender, EventArgs e)
@@ -257,16 +287,21 @@ namespace S3SSEdit
 				switch (layoutmode)
 				{
 					case LayoutMode.S3:
-						File.WriteAllBytes(Path.Combine(path, project.S3Stages[stagenum]), layout.GetBytes());
+						File.WriteAllBytes(Path.Combine(path, project.S3Stages[stagenum]), ((SSLayoutData)layout).GetBytes());
 						break;
 					case LayoutMode.SK:
 						{
 							byte[] tmp = Compression.Decompress(Path.Combine(path, project.SKStageSet), CompressionType.Kosinski);
-							layout.GetBytes().CopyTo(tmp, stagenum * LayoutData.Size);
+							((SSLayoutData)layout).GetBytes().CopyTo(tmp, stagenum * SSLayoutData.Size);
 							Compression.Compress(tmp, Path.Combine(path, project.SKStageSet), CompressionType.Kosinski);
 						}
 						break;
 					case LayoutMode.BSChunk:
+						{
+							byte[] tmp = Compression.Decompress(Path.Combine(path, project.SKStageSet), CompressionType.Kosinski);
+							((BSChunkLayoutData)layout).WriteBytes(tmp, stagenum);
+							Compression.Compress(tmp, Path.Combine(path, project.SKStageSet), CompressionType.Kosinski);
+						}
 						break;
 					case LayoutMode.BSLayout:
 						break;
@@ -298,7 +333,7 @@ namespace S3SSEdit
 			}
 			else
 			{
-				File.WriteAllBytes(filename, layout.GetBytes());
+				File.WriteAllBytes(filename, ((SSLayoutData)layout).GetBytes());
 				if (saveUndoHistoryToolStripMenuItem.Checked)
 				{
 					string fn = Path.ChangeExtension(filename, ".undo");
@@ -335,7 +370,7 @@ namespace S3SSEdit
 			using (SaveFileDialog dlg = new SaveFileDialog() { DefaultExt = "bin", Filter = "Binary Files|*.bin|All Files|*.*", FileName = filename ?? "New Stage.bin" })
 				if (dlg.ShowDialog(this) == DialogResult.OK)
 					if (project != null)
-						File.WriteAllBytes(dlg.FileName, layout.GetBytes());
+						File.WriteAllBytes(dlg.FileName, ((SSLayoutData)layout).GetBytes());
 					else
 					{
 						filename = dlg.FileName;
@@ -633,7 +668,7 @@ namespace S3SSEdit
 		{
 			Point gridloc = layoutPanel.PointToClient(Cursor.Position);
 			gridloc = new Point(gridloc.X / gridsize, gridloc.Y / gridsize);
-			SphereType[,] tmplayout = (SphereType[,])layout.Layout.Clone();
+			SphereType[,] tmplayout = layout.Layout.Clone();
 			if (drawing)
 				switch (tool)
 				{
@@ -654,7 +689,7 @@ namespace S3SSEdit
 							case ShapeMode.Fill:
 								for (int y = 0; y < fillrect.GetLength(1); y++)
 									for (int x = 0; x < fillrect.GetLength(0); x++)
-										tmplayout[(x + gridloc.X) & 31, (y + gridloc.Y) & 31] = fillrect[x, y];
+										tmplayout[(x + gridloc.X) & (layout.Layout.Size - 1), (y + gridloc.Y) & (layout.Layout.Size - 1)] = fillrect[x, y];
 								break;
 						}
 						break;
@@ -671,7 +706,7 @@ namespace S3SSEdit
 								for (int y = 0; y < drawrect.GetLength(1); y++)
 									for (int x = 0; x < drawrect.GetLength(0); x++)
 										if (drawrect[x, y].HasValue)
-											tmplayout[(x + gridloc.X) & 31, (y + gridloc.Y) & 31] = drawrect[x, y].Value;
+											tmplayout[(x + gridloc.X) & (layout.Layout.Size - 1), (y + gridloc.Y) & (layout.Layout.Size - 1)] = drawrect[x, y].Value;
 								break;
 						}
 						break;
@@ -680,11 +715,12 @@ namespace S3SSEdit
 						for (int y = 0; y < drawrect.GetLength(1); y++)
 							for (int x = 0; x < drawrect.GetLength(0); x++)
 								if (drawrect[x, y].HasValue)
-									tmplayout[(x + gridloc.X) & 31, (y + gridloc.Y) & 31] = drawrect[x, y].Value;
+									tmplayout[(x + gridloc.X) & (layout.Layout.Size - 1), (y + gridloc.Y) & (layout.Layout.Size - 1)] = drawrect[x, y].Value;
 						break;
 				}
 			BitmapBits layoutbmp = LayoutDrawer.DrawLayout(tmplayout, gridsize);
-			layoutbmp.DrawBitmapComposited(LayoutDrawer.StartBmps[layout.Angle >> 14], startloc.X * gridsize + 2, startloc.Y * gridsize + 2);
+			if (layout is SSLayoutData)
+				layoutbmp.DrawBitmapComposited(LayoutDrawer.StartBmps[((SSLayoutData)layout).Angle >> 14], startloc.X * gridsize + 2, startloc.Y * gridsize + 2);
 			using (Bitmap bmp = layoutbmp.ToBitmap(LayoutDrawer.Palette).To32bpp())
 			{
 				Graphics gfx = Graphics.FromImage(bmp);
@@ -703,17 +739,17 @@ namespace S3SSEdit
 				else if (!drawing)
 				{
 					if (tool == Tool.Start)
-						gfx.DrawImage(startbmps32[layout.Angle >> 14], new Rectangle(gridloc.X * gridsize + 2, gridloc.Y * gridsize + 2, 24, 24), 0, 0, 24, 24, GraphicsUnit.Pixel, imageTransparency);
+						gfx.DrawImage(startbmps32[((SSLayoutData)layout).Angle >> 14], new Rectangle(gridloc.X * gridsize + 2, gridloc.Y * gridsize + 2, 24, 24), 0, 0, 24, 24, GraphicsUnit.Pixel, imageTransparency);
 					else
 					{
 						gfx.DrawImage(foreSpherePicture.Image, new Rectangle(gridloc.X * gridsize + 2, gridloc.Y * gridsize + 2, 24, 24), 0, 0, 24, 24, GraphicsUnit.Pixel, imageTransparency);
 						if (fgsphere == SphereType.Yellow)
 							using (SolidBrush brush = new SolidBrush(Color.FromArgb(128, Color.Yellow)))
 							{
-								gfx.FillRectangle(brush, gridloc.X * gridsize, ((gridloc.Y - 6) & 31) * gridsize, gridsize, gridsize);
-								gfx.FillRectangle(brush, ((gridloc.X + 6) & 31) * gridsize, gridloc.Y * gridsize, gridsize, gridsize);
-								gfx.FillRectangle(brush, gridloc.X * gridsize, ((gridloc.Y + 6) & 31) * gridsize, gridsize, gridsize);
-								gfx.FillRectangle(brush, ((gridloc.X - 6) & 31) * gridsize, gridloc.Y * gridsize, gridsize, gridsize);
+								gfx.FillRectangle(brush, gridloc.X * gridsize, ((gridloc.Y - 6) & (layout.Layout.Size - 1)) * gridsize, gridsize, gridsize);
+								gfx.FillRectangle(brush, ((gridloc.X + 6) & (layout.Layout.Size - 1)) * gridsize, gridloc.Y * gridsize, gridsize, gridsize);
+								gfx.FillRectangle(brush, gridloc.X * gridsize, ((gridloc.Y + 6) & (layout.Layout.Size - 1)) * gridsize, gridsize, gridsize);
+								gfx.FillRectangle(brush, ((gridloc.X - 6) & (layout.Layout.Size - 1)) * gridsize, gridloc.Y * gridsize, gridsize, gridsize);
 							}
 					}
 				}
@@ -777,39 +813,39 @@ namespace S3SSEdit
 						drawing = false;
 						SphereType oldind = layout.Layout[gridloc.X, gridloc.Y];
 						if (oldind == sphere) return;
-						Queue<Point> pts = new Queue<Point>(32 * 32 / 2);
+						Queue<Point> pts = new Queue<Point>(layout.Layout.Size * layout.Layout.Size / 2);
 						pts.Enqueue(gridloc);
-						SphereType?[,] fillgrid = new SphereType?[32, 32];
+						SphereType?[,] fillgrid = new SphereType?[layout.Layout.Size, layout.Layout.Size];
 						fillgrid[gridloc.X, gridloc.Y] = sphere;
 						while (pts.Count > 0)
 						{
 							Point pt = pts.Dequeue();
-							int tmp = (pt.X + 31) % 32;
+							int tmp = (pt.X + (layout.Layout.Size - 1)) % layout.Layout.Size;
 							if (layout.Layout[tmp, pt.Y] == oldind && !fillgrid[tmp, pt.Y].HasValue)
 							{
 								fillgrid[tmp, pt.Y] = sphere;
 								pts.Enqueue(new Point(tmp, pt.Y));
 							}
-							tmp = (pt.X + 1) % 32;
+							tmp = (pt.X + 1) % layout.Layout.Size;
 							if (layout.Layout[tmp, pt.Y] == oldind && !fillgrid[tmp, pt.Y].HasValue)
 							{
 								fillgrid[tmp, pt.Y] = sphere;
 								pts.Enqueue(new Point(tmp, pt.Y));
 							}
-							tmp = (pt.Y + 31) % 32;
+							tmp = (pt.Y + (layout.Layout.Size - 1)) % layout.Layout.Size;
 							if (layout.Layout[pt.X, tmp] == oldind && !fillgrid[pt.X, tmp].HasValue)
 							{
 								fillgrid[pt.X, tmp] = sphere;
 								pts.Enqueue(new Point(pt.X, tmp));
 							}
-							tmp = (pt.Y + 1) % 32;
+							tmp = (pt.Y + 1) % layout.Layout.Size;
 							if (layout.Layout[pt.X, tmp] == oldind && !fillgrid[pt.X, tmp].HasValue)
 							{
 								fillgrid[pt.X, tmp] = sphere;
 								pts.Enqueue(new Point(pt.X, tmp));
 							}
 						}
-						DoAction(new FillAction(fillgrid));
+						DoAction(new FillAction(fillgrid, layout.Layout.Size));
 					}
 					break;
 				case Tool.Rectangle:
@@ -859,7 +895,7 @@ namespace S3SSEdit
 				}
 				for (int x = x1; x <= x2; x++)
 				{
-					SphereLoc s = new SphereLoc(sphere, x & 31, y1 & 31);
+					SphereLoc s = new SphereLoc(sphere, x & (layout.Layout.Size - 1), y1 & (layout.Layout.Size - 1));
 					if (!drawlist.Contains(s))
 						drawlist.Add(s);
 				}
@@ -874,7 +910,7 @@ namespace S3SSEdit
 				}
 				for (int y = y1; y <= y2; y++)
 				{
-					SphereLoc s = new SphereLoc(sphere, x1 & 31, y & 31);
+					SphereLoc s = new SphereLoc(sphere, x1 & (layout.Layout.Size - 1), y & (layout.Layout.Size - 1));
 					if (!drawlist.Contains(s))
 						drawlist.Add(s);
 				}
@@ -903,7 +939,7 @@ namespace S3SSEdit
 				int deltax = x2 - x1;
 				int deltay = Math.Abs(y2 - y1);
 				double error = 0;
-				double deltaerr = (double)deltay / (double)deltax;
+				double deltaerr = deltay / (double)deltax;
 				int ystep;
 				int y = y1;
 				if (y1 < y2)
@@ -914,13 +950,13 @@ namespace S3SSEdit
 				{
 					if (steep)
 					{
-						SphereLoc s = new SphereLoc(sphere, y & 31, x & 31);
+						SphereLoc s = new SphereLoc(sphere, y & (layout.Layout.Size - 1), x & (layout.Layout.Size - 1));
 						if (!drawlist.Contains(s))
 							drawlist.Add(s);
 					}
 					else
 					{
-						SphereLoc s = new SphereLoc(sphere, x & 31, y & 31);
+						SphereLoc s = new SphereLoc(sphere, x & (layout.Layout.Size - 1), y & (layout.Layout.Size - 1));
 						if (!drawlist.Contains(s))
 							drawlist.Add(s);
 					}
@@ -982,7 +1018,7 @@ namespace S3SSEdit
 				int deltax = x2 - x1;
 				int deltay = Math.Abs(y2 - y1);
 				double error = 0;
-				double deltaerr = (double)deltay / (double)deltax;
+				double deltaerr = deltay / (double)deltax;
 				int ystep;
 				int y = y1;
 				if (y1 < y2)
@@ -1047,7 +1083,7 @@ namespace S3SSEdit
 						int y2 = loc.Y;
 						if (y1 == y2)
 						{
-							if (y1 >= 32 * gridsize || y1 < 0)
+							if (y1 >= layout.Layout.Size * gridsize || y1 < 0)
 								return;
 							if (x1 > x2)
 							{
@@ -1055,10 +1091,10 @@ namespace S3SSEdit
 								x1 = x2;
 								x2 = tmp;
 							}
-							if (x1 >= 32 * gridsize || x2 < 0)
+							if (x1 >= layout.Layout.Size * gridsize || x2 < 0)
 								return;
 							x1 = Math.Max(x1, 0);
-							x2 = Math.Min(x2, 32 * gridsize - 1);
+							x2 = Math.Min(x2, layout.Layout.Size * gridsize - 1);
 							for (int x = x1; x <= x2; x++)
 							{
 								SphereLoc s = new SphereLoc(sphere, x / gridsize, y1 / gridsize);
@@ -1068,7 +1104,7 @@ namespace S3SSEdit
 						}
 						else if (x1 == x2)
 						{
-							if (x1 >= 32 * gridsize || x1 < 0)
+							if (x1 >= layout.Layout.Size * gridsize || x1 < 0)
 								return;
 							if (y1 > y2)
 							{
@@ -1076,10 +1112,10 @@ namespace S3SSEdit
 								y1 = y2;
 								y2 = tmp;
 							}
-							if (y1 >= 32 * gridsize || y2 < 0)
+							if (y1 >= layout.Layout.Size * gridsize || y2 < 0)
 								return;
 							y1 = Math.Max(y1, 0);
-							y2 = Math.Min(y2, 32 * gridsize - 1);
+							y2 = Math.Min(y2, layout.Layout.Size * gridsize - 1);
 							for (int y = y1; y <= y2; y++)
 							{
 								SphereLoc s = new SphereLoc(sphere, x1 / gridsize, y / gridsize);
@@ -1111,7 +1147,7 @@ namespace S3SSEdit
 							int deltax = x2 - x1;
 							int deltay = Math.Abs(y2 - y1);
 							double error = 0;
-							double deltaerr = (double)deltay / (double)deltax;
+							double deltaerr = deltay / (double)deltax;
 							int ystep;
 							int y = y1;
 							if (y1 < y2)
@@ -1122,7 +1158,7 @@ namespace S3SSEdit
 							{
 								if (steep)
 								{
-									if (x >= 0 && x < 32 * gridsize && y >= 0 && y < 32 * gridsize)
+									if (x >= 0 && x < layout.Layout.Size * gridsize && y >= 0 && y < layout.Layout.Size * gridsize)
 									{
 										SphereLoc s = new SphereLoc(sphere, y / gridsize, x / gridsize);
 										if (!drawlist.Contains(s))
@@ -1131,7 +1167,7 @@ namespace S3SSEdit
 								}
 								else
 								{
-									if (y >= 0 && y < 32 * gridsize && x >= 0 && x < 32 * gridsize)
+									if (y >= 0 && y < layout.Layout.Size * gridsize && x >= 0 && x < layout.Layout.Size * gridsize)
 									{
 										SphereLoc s = new SphereLoc(sphere, x / gridsize, y / gridsize);
 										if (!drawlist.Contains(s))
@@ -1374,8 +1410,8 @@ namespace S3SSEdit
 					DoAction(new OvalAction(drawrect, Math.Min(gridloc.X, firstloc.X / gridsize), Math.Min(gridloc.Y, firstloc.Y / gridsize)));
 					break;
 				case Tool.Start:
-					if (gridloc.X == layout.StartX / 0x100 && gridloc.Y == layout.StartY / 0x100)
-						DoAction(new StartAngleAction((ushort)(layout.Angle + 0x4000)));
+					if (gridloc.X == ((SSLayoutData)layout).StartX / 0x100 && gridloc.Y == ((SSLayoutData)layout).StartY / 0x100)
+						DoAction(new StartAngleAction((ushort)(((SSLayoutData)layout).Angle + 0x4000)));
 					else
 						DoAction(new StartPositionAction(gridloc));
 					break;
@@ -1383,27 +1419,29 @@ namespace S3SSEdit
 			DrawLayout();
 		}
 
-		private void perfectCount_ValueChanged(object sender, EventArgs e)
+		private void stageLayoutPerfectCount_ValueChanged(object sender, EventArgs e)
 		{
-			if (perfectCount.Value != layout.Perfect)
-				DoAction(new PerfectCountAction((short)perfectCount.Value));
+			if (stageLayoutPerfectCount.Value != ((SSLayoutData)layout).Perfect)
+				DoAction(new SSLayoutPerfectCountAction((short)stageLayoutPerfectCount.Value));
 		}
 
-		private void countButton_Click(object sender, EventArgs e)
+		private void bsChunkPerfectCount_ValueChanged(object sender, EventArgs e)
 		{
-
+			if (bsChunkPerfectCount.Value != ((BSChunkLayoutData)layout).Perfect)
+				DoAction(new BSChunkPerfectCountAction((byte)bsChunkPerfectCount.Value));
 		}
 
-		private void layoutPanel_KeyDown(object sender, KeyEventArgs e)
+		private void bsChunkDifficulty_ValueChanged(object sender, EventArgs e)
 		{
-
+			if (bsChunkDifficulty.Value != ((BSChunkLayoutData)layout).Difficulty)
+				DoAction(new BSChunkDifficultyAction((byte)bsChunkDifficulty.Value));
 		}
 
 		private void cutToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			Rectangle area = selection;
 			if (area.IsEmpty)
-				area = new Rectangle(0, 0, 32, 32);
+				area = new Rectangle(0, 0, layout.Layout.Size, layout.Layout.Size);
 			SphereType[,] sect = new SphereType[area.Width, area.Height];
 			for (int y = 0; y < area.Height; y++)
 				for (int x = 0; x < area.Width; x++)
@@ -1417,7 +1455,7 @@ namespace S3SSEdit
 		{
 			Rectangle area = selection;
 			if (area.IsEmpty)
-				area = new Rectangle(0, 0, 32, 32);
+				area = new Rectangle(0, 0, layout.Layout.Size, layout.Layout.Size);
 			SphereType[,] sect = new SphereType[area.Width, area.Height];
 			for (int y = 0; y < area.Height; y++)
 				for (int x = 0; x < area.Width; x++)
@@ -1437,7 +1475,7 @@ namespace S3SSEdit
 		{
 			Rectangle area = selection;
 			if (area.IsEmpty)
-				area = new Rectangle(0, 0, 32, 32);
+				area = new Rectangle(0, 0, layout.Layout.Size, layout.Layout.Size);
 			SphereType[,] sect = new SphereType[area.Width, area.Height];
 			SphereType[,] copy = (SphereType[,])Clipboard.GetData(typeof(SphereType[,]).AssemblyQualifiedName);
 			int copywidth = copy.GetLength(0);
@@ -1458,7 +1496,7 @@ namespace S3SSEdit
 		{
 			Rectangle area = selection;
 			if (area.IsEmpty)
-				area = new Rectangle(0, 0, 32, 32);
+				area = new Rectangle(0, 0, layout.Layout.Size, layout.Layout.Size);
 			DoAction(new FlipHorizontallyAction(area));
 			DrawLayout();
 		}
@@ -1467,7 +1505,7 @@ namespace S3SSEdit
 		{
 			Rectangle area = selection;
 			if (area.IsEmpty)
-				area = new Rectangle(0, 0, 32, 32);
+				area = new Rectangle(0, 0, layout.Layout.Size, layout.Layout.Size);
 			DoAction(new FlipVerticallyAction(area));
 			DrawLayout();
 		}
@@ -1476,7 +1514,7 @@ namespace S3SSEdit
 		{
 			Rectangle area = selection;
 			if (area.IsEmpty)
-				area = new Rectangle(0, 0, 32, 32);
+				area = new Rectangle(0, 0, layout.Layout.Size, layout.Layout.Size);
 			DoAction(new RotateLeftAction(area));
 			DrawLayout();
 		}
@@ -1485,7 +1523,7 @@ namespace S3SSEdit
 		{
 			Rectangle area = selection;
 			if (area.IsEmpty)
-				area = new Rectangle(0, 0, 32, 32);
+				area = new Rectangle(0, 0, layout.Layout.Size, layout.Layout.Size);
 			DoAction(new RotateRightAction(area));
 			DrawLayout();
 		}
@@ -1499,7 +1537,7 @@ namespace S3SSEdit
 				{
 					Rectangle area = selection;
 					if (area.IsEmpty)
-						area = new Rectangle(0, 0, 32, 32);
+						area = new Rectangle(0, 0, layout.Layout.Size, layout.Layout.Size);
 					SphereType[,] sect = new SphereType[area.Width, area.Height];
 					for (int y = 0; y < area.Height; y++)
 						for (int x = 0; x < area.Width; x++)
@@ -1525,7 +1563,7 @@ namespace S3SSEdit
 		{
 			Rectangle area = selection;
 			if (area.IsEmpty)
-				area = new Rectangle(0, 0, 32, 32);
+				area = new Rectangle(0, 0, layout.Layout.Size, layout.Layout.Size);
 			SphereType[,] sect = new SphereType[area.Width, area.Height];
 			SphereType[,] copy = layoutSections[layoutSectionListBox.SelectedIndex].Spheres;
 			int copywidth = copy.GetLength(0);
@@ -1667,8 +1705,8 @@ namespace S3SSEdit
 			for (int y = 0; y < spheres.GetLength(1); y++)
 				for (int x = 0; x < spheres.GetLength(0); x++)
 				{
-					SphereType tmp = layout.Layout[(x + position.X) & 31, (y + position.Y) & 31];
-					layout.Layout[(x + position.X) & 31, (y + position.Y) & 31] = spheres[x, y];
+					SphereType tmp = layout.Layout[(x + position.X) & (layout.Layout.Size - 1), (y + position.Y) & (layout.Layout.Size - 1)];
+					layout.Layout[(x + position.X) & (layout.Layout.Size - 1), (y + position.Y) & (layout.Layout.Size - 1)] = spheres[x, y];
 					spheres[x, y] = tmp;
 				}
 		}
@@ -1677,14 +1715,14 @@ namespace S3SSEdit
 	[Serializable]
 	abstract class AreaAction : Action
 	{
-		public AreaAction(SphereType?[,] spheres)
+		public AreaAction(SphereType?[,] spheres, int size)
 		{
-			int minX = 32;
-			int minY = 32;
+			int minX = size;
+			int minY = size;
 			int maxX = -1;
 			int maxY = -1;
-			for (int y = 0; y < 32; y++)
-				for (int x = 0; x < 32; x++)
+			for (int y = 0; y < size; y++)
+				for (int x = 0; x < size; x++)
 					if (spheres[x, y].HasValue)
 					{
 						minX = Math.Min(minX, x);
@@ -1692,7 +1730,7 @@ namespace S3SSEdit
 						maxX = Math.Max(maxX, x);
 						maxY = Math.Max(maxY, y);
 					}
-			if (minX == 0 && minY == 0 && maxX == 31 && maxY == 31)
+			if (minX == 0 && minY == 0 && maxX == size - 1 && maxY == size - 1)
 				this.spheres = spheres;
 			else
 			{
@@ -1723,8 +1761,8 @@ namespace S3SSEdit
 				for (int x = 0; x < spheres.GetLength(0); x++)
 					if (spheres[x, y].HasValue)
 					{
-						SphereType tmp = layout.Layout[(x + position.X) & 31, (y + position.Y) & 31];
-						layout.Layout[(x + position.X) & 31, (y + position.Y) & 31] = spheres[x, y].Value;
+						SphereType tmp = layout.Layout[(x + position.X) & (layout.Layout.Size - 1), (y + position.Y) & (layout.Layout.Size - 1)];
+						layout.Layout[(x + position.X) & (layout.Layout.Size - 1), (y + position.Y) & (layout.Layout.Size - 1)] = spheres[x, y].Value;
 						spheres[x, y] = tmp;
 					}
 		}
@@ -1744,7 +1782,7 @@ namespace S3SSEdit
 
 		public override void Do(LayoutData layout)
 		{
-			SphereType[,] copy = (SphereType[,])layout.Layout.Clone();
+			SphereType[,] copy = layout.Layout.Clone();
 			if (right)
 			{
 				for (int y = 0; y < area.Height; y++)
@@ -1772,7 +1810,7 @@ namespace S3SSEdit
 	[Serializable]
 	class FillAction : AreaAction
 	{
-		public FillAction(SphereType?[,] spheres) : base(spheres) { }
+		public FillAction(SphereType?[,] spheres, int size) : base(spheres, size) { }
 
 		public override string Name => "Fill";
 	}
@@ -1843,9 +1881,9 @@ namespace S3SSEdit
 
 		public override void Do(LayoutData layout)
 		{
-			Point tmp = new Point(layout.StartX / 0x100, layout.StartY / 0x100);
-			layout.StartX = (ushort)(position.X * 0x100);
-			layout.StartY = (ushort)(position.Y * 0x100);
+			Point tmp = new Point(((SSLayoutData)layout).StartX / 0x100, ((SSLayoutData)layout).StartY / 0x100);
+			((SSLayoutData)layout).StartX = (ushort)(position.X * 0x100);
+			((SSLayoutData)layout).StartY = (ushort)(position.Y * 0x100);
 			position = tmp;
 		}
 
@@ -1864,8 +1902,8 @@ namespace S3SSEdit
 
 		public override void Do(LayoutData layout)
 		{
-			ushort tmp = layout.Angle;
-			layout.Angle = angle;
+			ushort tmp = ((SSLayoutData)layout).Angle;
+			((SSLayoutData)layout).Angle = angle;
 			angle = tmp;
 		}
 
@@ -1873,9 +1911,9 @@ namespace S3SSEdit
 	}
 
 	[Serializable]
-	class PerfectCountAction : Action
+	class SSLayoutPerfectCountAction : Action
 	{
-		public PerfectCountAction(short count)
+		public SSLayoutPerfectCountAction(short count)
 		{
 			this.count = count;
 		}
@@ -1884,12 +1922,52 @@ namespace S3SSEdit
 
 		public override void Do(LayoutData layout)
 		{
-			short tmp = layout.Perfect;
-			layout.Perfect = count;
+			short tmp = ((SSLayoutData)layout).Perfect;
+			((SSLayoutData)layout).Perfect = count;
 			count = tmp;
 		}
 
 		public override string Name => "Perfect Count";
+	}
+
+	[Serializable]
+	class BSChunkPerfectCountAction : Action
+	{
+		public BSChunkPerfectCountAction(byte count)
+		{
+			this.count = count;
+		}
+
+		byte count;
+
+		public override void Do(LayoutData layout)
+		{
+			byte tmp = ((BSChunkLayoutData)layout).Perfect;
+			((BSChunkLayoutData)layout).Perfect = count;
+			count = tmp;
+		}
+
+		public override string Name => "Perfect Count";
+	}
+
+	[Serializable]
+	class BSChunkDifficultyAction : Action
+	{
+		public BSChunkDifficultyAction(byte diff)
+		{
+			this.diff = diff;
+		}
+
+		byte diff;
+
+		public override void Do(LayoutData layout)
+		{
+			byte tmp = ((BSChunkLayoutData)layout).Difficulty;
+			((BSChunkLayoutData)layout).Difficulty = diff;
+			diff = tmp;
+		}
+
+		public override string Name => "Difficulty";
 	}
 
 	[Serializable]
@@ -1934,7 +2012,7 @@ namespace S3SSEdit
 
 		public override void Do(LayoutData layout)
 		{
-			SphereType[,] copy = (SphereType[,])layout.Layout.Clone();
+			SphereType[,] copy = layout.Layout.Clone();
 			for (int y = 0; y < area.Height; y++)
 				for (int x = 0; x < area.Width; x++)
 					layout.Layout[area.X + x, area.Y + y] = copy[area.Right - x - 1, area.Y + y];
@@ -1955,7 +2033,7 @@ namespace S3SSEdit
 
 		public override void Do(LayoutData layout)
 		{
-			SphereType[,] copy = (SphereType[,])layout.Layout.Clone();
+			SphereType[,] copy = layout.Layout.Clone();
 			for (int y = 0; y < area.Height; y++)
 				for (int x = 0; x < area.Width; x++)
 					layout.Layout[area.X + x, area.Y + y] = copy[area.X + x, area.Bottom - y - 1];

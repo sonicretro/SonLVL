@@ -60,9 +60,13 @@ namespace S3SSEdit
 
 		public static BitmapBits DrawLayout(LayoutData layout, int gridsize)
 		{
-			BitmapBits layoutbmp = DrawLayout(layout.Layout, gridsize);
-			int off = (gridsize - 24) / 2;
-			layoutbmp.DrawBitmapComposited(StartBmps[layout.Angle >> 14], (layout.StartX / 0x100) * gridsize + off, (layout.StartY / 0x100) * gridsize + off);
+			BitmapBits layoutbmp = DrawLayout(layout.Layout.Clone(), gridsize);
+			if (layout is SSLayoutData)
+			{
+				int off = (gridsize - 24) / 2;
+				SSLayoutData ss = (SSLayoutData)layout;
+				layoutbmp.DrawBitmapComposited(StartBmps[ss.Angle >> 14], (ss.StartX / 0x100) * gridsize + off, (ss.StartY / 0x100) * gridsize + off);
+			}
 			return layoutbmp;
 		}
 	}
