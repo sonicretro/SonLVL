@@ -1,4 +1,5 @@
 ﻿using SonicRetro.SonLVL.API;
+using System.Linq;
 
 namespace S3SSEdit
 {
@@ -8,10 +9,11 @@ namespace S3SSEdit
 		{
 			public abstract SphereType this[int x, int y] { get; set; }
 			public abstract int Size { get; }
-			public abstract SphereType[,] Clone();
+			public abstract SphereType[,] ToArray();
 		}
 
 		public LayoutAccessor Layout { get; protected set; }
+		public abstract LayoutData Clone();
 	}
 
 	public class SSLayoutData : LayoutData
@@ -29,7 +31,7 @@ namespace S3SSEdit
 
 			public override int Size => 32;
 
-			public override SphereType[,] Clone()
+			public override SphereType[,] ToArray()
 			{
 				return (SphereType[,])data.layout.Clone();
 			}
@@ -70,6 +72,17 @@ namespace S3SSEdit
 			ByteConverter.GetBytes(Perfect).CopyTo(result, 1030);
 			return result;
 		}
+
+		public override LayoutData Clone()
+		{
+			SSLayoutData result = new SSLayoutData();
+			result.layout = (SphereType[,])layout.Clone();
+			result.Angle = Angle;
+			result.StartX = StartX;
+			result.StartY = StartY;
+			result.Perfect = Perfect;
+			return result;
+		}
 	}
 
 	public class BSChunkLayoutData : LayoutData
@@ -87,7 +100,7 @@ namespace S3SSEdit
 
 			public override int Size => 16;
 
-			public override SphereType[,] Clone()
+			public override SphereType[,] ToArray()
 			{
 				return (SphereType[,])data.layout.Clone();
 			}
@@ -119,6 +132,153 @@ namespace S3SSEdit
 			data[index + 0x80] = Difficulty;
 			for (int i = 0; i < 256; i++)
 				data[i + (index << 8) + 0x100] = (byte)layout[i % 16, i / 16];
+		}
+
+		public override LayoutData Clone()
+		{
+			BSChunkLayoutData result = new BSChunkLayoutData();
+			result.layout = (SphereType[,])layout.Clone();
+			result.Perfect = Perfect;
+			result.Difficulty = Difficulty;
+			return result;
+		}
+	}
+
+	public class BSStageLayoutData : LayoutData
+	{
+		class BSStageLayoutAccessor : LayoutAccessor
+		{
+			BSStageLayoutData data;
+
+			public BSStageLayoutAccessor(BSStageLayoutData data)
+			{
+				this.data = data;
+			}
+
+			public override SphereType this[int x, int y]
+			{
+				get
+				{
+					int q = 0;
+					if (x > 15) q = 1;
+					if (y > 15) q += 2;
+					switch (q)
+					{
+						case 0:
+							return data.layouts[0].Layout[x, y];
+						case 1:
+							return data.layouts[1].Layout[15 - (x - 16), y];
+						case 2:
+							return data.layouts[2].Layout[x, 15 - (y - 16)];
+						case 3:
+							return data.layouts[3].Layout[15 - (x - 16), 15 - (y - 16)];
+					}
+					return 0;
+				}
+				set
+				{
+					int q = 0;
+					if (x > 15) q = 1;
+					if (y > 15) q += 2;
+					switch (q)
+					{
+						case 0:
+							data.layouts[0].Layout[x, y] = value;
+							break;
+						case 1:
+							data.layouts[1].Layout[15 - (x - 16), y] = value;
+							break;
+						case 2:
+							data.layouts[2].Layout[x, 15 - (y - 16)] = value;
+							break;
+						case 3:
+							data.layouts[3].Layout[15 - (x - 16), 15 - (y - 16)] = value;
+							break;
+					}
+				}
+			}
+
+			public override int Size => 32;
+
+			public override SphereType[,] ToArray()
+			{
+				SphereType[,] result = new SphereType[32, 32];
+				for (int y = 0; y < 32; y++)
+					for (int x = 0; x < 32; x++)
+						result[x, y] = this[x, y];
+				return result;
+			}
+		}
+
+		readonly byte[] chunknums = new byte[4];
+		protected readonly BSChunkLayoutData[] layouts = new BSChunkLayoutData[4];
+		public short Perfect { get => (short)layouts.Sum(a => a.Perfect); }
+		public byte Difficulty { get => (byte)layouts.Sum(a => a.Difficulty); }
+
+		private BSStageLayoutData()
+		{
+			Layout = new BSStageLayoutAccessor(this);
+		}
+
+		public BSStageLayoutData(byte[] data, byte[] chunknums)
+			: this()
+		{
+			chunknums.CopyTo(this.chunknums, 0);
+			for (int i = 0; i < 4; i++)
+			{
+				for (int j = 0; j < i; j++)
+					if (chunknums[i] == chunknums[j])
+					{
+						layouts[i] = layouts[j];
+						break;
+					}
+				if (layouts[i] == null)
+					layouts[i] = new BSChunkLayoutData(data, chunknums[i]);
+			}
+		}
+
+		public void WriteBytes(byte[] data)
+		{
+			for (int i = 0; i < 4; i++)
+				layouts[i].WriteBytes(data, chunknums[i]);
+		}
+
+		public byte GetPerfect(int quadrant)
+		{
+			return layouts[quadrant].Perfect;
+		}
+
+		public void SetPerfect(int quadrant, byte count)
+		{
+			layouts[quadrant].Perfect = count;
+		}
+
+		public byte GetDifficulty(int quadrant)
+		{
+			return layouts[quadrant].Difficulty;
+		}
+
+		public void SetDifficulty(int quadrant, byte dif)
+		{
+			layouts[quadrant].Difficulty = dif;
+		}
+
+		public override LayoutData Clone()
+		{
+			BSStageLayoutData result = new BSStageLayoutData();
+			chunknums.CopyTo(result.chunknums, 0);
+			for (int i = 0; i < 4; i++)
+			{
+				for (int j = 0; j < i; j++)
+					if (chunknums[i] == chunknums[j])
+					{
+						result.layouts[i] = result.layouts[j];
+						break;
+					}
+				if (result.layouts[i] == null)
+					result.layouts[i] = (BSChunkLayoutData)layouts[i].Clone();
+			}
+			return result;
 		}
 	}
 

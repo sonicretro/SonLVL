@@ -37,12 +37,14 @@
 			System.Windows.Forms.ToolTip toolTip1;
 			System.Windows.Forms.Panel panel4;
 			System.Windows.Forms.Panel panel5;
-			System.Windows.Forms.Label label1;
 			System.Windows.Forms.ToolStrip layoutSectionListToolStrip;
+			System.Windows.Forms.Label label4;
+			System.Windows.Forms.Label label5;
+			System.Windows.Forms.Label label2;
+			System.Windows.Forms.Label label1;
 			System.Windows.Forms.Label label3;
 			System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
 			System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
-			System.Windows.Forms.Label label2;
 			this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -76,10 +78,16 @@
 			this.paletteErase = new System.Windows.Forms.PictureBox();
 			this.layoutSectionPreview = new System.Windows.Forms.PictureBox();
 			this.bsChunkPerfectCount = new System.Windows.Forms.NumericUpDown();
+			this.bsChunkDifficulty = new System.Windows.Forms.NumericUpDown();
+			this.bsStageDifficulty = new System.Windows.Forms.NumericUpDown();
+			this.bsStagePerfectCount = new System.Windows.Forms.NumericUpDown();
 			this.layoutPanel = new System.Windows.Forms.UserControl();
-			this.bsChunkOptionsPanel = new System.Windows.Forms.Panel();
 			this.layoutSectionSplitContainer = new System.Windows.Forms.SplitContainer();
 			this.importToolStripButton = new System.Windows.Forms.ToolStripButton();
+			this.bsStageOptionsPanel = new System.Windows.Forms.Panel();
+			this.label6 = new System.Windows.Forms.Label();
+			this.bsStageSection = new System.Windows.Forms.ComboBox();
+			this.bsChunkOptionsPanel = new System.Windows.Forms.Panel();
 			this.stageLayoutOptionsPanel = new System.Windows.Forms.Panel();
 			this.panel2 = new System.Windows.Forms.Panel();
 			this.panel3 = new System.Windows.Forms.Panel();
@@ -96,7 +104,6 @@
 			this.saveSectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.pasteSectionOnceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.pasteSectionRepeatingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.bsChunkDifficulty = new System.Windows.Forms.NumericUpDown();
 			menuStrip1 = new System.Windows.Forms.MenuStrip();
 			imageList1 = new System.Windows.Forms.ImageList(this.components);
 			panel1 = new System.Windows.Forms.Panel();
@@ -104,12 +111,14 @@
 			toolTip1 = new System.Windows.Forms.ToolTip(this.components);
 			panel4 = new System.Windows.Forms.Panel();
 			panel5 = new System.Windows.Forms.Panel();
-			label1 = new System.Windows.Forms.Label();
 			layoutSectionListToolStrip = new System.Windows.Forms.ToolStrip();
+			label4 = new System.Windows.Forms.Label();
+			label5 = new System.Windows.Forms.Label();
+			label2 = new System.Windows.Forms.Label();
+			label1 = new System.Windows.Forms.Label();
 			label3 = new System.Windows.Forms.Label();
 			toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-			label2 = new System.Windows.Forms.Label();
 			menuStrip1.SuspendLayout();
 			panel1.SuspendLayout();
 			tableLayoutPanel1.SuspendLayout();
@@ -124,18 +133,21 @@
 			((System.ComponentModel.ISupportInitialize)(this.paletteErase)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.layoutSectionPreview)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.bsChunkPerfectCount)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.bsChunkDifficulty)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.bsStageDifficulty)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.bsStagePerfectCount)).BeginInit();
 			panel4.SuspendLayout();
 			panel5.SuspendLayout();
-			this.bsChunkOptionsPanel.SuspendLayout();
 			this.layoutSectionSplitContainer.Panel1.SuspendLayout();
 			this.layoutSectionSplitContainer.Panel2.SuspendLayout();
 			this.layoutSectionSplitContainer.SuspendLayout();
 			layoutSectionListToolStrip.SuspendLayout();
+			this.bsStageOptionsPanel.SuspendLayout();
+			this.bsChunkOptionsPanel.SuspendLayout();
 			this.stageLayoutOptionsPanel.SuspendLayout();
 			this.panel2.SuspendLayout();
 			this.panel3.SuspendLayout();
 			this.layoutContextMenuStrip.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.bsChunkDifficulty)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// menuStrip1
@@ -455,7 +467,7 @@
 			this.layoutSectionListBox.IntegralHeight = false;
 			this.layoutSectionListBox.Location = new System.Drawing.Point(0, 0);
 			this.layoutSectionListBox.Name = "layoutSectionListBox";
-			this.layoutSectionListBox.Size = new System.Drawing.Size(175, 202);
+			this.layoutSectionListBox.Size = new System.Drawing.Size(175, 166);
 			this.layoutSectionListBox.TabIndex = 0;
 			toolTip1.SetToolTip(this.layoutSectionListBox, "Layout Sections");
 			this.layoutSectionListBox.SelectedIndexChanged += new System.EventHandler(this.layoutSectionListBox_SelectedIndexChanged);
@@ -572,7 +584,7 @@
 			this.layoutSectionPreview.Location = new System.Drawing.Point(0, 0);
 			this.layoutSectionPreview.Margin = new System.Windows.Forms.Padding(0);
 			this.layoutSectionPreview.Name = "layoutSectionPreview";
-			this.layoutSectionPreview.Size = new System.Drawing.Size(175, 247);
+			this.layoutSectionPreview.Size = new System.Drawing.Size(175, 204);
 			this.layoutSectionPreview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
 			this.layoutSectionPreview.TabIndex = 0;
 			this.layoutSectionPreview.TabStop = false;
@@ -591,6 +603,48 @@
 			this.bsChunkPerfectCount.TabIndex = 6;
 			toolTip1.SetToolTip(this.bsChunkPerfectCount, "The number of rings required to get a Perfect Bonus.");
 			this.bsChunkPerfectCount.ValueChanged += new System.EventHandler(this.bsChunkPerfectCount_ValueChanged);
+			// 
+			// bsChunkDifficulty
+			// 
+			this.bsChunkDifficulty.Location = new System.Drawing.Point(59, 32);
+			this.bsChunkDifficulty.Maximum = new decimal(new int[] {
+            13,
+            0,
+            0,
+            0});
+			this.bsChunkDifficulty.Name = "bsChunkDifficulty";
+			this.bsChunkDifficulty.Size = new System.Drawing.Size(52, 20);
+			this.bsChunkDifficulty.TabIndex = 8;
+			toolTip1.SetToolTip(this.bsChunkDifficulty, "The difficulty of this chunk.");
+			this.bsChunkDifficulty.ValueChanged += new System.EventHandler(this.bsChunkDifficulty_ValueChanged);
+			// 
+			// bsStageDifficulty
+			// 
+			this.bsStageDifficulty.Location = new System.Drawing.Point(59, 56);
+			this.bsStageDifficulty.Maximum = new decimal(new int[] {
+            13,
+            0,
+            0,
+            0});
+			this.bsStageDifficulty.Name = "bsStageDifficulty";
+			this.bsStageDifficulty.Size = new System.Drawing.Size(52, 20);
+			this.bsStageDifficulty.TabIndex = 8;
+			toolTip1.SetToolTip(this.bsStageDifficulty, "The difficulty of this chunk.");
+			this.bsStageDifficulty.ValueChanged += new System.EventHandler(this.bsStageDifficulty_ValueChanged);
+			// 
+			// bsStagePerfectCount
+			// 
+			this.bsStagePerfectCount.Location = new System.Drawing.Point(53, 30);
+			this.bsStagePerfectCount.Maximum = new decimal(new int[] {
+            255,
+            0,
+            0,
+            0});
+			this.bsStagePerfectCount.Name = "bsStagePerfectCount";
+			this.bsStagePerfectCount.Size = new System.Drawing.Size(52, 20);
+			this.bsStagePerfectCount.TabIndex = 6;
+			toolTip1.SetToolTip(this.bsStagePerfectCount, "The number of rings required to get a Perfect Bonus.");
+			this.bsStagePerfectCount.ValueChanged += new System.EventHandler(this.bsStagePerfectCount_ValueChanged);
 			// 
 			// panel4
 			// 
@@ -620,6 +674,7 @@
 			// 
 			panel5.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
 			panel5.Controls.Add(this.layoutSectionSplitContainer);
+			panel5.Controls.Add(this.bsStageOptionsPanel);
 			panel5.Controls.Add(this.bsChunkOptionsPanel);
 			panel5.Controls.Add(this.stageLayoutOptionsPanel);
 			panel5.Dock = System.Windows.Forms.DockStyle.Right;
@@ -628,34 +683,10 @@
 			panel5.Size = new System.Drawing.Size(175, 537);
 			panel5.TabIndex = 2;
 			// 
-			// bsChunkOptionsPanel
-			// 
-			this.bsChunkOptionsPanel.AutoSize = true;
-			this.bsChunkOptionsPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-			this.bsChunkOptionsPanel.Controls.Add(label2);
-			this.bsChunkOptionsPanel.Controls.Add(this.bsChunkDifficulty);
-			this.bsChunkOptionsPanel.Controls.Add(label1);
-			this.bsChunkOptionsPanel.Controls.Add(this.bsChunkPerfectCount);
-			this.bsChunkOptionsPanel.Dock = System.Windows.Forms.DockStyle.Top;
-			this.bsChunkOptionsPanel.Location = new System.Drawing.Point(0, 29);
-			this.bsChunkOptionsPanel.Margin = new System.Windows.Forms.Padding(0);
-			this.bsChunkOptionsPanel.Name = "bsChunkOptionsPanel";
-			this.bsChunkOptionsPanel.Size = new System.Drawing.Size(175, 55);
-			this.bsChunkOptionsPanel.TabIndex = 10;
-			// 
-			// label1
-			// 
-			label1.AutoSize = true;
-			label1.Location = new System.Drawing.Point(3, 8);
-			label1.Name = "label1";
-			label1.Size = new System.Drawing.Size(44, 13);
-			label1.TabIndex = 5;
-			label1.Text = "Perfect:";
-			// 
 			// layoutSectionSplitContainer
 			// 
 			this.layoutSectionSplitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.layoutSectionSplitContainer.Location = new System.Drawing.Point(0, 84);
+			this.layoutSectionSplitContainer.Location = new System.Drawing.Point(0, 163);
 			this.layoutSectionSplitContainer.Margin = new System.Windows.Forms.Padding(0);
 			this.layoutSectionSplitContainer.Name = "layoutSectionSplitContainer";
 			this.layoutSectionSplitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
@@ -668,8 +699,8 @@
 			// layoutSectionSplitContainer.Panel2
 			// 
 			this.layoutSectionSplitContainer.Panel2.Controls.Add(this.layoutSectionPreview);
-			this.layoutSectionSplitContainer.Size = new System.Drawing.Size(175, 453);
-			this.layoutSectionSplitContainer.SplitterDistance = 202;
+			this.layoutSectionSplitContainer.Size = new System.Drawing.Size(175, 374);
+			this.layoutSectionSplitContainer.SplitterDistance = 166;
 			this.layoutSectionSplitContainer.TabIndex = 9;
 			// 
 			// layoutSectionListToolStrip
@@ -690,6 +721,101 @@
 			this.importToolStripButton.Name = "importToolStripButton";
 			this.importToolStripButton.Size = new System.Drawing.Size(56, 22);
 			this.importToolStripButton.Text = "I&mport...";
+			// 
+			// bsStageOptionsPanel
+			// 
+			this.bsStageOptionsPanel.AutoSize = true;
+			this.bsStageOptionsPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.bsStageOptionsPanel.Controls.Add(this.label6);
+			this.bsStageOptionsPanel.Controls.Add(this.bsStageSection);
+			this.bsStageOptionsPanel.Controls.Add(label4);
+			this.bsStageOptionsPanel.Controls.Add(this.bsStageDifficulty);
+			this.bsStageOptionsPanel.Controls.Add(label5);
+			this.bsStageOptionsPanel.Controls.Add(this.bsStagePerfectCount);
+			this.bsStageOptionsPanel.Dock = System.Windows.Forms.DockStyle.Top;
+			this.bsStageOptionsPanel.Location = new System.Drawing.Point(0, 84);
+			this.bsStageOptionsPanel.Margin = new System.Windows.Forms.Padding(0);
+			this.bsStageOptionsPanel.Name = "bsStageOptionsPanel";
+			this.bsStageOptionsPanel.Size = new System.Drawing.Size(175, 79);
+			this.bsStageOptionsPanel.TabIndex = 11;
+			this.bsStageOptionsPanel.Visible = false;
+			// 
+			// label6
+			// 
+			this.label6.AutoSize = true;
+			this.label6.Location = new System.Drawing.Point(3, 6);
+			this.label6.Name = "label6";
+			this.label6.Size = new System.Drawing.Size(46, 13);
+			this.label6.TabIndex = 10;
+			this.label6.Text = "Section:";
+			// 
+			// bsStageSection
+			// 
+			this.bsStageSection.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.bsStageSection.FormattingEnabled = true;
+			this.bsStageSection.Items.AddRange(new object[] {
+            "Stage",
+            "Upper Left",
+            "Upper Right",
+            "Lower Left",
+            "Lower Right"});
+			this.bsStageSection.Location = new System.Drawing.Point(55, 3);
+			this.bsStageSection.Name = "bsStageSection";
+			this.bsStageSection.Size = new System.Drawing.Size(105, 21);
+			this.bsStageSection.TabIndex = 9;
+			this.bsStageSection.SelectedIndexChanged += new System.EventHandler(this.bsStageSection_SelectedIndexChanged);
+			// 
+			// label4
+			// 
+			label4.AutoSize = true;
+			label4.Location = new System.Drawing.Point(3, 58);
+			label4.Name = "label4";
+			label4.Size = new System.Drawing.Size(50, 13);
+			label4.TabIndex = 7;
+			label4.Text = "Difficulty:";
+			// 
+			// label5
+			// 
+			label5.AutoSize = true;
+			label5.Location = new System.Drawing.Point(3, 32);
+			label5.Name = "label5";
+			label5.Size = new System.Drawing.Size(44, 13);
+			label5.TabIndex = 5;
+			label5.Text = "Perfect:";
+			// 
+			// bsChunkOptionsPanel
+			// 
+			this.bsChunkOptionsPanel.AutoSize = true;
+			this.bsChunkOptionsPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.bsChunkOptionsPanel.Controls.Add(label2);
+			this.bsChunkOptionsPanel.Controls.Add(this.bsChunkDifficulty);
+			this.bsChunkOptionsPanel.Controls.Add(label1);
+			this.bsChunkOptionsPanel.Controls.Add(this.bsChunkPerfectCount);
+			this.bsChunkOptionsPanel.Dock = System.Windows.Forms.DockStyle.Top;
+			this.bsChunkOptionsPanel.Location = new System.Drawing.Point(0, 29);
+			this.bsChunkOptionsPanel.Margin = new System.Windows.Forms.Padding(0);
+			this.bsChunkOptionsPanel.Name = "bsChunkOptionsPanel";
+			this.bsChunkOptionsPanel.Size = new System.Drawing.Size(175, 55);
+			this.bsChunkOptionsPanel.TabIndex = 10;
+			this.bsChunkOptionsPanel.Visible = false;
+			// 
+			// label2
+			// 
+			label2.AutoSize = true;
+			label2.Location = new System.Drawing.Point(3, 34);
+			label2.Name = "label2";
+			label2.Size = new System.Drawing.Size(50, 13);
+			label2.TabIndex = 7;
+			label2.Text = "Difficulty:";
+			// 
+			// label1
+			// 
+			label1.AutoSize = true;
+			label1.Location = new System.Drawing.Point(3, 8);
+			label1.Name = "label1";
+			label1.Size = new System.Drawing.Size(44, 13);
+			label1.TabIndex = 5;
+			label1.Text = "Perfect:";
 			// 
 			// stageLayoutOptionsPanel
 			// 
@@ -865,29 +991,6 @@
 			this.pasteSectionRepeatingToolStripMenuItem.Text = "Paste Section R&epeating";
 			this.pasteSectionRepeatingToolStripMenuItem.Click += new System.EventHandler(this.pasteSectionRepeatingToolStripMenuItem_Click);
 			// 
-			// label2
-			// 
-			label2.AutoSize = true;
-			label2.Location = new System.Drawing.Point(3, 34);
-			label2.Name = "label2";
-			label2.Size = new System.Drawing.Size(50, 13);
-			label2.TabIndex = 7;
-			label2.Text = "Difficulty:";
-			// 
-			// bsChunkDifficulty
-			// 
-			this.bsChunkDifficulty.Location = new System.Drawing.Point(59, 32);
-			this.bsChunkDifficulty.Maximum = new decimal(new int[] {
-            13,
-            0,
-            0,
-            0});
-			this.bsChunkDifficulty.Name = "bsChunkDifficulty";
-			this.bsChunkDifficulty.Size = new System.Drawing.Size(52, 20);
-			this.bsChunkDifficulty.TabIndex = 8;
-			toolTip1.SetToolTip(this.bsChunkDifficulty, "The difficulty of this chunk.");
-			this.bsChunkDifficulty.ValueChanged += new System.EventHandler(this.bsChunkDifficulty_ValueChanged);
-			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -922,23 +1025,27 @@
 			((System.ComponentModel.ISupportInitialize)(this.paletteErase)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.layoutSectionPreview)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.bsChunkPerfectCount)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.bsChunkDifficulty)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.bsStageDifficulty)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.bsStagePerfectCount)).EndInit();
 			panel4.ResumeLayout(false);
 			panel5.ResumeLayout(false);
 			panel5.PerformLayout();
-			this.bsChunkOptionsPanel.ResumeLayout(false);
-			this.bsChunkOptionsPanel.PerformLayout();
 			this.layoutSectionSplitContainer.Panel1.ResumeLayout(false);
 			this.layoutSectionSplitContainer.Panel1.PerformLayout();
 			this.layoutSectionSplitContainer.Panel2.ResumeLayout(false);
 			this.layoutSectionSplitContainer.ResumeLayout(false);
 			layoutSectionListToolStrip.ResumeLayout(false);
 			layoutSectionListToolStrip.PerformLayout();
+			this.bsStageOptionsPanel.ResumeLayout(false);
+			this.bsStageOptionsPanel.PerformLayout();
+			this.bsChunkOptionsPanel.ResumeLayout(false);
+			this.bsChunkOptionsPanel.PerformLayout();
 			this.stageLayoutOptionsPanel.ResumeLayout(false);
 			this.stageLayoutOptionsPanel.PerformLayout();
 			this.panel2.ResumeLayout(false);
 			this.panel3.ResumeLayout(false);
 			this.layoutContextMenuStrip.ResumeLayout(false);
-			((System.ComponentModel.ISupportInitialize)(this.bsChunkDifficulty)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -1000,6 +1107,11 @@
 		private System.Windows.Forms.Panel bsChunkOptionsPanel;
 		private System.Windows.Forms.NumericUpDown bsChunkPerfectCount;
 		private System.Windows.Forms.NumericUpDown bsChunkDifficulty;
+		private System.Windows.Forms.Panel bsStageOptionsPanel;
+		private System.Windows.Forms.Label label6;
+		private System.Windows.Forms.ComboBox bsStageSection;
+		private System.Windows.Forms.NumericUpDown bsStageDifficulty;
+		private System.Windows.Forms.NumericUpDown bsStagePerfectCount;
 	}
 }
 

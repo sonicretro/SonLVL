@@ -1,10 +1,7 @@
 ﻿using SonicRetro.SonLVL.API;
-using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Linq;
-using System.Text;
 
 namespace S3SSEdit
 {
@@ -29,7 +26,7 @@ namespace S3SSEdit
 				palind += 16;
 			}
 			Palette.Entries[0] = Palette.Entries[1] = Color.Transparent;
-			bmplist = new[] { Properties.Resources.north, Properties.Resources.east, Properties.Resources.south, Properties.Resources.west };
+			bmplist = new[] { Properties.Resources.north, Properties.Resources.west, Properties.Resources.south, Properties.Resources.east };
 			bmplist[0].Palette.Entries.CopyTo(Palette.Entries, palind);
 			for (int i = 0; i < bmplist.Length; i++)
 			{
@@ -60,12 +57,16 @@ namespace S3SSEdit
 
 		public static BitmapBits DrawLayout(LayoutData layout, int gridsize)
 		{
-			BitmapBits layoutbmp = DrawLayout(layout.Layout.Clone(), gridsize);
-			if (layout is SSLayoutData)
+			BitmapBits layoutbmp = DrawLayout(layout.Layout.ToArray(), gridsize);
+			int off = (gridsize - 24) / 2;
+			switch (layout)
 			{
-				int off = (gridsize - 24) / 2;
-				SSLayoutData ss = (SSLayoutData)layout;
-				layoutbmp.DrawBitmapComposited(StartBmps[ss.Angle >> 14], (ss.StartX / 0x100) * gridsize + off, (ss.StartY / 0x100) * gridsize + off);
+				case SSLayoutData ss:
+					layoutbmp.DrawBitmapComposited(StartBmps[ss.Angle >> 14], (ss.StartX / 0x100) * gridsize + off, (ss.StartY / 0x100) * gridsize + off);
+					break;
+				case BSStageLayoutData bss:
+					layoutbmp.DrawBitmapComposited(StartBmps[1], 16 * gridsize + off, 3 * gridsize + off);
+					break;
 			}
 			return layoutbmp;
 		}
