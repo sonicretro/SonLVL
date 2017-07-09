@@ -26,6 +26,7 @@ namespace S1SSEdit
 		string filename = null;
 		byte fgobj = 1;
 		byte bgobj = 0;
+		byte nextfgobj, nextbgobj;
 		Graphics layoutgfx;
 		ImageAttributes imageTransparency = new ImageAttributes();
 		Tool tool = Tool.Pencil;
@@ -583,6 +584,47 @@ namespace S1SSEdit
 			UpdateText();
 		}
 
+		Dictionary<byte, byte> nextobj = new Dictionary<byte, byte>()
+		{
+			{ 2, 3 },
+			{ 3, 4 },
+			{ 4, 5 },
+			{ 5, 6 },
+			{ 6, 7 },
+			{ 7, 8 },
+			{ 8, 9 },
+			{ 9, 2 },
+			{ 11, 12 },
+			{ 12, 13 },
+			{ 13, 14 },
+			{ 14, 15 },
+			{ 15, 16 },
+			{ 16, 17 },
+			{ 17, 18 },
+			{ 18, 11 },
+			{ 20, 21 },
+			{ 21, 22 },
+			{ 22, 23 },
+			{ 23, 24 },
+			{ 24, 25 },
+			{ 25, 26 },
+			{ 26, 27 },
+			{ 27, 20 },
+			{ 29, 30 },
+			{ 30, 31 },
+			{ 31, 32 },
+			{ 32, 33 },
+			{ 33, 34 },
+			{ 34, 35 },
+			{ 35, 36 },
+			{ 36, 29 },
+		};
+		private void AnimateBlock(ref byte block)
+		{
+			if (autoincrementAnimatedBlocksToolStripMenuItem.Checked && nextobj.ContainsKey(block))
+				block = nextobj[block];
+		}
+
 		private void layoutPanel_MouseDown(object sender, MouseEventArgs e)
 		{
 			Point loc = e.Location;
@@ -614,8 +656,21 @@ namespace S1SSEdit
 			switch (tool)
 			{
 				case Tool.Pencil:
+					drawlist = new List<ObjLoc>() { new ObjLoc(obj, gridloc) };
+					AnimateBlock(ref obj);
+					switch (e.Button)
+					{
+						case MouseButtons.Left:
+							fgobj = obj;
+							break;
+						case MouseButtons.Right:
+							bgobj = obj;
+							break;
+					}
+					break;
 				case Tool.Line:
 					drawlist = new List<ObjLoc>() { new ObjLoc(obj, gridloc) };
+					AnimateBlock(ref obj);
 					break;
 				case Tool.Fill:
 					{
@@ -662,8 +717,12 @@ namespace S1SSEdit
 					{
 						case ShapeMode.Edge:
 							drawlist = new List<ObjLoc>() { new ObjLoc(obj, gridloc) };
+							AnimateBlock(ref obj);
 							break;
 						case ShapeMode.FillEdge:
+							fillrect = new byte[1, 1] { { obj } };
+							AnimateBlock(ref obj);
+							break;
 						case ShapeMode.Fill:
 							fillrect = new byte[1, 1] { { obj } };
 							break;
@@ -674,8 +733,12 @@ namespace S1SSEdit
 					{
 						case ShapeMode.Edge:
 							drawlist = new List<ObjLoc>() { new ObjLoc(obj, gridloc) };
+							AnimateBlock(ref obj);
 							break;
 						case ShapeMode.FillEdge:
+							drawrect = new byte?[1, 1] { { obj } };
+							AnimateBlock(ref obj);
+							break;
 						case ShapeMode.Fill:
 							drawrect = new byte?[1, 1] { { obj } };
 							break;
@@ -683,44 +746,76 @@ namespace S1SSEdit
 					break;
 				case Tool.Oval:
 					drawrect = new byte?[1, 1] { { obj } };
+					AnimateBlock(ref obj);
+					break;
+			}
+			switch (e.Button)
+			{
+				case MouseButtons.Left:
+					nextfgobj = obj;
+					break;
+				case MouseButtons.Right:
+					nextbgobj = obj;
 					break;
 			}
 			firstloc = prevloc = loc;
 			DrawLayout();
 		}
 
-		private void DrawLine(byte obj, int x1, int y1, int x2, int y2)
+		private void DrawLine(ref byte obj, int x1, int y1, int x2, int y2)
 		{
 			if (y1 == y2)
 			{
 				if (y1 < 0 || y1 >= 0x40) return;
+				int inc;
+				Func<int, int, bool> cmp;
 				if (x1 > x2)
 				{
-					int tmp = x1;
-					x1 = x2;
-					x2 = tmp;
+					inc = -1;
+					cmp = (a, b) => a >= b;
 				}
-				for (int x = Math.Max(0, x1); x <= Math.Min(0x3F, x2); x++)
+				else
+				{
+					inc = 1;
+					cmp = (a, b) => a <= b;
+				}
+				x1 = Math.Max(Math.Min(x1, 0x3F), 0);
+				x2 = Math.Max(Math.Min(x2, 0x3F), 0);
+				for (int x = x1; cmp(x, x2); x += inc)
 				{
 					ObjLoc s = new ObjLoc(obj, x, y1);
 					if (!drawlist.Contains(s))
+					{
 						drawlist.Add(s);
+						AnimateBlock(ref obj);
+					}
 				}
 			}
 			else if (x1 == x2)
 			{
 				if (x1 < 0 || x1 >= 0x40) return;
+				int inc;
+				Func<int, int, bool> cmp;
 				if (y1 > y2)
 				{
-					int tmp = y1;
-					y1 = y2;
-					y2 = tmp;
+					inc = -1;
+					cmp = (a, b) => a >= b;
 				}
-				for (int y = Math.Max(0, y1); y <= Math.Min(0x3F, y2); y++)
+				else
+				{
+					inc = 1;
+					cmp = (a, b) => a <= b;
+				}
+				y1 = Math.Max(Math.Min(y1, 0x3F), 0);
+				y2 = Math.Max(Math.Min(y2, 0x3F), 0);
+				for (int y = y1; cmp(y, y2); y += inc)
 				{
 					ObjLoc s = new ObjLoc(obj, x1, y);
 					if (!drawlist.Contains(s))
+					{
 						drawlist.Add(s);
+						AnimateBlock(ref obj);
+					}
 				}
 			}
 			else
@@ -735,26 +830,25 @@ namespace S1SSEdit
 					x2 = y2;
 					y2 = tmp;
 				}
+				int inc;
+				Func<int, int, bool> cmp;
 				if (x1 > x2)
 				{
-					int tmp = x1;
-					x1 = x2;
-					x2 = tmp;
-					tmp = y1;
-					y1 = y2;
-					y2 = tmp;
+					inc = -1;
+					cmp = (a, b) => a >= b;
 				}
-				int deltax = x2 - x1;
+				else
+				{
+					inc = 1;
+					cmp = (a, b) => a <= b;
+				}
+				int deltax = Math.Abs(x2 - x1);
 				int deltay = Math.Abs(y2 - y1);
 				double error = 0;
 				double deltaerr = deltay / (double)deltax;
-				int ystep;
+				int ystep = y1 < y2 ? 1 : -1;
 				int y = y1;
-				if (y1 < y2)
-					ystep = 1;
-				else
-					ystep = -1;
-				for (int x = x1; x <= x2; x++)
+				for (int x = x1; cmp(x, x2); x += inc)
 				{
 					if (x >= 0 && x < 0x40 && y >= 0 && y < 0x40)
 					{
@@ -764,7 +858,10 @@ namespace S1SSEdit
 						else
 							s = new ObjLoc(obj, x, y);
 						if (!drawlist.Contains(s))
+						{
 							drawlist.Add(s);
+							AnimateBlock(ref obj);
+						}
 					}
 					error += deltaerr;
 					if (error >= 0.5)
@@ -776,29 +873,53 @@ namespace S1SSEdit
 			}
 		}
 
-		private void DrawLine(byte?[,] rect, byte obj, int x1, int y1, int x2, int y2)
+		private void DrawLine(byte?[,] rect, ref byte obj, int x1, int y1, int x2, int y2)
 		{
 			if (y1 == y2)
 			{
+				int inc;
+				Func<int, int, bool> cmp;
 				if (x1 > x2)
 				{
-					int tmp = x1;
-					x1 = x2;
-					x2 = tmp;
+					inc = -1;
+					cmp = (a, b) => a >= b;
 				}
-				for (int x = x1; x <= x2; x++)
-					rect[x, y1] = obj;
+				else
+				{
+					inc = 1;
+					cmp = (a, b) => a <= b;
+				}
+				x1 = Math.Max(Math.Min(x1, 0x3F), 0);
+				x2 = Math.Max(Math.Min(x2, 0x3F), 0);
+				for (int x = x1; cmp(x, x2); x += inc)
+					if (!rect[x, y1].HasValue)
+					{
+						rect[x, y1] = obj;
+						AnimateBlock(ref obj);
+					}
 			}
 			else if (x1 == x2)
 			{
+				int inc;
+				Func<int, int, bool> cmp;
 				if (y1 > y2)
 				{
-					int tmp = y1;
-					y1 = y2;
-					y2 = tmp;
+					inc = -1;
+					cmp = (a, b) => a >= b;
 				}
-				for (int y = y1; y <= y2; y++)
-					rect[x1, y] = obj;
+				else
+				{
+					inc = 1;
+					cmp = (a, b) => a <= b;
+				}
+				y1 = Math.Max(Math.Min(y1, 0x3F), 0);
+				y2 = Math.Max(Math.Min(y2, 0x3F), 0);
+				for (int y = y1; cmp(y, y2); y += inc)
+					if (!rect[x1, y].HasValue)
+					{
+						rect[x1, y] = obj;
+						AnimateBlock(ref obj);
+					}
 			}
 			else
 			{
@@ -812,31 +933,36 @@ namespace S1SSEdit
 					x2 = y2;
 					y2 = tmp;
 				}
+				int inc;
+				Func<int, int, bool> cmp;
 				if (x1 > x2)
 				{
-					int tmp = x1;
-					x1 = x2;
-					x2 = tmp;
-					tmp = y1;
-					y1 = y2;
-					y2 = tmp;
+					inc = -1;
+					cmp = (a, b) => a >= b;
 				}
-				int deltax = x2 - x1;
+				else
+				{
+					inc = 1;
+					cmp = (a, b) => a <= b;
+				}
+				int deltax = Math.Abs(x2 - x1);
 				int deltay = Math.Abs(y2 - y1);
 				double error = 0;
 				double deltaerr = deltay / (double)deltax;
-				int ystep;
+				int ystep = y1 < y2 ? 1 : -1;
 				int y = y1;
-				if (y1 < y2)
-					ystep = 1;
-				else
-					ystep = -1;
-				for (int x = x1; x <= x2; x++)
+				for (int x = x1; cmp(x, x2); x += inc)
 				{
+					Point p;
 					if (steep)
-						rect[y, x] = obj;
+						p = new Point(y, x);
 					else
-						rect[x, y] = obj;
+						p = new Point(x, y);
+					if (!rect[p.X, p.Y].HasValue)
+					{
+						rect[p.X, p.Y] = obj;
+						AnimateBlock(ref obj);
+					}
 					error += deltaerr;
 					if (error >= 0.5)
 					{
@@ -860,16 +986,16 @@ namespace S1SSEdit
 			if (gridloc == new Point(prevloc.X / gridsize, prevloc.Y / gridsize))
 				return;
 			byte obj = 0;
-			byte bgsphere = 0;
+			byte bgobj = 0;
 			switch (e.Button)
 			{
 				case MouseButtons.Left:
 					obj = fgobj;
-					bgsphere = this.bgobj;
+					bgobj = this.bgobj;
 					break;
 				case MouseButtons.Right:
 					obj = this.bgobj;
-					bgsphere = fgobj;
+					bgobj = fgobj;
 					break;
 			}
 			switch (tool)
@@ -887,46 +1013,61 @@ namespace S1SSEdit
 						int y1 = prevloc.Y;
 						int x2 = loc.X;
 						int y2 = loc.Y;
+						if ((x1 < 0 && x2 < 0) || (x1 >= 0x40 * gridsize && x2 >= 0x40 * gridsize)
+							|| (y1 < 0 && y2 < 0) || (y1 >= 0x40 * gridsize && y2 >= 0x40 * gridsize))
+							return;
 						if (y1 == y2)
 						{
-							if (y1 >= 0x40 * gridsize || y1 < 0)
-								return;
+							int inc;
+							Func<int, int, bool> cmp;
 							if (x1 > x2)
 							{
-								int tmp = x1;
-								x1 = x2;
-								x2 = tmp;
+								inc = -1;
+								cmp = (a, b) => a >= b;
+							}
+							else
+							{
+								inc = 1;
+								cmp = (a, b) => a <= b;
 							}
 							if (x1 >= 0x40 * gridsize || x2 < 0)
 								return;
-							x1 = Math.Max(x1, 0);
-							x2 = Math.Min(x2, 0x40 * gridsize - 1);
-							for (int x = x1; x <= x2; x++)
+							x1 = Math.Max(Math.Min(x1, 0x40 * gridsize - 1), 0);
+							x2 = Math.Max(Math.Min(x2, 0x40 * gridsize - 1), 0);
+							for (int x = x1; cmp(x, x2); x += inc)
 							{
 								ObjLoc s = new ObjLoc(obj, x / gridsize, y1 / gridsize);
 								if (!drawlist.Contains(s))
+								{
 									drawlist.Add(s);
+									AnimateBlock(ref obj);
+								}
 							}
 						}
 						else if (x1 == x2)
 						{
-							if (x1 >= 0x40 * gridsize || x1 < 0)
-								return;
+							int inc;
+							Func<int, int, bool> cmp;
 							if (y1 > y2)
 							{
-								int tmp = y1;
-								y1 = y2;
-								y2 = tmp;
+								inc = -1;
+								cmp = (a, b) => a >= b;
 							}
-							if (y1 >= 0x40 * gridsize || y2 < 0)
-								return;
-							y1 = Math.Max(y1, 0);
-							y2 = Math.Min(y2, 0x40 * gridsize - 1);
-							for (int y = y1; y <= y2; y++)
+							else
+							{
+								inc = 1;
+								cmp = (a, b) => a <= b;
+							}
+							y1 = Math.Max(Math.Min(y1, 0x40 * gridsize - 1), 0);
+							y2 = Math.Max(Math.Min(y2, 0x40 * gridsize - 1), 0);
+							for (int y = y1; cmp(y, y2); y += inc)
 							{
 								ObjLoc s = new ObjLoc(obj, x1 / gridsize, y / gridsize);
 								if (!drawlist.Contains(s))
+								{
 									drawlist.Add(s);
+									AnimateBlock(ref obj);
+								}
 							}
 						}
 						else
@@ -941,26 +1082,25 @@ namespace S1SSEdit
 								x2 = y2;
 								y2 = tmp;
 							}
+							int inc;
+							Func<int, int, bool> cmp;
 							if (x1 > x2)
 							{
-								int tmp = x1;
-								x1 = x2;
-								x2 = tmp;
-								tmp = y1;
-								y1 = y2;
-								y2 = tmp;
+								inc = -1;
+								cmp = (a, b) => a >= b;
 							}
-							int deltax = x2 - x1;
+							else
+							{
+								inc = 1;
+								cmp = (a, b) => a <= b;
+							}
+							int deltax = Math.Abs(x2 - x1);
 							int deltay = Math.Abs(y2 - y1);
 							double error = 0;
-							double deltaerr = (double)deltay / (double)deltax;
-							int ystep;
+							double deltaerr = deltay / (double)deltax;
+							int ystep = y1 < y2 ? 1 : -1;
 							int y = y1;
-							if (y1 < y2)
-								ystep = 1;
-							else
-								ystep = -1;
-							for (int x = x1; x <= x2; x++)
+							for (int x = x1; cmp(x, x2); x += inc)
 							{
 								if (x >= 0 && x < 0x40 * gridsize && y >= 0 && y < 0x40 * gridsize)
 								{
@@ -970,7 +1110,10 @@ namespace S1SSEdit
 									else
 										s = new ObjLoc(obj, x / gridsize, y / gridsize);
 									if (!drawlist.Contains(s))
+									{
 										drawlist.Add(s);
+										AnimateBlock(ref obj);
+									}
 								}
 								error += deltaerr;
 								if (error >= 0.5)
@@ -980,13 +1123,22 @@ namespace S1SSEdit
 								}
 							}
 						}
+						switch (e.Button)
+						{
+							case MouseButtons.Left:
+								fgobj = obj;
+								break;
+							case MouseButtons.Right:
+								this.bgobj = obj;
+								break;
+						}
 					}
 					break;
 				case Tool.Fill:
 					return;
 				case Tool.Line:
 					drawlist = new List<ObjLoc>();
-					DrawLine(obj, firstloc.X / gridsize, firstloc.Y / gridsize, gridloc.X, gridloc.Y);
+					DrawLine(ref obj, firstloc.X / gridsize, firstloc.Y / gridsize, gridloc.X, gridloc.Y);
 					break;
 				case Tool.Rectangle:
 					{
@@ -1001,10 +1153,10 @@ namespace S1SSEdit
 									drawlist = new List<ObjLoc>();
 									int x = Math.Min(gridloc.X, firstloc.X / gridsize);
 									int y = Math.Min(gridloc.Y, firstloc.Y / gridsize);
-									DrawLine(obj, x, y, x + width - 1, y);
-									DrawLine(obj, x, y, x, y + height - 1);
-									DrawLine(obj, x, y + height - 1, x + width - 1, y + height - 1);
-									DrawLine(obj, x + width - 1, y, x + width - 1, y + height - 1);
+									DrawLine(ref obj, x, y, x + width - 1, y);
+									DrawLine(ref obj, x + width - 1, y, x + width - 1, y + height - 1);
+									DrawLine(ref obj, x + width - 1, y + height - 1, x, y + height - 1);
+									DrawLine(ref obj, x, y + height - 1, x, y);
 								}
 								break;
 							case ShapeMode.FillEdge:
@@ -1014,18 +1166,28 @@ namespace S1SSEdit
 									for (int x = 0; x < width; x++)
 									{
 										fillrect[x, 0] = obj;
-										fillrect[x, height - 1] = obj;
+										AnimateBlock(ref obj);
 									}
-									for (int y = 1; y < height - 1; y++)
+									for (int y = 1; y < height; y++)
+									{
+										fillrect[width - 1, y] = obj;
+										AnimateBlock(ref obj);
+									}
+									for (int x = width - 2; x >= 0; x--)
+									{
+										fillrect[x, height - 1] = obj;
+										AnimateBlock(ref obj);
+									}
+									for (int y = height - 2; y > 0; y--)
 									{
 										fillrect[0, y] = obj;
-										fillrect[width - 1, y] = obj;
+										AnimateBlock(ref obj);
 									}
 								}
-								if (bgsphere != 0)
+								if (bgobj != 0)
 									for (int y = 1; y < height - 1; y++)
 										for (int x = 1; x < width - 1; x++)
-											fillrect[x, y] = bgsphere;
+											fillrect[x, y] = bgobj;
 								break;
 							case ShapeMode.Fill:
 								fillrect = new byte[width, height];
@@ -1050,18 +1212,18 @@ namespace S1SSEdit
 									drawlist = new List<ObjLoc>();
 									int x = Math.Min(gridloc.X, firstloc.X / gridsize);
 									int y = Math.Min(gridloc.Y, firstloc.Y / gridsize);
-									DrawLine(obj, x + width / 2, y, x + width - 1, y + height / 2);
-									DrawLine(obj, x + width - 1, y + height / 2, x + width / 2, y + height - 1);
-									DrawLine(obj, x + width / 2, y + height - 1, x, y + height / 2);
-									DrawLine(obj, x, y + height / 2, x + width / 2, y);
+									DrawLine(ref obj, x + width / 2, y, x + width - 1, y + height / 2);
+									DrawLine(ref obj, x + width - 1, y + height / 2, x + width / 2, y + height - 1);
+									DrawLine(ref obj, x + width / 2, y + height - 1, x, y + height / 2);
+									DrawLine(ref obj, x, y + height / 2, x + width / 2, y);
 								}
 								break;
 							case ShapeMode.FillEdge:
 								drawrect = new byte?[width, height];
-								DrawLine(drawrect, obj, width / 2, 0, width - 1, height / 2);
-								DrawLine(drawrect, obj, width - 1, height / 2, width / 2, height - 1);
-								DrawLine(drawrect, obj, width / 2, height - 1, 0, height / 2);
-								DrawLine(drawrect, obj, 0, height / 2, width / 2, 0);
+								DrawLine(drawrect, ref obj, width / 2, 0, width - 1, height / 2);
+								DrawLine(drawrect, ref obj, width - 1, height / 2, width / 2, height - 1);
+								DrawLine(drawrect, ref obj, width / 2, height - 1, 0, height / 2);
+								DrawLine(drawrect, ref obj, 0, height / 2, width / 2, 0);
 								for (int y = 0; y < height; y++)
 								{
 									int minX = int.MaxValue;
@@ -1074,15 +1236,18 @@ namespace S1SSEdit
 										}
 									for (int x = minX + 1; x < maxX; x++)
 										if (!drawrect[x, y].HasValue)
-											drawrect[x, y] = bgsphere;
+											drawrect[x, y] = bgobj;
 								}
 								break;
 							case ShapeMode.Fill:
 								drawrect = new byte?[width, height];
-								DrawLine(drawrect, obj, width / 2, 0, width - 1, height / 2);
-								DrawLine(drawrect, obj, width - 1, height / 2, width / 2, height - 1);
-								DrawLine(drawrect, obj, width / 2, height - 1, 0, height / 2);
-								DrawLine(drawrect, obj, 0, height / 2, width / 2, 0);
+								bool anim = autoincrementAnimatedBlocksToolStripMenuItem.Checked;
+								autoincrementAnimatedBlocksToolStripMenuItem.Checked = false;
+								DrawLine(drawrect, ref obj, width / 2, 0, width - 1, height / 2);
+								DrawLine(drawrect, ref obj, width - 1, height / 2, width / 2, height - 1);
+								DrawLine(drawrect, ref obj, width / 2, height - 1, 0, height / 2);
+								DrawLine(drawrect, ref obj, 0, height / 2, width / 2, 0);
+								autoincrementAnimatedBlocksToolStripMenuItem.Checked = anim;
 								for (int y = 0; y < height; y++)
 								{
 									int minX = int.MaxValue;
@@ -1111,7 +1276,17 @@ namespace S1SSEdit
 						{
 							int x = (int)(Math.Cos(a) * (width / 2.01) + (width / 2.0));
 							int y = (int)(Math.Sin(a) * (height / 2.01) + (height / 2.0));
-							drawrect[x, y] = obj;
+							if (!drawrect[x, y].HasValue)
+							{
+								drawrect[x, y] = obj;
+								switch (ovalmode)
+								{
+									case ShapeMode.Edge:
+									case ShapeMode.FillEdge:
+										AnimateBlock(ref obj);
+										break;
+								}
+							}
 						}
 						switch (ovalmode)
 						{
@@ -1128,7 +1303,7 @@ namespace S1SSEdit
 										}
 									for (int x = minX + 1; x < maxX; x++)
 										if (!drawrect[x, y].HasValue)
-											drawrect[x, y] = bgsphere;
+											drawrect[x, y] = bgobj;
 								}
 								break;
 							case ShapeMode.Fill:
@@ -1148,6 +1323,15 @@ namespace S1SSEdit
 								break;
 						}
 					}
+					break;
+			}
+			switch (e.Button)
+			{
+				case MouseButtons.Left:
+					nextfgobj = obj;
+					break;
+				case MouseButtons.Right:
+					nextbgobj = obj;
 					break;
 			}
 			prevloc = loc;
@@ -1203,6 +1387,23 @@ namespace S1SSEdit
 					break;
 				case Tool.Oval:
 					DoAction(new OvalAction(drawrect, Math.Min(gridloc.X, firstloc.X / gridsize), Math.Min(gridloc.Y, firstloc.Y / gridsize)));
+					break;
+			}
+			switch (e.Button)
+			{
+				case MouseButtons.Left:
+					if (nextfgobj != fgobj)
+					{
+						fgobj = nextfgobj;
+						foreObjPicture.Image = LayoutDrawer.ObjectBmps[nextfgobj].ToBitmap(LayoutDrawer.Palette).To32bpp();
+					}
+					break;
+				case MouseButtons.Right:
+					if (nextbgobj != bgobj)
+					{
+						bgobj = nextbgobj;
+						backObjPicture.Image = LayoutDrawer.ObjectBmps[nextbgobj].ToBitmap(LayoutDrawer.Palette).To32bpp();
+					}
 					break;
 			}
 			DrawLayout();
@@ -1411,7 +1612,7 @@ namespace S1SSEdit
 
 		public bool Equals(ObjLoc other)
 		{
-			return Object == other.Object && X == other.X && Y == other.Y;
+			return X == other.X && Y == other.Y;
 		}
 
 		public override bool Equals(object obj)
@@ -1421,7 +1622,7 @@ namespace S1SSEdit
 
 		public override int GetHashCode()
 		{
-			return Object.GetHashCode() ^ X.GetHashCode() ^ Y.GetHashCode();
+			return X.GetHashCode() ^ Y.GetHashCode();
 		}
 
 		public override string ToString()
