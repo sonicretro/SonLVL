@@ -123,6 +123,16 @@ namespace S1SSEdit.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap FontHS {
+            get {
+                object obj = ResourceManager.GetObject("FontHS", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap GFX {
             get {
                 object obj = ResourceManager.GetObject("GFX", resourceCulture);

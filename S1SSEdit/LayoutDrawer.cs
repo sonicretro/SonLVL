@@ -90,6 +90,21 @@ namespace S1SSEdit
 			}
 		}
 
+		public static BitmapBits DrawLayout(byte?[,] layout, bool shownum)
+		{
+			int width = layout.GetLength(0);
+			int height = layout.GetLength(1);
+			BitmapBits layoutbmp = new BitmapBits(width * 24, height * 24);
+			for (int y = 0; y < height; y++)
+				for (int x = 0; x < width; x++)
+				{
+					byte? sp = layout[x, y];
+					if (sp.HasValue && sp.Value != 0 && ObjectBmps.ContainsKey(sp.Value))
+						layoutbmp.DrawBitmapComposited(shownum ? ObjectBmps[sp.Value] : ObjectBmpsNoNum[sp.Value], x * 24, y * 24);
+				}
+			return layoutbmp;
+		}
+
 		public static BitmapBits DrawLayout(byte[,] layout, bool shownum)
 		{
 			int width = layout.GetLength(0);

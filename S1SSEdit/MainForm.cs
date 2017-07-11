@@ -1389,23 +1389,24 @@ namespace S1SSEdit
 					DoAction(new OvalAction(drawrect, Math.Min(gridloc.X, firstloc.X / gridsize), Math.Min(gridloc.Y, firstloc.Y / gridsize)));
 					break;
 			}
-			switch (e.Button)
-			{
-				case MouseButtons.Left:
-					if (nextfgobj != fgobj)
-					{
-						fgobj = nextfgobj;
-						foreObjPicture.Image = LayoutDrawer.ObjectBmps[nextfgobj].ToBitmap(LayoutDrawer.Palette).To32bpp();
-					}
-					break;
-				case MouseButtons.Right:
-					if (nextbgobj != bgobj)
-					{
-						bgobj = nextbgobj;
-						backObjPicture.Image = LayoutDrawer.ObjectBmps[nextbgobj].ToBitmap(LayoutDrawer.Palette).To32bpp();
-					}
-					break;
-			}
+			if (tool != Tool.Select)
+				switch (e.Button)
+				{
+					case MouseButtons.Left:
+						if (nextfgobj != fgobj)
+						{
+							fgobj = nextfgobj;
+							foreObjPicture.Image = LayoutDrawer.ObjectBmps[nextfgobj].ToBitmap(LayoutDrawer.Palette).To32bpp();
+						}
+						break;
+					case MouseButtons.Right:
+						if (nextbgobj != bgobj)
+						{
+							bgobj = nextbgobj;
+							backObjPicture.Image = LayoutDrawer.ObjectBmps[nextbgobj].ToBitmap(LayoutDrawer.Palette).To32bpp();
+						}
+						break;
+				}
 			DrawLayout();
 		}
 
@@ -1467,6 +1468,16 @@ namespace S1SSEdit
 		private void importToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 
+		}
+
+		private void insertTextToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			using (InsertTextDialog dlg = new InsertTextDialog(fgobj, bgobj))
+				if (dlg.ShowDialog(this) == DialogResult.OK)
+				{
+					DoAction(new TextAction(dlg.Section, selection.Location));
+					DrawLayout();
+				}
 		}
 
 		private void flipHorizontallyToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1946,6 +1957,16 @@ namespace S1SSEdit
 		public PasteRepeatingAction(byte[,] objs, int x, int y) : base(objs, x, y) { }
 
 		public override string Name => "Paste Repeating";
+	}
+
+	[Serializable]
+	class TextAction : AreaAction
+	{
+		public TextAction(byte?[,] objs, Point position) : base(objs, position) { }
+
+		public TextAction(byte?[,] objs, int x, int y) : base(objs, x, y) { }
+
+		public override string Name => "Text";
 	}
 
 	[Serializable]
