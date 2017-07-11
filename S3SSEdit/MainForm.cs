@@ -1558,7 +1558,7 @@ namespace S3SSEdit
 
 		private void insertTextToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			using (InsertTextDialog dlg = new InsertTextDialog(fgsphere, bgsphere))
+			using (InsertTextDialog dlg = new InsertTextDialog(layout.Layout.Size, fgsphere, bgsphere))
 				if (dlg.ShowDialog(this) == DialogResult.OK)
 				{
 					DoAction(new TextAction(dlg.Section, selection.Location));
