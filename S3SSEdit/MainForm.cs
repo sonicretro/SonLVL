@@ -1556,6 +1556,16 @@ namespace S3SSEdit
 
 		}
 
+		private void insertTextToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			using (InsertTextDialog dlg = new InsertTextDialog(fgsphere, bgsphere))
+				if (dlg.ShowDialog(this) == DialogResult.OK)
+				{
+					DoAction(new TextAction(dlg.Section, selection.Location));
+					DrawLayout();
+				}
+		}
+
 		private void flipHorizontallyToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			Rectangle area = selection;
@@ -2160,6 +2170,16 @@ namespace S3SSEdit
 		public PasteRepeatingAction(SphereType[,] spheres, int x, int y) : base(spheres, x, y) { }
 
 		public override string Name => "Paste Repeating";
+	}
+
+	[Serializable]
+	class TextAction : AreaAction
+	{
+		public TextAction(SphereType?[,] spheres, Point position) : base(spheres, position) { }
+
+		public TextAction(SphereType?[,] spheres, int x, int y) : base(spheres, x, y) { }
+
+		public override string Name => "Text";
 	}
 
 	[Serializable]

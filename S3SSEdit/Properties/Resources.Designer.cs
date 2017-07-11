@@ -143,6 +143,16 @@ namespace S3SSEdit.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap FontHS {
+            get {
+                object obj = ResourceManager.GetObject("FontHS", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap north {
             get {
                 object obj = ResourceManager.GetObject("north", resourceCulture);

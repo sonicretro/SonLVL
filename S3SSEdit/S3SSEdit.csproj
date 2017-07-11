@@ -36,10 +36,18 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="InsertTextDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="InsertTextDialog.Designer.cs">
+      <DependentUpon>InsertTextDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="LayoutData.cs" />
     <Compile Include="LayoutDrawer.cs" />
     <Compile Include="LayoutSectionNameDialog.cs">
@@ -63,6 +71,9 @@
     <Compile Include="StageSelectDialog.Designer.cs">
       <DependentUpon>StageSelectDialog.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="InsertTextDialog.resx">
+      <DependentUpon>InsertTextDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="LayoutSectionNameDialog.resx">
       <DependentUpon>LayoutSectionNameDialog.cs</DependentUpon>
     </EmbeddedResource>
@@ -110,6 +121,7 @@
     <None Include="Resources\paste.png" />
     <None Include="Resources\rotatel.png" />
     <None Include="Resources\rotater.png" />
+    <None Include="Resources\FontHS.png" />
     <Content Include="Resources\yelsphere.ico" />
   </ItemGroup>
   <ItemGroup>

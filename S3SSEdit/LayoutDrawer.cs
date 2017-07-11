@@ -55,6 +55,25 @@ namespace S3SSEdit
 			return layoutbmp;
 		}
 
+		public static BitmapBits DrawLayout(SphereType?[,] layout, int gridsize)
+		{
+			int width = layout.GetLength(0);
+			int height = layout.GetLength(1);
+			int off = (gridsize - 24) / 2;
+			BitmapBits layoutbmp = new BitmapBits(width * gridsize, height * gridsize);
+			for (int y = -gridsize / 2; y < layoutbmp.Height; y += gridsize * 2)
+				for (int x = -gridsize / 2; x < layoutbmp.Width; x += gridsize * 2)
+					layoutbmp.FillRectangle(1, x, y, gridsize, gridsize);
+			for (int y = 0; y < height; y++)
+				for (int x = 0; x < width; x++)
+				{
+					SphereType? sp = layout[x, y];
+					if (sp.HasValue && sp.Value != SphereType.Empty)
+						layoutbmp.DrawBitmapComposited(SphereBmps[sp.Value], x * gridsize + off, y * gridsize + off);
+				}
+			return layoutbmp;
+		}
+
 		public static BitmapBits DrawLayout(LayoutData layout, int gridsize)
 		{
 			BitmapBits layoutbmp = DrawLayout(layout.Layout.ToArray(), gridsize);
