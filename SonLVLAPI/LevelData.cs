@@ -2560,7 +2560,7 @@ namespace SonicRetro.SonLVL.API
 			}
 		}
 
-		public static void LoadBitmap4BppIndexed(BitmapBits bmp, byte[] Bits, int Stride)
+		private static void LoadBitmap4BppIndexed(BitmapBits bmp, byte[] Bits, int Stride)
 		{
 			for (int y = 0; y < bmp.Height; y++)
 			{
