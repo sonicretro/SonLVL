@@ -393,7 +393,7 @@ namespace S3SSEdit
 		private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			if (project != null)
-				switch (MessageBox.Show(this, "Do you want to unload the current project?", "S3SSEdit", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2))
+				switch (MessageBox.Show(this, "Do you want to unload the current project?", "S1SSEdit", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2))
 				{
 					case DialogResult.Cancel:
 						return;
@@ -403,13 +403,14 @@ namespace S3SSEdit
 						layoutmode = LayoutMode.S3;
 						break;
 				}
-			using (SaveFileDialog dlg = new SaveFileDialog() { DefaultExt = "bin", Filter = "Binary Files|*.bin|All Files|*.*", FileName = filename ?? "New Stage.bin" })
+			using (SaveFileDialog dlg = new SaveFileDialog() { DefaultExt = "bin", Filter = "Binary Files|*.bin|All Files|*.*", FileName = stgname + ".bin" })
 				if (dlg.ShowDialog(this) == DialogResult.OK)
 					if (project != null)
 						File.WriteAllBytes(dlg.FileName, ((SSLayoutData)layout).GetBytes());
 					else
 					{
 						filename = dlg.FileName;
+						stgname = Path.GetFileNameWithoutExtension(filename);
 						SaveLayout();
 					}
 		}
