@@ -22,7 +22,7 @@ namespace S3SSEdit
 		Bitmap[] startbmps32 = new Bitmap[4];
 		List<LayoutSection> layoutSections = new List<LayoutSection>();
 		List<Bitmap> layoutSectionImages = new List<Bitmap>();
-		internal LayoutData layout = new SSLayoutData();
+		LayoutData layout = new SSLayoutData();
 		ProjectFile project = null;
 		LayoutMode layoutmode = LayoutMode.S3;
 		int stagenum = 0;
@@ -335,6 +335,11 @@ namespace S3SSEdit
 						}
 						break;
 					case LayoutMode.BSLayout:
+						{
+							byte[] tmp = Compression.Decompress(Path.Combine(path, project.SKStageSet), CompressionType.Kosinski);
+							((BSStageLayoutData)layout).WriteBytes(tmp);
+							Compression.Compress(tmp, Path.Combine(path, project.SKStageSet), CompressionType.Kosinski);
+						}
 						break;
 				}
 				if (saveUndoHistoryToolStripMenuItem.Checked)
