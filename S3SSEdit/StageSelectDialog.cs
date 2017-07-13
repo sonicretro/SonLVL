@@ -87,6 +87,7 @@ namespace S3SSEdit
 				bsStageControlPanel.Visible = true;
 				if (bsLevelNum.Value != 1)
 					bsLevelNum.Value = 1;
+				GenerateCode(0, false);
 				LevelChanged(0);
 			}
 		}
@@ -136,7 +137,60 @@ namespace S3SSEdit
 
 		private void bsLevelButton_Click(object sender, EventArgs e)
 		{
-			LevelChanged((uint)(bsLevelNum.Value - 1));
+			uint level = (uint)(bsLevelNum.Value - 1);
+			GenerateCode(level, false);
+			LevelChanged(level);
+		}
+
+		private void bsCode_TextChanged(object sender, EventArgs e)
+		{
+			if (bsCode.Text.Length < 12)
+				bsCode.Text = bsCode.Text.PadRight(12, '0');
+		}
+
+		private void bsCodeButton_Click(object sender, EventArgs e)
+		{
+			ulong input = ulong.Parse(bsCode.Text);
+			BWL d0 = (uint)(input >> 32);
+			BWL d1 = (uint)(input & uint.MaxValue);
+			d0.w ^= 0x55;
+			BWL d2 = d0.w;
+			d0.w &= 0x3F;
+			d1.l ^= 0xAAAAAAAA;
+			d1.RotateLeftL(6);
+			BWL d3 = d1.hw;
+			d3.w &= 0xF800;
+			d3.w >>= 5;
+			d3.w |= d0.w;
+			d3.w &= 0x7FF;
+			d1.l -= 0x1234567;
+			d2.w &= 0x40;
+			if (d2.w != 0)
+				d1.l += 0x7654321;
+			d1.l &= 0x7FFFFFF;
+			BWL d4 = d1.hw;
+			bool c = (d4.w & 1) == 1;
+			d4.w >>= 1;
+			if (c)
+				d4.w ^= 0x8810;
+			d4.w ^= d1.w;
+			c = (d4.w & 1) == 1;
+			d4.w >>= 1;
+			if (c)
+				d4.w ^= 0x8810;
+			d4.w &= 0x7FF;
+			if (d4.w != d3.w)
+			{
+				MessageBox.Show(this, "Invalid code.", "S3SSEdit", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				return;
+			}
+			if (d2.w != 0)
+			{
+				d1.l -= 0x7654321;
+				d1.l &= 0x7FFFFFF;
+			}
+			bsLevelNum.Value = d1.l + 1;
+			LevelChanged(d1.l);
 		}
 
 		readonly string[] headerconsoles = { "SEGA GENESIS    ", "SEGA MEGA DRIVE " };
@@ -196,11 +250,44 @@ namespace S3SSEdit
 					levelnum.b |= (byte)bsheader;
 					levelnum.l &= 0x7FFFFFF;
 					bsLevelNum.Value = levelnum.l + 1;
+					GenerateCode(levelnum.l, true);
 					LevelChanged(levelnum.l);
 				}
 			return;
 			fail:
 			MessageBox.Show(this, "File is not a Sega Mega Drive/Genesis ROM.", "S3SSEdit", MessageBoxButtons.OK, MessageBoxIcon.Error);
+		}
+
+		private void GenerateCode(uint levelnum, bool lockon)
+		{
+			BWL a2 = levelnum;
+			if (lockon)
+				a2.l += 0x7654321;
+			a2.l &= 0x7FFFFFF;
+			BWL d4 = a2.hw;
+			bool c = (d4.w & 1) == 1;
+			d4.w >>= 1;
+			if (c)
+				d4.w ^= 0x8810;
+			d4.w ^= a2.w;
+			c = (d4.w & 1) == 1;
+			d4.w >>= 1;
+			if (c)
+				d4.w ^= 0x8810;
+			BWL d0 = d4.w;
+			d0.w &= 0x3F;
+			if (lockon)
+				d0.w |= 0x40;
+			d0.w ^= 0x55;
+			BWL d1 = levelnum;
+			d1.l += 0x1234567;
+			d1.l &= 0x7FFFFFF;
+			d4.w <<= 5;
+			d4.w &= 0xF800;
+			d1.hw |= d4.w;
+			d1.RotateRightL(6);
+			d1.l ^= 0xAAAAAAAA;
+			bsCode.Text = (((ulong)d0.l << 32) | d1.l).ToString("000000000000");
 		}
 
 		private void LevelChanged(uint levelnum)

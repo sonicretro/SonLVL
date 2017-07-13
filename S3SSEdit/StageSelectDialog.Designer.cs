@@ -36,6 +36,7 @@
 			System.Windows.Forms.Panel panel2;
 			System.Windows.Forms.Label label3;
 			System.Windows.Forms.Label label2;
+			System.Windows.Forms.Label label5;
 			System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
 			this.categoryBSLayout = new System.Windows.Forms.RadioButton();
 			this.categoryBSChunk = new System.Windows.Forms.RadioButton();
@@ -53,6 +54,8 @@
 			this.bsLevelNum = new System.Windows.Forms.NumericUpDown();
 			this.bsROMButton = new System.Windows.Forms.Button();
 			this.bsChunksButton = new System.Windows.Forms.Button();
+			this.bsCode = new System.Windows.Forms.MaskedTextBox();
+			this.bsCodeButton = new System.Windows.Forms.Button();
 			this.stageList = new System.Windows.Forms.ListBox();
 			this.chunkSelector = new System.Windows.Forms.NumericUpDown();
 			this.pictureBox1 = new System.Windows.Forms.PictureBox();
@@ -67,6 +70,7 @@
 			panel2 = new System.Windows.Forms.Panel();
 			label3 = new System.Windows.Forms.Label();
 			label2 = new System.Windows.Forms.Label();
+			label5 = new System.Windows.Forms.Label();
 			tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
 			tableLayoutPanel1.SuspendLayout();
 			groupBox1.SuspendLayout();
@@ -195,7 +199,7 @@
 			this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
 			this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
 			this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
-			this.tableLayoutPanel3.Size = new System.Drawing.Size(190, 267);
+			this.tableLayoutPanel3.Size = new System.Drawing.Size(190, 296);
 			this.tableLayoutPanel3.TabIndex = 1;
 			// 
 			// bsStageControlPanel
@@ -213,19 +217,23 @@
 			this.bsStageControlPanel.Controls.Add(panel2, 1, 0);
 			this.bsStageControlPanel.Controls.Add(this.bsStageNum, 1, 1);
 			this.bsStageControlPanel.Controls.Add(this.bsLevelNum, 1, 2);
-			this.bsStageControlPanel.Controls.Add(label3, 0, 3);
+			this.bsStageControlPanel.Controls.Add(label3, 0, 4);
 			this.bsStageControlPanel.Controls.Add(label2, 0, 2);
-			this.bsStageControlPanel.Controls.Add(this.bsROMButton, 1, 3);
+			this.bsStageControlPanel.Controls.Add(this.bsROMButton, 1, 4);
 			this.bsStageControlPanel.Controls.Add(this.bsChunksButton, 2, 0);
+			this.bsStageControlPanel.Controls.Add(label5, 0, 3);
+			this.bsStageControlPanel.Controls.Add(this.bsCode, 1, 3);
+			this.bsStageControlPanel.Controls.Add(this.bsCodeButton, 2, 3);
 			this.bsStageControlPanel.Location = new System.Drawing.Point(0, 128);
 			this.bsStageControlPanel.Margin = new System.Windows.Forms.Padding(0);
 			this.bsStageControlPanel.Name = "bsStageControlPanel";
-			this.bsStageControlPanel.RowCount = 4;
+			this.bsStageControlPanel.RowCount = 5;
 			this.bsStageControlPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
 			this.bsStageControlPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
 			this.bsStageControlPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
 			this.bsStageControlPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-			this.bsStageControlPanel.Size = new System.Drawing.Size(190, 139);
+			this.bsStageControlPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+			this.bsStageControlPanel.Size = new System.Drawing.Size(190, 168);
 			this.bsStageControlPanel.TabIndex = 2;
 			this.bsStageControlPanel.Visible = false;
 			// 
@@ -371,7 +379,7 @@
 			// 
 			label3.Anchor = System.Windows.Forms.AnchorStyles.Left;
 			label3.AutoSize = true;
-			label3.Location = new System.Drawing.Point(3, 118);
+			label3.Location = new System.Drawing.Point(3, 147);
 			label3.Name = "label3";
 			label3.Size = new System.Drawing.Size(35, 13);
 			label3.TabIndex = 6;
@@ -394,7 +402,7 @@
 			this.bsROMButton.Anchor = System.Windows.Forms.AnchorStyles.Left;
 			this.bsROMButton.AutoSize = true;
 			this.bsROMButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-			this.bsROMButton.Location = new System.Drawing.Point(55, 113);
+			this.bsROMButton.Location = new System.Drawing.Point(55, 142);
 			this.bsROMButton.Name = "bsROMButton";
 			this.bsROMButton.Size = new System.Drawing.Size(75, 23);
 			this.bsROMButton.TabIndex = 5;
@@ -414,6 +422,46 @@
 			this.bsChunksButton.Text = "Go";
 			this.bsChunksButton.UseVisualStyleBackColor = true;
 			this.bsChunksButton.Click += new System.EventHandler(this.bsChunksButton_Click);
+			// 
+			// label5
+			// 
+			label5.Anchor = System.Windows.Forms.AnchorStyles.Left;
+			label5.AutoSize = true;
+			label5.Location = new System.Drawing.Point(3, 118);
+			label5.Name = "label5";
+			label5.Size = new System.Drawing.Size(35, 13);
+			label5.TabIndex = 11;
+			label5.Text = "Code:";
+			label5.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			// 
+			// bsCode
+			// 
+			this.bsCode.AllowPromptAsInput = false;
+			this.bsCode.Anchor = System.Windows.Forms.AnchorStyles.Left;
+			this.bsCode.AsciiOnly = true;
+			this.bsCode.InsertKeyMode = System.Windows.Forms.InsertKeyMode.Overwrite;
+			this.bsCode.Location = new System.Drawing.Point(55, 114);
+			this.bsCode.Mask = "0000 0000 0000";
+			this.bsCode.Name = "bsCode";
+			this.bsCode.ResetOnPrompt = false;
+			this.bsCode.ResetOnSpace = false;
+			this.bsCode.Size = new System.Drawing.Size(90, 20);
+			this.bsCode.TabIndex = 12;
+			this.bsCode.TextMaskFormat = System.Windows.Forms.MaskFormat.ExcludePromptAndLiterals;
+			this.bsCode.TextChanged += new System.EventHandler(this.bsCode_TextChanged);
+			// 
+			// bsCodeButton
+			// 
+			this.bsCodeButton.Anchor = System.Windows.Forms.AnchorStyles.Left;
+			this.bsCodeButton.AutoSize = true;
+			this.bsCodeButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+			this.bsCodeButton.Location = new System.Drawing.Point(156, 113);
+			this.bsCodeButton.Name = "bsCodeButton";
+			this.bsCodeButton.Size = new System.Drawing.Size(31, 23);
+			this.bsCodeButton.TabIndex = 13;
+			this.bsCodeButton.Text = "Go";
+			this.bsCodeButton.UseVisualStyleBackColor = true;
+			this.bsCodeButton.Click += new System.EventHandler(this.bsCodeButton_Click);
 			// 
 			// stageList
 			// 
@@ -577,5 +625,7 @@
 		private System.Windows.Forms.Button bsChunksButton;
 		private System.Windows.Forms.Button bsLevelButton;
 		private System.Windows.Forms.Button bsStageButton;
+		private System.Windows.Forms.MaskedTextBox bsCode;
+		private System.Windows.Forms.Button bsCodeButton;
 	}
 }
