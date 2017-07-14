@@ -22,6 +22,7 @@ namespace S3SSEdit
 		Bitmap[] startbmps32 = new Bitmap[4];
 		List<LayoutSection> layoutSections = new List<LayoutSection>();
 		List<Bitmap> layoutSectionImages = new List<Bitmap>();
+		Settings settings = new Settings();
 		LayoutData layout = new SSLayoutData();
 		ProjectFile project = null;
 		LayoutMode layoutmode = LayoutMode.S3;
@@ -70,6 +71,20 @@ namespace S3SSEdit
 				layoutSectionImages.Add(MakeLayoutSectionImage(sec));
 			}
 			layoutSectionListBox.EndUpdate();
+			if (File.Exists("S3SSEdit.ini"))
+				settings = Settings.Load("S3SSEdit.ini");
+			if (settings.RecentFiles.Count > 0)
+			{
+				List<string> mru = new List<string>();
+				foreach (string item in settings.RecentFiles)
+					if (File.Exists(item))
+					{
+						mru.Add(item);
+						recentFilesToolStripMenuItem.DropDownItems.Add(item.Replace("&", "&&"));
+					}
+				settings.RecentFiles = mru;
+				recentFilesToolStripMenuItem.Enabled = mru.Count > 0;
+			}
 			layoutgfx = layoutPanel.CreateGraphics();
 			layoutgfx.SetOptions();
 		}
@@ -94,11 +109,13 @@ namespace S3SSEdit
 				{
 					case DialogResult.Cancel:
 						e.Cancel = true;
-						break;
+						return;
 					case DialogResult.Yes:
 						saveToolStripMenuItem_Click(this, EventArgs.Empty);
 						break;
 				}
+			settings.SaveUndoHistory = saveUndoHistoryToolStripMenuItem.Checked;
+			settings.Save("S3SSEdit.ini");
 		}
 
 		private void UpdateText()
@@ -117,7 +134,7 @@ namespace S3SSEdit
 				layout = new SSLayoutData();
 				filename = null;
 				stgname = "New Stage";
-				LoadFile();
+				LoadStage();
 			}
 		}
 
@@ -136,28 +153,53 @@ namespace S3SSEdit
 				if (dlg.ShowDialog(this) == DialogResult.OK)
 				{
 					filename = dlg.FileName;
-					if (Path.GetExtension(filename).Equals(".ini", StringComparison.OrdinalIgnoreCase))
-					{
-						project = ProjectFile.Load(filename);
-						changeStageToolStripMenuItem.Enabled = true;
-						if (stageseldlg != null)
-							stageseldlg.Dispose();
-						stageseldlg = new StageSelectDialog(filename, project);
-						if (!SelectProjectStage())
-						{
-							layout = new SSLayoutData();
-							filename = null;
-							stgname = "New Stage";
-							LoadFile();
-						}
-					}
-					else
-					{
-						layout = new SSLayoutData(File.ReadAllBytes(filename));
-						stgname = Path.GetFileNameWithoutExtension(filename);
-						LoadFile();
-					}
+					LoadFile();
 				}
+		}
+
+		private void LoadFile()
+		{
+			if (Path.GetExtension(filename).Equals(".ini", StringComparison.OrdinalIgnoreCase))
+			{
+				project = ProjectFile.Load(filename);
+				changeStageToolStripMenuItem.Enabled = true;
+				if (stageseldlg != null)
+					stageseldlg.Dispose();
+				stageseldlg = new StageSelectDialog(filename, project);
+				if (!SelectProjectStage())
+				{
+					layout = new SSLayoutData();
+					filename = null;
+					stgname = "New Stage";
+					LoadStage();
+				}
+				else
+					AddRecentFile();
+			}
+			else
+			{
+				layout = new SSLayoutData(File.ReadAllBytes(filename));
+				stgname = Path.GetFileNameWithoutExtension(filename);
+				AddRecentFile();
+				LoadStage();
+			}
+		}
+
+		private void AddRecentFile()
+		{
+			if (settings.RecentFiles.Contains(filename))
+			{
+				recentFilesToolStripMenuItem.DropDownItems.RemoveAt(settings.RecentFiles.IndexOf(filename));
+				settings.RecentFiles.Remove(filename);
+			}
+			settings.RecentFiles.Insert(0, filename);
+			recentFilesToolStripMenuItem.DropDownItems.Insert(0, new ToolStripMenuItem(filename.Replace("&", "&&")));
+			while (settings.RecentFiles.Count > 10)
+			{
+				settings.RecentFiles.RemoveAt(10);
+				recentFilesToolStripMenuItem.DropDownItems.RemoveAt(10);
+			}
+			recentFilesToolStripMenuItem.Enabled = true;
 		}
 
 		private bool SelectProjectStage()
@@ -236,7 +278,7 @@ namespace S3SSEdit
 			return true;
 		}
 
-		private void LoadFile()
+		private void LoadStage()
 		{
 			changeStageToolStripMenuItem.Enabled = false;
 			project = null;
@@ -411,6 +453,7 @@ namespace S3SSEdit
 					{
 						filename = dlg.FileName;
 						stgname = Path.GetFileNameWithoutExtension(filename);
+						AddRecentFile();
 						SaveLayout();
 					}
 		}
@@ -421,6 +464,12 @@ namespace S3SSEdit
 				if (dlg.ShowDialog(this) == DialogResult.OK)
 					using (Bitmap bmp = LayoutDrawer.DrawLayout(layout, gridsize).ToBitmap(LayoutDrawer.Palette))
 						bmp.Save(dlg.FileName);
+		}
+
+		private void recentFilesToolStripMenuItem_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+		{
+			filename = settings.RecentFiles[recentFilesToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem)];
+			LoadFile();
 		}
 
 		private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1736,6 +1785,25 @@ namespace S3SSEdit
 	enum Tool { Select, Pencil, Fill, Line, Rectangle, Diamond, Oval, Start }
 
 	enum ShapeMode { Edge, FillEdge, Fill }
+
+	public class Settings
+	{
+		[IniName("RecentFile")]
+		[IniCollection(IniCollectionMode.NoSquareBrackets, StartIndex = 1)]
+		public List<string> RecentFiles { get; set; } = new List<string>();
+		[IniAlwaysInclude]
+		public bool SaveUndoHistory { get; set; } = true;
+
+		public static Settings Load(string filename)
+		{
+			return IniSerializer.Deserialize<Settings>(filename);
+		}
+
+		public void Save(string filename)
+		{
+			IniSerializer.Serialize(this, filename);
+		}
+	}
 
 	[Serializable]
 	public class LayoutSection
