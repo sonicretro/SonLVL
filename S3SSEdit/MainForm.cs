@@ -754,6 +754,11 @@ namespace S3SSEdit
 								if (drawrect[x, y].HasValue)
 									tmplayout.Layout[(x + gridloc.X) & (layout.Layout.Size - 1), (y + gridloc.Y) & (layout.Layout.Size - 1)] = drawrect[x, y].Value;
 						break;
+					case Tool.Start:
+						SSLayoutData ss = (SSLayoutData)tmplayout;
+						ss.StartX = (ushort)(startloc.X * 0x100);
+						ss.StartY = (ushort)(startloc.Y * 0x100);
+						break;
 				}
 			BitmapBits layoutbmp = LayoutDrawer.DrawLayout(tmplayout, gridsize);
 			using (Bitmap bmp = layoutbmp.ToBitmap(LayoutDrawer.Palette).To32bpp())
