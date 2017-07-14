@@ -8,7 +8,7 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>S3SSEdit</RootNamespace>
     <AssemblyName>S3SSEdit</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
