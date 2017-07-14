@@ -23,6 +23,7 @@ namespace S1SSEdit
 		Bitmap startposbmp;
 		List<LayoutSection> layoutSections = new List<LayoutSection>();
 		List<Bitmap> layoutSectionImages = new List<Bitmap>();
+		Settings settings = new Settings();
 		LayoutData layout = new LayoutData();
 		Dictionary<string, ProjectStage> project = null;
 		string stgname = "New Stage";
@@ -79,6 +80,20 @@ namespace S1SSEdit
 				layoutSectionImages.Add(MakeLayoutSectionImage(sec));
 			}
 			layoutSectionListBox.EndUpdate();
+			if (File.Exists("S1SSEdit.ini"))
+				settings = Settings.Load("S1SSEdit.ini");
+			if (settings.RecentFiles.Count > 0)
+			{
+				List<string> mru = new List<string>();
+				foreach (string item in settings.RecentFiles)
+					if (File.Exists(item))
+					{
+						mru.Add(item);
+						recentFilesToolStripMenuItem.DropDownItems.Add(item.Replace("&", "&&"));
+					}
+				settings.RecentFiles = mru;
+				recentFilesToolStripMenuItem.Enabled = mru.Count > 0;
+			}
 			layoutgfx = layoutPanel.CreateGraphics();
 			layoutgfx.SetOptions();
 		}
@@ -102,11 +117,16 @@ namespace S1SSEdit
 				{
 					case DialogResult.Cancel:
 						e.Cancel = true;
-						break;
+						return;
 					case DialogResult.Yes:
 						saveToolStripMenuItem_Click(this, EventArgs.Empty);
 						break;
 				}
+			settings.SaveUndoHistory = saveUndoHistoryToolStripMenuItem.Checked;
+			settings.AutoIncrementAnimatedBlocks = autoincrementAnimatedBlocksToolStripMenuItem.Checked;
+			settings.ShowNumbersOnWalls = showNumbersOnWallsToolStripMenuItem.Checked;
+			settings.ShowGrid = showGridToolStripMenuItem.Checked;
+			settings.Save("S1SSEdit.ini");
 		}
 
 		private void UpdateText()
@@ -125,7 +145,7 @@ namespace S1SSEdit
 				layout = new LayoutData();
 				filename = null;
 				stgname = "New Stage";
-				LoadFile();
+				LoadStage();
 			}
 		}
 
@@ -144,28 +164,53 @@ namespace S1SSEdit
 				if (dlg.ShowDialog(this) == DialogResult.OK)
 				{
 					filename = dlg.FileName;
-					if (Path.GetExtension(filename).Equals(".ini", StringComparison.OrdinalIgnoreCase))
-					{
-						project = IniSerializer.Deserialize<Dictionary<string, ProjectStage>>(filename);
-						changeStageToolStripMenuItem.Enabled = true;
-						if (stageseldlg != null)
-							stageseldlg.Dispose();
-						stageseldlg = new StageSelectDialog(filename, project);
-						if (!SelectProjectStage())
-						{
-							layout = new LayoutData();
-							filename = null;
-							stgname = "New Stage";
-							LoadFile();
-						}
-					}
-					else
-					{
-						layout = new LayoutData(Compression.Decompress(filename, CompressionType.Enigma));
-						stgname = Path.GetFileNameWithoutExtension(filename);
-						LoadFile();
-					}
+					LoadFile();
 				}
+		}
+
+		private void LoadFile()
+		{
+			if (Path.GetExtension(filename).Equals(".ini", StringComparison.OrdinalIgnoreCase))
+			{
+				project = IniSerializer.Deserialize<Dictionary<string, ProjectStage>>(filename);
+				changeStageToolStripMenuItem.Enabled = true;
+				if (stageseldlg != null)
+					stageseldlg.Dispose();
+				stageseldlg = new StageSelectDialog(filename, project);
+				if (!SelectProjectStage())
+				{
+					layout = new LayoutData();
+					filename = null;
+					stgname = "New Stage";
+					LoadStage();
+				}
+				else
+					AddRecentFile();
+			}
+			else
+			{
+				layout = new LayoutData(Compression.Decompress(filename, CompressionType.Enigma));
+				stgname = Path.GetFileNameWithoutExtension(filename);
+				AddRecentFile();
+				LoadStage();
+			}
+		}
+
+		private void AddRecentFile()
+		{
+			if (settings.RecentFiles.Contains(filename))
+			{
+				recentFilesToolStripMenuItem.DropDownItems.RemoveAt(settings.RecentFiles.IndexOf(filename));
+				settings.RecentFiles.Remove(filename);
+			}
+			settings.RecentFiles.Insert(0, filename);
+			recentFilesToolStripMenuItem.DropDownItems.Insert(0, new ToolStripMenuItem(filename.Replace("&", "&&")));
+			while (settings.RecentFiles.Count > 10)
+			{
+				settings.RecentFiles.RemoveAt(10);
+				recentFilesToolStripMenuItem.DropDownItems.RemoveAt(10);
+			}
+			recentFilesToolStripMenuItem.Enabled = true;
 		}
 
 		private bool SelectProjectStage()
@@ -211,7 +256,7 @@ namespace S1SSEdit
 			return true;
 		}
 
-		private void LoadFile()
+		private void LoadStage()
 		{
 			changeStageToolStripMenuItem.Enabled = false;
 			project = null;
@@ -315,6 +360,7 @@ namespace S1SSEdit
 					{
 						filename = dlg.FileName;
 						stgname = Path.GetFileNameWithoutExtension(filename);
+						AddRecentFile();
 						SaveLayout();
 					}
 		}
@@ -325,6 +371,12 @@ namespace S1SSEdit
 				if (dlg.ShowDialog(this) == DialogResult.OK)
 					using (Bitmap bmp = LayoutDrawer.DrawLayout(layout, showNumbersOnWallsToolStripMenuItem.Checked).ToBitmap(LayoutDrawer.Palette))
 						bmp.Save(dlg.FileName);
+		}
+
+		private void recentFilesToolStripMenuItem_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+		{
+			filename = settings.RecentFiles[recentFilesToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem)];
+			LoadFile();
 		}
 
 		private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1718,6 +1770,31 @@ namespace S1SSEdit
 	enum Tool { Select, Pencil, Fill, Line, Rectangle, Diamond, Oval, Start }
 
 	enum ShapeMode { Edge, FillEdge, Fill }
+
+	public class Settings
+	{
+		[IniName("RecentFile")]
+		[IniCollection(IniCollectionMode.NoSquareBrackets, StartIndex = 1)]
+		public List<string> RecentFiles { get; set; } = new List<string>();
+		[IniAlwaysInclude]
+		public bool SaveUndoHistory { get; set; } = true;
+		[IniAlwaysInclude]
+		public bool AutoIncrementAnimatedBlocks { get; set; } = true;
+		[IniAlwaysInclude]
+		public bool ShowNumbersOnWalls { get; set; } = true;
+		[IniAlwaysInclude]
+		public bool ShowGrid { get; set; } = false;
+
+		public static Settings Load(string filename)
+		{
+			return IniSerializer.Deserialize<Settings>(filename);
+		}
+
+		public void Save(string filename)
+		{
+			IniSerializer.Serialize(this, filename);
+		}
+	}
 
 	public class ProjectStage
 	{
