@@ -730,6 +730,12 @@ namespace SonicRetro.SonLVL.API
 			y = item.Y;
 		}
 
+		public Position(byte[] bytes)
+		{
+			X = ByteConverter.ToUInt16(bytes, 0);
+			Y = ByteConverter.ToUInt16(bytes, 2);
+		}
+
 		public Position(string data)
 		{
 			string[] a = data.Split(',');
@@ -746,6 +752,14 @@ namespace SonicRetro.SonLVL.API
 		public override string ToString()
 		{
 			return X.ToString("X4") + ", " + Y.ToString("X4");
+		}
+
+		public byte[] GetBytes()
+		{
+			byte[] bytes = new byte[4];
+			ByteConverter.GetBytes(X).CopyTo(bytes, 0);
+			ByteConverter.GetBytes(Y).CopyTo(bytes, 2);
+			return bytes;
 		}
 
 		public ushort[] ToArray()

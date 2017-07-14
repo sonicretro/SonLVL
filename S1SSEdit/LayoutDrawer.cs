@@ -10,6 +10,7 @@ namespace S1SSEdit
 		public static ColorPalette Palette { get; private set; }
 		public static Dictionary<byte, BitmapBits> ObjectBmps { get; private set; } = new Dictionary<byte, BitmapBits>();
 		public static Dictionary<byte, BitmapBits> ObjectBmpsNoNum { get; private set; }
+		public static BitmapBits StartPosBmp { get; private set; }
 
 		public static void Init()
 		{
@@ -88,6 +89,7 @@ namespace S1SSEdit
 				for (int i = 1; i < 9; i++)
 					ObjectBmpsNoNum[(byte)(p * 9 + 1 + i)] = tmp;
 			}
+			StartPosBmp = new BitmapBits(Properties.Resources.StartPos);
 		}
 
 		public static BitmapBits DrawLayout(byte?[,] layout, bool shownum)
@@ -117,6 +119,14 @@ namespace S1SSEdit
 					if (sp != 0 && ObjectBmps.ContainsKey(sp))
 						layoutbmp.DrawBitmapComposited(shownum ? ObjectBmps[sp] : ObjectBmpsNoNum[sp], x * 24, y * 24);
 				}
+			return layoutbmp;
+		}
+
+		public static BitmapBits DrawLayout(LayoutData layout, bool shownum)
+		{
+			BitmapBits layoutbmp = DrawLayout(layout.Layout, shownum);
+			if (layout.StartPosition != null)
+				layoutbmp.DrawBitmapComposited(StartPosBmp, layout.StartPosition.X - 736 - (StartPosBmp.Width / 2), layout.StartPosition.Y - 688 - (StartPosBmp.Height / 2));
 			return layoutbmp;
 		}
 	}

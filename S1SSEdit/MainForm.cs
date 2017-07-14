@@ -20,10 +20,14 @@ namespace S1SSEdit
 
 		const int gridsize = 24;
 		List<byte> objids = new List<byte>();
+		Bitmap startposbmp;
 		List<LayoutSection> layoutSections = new List<LayoutSection>();
 		List<Bitmap> layoutSectionImages = new List<Bitmap>();
-		internal byte[,] layout = new byte[0x40, 0x40];
+		LayoutData layout = new LayoutData();
+		Dictionary<string, ProjectStage> project = null;
+		string stgname = "New Stage";
 		string filename = null;
+		StageSelectDialog stageseldlg;
 		byte fgobj = 1;
 		byte bgobj = 0;
 		byte nextfgobj, nextbgobj;
@@ -42,6 +46,7 @@ namespace S1SSEdit
 		List<ObjLoc> drawlist;
 		byte?[,] drawrect;
 		byte[,] fillrect;
+		Point startloc;
 
 		private void MainForm_Load(object sender, EventArgs e)
 		{
@@ -63,6 +68,7 @@ namespace S1SSEdit
 			objectPalette.BackgroundImage = bmp.ToBitmap(LayoutDrawer.Palette);
 			foreObjPicture.Image = LayoutDrawer.ObjectBmps[1].ToBitmap(LayoutDrawer.Palette).To32bpp();
 			backObjPicture.Image = new Bitmap(24, 24);
+			startposbmp = LayoutDrawer.StartPosBmp.ToBitmap(LayoutDrawer.Palette).To32bpp();
 			if (File.Exists("LayoutSections.sls"))
 				layoutSections = DeserializeCompressed<List<LayoutSection>>("LayoutSections.sls");
 			layoutSectionListBox.Items.Clear();
@@ -106,10 +112,7 @@ namespace S1SSEdit
 		private void UpdateText()
 		{
 			StringBuilder sb = new StringBuilder("S1SSEdit - ");
-			if (filename == null)
-				sb.Append("New Stage");
-			else
-				sb.Append(Path.GetFileName(filename));
+			sb.Append(stgname);
 			if (undoList.Count != lastSaveUndoCount)
 				sb.Append(" *");
 			Text = sb.ToString();
@@ -117,10 +120,11 @@ namespace S1SSEdit
 
 		private void newToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			if (MessageBox.Show(this, $"Unload the current stage and start a new one?", "S1SSEdit", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.OK)
+			if (MessageBox.Show(this, $"Unload the current {(project != null ? "project" : "stage")} and start a new {(project != null ? "stage" : "one")}?", "S1SSEdit", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.OK)
 			{
-				layout = new byte[0x40, 0x40];
+				layout = new LayoutData();
 				filename = null;
+				stgname = "New Stage";
 				LoadFile();
 			}
 		}
@@ -136,22 +140,84 @@ namespace S1SSEdit
 						saveToolStripMenuItem_Click(this, EventArgs.Empty);
 						break;
 				}
-			using (OpenFileDialog dlg = new OpenFileDialog() { DefaultExt = "bin", Filter = "Binary Files|*.bin|All Files|*.*" })
+			using (OpenFileDialog dlg = new OpenFileDialog() { DefaultExt = "bin", Filter = "All Supported Files|*.bin;*.ini|Binary Files|*.bin|Project Files|*.ini|All Files|*.*" })
 				if (dlg.ShowDialog(this) == DialogResult.OK)
 				{
 					filename = dlg.FileName;
-					layout = new byte[0x40, 0x40];
-					byte[] tmp = Compression.Decompress(filename, CompressionType.Enigma);
-					int i = 0;
-					for (int y = 0; y < 0x40; y++)
-						for (int x = 0; x < 0x40; x++)
-							layout[x, y] = tmp[i++];
-					LoadFile();
+					if (Path.GetExtension(filename).Equals(".ini", StringComparison.OrdinalIgnoreCase))
+					{
+						project = IniSerializer.Deserialize<Dictionary<string, ProjectStage>>(filename);
+						changeStageToolStripMenuItem.Enabled = true;
+						if (stageseldlg != null)
+							stageseldlg.Dispose();
+						stageseldlg = new StageSelectDialog(filename, project);
+						if (!SelectProjectStage())
+						{
+							layout = new LayoutData();
+							filename = null;
+							stgname = "New Stage";
+							LoadFile();
+						}
+					}
+					else
+					{
+						layout = new LayoutData(Compression.Decompress(filename, CompressionType.Enigma));
+						stgname = Path.GetFileNameWithoutExtension(filename);
+						LoadFile();
+					}
 				}
+		}
+
+		private bool SelectProjectStage()
+		{
+			if (stageseldlg.ShowDialog(this) != DialogResult.OK)
+				return false;
+			string path = Path.GetDirectoryName(filename);
+			stgname = stageseldlg.StageName;
+			layout = project[stgname].LoadStage(path);
+			if (layout.StartPosition != null)
+			{
+				startButton.Visible = true;
+				startloc = new Point(layout.StartPosition.X, layout.StartPosition.Y);
+			}
+			else
+			{
+				startButton.Visible = false;
+				if (startButton.Checked)
+					pencilButton.Checked = true;
+			}
+			lastSaveUndoCount = 0;
+			undoList.Clear();
+			redoList.Clear();
+			undoToolStripMenuItem.DropDownItems.Clear();
+			undoToolStripMenuItem.Enabled = false;
+			redoToolStripMenuItem.DropDownItems.Clear();
+			redoToolStripMenuItem.Enabled = false;
+			if (saveUndoHistoryToolStripMenuItem.Checked && File.Exists(Path.ChangeExtension(filename, ".undo")))
+			{
+				Dictionary<string, Stack<Action>> undodict = DeserializeCompressed<Dictionary<string, Stack<Action>>>(Path.ChangeExtension(filename, ".undo"));
+				if (undodict.ContainsKey(stgname))
+				{
+					undoList = undodict[stgname];
+					foreach (Action a in undoList)
+						undoToolStripMenuItem.DropDownItems.Add(a.Name);
+					lastSaveUndoCount = undoList.Count;
+					if (undoList.Count > 0)
+						undoToolStripMenuItem.Enabled = true;
+				}
+			}
+			UpdateText();
+			DrawLayout();
+			return true;
 		}
 
 		private void LoadFile()
 		{
+			changeStageToolStripMenuItem.Enabled = false;
+			project = null;
+			startButton.Visible = false;
+			if (startButton.Checked)
+				pencilButton.Checked = true;
 			lastSaveUndoCount = 0;
 			undoList.Clear();
 			redoList.Clear();
@@ -172,6 +238,11 @@ namespace S1SSEdit
 			DrawLayout();
 		}
 
+		private void changeStageToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			SelectProjectStage();
+		}
+
 		private void saveToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			if (filename == null)
@@ -182,19 +253,37 @@ namespace S1SSEdit
 
 		private void SaveLayout()
 		{
-			byte[] tmp = new byte[0x40 * 0x40];
-			int i = 0;
-			for (int y = 0; y < 0x40; y++)
-				for (int x = 0; x < 0x40; x++)
-					tmp[i++] = layout[x, y];
-			Compression.Compress(tmp, filename, CompressionType.Enigma);
-			if (saveUndoHistoryToolStripMenuItem.Checked)
+			if (project != null)
 			{
-				string fn = Path.ChangeExtension(filename, ".undo");
-				if (undoList.Count > 0)
-					SerializeCompressed(fn, undoList);
-				else if (File.Exists(fn))
-					File.Delete(fn);
+				string path = Path.GetDirectoryName(filename);
+				project[stgname].SaveStage(path, layout);
+				if (saveUndoHistoryToolStripMenuItem.Checked)
+				{
+					string fn = Path.ChangeExtension(filename, ".undo");
+					Dictionary<string, Stack<Action>> undodict = new Dictionary<string, Stack<Action>>();
+					if (File.Exists(fn))
+						undodict = DeserializeCompressed<Dictionary<string, Stack<Action>>>(fn);
+					if (undoList.Count > 0)
+						undodict[stgname] = undoList;
+					else if (undodict.ContainsKey(stgname))
+						undodict.Remove(stgname);
+					if (undodict.Count > 0)
+						SerializeCompressed(fn, undodict);
+					else if (File.Exists(fn))
+						File.Delete(fn);
+				}
+			}
+			else
+			{
+				Compression.Compress(layout.GetBytes(), filename, CompressionType.Enigma);
+				if (saveUndoHistoryToolStripMenuItem.Checked)
+				{
+					string fn = Path.ChangeExtension(filename, ".undo");
+					if (undoList.Count > 0)
+						SerializeCompressed(fn, undoList);
+					else if (File.Exists(fn))
+						File.Delete(fn);
+				}
 			}
 			lastSaveUndoCount = undoList.Count;
 			UpdateText();
@@ -209,12 +298,25 @@ namespace S1SSEdit
 
 		private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			using (SaveFileDialog dlg = new SaveFileDialog() { DefaultExt = "bin", Filter = "Binary Files|*.bin|All Files|*.*", FileName = filename ?? "New Stage.bin" })
-				if (dlg.ShowDialog(this) == DialogResult.OK)
+			if (project != null)
+				switch (MessageBox.Show(this, "Do you want to unload the current project?", "S3SSEdit", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2))
 				{
-					filename = dlg.FileName;
-					SaveLayout();
+					case DialogResult.Cancel:
+						return;
+					case DialogResult.Yes:
+						project = null;
+						break;
 				}
+			using (SaveFileDialog dlg = new SaveFileDialog() { DefaultExt = "bin", Filter = "Binary Files|*.bin|All Files|*.*", FileName = stgname + ".bin" })
+				if (dlg.ShowDialog(this) == DialogResult.OK)
+					if (project != null)
+						Compression.Compress(layout.GetBytes(), dlg.FileName, CompressionType.Enigma);
+					else
+					{
+						filename = dlg.FileName;
+						stgname = Path.GetFileNameWithoutExtension(filename);
+						SaveLayout();
+					}
 		}
 
 		private void exportImageToolStripMenuItem_Click(object sender, EventArgs e)
@@ -404,6 +506,15 @@ namespace S1SSEdit
 			}
 		}
 
+		private void startButton_CheckedChanged(object sender, EventArgs e)
+		{
+			if (startButton.Checked)
+			{
+				tool = Tool.Start;
+				toolOptionsPanel.Invalidate();
+			}
+		}
+
 		private void toolOptionsPanel_Paint(object sender, PaintEventArgs e)
 		{
 			e.Graphics.Clear(toolOptionsPanel.BackColor);
@@ -471,16 +582,16 @@ namespace S1SSEdit
 
 		private void DrawLayout()
 		{
-			Point gridloc = layoutPanel.PointToClient(Cursor.Position);
-			gridloc = new Point(gridloc.X / gridsize, gridloc.Y / gridsize);
-			byte[,] tmplayout = (byte[,])layout.Clone();
+			Point curloc = layoutPanel.PointToClient(Cursor.Position);
+			Point gridloc = new Point(curloc.X / gridsize, curloc.Y / gridsize);
+			LayoutData tmplayout = layout.Clone();
 			if (drawing)
 				switch (tool)
 				{
 					case Tool.Pencil:
 					case Tool.Line:
 						foreach (ObjLoc loc in drawlist)
-							tmplayout[loc.X, loc.Y] = loc.Object;
+							tmplayout.Layout[loc.X, loc.Y] = loc.Object;
 						break;
 					case Tool.Rectangle:
 						gridloc = new Point(Math.Min(gridloc.X, firstloc.X / gridsize), Math.Min(gridloc.Y, firstloc.Y / gridsize));
@@ -488,7 +599,7 @@ namespace S1SSEdit
 						{
 							case ShapeMode.Edge:
 								foreach (ObjLoc loc in drawlist)
-									tmplayout[loc.X, loc.Y] = loc.Object;
+									tmplayout.Layout[loc.X, loc.Y] = loc.Object;
 								break;
 							case ShapeMode.FillEdge:
 							case ShapeMode.Fill:
@@ -498,7 +609,7 @@ namespace S1SSEdit
 										int px = x + gridloc.X;
 										int py = y + gridloc.Y;
 										if (px >= 0 && px < 0x40 && py >= 0 && py < 0x40)
-											tmplayout[x + gridloc.X, y + gridloc.Y] = fillrect[x, y];
+											tmplayout.Layout[x + gridloc.X, y + gridloc.Y] = fillrect[x, y];
 									}
 								break;
 						}
@@ -509,7 +620,7 @@ namespace S1SSEdit
 						{
 							case ShapeMode.Edge:
 								foreach (ObjLoc loc in drawlist)
-									tmplayout[loc.X, loc.Y] = loc.Object;
+									tmplayout.Layout[loc.X, loc.Y] = loc.Object;
 								break;
 							case ShapeMode.FillEdge:
 							case ShapeMode.Fill:
@@ -519,7 +630,7 @@ namespace S1SSEdit
 										int px = x + gridloc.X;
 										int py = y + gridloc.Y;
 										if (drawrect[x, y].HasValue && px >= 0 && px < 0x40 && py >= 0 && py < 0x40)
-											tmplayout[x + gridloc.X, y + gridloc.Y] = drawrect[x, y].Value;
+											tmplayout.Layout[x + gridloc.X, y + gridloc.Y] = drawrect[x, y].Value;
 									}
 								break;
 						}
@@ -532,8 +643,12 @@ namespace S1SSEdit
 								int px = x + gridloc.X;
 								int py = y + gridloc.Y;
 								if (drawrect[x, y].HasValue && px >= 0 && px < 0x40 && py >= 0 && py < 0x40)
-									tmplayout[x + gridloc.X, y + gridloc.Y] = drawrect[x, y].Value;
+									tmplayout.Layout[x + gridloc.X, y + gridloc.Y] = drawrect[x, y].Value;
 							}
+						break;
+					case Tool.Start:
+						tmplayout.StartPosition.X = (ushort)startloc.X;
+						tmplayout.StartPosition.Y = (ushort)startloc.Y;
 						break;
 				}
 			BitmapBits layoutbmp = LayoutDrawer.DrawLayout(tmplayout, showNumbersOnWallsToolStripMenuItem.Checked);
@@ -561,7 +676,13 @@ namespace S1SSEdit
 					}
 				}
 				else if (!drawing)
-					gfx.DrawImage(foreObjPicture.Image, new Rectangle(gridloc.X * gridsize, gridloc.Y * gridsize, 24, 24), 0, 0, 24, 24, GraphicsUnit.Pixel, imageTransparency);
+				{
+					if (tool == Tool.Start)
+						gfx.DrawImage(startposbmp, new Rectangle(curloc.X - (startposbmp.Width / 2), curloc.Y - (startposbmp.Height / 2), startposbmp.Width, startposbmp.Height),
+							0, 0, startposbmp.Width, startposbmp.Height, GraphicsUnit.Pixel, imageTransparency);
+					else
+						gfx.DrawImage(foreObjPicture.Image, new Rectangle(gridloc.X * gridsize, gridloc.Y * gridsize, 24, 24), 0, 0, 24, 24, GraphicsUnit.Pixel, imageTransparency);
+				}
 				layoutgfx.DrawImage(bmp, 0, 0, layoutPanel.Width, layoutPanel.Height);
 			}
 			LayoutDrawer.Palette.Entries[0] = Color.Transparent;
@@ -675,7 +796,7 @@ namespace S1SSEdit
 				case Tool.Fill:
 					{
 						drawing = false;
-						byte oldind = layout[gridloc.X, gridloc.Y];
+						byte oldind = layout.Layout[gridloc.X, gridloc.Y];
 						if (oldind == obj) return;
 						Queue<Point> pts = new Queue<Point>(0x40 * 0x40 / 2);
 						pts.Enqueue(gridloc);
@@ -685,25 +806,25 @@ namespace S1SSEdit
 						{
 							Point pt = pts.Dequeue();
 							int tmp = pt.X - 1;
-							if (tmp != -1 && layout[tmp, pt.Y] == oldind && !fillgrid[tmp, pt.Y].HasValue)
+							if (tmp != -1 && layout.Layout[tmp, pt.Y] == oldind && !fillgrid[tmp, pt.Y].HasValue)
 							{
 								fillgrid[tmp, pt.Y] = obj;
 								pts.Enqueue(new Point(tmp, pt.Y));
 							}
 							tmp = pt.X + 1;
-							if (tmp != 0x40 && layout[tmp, pt.Y] == oldind && !fillgrid[tmp, pt.Y].HasValue)
+							if (tmp != 0x40 && layout.Layout[tmp, pt.Y] == oldind && !fillgrid[tmp, pt.Y].HasValue)
 							{
 								fillgrid[tmp, pt.Y] = obj;
 								pts.Enqueue(new Point(tmp, pt.Y));
 							}
 							tmp = pt.Y - 1;
-							if (tmp != -1 && layout[pt.X, tmp] == oldind && !fillgrid[pt.X, tmp].HasValue)
+							if (tmp != -1 && layout.Layout[pt.X, tmp] == oldind && !fillgrid[pt.X, tmp].HasValue)
 							{
 								fillgrid[pt.X, tmp] = obj;
 								pts.Enqueue(new Point(pt.X, tmp));
 							}
 							tmp = pt.Y + 1;
-							if (tmp != 0x40 && layout[pt.X, tmp] == oldind && !fillgrid[pt.X, tmp].HasValue)
+							if (tmp != 0x40 && layout.Layout[pt.X, tmp] == oldind && !fillgrid[pt.X, tmp].HasValue)
 							{
 								fillgrid[pt.X, tmp] = obj;
 								pts.Enqueue(new Point(pt.X, tmp));
@@ -747,6 +868,9 @@ namespace S1SSEdit
 				case Tool.Oval:
 					drawrect = new byte?[1, 1] { { obj } };
 					AnimateBlock(ref obj);
+					break;
+				case Tool.Start:
+					startloc = new Point(loc.X + 736, loc.Y + 688);
 					break;
 			}
 			switch (e.Button)
@@ -1324,6 +1448,9 @@ namespace S1SSEdit
 						}
 					}
 					break;
+				case Tool.Start:
+					startloc = new Point(loc.X + 736, loc.Y + 688);
+					break;
 			}
 			switch (e.Button)
 			{
@@ -1388,6 +1515,10 @@ namespace S1SSEdit
 				case Tool.Oval:
 					DoAction(new OvalAction(drawrect, Math.Min(gridloc.X, firstloc.X / gridsize), Math.Min(gridloc.Y, firstloc.Y / gridsize)));
 					break;
+				case Tool.Start:
+					if (startloc.X != layout.StartPosition.X || startloc.Y != layout.StartPosition.Y)
+						DoAction(new StartPositionAction(startloc));
+					break;
 			}
 			if (tool != Tool.Select)
 				switch (e.Button)
@@ -1423,7 +1554,7 @@ namespace S1SSEdit
 			byte[,] sect = new byte[area.Width, area.Height];
 			for (int y = 0; y < area.Height; y++)
 				for (int x = 0; x < area.Width; x++)
-					sect[x, y] = layout[area.X + x, area.Y + y];
+					sect[x, y] = layout.Layout[area.X + x, area.Y + y];
 			Clipboard.SetData(sect.GetType().AssemblyQualifiedName, sect);
 			DoAction(new CutAction(new byte[area.Width, area.Height], area.Location));
 			DrawLayout();
@@ -1437,7 +1568,7 @@ namespace S1SSEdit
 			byte[,] sect = new byte[area.Width, area.Height];
 			for (int y = 0; y < area.Height; y++)
 				for (int x = 0; x < area.Width; x++)
-					sect[x, y] = layout[area.X + x, area.Y + y];
+					sect[x, y] = layout.Layout[area.X + x, area.Y + y];
 			Clipboard.SetData(sect.GetType().AssemblyQualifiedName, sect);
 		}
 
@@ -1529,7 +1660,7 @@ namespace S1SSEdit
 					byte[,] sect = new byte[area.Width, area.Height];
 					for (int y = 0; y < area.Height; y++)
 						for (int x = 0; x < area.Width; x++)
-							sect[x, y] = layout[area.X + x, area.Y + y];
+							sect[x, y] = layout.Layout[area.X + x, area.Y + y];
 					LayoutSection sec = new LayoutSection(dlg.Value, sect);
 					layoutSections.Add(sec);
 					layoutSectionImages.Add(MakeLayoutSectionImage(sec));
@@ -1584,9 +1715,30 @@ namespace S1SSEdit
 		}
 	}
 
-	enum Tool { Select, Pencil, Fill, Line, Rectangle, Diamond, Oval }
+	enum Tool { Select, Pencil, Fill, Line, Rectangle, Diamond, Oval, Start }
 
 	enum ShapeMode { Edge, FillEdge, Fill }
+
+	public class ProjectStage
+	{
+		public string Layout { get; set; }
+		public string StartPosition { get; set; }
+
+		public LayoutData LoadStage(string pathbase)
+		{
+			byte[] layout = Compression.Decompress(Path.Combine(pathbase, Layout), CompressionType.Enigma);
+			if (StartPosition != null)
+				return new LayoutData(layout, File.ReadAllBytes(Path.Combine(pathbase, StartPosition)));
+			return new LayoutData(layout);
+		}
+
+		public void SaveStage(string pathbase, LayoutData layout)
+		{
+			Compression.Compress(layout.GetBytes(), Path.Combine(pathbase, Layout), CompressionType.Enigma);
+			if (StartPosition != null)
+				File.WriteAllBytes(Path.Combine(pathbase, StartPosition), layout.StartPosition.GetBytes());
+		}
+	}
 
 	[Serializable]
 	public class LayoutSection
@@ -1646,7 +1798,7 @@ namespace S1SSEdit
 	abstract class Action
 	{
 		public abstract string Name { get; }
-		public abstract void Do(byte[,] layout);
+		public abstract void Do(LayoutData layout);
 	}
 
 	[Serializable]
@@ -1659,12 +1811,12 @@ namespace S1SSEdit
 
 		List<ObjLoc> objs;
 
-		public override void Do(byte[,] layout)
+		public override void Do(LayoutData layout)
 		{
 			foreach (ObjLoc s in objs)
 			{
-				byte sp = layout[s.X, s.Y];
-				layout[s.X, s.Y] = s.Object;
+				byte sp = layout.Layout[s.X, s.Y];
+				layout.Layout[s.X, s.Y] = s.Object;
 				s.Object = sp;
 			}
 		}
@@ -1723,13 +1875,13 @@ namespace S1SSEdit
 		byte[,] objs;
 		Point position;
 
-		public override void Do(byte[,] layout)
+		public override void Do(LayoutData layout)
 		{
 			for (int y = 0; y < objs.GetLength(1); y++)
 				for (int x = 0; x < objs.GetLength(0); x++)
 				{
-					byte tmp = layout[x + position.X, y + position.Y];
-					layout[x + position.X, y + position.Y] = objs[x, y];
+					byte tmp = layout.Layout[x + position.X, y + position.Y];
+					layout.Layout[x + position.X, y + position.Y] = objs[x, y];
 					objs[x, y] = tmp;
 				}
 		}
@@ -1815,14 +1967,14 @@ namespace S1SSEdit
 		byte?[,] objs;
 		Point position;
 
-		public override void Do(byte[,] layout)
+		public override void Do(LayoutData layout)
 		{
 			for (int y = 0; y < objs.GetLength(1); y++)
 				for (int x = 0; x < objs.GetLength(0); x++)
 					if (objs[x, y].HasValue)
 					{
-						byte tmp = layout[x + position.X, y + position.Y];
-						layout[x + position.X, y + position.Y] = objs[x, y].Value;
+						byte tmp = layout.Layout[x + position.X, y + position.Y];
+						layout.Layout[x + position.X, y + position.Y] = objs[x, y].Value;
 						objs[x, y] = tmp;
 					}
 		}
@@ -1840,20 +1992,20 @@ namespace S1SSEdit
 		Rectangle area;
 		bool right;
 
-		public override void Do(byte[,] layout)
+		public override void Do(LayoutData layout)
 		{
-			byte[,] copy = (byte[,])layout.Clone();
+			byte[,] copy = (byte[,])layout.Layout.Clone();
 			if (right)
 			{
 				for (int y = 0; y < area.Height; y++)
 					for (int x = 0; x < area.Width; x++)
-						layout[area.X + area.Height - y - 1, area.Y + x] = copy[area.X + x, area.Y + y];
+						layout.Layout[area.X + area.Height - y - 1, area.Y + x] = copy[area.X + x, area.Y + y];
 			}
 			else
 			{
 				for (int y = 0; y < area.Height; y++)
 					for (int x = 0; x < area.Width; x++)
-						layout[area.X + y, area.Y + area.Width - x - 1] = copy[area.X + x, area.Y + y];
+						layout.Layout[area.X + y, area.Y + area.Width - x - 1] = copy[area.X + x, area.Y + y];
 			}
 			right = !right;
 		}
@@ -1930,6 +2082,27 @@ namespace S1SSEdit
 	}
 
 	[Serializable]
+	class StartPositionAction : Action
+	{
+		public StartPositionAction(Point position)
+		{
+			this.position = position;
+		}
+
+		Point position;
+
+		public override void Do(LayoutData layout)
+		{
+			Point tmp = new Point(layout.StartPosition.X, layout.StartPosition.Y);
+			layout.StartPosition.X = (ushort)position.X;
+			layout.StartPosition.Y = (ushort)position.Y;
+			position = tmp;
+		}
+
+		public override string Name => "Start Position";
+	}
+
+	[Serializable]
 	class CutAction : AreaFillAction
 	{
 		public CutAction(byte[,] objs, Point position) : base(objs, position) { }
@@ -1979,12 +2152,12 @@ namespace S1SSEdit
 
 		Rectangle area;
 
-		public override void Do(byte[,] layout)
+		public override void Do(LayoutData layout)
 		{
-			byte[,] copy = (byte[,])layout.Clone();
+			byte[,] copy = (byte[,])layout.Layout.Clone();
 			for (int y = 0; y < area.Height; y++)
 				for (int x = 0; x < area.Width; x++)
-					layout[area.X + x, area.Y + y] = copy[area.Right - x - 1, area.Y + y];
+					layout.Layout[area.X + x, area.Y + y] = copy[area.Right - x - 1, area.Y + y];
 		}
 
 		public override string Name => "Flip Horizontally";
@@ -2000,12 +2173,12 @@ namespace S1SSEdit
 
 		Rectangle area;
 
-		public override void Do(byte[,] layout)
+		public override void Do(LayoutData layout)
 		{
-			byte[,] copy = (byte[,])layout.Clone();
+			byte[,] copy = (byte[,])layout.Layout.Clone();
 			for (int y = 0; y < area.Height; y++)
 				for (int x = 0; x < area.Width; x++)
-					layout[area.X + x, area.Y + y] = copy[area.X + x, area.Bottom - y - 1];
+					layout.Layout[area.X + x, area.Y + y] = copy[area.X + x, area.Bottom - y - 1];
 		}
 
 		public override string Name => "Flip Vertically";

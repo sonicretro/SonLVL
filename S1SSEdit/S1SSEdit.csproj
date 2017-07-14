@@ -48,6 +48,7 @@
     <Compile Include="InsertTextDialog.Designer.cs">
       <DependentUpon>InsertTextDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="LayoutData.cs" />
     <Compile Include="LayoutDrawer.cs" />
     <Compile Include="LayoutSectionNameDialog.cs">
       <SubType>Form</SubType>
@@ -63,6 +64,12 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StageSelectDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="StageSelectDialog.Designer.cs">
+      <DependentUpon>StageSelectDialog.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="InsertTextDialog.resx">
       <DependentUpon>InsertTextDialog.cs</DependentUpon>
     </EmbeddedResource>
@@ -82,6 +89,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="StageSelectDialog.resx">
+      <DependentUpon>StageSelectDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -132,6 +142,7 @@
   <ItemGroup>
     <None Include="Resources\Font.png" />
     <None Include="Resources\FontHS.png" />
+    <None Include="Resources\StartPos.png" />
     <Content Include="S1SSEdit.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
