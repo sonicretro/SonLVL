@@ -718,60 +718,57 @@ namespace SonicRetro.SonLVL.API
 				foreach (XMLDef.Image item in xmldef.Images.Items)
 				{
 					Sprite sprite = default(Sprite);
-					if (item is XMLDef.ImageFromBitmap)
+					switch (item)
 					{
-						XMLDef.ImageFromBitmap bmpimg = (XMLDef.ImageFromBitmap)item;
-						sprite = new Sprite(new BitmapBits(bmpimg.filename), bmpimg.offset.ToPoint());
-					}
-					else if (item is XMLDef.ImageFromMappings)
-					{
-						XMLDef.ImageFromMappings mapimg = (XMLDef.ImageFromMappings)item;
-						MultiFileIndexer<byte> art = new MultiFileIndexer<byte>();
-						foreach (XMLDef.ArtFile artfile in mapimg.ArtFiles)
-							art.AddFile(new List<byte>(ObjectHelper.OpenArtFile(artfile.filename,
-								artfile.compression == CompressionType.Invalid ? LevelData.Game.ObjectArtCompression : artfile.compression)),
-								artfile.offsetSpecified ? artfile.offset : -1);
-						XMLDef.MapFile map = mapimg.MapFile;
-						switch (map.type)
-						{
-							case XMLDef.MapFileType.Binary:
-								if (string.IsNullOrEmpty(map.dplcfile))
-									sprite = ObjectHelper.MapToBmp(art.ToArray(), File.ReadAllBytes(map.filename),
-										map.frame, map.startpal, map.version);
-								else
-									sprite = ObjectHelper.MapDPLCToBmp(art.ToArray(), File.ReadAllBytes(map.filename),
-										File.ReadAllBytes(map.dplcfile), map.frame, map.startpal, map.version);
-								break;
-							case XMLDef.MapFileType.ASM:
-								if (string.IsNullOrEmpty(map.label))
-								{
+						case XMLDef.ImageFromBitmap bmpimg:
+							sprite = new Sprite(new BitmapBits(bmpimg.filename), bmpimg.offset.ToPoint());
+							break;
+						case XMLDef.ImageFromMappings mapimg:
+							MultiFileIndexer<byte> art = new MultiFileIndexer<byte>();
+							foreach (XMLDef.ArtFile artfile in mapimg.ArtFiles)
+								art.AddFile(new List<byte>(ObjectHelper.OpenArtFile(artfile.filename,
+									artfile.compression == CompressionType.Invalid ? LevelData.Game.ObjectArtCompression : artfile.compression)),
+									artfile.offsetSpecified ? artfile.offset : -1);
+							XMLDef.MapFile map = mapimg.MapFile;
+							switch (map.type)
+							{
+								case XMLDef.MapFileType.Binary:
 									if (string.IsNullOrEmpty(map.dplcfile))
-										sprite = ObjectHelper.MapASMToBmp(art.ToArray(), map.filename,
+										sprite = ObjectHelper.MapToBmp(art.ToArray(), File.ReadAllBytes(map.filename),
 											map.frame, map.startpal, map.version);
 									else
-										sprite = ObjectHelper.MapASMDPLCToBmp(art.ToArray(), map.filename, map.version,
-											map.dplcfile, map.dplcver, map.frame, map.startpal);
-								}
-								else
-								{
-									if (string.IsNullOrEmpty(map.dplcfile))
-										sprite = ObjectHelper.MapASMToBmp(art.ToArray(), map.filename,
-											map.label, map.startpal, map.version);
+										sprite = ObjectHelper.MapDPLCToBmp(art.ToArray(), File.ReadAllBytes(map.filename),
+											File.ReadAllBytes(map.dplcfile), map.frame, map.startpal, map.version);
+									break;
+								case XMLDef.MapFileType.ASM:
+									if (string.IsNullOrEmpty(map.label))
+									{
+										if (string.IsNullOrEmpty(map.dplcfile))
+											sprite = ObjectHelper.MapASMToBmp(art.ToArray(), map.filename,
+												map.frame, map.startpal, map.version);
+										else
+											sprite = ObjectHelper.MapASMDPLCToBmp(art.ToArray(), map.filename, map.version,
+												map.dplcfile, map.dplcver, map.frame, map.startpal);
+									}
 									else
-										sprite = ObjectHelper.MapASMDPLCToBmp(art.ToArray(), map.filename, map.label, map.version,
-											map.dplcfile, map.dplclabel, map.dplcver, map.startpal);
-								}
-								break;
-						}
-						if (!mapimg.offset.IsEmpty)
-							sprite.Offset = new Point(sprite.X + mapimg.offset.X, sprite.Y + mapimg.offset.Y);
-					}
-					else if (item is XMLDef.ImageFromSprite)
-					{
-						XMLDef.ImageFromSprite sprimg = (XMLDef.ImageFromSprite)item;
-						sprite = ObjectHelper.GetSprite(sprimg.frame);
-						if (!sprimg.offset.IsEmpty)
-							sprite.Offset = new Point(sprite.X + sprimg.offset.X, sprite.Y + sprimg.offset.Y);
+									{
+										if (string.IsNullOrEmpty(map.dplcfile))
+											sprite = ObjectHelper.MapASMToBmp(art.ToArray(), map.filename,
+												map.label, map.startpal, map.version);
+										else
+											sprite = ObjectHelper.MapASMDPLCToBmp(art.ToArray(), map.filename, map.label, map.version,
+												map.dplcfile, map.dplclabel, map.dplcver, map.startpal);
+									}
+									break;
+							}
+							if (!mapimg.offset.IsEmpty)
+								sprite.Offset = new Point(sprite.X + mapimg.offset.X, sprite.Y + mapimg.offset.Y);
+							break;
+						case XMLDef.ImageFromSprite sprimg:
+							sprite = ObjectHelper.GetSprite(sprimg.frame);
+							if (!sprimg.offset.IsEmpty)
+								sprite.Offset = new Point(sprite.X + sprimg.offset.X, sprite.Y + sprimg.offset.Y);
+							break;
 					}
 					images.Add(item.id, sprite.Trim());
 				}
@@ -869,17 +866,21 @@ namespace SonicRetro.SonLVL.API
 						Type basetype = LevelData.ObjectFormat.ObjectType;
 						foreach (XMLDef.CustomProperty item in xmldef.Properties.Items.OfType<XMLDef.CustomProperty>())
 						{
-							method = new CodeMemberMethod();
-							method.Attributes = MemberAttributes.Public | MemberAttributes.Static;
-							method.Name = "Get" + item.name;
+							method = new CodeMemberMethod()
+							{
+								Attributes = MemberAttributes.Public | MemberAttributes.Static,
+								Name = "Get" + item.name
+							};
 							method.Parameters.Add(new CodeParameterDeclarationExpression(typeof(ObjectEntry), "_obj"));
 							method.ReturnType = new CodeTypeReference(typeof(object));
 							method.Statements.Add(new CodeVariableDeclarationStatement(basetype, "obj", new CodeCastExpression(basetype, new CodeArgumentReferenceExpression("_obj"))));
 							method.Statements.Add(new CodeSnippetStatement(((XMLDef.CustomProperty)item).get));
 							members.Add(method);
-							method = new CodeMemberMethod();
-							method.Attributes = MemberAttributes.Public | MemberAttributes.Static;
-							method.Name = "Set" + item.name;
+							method = new CodeMemberMethod()
+							{
+								Attributes = MemberAttributes.Public | MemberAttributes.Static,
+								Name = "Set" + item.name
+							};
 							method.Parameters.AddRange(new CodeParameterDeclarationExpression[] { new CodeParameterDeclarationExpression(typeof(ObjectEntry), "_obj"), new CodeParameterDeclarationExpression(typeof(object), "_val") });
 							method.ReturnType = new CodeTypeReference(typeof(void));
 							method.Statements.Add(new CodeVariableDeclarationStatement(basetype, "obj", new CodeCastExpression(basetype, new CodeArgumentReferenceExpression("_obj"))));
@@ -890,9 +891,11 @@ namespace SonicRetro.SonLVL.API
 							method.Statements.Add(new CodeSnippetStatement(((XMLDef.CustomProperty)item).set));
 							members.Add(method);
 						}
-						CodeTypeDeclaration ctd = new CodeTypeDeclaration(xmldef.TypeName);
-						ctd.Attributes = MemberAttributes.Public | MemberAttributes.Static;
-						ctd.IsClass = true;
+						CodeTypeDeclaration ctd = new CodeTypeDeclaration(xmldef.TypeName)
+						{
+							Attributes = MemberAttributes.Public | MemberAttributes.Static,
+							IsClass = true
+						};
 						ctd.Members.AddRange(members.ToArray());
 						CodeNamespace cn = new CodeNamespace(xmldef.Namespace);
 						cn.Types.Add(ctd);
@@ -907,11 +910,13 @@ namespace SonicRetro.SonLVL.API
 							using (StreamWriter sw = new StreamWriter(Path.Combine("dllcache", xmldef.Namespace + "." + xmldef.TypeName + "." + pr.FileExtension)))
 								pr.GenerateCodeFromCompileUnit(ccu, sw, new CodeGeneratorOptions() { BlankLinesBetweenMembers = true, BracingStyle = "C", VerbatimOrder = true });
 #endif
-							CompilerParameters para = new CompilerParameters(new string[] { "System.dll", "System.Core.dll", "System.Drawing.dll", System.Reflection.Assembly.GetExecutingAssembly().Location });
-							para.GenerateExecutable = false;
-							para.GenerateInMemory = false;
-							para.IncludeDebugInformation = true;
-							para.OutputAssembly = Path.Combine(Environment.CurrentDirectory, dllfile);
+							CompilerParameters para = new CompilerParameters(new string[] { "System.dll", "System.Core.dll", "System.Drawing.dll", System.Reflection.Assembly.GetExecutingAssembly().Location })
+							{
+								GenerateExecutable = false,
+								GenerateInMemory = false,
+								IncludeDebugInformation = true,
+								OutputAssembly = Path.Combine(Environment.CurrentDirectory, dllfile)
+							};
 							CompilerResults res = pr.CompileAssemblyFromDom(para, ccu);
 							if (res.Errors.HasErrors)
 							{

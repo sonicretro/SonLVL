@@ -73,8 +73,7 @@ namespace SonicRetro.SonLVL.API
 		public void WriteLayout(LayoutData layout, CompressionType compression, string filename)
 		{
 			if (compression == CompressionType.Invalid) compression = DefaultCompression;
-			byte[] data;
-			WriteLayout(layout, out data);
+			WriteLayout(layout, out byte[] data);
 			Compression.Compress(data, filename, compression);
 		}
 
@@ -189,16 +188,14 @@ namespace SonicRetro.SonLVL.API
 		public void WriteFG(LayoutData layout, CompressionType compression, string filename)
 		{
 			if (compression == CompressionType.Invalid) compression = DefaultFGCompression;
-			byte[] data;
-			WriteFG(layout, out data);
+			WriteFG(layout, out byte[] data);
 			Compression.Compress(data, filename, compression);
 		}
 
 		public void WriteBG(LayoutData layout, CompressionType compression, string filename)
 		{
 			if (compression == CompressionType.Invalid) compression = DefaultBGCompression;
-			byte[] data;
-			WriteBG(layout, out data);
+			WriteBG(layout, out byte[] data);
 			Compression.Compress(data, filename, compression);
 		}
 

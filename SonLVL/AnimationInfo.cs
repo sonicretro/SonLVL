@@ -1,9 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.ComponentModel;
 using SonicRetro.SonLVL.API;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 
 namespace SonicRetro.SonLVL

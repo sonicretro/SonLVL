@@ -69,8 +69,7 @@ namespace SonicRetro.SonLVL.API
 
 		public static Color FindNearestMatch(this Color col, params Color[] palette)
 		{
-			int distance;
-			return FindNearestMatch(col, out distance, palette);
+			return FindNearestMatch(col, out int distance, palette);
 		}
 
 		/// <summary>
@@ -131,8 +130,7 @@ namespace SonicRetro.SonLVL.API
 
 		public static TValue GetValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key, TValue @default)
 		{
-			TValue output;
-			if (dict.TryGetValue(key, out output))
+			if (dict.TryGetValue(key, out TValue output))
 				return output;
 			return @default;
 		}

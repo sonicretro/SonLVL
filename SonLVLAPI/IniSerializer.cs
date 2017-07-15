@@ -270,7 +270,6 @@ namespace SonicRetro.SonLVL.API
 				}
 				return defaultvalue;
 			}
-			Type generictype;
 			if (type.IsArray)
 			{
 				Type valuetype = type.GetElementType();
@@ -404,7 +403,7 @@ namespace SonicRetro.SonLVL.API
 					}
 				return obj;
 			}
-			if (ImplementsGenericDefinition(type, typeof(IList<>), out generictype))
+			if (ImplementsGenericDefinition(type, typeof(IList<>), out Type generictype))
 			{
 				object obj = Activator.CreateInstance(type);
 				Type valuetype = generictype.GetGenericArguments()[0];
@@ -911,8 +910,8 @@ namespace SonicRetro.SonLVL.API
 
 		public string Format
 		{
-			get { return Settings.Format; }
-			set { Settings.Format = value; }
+			get => Settings.Format;
+			set => Settings.Format = value;
 		}
 
 		/// <summary>
@@ -920,8 +919,8 @@ namespace SonicRetro.SonLVL.API
 		/// </summary>
 		public int StartIndex
 		{
-			get { return Settings.StartIndex; }
-			set { Settings.StartIndex = value; }
+			get => Settings.StartIndex;
+			set => Settings.StartIndex = value;
 		}
 
 		/// <summary>
@@ -929,8 +928,8 @@ namespace SonicRetro.SonLVL.API
 		/// </summary>
 		public Type KeyConverter
 		{
-			get { return Settings.KeyConverter == null ? null : Settings.KeyConverter.GetType(); }
-			set { Settings.KeyConverter = (TypeConverter)Activator.CreateInstance(value); }
+			get => Settings.KeyConverter?.GetType();
+			set => Settings.KeyConverter = (TypeConverter)Activator.CreateInstance(value);
 		}
 
 		/// <summary>
@@ -938,8 +937,8 @@ namespace SonicRetro.SonLVL.API
 		/// </summary>
 		public Type ValueConverter
 		{
-			get { return Settings.ValueConverter == null ? null : Settings.ValueConverter.GetType(); }
-			set { Settings.ValueConverter = (TypeConverter)Activator.CreateInstance(value); }
+			get => Settings.ValueConverter?.GetType();
+			set => Settings.ValueConverter = (TypeConverter)Activator.CreateInstance(value);
 		}
 
 		public IniCollectionSettings Settings { get; private set; }

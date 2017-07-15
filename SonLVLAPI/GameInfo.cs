@@ -620,9 +620,8 @@ namespace SonicRetro.SonLVL.API
 		{
 			if (value is int)
 				return true;
-			int i;
 			if (value is string)
-				return int.TryParse((string)value, NumberStyles.HexNumber, NumberFormatInfo.InvariantInfo, out i);
+				return int.TryParse((string)value, NumberStyles.HexNumber, NumberFormatInfo.InvariantInfo, out int i);
 			return base.IsValid(context, value);
 		}
 	}
@@ -661,9 +660,8 @@ namespace SonicRetro.SonLVL.API
 		{
 			if (value is ushort)
 				return true;
-			ushort i;
 			if (value is string)
-				return ushort.TryParse((string)value, NumberStyles.HexNumber, NumberFormatInfo.InvariantInfo, out i);
+				return ushort.TryParse((string)value, NumberStyles.HexNumber, NumberFormatInfo.InvariantInfo, out ushort i);
 			return base.IsValid(context, value);
 		}
 	}
@@ -702,9 +700,8 @@ namespace SonicRetro.SonLVL.API
 		{
 			if (value is byte)
 				return true;
-			byte i;
 			if (value is string)
-				return byte.TryParse((string)value, NumberStyles.HexNumber, NumberFormatInfo.InvariantInfo, out i);
+				return byte.TryParse((string)value, NumberStyles.HexNumber, NumberFormatInfo.InvariantInfo, out byte i);
 			return base.IsValid(context, value);
 		}
 	}

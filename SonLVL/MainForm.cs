@@ -189,9 +189,8 @@ namespace SonicRetro.SonLVL.GUI
 					}
 					if (updates.Count > 0)
 					{
-						List<string> message = new List<string>();
-						message.Add("The following components have updates available:");
-						foreach (string item in updates)
+					List<string> message = new List<string> { "The following components have updates available:" };
+					foreach (string item in updates)
 							message.Add('\t' + item);
 						message.Add(string.Empty);
 						message.Add("Do you want to run the updater?");
@@ -211,9 +210,7 @@ namespace SonicRetro.SonLVL.GUI
 #endif
 			}
 			Settings = Settings.Load();
-			ColorMatrix x = new ColorMatrix();
-			x.Matrix33 = 0.75f;
-			imageTransparency.SetColorMatrix(x, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+			imageTransparency.SetColorMatrix(new ColorMatrix() { Matrix33 = 0.75f }, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
 			PalettePanelGfx = PalettePanel.CreateGraphics();
 			string HUDpath = Path.Combine(Application.StartupPath, "HUD");
 			HUDLetters = new Dictionary<char, BitmapBits>();
@@ -1785,37 +1782,30 @@ namespace SonicRetro.SonLVL.GUI
 				case Tab.Objects:
 					foreach (Entry item in SelectedItems)
 					{
-						if (item is ObjectEntry)
+						Rectangle bnd = Rectangle.Empty;
+						SolidBrush brush = null;
+						switch (item)
 						{
-							ObjectEntry objitem = (ObjectEntry)item;
-							Rectangle objbnd = LevelData.GetObjectDefinition(objitem.ID).GetBounds(objitem, camera);
-							LevelGfx.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.Cyan)), objbnd);
-							objbnd.Width--;	objbnd.Height--;
-							LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, objbnd);
+							case ObjectEntry objitem:
+								bnd = LevelData.GetObjectDefinition(objitem.ID).GetBounds(objitem, camera);
+								brush = new SolidBrush(Color.FromArgb(128, Color.Cyan));
+								break;
+							case RingEntry rngitem:
+								bnd = ((RingLayoutFormat)LevelData.RingFormat).GetBounds(rngitem, camera);
+								brush = new SolidBrush(Color.FromArgb(128, Color.Yellow));
+								break;
+							case CNZBumperEntry bmpitem:
+								bnd = LevelData.unkobj.GetBounds(new S2ObjectEntry() { X = item.X, Y = item.Y }, new Point(camera.X, camera.Y));
+								brush = new SolidBrush(Color.FromArgb(128, Color.Cyan));
+								break;
+							case StartPositionEntry strtitem:
+								bnd = LevelData.StartPosDefs[LevelData.StartPositions.IndexOf(strtitem)].GetBounds(strtitem, camera);
+								brush = new SolidBrush(Color.FromArgb(128, Color.Red));
+								break;
 						}
-						else if (item is RingEntry)
-						{
-							RingEntry rngitem = (RingEntry)item;
-							Rectangle bnd = ((RingLayoutFormat)LevelData.RingFormat).GetBounds(rngitem, camera);
-							LevelGfx.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.Yellow)), bnd);
-							bnd.Width--;	bnd.Height--;
-							LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, bnd);
-						}
-						else if (item is CNZBumperEntry)
-						{
-							Rectangle bnd = LevelData.unkobj.GetBounds(new S2ObjectEntry() { X = item.X, Y = item.Y }, new Point(camera.X, camera.Y));
-							LevelGfx.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.Cyan)), bnd);
-							bnd.Width--;	bnd.Height--;
-							LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, bnd);
-						}
-						else if (item is StartPositionEntry)
-						{
-							StartPositionEntry strtitem = (StartPositionEntry)item;
-							Rectangle bnd = LevelData.StartPosDefs[LevelData.StartPositions.IndexOf(strtitem)].GetBounds(strtitem, camera);
-							LevelGfx.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.Red)), bnd);
-							bnd.Width--;	bnd.Height--;
-							LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, bnd);
-						}
+						LevelGfx.FillRectangle(brush, bnd);
+						bnd.Width--; bnd.Height--;
+						LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, bnd);
 					}
 					if (selecting)
 					{
@@ -1849,15 +1839,13 @@ namespace SonicRetro.SonLVL.GUI
 			panel.PanelGraphics.DrawImage(LevelBmp, 0, 0, panel.PanelWidth, panel.PanelHeight);
 		}
 
-		public Rectangle DrawHUDStr(int X, int Y, string str)
+		public Rectangle DrawHUDStr(int x, int y, string str)
 		{
 			BitmapBits curimg;
-			int curX = X;
-			int curY = Y;
-			Rectangle bounds = new Rectangle();
-			bounds.X = X;
-			bounds.Y = Y;
-			int maxX = X;
+			int curX = x;
+			int curY = y;
+			Rectangle bounds = new Rectangle() { X = x, Y = y };
+			int maxX = x;
 			foreach (string line in str.Split(new char[] { '\n' }, StringSplitOptions.None))
 			{
 				int maxY = 0;
@@ -1873,22 +1861,20 @@ namespace SonicRetro.SonLVL.GUI
 					maxY = Math.Max(maxY, curimg.Height);
 				}
 				curY += maxY;
-				curX = X;
+				curX = x;
 			}
-			bounds.Width = maxX - X;
-			bounds.Height = curY - Y;
+			bounds.Width = maxX - x;
+			bounds.Height = curY - y;
 			return bounds;
 		}
 
-		public Rectangle DrawHUDNum(int X, int Y, string str)
+		public Rectangle DrawHUDNum(int x, int y, string str)
 		{
 			BitmapBits curimg;
-			int curX = X;
-			int curY = Y;
-			Rectangle bounds = new Rectangle();
-			bounds.X = X;
-			bounds.Y = Y;
-			int maxX = X;
+			int curX = x;
+			int curY = y;
+			Rectangle bounds = new Rectangle() { X = x, Y = y };
+			int maxX = x;
 			foreach (string line in str.Split(new char[] { '\n' }, StringSplitOptions.None))
 			{
 				int maxY = 0;
@@ -1904,9 +1890,9 @@ namespace SonicRetro.SonLVL.GUI
 					maxY = Math.Max(maxY, curimg.Height);
 				}
 				curY += maxY;
-				curX = X;
+				curX = x;
 			}
-			bounds.Height = curY - Y;
+			bounds.Height = curY - y;
 			return bounds;
 		}
 
@@ -2460,9 +2446,7 @@ namespace SonicRetro.SonLVL.GUI
 										ent.SubType = (byte)ObjectSelect.numericUpDown2.Value;
 									ent.X = gridx;
 									ent.Y = gridy;
-									if (ent is SCDObjectEntry)
-									{
-										SCDObjectEntry entcd = (SCDObjectEntry)ent;
+									if (ent is SCDObjectEntry entcd)
 										switch (LevelData.Level.TimeZone)
 										{
 											case API.TimeZone.Past:
@@ -2475,7 +2459,6 @@ namespace SonicRetro.SonLVL.GUI
 												entcd.ShowFuture = true;
 												break;
 										}
-									}
 									ent.UpdateSprite();
 									SelectedItems.Clear();
 									SelectedItems.Add(ent);
@@ -3160,9 +3143,7 @@ namespace SonicRetro.SonLVL.GUI
 				double gs = 1 << ObjGrid;
 				ent.X = (ushort)(Math.Round((menuLoc.X / ZoomLevel + objectPanel.HScrollValue) / gs, MidpointRounding.AwayFromZero) * gs);
 				ent.Y = (ushort)(Math.Round((menuLoc.Y / ZoomLevel + objectPanel.VScrollValue) / gs, MidpointRounding.AwayFromZero) * gs);
-				if (ent is SCDObjectEntry)
-				{
-					SCDObjectEntry entcd = (SCDObjectEntry)ent;
+				if (ent is SCDObjectEntry entcd)
 					switch (LevelData.Level.TimeZone)
 					{
 						case API.TimeZone.Past:
@@ -3175,7 +3156,6 @@ namespace SonicRetro.SonLVL.GUI
 							entcd.ShowFuture = true;
 							break;
 					}
-				}
 				ent.UpdateSprite();
 				SelectedItems.Clear();
 				SelectedItems.Add(ent);
@@ -3244,9 +3224,7 @@ namespace SonicRetro.SonLVL.GUI
 								ent.SubType = sub;
 								ent.X = (ushort)(pt.X);
 								ent.Y = (ushort)(pt.Y);
-								if (ent is SCDObjectEntry)
-								{
-									SCDObjectEntry entcd = (SCDObjectEntry)ent;
+								if (ent is SCDObjectEntry entcd)
 									switch (LevelData.Level.TimeZone)
 									{
 										case API.TimeZone.Past:
@@ -3259,7 +3237,6 @@ namespace SonicRetro.SonLVL.GUI
 											entcd.ShowFuture = true;
 											break;
 									}
-								}
 								ent.UpdateSprite();
 								SelectedItems.Add(ent);
 								pt += xsz;
@@ -4016,8 +3993,7 @@ namespace SonicRetro.SonLVL.GUI
 		void BlockCollision1_TextChanged(object sender, EventArgs e)
 		{
 			if (!loaded) return;
-			byte value;
-			if (byte.TryParse(BlockCollision1.Text, System.Globalization.NumberStyles.HexNumber, null, out value))
+			if (byte.TryParse(BlockCollision1.Text, System.Globalization.NumberStyles.HexNumber, null, out byte value))
 				BlockCollision1.Value = value;
 		}
 
@@ -4032,8 +4008,7 @@ namespace SonicRetro.SonLVL.GUI
 		void BlockCollision2_TextChanged(object sender, EventArgs e)
 		{
 			if (!loaded) return;
-			byte value;
-			if (byte.TryParse(BlockCollision2.Text, System.Globalization.NumberStyles.HexNumber, null, out value))
+			if (byte.TryParse(BlockCollision2.Text, System.Globalization.NumberStyles.HexNumber, null, out byte value))
 				BlockCollision2.Value = value;
 		}
 
@@ -5629,8 +5604,7 @@ namespace SonicRetro.SonLVL.GUI
 		private void ColAngle_TextChanged(object sender, EventArgs e)
 		{
 			if (!loaded) return;
-			byte value;
-			if (byte.TryParse(ColAngle.Text, System.Globalization.NumberStyles.HexNumber, null, out value))
+			if (byte.TryParse(ColAngle.Text, System.Globalization.NumberStyles.HexNumber, null, out byte value))
 				ColAngle.Value = value;
 		}
 

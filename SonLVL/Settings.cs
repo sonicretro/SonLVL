@@ -24,17 +24,14 @@ namespace SonicRetro.SonLVL
 		[EditorBrowsable(EditorBrowsableState.Never)]
 		public Color? GridColorInternal
 		{
-			get { return GridColor; }
-			set { GridColor = value ?? Color.Red; }
+			get => GridColor;
+			set => GridColor = value ?? Color.Red;
 		}
 		[IniName("ObjectGridSize")]
 		public int ObjectGridSizeInternal
 		{
-			get { return 1 << ObjectGridSize; }
-			set
-			{
-				ObjectGridSize = (byte)Math.Max(0, Math.Min(8, Math.Log(value, 2)));
-			}
+			get => 1 << ObjectGridSize;
+			set => ObjectGridSize = (byte)Math.Max(0, Math.Min(8, Math.Log(value, 2)));
 		}
 		[IniIgnore]
 		public byte ObjectGridSize { get; set; }

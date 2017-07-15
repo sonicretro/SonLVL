@@ -1,9 +1,7 @@
 using System;
-using System.CodeDom;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -691,11 +689,13 @@ namespace SonicRetro.SonLVL.API
 										break;
 #endif
 				}
-				CompilerParameters para = new CompilerParameters(new string[] { "System.dll", "System.Core.dll", "System.Drawing.dll", System.Reflection.Assembly.GetExecutingAssembly().Location });
-				para.GenerateExecutable = false;
-				para.GenerateInMemory = false;
-				para.IncludeDebugInformation = true;
-				para.OutputAssembly = System.IO.Path.Combine(Environment.CurrentDirectory, dllfile);
+				CompilerParameters para = new CompilerParameters(new string[] { "System.dll", "System.Core.dll", "System.Drawing.dll", System.Reflection.Assembly.GetExecutingAssembly().Location })
+				{
+					GenerateExecutable = false,
+					GenerateInMemory = false,
+					IncludeDebugInformation = true,
+					OutputAssembly = System.IO.Path.Combine(Environment.CurrentDirectory, dllfile)
+				};
 				CompilerResults res = pr.CompileAssemblyFromFile(para, fp);
 				if (res.Errors.HasErrors)
 				{
@@ -760,11 +760,7 @@ namespace SonicRetro.SonLVL.API
 				Tiles.Clear();
 				Tiles.AddFile(tiles, -1);
 				UpdateTileArray();
-				tmp = new List<byte>();
-				tmp.Add(0x53);
-				tmp.Add(0x43);
-				tmp.Add(0x52);
-				tmp.Add(0x4C);
+				tmp = new List<byte> { 0x53, 0x43, 0x52, 0x4C };
 				tmp.AddRange(ByteConverter.GetBytes(0x18 + (Tiles.Count * 4) + (Tiles.Count * 32)));
 				tmp.AddRange(ByteConverter.GetBytes(Tiles.Count));
 				tmp.AddRange(ByteConverter.GetBytes(0x18 + (Tiles.Count * 4)));
@@ -1095,21 +1091,18 @@ namespace SonicRetro.SonLVL.API
 		{
 			if (allTimeZones)
 				return true;
-			if (obj is SonicRetro.SonLVL.API.SCD.SCDObjectEntry)
-			{
-				SonicRetro.SonLVL.API.SCD.SCDObjectEntry scdobj = (SonicRetro.SonLVL.API.SCD.SCDObjectEntry)obj;
+			if (obj is SCD.SCDObjectEntry scdobj)
 				switch (Level.TimeZone)
 				{
-					case API.TimeZone.Past:
+					case TimeZone.Past:
 						return scdobj.ShowPast;
-					case API.TimeZone.Present:
+					case TimeZone.Present:
 						return scdobj.ShowPresent;
-					case API.TimeZone.Future:
+					case TimeZone.Future:
 						return scdobj.ShowFuture;
 					default:
 						return true;
 				}
-			}
 			return true;
 		}
 
@@ -1130,10 +1123,9 @@ namespace SonicRetro.SonLVL.API
 			{
 				if (group.Value.ArtCompression == CompressionType.Invalid)
 					group.Value.ArtCompression = Game.ObjectArtCompression;
-				byte ID;
 				if (group.Key == "Ring" && RingFormat is RingLayoutFormat)
 					((RingLayoutFormat)RingFormat).Init(group.Value);
-				else if (byte.TryParse(group.Key, System.Globalization.NumberStyles.HexNumber, System.Globalization.NumberFormatInfo.InvariantInfo, out ID))
+				else if (byte.TryParse(group.Key, System.Globalization.NumberStyles.HexNumber, System.Globalization.NumberFormatInfo.InvariantInfo, out byte ID))
 				{
 					ObjectDefinition def = null;
 					if (group.Value.CodeFile != null)
@@ -1171,11 +1163,13 @@ namespace SonicRetro.SonLVL.API
 							}
 							if (pr != null)
 							{
-								CompilerParameters para = new CompilerParameters(new string[] { "System.dll", "System.Core.dll", "System.Drawing.dll", System.Reflection.Assembly.GetExecutingAssembly().Location });
-								para.GenerateExecutable = false;
-								para.GenerateInMemory = false;
-								para.IncludeDebugInformation = true;
-								para.OutputAssembly = Path.Combine(Environment.CurrentDirectory, dllfile);
+								CompilerParameters para = new CompilerParameters(new string[] { "System.dll", "System.Core.dll", "System.Drawing.dll", System.Reflection.Assembly.GetExecutingAssembly().Location })
+								{
+									GenerateExecutable = false,
+									GenerateInMemory = false,
+									IncludeDebugInformation = true,
+									OutputAssembly = Path.Combine(Environment.CurrentDirectory, dllfile)
+								};
 								CompilerResults res = pr.CompileAssemblyFromFile(para, fp);
 								if (res.Errors.HasErrors)
 								{
@@ -1365,15 +1359,15 @@ namespace SonicRetro.SonLVL.API
 			return addresses.ToArray();
 		}
 
-		public static byte[] ASMToBin(string file, EngineVersion version) { Dictionary<string, int> labels; return ASMToBin(file, version, out labels); }
+		public static byte[] ASMToBin(string file, EngineVersion version) { return ASMToBin(file, version, out Dictionary<string, int> labels); }
 
 		public static byte[] ASMToBin(string file, EngineVersion version, out Dictionary<string, int> labels) { return ASMToBin(file, 0, version, out labels); }
 
-		public static byte[] ASMToBin(string file, string label, EngineVersion version) { Dictionary<string, int> labels; return ASMToBin(file, label, version, out labels); }
+		public static byte[] ASMToBin(string file, string label, EngineVersion version) { return ASMToBin(file, label, version, out Dictionary<string, int> labels); }
 
 		public static byte[] ASMToBin(string file, string label, EngineVersion version, out Dictionary<string, int> labels)
 		{
-			string[] fc = System.IO.File.ReadAllLines(file);
+			string[] fc = File.ReadAllLines(file);
 			int sti = -1;
 			for (int i = 0; i < fc.Length; i++)
 			{
@@ -1391,7 +1385,7 @@ namespace SonicRetro.SonLVL.API
 			return ASMToBin(file, sti, version, out labels);
 		}
 
-		public static byte[] ASMToBin(string file, int sti, EngineVersion version) { Dictionary<string, int> labels; return ASMToBin(file, sti, version, out labels); }
+		public static byte[] ASMToBin(string file, int sti, EngineVersion version) { return ASMToBin(file, sti, version, out Dictionary<string, int> labels); }
 
 		public static readonly Dictionary<string, int> asmlabels = new Dictionary<string, int>() {
 			{ "afEnd", 0xFF }, // return to beginning of animation
@@ -2276,12 +2270,11 @@ namespace SonicRetro.SonLVL.API
 							for (int j = 0; j < 16; j++)
 								newpal[j] = PaletteToColor(i, j, false);
 							long totdist = 0;
-							int dist;
 							for (int y = 0; y < 8; y++)
 								for (int x = 0; x < 8; x++)
 									if (pixels[x, y].A >= 128)
 									{
-										pixels[x, y].FindNearestMatch(out dist, newpal);
+										pixels[x, y].FindNearestMatch(out int dist, newpal);
 										totdist += dist;
 									}
 							if (totdist < mindist)
@@ -2356,12 +2349,11 @@ namespace SonicRetro.SonLVL.API
 							for (int j = 0; j < 16; j++)
 								newpal[j] = PaletteToColor(i, j, false);
 							int totdist = 0;
-							int dist;
 							for (int y = 0; y < 16; y++)
 								for (int x = 0; x < 8; x++)
 									if (pixels[x, y].A >= 128)
 									{
-										pixels[x, y].FindNearestMatch(out dist, newpal);
+										pixels[x, y].FindNearestMatch(out int dist, newpal);
 										totdist += dist;
 									}
 							if (totdist < mindist)

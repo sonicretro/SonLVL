@@ -51,8 +51,7 @@ namespace SonicRetro.SonLVL.API.XMLDef
 		{
 			XmlSerializer xs = new XmlSerializer(typeof(ObjDef));
 			System.IO.StreamWriter sw = new System.IO.StreamWriter(filename);
-			XmlTextWriter xtr = new XmlTextWriter(sw);
-			xtr.Formatting = Formatting.Indented;
+			XmlTextWriter xtr = new XmlTextWriter(sw) { Formatting = Formatting.Indented };
 			xs.Serialize(xtr, this);
 			xtr.Close();
 			sw.Close();

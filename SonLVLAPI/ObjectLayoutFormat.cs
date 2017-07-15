@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Drawing;
-using System.Linq;
-using System;
 
 namespace SonicRetro.SonLVL.API
 {
@@ -22,7 +20,7 @@ namespace SonicRetro.SonLVL.API
 
 		public abstract List<ObjectEntry> ReadLayout(byte[] rawdata, out bool terminator);
 
-		public List<ObjectEntry> ReadLayout(byte[] rawdata) { bool terminator; return ReadLayout(rawdata, out terminator); }
+		public List<ObjectEntry> ReadLayout(byte[] rawdata) { return ReadLayout(rawdata, out bool terminator); }
 
 		public List<ObjectEntry> ReadLayout(string filename, CompressionType compression, out bool terminator)
 		{
@@ -31,7 +29,7 @@ namespace SonicRetro.SonLVL.API
 			return ReadLayout(Compression.Decompress(filename, compression), out terminator);
 		}
 
-		public List<ObjectEntry> ReadLayout(string filename, CompressionType compression) { bool terminator; return ReadLayout(filename, compression, out terminator); }
+		public List<ObjectEntry> ReadLayout(string filename, CompressionType compression) { return ReadLayout(filename, compression, out bool terminator); }
 
 		public List<ObjectEntry> ReadLayout(string filename, out bool terminator) { return ReadLayout(filename, DefaultCompression, out terminator); }
 
@@ -49,7 +47,7 @@ namespace SonicRetro.SonLVL.API
 			}
 		}
 
-		public List<ObjectEntry> TryReadLayout(string filename, CompressionType compression) { bool terminator; return TryReadLayout(filename, compression, out terminator); }
+		public List<ObjectEntry> TryReadLayout(string filename, CompressionType compression) { return TryReadLayout(filename, compression, out bool terminator); }
 
 		public List<ObjectEntry> TryReadLayout(string filename, out bool terminator) { return TryReadLayout(filename, DefaultCompression, out terminator); }
 
