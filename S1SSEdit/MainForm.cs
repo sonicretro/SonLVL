@@ -1667,6 +1667,74 @@ namespace S1SSEdit
 				}
 		}
 
+		private void replaceFGToBGToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			Rectangle area = selection;
+			if (area.IsEmpty)
+				area = new Rectangle(0, 0, 0x40, 0x40);
+			byte?[,] sect = new byte?[area.Width, area.Height];
+			bool found = false;
+			for (int y = 0; y < area.Height; y++)
+				for (int x = 0; x < area.Width; x++)
+					if (layout.Layout[area.X + x, area.Y + y] == fgobj)
+					{
+						sect[x, y] = bgobj;
+						found = true;
+					}
+			if (found)
+			{
+				DoAction(new ReplaceFGToBGAction(sect, selection.Location));
+				DrawLayout();
+			}
+		}
+
+		private void replaceBGToFGToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			Rectangle area = selection;
+			if (area.IsEmpty)
+				area = new Rectangle(0, 0, 0x40, 0x40);
+			byte?[,] sect = new byte?[area.Width, area.Height];
+			bool found = false;
+			for (int y = 0; y < area.Height; y++)
+				for (int x = 0; x < area.Width; x++)
+					if (layout.Layout[area.X + x, area.Y + y] == bgobj)
+					{
+						sect[x, y] = fgobj;
+						found = true;
+					}
+			if (found)
+			{
+				DoAction(new ReplaceBGToFGAction(sect, selection.Location));
+				DrawLayout();
+			}
+		}
+
+		private void swapFGAndBGToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			Rectangle area = selection;
+			if (area.IsEmpty)
+				area = new Rectangle(0, 0, 0x40, 0x40);
+			byte?[,] sect = new byte?[area.Width, area.Height];
+			bool found = false;
+			for (int y = 0; y < area.Height; y++)
+				for (int x = 0; x < area.Width; x++)
+					if (layout.Layout[area.X + x, area.Y + y] == fgobj)
+					{
+						sect[x, y] = bgobj;
+						found = true;
+					}
+					else if (layout.Layout[area.X + x, area.Y + y] == bgobj)
+					{
+						sect[x, y] = fgobj;
+						found = true;
+					}
+			if (found)
+			{
+				DoAction(new SwapFGAndBGAction(sect, selection.Location));
+				DrawLayout();
+			}
+		}
+
 		private void flipHorizontallyToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			Rectangle area = selection;
@@ -2221,6 +2289,36 @@ namespace S1SSEdit
 		public TextAction(byte?[,] objs, int x, int y) : base(objs, x, y) { }
 
 		public override string Name => "Text";
+	}
+
+	[Serializable]
+	class ReplaceFGToBGAction : AreaAction
+	{
+		public ReplaceFGToBGAction(byte?[,] objs, Point position) : base(objs, position) { }
+
+		public ReplaceFGToBGAction(byte?[,] objs, int x, int y) : base(objs, x, y) { }
+
+		public override string Name => "Replace FG -> BG";
+	}
+
+	[Serializable]
+	class ReplaceBGToFGAction : AreaAction
+	{
+		public ReplaceBGToFGAction(byte?[,] objs, Point position) : base(objs, position) { }
+
+		public ReplaceBGToFGAction(byte?[,] objs, int x, int y) : base(objs, x, y) { }
+
+		public override string Name => "Replace BG -> FG";
+	}
+
+	[Serializable]
+	class SwapFGAndBGAction : AreaAction
+	{
+		public SwapFGAndBGAction(byte?[,] objs, Point position) : base(objs, position) { }
+
+		public SwapFGAndBGAction(byte?[,] objs, int x, int y) : base(objs, x, y) { }
+
+		public override string Name => "Swap FG <-> BG";
 	}
 
 	[Serializable]

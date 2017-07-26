@@ -46,6 +46,7 @@
 			this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.exportImageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.recentFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.undoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -88,7 +89,10 @@
 			this.saveSectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.pasteSectionOnceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.pasteSectionRepeatingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.recentFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.replaceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.replaceFGToBGToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.replaceBGToFGToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.swapFGAndBGToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			menuStrip1 = new System.Windows.Forms.MenuStrip();
 			imageList1 = new System.Windows.Forms.ImageList(this.components);
 			panel1 = new System.Windows.Forms.Panel();
@@ -106,6 +110,7 @@
 			((System.ComponentModel.ISupportInitialize)(this.backObjPicture)).BeginInit();
 			panel4.SuspendLayout();
 			layoutSectionListToolStrip.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.layoutSectionSplitContainer)).BeginInit();
 			this.layoutSectionSplitContainer.Panel1.SuspendLayout();
 			this.layoutSectionSplitContainer.Panel2.SuspendLayout();
 			this.layoutSectionSplitContainer.SuspendLayout();
@@ -186,6 +191,14 @@
 			this.exportImageToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
 			this.exportImageToolStripMenuItem.Text = "&Export Image...";
 			this.exportImageToolStripMenuItem.Click += new System.EventHandler(this.exportImageToolStripMenuItem_Click);
+			// 
+			// recentFilesToolStripMenuItem
+			// 
+			this.recentFilesToolStripMenuItem.Enabled = false;
+			this.recentFilesToolStripMenuItem.Name = "recentFilesToolStripMenuItem";
+			this.recentFilesToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
+			this.recentFilesToolStripMenuItem.Text = "&Recent Files";
+			this.recentFilesToolStripMenuItem.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.recentFilesToolStripMenuItem_DropDownItemClicked);
 			// 
 			// exitToolStripMenuItem
 			// 
@@ -611,6 +624,7 @@
             this.pasteRepeatingToolStripMenuItem,
             this.importToolStripMenuItem,
             this.insertTextToolStripMenuItem,
+            this.replaceToolStripMenuItem,
             toolStripSeparator1,
             this.flipHorizontallyToolStripMenuItem,
             this.flipVerticallyToolStripMenuItem,
@@ -621,7 +635,7 @@
             this.pasteSectionOnceToolStripMenuItem,
             this.pasteSectionRepeatingToolStripMenuItem});
 			this.layoutContextMenuStrip.Name = "layoutContextMenuStrip";
-			this.layoutContextMenuStrip.Size = new System.Drawing.Size(201, 302);
+			this.layoutContextMenuStrip.Size = new System.Drawing.Size(201, 346);
 			// 
 			// cutToolStripMenuItem
 			// 
@@ -726,13 +740,36 @@
 			this.pasteSectionRepeatingToolStripMenuItem.Text = "Paste Section R&epeating";
 			this.pasteSectionRepeatingToolStripMenuItem.Click += new System.EventHandler(this.pasteSectionRepeatingToolStripMenuItem_Click);
 			// 
-			// recentFilesToolStripMenuItem
+			// replaceToolStripMenuItem
 			// 
-			this.recentFilesToolStripMenuItem.Enabled = false;
-			this.recentFilesToolStripMenuItem.Name = "recentFilesToolStripMenuItem";
-			this.recentFilesToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
-			this.recentFilesToolStripMenuItem.Text = "&Recent Files";
-			this.recentFilesToolStripMenuItem.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.recentFilesToolStripMenuItem_DropDownItemClicked);
+			this.replaceToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.replaceFGToBGToolStripMenuItem,
+            this.replaceBGToFGToolStripMenuItem,
+            this.swapFGAndBGToolStripMenuItem});
+			this.replaceToolStripMenuItem.Name = "replaceToolStripMenuItem";
+			this.replaceToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+			this.replaceToolStripMenuItem.Text = "Repl&ace...";
+			// 
+			// replaceFGToBGToolStripMenuItem
+			// 
+			this.replaceFGToBGToolStripMenuItem.Name = "replaceFGToBGToolStripMenuItem";
+			this.replaceFGToBGToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.replaceFGToBGToolStripMenuItem.Text = "&FG -> BG";
+			this.replaceFGToBGToolStripMenuItem.Click += new System.EventHandler(this.replaceFGToBGToolStripMenuItem_Click);
+			// 
+			// replaceBGToFGToolStripMenuItem
+			// 
+			this.replaceBGToFGToolStripMenuItem.Name = "replaceBGToFGToolStripMenuItem";
+			this.replaceBGToFGToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.replaceBGToFGToolStripMenuItem.Text = "&BG -> FG";
+			this.replaceBGToFGToolStripMenuItem.Click += new System.EventHandler(this.replaceBGToFGToolStripMenuItem_Click);
+			// 
+			// swapFGAndBGToolStripMenuItem
+			// 
+			this.swapFGAndBGToolStripMenuItem.Name = "swapFGAndBGToolStripMenuItem";
+			this.swapFGAndBGToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.swapFGAndBGToolStripMenuItem.Text = "F&G <-> BG";
+			this.swapFGAndBGToolStripMenuItem.Click += new System.EventHandler(this.swapFGAndBGToolStripMenuItem_Click);
 			// 
 			// MainForm
 			// 
@@ -766,6 +803,7 @@
 			this.layoutSectionSplitContainer.Panel1.ResumeLayout(false);
 			this.layoutSectionSplitContainer.Panel1.PerformLayout();
 			this.layoutSectionSplitContainer.Panel2.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.layoutSectionSplitContainer)).EndInit();
 			this.layoutSectionSplitContainer.ResumeLayout(false);
 			this.panel2.ResumeLayout(false);
 			this.panel3.ResumeLayout(false);
@@ -827,6 +865,10 @@
 		private System.Windows.Forms.ToolStripMenuItem changeStageToolStripMenuItem;
 		private System.Windows.Forms.RadioButton startButton;
 		private System.Windows.Forms.ToolStripMenuItem recentFilesToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem replaceToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem replaceFGToBGToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem replaceBGToFGToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem swapFGAndBGToolStripMenuItem;
 	}
 }
 
