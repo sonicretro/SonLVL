@@ -83,6 +83,9 @@ namespace S3SSEdit
 				case SSLayoutData ss:
 					layoutbmp.DrawBitmapComposited(StartBmps[ss.Angle >> 14], (ss.StartX / 0x100) * gridsize + off, (ss.StartY / 0x100) * gridsize + off);
 					break;
+				case BSChunkLayoutData bsc:
+					layoutbmp.DrawBitmapComposited(StartBmps[3], 15 * gridsize + off, 3 * gridsize + off);
+					break;
 				case BSStageLayoutData bss:
 					layoutbmp.DrawBitmapComposited(StartBmps[1], 16 * gridsize + off, 3 * gridsize + off);
 					break;
