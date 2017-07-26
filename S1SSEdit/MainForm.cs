@@ -94,6 +94,10 @@ namespace S1SSEdit
 				settings.RecentFiles = mru;
 				recentFilesToolStripMenuItem.Enabled = mru.Count > 0;
 			}
+			saveUndoHistoryToolStripMenuItem.Checked = settings.SaveUndoHistory;
+			autoincrementAnimatedBlocksToolStripMenuItem.Checked = settings.AutoIncrementAnimatedBlocks;
+			showNumbersOnWallsToolStripMenuItem.Checked = settings.ShowNumbersOnWalls;
+			showGridToolStripMenuItem.Checked = settings.ShowGrid;
 			layoutgfx = layoutPanel.CreateGraphics();
 			layoutgfx.SetOptions();
 		}
