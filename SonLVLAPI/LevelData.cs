@@ -659,11 +659,11 @@ namespace SonicRetro.SonLVL.API
 
 		private static T CompileCodeFile<T>(string codefile, string typename)
 		{
-			string dllfile = System.IO.Path.Combine("dllcache", typename + ".dll");
+			string dllfile = Path.Combine("dllcache", typename + ".dll");
 			DateTime modDate = DateTime.MinValue;
-			if (System.IO.File.Exists(dllfile))
-				modDate = System.IO.File.GetLastWriteTime(dllfile);
-			string fp = codefile.Replace('/', System.IO.Path.DirectorySeparatorChar);
+			if (File.Exists(dllfile))
+				modDate = File.GetLastWriteTime(dllfile);
+			string fp = codefile.Replace('/', Path.DirectorySeparatorChar);
 			Log("Loading type " + typename + " from \"" + fp + "\"...");
 			if (modDate >= File.GetLastWriteTime(fp) & modDate > File.GetLastWriteTime(Application.ExecutablePath))
 			{
@@ -673,15 +673,15 @@ namespace SonicRetro.SonLVL.API
 			else
 			{
 				Log("Compiling code file...");
-				string ext = System.IO.Path.GetExtension(fp);
+				string ext = Path.GetExtension(fp);
 				CodeDomProvider pr = null;
 				switch (ext.ToLowerInvariant())
 				{
 					case ".cs":
-						pr = new Microsoft.CSharp.CSharpCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v3.5" } });
+						pr = new Microsoft.CSharp.CSharpCodeProvider();
 						break;
 					case ".vb":
-						pr = new Microsoft.VisualBasic.VBCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v3.5" } });
+						pr = new Microsoft.VisualBasic.VBCodeProvider();
 						break;
 #if false
 									case ".js":
@@ -694,7 +694,7 @@ namespace SonicRetro.SonLVL.API
 					GenerateExecutable = false,
 					GenerateInMemory = false,
 					IncludeDebugInformation = true,
-					OutputAssembly = System.IO.Path.Combine(Environment.CurrentDirectory, dllfile)
+					OutputAssembly = Path.Combine(Environment.CurrentDirectory, dllfile)
 				};
 				CompilerResults res = pr.CompileAssemblyFromFile(para, fp);
 				if (res.Errors.HasErrors)
@@ -1134,7 +1134,7 @@ namespace SonicRetro.SonLVL.API
 						string dllfile = Path.Combine("dllcache", fulltypename + ".dll");
 						DateTime modDate = DateTime.MinValue;
 						if (File.Exists(dllfile))
-							modDate = System.IO.File.GetLastWriteTime(dllfile);
+							modDate = File.GetLastWriteTime(dllfile);
 						string fp = group.Value.CodeFile.Replace('/', Path.DirectorySeparatorChar);
 						Log("Loading ObjectDefinition type " + fulltypename + " from \"" + fp + "\"...");
 						if (modDate >= File.GetLastWriteTime(fp) & modDate > File.GetLastWriteTime(Application.ExecutablePath))
@@ -1150,10 +1150,10 @@ namespace SonicRetro.SonLVL.API
 							switch (ext.ToLowerInvariant())
 							{
 								case ".cs":
-									pr = new Microsoft.CSharp.CSharpCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v3.5" } });
+									pr = new Microsoft.CSharp.CSharpCodeProvider();
 									break;
 								case ".vb":
-									pr = new Microsoft.VisualBasic.VBCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v3.5" } });
+									pr = new Microsoft.VisualBasic.VBCodeProvider();
 									break;
 #if false
 								case ".js":
@@ -1402,7 +1402,7 @@ namespace SonicRetro.SonLVL.API
 			foreach (KeyValuePair<string, int> item in asmlabels)
 				if (!labels.ContainsKey(item.Key))
 					labels.Add(item.Key, item.Value);
-			string[] fc = System.IO.File.ReadAllLines(file);
+			string[] fc = File.ReadAllLines(file);
 			List<byte> result = new List<byte>();
 			string lastlabel = string.Empty;
 			string offsetLabel = string.Empty;
@@ -1592,7 +1592,7 @@ namespace SonicRetro.SonLVL.API
 
 		public static Dictionary<string, int> GetASMLabels(string file, string label, EngineVersion version)
 		{
-			string[] fc = System.IO.File.ReadAllLines(file);
+			string[] fc = File.ReadAllLines(file);
 			int sti = -1;
 			for (int i = 0; i < fc.Length; i++)
 			{
@@ -1609,7 +1609,7 @@ namespace SonicRetro.SonLVL.API
 
 		public static Dictionary<string, int> GetASMLabels(string file, int sti, EngineVersion version)
 		{
-			string[] fc = System.IO.File.ReadAllLines(file);
+			string[] fc = File.ReadAllLines(file);
 			Dictionary<string, int> labels = new Dictionary<string, int>();
 			int curaddr = 0;
 			for (int st = sti; st < fc.Length; st++)

@@ -850,10 +850,10 @@ namespace SonicRetro.SonLVL.API
 						switch (xmldef.Language.ToLowerInvariant())
 						{
 							case "cs":
-								pr = new Microsoft.CSharp.CSharpCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v3.5" } });
+								pr = new Microsoft.CSharp.CSharpCodeProvider();
 								break;
 							case "vb":
-								pr = new Microsoft.VisualBasic.VBCodeProvider(new Dictionary<string, string>() { { "CompilerVersion", "v3.5" } });
+								pr = new Microsoft.VisualBasic.VBCodeProvider();
 								break;
 #if false
 								case "js":
