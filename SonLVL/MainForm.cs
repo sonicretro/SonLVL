@@ -6722,12 +6722,12 @@ namespace SonicRetro.SonLVL.GUI
 					if (CurrentTab == Tab.Background)
 					{
 						if (LevelData.LayoutFormat.IsResizable && LevelData.BGHeight > selection.Height)
-							LevelData.ResizeBG(LevelData.BGHeight - selection.Height, LevelData.BGWidth);
+							LevelData.ResizeBG(LevelData.BGWidth, LevelData.BGHeight - selection.Height);
 					}
 					else
 					{
 						if (LevelData.LayoutFormat.IsResizable && LevelData.FGHeight > selection.Height)
-							LevelData.ResizeFG(LevelData.FGHeight - selection.Height, LevelData.FGWidth);
+							LevelData.ResizeFG(LevelData.FGWidth, LevelData.FGHeight - selection.Height);
 					}
 				}
 				else if (dlg.entireColumn.Checked)
