@@ -1626,6 +1626,74 @@ namespace S3SSEdit
 				}
 		}
 
+		private void replaceFGToBGToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			Rectangle area = selection;
+			if (area.IsEmpty)
+				area = new Rectangle(0, 0, layout.Layout.Size, layout.Layout.Size);
+			SphereType?[,] sect = new SphereType?[area.Width, area.Height];
+			bool found = false;
+			for (int y = 0; y < area.Height; y++)
+				for (int x = 0; x < area.Width; x++)
+					if (layout.Layout[area.X + x, area.Y + y] == fgsphere)
+					{
+						sect[x, y] = bgsphere;
+						found = true;
+					}
+			if (found)
+			{
+				DoAction(new ReplaceFGToBGAction(sect, selection.Location));
+				DrawLayout();
+			}
+		}
+
+		private void replaceBGToFGToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			Rectangle area = selection;
+			if (area.IsEmpty)
+				area = new Rectangle(0, 0, layout.Layout.Size, layout.Layout.Size);
+			SphereType?[,] sect = new SphereType?[area.Width, area.Height];
+			bool found = false;
+			for (int y = 0; y < area.Height; y++)
+				for (int x = 0; x < area.Width; x++)
+					if (layout.Layout[area.X + x, area.Y + y] == bgsphere)
+					{
+						sect[x, y] = fgsphere;
+						found = true;
+					}
+			if (found)
+			{
+				DoAction(new ReplaceBGToFGAction(sect, selection.Location));
+				DrawLayout();
+			}
+		}
+
+		private void swapFGAndBGToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			Rectangle area = selection;
+			if (area.IsEmpty)
+				area = new Rectangle(0, 0, layout.Layout.Size, layout.Layout.Size);
+			SphereType?[,] sect = new SphereType?[area.Width, area.Height];
+			bool found = false;
+			for (int y = 0; y < area.Height; y++)
+				for (int x = 0; x < area.Width; x++)
+					if (layout.Layout[area.X + x, area.Y + y] == fgsphere)
+					{
+						sect[x, y] = bgsphere;
+						found = true;
+					}
+					else if (layout.Layout[area.X + x, area.Y + y] == bgsphere)
+					{
+						sect[x, y] = fgsphere;
+						found = true;
+					}
+			if (found)
+			{
+				DoAction(new SwapFGAndBGAction(sect, selection.Location));
+				DrawLayout();
+			}
+		}
+
 		private void flipHorizontallyToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			Rectangle area = selection;
@@ -2259,6 +2327,36 @@ namespace S3SSEdit
 		public TextAction(SphereType?[,] spheres, int x, int y) : base(spheres, x, y) { }
 
 		public override string Name => "Text";
+	}
+
+	[Serializable]
+	class ReplaceFGToBGAction : AreaAction
+	{
+		public ReplaceFGToBGAction(SphereType?[,] spheres, Point position) : base(spheres, position) { }
+
+		public ReplaceFGToBGAction(SphereType?[,] spheres, int x, int y) : base(spheres, x, y) { }
+
+		public override string Name => "Replace FG -> BG";
+	}
+
+	[Serializable]
+	class ReplaceBGToFGAction : AreaAction
+	{
+		public ReplaceBGToFGAction(SphereType?[,] spheres, Point position) : base(spheres, position) { }
+
+		public ReplaceBGToFGAction(SphereType?[,] spheres, int x, int y) : base(spheres, x, y) { }
+
+		public override string Name => "Replace BG -> FG";
+	}
+
+	[Serializable]
+	class SwapFGAndBGAction : AreaAction
+	{
+		public SwapFGAndBGAction(SphereType?[,] spheres, Point position) : base(spheres, position) { }
+
+		public SwapFGAndBGAction(SphereType?[,] spheres, int x, int y) : base(spheres, x, y) { }
+
+		public override string Name => "Swap FG <-> BG";
 	}
 
 	[Serializable]
