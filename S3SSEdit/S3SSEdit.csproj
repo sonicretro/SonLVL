@@ -106,6 +106,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\gridpal.bin" />
     <None Include="Resources\yellow.png" />
     <None Include="Resources\ring.png" />
     <None Include="Resources\red.png" />

@@ -1,6 +1,7 @@
 ﻿using SonicRetro.SonLVL.API;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -29,6 +30,7 @@ namespace S3SSEdit
 		int stagenum = 0;
 		string stgname = "New Stage";
 		string filename = null;
+		int gridpalnum = 0;
 		StageSelectDialog stageseldlg;
 		SphereType fgsphere = SphereType.Blue;
 		SphereType bgsphere = SphereType.Empty;
@@ -85,6 +87,14 @@ namespace S3SSEdit
 				settings.RecentFiles = mru;
 				recentFilesToolStripMenuItem.Enabled = mru.Count > 0;
 			}
+			saveUndoHistoryToolStripMenuItem.Checked = settings.SaveUndoHistory;
+			showGridToolStripMenuItem.Checked = settings.ShowGrid;
+			if (showGridToolStripMenuItem.Checked)
+			{
+				SonLVLColor[] tmp = SonLVLColor.Load(Properties.Resources.gridpal, 0, 2, EngineVersion.S3K);
+				LayoutDrawer.Palette.Entries[0] = tmp[0].RGBColor;
+				LayoutDrawer.Palette.Entries[1] = tmp[1].RGBColor;
+			}
 			layoutgfx = layoutPanel.CreateGraphics();
 			layoutgfx.SetOptions();
 		}
@@ -99,7 +109,14 @@ namespace S3SSEdit
 		private Bitmap MakeLayoutSectionImage(LayoutSection section)
 		{
 			LayoutDrawer.Palette.Entries[0] = LayoutDrawer.Palette.Entries[1] = SystemColors.Control;
-			return LayoutDrawer.DrawLayout(section.Spheres, 24).ToBitmap(LayoutDrawer.Palette).To32bpp();
+			Bitmap result = LayoutDrawer.DrawLayout(section.Spheres, 24).ToBitmap(LayoutDrawer.Palette).To32bpp();
+			if (showGridToolStripMenuItem.Checked)
+			{
+				SonLVLColor[] tmp = SonLVLColor.Load(Properties.Resources.gridpal, gridpalnum * 4, 2, EngineVersion.S3K);
+				LayoutDrawer.Palette.Entries[0] = tmp[0].RGBColor;
+				LayoutDrawer.Palette.Entries[1] = tmp[1].RGBColor;
+			}
+			return result;
 		}
 
 		private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -115,6 +132,7 @@ namespace S3SSEdit
 						break;
 				}
 			settings.SaveUndoHistory = saveUndoHistoryToolStripMenuItem.Checked;
+			settings.ShowGrid = showGridToolStripMenuItem.Checked;
 			settings.Save("S3SSEdit.ini");
 		}
 
@@ -134,6 +152,7 @@ namespace S3SSEdit
 				layout = new SSLayoutData();
 				filename = null;
 				stgname = "New Stage";
+				gridpalnum = 0;
 				LoadStage();
 			}
 		}
@@ -171,6 +190,7 @@ namespace S3SSEdit
 					layout = new SSLayoutData();
 					filename = null;
 					stgname = "New Stage";
+					gridpalnum = 0;
 					LoadStage();
 				}
 				else
@@ -180,6 +200,8 @@ namespace S3SSEdit
 			{
 				layout = new SSLayoutData(File.ReadAllBytes(filename));
 				stgname = Path.GetFileNameWithoutExtension(filename);
+				if (stgname[stgname.Length - 1] >= '1' && stgname[stgname.Length - 1] <= '8')
+					gridpalnum = stgname[stgname.Length - 1] - '1';
 				AddRecentFile();
 				LoadStage();
 			}
@@ -204,7 +226,12 @@ namespace S3SSEdit
 
 		private bool SelectProjectStage()
 		{
-			if (stageseldlg.ShowDialog(this) != DialogResult.OK)
+			Color[] tmpcol = { LayoutDrawer.Palette.Entries[0], LayoutDrawer.Palette.Entries[1] };
+			LayoutDrawer.Palette.Entries[0] = LayoutDrawer.Palette.Entries[1] = SystemColors.Control;
+			bool cancel = stageseldlg.ShowDialog(this) != DialogResult.OK;
+			LayoutDrawer.Palette.Entries[0] = tmpcol[0];
+			LayoutDrawer.Palette.Entries[1] = tmpcol[1];
+			if (cancel)
 				return false;
 			string path = Path.GetDirectoryName(filename);
 			layoutmode = stageseldlg.Category;
@@ -214,6 +241,7 @@ namespace S3SSEdit
 				case LayoutMode.S3:
 					layout = new SSLayoutData(File.ReadAllBytes(Path.Combine(path, project.S3Stages[stagenum])));
 					stgname = $"Sonic 3 Stage {stagenum + 1}";
+					gridpalnum = stagenum & 7;
 					startButton.Visible = true;
 					bsChunkOptionsPanel.Visible = false;
 					bsStageOptionsPanel.Visible = false;
@@ -222,6 +250,7 @@ namespace S3SSEdit
 				case LayoutMode.SK:
 					layout = new SSLayoutData(Compression.Decompress(Path.Combine(path, project.SKStageSet), CompressionType.Kosinski), stagenum * SSLayoutData.Size);
 					stgname = $"Sonic & Knuckles Stage {stagenum + 1}";
+					gridpalnum = (stagenum & 7) + 8;
 					startButton.Visible = true;
 					bsChunkOptionsPanel.Visible = false;
 					bsStageOptionsPanel.Visible = false;
@@ -230,6 +259,7 @@ namespace S3SSEdit
 				case LayoutMode.BSChunk:
 					layout = new BSChunkLayoutData(Compression.Decompress(Path.Combine(path, project.BlueSphereChunkSet), CompressionType.Kosinski), stagenum);
 					stgname = $"Blue Sphere Chunk {stagenum}";
+					gridpalnum = stagenum & 15;
 					startButton.Visible = false;
 					if (startButton.Checked)
 						pencilButton.Checked = true;
@@ -240,6 +270,7 @@ namespace S3SSEdit
 				case LayoutMode.BSLayout:
 					layout = new BSStageLayoutData(Compression.Decompress(Path.Combine(path, project.BlueSphereChunkSet), CompressionType.Kosinski), stageseldlg.BSChunks);
 					stgname = $"Blue Sphere {stageseldlg.BSMode} {stagenum}";
+					gridpalnum = stageseldlg.BSChunks[2] & 15;
 					startButton.Visible = false;
 					if (startButton.Checked)
 						pencilButton.Checked = true;
@@ -248,6 +279,12 @@ namespace S3SSEdit
 					bsStageOptionsPanel.Visible = true;
 					bsStageSection.SelectedIndex = 0;
 					break;
+			}
+			if (showGridToolStripMenuItem.Checked)
+			{
+				SonLVLColor[] tmp = SonLVLColor.Load(Properties.Resources.gridpal, gridpalnum * 4, 2, EngineVersion.S3K);
+				LayoutDrawer.Palette.Entries[0] = tmp[0].RGBColor;
+				LayoutDrawer.Palette.Entries[1] = tmp[1].RGBColor;
 			}
 			layoutPanel.Width = layoutPanel.Height = layout.Layout.Size * gridsize;
 			layoutgfx = layoutPanel.CreateGraphics();
@@ -288,6 +325,12 @@ namespace S3SSEdit
 			bsChunkOptionsPanel.Visible = false;
 			bsStageOptionsPanel.Visible = false;
 			stageLayoutOptionsPanel.Visible = true;
+			if (showGridToolStripMenuItem.Checked)
+			{
+				SonLVLColor[] tmp = SonLVLColor.Load(Properties.Resources.gridpal, gridpalnum * 4, 2, EngineVersion.S3K);
+				LayoutDrawer.Palette.Entries[0] = tmp[0].RGBColor;
+				LayoutDrawer.Palette.Entries[1] = tmp[1].RGBColor;
+			}
 			layoutPanel.Width = layoutPanel.Height = layout.Layout.Size * gridsize;
 			layoutgfx = layoutPanel.CreateGraphics();
 			layoutgfx.SetOptions();
@@ -522,6 +565,19 @@ namespace S3SSEdit
 				redoToolStripMenuItem.Enabled = false;
 			UpdateText();
 			UpdateControls();
+			DrawLayout();
+		}
+
+		private void showGridToolStripMenuItem_CheckStateChanged(object sender, EventArgs e)
+		{
+			if (showGridToolStripMenuItem.Checked)
+			{
+				SonLVLColor[] tmp = SonLVLColor.Load(Properties.Resources.gridpal, gridpalnum * 4, 2, EngineVersion.S3K);
+				LayoutDrawer.Palette.Entries[0] = tmp[0].RGBColor;
+				LayoutDrawer.Palette.Entries[1] = tmp[1].RGBColor;
+			}
+			else
+				LayoutDrawer.Palette.Entries[0] = LayoutDrawer.Palette.Entries[1] = SystemColors.Control;
 			DrawLayout();
 		}
 
@@ -1860,7 +1916,11 @@ namespace S3SSEdit
 		[IniCollection(IniCollectionMode.NoSquareBrackets, StartIndex = 1)]
 		public List<string> RecentFiles { get; set; } = new List<string>();
 		[IniAlwaysInclude]
+		[DefaultValue(true)]
 		public bool SaveUndoHistory { get; set; } = true;
+		[IniAlwaysInclude]
+		[DefaultValue(true)]
+		public bool ShowGrid { get; set; } = true;
 
 		public static Settings Load(string filename)
 		{

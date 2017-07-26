@@ -99,6 +99,10 @@
 			this.pasteRepeatingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.importToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.insertTextToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.replaceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.replaceFGToBGToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.replaceBGToFGToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.swapFGAndBGToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.flipHorizontallyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.flipVerticallyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.rotateLeftToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -106,10 +110,8 @@
 			this.saveSectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.pasteSectionOnceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.pasteSectionRepeatingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.replaceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.replaceFGToBGToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.replaceBGToFGToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.swapFGAndBGToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.showGridToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			menuStrip1 = new System.Windows.Forms.MenuStrip();
 			imageList1 = new System.Windows.Forms.ImageList(this.components);
 			panel1 = new System.Windows.Forms.Panel();
@@ -161,7 +163,8 @@
 			// 
 			menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
-            this.editToolStripMenuItem});
+            this.editToolStripMenuItem,
+            this.viewToolStripMenuItem});
 			menuStrip1.Location = new System.Drawing.Point(0, 0);
 			menuStrip1.Name = "menuStrip1";
 			menuStrip1.Size = new System.Drawing.Size(584, 24);
@@ -912,7 +915,7 @@
             this.pasteSectionOnceToolStripMenuItem,
             this.pasteSectionRepeatingToolStripMenuItem});
 			this.layoutContextMenuStrip.Name = "layoutContextMenuStrip";
-			this.layoutContextMenuStrip.Size = new System.Drawing.Size(201, 346);
+			this.layoutContextMenuStrip.Size = new System.Drawing.Size(201, 324);
 			// 
 			// cutToolStripMenuItem
 			// 
@@ -961,6 +964,37 @@
 			this.insertTextToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
 			this.insertTextToolStripMenuItem.Text = "Insert Te&xt...";
 			this.insertTextToolStripMenuItem.Click += new System.EventHandler(this.insertTextToolStripMenuItem_Click);
+			// 
+			// replaceToolStripMenuItem
+			// 
+			this.replaceToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.replaceFGToBGToolStripMenuItem,
+            this.replaceBGToFGToolStripMenuItem,
+            this.swapFGAndBGToolStripMenuItem});
+			this.replaceToolStripMenuItem.Name = "replaceToolStripMenuItem";
+			this.replaceToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+			this.replaceToolStripMenuItem.Text = "Repl&ace...";
+			// 
+			// replaceFGToBGToolStripMenuItem
+			// 
+			this.replaceFGToBGToolStripMenuItem.Name = "replaceFGToBGToolStripMenuItem";
+			this.replaceFGToBGToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
+			this.replaceFGToBGToolStripMenuItem.Text = "&FG -> BG";
+			this.replaceFGToBGToolStripMenuItem.Click += new System.EventHandler(this.replaceFGToBGToolStripMenuItem_Click);
+			// 
+			// replaceBGToFGToolStripMenuItem
+			// 
+			this.replaceBGToFGToolStripMenuItem.Name = "replaceBGToFGToolStripMenuItem";
+			this.replaceBGToFGToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
+			this.replaceBGToFGToolStripMenuItem.Text = "&BG -> FG";
+			this.replaceBGToFGToolStripMenuItem.Click += new System.EventHandler(this.replaceBGToFGToolStripMenuItem_Click);
+			// 
+			// swapFGAndBGToolStripMenuItem
+			// 
+			this.swapFGAndBGToolStripMenuItem.Name = "swapFGAndBGToolStripMenuItem";
+			this.swapFGAndBGToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
+			this.swapFGAndBGToolStripMenuItem.Text = "F&G <-> BG";
+			this.swapFGAndBGToolStripMenuItem.Click += new System.EventHandler(this.swapFGAndBGToolStripMenuItem_Click);
 			// 
 			// flipHorizontallyToolStripMenuItem
 			// 
@@ -1017,36 +1051,23 @@
 			this.pasteSectionRepeatingToolStripMenuItem.Text = "Paste Section R&epeating";
 			this.pasteSectionRepeatingToolStripMenuItem.Click += new System.EventHandler(this.pasteSectionRepeatingToolStripMenuItem_Click);
 			// 
-			// replaceToolStripMenuItem
+			// viewToolStripMenuItem
 			// 
-			this.replaceToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.replaceFGToBGToolStripMenuItem,
-            this.replaceBGToFGToolStripMenuItem,
-            this.swapFGAndBGToolStripMenuItem});
-			this.replaceToolStripMenuItem.Name = "replaceToolStripMenuItem";
-			this.replaceToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
-			this.replaceToolStripMenuItem.Text = "Repl&ace...";
+			this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.showGridToolStripMenuItem});
+			this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
+			this.viewToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
+			this.viewToolStripMenuItem.Text = "&View";
 			// 
-			// replaceFGToBGToolStripMenuItem
+			// showGridToolStripMenuItem
 			// 
-			this.replaceFGToBGToolStripMenuItem.Name = "replaceFGToBGToolStripMenuItem";
-			this.replaceFGToBGToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-			this.replaceFGToBGToolStripMenuItem.Text = "&FG -> BG";
-			this.replaceFGToBGToolStripMenuItem.Click += new System.EventHandler(this.replaceFGToBGToolStripMenuItem_Click);
-			// 
-			// replaceBGToFGToolStripMenuItem
-			// 
-			this.replaceBGToFGToolStripMenuItem.Name = "replaceBGToFGToolStripMenuItem";
-			this.replaceBGToFGToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-			this.replaceBGToFGToolStripMenuItem.Text = "&BG -> FG";
-			this.replaceBGToFGToolStripMenuItem.Click += new System.EventHandler(this.replaceBGToFGToolStripMenuItem_Click);
-			// 
-			// swapFGAndBGToolStripMenuItem
-			// 
-			this.swapFGAndBGToolStripMenuItem.Name = "swapFGAndBGToolStripMenuItem";
-			this.swapFGAndBGToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-			this.swapFGAndBGToolStripMenuItem.Text = "F&G <-> BG";
-			this.swapFGAndBGToolStripMenuItem.Click += new System.EventHandler(this.swapFGAndBGToolStripMenuItem_Click);
+			this.showGridToolStripMenuItem.Checked = true;
+			this.showGridToolStripMenuItem.CheckOnClick = true;
+			this.showGridToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.showGridToolStripMenuItem.Name = "showGridToolStripMenuItem";
+			this.showGridToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.showGridToolStripMenuItem.Text = "Show &Grid";
+			this.showGridToolStripMenuItem.CheckStateChanged += new System.EventHandler(this.showGridToolStripMenuItem_CheckStateChanged);
 			// 
 			// MainForm
 			// 
@@ -1176,6 +1197,8 @@
 		private System.Windows.Forms.ToolStripMenuItem replaceFGToBGToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem replaceBGToFGToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem swapFGAndBGToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem viewToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem showGridToolStripMenuItem;
 	}
 }
 
