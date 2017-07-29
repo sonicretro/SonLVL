@@ -1,10 +1,12 @@
 using System;
 using System.CodeDom.Compiler;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace SonicRetro.SonLVL.API
@@ -57,6 +59,7 @@ namespace SonicRetro.SonLVL.API
 		public static List<BitmapBits[]> ChunkColBmpBits;
 		public static List<Bitmap[]> ChunkColBmps;
 		public static Bitmap UnknownImg;
+		public static Sprite UnknownSprite;
 		public static List<Sprite> Sprites;
 		public delegate void LogEventHandler(params string[] message);
 		public static event LogEventHandler LogEvent = delegate { };
@@ -113,6 +116,7 @@ namespace SonicRetro.SonLVL.API
 				default:
 					throw new NotImplementedException("Game type " + Game.EngineVersion.ToString() + " is not supported!");
 			}
+			UnknownSprite = new Sprite(new BitmapBits(UnknownImg), new Point(-8, -7));
 			Log("Game type is " + Game.EngineVersion.ToString() + ".");
 		}
 
@@ -143,242 +147,22 @@ namespace SonicRetro.SonLVL.API
 				default:
 					throw new NotImplementedException("Game type " + Level.EngineVersion.ToString() + " is not supported!");
 			}
+			UnknownSprite = new Sprite(new BitmapBits(UnknownImg), new Point(-8, -7));
 			Log("Loading " + Level.DisplayName + "...");
 			if ((Level.ChunkWidth & 15) != 0)
 				throw new ArgumentException("Chunk width must be divisible by 16!");
 			if ((Level.ChunkHeight & 15) != 0)
 				throw new ArgumentException("Chunk height must be divisible by 16!");
 			byte[] tmp = null;
-			List<byte> data = new List<byte>();
-			Tiles = new MultiFileIndexer<byte[]>(() => new byte[32]);
-			if (Level.TileFormat != EngineVersion.SCDPC)
+			Parallel.Invoke(LoadLevelTiles, LoadLevelBlocks, LoadLevelChunks, () => LoadLevelLayout(levelname), LoadLevelPalette,
+				LoadLevelColInds, LoadLevelColArr, LoadLevelAngles);
+			if (ColInds1 != null && Level.EngineVersion != EngineVersion.S3K && Level.EngineVersion != EngineVersion.SKC)
 			{
-				foreach (FileInfo tileent in Level.Tiles)
-				{
-					tmp = null;
-					if (File.Exists(tileent.Filename))
-					{
-						Log("Loading 8x8 tiles from file \"" + tileent.Filename + "\", using compression " + Level.TileCompression.ToString() + "...");
-						tmp = Compression.Decompress(tileent.Filename, Level.TileCompression);
-						Pad(ref tmp, 32);
-						List<byte[]> tiles = new List<byte[]>();
-						for (int i = 0; i < tmp.Length; i += 32)
-						{
-							byte[] tile = new byte[32];
-							Array.Copy(tmp, i, tile, 0, 32);
-							tiles.Add(tile);
-						}
-						Tiles.AddFile(tiles, tileent.Offset == -1 ? tileent.Offset : tileent.Offset / 32);
-					}
-					else
-					{
-						Log("8x8 tile file \"" + tileent.Filename + "\" not found.");
-						Tiles.AddFile(new List<byte[]>() { new byte[32] }, tileent.Offset == -1 ? tileent.Offset : tileent.Offset / 32);
-					}
-				}
+				if (ColInds1.Count < Blocks.Count)
+					ColInds1.AddRange(new byte[Blocks.Count - ColInds1.Count]);
+				if (ColInds2.Count < Blocks.Count)
+					ColInds2.AddRange(new byte[Blocks.Count - ColInds2.Count]);
 			}
-			else
-			{
-				Level.TileCompression = CompressionType.SZDD;
-				if (File.Exists(Level.Tiles[0].Filename))
-				{
-					Log("Loading 8x8 tiles from file \"" + Level.Tiles[0].Filename + "\", using compression SZDD...");
-					tmp = Compression.Decompress(Level.Tiles[0].Filename, CompressionType.SZDD);
-					int sta = ByteConverter.ToInt32(tmp, 0xC);
-					int numt = ByteConverter.ToInt32(tmp, 8);
-					List<byte[]> tiles = new List<byte[]>();
-					for (int i = 0; i < numt; i++)
-					{
-						byte[] tile = new byte[32];
-						Array.Copy(tmp, sta, tile, 0, 32);
-						tiles.Add(tile);
-						sta += 32;
-					}
-					Tiles.AddFile(tiles, -1);
-				}
-				else
-				{
-					Log("8x8 tile file \"" + Level.Tiles[0].Filename + "\" not found.");
-					Tiles.AddFile(new List<byte[]>() { new byte[32] }, -1);
-				}
-			}
-			Tiles.FillGaps();
-			UpdateTileArray();
-			Blocks = new MultiFileIndexer<Block>(() => new Block());
-			foreach (FileInfo tileent in Level.Blocks)
-			{
-				if (File.Exists(tileent.Filename))
-				{
-					Log("Loading 16x16 blocks from file \"" + tileent.Filename + "\", using compression " + Level.BlockCompression.ToString() + "...");
-					tmp = Compression.Decompress(tileent.Filename, Level.BlockCompression);
-					Pad(ref tmp, Block.Size);
-					List<Block> tmpblk = new List<Block>();
-					if (Level.EngineVersion == EngineVersion.SKC)
-						littleendian = false;
-					for (int ba = 0; ba < tmp.Length; ba += Block.Size)
-						tmpblk.Add(new Block(tmp, ba));
-					if (Level.EngineVersion == EngineVersion.SKC)
-						littleendian = true;
-					Blocks.AddFile(tmpblk, tileent.Offset == -1 ? tileent.Offset : tileent.Offset / Block.Size);
-				}
-				else
-				{
-					Log("16x16 block file \"" + tileent.Filename + "\" not found.");
-					Blocks.AddFile(new List<Block>() { new Block() }, tileent.Offset == -1 ? tileent.Offset : tileent.Offset / Block.Size);
-				}
-			}
-			if (Blocks.Count == 0)
-				Blocks.AddFile(new List<Block>() { new Block() }, -1);
-			Blocks.FillGaps();
-			Chunks = new MultiFileIndexer<Chunk>(() => new Chunk());
-			data = new List<byte>();
-			int fileind = 0;
-			foreach (FileInfo tileent in Level.Chunks)
-			{
-				if (File.Exists(tileent.Filename))
-				{
-					Log("Loading " + Level.ChunkWidth + "x" + Level.ChunkHeight + " chunks from file \"" + tileent.Filename + "\", using compression " + Level.ChunkCompression.ToString() + "...");
-					tmp = Compression.Decompress(tileent.Filename, Level.ChunkCompression);
-					Pad(ref tmp, Chunk.Size);
-					List<Chunk> tmpchnk = new List<Chunk>();
-					if (fileind == 0)
-					{
-						switch (Level.ChunkFormat)
-						{
-							case EngineVersion.S1:
-							case EngineVersion.SCD:
-							case EngineVersion.SCDPC:
-								tmpchnk.Add(new Chunk());
-								break;
-						}
-					}
-					if (Level.EngineVersion == EngineVersion.SKC)
-						littleendian = false;
-					for (int ba = 0; ba < tmp.Length; ba += Chunk.Size)
-						tmpchnk.Add(new Chunk(tmp, ba));
-					if (Level.EngineVersion == EngineVersion.SKC)
-						littleendian = true;
-					Chunks.AddFile(tmpchnk, tileent.Offset == -1 ? tileent.Offset : tileent.Offset / Chunk.Size);
-					fileind++;
-				}
-				else
-				{
-					Log(Level.ChunkWidth + "x" + Level.ChunkHeight + " chunk file \"" + tileent.Filename + "\" not found.");
-					Chunks.AddFile(new List<Chunk>() { new Chunk() }, tileent.Offset == -1 ? tileent.Offset : tileent.Offset / Chunk.Size);
-				}
-			}
-			if (Chunks.Count == 0)
-				Chunks.AddFile(new List<Chunk>() { new Chunk() }, -1);
-			Chunks.FillGaps();
-			Layout = new LayoutData();
-			AdditionalLayouts = new Dictionary<string,KeyValuePair<CompressionType,LayoutData>>();
-			switch (Level.LayoutFormat)
-			{
-				case EngineVersion.S1:
-				case EngineVersion.SCD:
-					LayoutFormat = new S1.Layout();
-					break;
-				case EngineVersion.S2NA:
-					LayoutFormat = new S2NA.Layout();
-					break;
-				case EngineVersion.S2:
-					LayoutFormat = new S2.Layout();
-					break;
-				case EngineVersion.S3K:
-					LayoutFormat = new S3K.Layout();
-					break;
-				case EngineVersion.SKC:
-					LayoutFormat = new SKC.Layout();
-					break;
-				case EngineVersion.SCDPC:
-					LayoutFormat = new SCDPC.Layout();
-					break;
-				case EngineVersion.Custom:
-					LayoutFormat = CompileCodeFile<LayoutFormat>(Level.LayoutCodeFile, Level.LayoutCodeType);
-					break;
-			}
-			if (LayoutFormat.IsCombinedLayout)
-			{
-				LayoutFormatCombined lfc = (LayoutFormatCombined)LayoutFormat;
-				lfc.TryReadLayout(Level.Layout, Level.LayoutCompression, Layout);
-				foreach (string lvlname in Game.Levels.Keys)
-					if (lvlname != levelname)
-					{
-						LevelInfo lvlinf = Game.GetLevelInfo(lvlname);
-						if (Level.Layout != lvlinf.Layout && !AdditionalLayouts.ContainsKey(lvlinf.Layout)
-							&& Level.LayoutFormat == lvlinf.LayoutFormat && Level.Chunks.ArrayEqual(lvlinf.Chunks))
-						{
-							LayoutData ld = new LayoutData();
-							lfc.TryReadLayout(lvlinf.Layout, lvlinf.LayoutCompression, ld);
-							AdditionalLayouts.Add(lvlinf.Layout, new KeyValuePair<CompressionType, LayoutData>(lvlinf.LayoutCompression, ld));
-						}
-					}
-			}
-			else
-			{
-				LayoutFormatSeparate lfs = (LayoutFormatSeparate)LayoutFormat;
-				lfs.TryReadLayout(Level.FGLayout, Level.BGLayout, Level.FGLayoutCompression, Level.BGLayoutCompression, Layout);
-				foreach (string lvlname in Game.Levels.Keys)
-					if (lvlname != levelname)
-					{
-						LevelInfo lvlinf = Game.GetLevelInfo(lvlname);
-						if (Level.LayoutFormat == lvlinf.LayoutFormat && Level.Chunks.ArrayEqual(lvlinf.Chunks))
-						{
-							if (Level.FGLayout != lvlinf.FGLayout && !AdditionalLayouts.ContainsKey(lvlinf.FGLayout))
-							{
-								LayoutData ld = new LayoutData();
-								lfs.TryReadFG(lvlinf.FGLayout, lvlinf.FGLayoutCompression, ld);
-								AdditionalLayouts.Add(lvlinf.FGLayout, new KeyValuePair<CompressionType, LayoutData>(lvlinf.FGLayoutCompression, ld));
-							}
-							if (Level.BGLayout != lvlinf.BGLayout && !AdditionalLayouts.ContainsKey(lvlinf.BGLayout))
-							{
-								LayoutData ld = new LayoutData();
-								lfs.TryReadBG(lvlinf.BGLayout, lvlinf.BGLayoutCompression, ld);
-								AdditionalLayouts.Add(lvlinf.BGLayout, new KeyValuePair<CompressionType, LayoutData>(lvlinf.BGLayoutCompression, ld));
-							}
-						}
-					}
-			}
-			PalName = new List<string>();
-			Palette = new List<SonLVLColor[,]>();
-			PalNum = new List<byte[,]>();
-			PalAddr = new List<int[,]>();
-			byte palfilenum = 0;
-			for (int palnum = 0; palnum < Level.Palettes.Length; palnum++)
-			{
-				PalName.Add(Level.Palettes[palnum].Name);
-				Palette.Add(new SonLVLColor[4, 16]);
-				PalNum.Add(new byte[4, 16]);
-				PalAddr.Add(new int[4, 16]);
-				for (byte pn = 0; pn < Level.Palettes[palnum].Palettes.Collection.Length; pn++)
-				{
-					PaletteInfo palent = Level.Palettes[palnum].Palettes[pn];
-					Log("Loading palette file \"" + palent.Filename + "\"...", "Source: " + palent.Source + " Destination: " + palent.Destination + " Length: " + palent.Length);
-					if (!File.Exists(palent.Filename)) throw new FileNotFoundException("Palette file could not be loaded! Have you set up your disassembly properly?", palent.Filename);
-					tmp = File.ReadAllBytes(palent.Filename);
-					SonLVLColor[] palfile;
-					if (Level.PaletteFormat != EngineVersion.SCDPC)
-					{
-						palfile = new SonLVLColor[tmp.Length / 2];
-						for (int pi = 0; pi < tmp.Length; pi += 2)
-							palfile[pi / 2] = new SonLVLColor(ByteConverter.ToUInt16(tmp, pi));
-					}
-					else
-					{
-						palfile = new SonLVLColor[tmp.Length / 4];
-						for (int pi = 0; pi < tmp.Length; pi += 4)
-							palfile[pi / 4] = new SonLVLColor(tmp[pi], tmp[pi + 1], tmp[pi + 2]);
-					}
-					for (int pa = 0; pa < palent.Length; pa++)
-					{
-						Palette[palnum][(pa + palent.Destination) / 16, (pa + palent.Destination) % 16] = palfile[pa + palent.Source];
-						PalNum[palnum][(pa + palent.Destination) / 16, (pa + palent.Destination) % 16] = palfilenum;
-						PalAddr[palnum][(pa + palent.Destination) / 16, (pa + palent.Destination) % 16] = pa + palent.Source;
-					}
-					palfilenum++;
-				}
-			}
-			CurPal = 0;
 			switch (Level.ObjectFormat)
 			{
 				case EngineVersion.S1:
@@ -461,10 +245,10 @@ namespace SonicRetro.SonLVL.API
 				filecache = new Dictionary<string, byte[]>();
 				unkobj = new DefaultObjectDefinition();
 				unkobj.Init(new ObjectData());
-				if (!System.IO.Directory.Exists("dllcache"))
+				if (!Directory.Exists("dllcache"))
 				{
-					System.IO.DirectoryInfo dir = System.IO.Directory.CreateDirectory("dllcache");
-					dir.Attributes |= System.IO.FileAttributes.Hidden;
+					DirectoryInfo dir = Directory.CreateDirectory("dllcache");
+					dir.Attributes |= FileAttributes.Hidden;
 				}
 				if (Game.ObjectList != null)
 					foreach (string item in Game.ObjectList)
@@ -474,74 +258,316 @@ namespace SonicRetro.SonLVL.API
 						LoadObjectDefinitionFile(item);
 				InitObjectDefinitions();
 			}
-			if (Level.Objects != null)
+			Parallel.Invoke(() => LoadLevelObjects(loadGraphics), () => LoadLevelRings(loadGraphics),
+				() => LoadLevelBumpers(loadGraphics), () => LoadLevelStartPositions(loadGraphics));
+			if (loadGraphics)
 			{
-				Objects = ObjectFormat.TryReadLayout(Level.Objects, Level.ObjectCompression, out objectterm);
-				if (loadGraphics)
-					for (int i = 0; i < Objects.Count; i++)
-						Objects[i].UpdateSprite();
-			}
-			else
-				Objects = new List<ObjectEntry>();
-			if (Level.Rings != null && RingFormat is RingLayoutFormat)
-			{
-				Rings = ((RingLayoutFormat)RingFormat).TryReadLayout(Level.Rings, Level.RingCompression, out ringstartterm, out ringendterm);
-				if (loadGraphics)
-					foreach (RingEntry ring in Rings)
-						ring.UpdateSprite();
-			}
-			else
-				Rings = new List<RingEntry>();
-			if (Level.Bumpers != null)
-			{
-				Bumpers = new List<CNZBumperEntry>();
-				if (File.Exists(Level.Bumpers))
+				Parallel.Invoke(() =>
 				{
-					Log("Loading bumpers from file \"" + Level.Bumpers + "\", using compression " + Level.BumperCompression + "...");
-					tmp = Compression.Decompress(Level.Bumpers, Level.BumperCompression);
-					for (int i = 0; i < tmp.Length; i += CNZBumperEntry.Size)
+					BlockBmps = new List<Bitmap[]>(Blocks.Count);
+					BlockBmpBits = new List<BitmapBits[]>(Blocks.Count);
+					CompBlockBmps = new List<Bitmap>(Blocks.Count);
+					CompBlockBmpBits = new List<BitmapBits>(Blocks.Count);
+					for (int bi = 0; bi < Blocks.Count; bi++)
 					{
-						if (ByteConverter.ToUInt16(tmp, i + 2) == 0xFFFF) break;
-						CNZBumperEntry ent = new CNZBumperEntry(tmp, i);
-						Bumpers.Add(ent);
-						if (loadGraphics) ent.UpdateSprite();
+						BlockBmps.Add(new Bitmap[2]);
+						BlockBmpBits.Add(new BitmapBits[2]);
+						CompBlockBmps.Add(null);
+						CompBlockBmpBits.Add(null);
 					}
-				}
-				else
-					Log("Bumper file \"" + Level.Bumpers + "\" not found.");
-			}
-			else
-			{
-				Bumpers = null;
-			}
-			StartPositions = new List<StartPositionEntry>();
-			StartPosDefs = new List<StartPositionDefinition>();
-			if (Level.StartPositions != null)
-			{
-				foreach (StartPositionInfo item in Level.StartPositions)
+				},
+				() =>
 				{
-					StartPositionEntry ent;
-					if (File.Exists(item.Filename))
+					ColBmps = new Bitmap[256];
+					ColBmpBits = new BitmapBits[256];
+				},
+				() =>
+				{
+					ChunkBmps = new List<Bitmap[]>(Chunks.Count);
+					ChunkBmpBits = new List<BitmapBits[]>(Chunks.Count);
+					ChunkColBmps = new List<Bitmap[]>(Chunks.Count);
+					ChunkColBmpBits = new List<BitmapBits[]>(Chunks.Count);
+					CompChunkBmps = new List<Bitmap>(Chunks.Count);
+					CompChunkBmpBits = new List<BitmapBits>(Chunks.Count);
+					for (int ci = 0; ci < Chunks.Count; ci++)
 					{
-						Log("Loading start position \"" + item.Name + "\" from file \"" + item.Filename + "\"...");
-						ent = new StartPositionEntry(File.ReadAllBytes(item.Filename), item.Offset == -1 ? 0 : item.Offset);
+						ChunkBmps.Add(new Bitmap[2]);
+						ChunkBmpBits.Add(new BitmapBits[2]);
+						ChunkColBmps.Add(new Bitmap[2]);
+						ChunkColBmpBits.Add(new BitmapBits[2]);
+						CompChunkBmps.Add(null);
+						CompChunkBmpBits.Add(null);
+					}
+				});
+				Log("Drawing block bitmaps...");
+				Parallel.ForEach(Partitioner.Create(0, Blocks.Count), range =>
+				{
+					for (int bi = range.Item1; bi < range.Item2; bi++)
+						RedrawBlock(bi, false);
+				});
+				Parallel.ForEach(Partitioner.Create(0, 256), range =>
+				{
+					for (int ci = range.Item1; ci < range.Item2; ci++)
+						RedrawCol(ci, false);
+				});
+				Log("Drawing chunk bitmaps...");
+				Parallel.ForEach(Partitioner.Create(0, Chunks.Count), range =>
+				{
+					for (int ci = range.Item1; ci < range.Item2; ci++)
+						RedrawChunk(ci);
+				});
+			}
+		}
+
+		private static void LoadLevelTiles()
+		{
+			Tiles = new MultiFileIndexer<byte[]>(() => new byte[32]);
+			if (Level.TileFormat != EngineVersion.SCDPC)
+			{
+				foreach (FileInfo tileent in Level.Tiles)
+				{
+					if (File.Exists(tileent.Filename))
+					{
+						Log("Loading 8x8 tiles from file \"" + tileent.Filename + "\", using compression " + Level.TileCompression.ToString() + "...");
+						byte[] tmp = Compression.Decompress(tileent.Filename, Level.TileCompression);
+						Pad(ref tmp, 32);
+						List<byte[]> tiles = new List<byte[]>();
+						for (int i = 0; i < tmp.Length; i += 32)
+						{
+							byte[] tile = new byte[32];
+							Array.Copy(tmp, i, tile, 0, 32);
+							tiles.Add(tile);
+						}
+						Tiles.AddFile(tiles, tileent.Offset == -1 ? tileent.Offset : tileent.Offset / 32);
 					}
 					else
 					{
-						Log("Start position file \"" + item.Filename + "\" not found.");
-						ent = new StartPositionEntry();
-					}
-					StartPositions.Add(ent);
-					if (loadGraphics)
-					{
-						if (!string.IsNullOrEmpty(item.Sprite))
-							StartPosDefs.Add(new StartPositionDefinition(INIObjDefs[item.Sprite], item.Name));
-						else
-							StartPosDefs.Add(new StartPositionDefinition(item.Name));
-						ent.UpdateSprite();
+						Log("8x8 tile file \"" + tileent.Filename + "\" not found.");
+						Tiles.AddFile(new List<byte[]>() { new byte[32] }, tileent.Offset == -1 ? tileent.Offset : tileent.Offset / 32);
 					}
 				}
 			}
+			else
+			{
+				Level.TileCompression = CompressionType.SZDD;
+				if (File.Exists(Level.Tiles[0].Filename))
+				{
+					Log("Loading 8x8 tiles from file \"" + Level.Tiles[0].Filename + "\", using compression SZDD...");
+					byte[] tmp = Compression.Decompress(Level.Tiles[0].Filename, CompressionType.SZDD);
+					int sta = ByteConverter.ToInt32(tmp, 0xC);
+					int numt = ByteConverter.ToInt32(tmp, 8);
+					List<byte[]> tiles = new List<byte[]>();
+					for (int i = 0; i < numt; i++)
+					{
+						byte[] tile = new byte[32];
+						Array.Copy(tmp, sta, tile, 0, 32);
+						tiles.Add(tile);
+						sta += 32;
+					}
+					Tiles.AddFile(tiles, -1);
+				}
+				else
+				{
+					Log("8x8 tile file \"" + Level.Tiles[0].Filename + "\" not found.");
+					Tiles.AddFile(new List<byte[]>() { new byte[32] }, -1);
+				}
+			}
+			Tiles.FillGaps();
+			UpdateTileArray();
+		}
+
+		private static void LoadLevelBlocks()
+		{
+			Blocks = new MultiFileIndexer<Block>(() => new Block());
+			foreach (FileInfo tileent in Level.Blocks)
+			{
+				if (File.Exists(tileent.Filename))
+				{
+					Log("Loading 16x16 blocks from file \"" + tileent.Filename + "\", using compression " + Level.BlockCompression.ToString() + "...");
+					byte[] tmp = Compression.Decompress(tileent.Filename, Level.BlockCompression);
+					Pad(ref tmp, Block.Size);
+					List<Block> tmpblk = new List<Block>();
+					if (Level.EngineVersion == EngineVersion.SKC)
+						littleendian = false;
+					for (int ba = 0; ba < tmp.Length; ba += Block.Size)
+						tmpblk.Add(new Block(tmp, ba));
+					if (Level.EngineVersion == EngineVersion.SKC)
+						littleendian = true;
+					Blocks.AddFile(tmpblk, tileent.Offset == -1 ? tileent.Offset : tileent.Offset / Block.Size);
+				}
+				else
+				{
+					Log("16x16 block file \"" + tileent.Filename + "\" not found.");
+					Blocks.AddFile(new List<Block>() { new Block() }, tileent.Offset == -1 ? tileent.Offset : tileent.Offset / Block.Size);
+				}
+			}
+			if (Blocks.Count == 0)
+				Blocks.AddFile(new List<Block>() { new Block() }, -1);
+			Blocks.FillGaps();
+		}
+
+		private static void LoadLevelChunks()
+		{
+			Chunks = new MultiFileIndexer<Chunk>(() => new Chunk());
+			int fileind = 0;
+			foreach (FileInfo tileent in Level.Chunks)
+			{
+				if (File.Exists(tileent.Filename))
+				{
+					Log("Loading " + Level.ChunkWidth + "x" + Level.ChunkHeight + " chunks from file \"" + tileent.Filename + "\", using compression " + Level.ChunkCompression.ToString() + "...");
+					byte[] tmp = Compression.Decompress(tileent.Filename, Level.ChunkCompression);
+					Pad(ref tmp, Chunk.Size);
+					List<Chunk> tmpchnk = new List<Chunk>();
+					if (fileind == 0)
+					{
+						switch (Level.ChunkFormat)
+						{
+							case EngineVersion.S1:
+							case EngineVersion.SCD:
+							case EngineVersion.SCDPC:
+								tmpchnk.Add(new Chunk());
+								break;
+						}
+					}
+					if (Level.EngineVersion == EngineVersion.SKC)
+						littleendian = false;
+					for (int ba = 0; ba < tmp.Length; ba += Chunk.Size)
+						tmpchnk.Add(new Chunk(tmp, ba));
+					if (Level.EngineVersion == EngineVersion.SKC)
+						littleendian = true;
+					Chunks.AddFile(tmpchnk, tileent.Offset == -1 ? tileent.Offset : tileent.Offset / Chunk.Size);
+					fileind++;
+				}
+				else
+				{
+					Log(Level.ChunkWidth + "x" + Level.ChunkHeight + " chunk file \"" + tileent.Filename + "\" not found.");
+					Chunks.AddFile(new List<Chunk>() { new Chunk() }, tileent.Offset == -1 ? tileent.Offset : tileent.Offset / Chunk.Size);
+				}
+			}
+			if (Chunks.Count == 0)
+				Chunks.AddFile(new List<Chunk>() { new Chunk() }, -1);
+			Chunks.FillGaps();
+		}
+
+		private static void LoadLevelLayout(string levelname)
+		{
+			Layout = new LayoutData();
+			AdditionalLayouts = new Dictionary<string, KeyValuePair<CompressionType, LayoutData>>();
+			switch (Level.LayoutFormat)
+			{
+				case EngineVersion.S1:
+				case EngineVersion.SCD:
+					LayoutFormat = new S1.Layout();
+					break;
+				case EngineVersion.S2NA:
+					LayoutFormat = new S2NA.Layout();
+					break;
+				case EngineVersion.S2:
+					LayoutFormat = new S2.Layout();
+					break;
+				case EngineVersion.S3K:
+					LayoutFormat = new S3K.Layout();
+					break;
+				case EngineVersion.SKC:
+					LayoutFormat = new SKC.Layout();
+					break;
+				case EngineVersion.SCDPC:
+					LayoutFormat = new SCDPC.Layout();
+					break;
+				case EngineVersion.Custom:
+					LayoutFormat = CompileCodeFile<LayoutFormat>(Level.LayoutCodeFile, Level.LayoutCodeType);
+					break;
+			}
+			if (LayoutFormat.IsCombinedLayout)
+			{
+				LayoutFormatCombined lfc = (LayoutFormatCombined)LayoutFormat;
+				lfc.TryReadLayout(Level.Layout, Level.LayoutCompression, Layout);
+				foreach (string lvlname in Game.Levels.Keys)
+					if (lvlname != levelname)
+					{
+						LevelInfo lvlinf = Game.GetLevelInfo(lvlname);
+						if (Level.Layout != lvlinf.Layout && !AdditionalLayouts.ContainsKey(lvlinf.Layout)
+							&& Level.LayoutFormat == lvlinf.LayoutFormat && Level.Chunks.ArrayEqual(lvlinf.Chunks))
+						{
+							LayoutData ld = new LayoutData();
+							lfc.TryReadLayout(lvlinf.Layout, lvlinf.LayoutCompression, ld);
+							AdditionalLayouts.Add(lvlinf.Layout, new KeyValuePair<CompressionType, LayoutData>(lvlinf.LayoutCompression, ld));
+						}
+					}
+			}
+			else
+			{
+				LayoutFormatSeparate lfs = (LayoutFormatSeparate)LayoutFormat;
+				lfs.TryReadLayout(Level.FGLayout, Level.BGLayout, Level.FGLayoutCompression, Level.BGLayoutCompression, Layout);
+				foreach (string lvlname in Game.Levels.Keys)
+					if (lvlname != levelname)
+					{
+						LevelInfo lvlinf = Game.GetLevelInfo(lvlname);
+						if (Level.LayoutFormat == lvlinf.LayoutFormat && Level.Chunks.ArrayEqual(lvlinf.Chunks))
+						{
+							if (Level.FGLayout != lvlinf.FGLayout && !AdditionalLayouts.ContainsKey(lvlinf.FGLayout))
+							{
+								LayoutData ld = new LayoutData();
+								lfs.TryReadFG(lvlinf.FGLayout, lvlinf.FGLayoutCompression, ld);
+								AdditionalLayouts.Add(lvlinf.FGLayout, new KeyValuePair<CompressionType, LayoutData>(lvlinf.FGLayoutCompression, ld));
+							}
+							if (Level.BGLayout != lvlinf.BGLayout && !AdditionalLayouts.ContainsKey(lvlinf.BGLayout))
+							{
+								LayoutData ld = new LayoutData();
+								lfs.TryReadBG(lvlinf.BGLayout, lvlinf.BGLayoutCompression, ld);
+								AdditionalLayouts.Add(lvlinf.BGLayout, new KeyValuePair<CompressionType, LayoutData>(lvlinf.BGLayoutCompression, ld));
+							}
+						}
+					}
+			}
+		}
+
+		private static void LoadLevelPalette()
+		{
+			PalName = new List<string>();
+			Palette = new List<SonLVLColor[,]>();
+			PalNum = new List<byte[,]>();
+			PalAddr = new List<int[,]>();
+			byte palfilenum = 0;
+			for (int palnum = 0; palnum < Level.Palettes.Length; palnum++)
+			{
+				PalName.Add(Level.Palettes[palnum].Name);
+				Palette.Add(new SonLVLColor[4, 16]);
+				PalNum.Add(new byte[4, 16]);
+				PalAddr.Add(new int[4, 16]);
+				for (byte pn = 0; pn < Level.Palettes[palnum].Palettes.Collection.Length; pn++)
+				{
+					PaletteInfo palent = Level.Palettes[palnum].Palettes[pn];
+					Log("Loading palette file \"" + palent.Filename + "\"...", "Source: " + palent.Source + " Destination: " + palent.Destination + " Length: " + palent.Length);
+					if (!File.Exists(palent.Filename)) throw new FileNotFoundException("Palette file could not be loaded! Have you set up your disassembly properly?", palent.Filename);
+					byte[] tmp = File.ReadAllBytes(palent.Filename);
+					SonLVLColor[] palfile;
+					if (Level.PaletteFormat != EngineVersion.SCDPC)
+					{
+						palfile = new SonLVLColor[tmp.Length / 2];
+						for (int pi = 0; pi < tmp.Length; pi += 2)
+							palfile[pi / 2] = new SonLVLColor(ByteConverter.ToUInt16(tmp, pi));
+					}
+					else
+					{
+						palfile = new SonLVLColor[tmp.Length / 4];
+						for (int pi = 0; pi < tmp.Length; pi += 4)
+							palfile[pi / 4] = new SonLVLColor(tmp[pi], tmp[pi + 1], tmp[pi + 2]);
+					}
+					for (int pa = 0; pa < palent.Length; pa++)
+					{
+						Palette[palnum][(pa + palent.Destination) / 16, (pa + palent.Destination) % 16] = palfile[pa + palent.Source];
+						PalNum[palnum][(pa + palent.Destination) / 16, (pa + palent.Destination) % 16] = palfilenum;
+						PalAddr[palnum][(pa + palent.Destination) / 16, (pa + palent.Destination) % 16] = pa + palent.Source;
+					}
+					palfilenum++;
+				}
+			}
+			CurPal = 0;
+		}
+
+		private static void LoadLevelColInds()
+		{
 			ColInds1 = new List<byte>();
 			ColInds2 = new List<byte>();
 			switch (Level.CollisionIndexFormat)
@@ -569,7 +595,7 @@ namespace SonicRetro.SonLVL.API
 				case EngineVersion.SKC:
 					if (Level.CollisionIndex != null && File.Exists(Level.CollisionIndex))
 					{
-						tmp = Compression.Decompress(Level.CollisionIndex, Level.CollisionIndexCompression);
+						byte[] tmp = Compression.Decompress(Level.CollisionIndex, Level.CollisionIndexCompression);
 						switch (Level.CollisionIndexSize)
 						{
 							case 0:
@@ -596,13 +622,11 @@ namespace SonicRetro.SonLVL.API
 					}
 					break;
 			}
-			if (Level.EngineVersion != EngineVersion.S3K && Level.EngineVersion != EngineVersion.SKC)
-			{
-				if (ColInds1.Count < Blocks.Count)
-					ColInds1.AddRange(new byte[Blocks.Count - ColInds1.Count]);
-				if (ColInds2.Count < Blocks.Count)
-					ColInds2.AddRange(new byte[Blocks.Count - ColInds2.Count]);
-			}
+		}
+
+		private static void LoadLevelColArr()
+		{
+			byte[] tmp;
 			ColArr1 = new sbyte[256][];
 			if (Level.CollisionArray1 != null && File.Exists(Level.CollisionArray1))
 				tmp = Compression.Decompress(Level.CollisionArray1, Level.CollisionArrayCompression);
@@ -614,45 +638,96 @@ namespace SonicRetro.SonLVL.API
 				for (int j = 0; j < 16; j++)
 					ColArr1[i][j] = unchecked((sbyte)tmp[(i * 16) + j]);
 			}
+		}
+
+		private static void LoadLevelAngles()
+		{
 			if (Level.Angles != null && File.Exists(Level.Angles))
 				Angles = Compression.Decompress(Level.Angles, Level.AngleCompression);
 			else
 				Angles = new byte[256];
-			if (loadGraphics)
+		}
+
+		private static void LoadLevelObjects(bool loadGraphics)
+		{
+			if (Level.Objects != null)
 			{
-				BlockBmps = new List<Bitmap[]>();
-				BlockBmpBits = new List<BitmapBits[]>();
-				CompBlockBmps = new List<Bitmap>();
-				CompBlockBmpBits = new List<BitmapBits>();
-				Log("Drawing block bitmaps...");
-				for (int bi = 0; bi < Blocks.Count; bi++)
+				Objects = ObjectFormat.TryReadLayout(Level.Objects, Level.ObjectCompression, out objectterm);
+				if (loadGraphics)
+					for (int i = 0; i < Objects.Count; i++)
+						Objects[i].UpdateSprite();
+			}
+			else
+				Objects = new List<ObjectEntry>();
+		}
+
+		private static void LoadLevelRings(bool loadGraphics)
+		{
+			if (Level.Rings != null && RingFormat is RingLayoutFormat)
+			{
+				Rings = ((RingLayoutFormat)RingFormat).TryReadLayout(Level.Rings, Level.RingCompression, out ringstartterm, out ringendterm);
+				if (loadGraphics)
+					foreach (RingEntry ring in Rings)
+						ring.UpdateSprite();
+			}
+			else
+				Rings = new List<RingEntry>();
+		}
+
+		private static void LoadLevelBumpers(bool loadGraphics)
+		{
+			if (Level.Bumpers != null)
+			{
+				Bumpers = new List<CNZBumperEntry>();
+				if (File.Exists(Level.Bumpers))
 				{
-					BlockBmps.Add(new Bitmap[2]);
-					BlockBmpBits.Add(new BitmapBits[2]);
-					CompBlockBmps.Add(null);
-					CompBlockBmpBits.Add(null);
-					RedrawBlock(bi, false);
+					Log("Loading bumpers from file \"" + Level.Bumpers + "\", using compression " + Level.BumperCompression + "...");
+					byte[] tmp = Compression.Decompress(Level.Bumpers, Level.BumperCompression);
+					for (int i = 0; i < tmp.Length; i += CNZBumperEntry.Size)
+					{
+						if (ByteConverter.ToUInt16(tmp, i + 2) == 0xFFFF) break;
+						CNZBumperEntry ent = new CNZBumperEntry(tmp, i);
+						Bumpers.Add(ent);
+						if (loadGraphics) ent.UpdateSprite();
+					}
 				}
-				ColBmps = new Bitmap[256];
-				ColBmpBits = new BitmapBits[256];
-				for (int ci = 0; ci < 256; ci++)
-					RedrawCol(ci, false);
-				ChunkBmps = new List<Bitmap[]>();
-				ChunkBmpBits = new List<BitmapBits[]>();
-				ChunkColBmps = new List<Bitmap[]>();
-				ChunkColBmpBits = new List<BitmapBits[]>();
-				CompChunkBmps = new List<Bitmap>();
-				CompChunkBmpBits = new List<BitmapBits>();
-				Log("Drawing chunk bitmaps...");
-				for (int ci = 0; ci < Chunks.Count; ci++)
+				else
+					Log("Bumper file \"" + Level.Bumpers + "\" not found.");
+			}
+			else
+			{
+				Bumpers = null;
+			}
+		}
+
+		private static void LoadLevelStartPositions(bool loadGraphics)
+		{
+			StartPositions = new List<StartPositionEntry>();
+			StartPosDefs = new List<StartPositionDefinition>();
+			if (Level.StartPositions != null)
+			{
+				foreach (StartPositionInfo item in Level.StartPositions)
 				{
-					ChunkBmps.Add(new Bitmap[2]);
-					ChunkBmpBits.Add(new BitmapBits[2]);
-					ChunkColBmps.Add(new Bitmap[2]);
-					ChunkColBmpBits.Add(new BitmapBits[2]);
-					CompChunkBmps.Add(null);
-					CompChunkBmpBits.Add(null);
-					RedrawChunk(ci);
+					StartPositionEntry ent;
+					if (File.Exists(item.Filename))
+					{
+						Log("Loading start position \"" + item.Name + "\" from file \"" + item.Filename + "\"...");
+						ent = new StartPositionEntry(File.ReadAllBytes(item.Filename), item.Offset == -1 ? 0 : item.Offset);
+					}
+					else
+					{
+						Log("Start position file \"" + item.Filename + "\" not found.");
+						ent = new StartPositionEntry();
+					}
+					StartPositions.Add(ent);
+					if (loadGraphics)
+					{
+						if (!string.IsNullOrEmpty(item.Sprite))
+							StartPosDefs.Add(new StartPositionDefinition(INIObjDefs[item.Sprite], item.Name));
+						else
+							StartPosDefs.Add(new StartPositionDefinition(item.Name));
+						ent.UpdateSprite();
+					}
 				}
 			}
 		}
@@ -683,11 +758,6 @@ namespace SonicRetro.SonLVL.API
 					case ".vb":
 						pr = new Microsoft.VisualBasic.VBCodeProvider();
 						break;
-#if false
-									case ".js":
-										pr = new Microsoft.JScript.JScriptCodeProvider();
-										break;
-#endif
 				}
 				CompilerParameters para = new CompilerParameters(new string[] { "System.dll", "System.Core.dll", "System.Drawing.dll", System.Reflection.Assembly.GetExecutingAssembly().Location })
 				{
@@ -716,15 +786,22 @@ namespace SonicRetro.SonLVL.API
 		public static void SaveLevel()
 		{
 			Log("Saving " + Level.DisplayName + "...");
+			Parallel.Invoke(SaveLevelTiles, SaveLevelChunks, SaveLevelLayout, SaveLevelPalette,
+				SaveLevelObjects, SaveLevelRings, SaveLevelBumpers, SaveLevelStartPositions,
+				SaveLevelColInds, SaveLevelColArr1, SaveLevelColArr2, SaveLevelAngles);
+			SaveLevelBlocks(); // SCDPC...
+		}
+
+		private static void SaveLevelTiles()
+		{
 			int fileind = -1;
-			List<byte> tmp;
 			ReadOnlyCollection<ReadOnlyCollection<byte[]>> tilefiles = Tiles.GetFiles();
 			if (Level.TileFormat != EngineVersion.SCDPC)
 			{
 				foreach (FileInfo tileent in Level.Tiles)
 				{
 					fileind++;
-					tmp = new List<byte>();
+					List<byte> tmp = new List<byte>();
 					foreach (byte[] item in tilefiles[fileind])
 						tmp.AddRange(item);
 					Compression.Compress(tmp.ToArray(), tileent.Filename, Level.TileCompression);
@@ -760,7 +837,7 @@ namespace SonicRetro.SonLVL.API
 				Tiles.Clear();
 				Tiles.AddFile(tiles, -1);
 				UpdateTileArray();
-				tmp = new List<byte> { 0x53, 0x43, 0x52, 0x4C };
+				List<byte> tmp = new List<byte> { 0x53, 0x43, 0x52, 0x4C };
 				tmp.AddRange(ByteConverter.GetBytes(0x18 + (Tiles.Count * 4) + (Tiles.Count * 32)));
 				tmp.AddRange(ByteConverter.GetBytes(Tiles.Count));
 				tmp.AddRange(ByteConverter.GetBytes(0x18 + (Tiles.Count * 4)));
@@ -774,12 +851,16 @@ namespace SonicRetro.SonLVL.API
 				tmp.AddRange(TileArray);
 				Compression.Compress(tmp.ToArray(), Level.Tiles[0].Filename, CompressionType.SZDD);
 			}
-			fileind = -1;
+		}
+
+		private static void SaveLevelBlocks()
+		{
+			int fileind = -1;
 			ReadOnlyCollection<ReadOnlyCollection<Block>> blockfiles = Blocks.GetFiles();
 			foreach (FileInfo tileent in Level.Blocks)
 			{
 				fileind++;
-				tmp = new List<byte>();
+				List<byte> tmp = new List<byte>();
 				if (Level.EngineVersion == EngineVersion.SKC)
 					littleendian = false;
 				foreach (Block b in blockfiles[fileind])
@@ -788,12 +869,16 @@ namespace SonicRetro.SonLVL.API
 					littleendian = true;
 				Compression.Compress(tmp.ToArray(), tileent.Filename, Level.BlockCompression);
 			}
-			fileind = -1;
+		}
+
+		private static void SaveLevelChunks()
+		{
+			int fileind = -1;
 			ReadOnlyCollection<ReadOnlyCollection<Chunk>> chunkfiles = Chunks.GetFiles();
 			foreach (FileInfo tileent in Level.Chunks)
 			{
 				fileind++;
-				tmp = new List<byte>();
+				List<byte> tmp = new List<byte>();
 				if (Level.EngineVersion == EngineVersion.SKC)
 					littleendian = false;
 				foreach (Chunk c in chunkfiles[fileind])
@@ -811,23 +896,30 @@ namespace SonicRetro.SonLVL.API
 					}
 				Compression.Compress(tmp.ToArray(), tileent.Filename, Level.ChunkCompression);
 			}
-			if (LayoutFormat.IsCombinedLayout)
+		}
+
+		private static void SaveLevelLayout()
+		{
+			switch (LayoutFormat)
 			{
-				LayoutFormatCombined lfc = (LayoutFormatCombined)LayoutFormat;
-				lfc.WriteLayout(Layout, Level.LayoutCompression, Level.Layout);
-				foreach (var item in AdditionalLayouts)
-					lfc.WriteLayout(item.Value.Value, item.Value.Key, item.Key);
+				case LayoutFormatCombined lfc:
+					lfc.WriteLayout(Layout, Level.LayoutCompression, Level.Layout);
+					foreach (var item in AdditionalLayouts)
+						lfc.WriteLayout(item.Value.Value, item.Value.Key, item.Key);
+					break;
+				case LayoutFormatSeparate lfs:
+					lfs.WriteLayout(Layout, Level.FGLayoutCompression, Level.BGLayoutCompression, Level.FGLayout, Level.BGLayout);
+					foreach (var item in AdditionalLayouts)
+						if (item.Value.Value.FGLayout != null)
+							lfs.WriteFG(item.Value.Value, item.Value.Key, item.Key);
+						else
+							lfs.WriteBG(item.Value.Value, item.Value.Key, item.Key);
+					break;
 			}
-			else
-			{
-				LayoutFormatSeparate lfs = (LayoutFormatSeparate)LayoutFormat;
-				lfs.WriteLayout(Layout, Level.FGLayoutCompression, Level.BGLayoutCompression, Level.FGLayout, Level.BGLayout);
-				foreach (var item in AdditionalLayouts)
-					if (item.Value.Value.FGLayout != null)
-						lfs.WriteFG(item.Value.Value, item.Value.Key, item.Key);
-					else
-						lfs.WriteBG(item.Value.Value, item.Value.Key, item.Key);
-			}
+		}
+
+		private static void SaveLevelPalette()
+		{
 			if (Level.PaletteFormat != EngineVersion.SCDPC)
 			{
 				byte[] paltmp;
@@ -849,7 +941,7 @@ namespace SonicRetro.SonLVL.API
 							palfiles[PalNum[palnum][pl, pi]][PalAddr[palnum][pl, pi]] = Palette[palnum][pl, pi].MDColor;
 					for (byte pn = 0; pn < palent.Collection.Length; pn++)
 					{
-						tmp = new List<byte>();
+						List<byte> tmp = new List<byte>();
 						for (int pi = 0; pi < palfiles[pn + palfilenum].Length; pi++)
 							tmp.AddRange(ByteConverter.GetBytes(palfiles[pn + palfilenum][pi]));
 						File.WriteAllBytes(palent[pn].Filename, tmp.ToArray());
@@ -880,25 +972,41 @@ namespace SonicRetro.SonLVL.API
 					palfilenum = (byte)palfiles.Count;
 				}
 			}
+		}
+
+		private static void SaveLevelObjects()
+		{
 			if (Level.Objects != null)
 			{
 				Objects.Sort();
 				ObjectFormat.WriteLayout(Objects, Level.ObjectCompression, Level.Objects, objectterm);
 			}
+		}
+
+		private static void SaveLevelRings()
+		{
 			if (Level.Rings != null && RingFormat is RingLayoutFormat)
 			{
 				Rings.Sort();
 				((RingLayoutFormat)RingFormat).WriteLayout(Rings, Level.RingCompression, Level.Rings, ringstartterm, ringendterm);
 			}
+		}
+
+		private static void SaveLevelBumpers()
+		{
 			if (Bumpers != null)
 			{
 				Bumpers.Sort();
-				tmp = new List<byte>();
+				List<byte> tmp = new List<byte>();
 				foreach (CNZBumperEntry item in Bumpers)
 					tmp.AddRange(item.GetBytes());
 				tmp.AddRange(new byte[] { 0, 0, 0xFF, 0xFF, 0, 0 });
 				Compression.Compress(tmp.ToArray(), Level.Bumpers, Level.BumperCompression);
 			}
+		}
+
+		private static void SaveLevelStartPositions()
+		{
 			if (Level.StartPositions != null)
 			{
 				int i = 0;
@@ -912,6 +1020,10 @@ namespace SonicRetro.SonLVL.API
 					File.WriteAllBytes(item.Filename, fc);
 				}
 			}
+		}
+
+		private static void SaveLevelColInds()
+		{
 			switch (Level.CollisionIndexFormat)
 			{
 				case EngineVersion.S1:
@@ -931,7 +1043,7 @@ namespace SonicRetro.SonLVL.API
 				case EngineVersion.SKC:
 					if (Level.CollisionIndex != null)
 					{
-						tmp = new List<byte>();
+						List<byte> tmp = new List<byte>();
 						byte[] cif = null;
 						switch (Level.CollisionIndexSize)
 						{
@@ -960,23 +1072,35 @@ namespace SonicRetro.SonLVL.API
 					}
 					break;
 			}
+		}
+
+		private static void SaveLevelColArr1()
+		{
 			if (Level.CollisionArray1 != null)
 			{
-				tmp = new List<byte>();
+				List<byte> tmp = new List<byte>(0x1000);
 				for (int i = 0; i < 256; i++)
 					for (int j = 0; j < 16; j++)
 						tmp.Add(unchecked((byte)ColArr1[i][j]));
 				Compression.Compress(tmp.ToArray(), Level.CollisionArray1, Level.CollisionArrayCompression);
 			}
+		}
+
+		private static void SaveLevelColArr2()
+		{
 			if (Level.CollisionArray2 != null)
 			{
 				sbyte[][] rotcol = GenerateRotatedCollision();
-				tmp = new List<byte>();
+				List<byte> tmp = new List<byte>(0x1000);
 				for (int i = 0; i < 256; i++)
 					for (int j = 0; j < 16; j++)
 						tmp.Add(unchecked((byte)rotcol[i][j]));
 				Compression.Compress(tmp.ToArray(), Level.CollisionArray2, Level.CollisionArrayCompression);
 			}
+		}
+
+		private static void SaveLevelAngles()
+		{
 			if (Level.Angles != null)
 				Compression.Compress(Angles, Level.Angles, Level.AngleCompression);
 		}
@@ -1119,7 +1243,7 @@ namespace SonicRetro.SonLVL.API
 
 		private static void InitObjectDefinitions()
 		{
-			foreach (KeyValuePair<string, ObjectData> group in INIObjDefs)
+			System.Threading.Tasks.Parallel.ForEach(INIObjDefs, (KeyValuePair<string, ObjectData> group) =>
 			{
 				if (group.Value.ArtCompression == CompressionType.Invalid)
 					group.Value.ArtCompression = Game.ObjectArtCompression;
@@ -1155,11 +1279,6 @@ namespace SonicRetro.SonLVL.API
 								case ".vb":
 									pr = new Microsoft.VisualBasic.VBCodeProvider();
 									break;
-#if false
-								case ".js":
-									pr = new Microsoft.JScript.JScriptCodeProvider();
-									break;
-#endif
 							}
 							if (pr != null)
 							{
@@ -1193,10 +1312,11 @@ namespace SonicRetro.SonLVL.API
 						def = new XMLObjectDefinition();
 					else
 						def = new DefaultObjectDefinition();
-					ObjTypes[ID] = def;
+					lock (ObjTypes)
+						ObjTypes[ID] = def;
 					def.Init(group.Value);
 				}
-			}
+			});
 		}
 
 		internal static string ExpandTypeName(string type)
@@ -1240,16 +1360,17 @@ namespace SonicRetro.SonLVL.API
 
 		public static byte[] ReadFile(string file, CompressionType cmp)
 		{
-			if (file == "LevelArt")
-				return TileArray;
-			else if (filecache.ContainsKey(file))
-				return filecache[file];
-			else
-			{
-				byte[] val = Compression.Decompress(file, cmp);
-				filecache.Add(file, val);
-				return val;
-			}
+			lock (filecache)
+				if (file == "LevelArt")
+					return TileArray;
+				else if (filecache.ContainsKey(file))
+					return filecache[file];
+				else
+				{
+					byte[] val = Compression.Decompress(file, cmp);
+					filecache.Add(file, val);
+					return val;
+				}
 		}
 
 		public static Bitmap TileToBmp4bpp(byte[] file, int index, int palette)
@@ -1896,7 +2017,7 @@ namespace SonicRetro.SonLVL.API
 						ChunkBmpBits[chunk][0].DrawBitmap(
 							bmp,
 							bx * 16, by * 16);
-						bmp = new BitmapBits(BlockBmps[blk.Block][1]);
+						bmp = new BitmapBits(BlockBmpBits[blk.Block][1]);
 						bmp.Flip(blk.XFlip, blk.YFlip);
 						ChunkBmpBits[chunk][1].DrawBitmap(
 							bmp,
@@ -2124,25 +2245,25 @@ namespace SonicRetro.SonLVL.API
 			return result;
 		}
 
-		public static ImportResult BitmapToTiles(BitmapInfo bmpi, bool[,] priority, byte? forcepal, IList<byte[]> tiles, bool interlaced, bool optimize, Action updateProgress = null)
+		public static ImportResult BitmapToTiles(BitmapInfo bmpi, bool[,] priority, byte? forcepal, List<byte[]> tiles, bool interlaced, bool optimize, Action updateProgress = null)
 		{
-			ImportResult result = new ImportResult(bmpi.Width / 8, bmpi.Height / 8);
-			int pal = 0;
-			bool match = false;
-			byte[] tile, tileh, tilev, tilehv;
-			PatternIndex map;
+			int w = bmpi.Width / 8;
+			int h = bmpi.Height / (interlaced ? 16 : 8);
+			ImportResult result = new ImportResult(w, bmpi.Height / 8);
 			if (!interlaced)
+			{
 				for (int y = 0; y < bmpi.Height / 8; y++)
 					for (int x = 0; x < bmpi.Width / 8; x++)
 					{
-						map = new PatternIndex() { Priority = priority[x, y] };
-						tile = BmpToTile(new BitmapInfo(bmpi, x * 8, y * 8, 8, 8), forcepal, out pal);
-						tileh = FlipTile(tile, true, false);
-						tilev = FlipTile(tile, false, true);
-						tilehv = FlipTile(tileh, false, true);
+						PatternIndex map = new PatternIndex() { Priority = priority[x, y] };
+						byte[] tile = BmpToTile(new BitmapInfo(bmpi, x * 8, y * 8, 8, 8), forcepal, out int pal);
 						map.Palette = (byte)pal;
-						match = false;
+						bool match = false;
 						if (optimize)
+						{
+							byte[] tileh = FlipTile(tile, true, false);
+							byte[] tilev = FlipTile(tile, false, true);
+							byte[] tilehv = FlipTile(tileh, false, true);
 							for (int i = 0; i < tiles.Count; i++)
 							{
 								if (tiles[i].FastArrayEqual(tile))
@@ -2174,6 +2295,7 @@ namespace SonicRetro.SonLVL.API
 									break;
 								}
 							}
+						}
 						if (!match)
 						{
 							tiles.Add(tile);
@@ -2181,19 +2303,23 @@ namespace SonicRetro.SonLVL.API
 							map.Tile = (ushort)(tiles.Count - 1);
 						}
 						result.Mappings[x, y] = map;
+						updateProgress?.Invoke();
 					}
+			}
 			else
-				for (int y = 0; y < bmpi.Height / 16; y++)
-					for (int x = 0; x < bmpi.Width / 8; x++)
+			{
+				for (int y = 0; y < h; y++)
+					for (int x = 0; x < w; x++)
 					{
-						map = new PatternIndex() { Priority = priority[x, y] };
-						tile = BmpToTileInterlaced(new BitmapInfo(bmpi, x * 8, y * 16, 8, 16), forcepal, out pal);
-						tileh = FlipTileInterlaced(tile, true, false);
-						tilev = FlipTileInterlaced(tile, false, true);
-						tilehv = FlipTileInterlaced(tileh, false, true);
+						PatternIndex map = new PatternIndex() { Priority = priority[x, y * 2] };
+						byte[] tile = BmpToTileInterlaced(new BitmapInfo(bmpi, x * 8, y * 16, 8, 16), forcepal, out int pal);
 						map.Palette = (byte)pal;
-						match = false;
+						bool match = false;
 						if (optimize)
+						{
+							byte[] tileh = FlipTileInterlaced(tile, true, false);
+							byte[] tilev = FlipTileInterlaced(tile, false, true);
+							byte[] tilehv = FlipTileInterlaced(tileh, false, true);
 							for (int i = 0; i < tiles.Count; i++)
 							{
 								if (tiles[i].FastArrayEqual(tile))
@@ -2225,6 +2351,8 @@ namespace SonicRetro.SonLVL.API
 									break;
 								}
 							}
+						}
+
 						if (!match)
 						{
 							tiles.Add(tile);
@@ -2239,7 +2367,9 @@ namespace SonicRetro.SonLVL.API
 						result.Mappings[x, y * 2] = map;
 						result.Mappings[x, y * 2 + 1] = map.Clone();
 						result.Mappings[x, y * 2 + 1].Tile ^= 1;
+						updateProgress?.Invoke();
 					}
+			}
 			return result;
 		}
 
@@ -2413,7 +2543,8 @@ namespace SonicRetro.SonLVL.API
 			bmp.UnlockBits(bmpd);
 			LoadBitmap32BppArgb(bmpbits, Bits, stride, new Color[] { Color.Magenta, Color.White, Color.Yellow, Color.Black });
 			ColInfo[,] result = new ColInfo[bmpbits.Width / 16, bmpbits.Height / 16];
-			for (int by = 0; by < bmpbits.Height / 16; by++)
+			Parallel.For(0, bmpbits.Height / 16, by =>
+			{
 				for (int bx = 0; bx < bmpbits.Width / 16; bx++)
 				{
 					ushort[] coltypes = new ushort[3];
@@ -2491,6 +2622,7 @@ namespace SonicRetro.SonLVL.API
 					}
 					result[bx, by] = new ColInfo(solid, heightmap, angle);
 				}
+			});
 			return result;
 		}
 
@@ -2507,7 +2639,8 @@ namespace SonicRetro.SonLVL.API
 			LoadBitmap32BppArgb(bmpbits, Bits, stride, new Color[] { Color.Black, Color.White });
 			int w = Math.Min(primap.GetLength(0), bmpbits.Width / 8);
 			int h = Math.Min(primap.GetLength(1), bmpbits.Height / 8);
-			for (int ty = 0; ty < h; ty++)
+			Parallel.For(0, h, ty =>
+			{
 				for (int tx = 0; tx < w; tx++)
 				{
 					ushort[] cnt = new ushort[2];
@@ -2516,6 +2649,7 @@ namespace SonicRetro.SonLVL.API
 							cnt[bmpbits[(tx * 8) + x, (ty * 8) + y]]++;
 					primap[tx, ty] = cnt[0] < cnt[1];
 				}
+			});
 		}
 
 		private static void LoadBitmap1BppIndexed(BitmapBits bmp, byte[] Bits, int Stride)
@@ -2838,7 +2972,7 @@ namespace SonicRetro.SonLVL.API
 					break;
 				default:
 					bitmap = bitmap.To32bpp();
-					PixelFormat = System.Drawing.Imaging.PixelFormat.Format32bppArgb;
+					PixelFormat = PixelFormat.Format32bppArgb;
 					break;
 			}
 			BitmapData bmpd = bitmap.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.ReadOnly, PixelFormat);
@@ -2852,13 +2986,13 @@ namespace SonicRetro.SonLVL.API
 		{
 			switch (source.PixelFormat)
 			{
-				case System.Drawing.Imaging.PixelFormat.Format1bppIndexed:
+				case PixelFormat.Format1bppIndexed:
 					if (x % 8 != 0)
 						throw new FormatException("X coordinate of 1bpp image section must be multiple of 8.");
 					if (width % 8 != 0)
 						throw new FormatException("Width of 1bpp image section must be multiple of 8.");
 					break;
-				case System.Drawing.Imaging.PixelFormat.Format4bppIndexed:
+				case PixelFormat.Format4bppIndexed:
 					if (x % 2 != 0)
 						throw new FormatException("X coordinate of 4bpp image section must be multiple of 2.");
 					if (width % 2 != 0)

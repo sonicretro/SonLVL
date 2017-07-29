@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using SonicRetro.SonLVL.API;
 
@@ -62,6 +59,7 @@ namespace SonicRetro.SonLVL
 				delayframes = 0;
 				DrawPreview();
 			}
+			progressBar1.Value = CurrentProgress;
 		}
 
 		private void ImportProgressControl_VisibleChanged(object sender, EventArgs e)
@@ -115,11 +113,7 @@ namespace SonicRetro.SonLVL
 
 		private void previewPanel_Paint(object sender, PaintEventArgs e) { DrawPreview(); }
 
-		public int CurrentProgress
-		{
-			get { return progressBar1.Value; }
-			set { progressBar1.Value = value; }
-		}
+		public int CurrentProgress { get; set; }
 
 		public int MaximumProgress
 		{

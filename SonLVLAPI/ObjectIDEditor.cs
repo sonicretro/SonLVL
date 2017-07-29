@@ -174,6 +174,7 @@ namespace SonicRetro.SonLVL.API
 
 		public override void PaintValue(PaintValueEventArgs e)
 		{
+			if (e.Value == null) return;
 			byte val = (byte)e.Value;
 			if (LevelData.ObjTypes.ContainsKey(val))
 				e.Graphics.DrawImage(LevelData.ObjTypes[val].Image.Image.ToBitmap(LevelData.BmpPal).Resize(e.Bounds.Size), e.Bounds);

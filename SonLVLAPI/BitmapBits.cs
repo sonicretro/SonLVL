@@ -947,7 +947,7 @@ namespace SonicRetro.SonLVL.API
 			}
 		}
 
-		public static BitmapBits ReadPCX(string filename) { Color[] palette; return ReadPCX(filename, out palette); }
+		public static BitmapBits ReadPCX(string filename) { return ReadPCX(filename, out Color[] palette); }
 
 		public static BitmapBits ReadPCX(string filename, out Color[] palette)
 		{
@@ -955,7 +955,7 @@ namespace SonicRetro.SonLVL.API
 				return ReadPCX(fs, out palette);
 		}
 
-		public static BitmapBits ReadPCX(Stream stream) { Color[] palette; return ReadPCX(stream, out palette); }
+		public static BitmapBits ReadPCX(Stream stream) { return ReadPCX(stream, out Color[] palette); }
 
 		public static BitmapBits ReadPCX(Stream stream, out Color[] palette)
 		{

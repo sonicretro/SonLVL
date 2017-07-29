@@ -97,7 +97,7 @@ namespace SonicRetro.SonLVL.API
 			return MapDPLCToBmp(artfile, LevelData.ASMToBin(mapfileloc, mapversion), mapversion, LevelData.ASMToBin(dplcloc, dplcversion), dplcversion, frame, startpal);
 		}
 
-		public static Sprite UnknownObject { get { return new Sprite(new BitmapBits(LevelData.UnknownImg), new Point(-8, -7)); } }
+		public static Sprite UnknownObject { get { return new Sprite(LevelData.UnknownSprite); } }
 
 		public static Sprite GetSprite(int index) { return LevelData.Sprites[index]; }
 

@@ -132,9 +132,12 @@ namespace SonicRetro.SonLVL.GUI
 
 		internal void Log(params string[] lines)
 		{
-			LogFile.AddRange(lines);
-			if (LogWindow != null)
-				LogWindow.Invoke(new MethodInvoker(LogWindow.UpdateLines));
+			lock (lines)
+			{
+				LogFile.AddRange(lines);
+				if (LogWindow != null)
+					LogWindow.Invoke(new MethodInvoker(LogWindow.UpdateLines));
+			}
 		}
 
 		Tab CurrentTab
@@ -498,7 +501,7 @@ namespace SonicRetro.SonLVL.GUI
 				anim = anims[r.Next(anims.Length)];
 			}
 			MultiFileIndexer<byte> tiles = new MultiFileIndexer<byte>();
-			foreach (SonicRetro.SonLVL.API.FileInfo tileent in anim.Art)
+			foreach (API.FileInfo tileent in anim.Art)
 			{
 				byte[] tmp = Compression.Decompress(Path.Combine(anipath, tileent.Filename), anim.ArtCompression);
 				LevelData.Pad(ref tmp, 32);
@@ -5221,30 +5224,40 @@ namespace SonicRetro.SonLVL.GUI
 				Application.DoEvents();
 			}
 			byte? forcepal = bmpi.PixelFormat == PixelFormat.Format1bppIndexed || bmpi.PixelFormat == PixelFormat.Format4bppIndexed ? (byte)SelectedColor.Y : (byte?)null;
-			List<byte[]> tiles = new List<byte[]>(LevelData.Tiles.Count);
-			if (LevelData.Level.TwoPlayerCompatible)
-				for (int i = 0; i < LevelData.Tiles.Count; i += 2)
-				{
-					byte[] t = new byte[64];
-					Array.Copy(LevelData.TileArray, i * 32, t, 0, 64);
-					tiles.Add(t);
-				}
-			else
-				for (int i = 0; i < LevelData.Tiles.Count; i++)
-					tiles.Add(LevelData.Tiles[i]);
-			Application.DoEvents();
-			List<byte[]> blocks = new List<byte[]>(LevelData.Blocks.Count);
-			for (int i = 0; i < LevelData.Blocks.Count; i++)
-				blocks.Add(LevelData.Blocks[i].GetBytes());
-			Application.DoEvents();
 			List<byte> colInds1 = new List<byte>(LevelData.ColInds1);
 			List<byte> colInds2 = new List<byte>(LevelData.ColInds2);
 			Application.DoEvents();
+			List<byte[]> tiles = new List<byte[]>(LevelData.Tiles.Count);
+			List<byte[]> blocks = new List<byte[]>(LevelData.Blocks.Count);
 			List<byte[]> chunks = new List<byte[]>(LevelData.Chunks.Count);
-			for (int i = 0; i < LevelData.Chunks.Count; i++)
-				chunks.Add(LevelData.Chunks[i].GetBytes());
+			System.Threading.Tasks.Parallel.Invoke(() =>
+			{
+				if (LevelData.Level.TwoPlayerCompatible)
+					for (int i = 0; i < LevelData.Tiles.Count; i += 2)
+					{
+						byte[] t = new byte[64];
+						Array.Copy(LevelData.TileArray, i * 32, t, 0, 64);
+						tiles.Add(t);
+					}
+				else
+					for (int i = 0; i < LevelData.Tiles.Count; i++)
+						tiles.Add(LevelData.Tiles[i]);
+			}, () =>
+			{
+				for (int i = 0; i < LevelData.Blocks.Count; i++)
+					blocks.Add(LevelData.Blocks[i].GetBytes());
+			}, () =>
+			{
+				for (int i = 0; i < LevelData.Chunks.Count; i++)
+					chunks.Add(LevelData.Chunks[i].GetBytes());
+			});
 			Application.DoEvents();
-			ImportResult ir = LevelData.BitmapToTiles(bmpi, priority, forcepal, tiles, LevelData.Level.TwoPlayerCompatible, true, () => { importProgressControl1.CurrentProgress++; Application.DoEvents(); });
+			object proglock = new object();
+			ImportResult ir = LevelData.BitmapToTiles(bmpi, priority, forcepal, tiles, LevelData.Level.TwoPlayerCompatible, true, () =>
+			{
+				importProgressControl1.CurrentProgress++;
+				Application.DoEvents();
+			});
 			List<byte[]> newTiles = ir.Art;
 			List<Block> newBlocks = new List<Block>();
 			List<byte> newColInds1 = new List<byte>();
@@ -9357,7 +9370,7 @@ namespace SonicRetro.SonLVL.GUI
 							}
 							break;
 					}
-					ImportResult res = LevelData.BitmapToTiles(bmpi, new bool[bmpi.Width / 8, bmpi.Height / 8], null, new List<byte[]>(), false, false, () => Application.DoEvents());
+					ImportResult res = LevelData.BitmapToTiles(bmpi, new bool[bmpi.Width / 8, bmpi.Height / 8], null, new List<byte[]>(), false, false, Application.DoEvents);
 					List<int> editedTiles = new List<int>();
 					switch (CurrentArtTab)
 					{

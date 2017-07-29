@@ -137,7 +137,7 @@ namespace SonicRetro.SonLVL.API
 			if (levelName.Contains("\\"))
 				levelName = levelName.Substring(levelName.LastIndexOf('\\') + 1);
 			LevelInfo result = new LevelInfo();
-			foreach (System.Reflection.PropertyInfo prop in typeof(LevelInfo).GetProperties())
+			foreach (PropertyInfo prop in typeof(LevelInfo).GetProperties())
 			{
 				if (prop.PropertyType == typeof(EngineVersion))
 					prop.SetValue(result, EngineVersion, null);
