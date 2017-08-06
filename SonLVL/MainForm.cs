@@ -757,6 +757,8 @@ namespace SonicRetro.SonLVL.GUI
 				blendAlternatePaletteToolStripButton.Enabled = waterPaletteToolStripMenuItem.Visible = false;
 				waterPalette = -1;
 			}
+			for (int i = 0; i < 16; i++)
+				curpal[i] = LevelData.PaletteToColor(SelectedColor.Y, i, false);
 			if (invertColorsToolStripMenuItem.Checked)
 			{
 				for (int i = 0; i < 128; i++)
