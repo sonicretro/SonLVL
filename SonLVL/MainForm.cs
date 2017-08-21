@@ -4250,10 +4250,14 @@ namespace SonicRetro.SonLVL.GUI
 							if (block.Tiles[x, y].Palette == mouseColor.Y && !tiles.Contains(block.Tiles[x,y].Tile))
 							{
 								int t = block.Tiles[x, y].Tile;
-								BitmapBits bmp = BitmapBits.FromTile(LevelData.Tiles[t], 0);
-								for (int i = 0; i < bmp.Bits.Length; i++)
-									bmp.Bits[i] = (byte)palidxs[mouseColor.Y].FindIndex((a) => a.X == bmp.Bits[i]);
-								LevelData.Tiles[t] = bmp.ToTile();
+								byte[] til = LevelData.Tiles[t];
+								if (til != null)
+								{
+									BitmapBits bmp = BitmapBits.FromTile(til, 0);
+									for (int i = 0; i < bmp.Bits.Length; i++)
+										bmp.Bits[i] = (byte)palidxs[mouseColor.Y].FindIndex((a) => a.X == bmp.Bits[i]);
+									LevelData.Tiles[t] = bmp.ToTile();
+								}
 								tiles.Add(t);
 							}
 				if (tiles.Count > 0)
