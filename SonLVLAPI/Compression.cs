@@ -51,7 +51,8 @@ namespace SonicRetro.SonLVL.API
 		{
 			try
 			{
-				Directory.CreateDirectory(Path.GetDirectoryName(destination));
+				string dir = Path.GetDirectoryName(destination);
+				if (!string.IsNullOrWhiteSpace(dir)) Directory.CreateDirectory(dir);
 				switch (cmp)
 				{
 					case CompressionType.Uncompressed:
