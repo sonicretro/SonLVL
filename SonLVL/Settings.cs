@@ -38,7 +38,8 @@ namespace SonicRetro.SonLVL
 		public string Username { get; set; }
 		public bool IncludeObjectsInForegroundSelection { get; set; }
 		[DefaultValue(true)]
-		public bool TransparentBackFGBGExport { get; set; }
+		public bool TransparentBackgroundExport { get; set; }
+		public bool? TransparentBackFGBGExport { get { return null; } set { if (value.HasValue) TransparentBackgroundExport = value.Value; } }
 		public bool IncludeObjectsFGExport { get; set; }
 		public bool HideDebugObjectsExport { get; set; }
 		public bool UseHexadecimalIndexesExport { get; set; }
@@ -105,7 +106,7 @@ namespace SonicRetro.SonLVL
 				result.GridColor = oldset.GridColor;
 				result.Username = oldset.Username;
 				result.IncludeObjectsInForegroundSelection = oldset.IncludeObjectsInForegroundSelection;
-				result.TransparentBackFGBGExport = true;
+				result.TransparentBackgroundExport = true;
 				result.ViewLowPlane = result.ViewHighPlane = true;
 				result.ZoomLevel = "1x";
 				result.ShowMenu = true;

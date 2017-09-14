@@ -57,7 +57,7 @@ namespace SonicRetro.SonLVL.API
 			}
 			else
 				for (int i = 0; i < LevelData.Tiles.Count; i++)
-					listView1.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, 2));
+					listView1.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, 2, false));
 			listView1.ChangeSize();
 		}
 
@@ -113,7 +113,7 @@ namespace SonicRetro.SonLVL.API
 			if (LevelData.Level.TwoPlayerCompatible)
 				e.Graphics.DrawImage(LevelData.InterlacedTileToBmp4bpp(LevelData.TileArray, val, 2).Resize(e.Bounds.Size), e.Bounds);
 			else
-				e.Graphics.DrawImage(LevelData.TileToBmp4bpp(LevelData.Tiles[val], 0, 2).Resize(e.Bounds.Size), e.Bounds);
+				e.Graphics.DrawImage(LevelData.TileToBmp4bpp(LevelData.Tiles[val], 0, 2, false).Resize(e.Bounds.Size), e.Bounds);
 		}
 
 		public override bool IsDropDownResizable

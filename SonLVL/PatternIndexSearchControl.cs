@@ -31,7 +31,7 @@ namespace SonicRetro.SonLVL
 				tile.Increment = 1;
 				tileList.ImageHeight = 64;
 				for (int i = 0; i < LevelData.Tiles.Count; i++)
-					tileList.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, (int)palette.Value));
+					tileList.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, (int)palette.Value, false));
 			}
 			tileList.ChangeSize();
 			if (tile.Value >= LevelData.Tiles.Count)
@@ -87,7 +87,7 @@ namespace SonicRetro.SonLVL
 			{
 				tileList.ImageHeight = 64;
 				for (int i = 0; i < LevelData.Tiles.Count; i++)
-					tileList.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, (int)palette.Value));
+					tileList.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, (int)palette.Value, false));
 			}
 			tileList.ChangeSize();
 		}

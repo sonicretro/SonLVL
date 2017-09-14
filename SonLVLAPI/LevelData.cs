@@ -1373,7 +1373,7 @@ namespace SonicRetro.SonLVL.API
 				}
 		}
 
-		public static Bitmap TileToBmp4bpp(byte[] file, int index, int palette)
+		public static Bitmap TileToBmp4bpp(byte[] file, int index, int palette, bool transparent)
 		{
 			Bitmap bmp = new Bitmap(8, 8, PixelFormat.Format4bppIndexed);
 			if (file != null && index * 32 + 32 <= file.Length)
@@ -1386,7 +1386,7 @@ namespace SonicRetro.SonLVL.API
 				InvalidTile.ToBitmap4bpp(bmp);
 			ColorPalette pal = bmp.Palette;
 			for (int i = 0; i < 16; i++)
-				pal.Entries[i] = PaletteToColor(palette, i, false);
+				pal.Entries[i] = PaletteToColor(palette, i, transparent);
 			bmp.Palette = pal;
 			return bmp;
 		}

@@ -265,7 +265,7 @@ namespace SonicRetro.SonLVL.GUI
 				}
 			objGridSizeDropDownButton_DropDownItemClicked(this, new ToolStripItemClickedEventArgs(objGridSizeDropDownButton.DropDownItems[Settings.ObjectGridSize]));
 			includeObjectsWithForegroundSelectionToolStripMenuItem.Checked = Settings.IncludeObjectsInForegroundSelection;
-			transparentBackFGBGToolStripMenuItem.Checked = Settings.TransparentBackFGBGExport;
+			transparentBackgroundToolStripMenuItem.Checked = Settings.TransparentBackgroundExport;
 			includeobjectsWithFGToolStripMenuItem.Checked = Settings.IncludeObjectsFGExport;
 			hideDebugObjectsToolStripMenuItem.Checked = Settings.HideDebugObjectsExport;
 			exportArtcollisionpriorityToolStripMenuItem.Checked = Settings.ExportArtCollisionPriority;
@@ -810,7 +810,7 @@ namespace SonicRetro.SonLVL.GUI
 					TileSelector.Images.Add(LevelData.InterlacedTileToBmp4bpp(LevelData.TileArray, i, SelectedColor.Y));
 			else
 				for (int i = 0; i < LevelData.Tiles.Count; i++)
-					TileSelector.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, SelectedColor.Y));
+					TileSelector.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, SelectedColor.Y, false));
 		}
 
 		private Bitmap MakeLayoutSectionImage(LayoutSection sec)
@@ -1175,7 +1175,7 @@ namespace SonicRetro.SonLVL.GUI
 			using (FolderBrowserDialog a = new FolderBrowserDialog() { SelectedPath = Environment.CurrentDirectory })
 				if (a.ShowDialog() == DialogResult.OK)
 					for (int i = 0; i < LevelData.Tiles.Count; i++)
-						LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, tilesToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem))
+						LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, tilesToolStripMenuItem.DropDownItems.IndexOf(e.ClickedItem), transparentBackgroundToolStripMenuItem.Checked)
 							.Save(Path.Combine(a.SelectedPath,
 							(useHexadecimalIndexesToolStripMenuItem.Checked ? i.ToString("X2") : i.ToString()) + ".png"));
 		}
@@ -1189,13 +1189,20 @@ namespace SonicRetro.SonLVL.GUI
 			}
 			using (FolderBrowserDialog a = new FolderBrowserDialog() { SelectedPath = Environment.CurrentDirectory })
 				if (a.ShowDialog() == DialogResult.OK)
+				{
+					ColorPalette pal;
+					using (Bitmap bmp = new Bitmap(1, 1, PixelFormat.Format8bppIndexed))
+						pal = bmp.Palette;
+					for (int i = 0; i < 64; i++)
+						pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, transparentBackgroundToolStripMenuItem.Checked);
+					pal.Entries.Fill(Color.Black, 64, 192);
 					for (int i = 0; i < LevelData.Blocks.Count; i++)
 					{
 						BitmapBits bits = null;
 						string pathBase = Path.Combine(a.SelectedPath, useHexadecimalIndexesToolStripMenuItem.Checked ? i.ToString("X2") : i.ToString());
 						if (exportArtcollisionpriorityToolStripMenuItem.Checked)
 						{
-							LevelData.CompBlockBmpBits[i].ToBitmap(LevelImgPalette).Save(pathBase + ".png");
+							LevelData.CompBlockBmpBits[i].ToBitmap(pal).Save(pathBase + ".png");
 							bool dualPath = false;
 							switch (LevelData.Level.ChunkFormat)
 							{
@@ -1242,9 +1249,10 @@ namespace SonicRetro.SonLVL.GUI
 								bmp.IncrementIndexes(LevelData.ColorWhite - 1);
 								bits.DrawBitmapComposited(bmp, 0, 0);
 							}
-							bits.ToBitmap(LevelImgPalette).Save(pathBase + ".png");
+							bits.ToBitmap(pal).Save(pathBase + ".png");
 						}
 					}
+				}
 		}
 
 		private void chunksToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1256,13 +1264,20 @@ namespace SonicRetro.SonLVL.GUI
 			}
 			using (FolderBrowserDialog a = new FolderBrowserDialog() { SelectedPath = Environment.CurrentDirectory })
 				if (a.ShowDialog() == DialogResult.OK)
+				{
+					ColorPalette pal;
+					using (Bitmap bmp = new Bitmap(1, 1, PixelFormat.Format8bppIndexed))
+						pal = bmp.Palette;
+					for (int i = 0; i < 64; i++)
+						pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, transparentBackgroundToolStripMenuItem.Checked);
+					pal.Entries.Fill(Color.Black, 64, 192);
 					for (int i = 0; i < LevelData.Chunks.Count; i++)
 					{
 						BitmapBits bits = null;
 						string pathBase = Path.Combine(a.SelectedPath, useHexadecimalIndexesToolStripMenuItem.Checked ? i.ToString("X2") : i.ToString());
 						if (exportArtcollisionpriorityToolStripMenuItem.Checked)
 						{
-							LevelData.CompChunkBmpBits[i].ToBitmap(LevelImgPalette).Save(pathBase + ".png");
+							LevelData.CompChunkBmpBits[i].ToBitmap(pal).Save(pathBase + ".png");
 							bool dualPath = false;
 							switch (LevelData.Level.ChunkFormat)
 							{
@@ -1315,9 +1330,10 @@ namespace SonicRetro.SonLVL.GUI
 								bits.DrawBitmapComposited(LevelData.ChunkColBmpBits[i][0], 0, 0);
 							else if (path2ToolStripMenuItem.Checked)
 								bits.DrawBitmapComposited(LevelData.ChunkColBmpBits[i][1], 0, 0);
-							bits.ToBitmap(LevelImgPalette).Save(pathBase + ".png");
+							bits.ToBitmap(pal).Save(pathBase + ".png");
 						}
 					}
+				}
 		}
 
 		private void solidityMapsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1352,11 +1368,11 @@ namespace SonicRetro.SonLVL.GUI
 						Bitmap res = bmp.ToBitmap();
 						ColorPalette pal = res.Palette;
 						for (int i = 0; i < 64; i++)
-							pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, transparentBackFGBGToolStripMenuItem.Checked);
+							pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, transparentBackgroundToolStripMenuItem.Checked);
 						pal.Entries.Fill(Color.Black, 64, 192);
 						if (waterPalette != -1)
 							for (int i = 64; i < 128; i++)
-								if (transparentBackFGBGToolStripMenuItem.Checked && i % 16 == 0)
+								if (transparentBackgroundToolStripMenuItem.Checked && i % 16 == 0)
 									pal.Entries[i] = Color.Transparent;
 								else
 									pal.Entries[i] = LevelData.Palette[waterPalette][(i - 64) / 16, i % 16].RGBColor;
@@ -1434,11 +1450,11 @@ namespace SonicRetro.SonLVL.GUI
 						Bitmap res = bmp.ToBitmap();
 						ColorPalette pal = res.Palette;
 						for (int i = 0; i < 64; i++)
-							pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, transparentBackFGBGToolStripMenuItem.Checked);
+							pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, transparentBackgroundToolStripMenuItem.Checked);
 						pal.Entries.Fill(Color.Black, 64, 192);
 						if (waterPalette != -1)
 							for (int i = 64; i < 128; i++)
-								if (transparentBackFGBGToolStripMenuItem.Checked && i % 16 == 0)
+								if (transparentBackgroundToolStripMenuItem.Checked && i % 16 == 0)
 									pal.Entries[i] = Color.Transparent;
 								else
 									pal.Entries[i] = LevelData.Palette[waterPalette][(i - 64) / 16, i % 16].RGBColor;
@@ -1472,7 +1488,7 @@ namespace SonicRetro.SonLVL.GUI
 						Bitmap res = bmp.ToBitmap();
 						ColorPalette pal = res.Palette;
 						for (int i = 0; i < 64; i++)
-							pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, transparentBackFGBGToolStripMenuItem.Checked);
+							pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, transparentBackgroundToolStripMenuItem.Checked);
 						pal.Entries.Fill(Color.Black, 64, 192);
 						res.Palette = pal;
 						res.Save(a.FileName);
@@ -1544,21 +1560,21 @@ namespace SonicRetro.SonLVL.GUI
 						Bitmap res = bmp.ToBitmap();
 						ColorPalette pal = res.Palette;
 						for (int i = 0; i < 64; i++)
-							pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, transparentBackFGBGToolStripMenuItem.Checked);
+							pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, transparentBackgroundToolStripMenuItem.Checked);
 						pal.Entries.Fill(Color.Black, 64, 192);
 						pal.Entries[LevelData.ColorWhite] = Color.White;
 						pal.Entries[LevelData.ColorYellow] = Color.Yellow;
 						pal.Entries[LevelData.ColorBlack] = Color.Black;
-						pal.Entries[LevelData.ColorTransparent] = LevelData.PaletteToColor(2, 0, transparentBackFGBGToolStripMenuItem.Checked);
+						pal.Entries[LevelData.ColorTransparent] = LevelData.PaletteToColor(2, 0, transparentBackgroundToolStripMenuItem.Checked);
 						res.Palette = pal;
 						res.Save(a.FileName);
 					}
 				}
 		}
 
-		private void transparentBackFGBGToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+		private void transparentBackgroundToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
 		{
-			Settings.TransparentBackFGBGExport = transparentBackFGBGToolStripMenuItem.Checked;
+			Settings.TransparentBackgroundExport = transparentBackgroundToolStripMenuItem.Checked;
 		}
 
 		private void includeObjectsWithFGToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
@@ -4495,7 +4511,7 @@ namespace SonicRetro.SonLVL.GUI
 			if (LevelData.Level.TwoPlayerCompatible)
 				TileSelector.Images[SelectedTile / 2] = LevelData.InterlacedTileToBmp4bpp(LevelData.TileArray, SelectedTile, SelectedColor.Y);
 			else
-				TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y);
+				TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y, false);
 			TileSelector.Invalidate();
 			blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 		}
@@ -4737,7 +4753,7 @@ namespace SonicRetro.SonLVL.GUI
 			if (LevelData.Level.TwoPlayerCompatible)
 				TileSelector.Images.Insert(SelectedTile / 2, LevelData.InterlacedTileToBmp4bpp(LevelData.TileArray, SelectedTile, SelectedColor.Y));
 			else
-				TileSelector.Images.Insert(SelectedTile, LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y));
+				TileSelector.Images.Insert(SelectedTile, LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y, false));
 			blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 			for (int i = 0; i < LevelData.Blocks.Count; i++)
 				if (LevelData.Level.TwoPlayerCompatible)
@@ -5658,7 +5674,7 @@ namespace SonicRetro.SonLVL.GUI
 				if (dr)
 					LevelData.RedrawBlock(i, true);
 			}
-			TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y);
+			TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y, false);
 			blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 			DrawTilePicture();
 		}
@@ -8074,7 +8090,7 @@ namespace SonicRetro.SonLVL.GUI
 			if (LevelData.Level.TwoPlayerCompatible)
 				TileSelector.Images[SelectedTile / 2] = LevelData.InterlacedTileToBmp4bpp(LevelData.TileArray, SelectedTile, SelectedColor.Y);
 			else
-				TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y);
+				TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y, false);
 			blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 			DrawTilePicture();
 			TileSelector.Invalidate();
@@ -8108,7 +8124,7 @@ namespace SonicRetro.SonLVL.GUI
 			if (LevelData.Level.TwoPlayerCompatible)
 				TileSelector.Images[SelectedTile / 2] = LevelData.InterlacedTileToBmp4bpp(LevelData.TileArray, SelectedTile, SelectedColor.Y);
 			else
-				TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y);
+				TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y, false);
 			blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 			DrawTilePicture();
 			TileSelector.Invalidate();
@@ -8278,7 +8294,7 @@ namespace SonicRetro.SonLVL.GUI
 					if (LevelData.Level.TwoPlayerCompatible)
 						TileSelector.Images[SelectedTile / 2] = LevelData.InterlacedTileToBmp4bpp(LevelData.TileArray, SelectedTile, SelectedColor.Y);
 					else
-						TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y);
+						TileSelector.Images[SelectedTile] = LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y, false);
 					blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 					break;
 			}
