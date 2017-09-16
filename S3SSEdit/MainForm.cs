@@ -478,7 +478,7 @@ namespace S3SSEdit
 		private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			if (project != null)
-				switch (MessageBox.Show(this, "Do you want to unload the current project?", "S1SSEdit", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2))
+				switch (MessageBox.Show(this, "Do you want to unload the current project?", "S3SSEdit", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2))
 				{
 					case DialogResult.Cancel:
 						return;
