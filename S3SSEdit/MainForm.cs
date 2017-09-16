@@ -414,16 +414,16 @@ namespace S3SSEdit
 						break;
 					case LayoutMode.BSChunk:
 						{
-							byte[] tmp = Compression.Decompress(Path.Combine(path, project.SKStageSet), CompressionType.Kosinski);
+							byte[] tmp = Compression.Decompress(Path.Combine(path, project.BlueSphereChunkSet), CompressionType.Kosinski);
 							((BSChunkLayoutData)layout).WriteBytes(tmp, stagenum);
-							Compression.Compress(tmp, Path.Combine(path, project.SKStageSet), CompressionType.Kosinski);
+							Compression.Compress(tmp, Path.Combine(path, project.BlueSphereChunkSet), CompressionType.Kosinski);
 						}
 						break;
 					case LayoutMode.BSLayout:
 						{
-							byte[] tmp = Compression.Decompress(Path.Combine(path, project.SKStageSet), CompressionType.Kosinski);
+							byte[] tmp = Compression.Decompress(Path.Combine(path, project.BlueSphereChunkSet), CompressionType.Kosinski);
 							((BSStageLayoutData)layout).WriteBytes(tmp);
-							Compression.Compress(tmp, Path.Combine(path, project.SKStageSet), CompressionType.Kosinski);
+							Compression.Compress(tmp, Path.Combine(path, project.BlueSphereChunkSet), CompressionType.Kosinski);
 						}
 						break;
 				}
