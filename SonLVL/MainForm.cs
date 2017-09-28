@@ -7154,10 +7154,10 @@ namespace SonicRetro.SonLVL.GUI
 										findPreviousToolStripMenuItem.Enabled = false;
 										FGSelection = new Rectangle(x, y, 1, 1);
 										loaded = false;
-										foregroundPanel.HScrollValue = Math.Max(0, Math.Min(foregroundPanel.HScrollMaximum, (x * LevelData.Level.ChunkWidth)
-											+ (LevelData.Level.ChunkWidth / 2) - (foregroundPanel.PanelWidth / 2)));
-										foregroundPanel.VScrollValue = Math.Max(0, Math.Min(foregroundPanel.VScrollMaximum, (y * LevelData.Level.ChunkHeight)
-											+ (LevelData.Level.ChunkHeight / 2) - (foregroundPanel.PanelHeight / 2)));
+										foregroundPanel.HScrollValue = (int)Math.Max(0, Math.Min(foregroundPanel.HScrollMaximum, (x * LevelData.Level.ChunkWidth)
+											+ (LevelData.Level.ChunkWidth / 2) - ((foregroundPanel.PanelWidth / 2) / ZoomLevel)));
+										foregroundPanel.VScrollValue = (int)Math.Max(0, Math.Min(foregroundPanel.VScrollMaximum, (y * LevelData.Level.ChunkHeight)
+											+ (LevelData.Level.ChunkHeight / 2) - ((foregroundPanel.PanelHeight / 2) / ZoomLevel)));
 										loaded = true;
 										DrawLevel();
 										return;
@@ -7191,10 +7191,10 @@ namespace SonicRetro.SonLVL.GUI
 										findPreviousToolStripMenuItem.Enabled = false;
 										BGSelection = new Rectangle(x, y, 1, 1);
 										loaded = false;
-										backgroundPanel.HScrollValue = Math.Max(0, Math.Min(backgroundPanel.HScrollMaximum, (x * LevelData.Level.ChunkWidth)
-											+ (LevelData.Level.ChunkWidth / 2) - (backgroundPanel.PanelWidth / 2)));
-										backgroundPanel.VScrollValue = Math.Max(0, Math.Min(backgroundPanel.VScrollMaximum, (y * LevelData.Level.ChunkHeight)
-											+ (LevelData.Level.ChunkHeight / 2) - (backgroundPanel.PanelHeight / 2)));
+										backgroundPanel.HScrollValue = (int)Math.Max(0, Math.Min(backgroundPanel.HScrollMaximum, (x * LevelData.Level.ChunkWidth)
+											+ (LevelData.Level.ChunkWidth / 2) - ((backgroundPanel.PanelWidth / 2) / ZoomLevel)));
+										backgroundPanel.VScrollValue = (int)Math.Max(0, Math.Min(backgroundPanel.VScrollMaximum, (y * LevelData.Level.ChunkHeight)
+											+ (LevelData.Level.ChunkHeight / 2) - ((backgroundPanel.PanelHeight / 2) / ZoomLevel)));
 										loaded = true;
 										DrawLevel();
 										return;
@@ -7211,8 +7211,8 @@ namespace SonicRetro.SonLVL.GUI
 		private void ScrollToObject(Entry item)
 		{
 			loaded = false;
-			objectPanel.HScrollValue = Math.Max(0, Math.Min(objectPanel.HScrollMaximum, item.X - (objectPanel.PanelWidth / 2)));
-			objectPanel.VScrollValue = Math.Max(0, Math.Min(objectPanel.VScrollMaximum, item.Y - (objectPanel.PanelHeight / 2)));
+			objectPanel.HScrollValue = (int)Math.Max(0, Math.Min(objectPanel.HScrollMaximum, item.X - ((objectPanel.PanelWidth / 2) / ZoomLevel)));
+			objectPanel.VScrollValue = (int)Math.Max(0, Math.Min(objectPanel.VScrollMaximum, item.Y - ((objectPanel.PanelHeight / 2) / ZoomLevel)));
 			loaded = true;
 		}
 
@@ -7251,11 +7251,11 @@ namespace SonicRetro.SonLVL.GUI
 								findPreviousToolStripMenuItem.Enabled = true;
 								FGSelection = new Rectangle(x, y, 1, 1);
 								loaded = false;
-								foregroundPanel.HScrollValue = Math.Max(0, Math.Min(foregroundPanel.HScrollMaximum, (x * LevelData.Level.ChunkWidth)
-									+ (LevelData.Level.ChunkWidth / 2) - (foregroundPanel.PanelWidth / 2)));
-								foregroundPanel.VScrollValue = Math.Max(0, Math.Min(foregroundPanel.VScrollMaximum, (y * LevelData.Level.ChunkHeight)
-									+ (LevelData.Level.ChunkHeight / 2) - (foregroundPanel.PanelHeight / 2)));
-								loaded = true;
+								foregroundPanel.HScrollValue = (int)Math.Max(0, Math.Min(foregroundPanel.HScrollMaximum, (x * LevelData.Level.ChunkWidth)
+									+ (LevelData.Level.ChunkWidth / 2) - ((foregroundPanel.PanelWidth / 2) / ZoomLevel)));
+								foregroundPanel.VScrollValue = (int)Math.Max(0, Math.Min(foregroundPanel.VScrollMaximum, (y * LevelData.Level.ChunkHeight)
+									+ (LevelData.Level.ChunkHeight / 2) - ((foregroundPanel.PanelHeight / 2) / ZoomLevel)));
+					loaded = true;
 								DrawLevel();
 								return;
 							}
@@ -7278,10 +7278,10 @@ namespace SonicRetro.SonLVL.GUI
 								findPreviousToolStripMenuItem.Enabled = true;
 								BGSelection = new Rectangle(x, y, 1, 1);
 								loaded = false;
-								backgroundPanel.HScrollValue = Math.Max(0, Math.Min(backgroundPanel.HScrollMaximum, (x * LevelData.Level.ChunkWidth)
-									+ (LevelData.Level.ChunkWidth / 2) - (backgroundPanel.PanelWidth / 2)));
-								backgroundPanel.VScrollValue = Math.Max(0, Math.Min(backgroundPanel.VScrollMaximum, (y * LevelData.Level.ChunkHeight)
-									+ (LevelData.Level.ChunkHeight / 2) - (backgroundPanel.PanelHeight / 2)));
+								backgroundPanel.HScrollValue = (int)Math.Max(0, Math.Min(backgroundPanel.HScrollMaximum, (x * LevelData.Level.ChunkWidth)
+									+ (LevelData.Level.ChunkWidth / 2) - ((backgroundPanel.PanelWidth / 2) / ZoomLevel)));
+								backgroundPanel.VScrollValue = (int)Math.Max(0, Math.Min(backgroundPanel.VScrollMaximum, (y * LevelData.Level.ChunkHeight)
+									+ (LevelData.Level.ChunkHeight / 2) - ((backgroundPanel.PanelHeight / 2) / ZoomLevel)));
 								loaded = true;
 								DrawLevel();
 								return;
@@ -7328,10 +7328,10 @@ namespace SonicRetro.SonLVL.GUI
 								findNextToolStripMenuItem.Enabled = true;
 								FGSelection = new Rectangle(x, y, 1, 1);
 								loaded = false;
-								foregroundPanel.HScrollValue = Math.Max(0, Math.Min(foregroundPanel.HScrollMaximum, (x * LevelData.Level.ChunkWidth)
-									+ (LevelData.Level.ChunkWidth / 2) - (foregroundPanel.PanelWidth / 2)));
-								foregroundPanel.VScrollValue = Math.Max(0, Math.Min(foregroundPanel.VScrollMaximum, (y * LevelData.Level.ChunkHeight)
-									+ (LevelData.Level.ChunkHeight / 2) - (foregroundPanel.PanelHeight / 2)));
+								foregroundPanel.HScrollValue = (int)Math.Max(0, Math.Min(foregroundPanel.HScrollMaximum, (x * LevelData.Level.ChunkWidth)
+									+ (LevelData.Level.ChunkWidth / 2) - ((foregroundPanel.PanelWidth / 2) / ZoomLevel)));
+								foregroundPanel.VScrollValue = (int)Math.Max(0, Math.Min(foregroundPanel.VScrollMaximum, (y * LevelData.Level.ChunkHeight)
+									+ (LevelData.Level.ChunkHeight / 2) - ((foregroundPanel.PanelHeight / 2) / ZoomLevel)));
 								loaded = true;
 								DrawLevel();
 								return;
@@ -7355,10 +7355,10 @@ namespace SonicRetro.SonLVL.GUI
 								findNextToolStripMenuItem.Enabled = true;
 								BGSelection = new Rectangle(x, y, 1, 1);
 								loaded = false;
-								backgroundPanel.HScrollValue = Math.Max(0, Math.Min(backgroundPanel.HScrollMaximum, (x * LevelData.Level.ChunkWidth)
-									+ (LevelData.Level.ChunkWidth / 2) - (backgroundPanel.PanelWidth / 2)));
-								backgroundPanel.VScrollValue = Math.Max(0, Math.Min(backgroundPanel.VScrollMaximum, (y * LevelData.Level.ChunkHeight)
-									+ (LevelData.Level.ChunkHeight / 2) - (backgroundPanel.PanelHeight / 2)));
+								backgroundPanel.HScrollValue = (int)Math.Max(0, Math.Min(backgroundPanel.HScrollMaximum, (x * LevelData.Level.ChunkWidth)
+									+ (LevelData.Level.ChunkWidth / 2) - ((backgroundPanel.PanelWidth / 2) / ZoomLevel)));
+								backgroundPanel.VScrollValue = (int)Math.Max(0, Math.Min(backgroundPanel.VScrollMaximum, (y * LevelData.Level.ChunkHeight)
+									+ (LevelData.Level.ChunkHeight / 2) - ((backgroundPanel.PanelHeight / 2) / ZoomLevel)));
 								loaded = true;
 								DrawLevel();
 								return;
