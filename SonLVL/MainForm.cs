@@ -7255,7 +7255,7 @@ namespace SonicRetro.SonLVL.GUI
 									+ (LevelData.Level.ChunkWidth / 2) - ((foregroundPanel.PanelWidth / 2) / ZoomLevel)));
 								foregroundPanel.VScrollValue = (int)Math.Max(0, Math.Min(foregroundPanel.VScrollMaximum, (y * LevelData.Level.ChunkHeight)
 									+ (LevelData.Level.ChunkHeight / 2) - ((foregroundPanel.PanelHeight / 2) / ZoomLevel)));
-					loaded = true;
+								loaded = true;
 								DrawLevel();
 								return;
 							}
