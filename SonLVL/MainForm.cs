@@ -3366,37 +3366,40 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void pasteToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			List<Entry> objs = Clipboard.GetData(typeof(List<Entry>).AssemblyQualifiedName) as List<Entry>;
-			Point upleft = new Point(int.MaxValue, int.MaxValue);
-			foreach (Entry item in objs)
+			if (Clipboard.ContainsData(typeof(List<Entry>).AssemblyQualifiedName))
 			{
-				upleft.X = Math.Min(upleft.X, item.X);
-				upleft.Y = Math.Min(upleft.Y, item.Y);
+				List<Entry> objs = Clipboard.GetData(typeof(List<Entry>).AssemblyQualifiedName) as List<Entry>;
+				Point upleft = new Point(int.MaxValue, int.MaxValue);
+				foreach (Entry item in objs)
+				{
+					upleft.X = Math.Min(upleft.X, item.X);
+					upleft.Y = Math.Min(upleft.Y, item.Y);
+				}
+				Size off = new Size(((int)(menuLoc.X / ZoomLevel) + objectPanel.HScrollValue) - upleft.X, ((int)(menuLoc.Y / ZoomLevel) + objectPanel.VScrollValue) - upleft.Y);
+				SelectedItems = new List<Entry>(objs);
+				double gs = 1 << ObjGrid;
+				foreach (Entry item in objs)
+				{
+					item.X += (ushort)off.Width;
+					item.Y += (ushort)off.Height;
+					item.X = (ushort)(Math.Round(item.X / gs, MidpointRounding.AwayFromZero) * gs);
+					item.Y = (ushort)(Math.Round(item.Y / gs, MidpointRounding.AwayFromZero) * gs);
+					item.ResetPos();
+					if (item is ObjectEntry)
+						LevelData.Objects.Add((ObjectEntry)item);
+					else if (item is RingEntry)
+						LevelData.Rings.Add((RingEntry)item);
+					else if (item is CNZBumperEntry)
+						LevelData.Bumpers.Add((CNZBumperEntry)item);
+					item.UpdateSprite();
+				}
+				AddUndo(new ObjectsPastedUndoAction(new List<Entry>(SelectedItems)));
+				SelectedObjectChanged();
+				LevelData.Objects.Sort();
+				LevelData.Rings.Sort();
+				if (LevelData.Bumpers != null) LevelData.Bumpers.Sort();
+				DrawLevel();
 			}
-			Size off = new Size(((int)(menuLoc.X / ZoomLevel) + objectPanel.HScrollValue) - upleft.X, ((int)(menuLoc.Y / ZoomLevel) + objectPanel.VScrollValue) - upleft.Y);
-			SelectedItems = new List<Entry>(objs);
-			double gs = 1 << ObjGrid;
-			foreach (Entry item in objs)
-			{
-				item.X += (ushort)off.Width;
-				item.Y += (ushort)off.Height;
-				item.X = (ushort)(Math.Round(item.X / gs, MidpointRounding.AwayFromZero) * gs);
-				item.Y = (ushort)(Math.Round(item.Y / gs, MidpointRounding.AwayFromZero) * gs);
-				item.ResetPos();
-				if (item is ObjectEntry)
-					LevelData.Objects.Add((ObjectEntry)item);
-				else if (item is RingEntry)
-					LevelData.Rings.Add((RingEntry)item);
-				else if (item is CNZBumperEntry)
-					LevelData.Bumpers.Add((CNZBumperEntry)item);
-				item.UpdateSprite();
-			}
-			AddUndo(new ObjectsPastedUndoAction(new List<Entry>(SelectedItems)));
-			SelectedObjectChanged();
-			LevelData.Objects.Sort();
-			LevelData.Rings.Sort();
-			if (LevelData.Bumpers != null) LevelData.Bumpers.Sort();
-			DrawLevel();
 		}
 
 		private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
