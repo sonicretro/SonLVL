@@ -35,6 +35,12 @@ namespace SonicRetro.SonLVL.API
 					case CompressionType.Comper:
 						ret = Comper.Decompress(file);
 						break;
+					case CompressionType.KosinskiPlus:
+						ret = KosinskiPlus.Decompress(file);
+						break;
+					case CompressionType.KosinskiPlusM:
+						ret = ModuledKosinskiPlus.Decompress(file, LevelData.littleendian ? Endianness.LittleEndian : Endianness.BigEndian);
+						break;
 					default:
 						throw new ArgumentOutOfRangeException("cmp", "Invalid compression type " + cmp + "!");
 				}
@@ -82,6 +88,18 @@ namespace SonicRetro.SonLVL.API
 					case CompressionType.Comper:
 						Comper.Compress(file, destination);
 						break;
+					case CompressionType.KosinskiPlus:
+						using (MemoryStream input = new MemoryStream(file))
+						using (FileStream output = File.Create(destination))
+						using (PaddedStream paddedOutput = new PaddedStream(output, 2, PaddedStreamMode.Write))
+							KosinskiPlus.Compress(input, paddedOutput);
+						break;
+					case CompressionType.KosinskiPlusM:
+						using (MemoryStream input = new MemoryStream(file))
+						using (FileStream output = File.Create(destination))
+						using (PaddedStream paddedOutput = new PaddedStream(output, 2, PaddedStreamMode.Write))
+							ModuledKosinskiPlus.Compress(input, paddedOutput, LevelData.littleendian ? Endianness.LittleEndian : Endianness.BigEndian);
+						break;
 					default:
 						throw new ArgumentOutOfRangeException("cmp", "Invalid compression type " + cmp + "!");
 				}
@@ -103,6 +121,8 @@ namespace SonicRetro.SonLVL.API
 		Nemesis,
 		Enigma,
 		SZDD,
-		Comper
+		Comper,
+		KosinskiPlus,
+		KosinskiPlusM
 	}
 }
