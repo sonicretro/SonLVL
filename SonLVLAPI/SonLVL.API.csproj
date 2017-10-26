@@ -47,6 +47,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Dependencies\SonicRetro.KensSharp.Enigma.dll</HintPath>
     </Reference>
+    <Reference Include="SonicRetro.KensSharp.Kosinski+, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Dependencies\SonicRetro.KensSharp.Kosinski+.dll</HintPath>
+    </Reference>
     <Reference Include="SonicRetro.KensSharp.Kosinski, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Dependencies\SonicRetro.KensSharp.Kosinski.dll</HintPath>
