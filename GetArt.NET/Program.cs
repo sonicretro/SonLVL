@@ -37,11 +37,11 @@ namespace GetArt.NET
 				img.Dispose();
 				img = dest;
 			}
-			SonLVLColor[] palette = new SonLVLColor[64];
+			LevelData.Palette = new List<SonLVLColor[,]>() { new SonLVLColor[4, 16] };
 			if ((img.PixelFormat & PixelFormat.Indexed) == PixelFormat.Indexed)
 			{
 				for (int i = 0; i < Math.Min(64, img.Palette.Entries.Length); i++)
-					palette[i] = new SonLVLColor(img.Palette.Entries[i]);
+					LevelData.Palette[0][i / 16, i % 16] = new SonLVLColor(img.Palette.Entries[i]);
 			}
 			else
 			{
@@ -64,8 +64,8 @@ namespace GetArt.NET
 					{
 						for (int x = 0; x < palbmp.Width; x += 8)
 						{
-							palette[i++] = new SonLVLColor(palbmp.GetPixel(x, y));
-							if (i == 64)
+							LevelData.Palette[0][i / 16, i % 16] = new SonLVLColor(palbmp.GetPixel(x, y));
+							if (++i == 64)
 								break;
 						}
 						if (i == 64)
@@ -73,16 +73,9 @@ namespace GetArt.NET
 					}
 				}
 			}
-			using (Bitmap palbmp = new Bitmap(1, 1, PixelFormat.Format8bppIndexed))
-				LevelData.BmpPal = palbmp.Palette;
 			using (FileStream palfile = File.Create("Palette.bin"))
 				for (int i = 0; i < 64; i++)
-				{
-					palfile.Write(ByteConverter.GetBytes(palette[i].MDColor), 0, 2);
-					LevelData.BmpPal.Entries[i] = palette[i].RGBColor;
-				}
-			for (int i = 64; i < 256; i++)
-				LevelData.BmpPal.Entries[i] = Color.Transparent;
+					palfile.Write(ByteConverter.GetBytes(LevelData.Palette[0][i / 16, i % 16].MDColor), 0, 2);
 			BitmapInfo bmpi = new BitmapInfo(img);
 			img.Dispose();
 			int w = bmpi.Width;
@@ -105,8 +98,8 @@ namespace GetArt.NET
 					bw.Write(t);
 			using (FileStream fs = File.Create("Map.bin"))
 			using (BinaryWriter bw = new BinaryWriter(fs))
-				for (int y = 0; y < h; y++)
-					for (int x = 0; x < w; x++)
+				for (int y = 0; y < h / 8; y++)
+					for (int x = 0; x < w / 8; x++)
 						bw.Write(res.Mappings[x, y].GetBytes());
 		}
 	}
