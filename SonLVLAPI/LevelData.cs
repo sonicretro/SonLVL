@@ -1243,7 +1243,7 @@ namespace SonicRetro.SonLVL.API
 
 		private static void InitObjectDefinitions()
 		{
-			System.Threading.Tasks.Parallel.ForEach(INIObjDefs, (KeyValuePair<string, ObjectData> group) =>
+			Parallel.ForEach(INIObjDefs, (KeyValuePair<string, ObjectData> group) =>
 			{
 				if (group.Value.ArtCompression == CompressionType.Invalid)
 					group.Value.ArtCompression = Game.ObjectArtCompression;
