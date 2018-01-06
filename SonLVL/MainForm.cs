@@ -5115,7 +5115,10 @@ namespace SonicRetro.SonLVL.GUI
 						SelectedTile += 2;
 					}
 					else
-						LevelData.Tiles.InsertAfter(SelectedTile++, (byte[])LevelData.Tiles[SelectedTile].Clone());
+					{
+						LevelData.Tiles.InsertAfter(SelectedTile, (byte[])LevelData.Tiles[SelectedTile].Clone());
+						SelectedTile++;
+					}
 					InsertTile();
 					break;
 			}
