@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ObjDef Namespace="SCDPCObjectDefinitions.PPZ1" TypeName="Spring" Language="cs" Name="Spring" Image="img1" RememberState="false" Debug="false">
+<ObjDef xmlns="http://www.sonicretro.org" Name="Spring" Image="img1" RememberState="false" Debug="false">
   <Images>
     <ImageFromSprite id="img1" frame="479" />
     <ImageFromSprite id="img2" frame="467" />

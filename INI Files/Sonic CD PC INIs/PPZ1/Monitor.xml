@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ObjDef Namespace="SCDPCObjectDefinitions.PPZ1" TypeName="Monitor" Language="cs" Name="Monitor/Timepost" Image="monback" Debug="false">
+<ObjDef xmlns="http://www.sonicretro.org" Name="Monitor/Timepost" Image="monback" Debug="false">
   <Images>
     <ImageFromSprite id="monback" frame="286">
       <offset X="-16" Y="-16" />
