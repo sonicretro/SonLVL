@@ -5022,7 +5022,8 @@ namespace SonicRetro.SonLVL.GUI
 						}
 						for (int y = 0; y < LevelData.Level.ChunkHeight / 16; y++)
 							for (int x = 0; x < LevelData.Level.ChunkWidth / 16; x++)
-								cnkcpy.Chunk.Blocks[x, y].Block = blocks[cnkcpy.Chunk.Blocks[x, y].Block];
+								if (cnkcpy.Chunk.Blocks[x, y].Block < blocks.Count)
+									cnkcpy.Chunk.Blocks[x, y].Block = blocks[cnkcpy.Chunk.Blocks[x, y].Block];
 						LevelData.Chunks.InsertAfter(SelectedChunk, cnkcpy.Chunk);
 					}
 					else
@@ -5064,7 +5065,8 @@ namespace SonicRetro.SonLVL.GUI
 						RefreshTileSelector();
 						for (int y = 0; y < 2; y++)
 							for (int x = 0; x < 2; x++)
-								blkcpy.Block.Tiles[x, y].Tile = tiles[blkcpy.Block.Tiles[x, y].Tile];
+								if (blkcpy.Block.Tiles[x, y].Tile < tiles.Count)
+									blkcpy.Block.Tiles[x, y].Tile = tiles[blkcpy.Block.Tiles[x, y].Tile];
 						LevelData.Blocks.InsertAfter(SelectedBlock, blkcpy.Block);
 					}
 					else
