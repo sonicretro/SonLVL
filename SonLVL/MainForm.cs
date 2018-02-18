@@ -4887,7 +4887,7 @@ namespace SonicRetro.SonLVL.GUI
 							MessageBox.Show(this, "Copied block data is not 2P compatible.", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
 							return;
 						}
-						if (LevelData.Tiles.Count + blkcpy.Tiles.Count > 0x8000)
+						if (LevelData.Tiles.Count + blkcpy.Tiles.Count > 0x800)
 						{
 							MessageBox.Show(this, "Level does not have enough free tiles.", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
 							return;
@@ -4970,7 +4970,7 @@ namespace SonicRetro.SonLVL.GUI
 							MessageBox.Show(this, "Level does not have enough free blocks.", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
 							return;
 						}
-						if (LevelData.Tiles.Count + cnkcpy.Tiles.Count > 0x8000)
+						if (LevelData.Tiles.Count + cnkcpy.Tiles.Count > 0x800)
 						{
 							MessageBox.Show(this, "Level does not have enough free tiles.", Text, MessageBoxButtons.OK, MessageBoxIcon.Warning);
 							return;
