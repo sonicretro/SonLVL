@@ -4127,9 +4127,7 @@ namespace SonicRetro.SonLVL.GUI
 			switch (e.Button)
 			{
 				case MouseButtons.Left:
-					SelectedColor = mouseColor;
-					lastmouse = mouseColor;
-					DrawPalette();
+					SetSelectedColor(mouseColor);
 					if (newpal)
 					{
 						curpal = new Color[16];
@@ -4141,21 +4139,6 @@ namespace SonicRetro.SonLVL.GUI
 						DrawTilePicture();
 						RefreshTileSelector();
 					}
-					loaded = false;
-					if (LevelData.Level.PaletteFormat == EngineVersion.SCDPC)
-					{
-						colorRed.Value = LevelData.Palette[LevelData.CurPal][SelectedColor.Y, SelectedColor.X].R;
-						colorGreen.Value = LevelData.Palette[LevelData.CurPal][SelectedColor.Y, SelectedColor.X].G;
-						colorBlue.Value = LevelData.Palette[LevelData.CurPal][SelectedColor.Y, SelectedColor.X].B;
-					}
-					else
-					{
-						ushort md = LevelData.Palette[LevelData.CurPal][SelectedColor.Y, SelectedColor.X].MDColor;
-						colorRed.Value = md & 0xF;
-						colorGreen.Value = (md >> 4) & 0xF;
-						colorBlue.Value = (md >> 8) & 0xF;
-					}
-					loaded = true;
 					break;
 				case MouseButtons.Right:
 					if (!newpal)
@@ -4182,6 +4165,28 @@ namespace SonicRetro.SonLVL.GUI
 					}
 					break;
 			}
+		}
+
+		private void SetSelectedColor(Point color)
+		{
+			SelectedColor = color;
+			lastmouse = color;
+			DrawPalette();
+			loaded = false;
+			if (LevelData.Level.PaletteFormat == EngineVersion.SCDPC)
+			{
+				colorRed.Value = LevelData.Palette[LevelData.CurPal][SelectedColor.Y, SelectedColor.X].R;
+				colorGreen.Value = LevelData.Palette[LevelData.CurPal][SelectedColor.Y, SelectedColor.X].G;
+				colorBlue.Value = LevelData.Palette[LevelData.CurPal][SelectedColor.Y, SelectedColor.X].B;
+			}
+			else
+			{
+				ushort md = LevelData.Palette[LevelData.CurPal][SelectedColor.Y, SelectedColor.X].MDColor;
+				colorRed.Value = md & 0xF;
+				colorGreen.Value = (md >> 4) & 0xF;
+				colorBlue.Value = (md >> 8) & 0xF;
+			}
+			loaded = true;
 		}
 
 		private void PalettePanel_MouseMove(object sender, MouseEventArgs e)
@@ -4471,10 +4476,7 @@ namespace SonicRetro.SonLVL.GUI
 				DrawTilePicture();
 			}
 			else if (e.Button == MouseButtons.Right)
-			{
-				SelectedColor = new Point(tile[e.X / 16, e.Y / 16], SelectedColor.Y);
-				DrawPalette();
-			}
+				SetSelectedColor(new Point(tile[e.X / 16, e.Y / 16], SelectedColor.Y));
 		}
 
 		private void TilePicture_MouseMove(object sender, MouseEventArgs e)
