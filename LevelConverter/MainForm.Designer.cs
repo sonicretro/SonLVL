@@ -35,7 +35,7 @@ namespace SonicRetro.SonLVL.LevelConverter
 			this.label3 = new System.Windows.Forms.Label();
 			this.comboBox2 = new System.Windows.Forms.ComboBox();
 			this.button1 = new System.Windows.Forms.Button();
-			this.fileSelector1 = new SonicRetro.SonLVL.LevelConverter.FileSelector();
+			this.fileSelector1 = new SonicRetro.SonLVL.API.FileSelector();
 			this.checkBox1 = new System.Windows.Forms.CheckBox();
 			this.checkBox2 = new System.Windows.Forms.CheckBox();
 			this.button2 = new System.Windows.Forms.Button();
@@ -189,7 +189,7 @@ namespace SonicRetro.SonLVL.LevelConverter
 
 		#endregion
 
-		private SonicRetro.SonLVL.LevelConverter.FileSelector fileSelector1;
+		private SonicRetro.SonLVL.API.FileSelector fileSelector1;
 		private System.Windows.Forms.ComboBox comboBox1;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.Label label2;
