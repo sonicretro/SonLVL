@@ -19,6 +19,7 @@ namespace SonicRetro.SonLVL.API
 	/// path in a <see cref="TextBox"/>.
 	/// </summary>
 	[Designer(typeof(FileSelectorDesigner))]
+	[DefaultEvent("FileNameChanged")]
 	public partial class FileSelector : UserControl, ISupportInitialize
 	{
 		private static readonly object EventFileNameChanged = new object();

@@ -110,7 +110,7 @@ namespace ObjDefEditor
 			this.mappingsFrame = new System.Windows.Forms.NumericUpDown();
 			this.dplcFormat = new System.Windows.Forms.ComboBox();
 			this.dplcLabel = new System.Windows.Forms.TextBox();
-			this.dplcFile = new ObjDefEditor.FileSelector();
+			this.dplcFile = new SonicRetro.SonLVL.API.FileSelector();
 			this.mappingsFormat = new System.Windows.Forms.ComboBox();
 			this.mappingsLabel = new System.Windows.Forms.TextBox();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -118,8 +118,8 @@ namespace ObjDefEditor
 			this.mappingsBinary = new System.Windows.Forms.RadioButton();
 			this.artCompression = new System.Windows.Forms.ComboBox();
 			this.useLevelArt = new System.Windows.Forms.CheckBox();
-			this.mappingsFile = new ObjDefEditor.FileSelector();
-			this.artFilename = new ObjDefEditor.FileSelector();
+			this.mappingsFile = new SonicRetro.SonLVL.API.FileSelector();
+			this.artFilename = new SonicRetro.SonLVL.API.FileSelector();
 			this.defaultArtOffset = new System.Windows.Forms.CheckBox();
 			this.artOffset = new System.Windows.Forms.NumericUpDown();
 			this.artList = new System.Windows.Forms.ListBox();
@@ -130,7 +130,7 @@ namespace ObjDefEditor
 			this.spriteImageControls = new System.Windows.Forms.Panel();
 			this.spriteNum = new System.Windows.Forms.NumericUpDown();
 			this.bitmapImageControls = new System.Windows.Forms.Panel();
-			this.bitmapFilename = new ObjDefEditor.FileSelector();
+			this.bitmapFilename = new SonicRetro.SonLVL.API.FileSelector();
 			this.imageType = new System.Windows.Forms.ComboBox();
 			this.imageOffsetY = new System.Windows.Forms.NumericUpDown();
 			this.imageOffsetX = new System.Windows.Forms.NumericUpDown();
@@ -2494,8 +2494,8 @@ namespace ObjDefEditor
 		private System.Windows.Forms.Button artUpButton;
 		private System.Windows.Forms.Button artRemoveButton;
 		private System.Windows.Forms.CheckBox defaultArtOffset;
-		private FileSelector artFilename;
-		private FileSelector mappingsFile;
+		private SonicRetro.SonLVL.API.FileSelector artFilename;
+		private SonicRetro.SonLVL.API.FileSelector mappingsFile;
 		private System.Windows.Forms.CheckBox useLevelArt;
 		private System.Windows.Forms.ComboBox artCompression;
 		private System.Windows.Forms.GroupBox groupBox1;
@@ -2505,12 +2505,12 @@ namespace ObjDefEditor
 		private System.Windows.Forms.ComboBox mappingsFormat;
 		private System.Windows.Forms.ComboBox dplcFormat;
 		private System.Windows.Forms.TextBox dplcLabel;
-		private FileSelector dplcFile;
+		private SonicRetro.SonLVL.API.FileSelector dplcFile;
 		private System.Windows.Forms.NumericUpDown mappingsFrame;
 		private System.Windows.Forms.NumericUpDown mappingsPalette;
 		private System.Windows.Forms.PictureBox selectedImagePreview;
 		private System.Windows.Forms.Panel bitmapImageControls;
-		private FileSelector bitmapFilename;
+		private SonicRetro.SonLVL.API.FileSelector bitmapFilename;
 		private System.Windows.Forms.Panel spriteImageControls;
 		private System.Windows.Forms.NumericUpDown spriteNum;
 		private System.Windows.Forms.TabPage tabPage3;

@@ -48,13 +48,6 @@
     <Compile Include="ErrorDialog.Designer.cs">
       <DependentUpon>ErrorDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="FileSelector.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="FileSelector.designer.cs">
-      <DependentUpon>FileSelector.cs</DependentUpon>
-    </Compile>
-    <Compile Include="FileSelectorMode.cs" />
     <Compile Include="IDDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -71,9 +64,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="ErrorDialog.resx">
       <DependentUpon>ErrorDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="FileSelector.resx">
-      <DependentUpon>FileSelector.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="IDDialog.resx">
       <DependentUpon>IDDialog.cs</DependentUpon>
