@@ -1661,6 +1661,12 @@ namespace SonicRetro.SonLVL.GUI
 		}
 
 		BitmapBits LevelImg8bpp;
+		static readonly Pen loopPen = new Pen(Color.FromArgb(128, Color.Yellow)) { Width = 3 };
+		static readonly SolidBrush objectBrush = new SolidBrush(Color.FromArgb(128, Color.Cyan));
+		static readonly SolidBrush ringBrush = new SolidBrush(Color.FromArgb(128, Color.Yellow));
+		static readonly SolidBrush startBrush = new SolidBrush(Color.FromArgb(128, Color.Red));
+		static readonly Pen selectionPen = new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot };
+		static readonly SolidBrush selectionBrush = new SolidBrush(Color.FromArgb(128, Color.White));
 		internal void DrawLevel()
 		{
 			if (!loaded) return;
@@ -1797,7 +1803,7 @@ namespace SonicRetro.SonLVL.GUI
 				for (int y = Math.Max(camera.Y / LevelData.Level.ChunkHeight, 0); y <= Math.Min(((camera.Y + (panel.PanelHeight - 1) / ZoomLevel)) / LevelData.Level.ChunkHeight, lvlsize.Height - 1); y++)
 					for (int x = Math.Max(camera.X / LevelData.Level.ChunkWidth, 0); x <= Math.Min(((camera.X + (panel.PanelWidth - 1) / ZoomLevel)) / LevelData.Level.ChunkWidth, lvlsize.Width - 1); x++)
 						if (loop[x, y])
-							LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Yellow)) { Width = 3 }, x * LevelData.Level.ChunkWidth - camera.X, y * LevelData.Level.ChunkHeight - camera.Y, LevelData.Level.ChunkWidth - 1, LevelData.Level.ChunkHeight - 1);
+							LevelGfx.DrawRectangle(loopPen, x * LevelData.Level.ChunkWidth - camera.X, y * LevelData.Level.ChunkHeight - camera.Y, LevelData.Level.ChunkWidth - 1, LevelData.Level.ChunkHeight - 1);
 			Point pnlcur = panel.PanelPointToClient(Cursor.Position);
 			switch (CurrentTab)
 			{
@@ -1810,24 +1816,24 @@ namespace SonicRetro.SonLVL.GUI
 						{
 							case ObjectEntry objitem:
 								bnd = LevelData.GetObjectDefinition(objitem.ID).GetBounds(objitem, camera);
-								brush = new SolidBrush(Color.FromArgb(128, Color.Cyan));
+								brush = objectBrush;
 								break;
 							case RingEntry rngitem:
 								bnd = ((RingLayoutFormat)LevelData.RingFormat).GetBounds(rngitem, camera);
-								brush = new SolidBrush(Color.FromArgb(128, Color.Yellow));
+								brush = ringBrush;
 								break;
 							case CNZBumperEntry bmpitem:
 								bnd = LevelData.unkobj.GetBounds(new S2ObjectEntry() { X = item.X, Y = item.Y }, new Point(camera.X, camera.Y));
-								brush = new SolidBrush(Color.FromArgb(128, Color.Cyan));
+								brush = objectBrush;
 								break;
 							case StartPositionEntry strtitem:
 								bnd = LevelData.StartPosDefs[LevelData.StartPositions.IndexOf(strtitem)].GetBounds(strtitem, camera);
-								brush = new SolidBrush(Color.FromArgb(128, Color.Red));
+								brush = startBrush;
 								break;
 						}
 						LevelGfx.FillRectangle(brush, bnd);
 						bnd.Width--; bnd.Height--;
-						LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, bnd);
+						LevelGfx.DrawRectangle(selectionPen, bnd);
 					}
 					if (selecting)
 					{
@@ -1836,9 +1842,9 @@ namespace SonicRetro.SonLVL.GUI
 						Math.Min(selpoint.Y, lastmouse.Y) - camera.Y,
 						Math.Max(selpoint.X, lastmouse.X) - camera.X,
 						Math.Max(selpoint.Y, lastmouse.Y) - camera.Y);
-						LevelGfx.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.White)), selbnds);
+						LevelGfx.FillRectangle(selectionBrush, selbnds);
 						selbnds.Width--;	selbnds.Height--;
-						LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, selbnds);
+						LevelGfx.DrawRectangle(selectionPen, selbnds);
 					}
 					break;
 				case Tab.Foreground:
@@ -1852,9 +1858,9 @@ namespace SonicRetro.SonLVL.GUI
 					{
 						Rectangle selbnds = selection.Scale(LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
 						selbnds.Offset(-camera.X, -camera.Y);
-						LevelGfx.FillRectangle(new SolidBrush(Color.FromArgb(128, Color.White)), selbnds);
+						LevelGfx.FillRectangle(selectionBrush, selbnds);
 						selbnds.Width--; selbnds.Height--;
-						LevelGfx.DrawRectangle(new Pen(Color.FromArgb(128, Color.Black)) { DashStyle = DashStyle.Dot }, selbnds);
+						LevelGfx.DrawRectangle(selectionPen, selbnds);
 					}
 					break;
 			}
