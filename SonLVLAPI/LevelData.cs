@@ -1128,20 +1128,29 @@ namespace SonicRetro.SonLVL.API
 			BitmapBits LevelImg8bpp = new BitmapBits(bounds.Size);
 			for (int y = Math.Max(bounds.Y / Level.ChunkHeight, 0); y <= Math.Min((bounds.Bottom - 1) / Level.ChunkHeight, FGHeight - 1); y++)
 				for (int x = Math.Max(bounds.X / Level.ChunkWidth, 0); x <= Math.Min((bounds.Right - 1) / Level.ChunkWidth, FGWidth - 1); x++)
-				{
-					if (Layout.FGLayout[x, y] < Chunks.Count & lowPlane)
-						LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[Layout.FGLayout[x, y]][0], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
-					if (objectsAboveHighPlane)
-						if (Layout.FGLayout[x, y] < Chunks.Count)
+					if (Layout.FGLayout[x, y] < Chunks.Count)
+					{
+						if ((!includeObjects || objectsAboveHighPlane) && lowPlane && highPlane)
 						{
-							if (highPlane)
-								LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[Layout.FGLayout[x, y]][1], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
+							LevelImg8bpp.DrawBitmapComposited(CompChunkBmpBits[Layout.FGLayout[x, y]], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
 							if (collisionPath1)
 								LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][0], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
 							else if (collisionPath2)
 								LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][1], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
 						}
-				}
+						else
+						{
+							if (lowPlane)
+								LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[Layout.FGLayout[x, y]][0], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
+							if (!includeObjects || objectsAboveHighPlane)
+							{
+								if (collisionPath1)
+									LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][0], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
+								else if (collisionPath2)
+									LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][1], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
+							}
+						}
+					}
 			if (includeObjects)
 			{
 				for (int oi = 0; oi < Objects.Count; oi++)
@@ -1158,19 +1167,19 @@ namespace SonicRetro.SonLVL.API
 						LevelImg8bpp.DrawSprite(item.Sprite, -bounds.X, -bounds.Y);
 				foreach (StartPositionEntry item in StartPositions)
 					LevelImg8bpp.DrawSprite(item.Sprite, -bounds.X, -bounds.Y);
+				if (!objectsAboveHighPlane)
+					for (int y = Math.Max(bounds.Y / Level.ChunkHeight, 0); y <= Math.Min(bounds.Bottom / Level.ChunkHeight, Layout.FGLayout.GetLength(1) - 1); y++)
+						for (int x = Math.Max(bounds.X / Level.ChunkWidth, 0); x <= Math.Min(bounds.Right / Level.ChunkWidth, Layout.FGLayout.GetLength(0) - 1); x++)
+							if (Layout.FGLayout[x, y] < Chunks.Count)
+							{
+								if (highPlane)
+									LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[Layout.FGLayout[x, y]][1], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
+								if (collisionPath1)
+									LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][0], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
+								else if (collisionPath2)
+									LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][1], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
+							}
 			}
-			if (!objectsAboveHighPlane)
-				for (int y = Math.Max(bounds.Y / Level.ChunkHeight, 0); y <= Math.Min(bounds.Bottom / Level.ChunkHeight, Layout.FGLayout.GetLength(1) - 1); y++)
-					for (int x = Math.Max(bounds.X / Level.ChunkWidth, 0); x <= Math.Min(bounds.Right / Level.ChunkWidth, Layout.FGLayout.GetLength(0) - 1); x++)
-						if (Layout.FGLayout[x, y] < Chunks.Count)
-						{
-							if (highPlane)
-								LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[Layout.FGLayout[x, y]][1], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
-							if (collisionPath1)
-								LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][0], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
-							else if (collisionPath2)
-								LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][1], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
-						}
 			return LevelImg8bpp;
 		}
 
@@ -1199,9 +1208,11 @@ namespace SonicRetro.SonLVL.API
 				for (int x = Math.Max(bounds.X / Level.ChunkWidth, 0); x <= Math.Min((bounds.Right - 1) / Level.ChunkWidth, Layout.BGLayout.GetLength(0) - 1); x++)
 					if (Layout.BGLayout[x, y] < Chunks.Count)
 					{
-						if (lowPlane)
+						if (lowPlane && highPlane)
+							LevelImg8bpp.DrawBitmapComposited(CompChunkBmpBits[Layout.BGLayout[x, y]], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
+						else if (lowPlane)
 							LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[Layout.BGLayout[x, y]][0], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
-						if (highPlane)
+						else if (highPlane)
 							LevelImg8bpp.DrawBitmapComposited(ChunkBmpBits[Layout.BGLayout[x, y]][1], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
 						if (collisionPath1)
 							LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.BGLayout[x, y]][0], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
