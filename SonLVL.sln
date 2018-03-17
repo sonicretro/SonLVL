@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "S3SSEdit", "S3SSEdit\S3SSEd
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "S1SSEdit", "S1SSEdit\S1SSEdit.csproj", "{D265BCEE-20A2-40F2-94C9-3FCEF23F3491}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectLayoutMerge", "ObjectLayoutMerge\ObjectLayoutMerge.csproj", "{3FCB3E21-05F9-4E82-A0E0-F91AE8335516}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -99,8 +101,15 @@ Global
 		{D265BCEE-20A2-40F2-94C9-3FCEF23F3491}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D265BCEE-20A2-40F2-94C9-3FCEF23F3491}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D265BCEE-20A2-40F2-94C9-3FCEF23F3491}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3FCB3E21-05F9-4E82-A0E0-F91AE8335516}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3FCB3E21-05F9-4E82-A0E0-F91AE8335516}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3FCB3E21-05F9-4E82-A0E0-F91AE8335516}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FCB3E21-05F9-4E82-A0E0-F91AE8335516}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CF5BB54B-0FB0-4194-B0CD-FA5F328CD910}
 	EndGlobalSection
 EndGlobal

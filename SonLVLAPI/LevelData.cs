@@ -37,10 +37,10 @@ namespace SonicRetro.SonLVL.API
 		public static int CurPal;
 		public static ColorPalette BmpPal;
 		public static List<ObjectEntry> Objects;
-		static bool objectterm;
+		public static bool objectterm;
 		public static ObjectLayoutFormat ObjectFormat;
 		public static List<RingEntry> Rings;
-		internal static bool ringstartterm, ringendterm;
+		public static bool ringstartterm, ringendterm;
 		public static RingFormat RingFormat;
 		public static List<CNZBumperEntry> Bumpers;
 		public static List<StartPositionEntry> StartPositions;
