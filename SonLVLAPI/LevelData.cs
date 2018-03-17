@@ -322,6 +322,8 @@ namespace SonicRetro.SonLVL.API
 		private static void LoadLevelTiles()
 		{
 			Tiles = new MultiFileIndexer<byte[]>(() => new byte[32]);
+			if (Level.Tiles == null || string.IsNullOrWhiteSpace(Level.Tiles[0].Filename))
+				throw new FormatException("Level must contain at least one Tiles file!");
 			if (Level.TileFormat != EngineVersion.SCDPC)
 			{
 				foreach (FileInfo tileent in Level.Tiles)
@@ -379,6 +381,8 @@ namespace SonicRetro.SonLVL.API
 		private static void LoadLevelBlocks()
 		{
 			Blocks = new MultiFileIndexer<Block>(() => new Block());
+			if (Level.Blocks == null || string.IsNullOrWhiteSpace(Level.Blocks[0].Filename))
+				throw new FormatException("Level must contain at least one Blocks file!");
 			foreach (FileInfo tileent in Level.Blocks)
 			{
 				if (File.Exists(tileent.Filename))
@@ -409,6 +413,8 @@ namespace SonicRetro.SonLVL.API
 		private static void LoadLevelChunks()
 		{
 			Chunks = new MultiFileIndexer<Chunk>(() => new Chunk());
+			if (Level.Chunks == null || string.IsNullOrWhiteSpace(Level.Chunks[0].Filename))
+				throw new FormatException("Level must contain at least one Chunks file!");
 			int fileind = 0;
 			foreach (FileInfo tileent in Level.Chunks)
 			{
@@ -480,6 +486,8 @@ namespace SonicRetro.SonLVL.API
 			}
 			if (LayoutFormat.IsCombinedLayout)
 			{
+				if (string.IsNullOrWhiteSpace(Level.Layout))
+					throw new FormatException("Level must contain a Layout file!");
 				LayoutFormatCombined lfc = (LayoutFormatCombined)LayoutFormat;
 				lfc.TryReadLayout(Level.Layout, Level.LayoutCompression, Layout);
 				foreach (string lvlname in Game.Levels.Keys)
@@ -497,6 +505,8 @@ namespace SonicRetro.SonLVL.API
 			}
 			else
 			{
+				if (string.IsNullOrWhiteSpace(Level.FGLayout) || string.IsNullOrWhiteSpace(Level.BGLayout))
+					throw new FormatException("Level must contain an FGLayout and BGLayout file!");
 				LayoutFormatSeparate lfs = (LayoutFormatSeparate)LayoutFormat;
 				lfs.TryReadLayout(Level.FGLayout, Level.BGLayout, Level.FGLayoutCompression, Level.BGLayoutCompression, Layout);
 				foreach (string lvlname in Game.Levels.Keys)
@@ -528,6 +538,8 @@ namespace SonicRetro.SonLVL.API
 			Palette = new List<SonLVLColor[,]>();
 			PalNum = new List<byte[,]>();
 			PalAddr = new List<int[,]>();
+			if (Level.Palette == null || string.IsNullOrWhiteSpace(Level.Palette[0].Filename))
+				throw new FormatException("Level must contain at least one Palette file!");
 			byte palfilenum = 0;
 			for (int palnum = 0; palnum < Level.Palettes.Length; palnum++)
 			{
