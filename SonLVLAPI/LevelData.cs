@@ -154,8 +154,19 @@ namespace SonicRetro.SonLVL.API
 			if ((Level.ChunkHeight & 15) != 0)
 				throw new ArgumentException("Chunk height must be divisible by 16!");
 			byte[] tmp = null;
+#if !DEBUG
 			Parallel.Invoke(LoadLevelTiles, LoadLevelBlocks, LoadLevelChunks, () => LoadLevelLayout(levelname), LoadLevelPalette,
 				LoadLevelColInds, LoadLevelColArr, LoadLevelAngles);
+#else
+			LoadLevelTiles();
+			LoadLevelBlocks();
+			LoadLevelChunks();
+			LoadLevelLayout(levelname);
+			LoadLevelPalette();
+			LoadLevelColInds();
+			LoadLevelColArr();
+			LoadLevelAngles();
+#endif
 			if (ColInds1 != null && Level.EngineVersion != EngineVersion.S3K && Level.EngineVersion != EngineVersion.SKC)
 			{
 				if (ColInds1.Count < Blocks.Count)
@@ -258,12 +269,21 @@ namespace SonicRetro.SonLVL.API
 						LoadObjectDefinitionFile(item);
 				InitObjectDefinitions();
 			}
+#if !DEBUG
 			Parallel.Invoke(() => LoadLevelObjects(loadGraphics), () => LoadLevelRings(loadGraphics),
 				() => LoadLevelBumpers(loadGraphics), () => LoadLevelStartPositions(loadGraphics));
+#else
+			LoadLevelObjects(loadGraphics);
+			LoadLevelRings(loadGraphics);
+			LoadLevelBumpers(loadGraphics);
+			LoadLevelStartPositions(loadGraphics);
+#endif
 			if (loadGraphics)
 			{
+#if !DEBUG
 				Parallel.Invoke(() =>
 				{
+#endif
 					BlockBmps = new List<Bitmap[]>(Blocks.Count);
 					BlockBmpBits = new List<BitmapBits[]>(Blocks.Count);
 					CompBlockBmps = new List<Bitmap>(Blocks.Count);
@@ -275,14 +295,18 @@ namespace SonicRetro.SonLVL.API
 						CompBlockBmps.Add(null);
 						CompBlockBmpBits.Add(null);
 					}
+#if !DEBUG
 				},
 				() =>
 				{
+#endif
 					ColBmps = new Bitmap[256];
 					ColBmpBits = new BitmapBits[256];
+#if !DEBUG
 				},
 				() =>
 				{
+#endif
 					ChunkBmps = new List<Bitmap[]>(Chunks.Count);
 					ChunkBmpBits = new List<BitmapBits[]>(Chunks.Count);
 					ChunkColBmps = new List<Bitmap[]>(Chunks.Count);
@@ -298,24 +322,42 @@ namespace SonicRetro.SonLVL.API
 						CompChunkBmps.Add(null);
 						CompChunkBmpBits.Add(null);
 					}
+#if !DEBUG
 				});
+#endif
 				Log("Drawing block bitmaps...");
+#if !DEBUG
 				Parallel.ForEach(Partitioner.Create(0, Blocks.Count), range =>
 				{
 					for (int bi = range.Item1; bi < range.Item2; bi++)
+#else
+				for (int bi = 0; bi < Blocks.Count; bi++)
+#endif
 						RedrawBlock(bi, false);
+#if !DEBUG
 				});
 				Parallel.ForEach(Partitioner.Create(0, 256), range =>
 				{
 					for (int ci = range.Item1; ci < range.Item2; ci++)
+#else
+				for (int ci = 0; ci < 256; ci++)
+#endif
 						RedrawCol(ci, false);
+#if !DEBUG
 				});
+#endif
 				Log("Drawing chunk bitmaps...");
+#if !DEBUG
 				Parallel.ForEach(Partitioner.Create(0, Chunks.Count), range =>
 				{
 					for (int ci = range.Item1; ci < range.Item2; ci++)
+#else
+				for (int ci = 0; ci < Chunks.Count; ci++)
+#endif
 						RedrawChunk(ci);
+#if !DEBUG
 				});
+#endif
 			}
 		}
 
@@ -1266,7 +1308,11 @@ namespace SonicRetro.SonLVL.API
 
 		private static void InitObjectDefinitions()
 		{
+#if !DEBUG
 			Parallel.ForEach(INIObjDefs, (KeyValuePair<string, ObjectData> group) =>
+#else
+			foreach (KeyValuePair<string, ObjectData> group in INIObjDefs)
+#endif
 			{
 				if (group.Value.ArtCompression == CompressionType.Invalid)
 					group.Value.ArtCompression = Game.ObjectArtCompression;
@@ -1339,7 +1385,11 @@ namespace SonicRetro.SonLVL.API
 						ObjTypes[ID] = def;
 					def.Init(group.Value);
 				}
+#if !DEBUG
 			});
+#else
+			}
+#endif
 		}
 
 		internal static string ExpandTypeName(string type)
