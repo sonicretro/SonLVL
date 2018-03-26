@@ -1960,14 +1960,14 @@ namespace SonicRetro.SonLVL.API
 		public BitmapBits Image;
 		public int X { get { return Offset.X; } set { Offset.X = value; } }
 		public int Y { get { return Offset.Y; } set { Offset.Y = value; } }
-		public int Width { get { return Image.Width; } }
-		public int Height { get { return Image.Height; } }
-		public Size Size { get { return Image.Size; } }
-		public int Left { get { return X; } }
-		public int Top { get { return Y; } }
-		public int Right { get { return X + Width; } }
-		public int Bottom { get { return Y + Height; } }
-		public Rectangle Bounds { get { return new Rectangle(Offset, Size); } }
+		public int Width => Image.Width;
+		public int Height => Image.Height;
+		public Size Size => Image.Size;
+		public int Left => X;
+		public int Top => Y;
+		public int Right => X + Width;
+		public int Bottom => Y + Height;
+		public Rectangle Bounds => new Rectangle(Offset, Size);
 
 		public Sprite(BitmapBits spr, Point off)
 		{
@@ -2099,6 +2099,13 @@ namespace SonicRetro.SonLVL.API
 				return this;	// don't trim fully transparent images (else we won't be able to select them)
 			else
 				return Crop(used);
+		}
+
+		public void Flip(bool xflip, bool yflip)
+		{
+			Image.Flip(xflip, yflip);
+			if (xflip) X = -(Width + X);
+			if (yflip) Y = -(Height + Y);
 		}
 
 		public static Sprite LoadChaotixSprite(string filename) { return LoadChaotixSprite(File.ReadAllBytes(filename), 0); }

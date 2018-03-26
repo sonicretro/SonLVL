@@ -971,16 +971,16 @@ namespace SonicRetro.SonLVL.API
 				bool xflip = false;
 				switch (img.xflip)
 				{
-					case SonicRetro.SonLVL.API.XMLDef.FlipType.ReverseFlip:
-					case SonicRetro.SonLVL.API.XMLDef.FlipType.AlwaysFlip:
+					case XMLDef.FlipType.ReverseFlip:
+					case XMLDef.FlipType.AlwaysFlip:
 						xflip = true;
 						break;
 				}
 				bool yflip = false;
 				switch (img.yflip)
 				{
-					case SonicRetro.SonLVL.API.XMLDef.FlipType.ReverseFlip:
-					case SonicRetro.SonLVL.API.XMLDef.FlipType.AlwaysFlip:
+					case XMLDef.FlipType.ReverseFlip:
+					case XMLDef.FlipType.AlwaysFlip:
 						yflip = true;
 						break;
 				}
@@ -1027,8 +1027,10 @@ namespace SonicRetro.SonLVL.API
 			{
 				if (xmldef.DefaultImage != null && xmldef.DefaultImage.Images != null)
 					return ReadImageRefs(xmldef.DefaultImage.Images);
-				else
+				else if (xmldef.Image != null)
 					return images[xmldef.Image];
+				else
+					return SubtypeImage(DefaultSubtype);
 			}
 		}
 
@@ -1161,9 +1163,11 @@ namespace SonicRetro.SonLVL.API
 						}
 				}
 			}
-			BitmapBits unkbits = new BitmapBits(unkobj.Image);
-			unkbits.Flip(obj.XFlip, obj.YFlip);
-			return new Sprite(unkbits, new Point(unkobj.X + obj.X, unkobj.Y + obj.Y));
+			Sprite sprite = new Sprite(Image);
+			sprite.Flip(obj.XFlip, obj.YFlip);
+			sprite.X += obj.X;
+			sprite.Y += obj.Y;
+			return sprite;
 		}
 
 		private bool CheckConditions(ObjectEntry obj, XMLDef.DisplayOption option)
