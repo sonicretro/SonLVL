@@ -1280,7 +1280,11 @@ namespace SonicRetro.SonLVL.API
 							return new Rectangle(images[item.image].X + obj.X - camera.X, images[item.image].Y + obj.Y - camera.Y, images[item.image].Width, images[item.image].Height);
 				}
 			}
-			return new Rectangle(unkobj.X + obj.X - camera.X, unkobj.Y + obj.Y - camera.Y, unkobj.Width, unkobj.Height);
+			Sprite sprite = new Sprite(Image);
+			sprite.Flip(obj.XFlip, obj.YFlip);
+			sprite.X += obj.X - camera.X;
+			sprite.Y += obj.Y - camera.Y;
+			return sprite.Bounds;
 		}
 
 		public override bool Debug
