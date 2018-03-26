@@ -39,7 +39,7 @@ namespace SonicRetro.SonLVL.API
 						ret = KosinskiPlus.Decompress(file);
 						break;
 					case CompressionType.KosinskiPlusM:
-						ret = ModuledKosinskiPlus.Decompress(file, LevelData.littleendian ? Endianness.LittleEndian : Endianness.BigEndian);
+						ret = ModuledKosinskiPlus.Decompress(file);
 						break;
 					default:
 						throw new ArgumentOutOfRangeException("cmp", "Invalid compression type " + cmp + "!");
@@ -98,7 +98,7 @@ namespace SonicRetro.SonLVL.API
 						using (MemoryStream input = new MemoryStream(file))
 						using (FileStream output = File.Create(destination))
 						using (PaddedStream paddedOutput = new PaddedStream(output, 2, PaddedStreamMode.Write))
-							ModuledKosinskiPlus.Compress(input, paddedOutput, LevelData.littleendian ? Endianness.LittleEndian : Endianness.BigEndian);
+							ModuledKosinskiPlus.Compress(input, paddedOutput);
 						break;
 					default:
 						throw new ArgumentOutOfRangeException("cmp", "Invalid compression type " + cmp + "!");
