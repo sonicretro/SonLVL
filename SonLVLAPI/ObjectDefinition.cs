@@ -961,14 +961,7 @@ namespace SonicRetro.SonLVL.API
 			List<Sprite> sprs = new List<Sprite>(refs.Length);
 			foreach (XMLDef.ImageRef img in refs)
 			{
-				int xoff = img.Offset.X;
-				if (img.xflip == XMLDef.FlipType.ReverseFlip | img.xflip == XMLDef.FlipType.AlwaysFlip)
-					xoff = -xoff;
-				int yoff = img.Offset.Y;
-				if (img.yflip == XMLDef.FlipType.ReverseFlip | img.yflip == XMLDef.FlipType.AlwaysFlip)
-					yoff = -yoff;
-				BitmapBits bits = new BitmapBits(images[img.image].Image);
-				bool xflip = false;
+				bool xflip = false, yflip = false;
 				switch (img.xflip)
 				{
 					case XMLDef.FlipType.ReverseFlip:
@@ -976,7 +969,6 @@ namespace SonicRetro.SonLVL.API
 						xflip = true;
 						break;
 				}
-				bool yflip = false;
 				switch (img.yflip)
 				{
 					case XMLDef.FlipType.ReverseFlip:
@@ -984,8 +976,17 @@ namespace SonicRetro.SonLVL.API
 						yflip = true;
 						break;
 				}
-				bits.Flip(xflip, yflip);
-				sprs.Add(new Sprite(bits, new Point(images[img.image].X + xoff, images[img.image].Y + yoff)));
+				int xoff = img.Offset.X;
+				if (xflip)
+					xoff = -xoff;
+				int yoff = img.Offset.Y;
+				if (yflip)
+					yoff = -yoff;
+				Sprite sp = new Sprite(images[img.image]);
+				sp.Flip(xflip, yflip);
+				sp.X += xoff;
+				sp.Y += yoff;
+				sprs.Add(sp);
 			}
 			return new Sprite(sprs);
 		}
@@ -1042,58 +1043,8 @@ namespace SonicRetro.SonLVL.API
 				{
 					if (!CheckConditions(obj, option))
 						continue;
-					List<Sprite> sprs = new List<Sprite>();
 					if (option.Images != null)
-						foreach (XMLDef.ImageRef img in option.Images)
-						{
-							int xoff = img.Offset.X;
-							if (img.xflip == XMLDef.FlipType.ReverseFlip | img.xflip == XMLDef.FlipType.AlwaysFlip)
-								xoff = -xoff;
-							if (img.xflip == XMLDef.FlipType.NormalFlip | img.xflip == XMLDef.FlipType.ReverseFlip)
-								if (obj.XFlip)
-									xoff = -xoff;
-							int yoff = img.Offset.Y;
-							if (img.yflip == XMLDef.FlipType.ReverseFlip | img.yflip == XMLDef.FlipType.AlwaysFlip)
-								yoff = -yoff;
-							if (img.yflip == XMLDef.FlipType.NormalFlip | img.yflip == XMLDef.FlipType.ReverseFlip)
-								if (obj.YFlip)
-									yoff = -yoff;
-							BitmapBits bits = new BitmapBits(images[img.image].Image);
-							if (img.xflip != XMLDef.FlipType.NeverFlip | img.yflip != XMLDef.FlipType.NeverFlip)
-							{
-								bool xflipex = false;
-								switch (img.xflip)
-								{
-									case XMLDef.FlipType.NormalFlip:
-										xflipex = obj.XFlip;
-										break;
-									case XMLDef.FlipType.ReverseFlip:
-										xflipex = !obj.XFlip;
-										break;
-									case XMLDef.FlipType.AlwaysFlip:
-										xflipex = true;
-										break;
-								}
-								bool yflipex = false;
-								switch (img.yflip)
-								{
-									case XMLDef.FlipType.NormalFlip:
-										yflipex = obj.YFlip;
-										break;
-									case XMLDef.FlipType.ReverseFlip:
-										yflipex = !obj.YFlip;
-										break;
-									case XMLDef.FlipType.AlwaysFlip:
-										yflipex = true;
-										break;
-								}
-								bits.Flip(xflipex, yflipex);
-							}
-							sprs.Add(new Sprite(bits, new Point(images[img.image].X + xoff, images[img.image].Y + yoff)));
-						}
-					Sprite spr = new Sprite(sprs.ToArray());
-					spr.Offset = new Point(obj.X + spr.X, obj.Y + spr.Y);
-					return spr;
+						return ReadImageRefs(option.Images, obj);
 				}
 			}
 			else if (xmldef.Subtypes != null && xmldef.Subtypes.Items != null)
@@ -1102,64 +1053,14 @@ namespace SonicRetro.SonLVL.API
 				{
 					if (obj.SubType == item.subtype)
 						if (item.Images != null)
-						{
-							List<Sprite> sprs = new List<Sprite>(item.Images.Length);
-							foreach (XMLDef.ImageRef img in item.Images)
-							{
-								int xoff = img.Offset.X;
-								if (img.xflip == XMLDef.FlipType.ReverseFlip | img.xflip == XMLDef.FlipType.AlwaysFlip)
-									xoff = -xoff;
-								if (img.xflip == XMLDef.FlipType.NormalFlip | img.xflip == XMLDef.FlipType.ReverseFlip)
-									if (obj.XFlip)
-										xoff = -xoff;
-								int yoff = img.Offset.Y;
-								if (img.yflip == XMLDef.FlipType.ReverseFlip | img.yflip == XMLDef.FlipType.AlwaysFlip)
-									yoff = -yoff;
-								if (img.yflip == XMLDef.FlipType.NormalFlip | img.yflip == XMLDef.FlipType.ReverseFlip)
-									if (obj.YFlip)
-										yoff = -yoff;
-								BitmapBits bits = new BitmapBits(images[img.image].Image);
-								if (img.xflip != XMLDef.FlipType.NeverFlip | img.yflip != XMLDef.FlipType.NeverFlip)
-								{
-									bool xflipex = false;
-									switch (img.xflip)
-									{
-										case XMLDef.FlipType.NormalFlip:
-											xflipex = obj.XFlip;
-											break;
-										case XMLDef.FlipType.ReverseFlip:
-											xflipex = !obj.XFlip;
-											break;
-										case XMLDef.FlipType.AlwaysFlip:
-											xflipex = true;
-											break;
-									}
-									bool yflipex = false;
-									switch (img.yflip)
-									{
-										case XMLDef.FlipType.NormalFlip:
-											yflipex = obj.YFlip;
-											break;
-										case XMLDef.FlipType.ReverseFlip:
-											yflipex = !obj.YFlip;
-											break;
-										case XMLDef.FlipType.AlwaysFlip:
-											yflipex = true;
-											break;
-									}
-									bits.Flip(xflipex, yflipex);
-								}
-								sprs.Add(new Sprite(bits, new Point(images[img.image].X + xoff, images[img.image].Y + yoff)));
-							}
-							Sprite spr = new Sprite(sprs.ToArray());
-							spr.Offset = new Point(obj.X + spr.X, obj.Y + spr.Y);
-							return spr;
-						}
+							return ReadImageRefs(item.Images, obj);
 						else
 						{
-							BitmapBits bits = new BitmapBits(images[item.image].Image);
-							bits.Flip(obj.XFlip, obj.YFlip);
-							return new Sprite(bits, new Point(images[item.image].X + obj.X, images[item.image].Y + obj.Y));
+							Sprite spr = new Sprite(images[item.image]);
+							spr.Flip(obj.XFlip, obj.YFlip);
+							spr.X += obj.X;
+							spr.Y += obj.Y;
+							return spr;
 						}
 				}
 			}
@@ -1168,6 +1069,53 @@ namespace SonicRetro.SonLVL.API
 			sprite.X += obj.X;
 			sprite.Y += obj.Y;
 			return sprite;
+		}
+
+		private Sprite ReadImageRefs(XMLDef.ImageRef[] refs, ObjectEntry obj)
+		{
+			List<Sprite> sprs = new List<Sprite>(refs.Length);
+			foreach (XMLDef.ImageRef img in refs)
+			{
+				bool xflip = false, yflip = false;
+				switch (img.xflip)
+				{
+					case XMLDef.FlipType.NormalFlip:
+						xflip = obj.XFlip;
+						break;
+					case XMLDef.FlipType.ReverseFlip:
+						xflip = !obj.XFlip;
+						break;
+					case XMLDef.FlipType.AlwaysFlip:
+						xflip = true;
+						break;
+				}
+				switch (img.yflip)
+				{
+					case XMLDef.FlipType.NormalFlip:
+						yflip = obj.YFlip;
+						break;
+					case XMLDef.FlipType.ReverseFlip:
+						yflip = !obj.YFlip;
+						break;
+					case XMLDef.FlipType.AlwaysFlip:
+						yflip = true;
+						break;
+				}
+				int xoff = img.Offset.X;
+				if (xflip)
+					xoff = -xoff;
+				int yoff = img.Offset.Y;
+				if (yflip)
+					yoff = -yoff;
+				Sprite sp = new Sprite(images[img.image]);
+				sp.Flip(xflip, yflip);
+				sp.X += xoff;
+				sp.Y += yoff;
+				sprs.Add(sp);
+			}
+			Sprite spr = new Sprite(sprs);
+			spr.Offset = new Point(obj.X + spr.X, obj.Y + spr.Y);
+			return spr;
 		}
 
 		private bool CheckConditions(ObjectEntry obj, XMLDef.DisplayOption option)
@@ -1209,35 +1157,9 @@ namespace SonicRetro.SonLVL.API
 				{
 					if (!CheckConditions(obj, option))
 						continue;
-					Rectangle rect = Rectangle.Empty;
-					bool first = true;
 					if (option.Images != null)
-						foreach (XMLDef.ImageRef img in option.Images)
-						{
-							int xoff = img.Offset.X;
-							if (img.xflip == XMLDef.FlipType.ReverseFlip | img.xflip == XMLDef.FlipType.AlwaysFlip)
-								xoff = -xoff;
-							if (img.xflip == XMLDef.FlipType.NormalFlip | img.xflip == XMLDef.FlipType.ReverseFlip)
-								if (obj.XFlip)
-									xoff = -xoff;
-							xoff -= camera.X;
-							int yoff = img.Offset.Y;
-							if (img.yflip == XMLDef.FlipType.ReverseFlip | img.yflip == XMLDef.FlipType.AlwaysFlip)
-								yoff = -yoff;
-							if (img.yflip == XMLDef.FlipType.NormalFlip | img.yflip == XMLDef.FlipType.ReverseFlip)
-								if (obj.YFlip)
-									yoff = -yoff;
-							yoff -= camera.Y;
-							Rectangle tmp = new Rectangle(images[img.image].X + xoff + obj.X, images[img.image].Y + yoff + obj.Y, images[img.image].Width, images[img.image].Height);
-							if (first)
-							{
-								rect = tmp;
-								first = false;
-							}
-							else
-								rect = Rectangle.Union(tmp, rect);
-						}
-					return rect;
+						return GetImageRefBounds(option.Images, obj, camera);
+					return Rectangle.Empty;
 				}
 			}
 			else if (xmldef.Subtypes != null && xmldef.Subtypes.Items != null)
@@ -1246,45 +1168,96 @@ namespace SonicRetro.SonLVL.API
 				{
 					if (obj.SubType == item.subtype)
 						if (item.Images != null)
+							return GetImageRefBounds(item.Images, obj, camera);
+						else
 						{
-							Rectangle rect = Rectangle.Empty;
-							bool first = true;
-								foreach (XMLDef.ImageRef img in item.Images)
-								{
-									int xoff = img.Offset.X;
-									if (img.xflip == XMLDef.FlipType.ReverseFlip | img.xflip == XMLDef.FlipType.AlwaysFlip)
-										xoff = -xoff;
-									if (img.xflip == XMLDef.FlipType.NormalFlip | img.xflip == XMLDef.FlipType.ReverseFlip)
-										if (obj.XFlip)
-											xoff = -xoff;
-									xoff -= camera.X;
-									int yoff = img.Offset.Y;
-									if (img.yflip == XMLDef.FlipType.ReverseFlip | img.yflip == XMLDef.FlipType.AlwaysFlip)
-										yoff = -yoff;
-									if (img.yflip == XMLDef.FlipType.NormalFlip | img.yflip == XMLDef.FlipType.ReverseFlip)
-										if (obj.YFlip)
-											yoff = -yoff;
-									yoff -= camera.Y;
-									Rectangle tmp = new Rectangle(images[img.image].X + xoff + obj.X, images[img.image].Y + yoff + obj.Y, images[img.image].Width, images[img.image].Height);
-									if (first)
-									{
-										rect = tmp;
-										first = false;
-									}
-									else
-										rect = Rectangle.Union(tmp, rect);
-								}
+							Rectangle rect = images[item.image].Bounds;
+							rect = rect.Flip(obj.XFlip, obj.YFlip);
+							rect.Offset(obj.X, obj.Y);
+							rect.Offset(-camera.X, -camera.Y);
 							return rect;
 						}
-						else
-							return new Rectangle(images[item.image].X + obj.X - camera.X, images[item.image].Y + obj.Y - camera.Y, images[item.image].Width, images[item.image].Height);
 				}
 			}
-			Sprite sprite = new Sprite(Image);
-			sprite.Flip(obj.XFlip, obj.YFlip);
-			sprite.X += obj.X - camera.X;
-			sprite.Y += obj.Y - camera.Y;
-			return sprite.Bounds;
+			if (xmldef.DefaultImage != null && xmldef.DefaultImage.Images != null)
+				return GetImageRefBounds(xmldef.DefaultImage.Images, obj, camera);
+			else if (xmldef.Image != null)
+			{
+				Rectangle rect = images[xmldef.Image].Bounds;
+				rect = rect.Flip(obj.XFlip, obj.YFlip);
+				rect.Offset(obj.X, obj.Y);
+				rect.Offset(-camera.X, -camera.Y);
+				return rect;
+			}
+			else if (xmldef.Subtypes != null && xmldef.Subtypes.Items != null)
+			{
+				foreach (XMLDef.Subtype item in xmldef.Subtypes.Items)
+				{
+					if (item.subtype == DefaultSubtype)
+						if (item.Images != null)
+							return GetImageRefBounds(item.Images, obj, camera);
+						else
+						{
+							Rectangle rect = images[item.image].Bounds;
+							rect = rect.Flip(obj.XFlip, obj.YFlip);
+							rect.Offset(obj.X, obj.Y);
+							rect.Offset(-camera.X, -camera.Y);
+							return rect;
+						}
+				}
+			}
+			Rectangle unkbnd = unkobj.Bounds;
+			unkbnd = unkbnd.Flip(obj.XFlip, obj.YFlip);
+			unkbnd.Offset(obj.X, obj.Y);
+			unkbnd.Offset(-camera.X, -camera.Y);
+			return unkbnd;
+		}
+
+		private Rectangle GetImageRefBounds(XMLDef.ImageRef[] refs, ObjectEntry obj, Point camera)
+		{
+			Rectangle rect = Rectangle.Empty;
+			bool first = true;
+			foreach (XMLDef.ImageRef img in refs)
+			{
+				bool xflip = false, yflip = false;
+				switch (img.xflip)
+				{
+					case XMLDef.FlipType.NormalFlip:
+						xflip = obj.XFlip;
+						break;
+					case XMLDef.FlipType.ReverseFlip:
+						xflip = !obj.XFlip;
+						break;
+					case XMLDef.FlipType.AlwaysFlip:
+						xflip = true;
+						break;
+				}
+				switch (img.yflip)
+				{
+					case XMLDef.FlipType.NormalFlip:
+						yflip = obj.YFlip;
+						break;
+					case XMLDef.FlipType.ReverseFlip:
+						yflip = !obj.YFlip;
+						break;
+					case XMLDef.FlipType.AlwaysFlip:
+						yflip = true;
+						break;
+				}
+				Rectangle tmp = images[img.image].Bounds;
+				tmp.Offset(img.Offset.X, img.Offset.Y);
+				tmp = tmp.Flip(xflip, yflip);
+				if (first)
+				{
+					rect = tmp;
+					first = false;
+				}
+				else
+					rect = Rectangle.Union(tmp, rect);
+			}
+			rect.Offset(obj.X, obj.Y);
+			rect.Offset(-camera.X, -camera.Y);
+			return rect;
 		}
 
 		public override bool Debug

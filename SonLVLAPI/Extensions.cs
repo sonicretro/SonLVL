@@ -128,6 +128,15 @@ namespace SonicRetro.SonLVL.API
 			return newbmp;
 		}
 
+		public static Rectangle Flip(this Rectangle rect, bool xflip, bool yflip)
+		{
+			if (xflip)
+				rect.X = -rect.Right;
+			if (yflip)
+				rect.Y = -rect.Bottom;
+			return rect;
+		}
+
 		public static TValue GetValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key, TValue @default)
 		{
 			if (dict.TryGetValue(key, out TValue output))
