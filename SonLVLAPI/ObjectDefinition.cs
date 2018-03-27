@@ -1087,11 +1087,13 @@ namespace SonicRetro.SonLVL.API
 						}
 				}
 			}
+			Sprite sprite;
 			if (xmldef.DefaultImage != null && xmldef.DefaultImage.Images != null)
-				return ReadImageRefList(xmldef.DefaultImage);
+				return ReadImageRefList(xmldef.DefaultImage, obj);
 			else if (xmldef.Image != null)
-				return images[xmldef.Image];
-			Sprite sprite = new Sprite(unkobj);
+				sprite = new Sprite(images[xmldef.Image]);
+			else
+				sprite = new Sprite(unkobj);
 			sprite.Flip(obj.XFlip, obj.YFlip);
 			sprite.X += obj.X;
 			sprite.Y += obj.Y;
