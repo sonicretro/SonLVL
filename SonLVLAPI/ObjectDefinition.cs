@@ -1087,7 +1087,11 @@ namespace SonicRetro.SonLVL.API
 						}
 				}
 			}
-			Sprite sprite = new Sprite(Image);
+			if (xmldef.DefaultImage != null && xmldef.DefaultImage.Images != null)
+				return ReadImageRefList(xmldef.DefaultImage);
+			else if (xmldef.Image != null)
+				return images[xmldef.Image];
+			Sprite sprite = new Sprite(unkobj);
 			sprite.Flip(obj.XFlip, obj.YFlip);
 			sprite.X += obj.X;
 			sprite.Y += obj.Y;
@@ -1228,23 +1232,6 @@ namespace SonicRetro.SonLVL.API
 				rect.Offset(obj.X, obj.Y);
 				rect.Offset(-camera.X, -camera.Y);
 				return rect;
-			}
-			else if (xmldef.Subtypes != null && xmldef.Subtypes.Items != null)
-			{
-				foreach (XMLDef.Subtype item in xmldef.Subtypes.Items)
-				{
-					if (item.subtype == DefaultSubtype)
-						if (item.Images != null)
-							return GetImageRefListBounds(item, obj, camera);
-						else
-						{
-							Rectangle rect = images[item.image].Bounds;
-							rect = rect.Flip(obj.XFlip, obj.YFlip);
-							rect.Offset(obj.X, obj.Y);
-							rect.Offset(-camera.X, -camera.Y);
-							return rect;
-						}
-				}
 			}
 			Rectangle unkbnd = unkobj.Bounds;
 			unkbnd = unkbnd.Flip(obj.XFlip, obj.YFlip);
