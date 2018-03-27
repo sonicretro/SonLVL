@@ -334,9 +334,8 @@ namespace SonicRetro.SonLVL.API.XMLDef
 
 	public class ImageRefList
 	{
-		[XmlElement("ImageSetRef")]
-		public ImageSetRef[] ImageSets { get; set; }
-		[XmlElement("ImageRef")]
-		public ImageRef[] Images { get; set; }
+		[XmlElement("ImageSetRef", typeof(ImageSetRef))]
+		[XmlElement("ImageRef", typeof(ImageRef))]
+		public object[] Images { get; set; }
 	}
 }

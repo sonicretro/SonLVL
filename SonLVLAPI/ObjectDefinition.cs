@@ -960,49 +960,57 @@ namespace SonicRetro.SonLVL.API
 			unkobj = ObjectHelper.UnknownObject;
 		}
 
-		private Sprite ReadImageRefs(XMLDef.ImageRef[] refs)
+		private Sprite ReadImageSet(XMLDef.ImageRef[] refs)
 		{
 			List<Sprite> sprs = new List<Sprite>(refs.Length);
 			foreach (XMLDef.ImageRef img in refs)
-			{
-				bool xflip = false, yflip = false;
-				switch (img.xflip)
-				{
-					case XMLDef.FlipType.ReverseFlip:
-					case XMLDef.FlipType.AlwaysFlip:
-						xflip = true;
-						break;
-				}
-				switch (img.yflip)
-				{
-					case XMLDef.FlipType.ReverseFlip:
-					case XMLDef.FlipType.AlwaysFlip:
-						yflip = true;
-						break;
-				}
-				int xoff = img.Offset.X;
-				if (xflip)
-					xoff = -xoff;
-				int yoff = img.Offset.Y;
-				if (yflip)
-					yoff = -yoff;
-				Sprite sp = new Sprite(images[img.image]);
-				sp.Flip(xflip, yflip);
-				sp.X += xoff;
-				sp.Y += yoff;
-				sprs.Add(sp);
-			}
+				sprs.Add(ReadImageRef(img));
 			return new Sprite(sprs);
+		}
+
+		private Sprite ReadImageRef(XMLDef.ImageRef img)
+		{
+			bool xflip = false, yflip = false;
+			switch (img.xflip)
+			{
+				case XMLDef.FlipType.ReverseFlip:
+				case XMLDef.FlipType.AlwaysFlip:
+					xflip = true;
+					break;
+			}
+			switch (img.yflip)
+			{
+				case XMLDef.FlipType.ReverseFlip:
+				case XMLDef.FlipType.AlwaysFlip:
+					yflip = true;
+					break;
+			}
+			int xoff = img.Offset.X;
+			if (xflip)
+				xoff = -xoff;
+			int yoff = img.Offset.Y;
+			if (yflip)
+				yoff = -yoff;
+			Sprite sp = new Sprite(images[img.image]);
+			sp.Flip(xflip, yflip);
+			sp.X += xoff;
+			sp.Y += yoff;
+			return sp;
 		}
 
 		private Sprite ReadImageRefList(XMLDef.ImageRefList list)
 		{
 			List<Sprite> sprs = new List<Sprite>();
-			if (list.ImageSets != null)
-				foreach (XMLDef.ImageSetRef set in list.ImageSets)
-					sprs.Add(ReadImageRefs(imagesets[set.set]));
-			if (list.Images != null)
-				sprs.Add(ReadImageRefs(list.Images));
+			foreach (object item in list.Images)
+				switch (item)
+				{
+					case XMLDef.ImageSetRef set:
+						sprs.Add(ReadImageSet(imagesets[set.set]));
+						break;
+					case XMLDef.ImageRef img:
+						sprs.Add(ReadImageRef(img));
+						break;
+				}
 			return new Sprite(sprs);
 		}
 
@@ -1023,7 +1031,7 @@ namespace SonicRetro.SonLVL.API
 		{
 			foreach (XMLDef.Subtype item in xmldef.Subtypes.Items)
 				if (item.subtype == subtype)
-					if (item.ImageSets != null || item.Images != null)
+					if (item.Images != null)
 						return ReadImageRefList(item);
 					else if (item.image != null)
 						return images[item.image];
@@ -1041,7 +1049,7 @@ namespace SonicRetro.SonLVL.API
 		{
 			get
 			{
-				if (xmldef.DefaultImage != null && (xmldef.DefaultImage.ImageSets != null || xmldef.DefaultImage.Images != null))
+				if (xmldef.DefaultImage != null && xmldef.DefaultImage.Images != null)
 					return ReadImageRefList(xmldef.DefaultImage);
 				else if (xmldef.Image != null)
 					return images[xmldef.Image];
@@ -1058,7 +1066,7 @@ namespace SonicRetro.SonLVL.API
 				{
 					if (!CheckConditions(obj, option))
 						continue;
-					if (option.ImageSets != null || option.Images != null)
+					if (option.Images != null)
 						return ReadImageRefList(option, obj);
 				}
 			}
@@ -1067,7 +1075,7 @@ namespace SonicRetro.SonLVL.API
 				foreach (XMLDef.Subtype item in xmldef.Subtypes.Items)
 				{
 					if (obj.SubType == item.subtype)
-						if (item.ImageSets != null || item.Images != null)
+						if (item.Images != null)
 							return ReadImageRefList(item, obj);
 						else
 						{
@@ -1086,61 +1094,67 @@ namespace SonicRetro.SonLVL.API
 			return sprite;
 		}
 
-		private Sprite ReadImageRefs(XMLDef.ImageRef[] refs, ObjectEntry obj)
+		private Sprite ReadImageSet(XMLDef.ImageRef[] refs, ObjectEntry obj)
 		{
 			List<Sprite> sprs = new List<Sprite>(refs.Length);
 			foreach (XMLDef.ImageRef img in refs)
+				sprs.Add(ReadImageRef(img, obj));
+			return new Sprite(sprs);
+		}
+
+		private Sprite ReadImageRef(XMLDef.ImageRef img, ObjectEntry obj)
+		{
+			bool xflip = false, yflip = false;
+			switch (img.xflip)
 			{
-				bool xflip = false, yflip = false;
-				switch (img.xflip)
-				{
-					case XMLDef.FlipType.NormalFlip:
-						xflip = obj.XFlip;
-						break;
-					case XMLDef.FlipType.ReverseFlip:
-						xflip = !obj.XFlip;
-						break;
-					case XMLDef.FlipType.AlwaysFlip:
-						xflip = true;
-						break;
-				}
-				switch (img.yflip)
-				{
-					case XMLDef.FlipType.NormalFlip:
-						yflip = obj.YFlip;
-						break;
-					case XMLDef.FlipType.ReverseFlip:
-						yflip = !obj.YFlip;
-						break;
-					case XMLDef.FlipType.AlwaysFlip:
-						yflip = true;
-						break;
-				}
-				int xoff = img.Offset.X;
-				if (xflip)
-					xoff = -xoff;
-				int yoff = img.Offset.Y;
-				if (yflip)
-					yoff = -yoff;
-				Sprite sp = new Sprite(images[img.image]);
-				sp.Flip(xflip, yflip);
-				sp.X += xoff;
-				sp.Y += yoff;
-				sprs.Add(sp);
+				case XMLDef.FlipType.NormalFlip:
+					xflip = obj.XFlip;
+					break;
+				case XMLDef.FlipType.ReverseFlip:
+					xflip = !obj.XFlip;
+					break;
+				case XMLDef.FlipType.AlwaysFlip:
+					xflip = true;
+					break;
 			}
-			Sprite spr = new Sprite(sprs);
-			spr.Offset = new Point(obj.X + spr.X, obj.Y + spr.Y);
-			return spr;
+			switch (img.yflip)
+			{
+				case XMLDef.FlipType.NormalFlip:
+					yflip = obj.YFlip;
+					break;
+				case XMLDef.FlipType.ReverseFlip:
+					yflip = !obj.YFlip;
+					break;
+				case XMLDef.FlipType.AlwaysFlip:
+					yflip = true;
+					break;
+			}
+			int xoff = img.Offset.X;
+			if (xflip)
+				xoff = -xoff;
+			int yoff = img.Offset.Y;
+			if (yflip)
+				yoff = -yoff;
+			Sprite sp = new Sprite(images[img.image]);
+			sp.Flip(xflip, yflip);
+			sp.X += xoff + obj.X;
+			sp.Y += yoff + obj.Y;
+			return sp;
 		}
 
 		private Sprite ReadImageRefList(XMLDef.ImageRefList list, ObjectEntry obj)
 		{
 			List<Sprite> sprs = new List<Sprite>();
-			if (list.ImageSets != null)
-				foreach (XMLDef.ImageSetRef set in list.ImageSets)
-					sprs.Add(ReadImageRefs(imagesets[set.set], obj));
-			if (list.Images != null)
-				sprs.Add(ReadImageRefs(list.Images, obj));
+			foreach (object item in list.Images)
+				switch (item)
+				{
+					case XMLDef.ImageSetRef set:
+						sprs.Add(ReadImageSet(imagesets[set.set], obj));
+						break;
+					case XMLDef.ImageRef img:
+						sprs.Add(ReadImageRef(img, obj));
+						break;
+				}
 			return new Sprite(sprs);
 		}
 
@@ -1183,7 +1197,7 @@ namespace SonicRetro.SonLVL.API
 				{
 					if (!CheckConditions(obj, option))
 						continue;
-					if (option.ImageSets != null || option.Images != null)
+					if (option.Images != null)
 						return GetImageRefListBounds(option, obj, camera);
 					return Rectangle.Empty;
 				}
@@ -1193,7 +1207,7 @@ namespace SonicRetro.SonLVL.API
 				foreach (XMLDef.Subtype item in xmldef.Subtypes.Items)
 				{
 					if (obj.SubType == item.subtype)
-						if (item.ImageSets != null || item.Images != null)
+						if (item.Images != null)
 							return GetImageRefListBounds(item, obj, camera);
 						else
 						{
@@ -1205,7 +1219,7 @@ namespace SonicRetro.SonLVL.API
 						}
 				}
 			}
-			if (xmldef.DefaultImage != null && (xmldef.DefaultImage.ImageSets != null || xmldef.DefaultImage.Images != null))
+			if (xmldef.DefaultImage != null && xmldef.DefaultImage.Images != null)
 				return GetImageRefListBounds(xmldef.DefaultImage, obj, camera);
 			else if (xmldef.Image != null)
 			{
@@ -1220,7 +1234,7 @@ namespace SonicRetro.SonLVL.API
 				foreach (XMLDef.Subtype item in xmldef.Subtypes.Items)
 				{
 					if (item.subtype == DefaultSubtype)
-						if (item.ImageSets != null || item.Images != null)
+						if (item.Images != null)
 							return GetImageRefListBounds(item, obj, camera);
 						else
 						{
@@ -1239,40 +1253,13 @@ namespace SonicRetro.SonLVL.API
 			return unkbnd;
 		}
 
-		private Rectangle GetImageRefBounds(XMLDef.ImageRef[] refs, ObjectEntry obj, Point camera)
+		private Rectangle GetImageSetBounds(XMLDef.ImageRef[] refs, ObjectEntry obj)
 		{
 			Rectangle rect = Rectangle.Empty;
 			bool first = true;
 			foreach (XMLDef.ImageRef img in refs)
 			{
-				bool xflip = false, yflip = false;
-				switch (img.xflip)
-				{
-					case XMLDef.FlipType.NormalFlip:
-						xflip = obj.XFlip;
-						break;
-					case XMLDef.FlipType.ReverseFlip:
-						xflip = !obj.XFlip;
-						break;
-					case XMLDef.FlipType.AlwaysFlip:
-						xflip = true;
-						break;
-				}
-				switch (img.yflip)
-				{
-					case XMLDef.FlipType.NormalFlip:
-						yflip = obj.YFlip;
-						break;
-					case XMLDef.FlipType.ReverseFlip:
-						yflip = !obj.YFlip;
-						break;
-					case XMLDef.FlipType.AlwaysFlip:
-						yflip = true;
-						break;
-				}
-				Rectangle tmp = images[img.image].Bounds;
-				tmp.Offset(img.Offset.X, img.Offset.Y);
-				tmp = tmp.Flip(xflip, yflip);
+				Rectangle tmp = GetImageRefBounds(img, obj);
 				if (first)
 				{
 					rect = tmp;
@@ -1281,38 +1268,73 @@ namespace SonicRetro.SonLVL.API
 				else
 					rect = Rectangle.Union(tmp, rect);
 			}
-			rect.Offset(obj.X, obj.Y);
-			rect.Offset(-camera.X, -camera.Y);
 			return rect;
+		}
+
+		private Rectangle GetImageRefBounds(XMLDef.ImageRef img, ObjectEntry obj)
+		{
+			bool xflip = false, yflip = false;
+			switch (img.xflip)
+			{
+				case XMLDef.FlipType.NormalFlip:
+					xflip = obj.XFlip;
+					break;
+				case XMLDef.FlipType.ReverseFlip:
+					xflip = !obj.XFlip;
+					break;
+				case XMLDef.FlipType.AlwaysFlip:
+					xflip = true;
+					break;
+			}
+			switch (img.yflip)
+			{
+				case XMLDef.FlipType.NormalFlip:
+					yflip = obj.YFlip;
+					break;
+				case XMLDef.FlipType.ReverseFlip:
+					yflip = !obj.YFlip;
+					break;
+				case XMLDef.FlipType.AlwaysFlip:
+					yflip = true;
+					break;
+			}
+			Rectangle tmp = images[img.image].Bounds;
+			tmp.Offset(img.Offset.X, img.Offset.Y);
+			tmp = tmp.Flip(xflip, yflip);
+			return tmp;
 		}
 
 		private Rectangle GetImageRefListBounds(XMLDef.ImageRefList list, ObjectEntry obj, Point camera)
 		{
 			Rectangle rect = Rectangle.Empty;
 			bool first = true;
-			if (list.ImageSets != null)
-				foreach (XMLDef.ImageSetRef set in list.ImageSets)
+			foreach (object item in list.Images)
+				switch (item)
 				{
-					Rectangle tmp = GetImageRefBounds(imagesets[set.set], obj, camera);
-					if (first)
-					{
-						rect = tmp;
-						first = false;
-					}
-					else
-						rect = Rectangle.Union(tmp, rect);
+					case XMLDef.ImageSetRef set:
+						Rectangle tmp = GetImageSetBounds(imagesets[set.set], obj);
+						if (first)
+						{
+							rect = tmp;
+							first = false;
+						}
+						else
+							rect = Rectangle.Union(tmp, rect);
+						break;
+					case XMLDef.ImageRef img:
+						tmp = GetImageRefBounds(img, obj);
+						if (first)
+						{
+							rect = tmp;
+							first = false;
+						}
+						else
+							rect = Rectangle.Union(tmp, rect);
+
+						break;
 				}
-			if (list.Images != null)
-			{
-				Rectangle tmp = GetImageRefBounds(list.Images, obj, camera);
-				if (first)
-				{
-					rect = tmp;
-					first = false;
-				}
-				else
-					rect = Rectangle.Union(tmp, rect);
-			}
+			rect.Offset(obj.X, obj.Y);
+			rect.Offset(-camera.X, -camera.Y);
 			return rect;
 		}
 
