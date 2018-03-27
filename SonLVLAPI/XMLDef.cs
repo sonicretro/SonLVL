@@ -32,6 +32,7 @@ namespace SonicRetro.SonLVL.API.XMLDef
 		[XmlIgnore]
 		public bool DebugSpecified { get { return !Debug; } set { } }
 		public ImageList Images { get; set; }
+		public ImageSetList ImageSets { get; set; }
 		public ImageRefList DefaultImage { get; set; }
 		public SubtypeList Subtypes { get; set; }
 		public PropertyList Properties { get; set; }
@@ -129,19 +130,6 @@ namespace SonicRetro.SonLVL.API.XMLDef
 		public bool offsetSpecified { get { return !offset.IsEmpty; } set { } }
 	}
 
-	public class ImageFromMappings : Image
-	{
-		[XmlElement("ArtFile")]
-		public ArtFile[] ArtFiles { get; set; }
-		public MapFile MapFile { get; set; }
-	}
-
-	public class ImageFromBitmap : Image
-	{
-		[XmlAttribute]
-		public string filename { get; set; }
-	}
-
 	public struct XmlPoint
 	{
 		[XmlAttribute]
@@ -165,10 +153,37 @@ namespace SonicRetro.SonLVL.API.XMLDef
 		public System.Drawing.Point ToPoint() { return new System.Drawing.Point(X, Y); }
 	}
 
+	public class ImageFromMappings : Image
+	{
+		[XmlElement("ArtFile")]
+		public ArtFile[] ArtFiles { get; set; }
+		public MapFile MapFile { get; set; }
+	}
+
+	public class ImageFromBitmap : Image
+	{
+		[XmlAttribute]
+		public string filename { get; set; }
+	}
+
 	public class ImageFromSprite : Image
 	{
 		[XmlAttribute]
 		public int frame { get; set; }
+	}
+
+	public class ImageSetList
+	{
+		[XmlElement("ImageSet")]
+		public ImageSet[] Items { get; set; }
+	}
+
+	public class ImageSet
+	{
+		[XmlAttribute]
+		public string id { get; set; }
+		[XmlElement("ImageRef")]
+		public ImageRef[] Images { get; set; }
 	}
 
 	public class SubtypeList
@@ -177,7 +192,7 @@ namespace SonicRetro.SonLVL.API.XMLDef
 		public Subtype[] Items { get; set; }
 	}
 
-	public class Subtype
+	public class Subtype : ImageRefList
 	{
 		[XmlIgnore]
 		public byte subtype { get; set; }
@@ -187,8 +202,6 @@ namespace SonicRetro.SonLVL.API.XMLDef
 		public string name { get; set; }
 		[XmlAttribute]
 		public string image { get; set; }
-		[XmlElement("ImageRef")]
-		public ImageRef[] Images { get; set; }
 	}
 
 	public class PropertyList
@@ -258,12 +271,10 @@ namespace SonicRetro.SonLVL.API.XMLDef
 		public DisplayOption[] DisplayOptions { get; set; }
 	}
 
-	public class DisplayOption
+	public class DisplayOption : ImageRefList
 	{
 		[XmlElement("Condition")]
 		public Condition[] Conditions { get; set; }
-		[XmlElement("ImageRef")]
-		public ImageRef[] Images { get; set; }
 		[XmlElement("Line")]
 		public Line[] Lines { get; set; }
 	}
@@ -274,6 +285,12 @@ namespace SonicRetro.SonLVL.API.XMLDef
 		public string property { get; set; }
 		[XmlAttribute]
 		public string value { get; set; }
+	}
+
+	public class ImageSetRef
+	{
+		[XmlAttribute]
+		public string set { get; set; }
 	}
 
 	public class ImageRef
@@ -317,6 +334,8 @@ namespace SonicRetro.SonLVL.API.XMLDef
 
 	public class ImageRefList
 	{
+		[XmlElement("ImageSetRef")]
+		public ImageSetRef[] ImageSets { get; set; }
 		[XmlElement("ImageRef")]
 		public ImageRef[] Images { get; set; }
 	}

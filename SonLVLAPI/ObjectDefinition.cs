@@ -706,6 +706,7 @@ namespace SonicRetro.SonLVL.API
 
 		XMLDef.ObjDef xmldef;
 		Dictionary<string, Sprite> images = new Dictionary<string, Sprite>();
+		Dictionary<string, XMLDef.ImageRef[]> imagesets = new Dictionary<string, XMLDef.ImageRef[]>();
 		Sprite unkobj;
 		PropertySpec[] customProperties = new PropertySpec[0];
 		Dictionary<string, PropertyInfo> propertyInfo = new Dictionary<string, PropertyInfo>();
@@ -772,6 +773,9 @@ namespace SonicRetro.SonLVL.API
 					}
 					images.Add(item.id, sprite.Trim());
 				}
+			if (xmldef.ImageSets != null && xmldef.ImageSets.Items != null)
+				foreach (XMLDef.ImageSet set in xmldef.ImageSets.Items)
+					imagesets[set.id] = set.Images;
 			if (xmldef.Subtypes == null)
 				xmldef.Subtypes = new XMLDef.SubtypeList();
 			if (xmldef.Subtypes.Items == null)
@@ -991,6 +995,17 @@ namespace SonicRetro.SonLVL.API
 			return new Sprite(sprs);
 		}
 
+		private Sprite ReadImageRefList(XMLDef.ImageRefList list)
+		{
+			List<Sprite> sprs = new List<Sprite>();
+			if (list.ImageSets != null)
+				foreach (XMLDef.ImageSetRef set in list.ImageSets)
+					sprs.Add(ReadImageRefs(imagesets[set.set]));
+			if (list.Images != null)
+				sprs.Add(ReadImageRefs(list.Images));
+			return new Sprite(sprs);
+		}
+
 		public override ReadOnlyCollection<byte> Subtypes
 		{
 			get { return new ReadOnlyCollection<byte>(Array.ConvertAll(xmldef.Subtypes.Items, (a) => a.subtype)); }
@@ -1008,8 +1023,8 @@ namespace SonicRetro.SonLVL.API
 		{
 			foreach (XMLDef.Subtype item in xmldef.Subtypes.Items)
 				if (item.subtype == subtype)
-					if (item.Images != null)
-						return ReadImageRefs(item.Images);
+					if (item.ImageSets != null || item.Images != null)
+						return ReadImageRefList(item);
 					else if (item.image != null)
 						return images[item.image];
 					else
@@ -1026,8 +1041,8 @@ namespace SonicRetro.SonLVL.API
 		{
 			get
 			{
-				if (xmldef.DefaultImage != null && xmldef.DefaultImage.Images != null)
-					return ReadImageRefs(xmldef.DefaultImage.Images);
+				if (xmldef.DefaultImage != null && (xmldef.DefaultImage.ImageSets != null || xmldef.DefaultImage.Images != null))
+					return ReadImageRefList(xmldef.DefaultImage);
 				else if (xmldef.Image != null)
 					return images[xmldef.Image];
 				else
@@ -1043,8 +1058,8 @@ namespace SonicRetro.SonLVL.API
 				{
 					if (!CheckConditions(obj, option))
 						continue;
-					if (option.Images != null)
-						return ReadImageRefs(option.Images, obj);
+					if (option.ImageSets != null || option.Images != null)
+						return ReadImageRefList(option, obj);
 				}
 			}
 			else if (xmldef.Subtypes != null && xmldef.Subtypes.Items != null)
@@ -1052,8 +1067,8 @@ namespace SonicRetro.SonLVL.API
 				foreach (XMLDef.Subtype item in xmldef.Subtypes.Items)
 				{
 					if (obj.SubType == item.subtype)
-						if (item.Images != null)
-							return ReadImageRefs(item.Images, obj);
+						if (item.ImageSets != null || item.Images != null)
+							return ReadImageRefList(item, obj);
 						else
 						{
 							Sprite spr = new Sprite(images[item.image]);
@@ -1118,6 +1133,17 @@ namespace SonicRetro.SonLVL.API
 			return spr;
 		}
 
+		private Sprite ReadImageRefList(XMLDef.ImageRefList list, ObjectEntry obj)
+		{
+			List<Sprite> sprs = new List<Sprite>();
+			if (list.ImageSets != null)
+				foreach (XMLDef.ImageSetRef set in list.ImageSets)
+					sprs.Add(ReadImageRefs(imagesets[set.set], obj));
+			if (list.Images != null)
+				sprs.Add(ReadImageRefs(list.Images, obj));
+			return new Sprite(sprs);
+		}
+
 		private bool CheckConditions(ObjectEntry obj, XMLDef.DisplayOption option)
 		{
 			if (option.Conditions != null)
@@ -1157,8 +1183,8 @@ namespace SonicRetro.SonLVL.API
 				{
 					if (!CheckConditions(obj, option))
 						continue;
-					if (option.Images != null)
-						return GetImageRefBounds(option.Images, obj, camera);
+					if (option.ImageSets != null || option.Images != null)
+						return GetImageRefListBounds(option, obj, camera);
 					return Rectangle.Empty;
 				}
 			}
@@ -1167,8 +1193,8 @@ namespace SonicRetro.SonLVL.API
 				foreach (XMLDef.Subtype item in xmldef.Subtypes.Items)
 				{
 					if (obj.SubType == item.subtype)
-						if (item.Images != null)
-							return GetImageRefBounds(item.Images, obj, camera);
+						if (item.ImageSets != null || item.Images != null)
+							return GetImageRefListBounds(item, obj, camera);
 						else
 						{
 							Rectangle rect = images[item.image].Bounds;
@@ -1179,8 +1205,8 @@ namespace SonicRetro.SonLVL.API
 						}
 				}
 			}
-			if (xmldef.DefaultImage != null && xmldef.DefaultImage.Images != null)
-				return GetImageRefBounds(xmldef.DefaultImage.Images, obj, camera);
+			if (xmldef.DefaultImage != null && (xmldef.DefaultImage.ImageSets != null || xmldef.DefaultImage.Images != null))
+				return GetImageRefListBounds(xmldef.DefaultImage, obj, camera);
 			else if (xmldef.Image != null)
 			{
 				Rectangle rect = images[xmldef.Image].Bounds;
@@ -1194,8 +1220,8 @@ namespace SonicRetro.SonLVL.API
 				foreach (XMLDef.Subtype item in xmldef.Subtypes.Items)
 				{
 					if (item.subtype == DefaultSubtype)
-						if (item.Images != null)
-							return GetImageRefBounds(item.Images, obj, camera);
+						if (item.ImageSets != null || item.Images != null)
+							return GetImageRefListBounds(item, obj, camera);
 						else
 						{
 							Rectangle rect = images[item.image].Bounds;
@@ -1257,6 +1283,36 @@ namespace SonicRetro.SonLVL.API
 			}
 			rect.Offset(obj.X, obj.Y);
 			rect.Offset(-camera.X, -camera.Y);
+			return rect;
+		}
+
+		private Rectangle GetImageRefListBounds(XMLDef.ImageRefList list, ObjectEntry obj, Point camera)
+		{
+			Rectangle rect = Rectangle.Empty;
+			bool first = true;
+			if (list.ImageSets != null)
+				foreach (XMLDef.ImageSetRef set in list.ImageSets)
+				{
+					Rectangle tmp = GetImageRefBounds(imagesets[set.set], obj, camera);
+					if (first)
+					{
+						rect = tmp;
+						first = false;
+					}
+					else
+						rect = Rectangle.Union(tmp, rect);
+				}
+			if (list.Images != null)
+			{
+				Rectangle tmp = GetImageRefBounds(list.Images, obj, camera);
+				if (first)
+				{
+					rect = tmp;
+					first = false;
+				}
+				else
+					rect = Rectangle.Union(tmp, rect);
+			}
 			return rect;
 		}
 
