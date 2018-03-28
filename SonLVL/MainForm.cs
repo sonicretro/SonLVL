@@ -1812,24 +1812,21 @@ namespace SonicRetro.SonLVL.GUI
 				case Tab.Objects:
 					foreach (Entry item in SelectedItems)
 					{
-						Rectangle bnd = Rectangle.Empty;
+						Rectangle bnd = item.Bounds;
+						bnd.Offset(-camera.X, -camera.Y);
 						SolidBrush brush = null;
 						switch (item)
 						{
 							case ObjectEntry objitem:
-								bnd = LevelData.GetObjectDefinition(objitem.ID).GetBounds(objitem, camera);
 								brush = objectBrush;
 								break;
 							case RingEntry rngitem:
-								bnd = ((RingLayoutFormat)LevelData.RingFormat).GetBounds(rngitem, camera);
 								brush = ringBrush;
 								break;
 							case CNZBumperEntry bmpitem:
-								bnd = LevelData.unkobj.GetBounds(new S2ObjectEntry() { X = item.X, Y = item.Y }, new Point(camera.X, camera.Y));
 								brush = objectBrush;
 								break;
 							case StartPositionEntry strtitem:
-								bnd = LevelData.StartPosDefs[LevelData.StartPositions.IndexOf(strtitem)].GetBounds(strtitem, camera);
 								brush = startBrush;
 								break;
 						}
@@ -2445,6 +2442,24 @@ namespace SonicRetro.SonLVL.GUI
 			}
 		}
 
+		private Entry GetEntryAtPoint(Point point)
+		{
+			foreach (ObjectEntry item in LevelData.Objects)
+				if ((!hideDebugObjectsToolStripMenuItem.Checked || !LevelData.GetObjectDefinition(item.ID).Debug) && LevelData.ObjectVisible(item, allToolStripMenuItem.Checked) && item.Bounds.Contains(point))
+					return item;
+			foreach (RingEntry item in LevelData.Rings)
+				if (item.Bounds.Contains(point))
+					return item;
+			if (LevelData.Bumpers != null && !hideDebugObjectsToolStripMenuItem.Checked)
+				foreach (CNZBumperEntry item in LevelData.Bumpers)
+					if (item.Bounds.Contains(point))
+						return item;
+			foreach (StartPositionEntry item in LevelData.StartPositions)
+				if (item.Bounds.Contains(point))
+					return item;
+			return null;
+		}
+
 		private void objectPanel_MouseDown(object sender, MouseEventArgs e)
 		{
 			if (!loaded) return;
@@ -2533,103 +2548,10 @@ namespace SonicRetro.SonLVL.GUI
 							DrawLevel();
 						}
 					}
-					foreach (ObjectEntry item in LevelData.Objects)
+					Entry entry = GetEntryAtPoint(new Point(curx, cury));
+					if (entry == null)
 					{
-						ObjectDefinition dat = LevelData.GetObjectDefinition(item.ID);
-						Rectangle bound = dat.GetBounds(item, Point.Empty);
-						if ((!hideDebugObjectsToolStripMenuItem.Checked || !dat.Debug) && LevelData.ObjectVisible(item, allToolStripMenuItem.Checked) && bound.Contains(curx, cury))
-						{
-							if (ModifierKeys == Keys.Control)
-							{
-								if (SelectedItems.Contains(item))
-									SelectedItems.Remove(item);
-								else
-									SelectedItems.Add(item);
-							}
-							else if (!SelectedItems.Contains(item))
-							{
-								SelectedItems.Clear();
-								SelectedItems.Add(item);
-							}
-							SelectedObjectChanged();
-							objdrag = true;
-							DrawLevel();
-							break;
-						}
-					}
-					if (!objdrag)
-						foreach (RingEntry item in LevelData.Rings)
-						{
-							if (((RingLayoutFormat)LevelData.RingFormat).GetBounds(item, Point.Empty).Contains(curx, cury))
-							{
-								if (ModifierKeys == Keys.Control)
-								{
-									if (SelectedItems.Contains(item))
-										SelectedItems.Remove(item);
-									else
-										SelectedItems.Add(item);
-								}
-								else if (!SelectedItems.Contains(item))
-								{
-									SelectedItems.Clear();
-									SelectedItems.Add(item);
-								}
-								SelectedObjectChanged();
-								objdrag = true;
-								DrawLevel();
-								break;
-							}
-						}
-					if (!objdrag && LevelData.Bumpers != null && !hideDebugObjectsToolStripMenuItem.Checked)
-						foreach (CNZBumperEntry item in LevelData.Bumpers)
-						{
-							Rectangle bound = LevelData.unkobj.GetBounds(new S2ObjectEntry() { X = item.X, Y = item.Y }, Point.Empty);
-							if (bound.Contains(curx, cury))
-							{
-								if (ModifierKeys == Keys.Control)
-								{
-									if (SelectedItems.Contains(item))
-										SelectedItems.Remove(item);
-									else
-										SelectedItems.Add(item);
-								}
-								if (!SelectedItems.Contains(item))
-								{
-									SelectedItems.Clear();
-									SelectedItems.Add(item);
-								}
-								SelectedObjectChanged();
-								objdrag = true;
-								DrawLevel();
-								break;
-							}
-						}
-					if (!objdrag)
-						foreach (StartPositionEntry item in LevelData.StartPositions)
-						{
-							Rectangle bound = LevelData.StartPosDefs[LevelData.StartPositions.IndexOf(item)].GetBounds(item, Point.Empty);
-							if (bound.Contains(curx, cury))
-							{
-								if (ModifierKeys == Keys.Control)
-								{
-									if (SelectedItems.Contains(item))
-										SelectedItems.Remove(item);
-									else
-										SelectedItems.Add(item);
-								}
-								if (!SelectedItems.Contains(item))
-								{
-									SelectedItems.Clear();
-									SelectedItems.Add(item);
-								}
-								SelectedObjectChanged();
-								objdrag = true;
-								DrawLevel();
-								break;
-							}
-						}
-					if (!objdrag)
-					{
+						objdrag = false;
 						selecting = true;
 						selpoint = new Point(curx, cury);
 						SelectedItems.Clear();
@@ -2637,6 +2559,21 @@ namespace SonicRetro.SonLVL.GUI
 					}
 					else
 					{
+						if (ModifierKeys == Keys.Control)
+						{
+							if (SelectedItems.Contains(entry))
+								SelectedItems.Remove(entry);
+							else
+								SelectedItems.Add(entry);
+						}
+						else if (!SelectedItems.Contains(entry))
+						{
+							SelectedItems.Clear();
+							SelectedItems.Add(entry);
+						}
+						SelectedObjectChanged();
+						objdrag = true;
+						DrawLevel();
 						locs = new List<Point>();
 						foreach (Entry item in SelectedItems)
 							locs.Add(new Point(item.X, item.Y));
@@ -2644,74 +2581,17 @@ namespace SonicRetro.SonLVL.GUI
 					break;
 				case MouseButtons.Right:
 					menuLoc = e.Location;
-					foreach (ObjectEntry item in LevelData.Objects)
+					entry = GetEntryAtPoint(new Point(curx, cury));
+					if (entry != null)
 					{
-						ObjectDefinition dat = LevelData.GetObjectDefinition(item.ID);
-						Rectangle bound = dat.GetBounds(item, Point.Empty);
-						if ((!hideDebugObjectsToolStripMenuItem.Checked || !dat.Debug) && LevelData.ObjectVisible(item, allToolStripMenuItem.Checked) && bound.Contains(curx, cury))
+						if (!SelectedItems.Contains(entry))
 						{
-							if (!SelectedItems.Contains(item))
-							{
-								SelectedItems.Clear();
-								SelectedItems.Add(item);
-							}
-							SelectedObjectChanged();
-							objdrag = true;
-							DrawLevel();
-							break;
+							SelectedItems.Clear();
+							SelectedItems.Add(entry);
 						}
+						SelectedObjectChanged();
+						DrawLevel();
 					}
-					if (!objdrag)
-						foreach (RingEntry item in LevelData.Rings)
-						{
-							if (((RingLayoutFormat)LevelData.RingFormat).GetBounds(item, Point.Empty).Contains(curx, cury))
-							{
-								if (!SelectedItems.Contains(item))
-								{
-									SelectedItems.Clear();
-									SelectedItems.Add(item);
-								}
-								SelectedObjectChanged();
-								objdrag = true;
-								DrawLevel();
-								break;
-							}
-						}
-					if (!objdrag && LevelData.Bumpers != null && !hideDebugObjectsToolStripMenuItem.Checked)
-						foreach (CNZBumperEntry item in LevelData.Bumpers)
-						{
-							item.UpdateSprite();
-							Rectangle bound = LevelData.unkobj.GetBounds(new S2ObjectEntry() { X = item.X, Y = item.Y }, Point.Empty);
-							if (bound.Contains(curx, cury))
-							{
-								if (!SelectedItems.Contains(item))
-								{
-									SelectedItems.Clear();
-									SelectedItems.Add(item);
-								}
-								SelectedObjectChanged();
-								objdrag = true;
-								DrawLevel();
-								break;
-							}
-						}
-					if (!objdrag)
-						foreach (StartPositionEntry item in LevelData.StartPositions)
-						{
-							Rectangle bound = LevelData.StartPosDefs[LevelData.StartPositions.IndexOf(item)].GetBounds(item, Point.Empty);
-							if (bound.Contains(curx, cury))
-							{
-								if (!SelectedItems.Contains(item))
-								{
-									SelectedItems.Clear();
-									SelectedItems.Add(item);
-								}
-								SelectedObjectChanged();
-								objdrag = true;
-								DrawLevel();
-								break;
-							}
-						}
 					objdrag = false;
 					if (SelectedItems.Count > 0)
 					{
@@ -2760,70 +2640,24 @@ namespace SonicRetro.SonLVL.GUI
 						Math.Max(selpoint.X, mouse.X),
 						Math.Max(selpoint.Y, mouse.Y));
 						foreach (ObjectEntry item in LevelData.Objects)
-						{
-							ObjectDefinition dat = LevelData.GetObjectDefinition(item.ID);
-							Rectangle bound = dat.GetBounds(item, Point.Empty);
-							if ((!hideDebugObjectsToolStripMenuItem.Checked || !dat.Debug) && LevelData.ObjectVisible(item, allToolStripMenuItem.Checked) && bound.IntersectsWith(selbnds))
+							if ((!hideDebugObjectsToolStripMenuItem.Checked || !LevelData.GetObjectDefinition(item.ID).Debug) && LevelData.ObjectVisible(item, allToolStripMenuItem.Checked) && item.Bounds.IntersectsWith(selbnds))
 								SelectedItems.Add(item);
-						}
 						foreach (RingEntry item in LevelData.Rings)
-							if (((RingLayoutFormat)LevelData.RingFormat).GetBounds(item, Point.Empty).IntersectsWith(selbnds))
+							if (item.Bounds.IntersectsWith(selbnds))
 								SelectedItems.Add(item);
 						if (LevelData.Bumpers != null && !hideDebugObjectsToolStripMenuItem.Checked)
 							foreach (CNZBumperEntry item in LevelData.Bumpers)
-							{
-								Rectangle bound = LevelData.unkobj.GetBounds(new S2ObjectEntry() { X = item.X, Y = item.Y }, Point.Empty);
-								if (bound.IntersectsWith(selbnds))
+								if (item.Bounds.IntersectsWith(selbnds))
 									SelectedItems.Add(item);
-							}
 						foreach (StartPositionEntry item in LevelData.StartPositions)
-						{
-							Rectangle bound = LevelData.StartPosDefs[LevelData.StartPositions.IndexOf(item)].GetBounds(item, Point.Empty);
-							if (bound.IntersectsWith(selbnds))
+							if (item.Bounds.IntersectsWith(selbnds))
 								SelectedItems.Add(item);
-						}
 						if (selobjs != SelectedItems.Count) SelectedObjectChanged();
 						redraw = true;
 					}
 					break;
 			}
-			Cursor cur = Cursors.Default;
-			foreach (ObjectEntry item in LevelData.Objects)
-			{
-				ObjectDefinition dat = LevelData.GetObjectDefinition(item.ID);
-				Rectangle bound = dat.GetBounds(item, Point.Empty);
-				if ((!hideDebugObjectsToolStripMenuItem.Checked || !dat.Debug) && LevelData.ObjectVisible(item, allToolStripMenuItem.Checked) && bound.Contains(mouse))
-				{
-					cur = Cursors.SizeAll;
-					break;
-				}
-			}
-			foreach (RingEntry item in LevelData.Rings)
-				if (((RingLayoutFormat)LevelData.RingFormat).GetBounds(item, Point.Empty).Contains(mouse))
-				{
-					cur = Cursors.SizeAll;
-					break;
-				}
-			if (LevelData.Bumpers != null && !hideDebugObjectsToolStripMenuItem.Checked)
-				foreach (CNZBumperEntry item in LevelData.Bumpers)
-				{
-					Rectangle bound = LevelData.unkobj.GetBounds(new S2ObjectEntry() { X = item.X, Y = item.Y }, Point.Empty);
-					if (bound.Contains(mouse))
-					{
-						cur = Cursors.SizeAll;
-						break;
-					}
-				}
-			foreach (StartPositionEntry item in LevelData.StartPositions)
-			{
-				Rectangle bound = LevelData.StartPosDefs[LevelData.StartPositions.IndexOf(item)].GetBounds(item, Point.Empty);
-				if (bound.Contains(mouse))
-				{
-					cur = Cursors.SizeAll;
-					break;
-				}
-			}
-			objectPanel.PanelCursor = cur;
+			objectPanel.PanelCursor = GetEntryAtPoint(mouse) == null ? Cursors.Default : Cursors.SizeAll;
 			if (redraw) DrawLevel();
 			lastmouse = mouse;
 		}
@@ -3230,11 +3064,11 @@ namespace SonicRetro.SonLVL.GUI
 				{
 					ObjectEntry tmp = LevelData.ObjectFormat.CreateObject();
 					tmp.SubType = sub;
-					Rectangle bnd = LevelData.GetObjectDefinition(ID).GetBounds(tmp, Point.Empty);
+					Rectangle bnd = LevelData.GetObjectDefinition(ID).GetBounds(tmp);
 					dlg.Text = "Add Group of Objects";
 					dlg.XDist.Value = bnd.Width;
 					dlg.YDist.Value = bnd.Height;
-					if (dlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+					if (dlg.ShowDialog(this) == DialogResult.OK)
 					{
 						double gs = 1 << ObjGrid;
 						Point pt = new Point(
@@ -3289,7 +3123,7 @@ namespace SonicRetro.SonLVL.GUI
 				dlg.Text = "Add Group of Rings";
 				dlg.XDist.Value = 24;
 				dlg.YDist.Value = 24;
-				if (dlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+				if (dlg.ShowDialog(this) == DialogResult.OK)
 				{
 					double gs = 1 << ObjGrid;
 					Point pt = new Point(
@@ -6859,18 +6693,6 @@ namespace SonicRetro.SonLVL.GUI
 			}
 		}
 
-		private Rectangle GetBounds(Entry item)
-		{
-			if (item is ObjectEntry)
-				return LevelData.GetObjectDefinition(((ObjectEntry)item).ID).GetBounds((ObjectEntry)item, Point.Empty);
-			else if (item is RingEntry)
-				return ((RingLayoutFormat)LevelData.RingFormat).GetBounds((RingEntry)item, Point.Empty);
-			else if (item is StartPositionEntry)
-				return LevelData.StartPosDefs[LevelData.StartPositions.IndexOf((StartPositionEntry)item)].GetBounds((StartPositionEntry)item, Point.Empty);
-			else
-				return LevelData.unkobj.GetBounds(new S2ObjectEntry() { X = item.X, Y = item.Y }, Point.Empty);
-		}
-
 		private bool alignWall_common(int x, int y, Solidity solidity)
 		{
 			int cnkx = x / LevelData.Level.ChunkWidth;
@@ -6911,7 +6733,7 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			foreach (Entry item in SelectedItems)
 			{
-				Rectangle bounds = GetBounds(item);
+				Rectangle bounds = item.Bounds;
 				int x = bounds.Left - 1;
 				int y = bounds.Top + (bounds.Height / 2);
 				while (x > 0)
@@ -6932,7 +6754,7 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			foreach (Entry item in SelectedItems)
 			{
-				Rectangle bounds = GetBounds(item);
+				Rectangle bounds = item.Bounds;
 				int x = bounds.Left + (bounds.Width / 2);
 				int y = bounds.Bottom;
 				while (y < LevelData.FGHeight * LevelData.Level.ChunkHeight - 1)
@@ -6953,7 +6775,7 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			foreach (Entry item in SelectedItems)
 			{
-				Rectangle bounds = GetBounds(item);
+				Rectangle bounds = item.Bounds;
 				int x = bounds.Right;
 				int y = bounds.Top + (bounds.Height / 2);
 				while (x < LevelData.FGWidth * LevelData.Level.ChunkWidth - 1)
@@ -6974,7 +6796,7 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			foreach (Entry item in SelectedItems)
 			{
-				Rectangle bounds = GetBounds(item);
+				Rectangle bounds = item.Bounds;
 				int x = bounds.Left + (bounds.Width / 2);
 				int y = bounds.Top - 1;
 				while (y > 0)
@@ -6995,10 +6817,10 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			int left = int.MaxValue;
 			foreach (Entry item in SelectedItems)
-				left = Math.Min(left, GetBounds(item).Left);
+				left = Math.Min(left, item.Bounds.Left);
 			foreach (Entry item in SelectedItems)
 			{
-				item.X = (ushort)(left + (item.X - GetBounds(item).Left));
+				item.X = (ushort)(left + (item.X - item.Bounds.Left));
 				item.UpdateSprite();
 			}
 			SelectedObjectChanged();
@@ -7012,14 +6834,14 @@ namespace SonicRetro.SonLVL.GUI
 			int right = int.MinValue;
 			foreach (Entry item in SelectedItems)
 			{
-				Rectangle bounds = GetBounds(item);
+				Rectangle bounds = item.Bounds;
 				left = Math.Min(left, bounds.Left);
 				right = Math.Max(right, bounds.Right);
 			}
 			int center = left + (right - left) / 2;
 			foreach (Entry item in SelectedItems)
 			{
-				Rectangle bounds = GetBounds(item);
+				Rectangle bounds = item.Bounds;
 				item.X = (ushort)(center + (item.X - (bounds.Left + (bounds.Width / 2))));
 				item.UpdateSprite();
 			}
@@ -7032,10 +6854,10 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			int right = int.MinValue;
 			foreach (Entry item in SelectedItems)
-				right = Math.Max(right, GetBounds(item).Right);
+				right = Math.Max(right, item.Bounds.Right);
 			foreach (Entry item in SelectedItems)
 			{
-				item.X = (ushort)(right + (item.X - GetBounds(item).Right));
+				item.X = (ushort)(right + (item.X - item.Bounds.Right));
 				item.UpdateSprite();
 			}
 			SelectedObjectChanged();
@@ -7047,10 +6869,10 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			int top = int.MaxValue;
 			foreach (Entry item in SelectedItems)
-				top = Math.Min(top, GetBounds(item).Top);
+				top = Math.Min(top, item.Bounds.Top);
 			foreach (Entry item in SelectedItems)
 			{
-				item.Y = (ushort)(top + (item.Y - GetBounds(item).Top));
+				item.Y = (ushort)(top + (item.Y - item.Bounds.Top));
 				item.UpdateSprite();
 			}
 			SelectedObjectChanged();
@@ -7064,14 +6886,14 @@ namespace SonicRetro.SonLVL.GUI
 			int bottom = int.MinValue;
 			foreach (Entry item in SelectedItems)
 			{
-				Rectangle bounds = GetBounds(item);
+				Rectangle bounds = item.Bounds;
 				top = Math.Min(top, bounds.Top);
 				bottom = Math.Max(bottom, bounds.Bottom);
 			}
 			int middle = top + (bottom - top) / 2;
 			foreach (Entry item in SelectedItems)
 			{
-				Rectangle bounds = GetBounds(item);
+				Rectangle bounds = item.Bounds;
 				item.Y = (ushort)(middle + (item.Y - (bounds.Top + (bounds.Height / 2))));
 				item.UpdateSprite();
 			}
@@ -7084,10 +6906,10 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			int bottom = int.MinValue;
 			foreach (Entry item in SelectedItems)
-				bottom = Math.Max(bottom, GetBounds(item).Bottom);
+				bottom = Math.Max(bottom, item.Bounds.Bottom);
 			foreach (Entry item in SelectedItems)
 			{
-				item.Y = (ushort)(bottom + (item.Y - GetBounds(item).Bottom));
+				item.Y = (ushort)(bottom + (item.Y - item.Bounds.Bottom));
 				item.UpdateSprite();
 			}
 			SelectedObjectChanged();

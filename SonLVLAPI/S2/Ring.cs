@@ -122,15 +122,15 @@ namespace SonicRetro.SonLVL.API.S2
 			return result;
 		}
 
-		public override System.Drawing.Rectangle GetBounds(RingEntry rng, System.Drawing.Point camera)
+		public override Rectangle GetBounds(RingEntry rng)
 		{
 			S2RingEntry rng2 = (S2RingEntry)rng;
 			switch (rng2.Direction)
 			{
 				case Direction.Horizontal:
-					return new Rectangle(rng2.X + spr.X - camera.X, rng2.Y + spr.Y - camera.Y, ((rng2.Count - 1) * spacing) + spr.Width, spr.Height);
+					return new Rectangle(rng2.X + spr.X, rng2.Y + spr.Y, ((rng2.Count - 1) * spacing) + spr.Width, spr.Height);
 				case Direction.Vertical:
-					return new Rectangle(rng2.X + spr.X - camera.X, rng2.Y + spr.Y - camera.Y, spr.Width, ((rng2.Count - 1) * spacing) + spr.Height);
+					return new Rectangle(rng2.X + spr.X, rng2.Y + spr.Y, spr.Width, ((rng2.Count - 1) * spacing) + spr.Height);
 			}
 			return Rectangle.Empty;
 		}
@@ -203,6 +203,7 @@ namespace SonicRetro.SonLVL.API.S2
 		public override void UpdateSprite()
 		{
 			Sprite = ((RingLayoutFormat)LevelData.RingFormat).GetSprite(this);
+			Bounds = ((RingLayoutFormat)LevelData.RingFormat).GetBounds(this);
 		}
 
 		public override string Name

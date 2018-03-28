@@ -297,7 +297,7 @@ namespace ObjectLayoutMerge
 			Point mouse = new Point(e.X + previewPanel.HScrollValue, e.Y + previewPanel.VScrollValue);
 			Cursor cur = Cursors.Default;
 			foreach (ObjectInfo obj in objectList)
-				if (obj.Bounds.Contains(mouse))
+				if (obj.Entry.Bounds.Contains(mouse))
 				{
 					cur = Cursors.Hand;
 					break;
@@ -310,7 +310,7 @@ namespace ObjectLayoutMerge
 			if (e.X < 0 || e.Y < 0 || e.X > previewPanel.PanelWidth || e.Y > previewPanel.PanelHeight) return;
 			Point mouse = new Point(e.X + previewPanel.HScrollValue, e.Y + previewPanel.VScrollValue);
 			foreach (ObjectInfo obj in objectList)
-				if (obj.Bounds.Contains(mouse))
+				if (obj.Entry.Bounds.Contains(mouse))
 				{
 					objectListView.SelectedIndices.Clear();
 					objectListView.SelectedIndices.Add(objectList.IndexOf(obj));
@@ -364,7 +364,7 @@ namespace ObjectLayoutMerge
 			if (showOverlaysToolStripMenuItem.Checked)
 				foreach (ObjectInfo obj in selected)
 				{
-					Rectangle bnd = obj.Bounds;
+					Rectangle bnd = obj.Entry.Bounds;
 					if (!dispRect.IntersectsWith(bnd)) continue;
 					bnd.Offset(-camera.X, -camera.Y);
 					SolidBrush brush = null;
@@ -395,22 +395,12 @@ namespace ObjectLayoutMerge
 		public bool Include { get; set; }
 		public Source Source { get; private set; }
 		public Entry Entry { get; private set; }
-		public Rectangle Bounds { get; private set; }
 
 		public ObjectInfo(bool include, Source source, Entry entry)
 		{
 			Include = include;
 			Source = source;
 			Entry = entry;
-			switch (entry)
-			{
-				case ObjectEntry objitem:
-					Bounds = LevelData.GetObjectDefinition(objitem.ID).GetBounds(objitem, new Point());
-					break;
-				case RingEntry rngitem:
-					Bounds = ((RingLayoutFormat)LevelData.RingFormat).GetBounds(rngitem, new Point());
-					break;
-			}
 		}
 
 		int IComparable<ObjectInfo>.CompareTo(ObjectInfo other)

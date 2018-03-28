@@ -106,9 +106,9 @@ namespace SonicRetro.SonLVL.API.S3K
 
 		public override Sprite Image { get { return spr; } }
 
-		public override Rectangle GetBounds(RingEntry rng, Point camera)
+		public override Rectangle GetBounds(RingEntry rng)
 		{
-			return new Rectangle((rng.X + spr.Offset.X) - camera.X, (rng.Y + spr.Offset.Y) - camera.Y, spr.Image.Width, spr.Image.Height);
+			return new Rectangle(rng.X + spr.Offset.X, rng.Y + spr.Offset.Y, spr.Image.Width, spr.Image.Height);
 		}
 
 		public override Sprite GetSprite(RingEntry rng)
@@ -164,6 +164,7 @@ namespace SonicRetro.SonLVL.API.S3K
 		public override void UpdateSprite()
 		{
 			Sprite = ((RingLayoutFormat)LevelData.RingFormat).GetSprite(this);
+			Bounds = ((RingLayoutFormat)LevelData.RingFormat).GetBounds(this);
 		}
 	}
 }

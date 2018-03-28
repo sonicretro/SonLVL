@@ -890,6 +890,8 @@ namespace SonicRetro.SonLVL.API
 
 		[Browsable(false)]
 		public Sprite Sprite { get; protected set; }
+		[Browsable(false)]
+		public Rectangle Bounds { get; protected set; }
 
 		public abstract void UpdateSprite();
 
@@ -949,7 +951,9 @@ namespace SonicRetro.SonLVL.API
 
 		public override void UpdateSprite()
 		{
-			Sprite = LevelData.GetObjectDefinition(ID).GetSprite(this);
+			ObjectDefinition def = LevelData.GetObjectDefinition(ID);
+			Sprite = def.GetSprite(this);
+			Bounds = def.GetBounds(this);
 		}
 
 		public override string Name
@@ -1125,7 +1129,9 @@ namespace SonicRetro.SonLVL.API
 
 		public override void UpdateSprite()
 		{
-			Sprite = LevelData.unkobj.GetSprite(new SonicRetro.SonLVL.API.S2.S2ObjectEntry() { X = X, Y = Y });
+			ObjectEntry obj = new S2.S2ObjectEntry() { X = X, Y = Y };
+			Sprite = LevelData.unkobj.GetSprite(obj);
+			Bounds = LevelData.unkobj.GetBounds(obj);
 		}
 
 		public override string Name
@@ -1164,7 +1170,9 @@ namespace SonicRetro.SonLVL.API
 
 		public override void UpdateSprite()
 		{
-			Sprite = LevelData.StartPosDefs[LevelData.StartPositions.IndexOf(this)].GetSprite(this);
+			StartPositionDefinition def = LevelData.StartPosDefs[LevelData.StartPositions.IndexOf(this)];
+			Sprite = def.GetSprite(this);
+			Bounds = def.GetBounds(this);
 		}
 
 		public override string Name

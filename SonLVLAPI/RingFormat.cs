@@ -80,7 +80,11 @@ namespace SonicRetro.SonLVL.API
 
 		public abstract Sprite GetSprite(RingEntry rng);
 
-		public abstract Rectangle GetBounds(RingEntry rng, Point camera);
+#pragma warning disable CS0618 // Type or member is obsolete
+		public virtual Rectangle GetBounds(RingEntry rng) { return GetBounds(rng, Point.Empty); }
+#pragma warning restore CS0618 // Type or member is obsolete
+		[System.Obsolete("The two-argument version of this function is obsolete. Please change your code to use the single-argument version instead.")]
+		public virtual Rectangle GetBounds(RingEntry rng, Point camera) { return Rectangle.Empty; }
 
 		public abstract int CountRings(IEnumerable<RingEntry> rings);
 	}

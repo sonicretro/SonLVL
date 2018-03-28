@@ -95,7 +95,11 @@ namespace SonicRetro.SonLVL.API
 		public virtual byte DefaultSubtype { get { return 0; } }
 		public abstract Sprite Image { get; }
 		public abstract Sprite GetSprite(ObjectEntry obj);
-		public abstract Rectangle GetBounds(ObjectEntry obj, Point camera);
+#pragma warning disable CS0618 // Type or member is obsolete
+		public virtual Rectangle GetBounds(ObjectEntry obj) { return GetBounds(obj, Point.Empty); }
+#pragma warning restore CS0618 // Type or member is obsolete
+		[Obsolete("The two-argument version of this function is obsolete. Please change your code to use the single-argument version instead.")]
+		public virtual Rectangle GetBounds(ObjectEntry obj, Point camera) { return Rectangle.Empty; }
 		public virtual bool Debug { get { return false; } }
 		public virtual PropertySpec[] CustomProperties { get { return new PropertySpec[0]; } }
 	}
@@ -560,9 +564,9 @@ namespace SonicRetro.SonLVL.API
 
 		public override Sprite Image { get { return spr; } }
 
-		public override Rectangle GetBounds(ObjectEntry obj, Point camera)
+		public override Rectangle GetBounds(ObjectEntry obj)
 		{
-			return new Rectangle((obj.X + spr.Offset.X) - camera.X, (obj.Y + spr.Offset.Y) - camera.Y, spr.Image.Width, spr.Image.Height);
+			return new Rectangle(obj.X + spr.Offset.X, obj.Y + spr.Offset.Y, spr.Image.Width, spr.Image.Height);
 		}
 
 		public override Sprite GetSprite(ObjectEntry obj)
@@ -1195,7 +1199,7 @@ namespace SonicRetro.SonLVL.API
 			return true;
 		}
 
-		public override Rectangle GetBounds(ObjectEntry obj, Point camera)
+		public override Rectangle GetBounds(ObjectEntry obj)
 		{
 			if (xmldef.Display != null && xmldef.Display.DisplayOptions != null)
 			{
@@ -1204,7 +1208,7 @@ namespace SonicRetro.SonLVL.API
 					if (!CheckConditions(obj, option))
 						continue;
 					if (option.Images != null)
-						return GetImageRefListBounds(option, obj, camera);
+						return GetImageRefListBounds(option, obj);
 					return Rectangle.Empty;
 				}
 			}
@@ -1214,31 +1218,28 @@ namespace SonicRetro.SonLVL.API
 				{
 					if (obj.SubType == item.subtype)
 						if (item.Images != null)
-							return GetImageRefListBounds(item, obj, camera);
+							return GetImageRefListBounds(item, obj);
 						else
 						{
 							Rectangle rect = images[item.image].Bounds;
 							rect = rect.Flip(obj.XFlip, obj.YFlip);
 							rect.Offset(obj.X, obj.Y);
-							rect.Offset(-camera.X, -camera.Y);
 							return rect;
 						}
 				}
 			}
 			if (xmldef.DefaultImage != null && xmldef.DefaultImage.Images != null)
-				return GetImageRefListBounds(xmldef.DefaultImage, obj, camera);
+				return GetImageRefListBounds(xmldef.DefaultImage, obj);
 			else if (xmldef.Image != null)
 			{
 				Rectangle rect = images[xmldef.Image].Bounds;
 				rect = rect.Flip(obj.XFlip, obj.YFlip);
 				rect.Offset(obj.X, obj.Y);
-				rect.Offset(-camera.X, -camera.Y);
 				return rect;
 			}
 			Rectangle unkbnd = unkobj.Bounds;
 			unkbnd = unkbnd.Flip(obj.XFlip, obj.YFlip);
 			unkbnd.Offset(obj.X, obj.Y);
-			unkbnd.Offset(-camera.X, -camera.Y);
 			return unkbnd;
 		}
 
@@ -1293,7 +1294,7 @@ namespace SonicRetro.SonLVL.API
 			return tmp;
 		}
 
-		private Rectangle GetImageRefListBounds(XMLDef.ImageRefList list, ObjectEntry obj, Point camera)
+		private Rectangle GetImageRefListBounds(XMLDef.ImageRefList list, ObjectEntry obj)
 		{
 			Rectangle rect = Rectangle.Empty;
 			bool first = true;
@@ -1323,7 +1324,6 @@ namespace SonicRetro.SonLVL.API
 						break;
 				}
 			rect.Offset(obj.X, obj.Y);
-			rect.Offset(-camera.X, -camera.Y);
 			return rect;
 		}
 
@@ -1423,14 +1423,14 @@ namespace SonicRetro.SonLVL.API
 
 		public Sprite Image { get { return spr; } }
 
-		public Rectangle GetBounds(StartPositionEntry st, Point camera)
+		public Rectangle GetBounds(StartPositionEntry st)
 		{
-			return new Rectangle((st.X + spr.Offset.X) - camera.X, (st.Y + spr.Offset.Y) - camera.Y, spr.Image.Width, spr.Image.Height);
+			return new Rectangle(st.X + spr.X, st.Y + spr.Y, spr.Width, spr.Height);
 		}
 
 		public Sprite GetSprite(StartPositionEntry st)
 		{
-			return new Sprite(spr.Image, new Point(st.X + spr.Offset.X, st.Y + spr.Offset.Y));
+			return new Sprite(spr.Image, new Point(st.X + spr.X, st.Y + spr.Y));
 		}
 
 		public bool Debug { get { return debug; } }
