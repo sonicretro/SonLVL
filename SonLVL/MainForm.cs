@@ -4080,6 +4080,7 @@ namespace SonicRetro.SonLVL.GUI
 			if (!loaded || e.Button != MouseButtons.Left) return;
 			int line = e.Y / 20;
 			int index = e.X / 20;
+			if (index < 0 || index > 15 || line < 0 || line > 3) return;
 			SelectedColor = new Point(index, line);
 			ColorDialog a = new ColorDialog
 			{
@@ -4128,6 +4129,7 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			if (!loaded) return;
 			Point mouseColor = new Point(e.X / 20, e.Y / 20);
+			if (mouseColor.X < 0 || mouseColor.X > 15 || mouseColor.Y < 0 || mouseColor.Y > 3) return;
 			if (mouseColor == SelectedColor) return;
 			bool newpal = mouseColor.Y != SelectedColor.Y;
 			switch (e.Button)
