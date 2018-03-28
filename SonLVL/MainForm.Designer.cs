@@ -140,6 +140,8 @@ namespace SonicRetro.SonLVL.GUI
 			this.includeObjectsWithForegroundSelectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.switchMouseButtonsInChunkAndBlockEditorsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.includeobjectsWithFGToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.hideDebugObjectsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.objectsAboveHighPlaneToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.hUDToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.invertColorsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -189,8 +191,6 @@ namespace SonicRetro.SonLVL.GUI
 			this.foregroundToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.backgroundToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.transparentBackgroundToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.includeobjectsWithFGToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.hideDebugObjectsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.useHexadecimalIndexesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.exportArtcollisionpriorityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -1539,6 +1539,8 @@ namespace SonicRetro.SonLVL.GUI
 			// viewToolStripMenuItem
 			// 
 			this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.includeobjectsWithFGToolStripMenuItem,
+            this.hideDebugObjectsToolStripMenuItem,
             this.objectsAboveHighPlaneToolStripMenuItem,
             this.hUDToolStripMenuItem,
             this.invertColorsToolStripMenuItem,
@@ -1554,6 +1556,24 @@ namespace SonicRetro.SonLVL.GUI
 			this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
 			this.viewToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
 			this.viewToolStripMenuItem.Text = "&View";
+			// 
+			// includeobjectsWithFGToolStripMenuItem
+			// 
+			this.includeobjectsWithFGToolStripMenuItem.Checked = true;
+			this.includeobjectsWithFGToolStripMenuItem.CheckOnClick = true;
+			this.includeobjectsWithFGToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.includeobjectsWithFGToolStripMenuItem.Name = "includeobjectsWithFGToolStripMenuItem";
+			this.includeobjectsWithFGToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
+			this.includeobjectsWithFGToolStripMenuItem.Text = "Include &objects with FG";
+			this.includeobjectsWithFGToolStripMenuItem.CheckedChanged += new System.EventHandler(this.includeObjectsWithFGToolStripMenuItem_CheckedChanged);
+			// 
+			// hideDebugObjectsToolStripMenuItem
+			// 
+			this.hideDebugObjectsToolStripMenuItem.CheckOnClick = true;
+			this.hideDebugObjectsToolStripMenuItem.Name = "hideDebugObjectsToolStripMenuItem";
+			this.hideDebugObjectsToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
+			this.hideDebugObjectsToolStripMenuItem.Text = "&Hide debug objects";
+			this.hideDebugObjectsToolStripMenuItem.CheckedChanged += new System.EventHandler(this.hideDebugObjectsToolStripMenuItem_CheckedChanged);
 			// 
 			// objectsAboveHighPlaneToolStripMenuItem
 			// 
@@ -1838,8 +1858,6 @@ namespace SonicRetro.SonLVL.GUI
             this.backgroundToolStripMenuItem,
             toolStripSeparator1,
             this.transparentBackgroundToolStripMenuItem,
-            this.includeobjectsWithFGToolStripMenuItem,
-            this.hideDebugObjectsToolStripMenuItem,
             this.useHexadecimalIndexesToolStripMenuItem,
             this.exportArtcollisionpriorityToolStripMenuItem});
 			this.exportToolStripMenuItem.Enabled = false;
@@ -1972,22 +1990,6 @@ namespace SonicRetro.SonLVL.GUI
 			this.transparentBackgroundToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
 			this.transparentBackgroundToolStripMenuItem.Text = "T&ransparent background";
 			this.transparentBackgroundToolStripMenuItem.CheckedChanged += new System.EventHandler(this.transparentBackgroundToolStripMenuItem_CheckedChanged);
-			// 
-			// includeobjectsWithFGToolStripMenuItem
-			// 
-			this.includeobjectsWithFGToolStripMenuItem.CheckOnClick = true;
-			this.includeobjectsWithFGToolStripMenuItem.Name = "includeobjectsWithFGToolStripMenuItem";
-			this.includeobjectsWithFGToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
-			this.includeobjectsWithFGToolStripMenuItem.Text = "Include &objects with FG";
-			this.includeobjectsWithFGToolStripMenuItem.CheckedChanged += new System.EventHandler(this.includeObjectsWithFGToolStripMenuItem_CheckedChanged);
-			// 
-			// hideDebugObjectsToolStripMenuItem
-			// 
-			this.hideDebugObjectsToolStripMenuItem.CheckOnClick = true;
-			this.hideDebugObjectsToolStripMenuItem.Name = "hideDebugObjectsToolStripMenuItem";
-			this.hideDebugObjectsToolStripMenuItem.Size = new System.Drawing.Size(222, 22);
-			this.hideDebugObjectsToolStripMenuItem.Text = "&Hide debug objects";
-			this.hideDebugObjectsToolStripMenuItem.CheckedChanged += new System.EventHandler(this.hideDebugObjectsToolStripMenuItem_CheckedChanged);
 			// 
 			// useHexadecimalIndexesToolStripMenuItem
 			// 

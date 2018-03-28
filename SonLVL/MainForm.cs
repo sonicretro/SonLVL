@@ -266,8 +266,8 @@ namespace SonicRetro.SonLVL.GUI
 			objGridSizeDropDownButton_DropDownItemClicked(this, new ToolStripItemClickedEventArgs(objGridSizeDropDownButton.DropDownItems[Settings.ObjectGridSize]));
 			includeObjectsWithForegroundSelectionToolStripMenuItem.Checked = Settings.IncludeObjectsInForegroundSelection;
 			transparentBackgroundToolStripMenuItem.Checked = Settings.TransparentBackgroundExport;
-			includeobjectsWithFGToolStripMenuItem.Checked = Settings.IncludeObjectsFGExport;
-			hideDebugObjectsToolStripMenuItem.Checked = Settings.HideDebugObjectsExport;
+			includeobjectsWithFGToolStripMenuItem.Checked = Settings.IncludeObjectsFG;
+			hideDebugObjectsToolStripMenuItem.Checked = Settings.HideDebugObjects;
 			exportArtcollisionpriorityToolStripMenuItem.Checked = Settings.ExportArtCollisionPriority;
 			CurrentTab = Settings.CurrentTab;
 			CurrentArtTab = Settings.CurrentArtTab;
@@ -944,6 +944,18 @@ namespace SonicRetro.SonLVL.GUI
 		#endregion
 
 		#region View Menu
+		private void includeObjectsWithFGToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+		{
+			Settings.IncludeObjectsFG = includeobjectsWithFGToolStripMenuItem.Checked;
+			DrawLevel();
+		}
+
+		private void hideDebugObjectsToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
+		{
+			Settings.HideDebugObjects = hideDebugObjectsToolStripMenuItem.Checked;
+			DrawLevel();
+		}
+
 		private void objectsAboveHighPlaneToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			objectsAboveHighPlaneToolStripMenuItem.Checked = !objectsAboveHighPlaneToolStripMenuItem.Checked;
@@ -1578,16 +1590,6 @@ namespace SonicRetro.SonLVL.GUI
 			Settings.TransparentBackgroundExport = transparentBackgroundToolStripMenuItem.Checked;
 		}
 
-		private void includeObjectsWithFGToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
-		{
-			Settings.IncludeObjectsFGExport = includeobjectsWithFGToolStripMenuItem.Checked;
-		}
-
-		private void hideDebugObjectsToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
-		{
-			Settings.HideDebugObjectsExport = hideDebugObjectsToolStripMenuItem.Checked;
-		}
-
 		private void useHexadecimalIndexesToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
 		{
 			Settings.UseHexadecimalIndexesExport = useHexadecimalIndexesToolStripMenuItem.Checked;
@@ -1701,7 +1703,7 @@ namespace SonicRetro.SonLVL.GUI
 					lvlsize = LevelData.FGSize;
 					layout = LevelData.Layout.FGLayout;
 					loop = LevelData.Layout.FGLoop;
-					LevelImg8bpp = LevelData.DrawForeground(dispRect, true, true, objectsAboveHighPlaneToolStripMenuItem.Checked, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked, allToolStripMenuItem.Checked);
+					LevelImg8bpp = LevelData.DrawForeground(dispRect, CurrentTab == Tab.Objects || includeobjectsWithFGToolStripMenuItem.Checked, !hideDebugObjectsToolStripMenuItem.Checked, objectsAboveHighPlaneToolStripMenuItem.Checked, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked, allToolStripMenuItem.Checked);
 					if (waterPalette != -1 && camera.Y + LevelImg8bpp.Height > waterHeight)
 						LevelImg8bpp.ApplyWaterPalette(Math.Max(waterHeight - camera.Y, 0));
 					break;
@@ -2498,7 +2500,7 @@ namespace SonicRetro.SonLVL.GUI
 							}
 							else
 							{
-								LevelData.Bumpers.Add(new CNZBumperEntry() { X = (ushort)gridx, Y = (ushort)gridy });
+								LevelData.Bumpers.Add(new CNZBumperEntry() { X = gridx, Y = gridy });
 								LevelData.Bumpers[LevelData.Bumpers.Count - 1].UpdateSprite();
 								SelectedItems.Clear();
 								SelectedItems.Add(LevelData.Bumpers[LevelData.Bumpers.Count - 1]);
@@ -2535,7 +2537,7 @@ namespace SonicRetro.SonLVL.GUI
 					{
 						ObjectDefinition dat = LevelData.GetObjectDefinition(item.ID);
 						Rectangle bound = dat.GetBounds(item, Point.Empty);
-						if (LevelData.ObjectVisible(item, allToolStripMenuItem.Checked) && bound.Contains(curx, cury))
+						if ((!hideDebugObjectsToolStripMenuItem.Checked || !dat.Debug) && LevelData.ObjectVisible(item, allToolStripMenuItem.Checked) && bound.Contains(curx, cury))
 						{
 							if (ModifierKeys == Keys.Control)
 							{
@@ -2578,7 +2580,7 @@ namespace SonicRetro.SonLVL.GUI
 								break;
 							}
 						}
-					if (!objdrag && LevelData.Bumpers != null)
+					if (!objdrag && LevelData.Bumpers != null && !hideDebugObjectsToolStripMenuItem.Checked)
 						foreach (CNZBumperEntry item in LevelData.Bumpers)
 						{
 							Rectangle bound = LevelData.unkobj.GetBounds(new S2ObjectEntry() { X = item.X, Y = item.Y }, Point.Empty);
@@ -2646,7 +2648,7 @@ namespace SonicRetro.SonLVL.GUI
 					{
 						ObjectDefinition dat = LevelData.GetObjectDefinition(item.ID);
 						Rectangle bound = dat.GetBounds(item, Point.Empty);
-						if (LevelData.ObjectVisible(item, allToolStripMenuItem.Checked) && bound.Contains(curx, cury))
+						if ((!hideDebugObjectsToolStripMenuItem.Checked || !dat.Debug) && LevelData.ObjectVisible(item, allToolStripMenuItem.Checked) && bound.Contains(curx, cury))
 						{
 							if (!SelectedItems.Contains(item))
 							{
@@ -2675,11 +2677,11 @@ namespace SonicRetro.SonLVL.GUI
 								break;
 							}
 						}
-					if (!objdrag && LevelData.Bumpers != null)
+					if (!objdrag && LevelData.Bumpers != null && !hideDebugObjectsToolStripMenuItem.Checked)
 						foreach (CNZBumperEntry item in LevelData.Bumpers)
 						{
 							item.UpdateSprite();
-							Rectangle bound = LevelData.unkobj.GetBounds(new SonicRetro.SonLVL.API.S2.S2ObjectEntry() { X = item.X, Y = item.Y }, Point.Empty);
+							Rectangle bound = LevelData.unkobj.GetBounds(new S2ObjectEntry() { X = item.X, Y = item.Y }, Point.Empty);
 							if (bound.Contains(curx, cury))
 							{
 								if (!SelectedItems.Contains(item))
@@ -2761,13 +2763,13 @@ namespace SonicRetro.SonLVL.GUI
 						{
 							ObjectDefinition dat = LevelData.GetObjectDefinition(item.ID);
 							Rectangle bound = dat.GetBounds(item, Point.Empty);
-							if (LevelData.ObjectVisible(item, allToolStripMenuItem.Checked) && bound.IntersectsWith(selbnds))
+							if ((!hideDebugObjectsToolStripMenuItem.Checked || !dat.Debug) && LevelData.ObjectVisible(item, allToolStripMenuItem.Checked) && bound.IntersectsWith(selbnds))
 								SelectedItems.Add(item);
 						}
 						foreach (RingEntry item in LevelData.Rings)
 							if (((RingLayoutFormat)LevelData.RingFormat).GetBounds(item, Point.Empty).IntersectsWith(selbnds))
 								SelectedItems.Add(item);
-						if (LevelData.Bumpers != null)
+						if (LevelData.Bumpers != null && !hideDebugObjectsToolStripMenuItem.Checked)
 							foreach (CNZBumperEntry item in LevelData.Bumpers)
 							{
 								Rectangle bound = LevelData.unkobj.GetBounds(new S2ObjectEntry() { X = item.X, Y = item.Y }, Point.Empty);
@@ -2790,7 +2792,7 @@ namespace SonicRetro.SonLVL.GUI
 			{
 				ObjectDefinition dat = LevelData.GetObjectDefinition(item.ID);
 				Rectangle bound = dat.GetBounds(item, Point.Empty);
-				if (LevelData.ObjectVisible(item, allToolStripMenuItem.Checked) && bound.Contains(mouse))
+				if ((!hideDebugObjectsToolStripMenuItem.Checked || !dat.Debug) && LevelData.ObjectVisible(item, allToolStripMenuItem.Checked) && bound.Contains(mouse))
 				{
 					cur = Cursors.SizeAll;
 					break;
@@ -2802,7 +2804,7 @@ namespace SonicRetro.SonLVL.GUI
 					cur = Cursors.SizeAll;
 					break;
 				}
-			if (LevelData.Bumpers != null)
+			if (LevelData.Bumpers != null && !hideDebugObjectsToolStripMenuItem.Checked)
 				foreach (CNZBumperEntry item in LevelData.Bumpers)
 				{
 					Rectangle bound = LevelData.unkobj.GetBounds(new S2ObjectEntry() { X = item.X, Y = item.Y }, Point.Empty);

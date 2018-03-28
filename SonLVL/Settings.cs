@@ -39,9 +39,11 @@ namespace SonicRetro.SonLVL
 		public bool IncludeObjectsInForegroundSelection { get; set; }
 		[DefaultValue(true)]
 		public bool TransparentBackgroundExport { get; set; }
-		public bool? TransparentBackFGBGExport { get { return null; } set { if (value.HasValue) TransparentBackgroundExport = value.Value; } }
-		public bool IncludeObjectsFGExport { get; set; }
-		public bool HideDebugObjectsExport { get; set; }
+		[DefaultValue(true)]
+		public bool IncludeObjectsFG { get; set; }
+		public bool? IncludeObjectsFGExport { get { return null; } set { if (value.HasValue) IncludeObjectsFG = value.Value; } }
+		public bool HideDebugObjects { get; set; }
+		public bool? HideDebugObjectsExport { get { return null; } set { if (value.HasValue) HideDebugObjects = value.Value; } }
 		public bool UseHexadecimalIndexesExport { get; set; }
 		public bool ExportArtCollisionPriority { get; set; }
 		public bool ObjectsAboveHighPlane { get; set; }
@@ -66,29 +68,7 @@ namespace SonicRetro.SonLVL
 		{
 			filename = Path.Combine(Application.StartupPath, "SonLVL.ini");
 			if (File.Exists(filename))
-			{
-				Settings result = IniSerializer.Deserialize<Settings>(filename);
-				switch (result.CurrentTab)
-				{
-					case Tab.Chunks:
-						result.CurrentTab = Tab.Art;
-						result.CurrentArtTab = ArtTab.Chunks;
-						break;
-					case Tab.Blocks:
-						result.CurrentTab = Tab.Art;
-						result.CurrentArtTab = ArtTab.Blocks;
-						break;
-					case Tab.Tiles:
-						result.CurrentTab = Tab.Art;
-						result.CurrentArtTab = ArtTab.Tiles;
-						break;
-					case Tab.Solids:
-						result.CurrentTab = Tab.Art;
-						result.CurrentArtTab = ArtTab.Solids;
-						break;
-				}
-				return result;
-			}
+				return IniSerializer.Deserialize<Settings>(filename);
 			else
 			{
 				Settings result = new Settings();
@@ -132,12 +112,7 @@ namespace SonicRetro.SonLVL
 		Objects,
 		Foreground,
 		Background,
-		Art,
-		// compatibility only
-		Chunks,
-		Blocks,
-		Tiles,
-		Solids
+		Art
 	}
 
 	public enum ArtTab
