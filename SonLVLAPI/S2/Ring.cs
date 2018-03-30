@@ -204,6 +204,8 @@ namespace SonicRetro.SonLVL.API.S2
 		{
 			Sprite = ((RingLayoutFormat)LevelData.RingFormat).GetSprite(this);
 			Bounds = ((RingLayoutFormat)LevelData.RingFormat).GetBounds(this);
+			if (Bounds.IsEmpty)
+				Bounds = Sprite.Bounds;
 		}
 
 		public override string Name

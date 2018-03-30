@@ -165,6 +165,8 @@ namespace SonicRetro.SonLVL.API.S3K
 		{
 			Sprite = ((RingLayoutFormat)LevelData.RingFormat).GetSprite(this);
 			Bounds = ((RingLayoutFormat)LevelData.RingFormat).GetBounds(this);
+			if (Bounds.IsEmpty)
+				Bounds = Sprite.Bounds;
 		}
 	}
 }

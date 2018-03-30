@@ -954,6 +954,8 @@ namespace SonicRetro.SonLVL.API
 			ObjectDefinition def = LevelData.GetObjectDefinition(ID);
 			Sprite = def.GetSprite(this);
 			Bounds = def.GetBounds(this);
+			if (Bounds.IsEmpty)
+				Bounds = Sprite.Bounds;
 		}
 
 		public override string Name
@@ -1173,6 +1175,8 @@ namespace SonicRetro.SonLVL.API
 			StartPositionDefinition def = LevelData.StartPosDefs[LevelData.StartPositions.IndexOf(this)];
 			Sprite = def.GetSprite(this);
 			Bounds = def.GetBounds(this);
+			if (Bounds.IsEmpty)
+				Bounds = Sprite.Bounds;
 		}
 
 		public override string Name
