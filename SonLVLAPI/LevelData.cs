@@ -6,7 +6,6 @@ using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -808,10 +807,10 @@ namespace SonicRetro.SonLVL.API
 				switch (ext.ToLowerInvariant())
 				{
 					case ".cs":
-						pr = new Microsoft.CodeDom.Providers.DotNetCompilerPlatform.CSharpCodeProvider();
+						pr = new Microsoft.CSharp.CSharpCodeProvider();
 						break;
 					case ".vb":
-						pr = new Microsoft.CodeDom.Providers.DotNetCompilerPlatform.VBCodeProvider();
+						pr = new Microsoft.VisualBasic.VBCodeProvider();
 						break;
 				}
 				CompilerParameters para = new CompilerParameters(new string[] { "System.dll", "System.Core.dll", "System.Drawing.dll", System.Reflection.Assembly.GetExecutingAssembly().Location })
@@ -1309,7 +1308,6 @@ namespace SonicRetro.SonLVL.API
 
 		private static void InitObjectDefinitions()
 		{
-			List<KeyValuePair<byte, ObjectDefinition>> objdefs = new List<KeyValuePair<byte, ObjectDefinition>>();
 #if !DEBUG
 			Parallel.ForEach(INIObjDefs, (KeyValuePair<string, ObjectData> group) =>
 #else
@@ -1345,10 +1343,10 @@ namespace SonicRetro.SonLVL.API
 							switch (ext.ToLowerInvariant())
 							{
 								case ".cs":
-									pr = new Microsoft.CodeDom.Providers.DotNetCompilerPlatform.CSharpCodeProvider();
+									pr = new Microsoft.CSharp.CSharpCodeProvider();
 									break;
 								case ".vb":
-									pr = new Microsoft.CodeDom.Providers.DotNetCompilerPlatform.VBCodeProvider();
+									pr = new Microsoft.VisualBasic.VBCodeProvider();
 									break;
 							}
 							if (pr != null)
@@ -1383,8 +1381,8 @@ namespace SonicRetro.SonLVL.API
 						def = new XMLObjectDefinition();
 					else
 						def = new DefaultObjectDefinition();
-					lock (objdefs)
-						objdefs.Add(new KeyValuePair<byte, ObjectDefinition>(ID, def));
+					lock (ObjTypes)
+						ObjTypes[ID] = def;
 					def.Init(group.Value);
 				}
 #if !DEBUG
@@ -1392,8 +1390,6 @@ namespace SonicRetro.SonLVL.API
 #else
 			}
 #endif
-			foreach (var item in objdefs.OrderBy(a => a.Key))
-				ObjTypes[item.Key] = item.Value;
 		}
 
 		internal static string ExpandTypeName(string type)
