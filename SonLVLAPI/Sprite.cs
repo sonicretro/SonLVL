@@ -45,14 +45,24 @@ namespace SonicRetro.SonLVL.API
 			int right = 0;
 			int top = 0;
 			int bottom = 0;
+			bool first = true;
 			foreach (Sprite spr in sprlst)
 				if (spr.Image != null)
-				{
-					left = Math.Min(spr.Left, left);
-					right = Math.Max(spr.Right, right);
-					top = Math.Min(spr.Top, top);
-					bottom = Math.Max(spr.Bottom, bottom);
-				}
+					if (first)
+					{
+						left = spr.Left;
+						right = spr.Right;
+						top = spr.Top;
+						bottom = spr.Bottom;
+						first = false;
+					}
+					else
+					{
+						left = Math.Min(spr.Left, left);
+						right = Math.Max(spr.Right, right);
+						top = Math.Min(spr.Top, top);
+						bottom = Math.Max(spr.Bottom, bottom);
+					}
 			Offset = new Point(left, top);
 			Image = new BitmapBits(right - left, bottom - top);
 			for (int i = 0; i < sprlst.Count; i++)
