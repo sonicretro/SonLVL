@@ -858,16 +858,11 @@ namespace SonicRetro.SonLVL.API
 						switch (xmldef.Language.ToLowerInvariant())
 						{
 							case "cs":
-								pr = new Microsoft.CSharp.CSharpCodeProvider();
+								pr = new Microsoft.CodeDom.Providers.DotNetCompilerPlatform.CSharpCodeProvider();
 								break;
 							case "vb":
-								pr = new Microsoft.VisualBasic.VBCodeProvider();
+								pr = new Microsoft.CodeDom.Providers.DotNetCompilerPlatform.VBCodeProvider();
 								break;
-#if false
-								case "js":
-									pr = new Microsoft.JScript.JScriptCodeProvider();
-									break;
-#endif
 						}
 						List<CodeTypeMember> members = new List<CodeTypeMember>();
 						CodeMemberMethod method = new CodeMemberMethod();
