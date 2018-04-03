@@ -4084,6 +4084,7 @@ namespace SonicRetro.SonLVL.GUI
 			if (!loaded || e.Button != MouseButtons.Left || !enableDraggingPaletteButton.Checked) return;
 			Point mouseColor = lastmouse;
 			if (mouseColor == SelectedColor) return;
+			if (mouseColor.X < 0 || mouseColor.Y < 0 || mouseColor.X > 15 || mouseColor.Y > 3) return;
 			disppal = null;
 			List<List<Point>> palidxs = new List<List<Point>>();
 			for (int y = 0; y < 4; y++)
