@@ -41,24 +41,25 @@ namespace SonicRetro.SonLVL.GUI
 			}
 		}
 
+		const int ColorGrid = 64;
+
 		void LevelData_PaletteChangedEvent()
 		{
+			LevelData.BmpPal.Entries.CopyTo(LevelImgPalette.Entries, 0);
 			LevelImgPalette.Entries[LevelData.ColorTransparent] = LevelData.PaletteToColor(2, 0, false);
-			for (int i = 1; i < 64; i++)
-				LevelImgPalette.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, false);
 			if (waterPalette != -1)
 			{
-				LevelImgPalette.Entries[64] = LevelData.Palette[waterPalette][2, 0].RGBColor;
-				for (int i = 65; i < 128; i++)
-					LevelImgPalette.Entries[i] = LevelData.Palette[waterPalette][(i - 64) / 16, i % 16].RGBColor;
+				LevelImgPalette.Entries[128] = LevelData.Palette[waterPalette][2, 0].RGBColor;
+				for (int i = 129; i < 192; i++)
+					LevelImgPalette.Entries[i] = LevelData.Palette[waterPalette][(i - 128) / 16, i % 16].RGBColor;
 			}
 			if (invertColorsToolStripMenuItem.Checked)
-				for (int i = 0; i < 128; i++)
+				for (int i = 0; i < 256; i++)
 					LevelImgPalette.Entries[i] = LevelImgPalette.Entries[i].Invert();
 			LevelImgPalette.Entries[LevelData.ColorWhite] = Color.White;
 			LevelImgPalette.Entries[LevelData.ColorYellow] = Color.Yellow;
 			LevelImgPalette.Entries[LevelData.ColorBlack] = Color.Black;
-			LevelImgPalette.Entries[131] = Settings.GridColor;
+			LevelImgPalette.Entries[ColorGrid] = Settings.GridColor;
 			ChunkSelector.Invalidate();
 			DrawChunkPicture();
 			chunkBlockEditor.Invalidate();
@@ -222,7 +223,7 @@ namespace SonicRetro.SonLVL.GUI
 			{
 				BitmapBits bmp = new BitmapBits(Path.Combine(HUDpath, item.Value + ".png"));
 				if (bmp.OriginalFormat != PixelFormat.Format8bppIndexed)
-					bmp.IncrementIndexes(LevelData.ColorWhite - 1);
+					bmp.FixUIColors();
 				HUDLetters.Add(item.Key, bmp);
 			}
 			HUDNumbers = new Dictionary<char, BitmapBits>();
@@ -231,7 +232,7 @@ namespace SonicRetro.SonLVL.GUI
 			{
 				BitmapBits bmp = new BitmapBits(Path.Combine(HUDpath, item.Value + ".png"));
 				if (bmp.OriginalFormat != PixelFormat.Format8bppIndexed)
-					bmp.IncrementIndexes(LevelData.ColorWhite - 1);
+					bmp.FixUIColors();
 				HUDNumbers.Add(item.Key, bmp);
 			}
 			objectsAboveHighPlaneToolStripMenuItem.Checked = Settings.ObjectsAboveHighPlane;
@@ -561,14 +562,12 @@ namespace SonicRetro.SonLVL.GUI
 					LevelData.UpdateTileArray();
 				}
 				LevelImgPalette = new Bitmap(1, 1, PixelFormat.Format8bppIndexed).Palette;
-				for (int i = 0; i < 64; i++)
-					LevelImgPalette.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, false);
-				LevelImgPalette.Entries.Fill(Color.Black, 64, 192);
+				LevelData.BmpPal.Entries.CopyTo(LevelImgPalette.Entries, 0);
 				LevelImgPalette.Entries[LevelData.ColorTransparent] = LevelData.PaletteToColor(2, 0, false);
 				LevelImgPalette.Entries[LevelData.ColorWhite] = Color.White;
 				LevelImgPalette.Entries[LevelData.ColorYellow] = Color.Yellow;
 				LevelImgPalette.Entries[LevelData.ColorBlack] = Color.Black;
-				LevelImgPalette.Entries[131] = Settings.GridColor;
+				LevelImgPalette.Entries[ColorGrid] = Settings.GridColor;
 				curpal = new Color[16];
 				switch (LevelData.Level.ChunkFormat)
 				{
@@ -747,9 +746,9 @@ namespace SonicRetro.SonLVL.GUI
 				waterHeight = (ushort)LevelData.Level.WaterHeight;
 				if (waterPalette != -1)
 				{
-					LevelImgPalette.Entries[64] = LevelData.Palette[waterPalette][2, 0].RGBColor;
-					for (int i = 65; i < 128; i++)
-						LevelImgPalette.Entries[i] = LevelData.Palette[waterPalette][(i - 64) / 16, i % 16].RGBColor;
+					LevelImgPalette.Entries[128] = LevelData.Palette[waterPalette][2, 0].RGBColor;
+					for (int i = 129; i < 192; i++)
+						LevelImgPalette.Entries[i] = LevelData.Palette[waterPalette][(i - 128) / 16, i % 16].RGBColor;
 				}
 			}
 			else
@@ -1041,12 +1040,12 @@ namespace SonicRetro.SonLVL.GUI
 			};
 			if (cols != null)
 				a.CustomColors = cols;
-			if (a.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+			if (a.ShowDialog() == DialogResult.OK)
 			{
 				Settings.GridColor = a.Color;
 				if (loaded)
 				{
-					LevelImgPalette.Entries[131] = a.Color;
+					LevelImgPalette.Entries[ColorGrid] = a.Color;
 					DrawLevel();
 				}
 			}
@@ -1721,9 +1720,9 @@ namespace SonicRetro.SonLVL.GUI
 					{
 						int gs = 1 << ObjGrid;
 						for (int x = (gs - (camera.X % gs)) % gs; x < LevelImg8bpp.Width; x += gs)
-							LevelImg8bpp.DrawLine(131, x, 0, x, LevelImg8bpp.Height - 1);
+							LevelImg8bpp.DrawLine(ColorGrid, x, 0, x, LevelImg8bpp.Height - 1);
 						for (int y = (gs - (camera.Y % gs)) % gs; y < LevelImg8bpp.Height; y += gs)
-							LevelImg8bpp.DrawLine(131, 0, y, LevelImg8bpp.Width - 1, y);
+							LevelImg8bpp.DrawLine(ColorGrid, 0, y, LevelImg8bpp.Width - 1, y);
 					}
 					break;
 				case Tab.Foreground:
@@ -1731,9 +1730,9 @@ namespace SonicRetro.SonLVL.GUI
 					if (enableGridToolStripMenuItem.Checked)
 					{
 						for (int x = (LevelData.Level.ChunkWidth - (camera.X % LevelData.Level.ChunkWidth)) % LevelData.Level.ChunkWidth; x < LevelImg8bpp.Width; x += LevelData.Level.ChunkWidth)
-							LevelImg8bpp.DrawLine(131, x, 0, x, LevelImg8bpp.Height - 1);
+							LevelImg8bpp.DrawLine(ColorGrid, x, 0, x, LevelImg8bpp.Height - 1);
 						for (int y = (LevelData.Level.ChunkHeight - (camera.Y % LevelData.Level.ChunkHeight)) % LevelData.Level.ChunkHeight; y < LevelImg8bpp.Height; y += LevelData.Level.ChunkHeight)
-							LevelImg8bpp.DrawLine(131, 0, y, LevelImg8bpp.Width - 1, y);
+							LevelImg8bpp.DrawLine(ColorGrid, 0, y, LevelImg8bpp.Width - 1, y);
 					}
 					break;
 			}

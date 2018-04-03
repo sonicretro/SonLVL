@@ -32,6 +32,23 @@ namespace SonicRetro.SonLVL.API
 				if (bmp.Bits[i] > 0) bmp.Bits[i] = (byte)(bmp.Bits[i] + amount);
 		}
 
+		public static void FixUIColors(this BitmapBits bmp)
+		{
+			for (int i = 0; i < bmp.Bits.Length; i++)
+				switch (bmp.Bits[i])
+				{
+					case 1:
+						bmp.Bits[i] = LevelData.ColorWhite;
+						break;
+					case 2:
+						bmp.Bits[i] = LevelData.ColorYellow;
+						break;
+					case 3:
+						bmp.Bits[i] = LevelData.ColorBlack;
+						break;
+				}
+		}
+
 		public static Bitmap To32bpp(this Bitmap bmp)
 		{
 			if (LevelData.IsWindows) return bmp.Clone(new Rectangle(Point.Empty, bmp.Size), PixelFormat.Format32bppArgb);

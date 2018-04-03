@@ -388,6 +388,10 @@ namespace SonicRetro.SonLVL.API
 		[IniName("objlst")]
 		[IniCollection(IniCollectionMode.SingleLine, Format = "|")]
 		public string[] ObjectList { get; set; }
+		[IniName("extracolors")]
+		public PaletteList ExtraColors { get; set; }
+		[IniName("extrawatercolors")]
+		public PaletteList ExtraWaterColors { get; set; }
 	}
 
 	[TypeConverter(typeof(StringConverter<FileInfo>))]

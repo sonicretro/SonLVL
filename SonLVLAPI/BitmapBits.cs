@@ -892,22 +892,22 @@ namespace SonicRetro.SonLVL.API
 				ulong* lp = (ulong*)(fp + st);
 				int longlen = length / 8;
 				for (int i = 0; i < longlen; i++)
-					*lp++ += 0x4040404040404040u;
+					*lp++ |= 0x8080808080808080u;
 				if ((length & 7) != 0)
 				{
 					byte* bp = (byte*)lp;
 					if ((length & 4) == 4)
 					{
-						*(uint*)bp += 0x40404040u;
+						*(uint*)bp |= 0x80808080u;
 						bp += 4;
 					}
 					if ((length & 2) == 2)
 					{
-						*(ushort*)bp += 0x4040;
+						*(ushort*)bp |= 0x8080;
 						bp += 2;
 					}
 					if ((length & 1) == 1)
-						*bp += 0x40;
+						*bp |= 0x80;
 				}
 			}
 		}

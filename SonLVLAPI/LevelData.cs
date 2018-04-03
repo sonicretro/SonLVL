@@ -70,9 +70,9 @@ namespace SonicRetro.SonLVL.API
 		private static readonly BitmapBits InvalidTile = new BitmapBits(8, 8);
 		private static readonly BitmapBits InvalidBlock = new BitmapBits(16, 16);
 		public const int ColorTransparent = 0;
-		public const int ColorWhite = 128;
-		public const int ColorYellow = 129;
-		public const int ColorBlack = 130;
+		public const int ColorWhite = 16;
+		public const int ColorYellow = 32;
+		public const int ColorBlack = 48;
 
 		static LevelData()
 		{
@@ -230,6 +230,24 @@ namespace SonicRetro.SonLVL.API
 				BmpPal.Entries[ColorWhite] = Color.White;
 				BmpPal.Entries[ColorYellow] = Color.Yellow;
 				BmpPal.Entries[ColorBlack] = Color.Black;
+				if (Level.ExtraColors != null)
+					foreach (PaletteInfo palent in Level.ExtraColors)
+						if (File.Exists(palent.Filename))
+						{
+							Log("Loading extra color file \"" + palent.Filename + "\"...", "Source: " + palent.Source + " Destination: " + palent.Destination + " Length: " + palent.Length);
+							SonLVLColor[] palfile = SonLVLColor.Load(palent.Filename, Level.PaletteFormat);
+							for (int pa = 0; pa < palent.Length; pa++)
+								BmpPal.Entries[pa + palent.Destination + 0x40] = palfile[pa + palent.Source].RGBColor;
+						}
+				if (Level.ExtraWaterColors != null)
+					foreach (PaletteInfo palent in Level.ExtraWaterColors)
+						if (File.Exists(palent.Filename))
+						{
+							Log("Loading extra water color file \"" + palent.Filename + "\"...", "Source: " + palent.Source + " Destination: " + palent.Destination + " Length: " + palent.Length);
+							SonLVLColor[] palfile = SonLVLColor.Load(palent.Filename, Level.PaletteFormat);
+							for (int pa = 0; pa < palent.Length; pa++)
+								BmpPal.Entries[pa + palent.Destination + 0xC0] = palfile[pa + palent.Source].RGBColor;
+						}
 				UnknownImg.Palette = BmpPal;
 				if (Level.Sprites != null)
 				{
@@ -595,20 +613,7 @@ namespace SonicRetro.SonLVL.API
 					PaletteInfo palent = Level.Palettes[palnum].Palettes[pn];
 					Log("Loading palette file \"" + palent.Filename + "\"...", "Source: " + palent.Source + " Destination: " + palent.Destination + " Length: " + palent.Length);
 					if (!File.Exists(palent.Filename)) throw new FileNotFoundException("Palette file could not be loaded! Have you set up your disassembly properly?", palent.Filename);
-					byte[] tmp = File.ReadAllBytes(palent.Filename);
-					SonLVLColor[] palfile;
-					if (Level.PaletteFormat != EngineVersion.SCDPC)
-					{
-						palfile = new SonLVLColor[tmp.Length / 2];
-						for (int pi = 0; pi < tmp.Length; pi += 2)
-							palfile[pi / 2] = new SonLVLColor(ByteConverter.ToUInt16(tmp, pi));
-					}
-					else
-					{
-						palfile = new SonLVLColor[tmp.Length / 4];
-						for (int pi = 0; pi < tmp.Length; pi += 4)
-							palfile[pi / 4] = new SonLVLColor(tmp[pi], tmp[pi + 1], tmp[pi + 2]);
-					}
+					SonLVLColor[] palfile = SonLVLColor.Load(palent.Filename, Level.PaletteFormat);
 					for (int pa = 0; pa < palent.Length; pa++)
 					{
 						Palette[palnum][(pa + palent.Destination) / 16, (pa + palent.Destination) % 16] = palfile[pa + palent.Source];
@@ -1959,13 +1964,15 @@ namespace SonicRetro.SonLVL.API
 		{
 			BitmapBits pcbmp = new BitmapBits(map.Width * 8, map.Height * 8);
 			int ti = 0;
+			if (startpal >= 4)
+				startpal = ((map.Tile.Palette + startpal) & 3) + 4;
+			else
+				startpal = (map.Tile.Palette + startpal) & 3;
 			for (int x = 0; x < map.Width; x++)
 			{
 				for (int y = 0; y < map.Height; y++)
 				{
-					pcbmp.DrawBitmap(
-						TileToBmp8bpp(art, map.Tile.Tile + ti, (map.Tile.Palette + startpal) & 3),
-						x * 8, y * 8);
+					pcbmp.DrawBitmap(TileToBmp8bpp(art, map.Tile.Tile + ti, startpal), x * 8, y * 8);
 					ti++;
 				}
 			}
@@ -2130,8 +2137,8 @@ namespace SonicRetro.SonLVL.API
 			ChunkBmps[chunk][1] = ChunkBmpBits[chunk][1].ToBitmap(BmpPal);
 			ChunkColBmps[chunk][0] = ChunkColBmpBits[chunk][0].ToBitmap(Color.Transparent, Color.White, Color.Yellow, Color.Black);
 			ChunkColBmps[chunk][1] = ChunkColBmpBits[chunk][1].ToBitmap(Color.Transparent, Color.White, Color.Yellow, Color.Black);
-			ChunkColBmpBits[chunk][0].IncrementIndexes(ColorWhite - 1);
-			ChunkColBmpBits[chunk][1].IncrementIndexes(ColorWhite - 1);
+			ChunkColBmpBits[chunk][0].FixUIColors();
+			ChunkColBmpBits[chunk][1].FixUIColors();
 			CompChunkBmps[chunk] = CompChunkBmpBits[chunk].ToBitmap(BmpPal);
 		}
 
