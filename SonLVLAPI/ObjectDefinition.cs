@@ -566,9 +566,11 @@ namespace SonicRetro.SonLVL.API
 
 		public override Sprite GetSprite(ObjectEntry obj)
 		{
-			BitmapBits bits = new BitmapBits(spr.Image);
-			bits.Flip(obj.XFlip, obj.YFlip);
-			return new Sprite(bits, new Point(obj.X + spr.Offset.X, obj.Y + spr.Offset.Y));
+			Sprite sprite = new Sprite(spr);
+			sprite.Flip(obj.XFlip, obj.YFlip);
+			sprite.X += obj.X;
+			sprite.Y += obj.Y;
+			return sprite;
 		}
 
 		public override bool Debug { get { return debug; } }
