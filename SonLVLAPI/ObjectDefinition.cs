@@ -101,7 +101,8 @@ namespace SonicRetro.SonLVL.API
 		[Obsolete("The two-argument version of this function is obsolete. Please change your code to use the single-argument version instead.")]
 		public virtual Rectangle GetBounds(ObjectEntry obj, Point camera) { return Rectangle.Empty; }
 		public virtual bool Debug { get { return false; } }
-		public virtual PropertySpec[] CustomProperties { get { return new PropertySpec[0]; } }
+		static readonly PropertySpec[] specs = new PropertySpec[0];
+		public virtual PropertySpec[] CustomProperties => specs;
 	}
 
 	/// <summary>
