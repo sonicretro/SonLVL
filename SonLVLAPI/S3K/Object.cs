@@ -38,8 +38,8 @@ namespace SonicRetro.SonLVL.API.S3K
 	{
 		[DefaultValue(false)]
 		[Description("If true, the object will be loaded when it is in horizontal range of the screen, regardless of its Y position.")]
-		[DisplayName("Make object manager ignore Y position")]
-		public virtual bool SomeFlag { get; set; }
+		[DisplayName("Load at any Y position")]
+		public bool LoadAtAnyYPos { get; set; }
 
 		public static int Size { get { return 6; } }
 
@@ -61,7 +61,7 @@ namespace SonicRetro.SonLVL.API.S3K
 			ushort val = (ushort)(Y & 0xFFF);
 			if (XFlip) val |= 0x2000;
 			if (YFlip) val |= 0x4000;
-			if (SomeFlag) val |= 0x8000;
+			if (LoadAtAnyYPos) val |= 0x8000;
 			ret.AddRange(ByteConverter.GetBytes(val));
 			ret.Add(ID);
 			ret.Add(SubType);
@@ -72,7 +72,7 @@ namespace SonicRetro.SonLVL.API.S3K
 		{
 			X = ByteConverter.ToUInt16(bytes, 0);
 			ushort val = ByteConverter.ToUInt16(bytes, 2);
-			SomeFlag = (val & 0x8000) == 0x8000;
+			LoadAtAnyYPos = (val & 0x8000) == 0x8000;
 			YFlip = (val & 0x4000) == 0x4000;
 			XFlip = (val & 0x2000) == 0x2000;
 			Y = (ushort)(val & 0xFFF);
