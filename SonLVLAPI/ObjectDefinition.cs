@@ -247,13 +247,11 @@ namespace SonicRetro.SonLVL.API
 		/// property grid.</param>
 		/// <param name="defaultValue">The default value of the property, or null if there is
 		/// no default value.</param>
-		/// <param name="typeConverter">The fully qualified name of the type of the type
-		/// converter for this property.  This type must derive from TypeConverter.</param>
 		/// <param name="enum">The enumeration used by the property.</param>
 		/// <param name="getMethod">The method called to get the value of the property.</param>
 		/// <param name="setMethod">The method called to set the value of the property.</param>
-		public PropertySpec(string name, string type, string category, string description, object defaultValue, string typeConverter, Dictionary<string, int> @enum, Func<ObjectEntry, object> getMethod, Action<ObjectEntry, object> setMethod)
-			: this(name, Type.GetType(type), category, description, defaultValue, Type.GetType(typeConverter), @enum, getMethod, setMethod) { }
+		public PropertySpec(string name, string type, string category, string description, object defaultValue, Dictionary<string, int> @enum, Func<ObjectEntry, object> getMethod, Action<ObjectEntry, object> setMethod) :
+			this(name, Type.GetType(type), category, description, defaultValue, @enum, getMethod, setMethod) { }
 
 		/// <summary>
 		/// Initializes a new instance of the PropertySpec class.
@@ -266,51 +264,11 @@ namespace SonicRetro.SonLVL.API
 		/// property grid.</param>
 		/// <param name="defaultValue">The default value of the property, or null if there is
 		/// no default value.</param>
-		/// <param name="typeConverter">The fully qualified name of the type of the type
-		/// converter for this property.  This type must derive from TypeConverter.</param>
 		/// <param name="enum">The enumeration used by the property.</param>
 		/// <param name="getMethod">The method called to get the value of the property.</param>
 		/// <param name="setMethod">The method called to set the value of the property.</param>
-		public PropertySpec(string name, Type type, string category, string description, object defaultValue, string typeConverter, Dictionary<string,int> @enum, Func<ObjectEntry, object> getMethod, Action<ObjectEntry, object> setMethod) :
-			this(name, type, category, description, defaultValue, Type.GetType(typeConverter), @enum, getMethod, setMethod) { }
-
-		/// <summary>
-		/// Initializes a new instance of the PropertySpec class.
-		/// </summary>
-		/// <param name="name">The name of the property displayed in the property grid.</param>
-		/// <param name="type">The fully qualified name of the type of the property.</param>
-		/// <param name="category">The category under which the property is displayed in the
-		/// property grid.</param>
-		/// <param name="description">A string that is displayed in the help area of the
-		/// property grid.</param>
-		/// <param name="defaultValue">The default value of the property, or null if there is
-		/// no default value.</param>
-		/// <param name="typeConverter">The Type that represents the type of the type
-		/// converter for this property.  This type must derive from TypeConverter.</param>
-		/// <param name="enum">The enumeration used by the property.</param>
-		/// <param name="getMethod">The method called to get the value of the property.</param>
-		/// <param name="setMethod">The method called to set the value of the property.</param>
-		public PropertySpec(string name, string type, string category, string description, object defaultValue, Type typeConverter, Dictionary<string, int> @enum, Func<ObjectEntry, object> getMethod, Action<ObjectEntry, object> setMethod) :
-			this(name, Type.GetType(type), category, description, defaultValue, typeConverter, @enum, getMethod, setMethod) { }
-
-		/// <summary>
-		/// Initializes a new instance of the PropertySpec class.
-		/// </summary>
-		/// <param name="name">The name of the property displayed in the property grid.</param>
-		/// <param name="type">A Type that represents the type of the property.</param>
-		/// <param name="category">The category under which the property is displayed in the
-		/// property grid.</param>
-		/// <param name="description">A string that is displayed in the help area of the
-		/// property grid.</param>
-		/// <param name="defaultValue">The default value of the property, or null if there is
-		/// no default value.</param>
-		/// <param name="typeConverter">The Type that represents the type of the type
-		/// converter for this property.  This type must derive from TypeConverter.</param>
-		/// <param name="enum">The enumeration used by the property.</param>
-		/// <param name="getMethod">The method called to get the value of the property.</param>
-		/// <param name="setMethod">The method called to set the value of the property.</param>
-		public PropertySpec(string name, Type type, string category, string description, object defaultValue, Type typeConverter, Dictionary<string, int> @enum, Func<ObjectEntry, object> getMethod, Action<ObjectEntry, object> setMethod) :
-			this(name, type, category, description, defaultValue, typeConverter, getMethod, setMethod)
+		public PropertySpec(string name, Type type, string category, string description, object defaultValue, Dictionary<string, int> @enum, Func<ObjectEntry, object> getMethod, Action<ObjectEntry, object> setMethod) :
+			this(name, type, category, description, defaultValue, typeof(StringEnumConverter), getMethod, setMethod)
 		{
 			this.@enum = @enum;
 		}
@@ -395,6 +353,59 @@ namespace SonicRetro.SonLVL.API
 		{
 			get { return @enum; }
 			set { @enum = value; }
+		}
+	}
+
+	public class StringEnumConverter : TypeConverter
+	{
+		public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+		{
+			if (sourceType == typeof(string))
+				return true;
+			return base.CanConvertFrom(context, sourceType);
+		}
+
+		public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
+		{
+			if (destinationType == typeof(int))
+				return true;
+			return base.CanConvertTo(context, destinationType);
+		}
+
+		public override object ConvertFrom(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value)
+		{
+			if (value is string)
+			{
+				Dictionary<string, int> values = ((PropertySpecDescriptor)context.PropertyDescriptor).Enumeration;
+				if (values.ContainsKey((string)value))
+					return values[(string)value];
+				else
+					return int.Parse((string)value, culture);
+			}
+			return base.ConvertFrom(context, culture, value);
+		}
+
+		public override object ConvertTo(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value, Type destinationType)
+		{
+			if (destinationType == typeof(string) && value is int)
+			{
+				Dictionary<string, int> values = ((PropertySpecDescriptor)context.PropertyDescriptor).Enumeration;
+				if (values.ContainsValue((int)value))
+					return values.GetKey((int)value);
+				else
+					return ((int)value).ToString(culture);
+			}
+			return base.ConvertTo(context, culture, value, destinationType);
+		}
+
+		public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+		{
+			return new StandardValuesCollection(((PropertySpecDescriptor)context.PropertyDescriptor).Enumeration.Keys);
+		}
+
+		public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
+		{
+			return true;
 		}
 	}
 
@@ -652,59 +663,6 @@ namespace SonicRetro.SonLVL.API
 			public Dictionary<string, int> Enumeration { get { return @enum; } }
 		}
 
-		public class EnumConverter : TypeConverter
-		{
-			public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
-			{
-				if (sourceType == typeof(string))
-					return true;
-				return base.CanConvertFrom(context, sourceType);
-			}
-
-			public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
-			{
-				if (destinationType == typeof(int))
-					return true;
-				return base.CanConvertTo(context, destinationType);
-			}
-
-			public override object ConvertFrom(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value)
-			{
-				if (value is string)
-				{
-					Dictionary<string, int> values = ((PropertySpecDescriptor)context.PropertyDescriptor).Enumeration;
-					if (values.ContainsKey((string)value))
-						return values[(string)value];
-					else
-						return int.Parse((string)value, culture);
-				}
-				return base.ConvertFrom(context, culture, value);
-			}
-
-			public override object ConvertTo(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value, Type destinationType)
-			{
-				if (destinationType == typeof(string) && value is int)
-				{
-					Dictionary<string, int> values = ((PropertySpecDescriptor)context.PropertyDescriptor).Enumeration;
-					if (values.ContainsValue((int)value))
-						return values.GetKey((int)value);
-					else
-						return ((int)value).ToString(culture);
-				}
-				return base.ConvertTo(context, culture, value, destinationType);
-			}
-
-			public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
-			{
-				return new StandardValuesCollection(((PropertySpecDescriptor)context.PropertyDescriptor).Enumeration.Keys);
-			}
-
-			public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
-			{
-				return true;
-			}
-		}
-
 		XMLDef.ObjDef xmldef;
 		Dictionary<string, Sprite> images = new Dictionary<string, Sprite>();
 		Dictionary<string, XMLDef.ImageRef[]> imagesets = new Dictionary<string, XMLDef.ImageRef[]>();
@@ -815,7 +773,7 @@ namespace SonicRetro.SonLVL.API
 					{
 						getMethod = (obj) => (obj.SubType & mask) >> prop_startbit;
 						setMethod = (obj, val) => obj.SubType = (byte)((obj.SubType & ~mask) | (((int)val << prop_startbit) & mask));
-						custprops.Add(new PropertySpec(property.displayname ?? property.name, typeof(int), "Extended", property.description, null, typeof(EnumConverter), enums[property.type], getMethod, setMethod));
+						custprops.Add(new PropertySpec(property.displayname ?? property.name, typeof(int), "Extended", property.description, null, enums[property.type], getMethod, setMethod));
 						propinf.Add(property.name, new PropertyInfo(typeof(int), enums[property.type], getMethod, setMethod));
 					}
 					else
@@ -944,7 +902,7 @@ namespace SonicRetro.SonLVL.API
 							Action<ObjectEntry, object> setMethod = (Action<ObjectEntry, object>)Delegate.CreateDelegate(typeof(Action<ObjectEntry, object>), functype.GetMethod("Set" + property.name));
 							if (enums.ContainsKey(property.type))
 							{
-								custprops.Add(new PropertySpec(property.displayname ?? property.name, typeof(int), "Extended", property.description, null, typeof(EnumConverter), enums[property.type], getMethod, setMethod));
+								custprops.Add(new PropertySpec(property.displayname ?? property.name, typeof(int), "Extended", property.description, null, enums[property.type], getMethod, setMethod));
 								propinf.Add(property.name, new PropertyInfo(typeof(int), enums[property.type], getMethod, setMethod));
 							}
 							else
