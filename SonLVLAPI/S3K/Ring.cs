@@ -163,10 +163,10 @@ namespace SonicRetro.SonLVL.API.S3K
 
 		public override void UpdateSprite()
 		{
-			Sprite = ((RingLayoutFormat)LevelData.RingFormat).GetSprite(this);
-			Bounds = ((RingLayoutFormat)LevelData.RingFormat).GetBounds(this);
-			if (Bounds.IsEmpty)
-				Bounds = Sprite.Bounds;
+			_sprite = ((RingLayoutFormat)LevelData.RingFormat).GetSprite(this);
+			_bounds = ((RingLayoutFormat)LevelData.RingFormat).GetBounds(this);
+			if (_bounds.IsEmpty)
+				_bounds = _sprite.Bounds;
 		}
 	}
 }

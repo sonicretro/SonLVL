@@ -2160,7 +2160,7 @@ namespace SonicRetro.SonLVL.GUI
 					{
 						ent.X -= (ushort)gs;
 						ent.Y += (ushort)gs;
-						ent.UpdateSprite();
+						ent.AdjustSpritePosition(-gs, gs);
 					}
 					DrawLevel();
 					break;
@@ -2170,7 +2170,7 @@ namespace SonicRetro.SonLVL.GUI
 					foreach (Entry ent in SelectedItems)
 					{
 						ent.Y += (ushort)gs;
-						ent.UpdateSprite();
+						ent.AdjustSpritePosition(0, gs);
 					}
 					DrawLevel();
 					break;
@@ -2181,7 +2181,7 @@ namespace SonicRetro.SonLVL.GUI
 					{
 						ent.X += (ushort)gs;
 						ent.Y += (ushort)gs;
-						ent.UpdateSprite();
+						ent.AdjustSpritePosition(gs, gs);
 					}
 					DrawLevel();
 					break;
@@ -2191,7 +2191,7 @@ namespace SonicRetro.SonLVL.GUI
 					foreach (Entry ent in SelectedItems)
 					{
 						ent.X -= (ushort)gs;
-						ent.UpdateSprite();
+						ent.AdjustSpritePosition(-gs, 0);
 					}
 					DrawLevel();
 					break;
@@ -2201,7 +2201,7 @@ namespace SonicRetro.SonLVL.GUI
 					foreach (Entry ent in SelectedItems)
 					{
 						ent.X += (ushort)gs;
-						ent.UpdateSprite();
+						ent.AdjustSpritePosition(gs, 0);
 					}
 					DrawLevel();
 					break;
@@ -2212,7 +2212,7 @@ namespace SonicRetro.SonLVL.GUI
 					{
 						ent.X -= (ushort)gs;
 						ent.Y -= (ushort)gs;
-						ent.UpdateSprite();
+						ent.AdjustSpritePosition(-gs, -gs);
 					}
 					DrawLevel();
 					break;
@@ -2222,7 +2222,7 @@ namespace SonicRetro.SonLVL.GUI
 					foreach (Entry ent in SelectedItems)
 					{
 						ent.Y -= (ushort)gs;
-						ent.UpdateSprite();
+						ent.AdjustSpritePosition(0, -gs);
 					}
 					DrawLevel();
 					break;
@@ -2233,7 +2233,7 @@ namespace SonicRetro.SonLVL.GUI
 					{
 						ent.X += (ushort)gs;
 						ent.Y -= (ushort)gs;
-						ent.UpdateSprite();
+						ent.AdjustSpritePosition(gs, -gs);
 					}
 					DrawLevel();
 					break;
@@ -2621,11 +2621,13 @@ namespace SonicRetro.SonLVL.GUI
 				case MouseButtons.Left:
 					if (objdrag)
 					{
+						int difX = mouse.X - lastmouse.X;
+						int difY = mouse.Y - lastmouse.Y;
 						foreach (Entry item in SelectedItems)
 						{
-							item.X = (ushort)(item.X + (mouse.X - lastmouse.X));
-							item.Y = (ushort)(item.Y + (mouse.Y - lastmouse.Y));
-							item.UpdateSprite();
+							item.X = (ushort)(item.X + difX);
+							item.Y = (ushort)(item.Y + difY);
+							item.AdjustSpritePosition(difX, difY);
 						}
 						redraw = true;
 					}
@@ -2665,12 +2667,15 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			if (objdrag)
 			{
-				double gs = 1 << ObjGrid;
-				foreach (Entry item in SelectedItems)
+				if (ObjGrid > 0)
 				{
-					item.X = (ushort)(Math.Round(item.X / gs, MidpointRounding.AwayFromZero) * gs);
-					item.Y = (ushort)(Math.Round(item.Y / gs, MidpointRounding.AwayFromZero) * gs);
-					item.UpdateSprite();
+					double gs = 1 << ObjGrid;
+					foreach (Entry item in SelectedItems)
+					{
+						item.X = (ushort)(Math.Round(item.X / gs, MidpointRounding.AwayFromZero) * gs);
+						item.Y = (ushort)(Math.Round(item.Y / gs, MidpointRounding.AwayFromZero) * gs);
+						item.UpdateSprite();
+					}
 				}
 				bool moved = false;
 				for (int i = 0; i < SelectedItems.Count; i++)
