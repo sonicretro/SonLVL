@@ -1186,8 +1186,12 @@ namespace SonicRetro.SonLVL.API
 				bounds = new Rectangle(0, 0, xend * Level.ChunkWidth, yend * Level.ChunkHeight);
 			}
 			BitmapBits LevelImg8bpp = new BitmapBits(bounds.Size);
-			for (int y = Math.Max(bounds.Y / Level.ChunkHeight, 0); y <= Math.Min((bounds.Bottom - 1) / Level.ChunkHeight, FGHeight - 1); y++)
-				for (int x = Math.Max(bounds.X / Level.ChunkWidth, 0); x <= Math.Min((bounds.Right - 1) / Level.ChunkWidth, FGWidth - 1); x++)
+			int cl = Math.Max(bounds.X / Level.ChunkWidth, 0);
+			int ct = Math.Max(bounds.Y / Level.ChunkHeight, 0);
+			int cr = Math.Min((bounds.Right - 1) / Level.ChunkWidth, FGWidth - 1);
+			int cb = Math.Min((bounds.Bottom - 1) / Level.ChunkHeight, FGHeight - 1);
+			for (int y = ct; y <= cb; y++)
+				for (int x = cl; x <= cr; x++)
 					if (Layout.FGLayout[x, y] < Chunks.Count)
 					{
 						if ((!includeObjects || objectsAboveHighPlane) && lowPlane && highPlane)
@@ -1228,8 +1232,8 @@ namespace SonicRetro.SonLVL.API
 				foreach (StartPositionEntry item in StartPositions)
 					LevelImg8bpp.DrawSprite(item.Sprite, -bounds.X, -bounds.Y);
 				if (!objectsAboveHighPlane)
-					for (int y = Math.Max(bounds.Y / Level.ChunkHeight, 0); y <= Math.Min(bounds.Bottom / Level.ChunkHeight, Layout.FGLayout.GetLength(1) - 1); y++)
-						for (int x = Math.Max(bounds.X / Level.ChunkWidth, 0); x <= Math.Min(bounds.Right / Level.ChunkWidth, Layout.FGLayout.GetLength(0) - 1); x++)
+					for (int y = ct; y <= cb; y++)
+						for (int x = cl; x <= cr; x++)
 							if (Layout.FGLayout[x, y] < Chunks.Count)
 							{
 								if (highPlane)
@@ -1239,6 +1243,13 @@ namespace SonicRetro.SonLVL.API
 								else if (collisionPath2)
 									LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][1], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
 							}
+				if (includeDebugObjects)
+					for (int oi = 0; oi < Objects.Count; oi++)
+					{
+						ObjectEntry oe = Objects[oi];
+						if (oe.DebugOverlay.HasValue && ObjectVisible(oe, allTimeZones))
+							LevelImg8bpp.DrawSprite(oe.DebugOverlay.Value, -bounds.X, -bounds.Y);
+					}
 			}
 			return LevelImg8bpp;
 		}

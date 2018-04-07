@@ -949,6 +949,9 @@ namespace SonicRetro.SonLVL.API
 			return c;
 		}
 
+		[Browsable(false)]
+		public Sprite? DebugOverlay { get; protected set; }
+
 		public override void UpdateSprite()
 		{
 			ObjectDefinition def = LevelData.GetObjectDefinition(ID);
@@ -956,6 +959,7 @@ namespace SonicRetro.SonLVL.API
 			Bounds = def.GetBounds(this);
 			if (Bounds.IsEmpty)
 				Bounds = Sprite.Bounds;
+			DebugOverlay = def.GetDebugOverlay(this);
 		}
 
 		public override string Name
