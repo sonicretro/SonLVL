@@ -595,7 +595,14 @@ namespace SonicRetro.SonLVL.GUI
 			{
 				Log(initerror.ToString().Split(new string[] { Environment.NewLine }, StringSplitOptions.None));
 				File.WriteAllLines("SonLVL.log", LogFile.ToArray());
-				using (LoadErrorDialog ed = new LoadErrorDialog(true, initerror.GetType().Name + ": " + initerror.Message))
+				string msg = initerror.GetType().Name + ": " + initerror.Message;
+				if (initerror is AggregateException ae)
+				{
+					msg += " =>";
+					foreach (Exception ex in ae.InnerExceptions)
+						msg += Environment.NewLine + ex.GetType().Name + ": " + ex.Message;
+				}
+				using (LoadErrorDialog ed = new LoadErrorDialog(true, msg))
 					ed.ShowDialog(this);
 				Text = "SonLVL - " + LevelData.Game.EngineVersion.ToString();
 				Enabled = true;
