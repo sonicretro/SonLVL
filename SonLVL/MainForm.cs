@@ -133,7 +133,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		internal void Log(params string[] lines)
 		{
-			lock (lines)
+			lock (LogFile)
 			{
 				LogFile.AddRange(lines);
 				if (LogWindow != null)
