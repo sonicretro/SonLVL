@@ -19,15 +19,18 @@ namespace SonicRetro.SonLVL.API
 		public Size Size { get { return new Size(Width, Height); } }
 		public PixelFormat OriginalFormat { get; private set; }
 
-		public int GetPixelIndex(int x, int y)
-		{
-			return (y * Width) + x;
-		}
+		public int GetPixelIndex(int x, int y) => (y * Width) + x;
 
 		public byte this[int x, int y]
 		{
-			get { return Bits[GetPixelIndex(x, y)]; }
-			set { Bits[GetPixelIndex(x, y)] = value; }
+			get => Bits[GetPixelIndex(x, y)];
+			set => Bits[GetPixelIndex(x, y)] = value;
+		}
+
+		public void SafeSetPixel(byte index, int x, int y)
+		{
+			if (x >= 0 && x < Width && y >= 0 && y < Height)
+				this[x, y] = index;
 		}
 
 		public BitmapBits(int width, int height)
@@ -41,10 +44,7 @@ namespace SonicRetro.SonLVL.API
 		public BitmapBits(Size size)
 			: this(size.Width, size.Height) { }
 
-		public BitmapBits(Bitmap bmp)
-		{
-			LoadBitmap(bmp);
-		}
+		public BitmapBits(Bitmap bmp) => LoadBitmap(bmp);
 
 		public BitmapBits(string filename)
 		{
@@ -349,7 +349,7 @@ namespace SonicRetro.SonLVL.API
 			}
 		}
 
-		public void DrawBitmap(BitmapBits source, Point location) { DrawBitmap(source, location.X, location.Y); }
+		public void DrawBitmap(BitmapBits source, Point location) => DrawBitmap(source, location.X, location.Y);
 
 		public void DrawBitmapComposited(BitmapBits source, int x, int y)
 		{
@@ -371,10 +371,7 @@ namespace SonicRetro.SonLVL.API
 						this[x + r, y + c] = source[r, c];
 		}
 
-		public void DrawBitmapComposited(BitmapBits source, Point location)
-		{
-			DrawBitmapComposited(source, location.X, location.Y);
-		}
+		public void DrawBitmapComposited(BitmapBits source, Point location) => DrawBitmapComposited(source, location.X, location.Y);
 
 		public void DrawBitmapBehind(BitmapBits source, int x, int y)
 		{
@@ -396,10 +393,7 @@ namespace SonicRetro.SonLVL.API
 						this[x + r, y + c] = source[r, c];
 		}
 
-		public void DrawBitmapBehind(BitmapBits source, Point location)
-		{
-			DrawBitmapBehind(source, location.X, location.Y);
-		}
+		public void DrawBitmapBehind(BitmapBits source, Point location) => DrawBitmapBehind(source, location.X, location.Y);
 
 		public void DrawBitmapBounded(BitmapBits source, int x, int y)
 		{
@@ -429,7 +423,7 @@ namespace SonicRetro.SonLVL.API
 				Array.Copy(source.Bits, source.GetPixelIndex(srcl, c), Bits, GetPixelIndex(x + srcl, y + c), srcr - srcl);
 		}
 
-		public void DrawBitmapBounded(BitmapBits source, Point location) { DrawBitmapComposited(source, location.X, location.Y); }
+		public void DrawBitmapBounded(BitmapBits source, Point location) => DrawBitmapComposited(source, location.X, location.Y);
 
 		public void Flip(bool XFlip, bool YFlip)
 		{
@@ -498,9 +492,9 @@ namespace SonicRetro.SonLVL.API
 			return res.ToArray();
 		}
 
-		public byte[] ToTile(Point pnt) { return ToTile(pnt.X, pnt.Y); }
+		public byte[] ToTile(Point pnt) => ToTile(pnt.X, pnt.Y);
 
-		public byte[] ToTile() { return ToTile(0, 0); }
+		public byte[] ToTile() => ToTile(0, 0);
 
 		public byte[] ToTileInterlaced(int x, int y)
 		{
@@ -511,9 +505,9 @@ namespace SonicRetro.SonLVL.API
 			return res.ToArray();
 		}
 
-		public byte[] ToTileInterlaced(Point pnt) { return ToTileInterlaced(pnt.X, pnt.Y); }
+		public byte[] ToTileInterlaced(Point pnt) => ToTileInterlaced(pnt.X, pnt.Y);
 
-		public byte[] ToTileInterlaced() { return ToTileInterlaced(0, 0); }
+		public byte[] ToTileInterlaced() => ToTileInterlaced(0, 0);
 
 		public void Rotate(int R)
 		{
@@ -654,15 +648,9 @@ namespace SonicRetro.SonLVL.API
 			for (int x = x1; x <= x2; x++)
 			{
 				if (steep)
-				{
-					if (x >= 0 && x < Height && y >= 0 && y < Width)
-						this[y, x] = index;
-				}
+					SafeSetPixel(index, y, x);
 				else
-				{
-					if (y >= 0 && y < Height && x >= 0 && x < Width)
-						this[x, y] = index;
-				}
+					SafeSetPixel(index, x, y);
 				error += deltaerr;
 				if (error >= 0.5)
 				{
@@ -672,7 +660,7 @@ namespace SonicRetro.SonLVL.API
 			}
 		}
 
-		public void DrawLine(byte index, Point p1, Point p2) { DrawLine(index, p1.X, p1.Y, p2.X, p2.Y); }
+		public void DrawLine(byte index, Point p1, Point p2) => DrawLine(index, p1.X, p1.Y, p2.X, p2.Y);
 
 		public void DrawRectangle(byte index, int x, int y, int width, int height)
 		{
@@ -682,7 +670,7 @@ namespace SonicRetro.SonLVL.API
 			DrawLine(index, x, y + height, x + width, y + height);
 		}
 
-		public void DrawRectangle(byte index, Rectangle rect) { DrawRectangle(index, rect.X, rect.Y, rect.Width, rect.Height); }
+		public void DrawRectangle(byte index, Rectangle rect) => DrawRectangle(index, rect.X, rect.Y, rect.Width, rect.Height);
 
 		public void FillRectangle(byte index, int x, int y, int width, int height)
 		{
@@ -708,9 +696,61 @@ namespace SonicRetro.SonLVL.API
 			}
 		}
 
-		public void FillRectangle(byte index, Point loc, Size size) { FillRectangle(index, loc.X, loc.Y, size.Width, size.Height); }
+		public void FillRectangle(byte index, Point loc, Size size) => FillRectangle(index, loc.X, loc.Y, size.Width, size.Height);
 
-		public void FillRectangle(byte index, Rectangle rect) { FillRectangle(index, rect.X, rect.Y, rect.Width, rect.Height); }
+		public void FillRectangle(byte index, Rectangle rect) => FillRectangle(index, rect.X, rect.Y, rect.Width, rect.Height);
+
+		public void DrawCircle(byte index, int x, int y, int radius)
+		{
+			int cx = -radius, cy = 0, err = 2 - 2 * radius; /* II. Quadrant */
+			do
+			{
+				SafeSetPixel(index, x - cx, y + cy); /*   I. Quadrant */
+				SafeSetPixel(index, x - cy, y - cx); /*  II. Quadrant */
+				SafeSetPixel(index, x + cx, y - cy); /* III. Quadrant */
+				SafeSetPixel(index, x + cy, y + cx); /*  IV. Quadrant */
+				radius = err;
+				if (radius <= cy) err += ++cy * 2 + 1;           /* e_xy+e_y < 0 */
+				if (radius > cx || err > cy) err += ++cx * 2 + 1; /* e_xy+e_x > 0 or no 2nd y-step */
+			} while (cx < 0);
+		}
+
+		public void DrawCircle(byte index, Point loc, int radius) => DrawCircle(index, loc.X, loc.Y, radius);
+
+		public void DrawEllipse(byte index, int x1, int y1, int x2, int y2)
+		{
+			int a = Math.Abs(x2 - x1), b = Math.Abs(y2 - y1), b1 = b & 1; /* values of diameter */
+			long dx = 4 * (1 - a) * b * b, dy = 4 * (b1 + 1) * a * a; /* error increment */
+			long err = dx + dy + b1 * a * a, e2; /* error of 1.step */
+
+			if (x1 > x2) { x1 = x2; x2 += a; } /* if called with swapped points */
+			if (y1 > y2) y1 = y2; /* .. exchange them */
+			y1 += (b + 1) / 2; y2 = y1 - b1;   /* starting pixel */
+			a *= 8 * a; b1 = 8 * b * b;
+
+			do
+			{
+				SafeSetPixel(index, x2, y1); /*   I. Quadrant */
+				SafeSetPixel(index, x1, y1); /*  II. Quadrant */
+				SafeSetPixel(index, x1, y2); /* III. Quadrant */
+				SafeSetPixel(index, x2, y2); /*  IV. Quadrant */
+				e2 = 2 * err;
+				if (e2 <= dy) { y1++; y2--; err += dy += a; }  /* y step */
+				if (e2 >= dx || 2 * err > dy) { x1++; x2--; err += dx += b1; } /* x step */
+			} while (x1 <= x2);
+
+			while (y1 - y2 < b)
+			{  /* too early stop of flat ellipses a=1 */
+				SafeSetPixel(index, x1 - 1, y1); /* -> finish tip of ellipse */
+				SafeSetPixel(index, x2 + 1, y1++);
+				SafeSetPixel(index, x1 - 1, y2);
+				SafeSetPixel(index, x2 + 1, y2--);
+			}
+		}
+
+		public void DrawEllipse(byte index, Point p1, Point p2) => DrawEllipse(index, p1.X, p1.Y, p2.X, p2.Y);
+
+		public void DrawEllipse(byte index, Rectangle rect) => DrawEllipse(index, rect.Left, rect.Top, rect.Right, rect.Bottom);
 
 		public override bool Equals(object obj)
 		{
@@ -721,10 +761,45 @@ namespace SonicRetro.SonLVL.API
 			return Bits.FastArrayEqual(other.Bits);
 		}
 
-		public override int GetHashCode()
+		public void DrawBezier(byte index, int x1, int y1, int x2, int y2, int x3, int y3)
 		{
-			return base.GetHashCode();
+			int sx = x3 - x2, sy = y3 - y2;
+			long xx = x1 - x2, yy = y1 - y2, xy;         /* relative values for checks */
+			double dx, dy, err, cur = xx * sy - yy * sx;                    /* curvature */
+
+			if (xx * sx <= 0 && yy * sy <= 0) throw new ArgumentOutOfRangeException();  /* sign of gradient must not change */
+
+			if (sx * (long)sx + sy * (long)sy > xx * xx + yy * yy)
+			{ /* begin with longer part */
+				x3 = x1; x1 = sx + x2; y3 = y1; y1 = sy + y2; cur = -cur;  /* swap P0 P2 */
+			}
+			if (cur != 0)
+			{                                    /* no straight line */
+				xx += sx; xx *= sx = x1 < x3 ? 1 : -1;           /* x step direction */
+				yy += sy; yy *= sy = y1 < y3 ? 1 : -1;           /* y step direction */
+				xy = 2 * xx * yy; xx *= xx; yy *= yy;          /* differences 2nd degree */
+				if (cur * sx * sy < 0)
+				{                           /* negated curvature? */
+					xx = -xx; yy = -yy; xy = -xy; cur = -cur;
+				}
+				dx = 4.0 * sy * cur * (x2 - x1) + xx - xy;             /* differences 1st degree */
+				dy = 4.0 * sx * cur * (y1 - y2) + yy - xy;
+				xx += xx; yy += yy; err = dx + dy + xy;                /* error 1st step */
+				do
+				{
+					SafeSetPixel(index, x1, y1);                                     /* plot curve */
+					if (x1 == x3 && y1 == y3) return;  /* last pixel -> curve finished */
+					y2 = (2 * err < dx) ? 1 : 0;                  /* save value for test of y step */
+					if (2 * err > dy) { x1 += sx; dx -= xy; err += dy += yy; } /* x step */
+					if (y2 != 0) { y1 += sy; dy -= xy; err += dx += xx; } /* y step */
+				} while (dy < dx);           /* gradient negates -> algorithm fails */
+			}
+			DrawLine(index, x1, y1, x3, y3);                  /* plot remaining part to end */
 		}
+
+		public void DrawBezier(byte index, Point p1, Point p2, Point p3) => DrawBezier(index, p1.X, p1.Y, p2.X, p2.Y, p3.X, p3.Y);
+
+		public override int GetHashCode() => base.GetHashCode();
 
 		public BitmapBits GetSection(int x, int y, int width, int height)
 		{
@@ -734,17 +809,11 @@ namespace SonicRetro.SonLVL.API
 			return result;
 		}
 
-		public BitmapBits GetSection(Rectangle rect) { return GetSection(rect.X, rect.Y, rect.Width, rect.Height); }
+		public BitmapBits GetSection(Rectangle rect) => GetSection(rect.X, rect.Y, rect.Width, rect.Height);
 
-		public void DrawSprite(Sprite sprite, int x, int y)
-		{
-			DrawBitmapComposited(sprite.Image, sprite.X + x, sprite.Y + y);
-		}
+		public void DrawSprite(Sprite sprite, int x, int y) => DrawBitmapComposited(sprite.Image, sprite.X + x, sprite.Y + y);
 
-		public void DrawSprite(Sprite sprite, Point location)
-		{
-			DrawBitmapComposited(sprite.Image, location + new Size(sprite.Offset));
-		}
+		public void DrawSprite(Sprite sprite, Point location) => DrawBitmapComposited(sprite.Image, location + new Size(sprite.Offset));
 
 		public void ReplaceColor(byte old, byte @new)
 		{
@@ -912,7 +981,7 @@ namespace SonicRetro.SonLVL.API
 			}
 		}
 
-		public void FloodFill(byte index, int x, int y) { FloodFill(index, new Point(x, y)); }
+		public void FloodFill(byte index, int x, int y) => FloodFill(index, new Point(x, y));
 
 		public void FloodFill(byte index, Point location)
 		{
@@ -947,7 +1016,7 @@ namespace SonicRetro.SonLVL.API
 			}
 		}
 
-		public static BitmapBits ReadPCX(string filename) { return ReadPCX(filename, out Color[] palette); }
+		public static BitmapBits ReadPCX(string filename) => ReadPCX(filename, out Color[] palette);
 
 		public static BitmapBits ReadPCX(string filename, out Color[] palette)
 		{
@@ -955,7 +1024,7 @@ namespace SonicRetro.SonLVL.API
 				return ReadPCX(fs, out palette);
 		}
 
-		public static BitmapBits ReadPCX(Stream stream) { return ReadPCX(stream, out Color[] palette); }
+		public static BitmapBits ReadPCX(Stream stream) => ReadPCX(stream, out Color[] palette);
 
 		public static BitmapBits ReadPCX(Stream stream, out Color[] palette)
 		{
