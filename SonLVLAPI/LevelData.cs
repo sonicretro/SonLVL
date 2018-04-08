@@ -1217,20 +1217,17 @@ namespace SonicRetro.SonLVL.API
 					}
 			if (includeObjects)
 			{
-				for (int oi = 0; oi < Objects.Count; oi++)
-				{
-					ObjectEntry oe = Objects[oi];
-					if (!(!includeDebugObjects && GetObjectDefinition(oe.ID).Debug) && ObjectVisible(oe, allTimeZones))
-						LevelImg8bpp.DrawSprite(oe.Sprite, -bounds.X, -bounds.Y);
-				}
+				foreach (ObjectEntry item in Objects)
+					if (!(!includeDebugObjects && GetObjectDefinition(item.ID).Debug) && ObjectVisible(item, allTimeZones))
+						LevelImg8bpp.DrawSprite(item.Sprite, -bounds.X, -bounds.Y);
 				if (RingFormat is RingLayoutFormat)
-					for (int ri = 0; ri < Rings.Count; ri++)
-						LevelImg8bpp.DrawSprite(Rings[ri].Sprite, -bounds.X, -bounds.Y);
+					foreach (RingEntry item in Rings)
+						LevelImg8bpp.DrawSprite(item.Sprite, -bounds.X, -bounds.Y);
 				if (Bumpers != null && includeDebugObjects)
 					foreach (CNZBumperEntry item in Bumpers)
 						LevelImg8bpp.DrawSprite(item.Sprite, -bounds.X, -bounds.Y);
-				foreach (StartPositionEntry item in StartPositions)
-					LevelImg8bpp.DrawSprite(item.Sprite, -bounds.X, -bounds.Y);
+				for (int si = StartPositions.Count - 1; si >= 0; si--)
+					LevelImg8bpp.DrawSprite(StartPositions[si].Sprite, -bounds.X, -bounds.Y);
 				if (!objectsAboveHighPlane)
 					for (int y = ct; y <= cb; y++)
 						for (int x = cl; x <= cr; x++)
@@ -1244,12 +1241,9 @@ namespace SonicRetro.SonLVL.API
 									LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][1], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
 							}
 				if (includeDebugObjects)
-					for (int oi = 0; oi < Objects.Count; oi++)
-					{
-						ObjectEntry oe = Objects[oi];
-						if (oe.DebugOverlay.HasValue && ObjectVisible(oe, allTimeZones))
-							LevelImg8bpp.DrawSprite(oe.DebugOverlay.Value, -bounds.X, -bounds.Y);
-					}
+					foreach (ObjectEntry item in Objects)
+						if (item.DebugOverlay.HasValue && ObjectVisible(item, allTimeZones))
+							LevelImg8bpp.DrawSprite(item.DebugOverlay.Value, -bounds.X, -bounds.Y);
 			}
 			return LevelImg8bpp;
 		}
