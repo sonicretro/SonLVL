@@ -123,6 +123,8 @@ namespace SonicRetro.SonLVL.API
 
 		public static void LoadLevel(string levelname, bool loadGraphics)
 		{
+			System.Diagnostics.Stopwatch stopwatch = new System.Diagnostics.Stopwatch();
+			stopwatch.Start();
 			Level = Game.GetLevelInfo(levelname);
 			switch (Level.EngineVersion)
 			{
@@ -378,6 +380,8 @@ namespace SonicRetro.SonLVL.API
 				});
 #endif
 			}
+			stopwatch.Stop();
+			Log($"Level loaded in {stopwatch.Elapsed.TotalSeconds} second(s).");
 		}
 
 		private static void LoadLevelTiles()
