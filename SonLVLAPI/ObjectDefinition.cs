@@ -488,7 +488,7 @@ namespace SonicRetro.SonLVL.API
 
 	public class DefaultObjectDefinition : ObjectDefinition
 	{
-		private Sprite spr;
+		private Sprite[] spr = new Sprite[4];
 		private string name;
 		private bool rememberstate;
 		private byte defsub;
@@ -509,53 +509,59 @@ namespace SonicRetro.SonLVL.API
 					if (data.MapFile != null)
 					{
 						if (data.DPLCFile != null)
-							spr = ObjectHelper.MapDPLCToBmp(artfile, LevelData.ReadFile(data.MapFile, data.MapCompression), data.MapVersion, LevelData.ReadFile(data.DPLCFile, data.DPLCCompression), data.DPLCVersion, data.Frame, data.Palette);
+							spr[0] = ObjectHelper.MapDPLCToBmp(artfile, LevelData.ReadFile(data.MapFile, data.MapCompression), data.MapVersion, LevelData.ReadFile(data.DPLCFile, data.DPLCCompression), data.DPLCVersion, data.Frame, data.Palette);
 						else
-							spr = ObjectHelper.MapToBmp(artfile, LevelData.ReadFile(data.MapFile, data.MapCompression), data.Frame, data.Palette, data.MapVersion);
+							spr[0] = ObjectHelper.MapToBmp(artfile, LevelData.ReadFile(data.MapFile, data.MapCompression), data.Frame, data.Palette, data.MapVersion);
 					}
 					else if (data.MapFileAsm != null)
 					{
 						if (data.MapAsmLabel != null)
 						{
 							if (data.DPLCFileAsm != null)
-								spr = ObjectHelper.MapASMDPLCToBmp(artfile, data.MapFileAsm, data.MapAsmLabel, data.MapVersion, data.DPLCFileAsm, data.DPLCAsmLabel, data.DPLCVersion, data.Palette);
+								spr[0] = ObjectHelper.MapASMDPLCToBmp(artfile, data.MapFileAsm, data.MapAsmLabel, data.MapVersion, data.DPLCFileAsm, data.DPLCAsmLabel, data.DPLCVersion, data.Palette);
 							else
-								spr = ObjectHelper.MapASMToBmp(artfile, data.MapFileAsm, data.MapAsmLabel, data.Palette, data.MapVersion);
+								spr[0] = ObjectHelper.MapASMToBmp(artfile, data.MapFileAsm, data.MapAsmLabel, data.Palette, data.MapVersion);
 						}
 						else
 						{
 							if (data.DPLCFileAsm != null)
-								spr = ObjectHelper.MapASMDPLCToBmp(artfile, data.MapFileAsm, data.MapVersion, data.DPLCFileAsm, data.DPLCVersion, data.Frame, data.Palette);
+								spr[0] = ObjectHelper.MapASMDPLCToBmp(artfile, data.MapFileAsm, data.MapVersion, data.DPLCFileAsm, data.DPLCVersion, data.Frame, data.Palette);
 							else
-								spr = ObjectHelper.MapASMToBmp(artfile, data.MapFileAsm, data.Frame, data.Palette, data.MapVersion);
+								spr[0] = ObjectHelper.MapASMToBmp(artfile, data.MapFileAsm, data.Frame, data.Palette, data.MapVersion);
 						}
 					}
 					else
-						spr = ObjectHelper.UnknownObject;
+						spr[0] = ObjectHelper.UnknownObject;
 					if (data.Offset != Size.Empty)
-						spr.Offset = spr.Offset + data.Offset;
+						spr[0].Offset = spr[0].Offset + data.Offset;
 				}
 				else if (data.Image != null)
 				{
 					BitmapBits img = new BitmapBits(data.Image);
-					spr = new Sprite(img, new Point(data.Offset));
+					spr[0] = new Sprite(img, new Point(data.Offset));
 					debug = true;
 				}
 				else if (data.Sprite > -1)
-					spr = ObjectHelper.GetSprite(data.Sprite);
+					spr[0] = ObjectHelper.GetSprite(data.Sprite);
 				else
 				{
-					spr = ObjectHelper.UnknownObject;
+					spr[0] = ObjectHelper.UnknownObject;
 					debug = true;
 				}
 			}
 			catch (Exception ex)
 			{
 				LevelData.Log("Error loading object definition " + name + ":", ex.ToString());
-				spr = ObjectHelper.UnknownObject;
+				spr[0] = ObjectHelper.UnknownObject;
 				debug = true;
 			}
-			spr = spr.Trim();
+			spr[0] = spr[0].Trim();
+			spr[1] = new Sprite(spr[0]);
+			spr[1].Flip(true, false);
+			spr[2] = new Sprite(spr[0]);
+			spr[2].Flip(false, true);
+			spr[3] = new Sprite(spr[1]);
+			spr[3].Flip(false, true);
 			rememberstate = data.RememberState;
 			defsub = data.DefaultSubtype;
 			debug = debug | data.Debug;
@@ -575,12 +581,11 @@ namespace SonicRetro.SonLVL.API
 
 		public override byte DefaultSubtype { get { return defsub; } }
 
-		public override Sprite Image { get { return spr; } }
+		public override Sprite Image { get { return spr[0]; } }
 
 		public override Sprite GetSprite(ObjectEntry obj)
 		{
-			Sprite sprite = new Sprite(spr);
-			sprite.Flip(obj.XFlip, obj.YFlip);
+			Sprite sprite = spr[(obj.XFlip ? 1 : 0) | (obj.YFlip ? 2 : 0)];
 			sprite.X += obj.X;
 			sprite.Y += obj.Y;
 			return sprite;
@@ -668,7 +673,6 @@ namespace SonicRetro.SonLVL.API
 		XMLDef.ObjDef xmldef;
 		Dictionary<string, Sprite> images = new Dictionary<string, Sprite>();
 		Dictionary<string, XMLDef.ImageRef[]> imagesets = new Dictionary<string, XMLDef.ImageRef[]>();
-		Sprite unkobj;
 		PropertySpec[] customProperties = new PropertySpec[0];
 		Dictionary<string, PropertyInfo> propertyInfo = new Dictionary<string, PropertyInfo>();
 		Dictionary<string, Dictionary<string, int>> enums;
@@ -918,7 +922,6 @@ namespace SonicRetro.SonLVL.API
 				customProperties = custprops.ToArray();
 				propertyInfo = propinf;
 			}
-			unkobj = ObjectHelper.UnknownObject;
 		}
 
 		private Sprite ReadImageSet(XMLDef.ImageRef[] refs)
@@ -997,8 +1000,8 @@ namespace SonicRetro.SonLVL.API
 					else if (item.image != null)
 						return images[item.image];
 					else
-						return unkobj;
-			return unkobj;
+						return ObjectHelper.UnknownObject;
+			return ObjectHelper.UnknownObject;
 		}
 
 		public override string Name
@@ -1054,7 +1057,7 @@ namespace SonicRetro.SonLVL.API
 			else if (xmldef.Image != null)
 				sprite = new Sprite(images[xmldef.Image]);
 			else
-				sprite = new Sprite(unkobj);
+				sprite = ObjectHelper.UnknownObject;
 			sprite.Flip(obj.XFlip, obj.YFlip);
 			sprite.X += obj.X;
 			sprite.Y += obj.Y;
