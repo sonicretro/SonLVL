@@ -1,5 +1,3 @@
-using System.Drawing;
-
 namespace SonicRetro.SonLVL.API
 {
 	public static class ObjectHelper
@@ -102,13 +100,5 @@ namespace SonicRetro.SonLVL.API
 		public static Sprite GetSprite(int index) { return LevelData.Sprites[index]; }
 
 		public static byte[] LevelArt { get { return LevelData.TileArray; } }
-
-		public static int ShiftLeft(int value, int num) { return value << num; }
-
-		public static int ShiftRight(int value, int num) { return value >> num; }
-
-		public static byte SetSubtypeMask(byte subtype, byte value, int mask) { return (byte)((subtype & ~mask) | (value & mask)); }
-
-		public static bool Not(bool value) { return !value; }
 	}
 }
