@@ -76,13 +76,10 @@ namespace SonicRetro.SonLVL
 				foreach (byte b in animation.Frames)
 				{
 					Sprite spr = sprites[b];
-					if (spr.Image != null)
-					{
-						left = Math.Min(spr.Left, left);
-						right = Math.Max(spr.Right, right);
-						top = Math.Min(spr.Top, top);
-						bottom = Math.Max(spr.Bottom, bottom);
-					}
+					left = Math.Min(spr.Left, left);
+					right = Math.Max(spr.Right, right);
+					top = Math.Min(spr.Top, top);
+					bottom = Math.Max(spr.Bottom, bottom);
 				}
 				offset = new Point(left, top);
 				previewPanel.Size = new Size(right - left, bottom - top);
@@ -109,7 +106,7 @@ namespace SonicRetro.SonLVL
 			if (animation == null || gfx == null) return;
 			gfx.Clear(previewPanel.BackColor);
 			Sprite spr = sprites[animation[curframe]];
-			gfx.DrawImage(spr.Image.ToBitmap(palette), spr.X - offset.X, spr.Y - offset.Y, spr.Width, spr.Height);
+			gfx.DrawImage(spr.GetBitmap().ToBitmap(palette), spr.X - offset.X, spr.Y - offset.Y, spr.Width, spr.Height);
 			previewGraphics.DrawImage(bmp, 0, 0, previewPanel.Width, previewPanel.Height);
 		}
 

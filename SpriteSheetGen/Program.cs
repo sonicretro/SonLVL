@@ -145,17 +145,16 @@ namespace SpriteSheetGen
 					//File.AppendAllText("log.txt", "Frame " + i + " empty.\r\n");
 					continue;
 				}
-				Sprite[] spr;
+				Sprite spr;
 				if (dplc != null)
 					spr = LevelData.MapFrameToBmp(art, map[i], dplc[i], spriteInfo.StartPalette);
 				else
 					spr = LevelData.MapFrameToBmp(art, map[i], spriteInfo.StartPalette);
-				BitmapBits sprLow = spr[0].Image;
-				BitmapBits sprHigh = spr[1].Image;
-				BitmapBits sprMerged = new BitmapBits(sprLow);
-				sprMerged.DrawBitmapComposited(sprHigh, 0, 0);
-				int cx = -spr[0].X;
-				int cy = -spr[0].Y;
+				BitmapBits sprLow = spr.GetBitmapLow();
+				BitmapBits sprHigh = spr.GetBitmapHigh();
+				BitmapBits sprMerged = spr.GetBitmap();
+				int cx = -spr.X;
+				int cy = -spr.Y;
 				for (int _x = 0; _x < sprMerged.Width; _x++)
 					for (int _y = 0; _y < sprMerged.Height; _y++)
 						if (sprMerged[_x, _y] != 0)

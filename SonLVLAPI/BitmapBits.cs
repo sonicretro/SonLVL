@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.IO;
+using System.Linq;
 
 namespace SonicRetro.SonLVL.API
 {
@@ -419,11 +420,64 @@ namespace SonicRetro.SonLVL.API
 			int srcr = source.Width;
 			if (srcr > Width - x)
 				srcr = Width - x;
-			for (int c = srct; c < srcb; c++)
-				Array.Copy(source.Bits, source.GetPixelIndex(srcl, c), Bits, GetPixelIndex(x + srcl, y + c), srcr - srcl);
+			if (srcr > srcl)
+				for (int c = srct; c < srcb; c++)
+					Array.Copy(source.Bits, source.GetPixelIndex(srcl, c), Bits, GetPixelIndex(x + srcl, y + c), srcr - srcl);
 		}
 
 		public void DrawBitmapBounded(BitmapBits source, Point location) => DrawBitmapComposited(source, location.X, location.Y);
+
+		public void DrawSprite(Sprite sprite, int x, int y)
+		{
+			foreach (PixelStrip strip in sprite.Strips)
+				DrawStrip(strip, x, y);
+		}
+
+		public void DrawSprite(Sprite sprite, Point location) => DrawSprite(sprite, location.X, location.Y);
+
+		public void DrawSprite(Sprite sprite) => DrawSprite(sprite, 0, 0);
+
+		public void DrawSpriteLow(Sprite sprite, int x, int y)
+		{
+			foreach (PixelStrip strip in sprite.Strips.Where(a => a.Priority == false))
+				DrawStrip(strip, x, y);
+		}
+
+		public void DrawSpriteLow(Sprite sprite, Point location) => DrawSpriteLow(sprite, location.X, location.Y);
+
+		public void DrawSpriteLow(Sprite sprite) => DrawSpriteLow(sprite, 0, 0);
+
+		public void DrawSpriteHigh(Sprite sprite, int x, int y)
+		{
+			foreach (PixelStrip strip in sprite.Strips.Where(a => a.Priority == true))
+				DrawStrip(strip, x, y);
+		}
+
+		public void DrawSpriteHigh(Sprite sprite, Point location) => DrawSpriteHigh(sprite, location.X, location.Y);
+
+		public void DrawSpriteHigh(Sprite sprite) => DrawSpriteHigh(sprite, 0, 0);
+
+		private void DrawStrip(PixelStrip strip, int x, int y)
+		{
+			int sty = strip.Y + y;
+			if (sty < 0 || sty >= Height) return;
+			int stx = strip.X + x;
+			int srcl = 0;
+			if (stx < 0)
+				srcl = -stx;
+			int srcr = strip.Width;
+			if (srcr > Width - stx)
+				srcr = Width - stx;
+			if (srcr > srcl)
+				Array.Copy(strip.Pixels, srcl, Bits, GetPixelIndex(stx + srcl, sty), srcr - srcl);
+		}
+
+		public void ReplaceColor(byte old, byte @new)
+		{
+			for (int i = 0; i < Bits.Length; i++)
+				if (Bits[i] == old)
+					Bits[i] = @new;
+		}
 
 		public void Flip(bool XFlip, bool YFlip)
 		{
@@ -810,17 +864,6 @@ namespace SonicRetro.SonLVL.API
 		}
 
 		public BitmapBits GetSection(Rectangle rect) => GetSection(rect.X, rect.Y, rect.Width, rect.Height);
-
-		public void DrawSprite(Sprite sprite, int x, int y) => DrawBitmapComposited(sprite.Image, sprite.X + x, sprite.Y + y);
-
-		public void DrawSprite(Sprite sprite, Point location) => DrawBitmapComposited(sprite.Image, location + new Size(sprite.Offset));
-
-		public void ReplaceColor(byte old, byte @new)
-		{
-			for (int i = 0; i < Bits.Length; i++)
-				if (Bits[i] == old)
-					Bits[i] = @new;
-		}
 
 		/// <summary>
 		/// Scrolls the image horizontally to the left by <paramref name="amount"/> pixels.

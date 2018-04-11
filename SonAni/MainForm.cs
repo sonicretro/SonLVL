@@ -279,7 +279,7 @@ namespace SonAni
 			animationListBox.Items.AddRange(animations.ConvertAll((a) => a.Name).ToArray());
 			mappingFrameList.Images.Clear();
 			for (int i = 0; i < sprites.Count; i++)
-				using (Bitmap image = sprites[i].Image.ToBitmap(palette))
+				using (Bitmap image = sprites[i].GetBitmap().ToBitmap(palette))
 					mappingFrameList.Images.Add(image.Resize(new Size(mappingFrameList.ImageSize, mappingFrameList.ImageSize)));
 			mappingFrameList.ChangeSize();
 			Text = "SonAni - " + animInfo.DisplayName;
@@ -394,7 +394,7 @@ namespace SonAni
 			if (!loaded || curanim == null) return;
 			previewGraphics.Clear(previewPanel.BackColor);
 			Sprite spr = sprites[curanim[previewFrame]];
-			previewGraphics.DrawImage(spr.Image.ToBitmap(palette), (previewPanel.Width / 2) + spr.X, (previewPanel.Height / 2) + spr.Y, spr.Width, spr.Height);
+			previewGraphics.DrawImage(spr.GetBitmap().ToBitmap(palette), (previewPanel.Width / 2) + spr.X, (previewPanel.Height / 2) + spr.Y, spr.Width, spr.Height);
 		}
 
 		private void previewPanel_Paint(object sender, PaintEventArgs e) { DrawPreview(); }
@@ -513,7 +513,7 @@ namespace SonAni
 							leftover %= 1;
 							gif.SetDelay(delay);
 							BitmapBits image = new BitmapBits(right - left, bottom - top);
-							image.DrawBitmapComposited(sprites[anims[a][i]].Image, sprites[anims[a][i]].X - left, sprites[anims[a][i]].Y - top);
+							image.DrawBitmapComposited(sprites[anims[a][i]].GetBitmap(), sprites[anims[a][i]].X - left, sprites[anims[a][i]].Y - top);
 							gif.AddFrame(image);
 							i += samecnt - 1;
 						}
@@ -550,7 +550,7 @@ namespace SonAni
 							leftover %= 1;
 							gif.SetDelay(delay);
 							BitmapBits image = new BitmapBits(right - left, bottom - top);
-							image.DrawBitmapComposited(sprites[anim[i]].Image, sprites[anim[i]].X - left, sprites[anim[i]].Y - top);
+							image.DrawBitmapComposited(sprites[anim[i]].GetBitmap(), sprites[anim[i]].X - left, sprites[anim[i]].Y - top);
 							gif.AddFrame(image);
 							i += samecnt - 1;
 						}

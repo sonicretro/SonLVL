@@ -1221,18 +1221,33 @@ namespace SonicRetro.SonLVL.API
 					}
 			if (includeObjects)
 			{
-				foreach (ObjectEntry item in Objects)
-					if (!(!includeDebugObjects && GetObjectDefinition(item.ID).Debug) && ObjectVisible(item, allTimeZones))
-						LevelImg8bpp.DrawSprite(item.Sprite, -bounds.X, -bounds.Y);
-				if (RingFormat is RingLayoutFormat)
-					foreach (RingEntry item in Rings)
-						LevelImg8bpp.DrawSprite(item.Sprite, -bounds.X, -bounds.Y);
-				if (Bumpers != null && includeDebugObjects)
-					foreach (CNZBumperEntry item in Bumpers)
-						LevelImg8bpp.DrawSprite(item.Sprite, -bounds.X, -bounds.Y);
-				for (int si = StartPositions.Count - 1; si >= 0; si--)
-					LevelImg8bpp.DrawSprite(StartPositions[si].Sprite, -bounds.X, -bounds.Y);
-				if (!objectsAboveHighPlane)
+				if (objectsAboveHighPlane)
+				{
+					foreach (ObjectEntry item in Objects)
+						if (!(!includeDebugObjects && GetObjectDefinition(item.ID).Debug) && ObjectVisible(item, allTimeZones))
+							LevelImg8bpp.DrawSprite(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
+					if (RingFormat is RingLayoutFormat)
+						foreach (RingEntry item in Rings)
+							LevelImg8bpp.DrawSprite(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
+					if (Bumpers != null && includeDebugObjects)
+						foreach (CNZBumperEntry item in Bumpers)
+							LevelImg8bpp.DrawSprite(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
+					for (int si = StartPositions.Count - 1; si >= 0; si--)
+						LevelImg8bpp.DrawSprite(StartPositions[si].Sprite, StartPositions[si].X - bounds.X, StartPositions[si].Y - bounds.Y);
+				}
+				else
+				{
+					foreach (ObjectEntry item in Objects)
+						if (!(!includeDebugObjects && GetObjectDefinition(item.ID).Debug) && ObjectVisible(item, allTimeZones))
+							LevelImg8bpp.DrawSpriteLow(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
+					if (RingFormat is RingLayoutFormat)
+						foreach (RingEntry item in Rings)
+							LevelImg8bpp.DrawSpriteLow(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
+					if (Bumpers != null && includeDebugObjects)
+						foreach (CNZBumperEntry item in Bumpers)
+							LevelImg8bpp.DrawSpriteLow(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
+					for (int si = StartPositions.Count - 1; si >= 0; si--)
+						LevelImg8bpp.DrawSpriteLow(StartPositions[si].Sprite, StartPositions[si].X - bounds.X, StartPositions[si].Y - bounds.Y);
 					for (int y = ct; y <= cb; y++)
 						for (int x = cl; x <= cr; x++)
 							if (Layout.FGLayout[x, y] < Chunks.Count)
@@ -1244,10 +1259,22 @@ namespace SonicRetro.SonLVL.API
 								else if (collisionPath2)
 									LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][1], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
 							}
+					foreach (ObjectEntry item in Objects)
+						if (!(!includeDebugObjects && GetObjectDefinition(item.ID).Debug) && ObjectVisible(item, allTimeZones))
+							LevelImg8bpp.DrawSpriteHigh(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
+					if (RingFormat is RingLayoutFormat)
+						foreach (RingEntry item in Rings)
+							LevelImg8bpp.DrawSpriteHigh(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
+					if (Bumpers != null && includeDebugObjects)
+						foreach (CNZBumperEntry item in Bumpers)
+							LevelImg8bpp.DrawSpriteHigh(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
+					for (int si = StartPositions.Count - 1; si >= 0; si--)
+						LevelImg8bpp.DrawSpriteHigh(StartPositions[si].Sprite, StartPositions[si].X - bounds.X, StartPositions[si].Y - bounds.Y);
+				}
 				if (includeDebugObjects)
 					foreach (ObjectEntry item in Objects)
-						if (item.DebugOverlay.HasValue && ObjectVisible(item, allTimeZones))
-							LevelImg8bpp.DrawSprite(item.DebugOverlay.Value, -bounds.X, -bounds.Y);
+						if (item.DebugOverlay != null && ObjectVisible(item, allTimeZones))
+							LevelImg8bpp.DrawSprite(item.DebugOverlay, item.X - bounds.X, item.Y - bounds.Y);
 			}
 			return LevelImg8bpp;
 		}
@@ -1939,34 +1966,19 @@ namespace SonicRetro.SonLVL.API
 			return result.ToArray();
 		}
 
-		public static Sprite[] MapFrameToBmp(byte[] art, MappingsFrame map, int startpal)
+		public static Sprite MapFrameToBmp(byte[] art, MappingsFrame map, int startpal)
 		{
 			return MapFrameToBmp(art, map, null, startpal);
 		}
 
-		public static Sprite[] MapFrameToBmp(byte[] art, MappingsFrame map, DPLCFrame dplc, int startpal)
+		public static Sprite MapFrameToBmp(byte[] art, MappingsFrame map, DPLCFrame dplc, int startpal)
 		{
 			if (dplc != null)
 				art = ProcessDPLC(art, dplc);
-			int left = 0;
-			int right = 0;
-			int top = 0;
-			int bottom = 0;
-			for (int i = 0; i < map.TileCount; i++)
-			{
-				left = Math.Min(map[i].X, left);
-				right = Math.Max(map[i].X + (map[i].Width * 8), right);
-				top = Math.Min(map[i].Y, top);
-				bottom = Math.Max(map[i].Y + (map[i].Height * 8), bottom);
-			}
-			Point offset = new Point(left, top);
-			BitmapBits[] img = new BitmapBits[] { new BitmapBits(right - left, bottom - top), new BitmapBits(right - left, bottom - top) };
+			List<Sprite> sprites = new List<Sprite>(map.TileCount);
 			for (int i = map.TileCount - 1; i >= 0; i--)
-			{
-				int pr = map[i].Tile.Priority ? 1 : 0;
-				img[pr].DrawSprite(MapTileToBmp(art, map[i], startpal), -left, -top);
-			}
-			return new Sprite[] { new Sprite(img[0], offset), new Sprite(img[1],offset) };
+				sprites.Add(MapTileToBmp(art, map[i], startpal));
+			return new Sprite(sprites);
 		}
 
 		public static Sprite MapTileToBmp(byte[] art, MappingsTile map, int startpal)
@@ -1986,7 +1998,7 @@ namespace SonicRetro.SonLVL.API
 				}
 			}
 			pcbmp.Flip(map.Tile.XFlip, map.Tile.YFlip);
-			return new Sprite(pcbmp, new Point(map.X, map.Y));
+			return new Sprite(pcbmp, map.Tile.Priority, map.X, map.Y);
 		}
 
 		public static Color PaletteToColor(int line, int index, bool acceptTransparent)

@@ -2,35 +2,73 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 
 namespace SonicRetro.SonLVL.API
 {
-	[Serializable]
-	public struct Sprite
+	public class Sprite
 	{
-		public Point Offset;
-		public BitmapBits Image;
-		public int X { get { return Offset.X; } set { Offset.X = value; } }
-		public int Y { get { return Offset.Y; } set { Offset.Y = value; } }
-		public int Width => Image.Width;
-		public int Height => Image.Height;
-		public Size Size => Image.Size;
-		public int Left => X;
-		public int Top => Y;
-		public int Right => X + Width;
-		public int Bottom => Y + Height;
-		public Rectangle Bounds => new Rectangle(Offset, Size);
+		private List<PixelStrip> strips;
+		public System.Collections.ObjectModel.ReadOnlyCollection<PixelStrip> Strips => new System.Collections.ObjectModel.ReadOnlyCollection<PixelStrip>(strips);
+		private Rectangle bounds;
+		public Rectangle Bounds => bounds;
+		public Point Location => bounds.Location;
+		public Size Size => bounds.Size;
+		public int X => bounds.X;
+		public int Y => bounds.Y;
+		public int Width => bounds.Width;
+		public int Height => bounds.Height;
+		public int Left => bounds.Left;
+		public int Top => bounds.Top;
+		public int Right => bounds.Right;
+		public int Bottom => bounds.Bottom;
 
-		public Sprite(BitmapBits spr, Point off)
+		public Sprite(BitmapBits lowImg, int xoff, int yoff)
 		{
-			Image = spr;
-			Offset = off;
+			strips = new List<PixelStrip>();
+			LoadBitmap(lowImg, false, xoff, yoff);
+			CalculateBounds();
 		}
+
+		public Sprite(BitmapBits lowImg, Point offset)
+			: this(lowImg, offset.X, offset.Y) { }
+
+		public Sprite(BitmapBits lowImg)
+			: this(lowImg, 0, 0) { }
+
+		public Sprite(BitmapBits lowImg, BitmapBits highImg, int xoff, int yoff)
+		{
+			strips = new List<PixelStrip>();
+			LoadBitmap(lowImg, false, xoff, yoff);
+			LoadBitmap(highImg, true, xoff, yoff);
+			CalculateBounds();
+		}
+
+		public Sprite(BitmapBits lowImg, BitmapBits highImg, Point offset)
+			: this(lowImg, highImg, offset.X, offset.Y) { }
+
+		public Sprite(BitmapBits lowImg, BitmapBits highImg)
+			: this(lowImg, highImg, 0, 0) { }
+
+		public Sprite(BitmapBits img, bool priority, int xoff, int yoff)
+		{
+			strips = new List<PixelStrip>();
+			LoadBitmap(img, priority, xoff, yoff);
+			CalculateBounds();
+		}
+
+		public Sprite(BitmapBits img, bool priority, Point offset)
+			: this(img, priority, offset.X, offset.Y) { }
+
+		public Sprite(BitmapBits img, bool priority)
+			: this(img, priority, 0, 0) { }
 
 		public Sprite(Sprite sprite)
 		{
-			Image = new BitmapBits(sprite.Image);
-			Offset = sprite.Offset;
+			strips = new List<PixelStrip>(sprite.strips.Count);
+			foreach (PixelStrip strip in sprite.strips)
+				strips.Add(new PixelStrip(strip));
+			bounds = sprite.bounds;
 		}
 
 		public Sprite(params Sprite[] sprites)
@@ -40,205 +78,204 @@ namespace SonicRetro.SonLVL.API
 
 		public Sprite(IEnumerable<Sprite> sprites)
 		{
-			List<Sprite> sprlst = new List<Sprite>(sprites);
-			int left = 0;
-			int right = 0;
-			int top = 0;
-			int bottom = 0;
+			strips = new List<PixelStrip>();
 			bool first = true;
-			foreach (Sprite spr in sprlst)
-				if (spr.Image != null)
-					if (first)
-					{
-						left = spr.Left;
-						right = spr.Right;
-						top = spr.Top;
-						bottom = spr.Bottom;
-						first = false;
-					}
-					else
-					{
-						left = Math.Min(spr.Left, left);
-						right = Math.Max(spr.Right, right);
-						top = Math.Min(spr.Top, top);
-						bottom = Math.Max(spr.Bottom, bottom);
-					}
-			Offset = new Point(left, top);
-			Image = new BitmapBits(right - left, bottom - top);
-			for (int i = 0; i < sprlst.Count; i++)
-				if (sprlst[i].Image != null)
+			foreach (Sprite spr in sprites)
+				if (first)
 				{
-					bool comp = false;
-					for (int j = 0; j < i; j++)
-						if (sprlst[j].Image != null && sprlst[i].Bounds.IntersectsWith(sprlst[j].Bounds))
+					strips = new List<PixelStrip>(spr.strips.Count);
+					foreach (PixelStrip strip in spr.strips)
+						strips.Add(new PixelStrip(strip));
+					first = false;
+				}
+				else
+				{
+					List<PixelStrip> newstrips = new List<PixelStrip>();
+					foreach (PixelStrip strip in spr.strips)
+					{
+						var overlap = new List<PixelStrip>(strips.Where(a => a.Priority == strip.Priority && a.Y == strip.Y && a.X < strip.X + strip.Width && strip.X < a.X + a.Width));
+						if (overlap.Count > 0)
 						{
-							comp = true;
-							break;
+							foreach (PixelStrip s in overlap)
+								strips.Remove(s);
+							overlap.Add(strip);
+							newstrips.Add(new PixelStrip(overlap));
 						}
-					if (comp)
-						Image.DrawBitmapComposited(sprlst[i].Image, new Point(sprlst[i].X - left, sprlst[i].Y - top));
-					else
-						Image.DrawBitmap(sprlst[i].Image, new Point(sprlst[i].X - left, sprlst[i].Y - top));
+						else
+							newstrips.Add(new PixelStrip(strip));
+					}
+					strips.AddRange(newstrips);
+					strips.Sort();
 				}
+			CalculateBounds();
 		}
 
-		private Rectangle GetUsedRange()
+		private void LoadBitmap(BitmapBits source, bool priority, int xoff, int yoff)
 		{
-			int x;
-			int y;
-			Rectangle result = new Rectangle();
-
-			// get first used pixel at left side
-			for (x = 0; x < Width; x++)
+			int i = 0;
+			for (int y = 0; y < source.Height; y++)
 			{
-				for (y = 0; y < Height; y++)
+				int? starti = null;
+				int startx = 0;
+				for (int x = 0; x < source.Width; x++)
 				{
-					if (Image[x, y] > 0)
-						break;
+					if (source.Bits[i] != 0)
+					{
+						if (!starti.HasValue)
+						{
+							starti = i;
+							startx = x;
+						}
+					}
+					else if (starti.HasValue)
+					{
+						byte[] pix = new byte[i - starti.Value];
+						Array.Copy(source.Bits, starti.Value, pix, 0, pix.Length);
+						strips.Add(new PixelStrip(pix, priority, startx + xoff, y + yoff));
+						starti = null;
+					}
+					i++;
 				}
-				if (y < Height)
-					break;
-			}
-			result.X = x;
-			
-			// get first used pixel at right side
-			for (x = Width - 1; x >= result.X; x--)
-			{
-				for (y = 0; y < Height; y++)
+				if (starti.HasValue)
 				{
-					if (Image[x, y] > 0)
-						break;
+					byte[] pix = new byte[i - starti.Value];
+					Array.Copy(source.Bits, starti.Value, pix, 0, pix.Length);
+					strips.Add(new PixelStrip(pix, priority, startx + xoff, y + yoff));
 				}
-				if (y < Height)
-					break;
 			}
-			result.Width = x + 1 - result.X;
-
-			// get first used pixel at top side
-			for (y = 0; y < Height; y++)
-			{
-				for (x = 0; x < Width; x++)
-				{
-					if (Image[x, y] > 0)
-						break;
-				}
-				if (x < Width)
-					break;
-			}
-			result.Y = y;
-			
-			// get first used pixel at bottom side
-			for (y = Height - 1; y >= result.Y; y--)
-			{
-				for (x = 0; x < Width; x++)
-				{
-					if (Image[x, y] > 0)
-						break;
-				}
-				if (x < Width)
-					break;
-			}
-			result.Height = y + 1 - result.Y;
-			return result;
+			strips.Sort();
 		}
 
-		public Sprite Crop(Rectangle rect)
+		private void CalculateBounds()
 		{
-			if (rect.Width == Width && rect.Height == Height)
-				return this;
-			if (rect.Width == 0 && rect.Height == 0)
-				return new Sprite();	// return empty sprite
-			
-			BitmapBits newimg = new BitmapBits(rect.Width, rect.Height);
-			newimg.DrawBitmapBounded(Image, -rect.X, -rect.Y);
-			return new Sprite(newimg, new Point(X + rect.X, Y + rect.Y));
+			int l = int.MaxValue;
+			int t = int.MaxValue;
+			int r = int.MinValue;
+			int b = int.MinValue;
+			foreach (PixelStrip strip in strips)
+			{
+				l = Math.Min(l, strip.X);
+				t = Math.Min(t, strip.Y);
+				r = Math.Max(r, strip.X + strip.Width);
+				b = Math.Max(b, strip.Y + 1);
+			}
+			bounds = Rectangle.FromLTRB(l, t, r, b);
 		}
 
-		public Sprite Trim()
+		public void Offset(int x, int y)
 		{
-			Rectangle used = GetUsedRange();
-			if (used.Width == 0 || used.Height == 0)
-				return this;	// don't trim fully transparent images (else we won't be able to select them)
-			else
-				return Crop(used);
+			if (x == 0 && y == 0) return;
+			foreach (PixelStrip strip in strips)
+			{
+				strip.X += x;
+				strip.Y += y;
+			}
+		}
+
+		public void Offset(Point pt) => Offset(pt.X, pt.Y);
+
+		public void Offset(Size sz) => Offset(sz.Width, sz.Height);
+
+		public void InvertPriority()
+		{
+			foreach (PixelStrip strip in strips)
+				strip.Priority = !strip.Priority;
+			strips.Sort();
 		}
 
 		public void Flip(bool xflip, bool yflip)
 		{
-			Image.Flip(xflip, yflip);
-			if (xflip) X = -(Width + X);
-			if (yflip) Y = -(Height + Y);
+			if (!xflip && !yflip) return;
+			foreach (PixelStrip strip in strips)
+				strip.Flip(xflip, yflip);
+			bounds.Flip(xflip, yflip);
 		}
 
-		public static Sprite LoadChaotixSprite(string filename) { return LoadChaotixSprite(File.ReadAllBytes(filename), 0); }
-
-		public static Sprite LoadChaotixSprite(byte[] file, int addr)
+		public BitmapBits GetBitmap()
 		{
-			short left = ByteConverter.ToInt16(file, addr);
-			addr += 2;
-			short right = ByteConverter.ToInt16(file, addr);
-			addr += 2;
-			sbyte top = (sbyte)file[addr];
-			addr += 2;
-			sbyte bottom = (sbyte)file[addr];
-			addr += 2;
-			BitmapBits bmp = new BitmapBits(right - left + 1, bottom - top + 1);
-			sbyte y;
-			while (true)
-			{
-				sbyte xl = (sbyte)file[addr++];
-				sbyte xr = (sbyte)file[addr++];
-				if (xl == 0 && xr == 0) break;
-				y = (sbyte)file[addr];
-				addr += 2;
-				Array.Copy(file, addr, bmp.Bits, bmp.GetPixelIndex(xl - left, y - top), xr - xl);
-				addr += xr - xl;
-			}
-			return new Sprite(bmp, new Point(left, top));
+			BitmapBits result = new BitmapBits(Size);
+			result.DrawSprite(this, -X, -Y);
+			return result;
 		}
 
-		public void SaveChaotixSprite(string filename)
+		public BitmapBits GetBitmapLow()
 		{
-			List<byte> result = new List<byte>();
-			int left = Left & ~1;
-			int right = (Right & 1) == 1 ? Right + 1 : Right;
-			result.AddRange(ByteConverter.GetBytes((short)left));
-			result.AddRange(ByteConverter.GetBytes((short)(right - 1)));
-			result.Add((byte)(sbyte)Top);
-			result.Add((byte)0);
-			result.Add((byte)(sbyte)(Bottom - 1));
-			result.Add((byte)0);
-			for (int y = 0; y < Height; y++)
+			BitmapBits result = new BitmapBits(Size);
+			result.DrawSpriteLow(this, -X, -Y);
+			return result;
+		}
+
+		public BitmapBits GetBitmapHigh()
+		{
+			BitmapBits result = new BitmapBits(Size);
+			result.DrawSpriteHigh(this, -X, -Y);
+			return result;
+		}
+	}
+
+	public class PixelStrip : IComparable<PixelStrip>
+	{
+		public byte[] Pixels { get; private set; }
+		public bool Priority { get; set; }
+		public Point Location { get => location; set => location = value; }
+		public int X { get => location.X; set => location.X = value; }
+		public int Y { get => location.Y; set => location.Y = value; }
+		public int Width => Pixels.Length;
+		public Rectangle Bounds => new Rectangle(X, Y, Width, 1);
+
+		private Point location;
+
+		public PixelStrip(byte[] pixels, bool priority, int x, int y)
+		{
+			Pixels = pixels;
+			Priority = priority;
+			location = new Point(x, y);
+		}
+
+		public PixelStrip(byte[] pixels, bool priority, Point location)
+			: this(pixels, priority, location.X, location.Y) { }
+
+		public PixelStrip(PixelStrip source)
+		{
+			Pixels = (byte[])source.Pixels.Clone();
+			Priority = source.Priority;
+			location = source.location;
+		}
+
+		public PixelStrip(params PixelStrip[] strips)
+			: this((IEnumerable<PixelStrip>)strips) { }
+
+		public PixelStrip(IEnumerable<PixelStrip> strips)
+		{
+			Priority = strips.First().Priority;
+			Y = strips.First().Y;
+			if (!strips.All(a => a.Priority == Priority && a.Y == Y)) throw new ArgumentException("All strips must have the same priority and Y position.");
+			X = strips.Min(a => a.X);
+			Pixels = new byte[strips.Max(a => a.X + a.Width) - X];
+			foreach (PixelStrip strip in strips)
+				Array.Copy(strip.Pixels, 0, Pixels, strip.X - X, strip.Width);
+		}
+
+		public void Flip(bool xflip, bool yflip)
+		{
+			if (xflip)
 			{
-				int xl = -1;
-				for (int x = 0; x < Width; x++)
-					if (Image[x, y] != 0)
-					{
-						xl = x;
-						break;
-					}
-				if (xl == -1) continue;
-				int xr = 0;
-				for (int x = Width - 1; x >= xl; x--)
-					if (Image[x, y] != 0)
-					{
-						xr = x + 1;
-						break;
-					}
-				xl &= ~1;
-				if ((xr - xl) % 2 != 0)
-					++xr;
-				result.Add((byte)(sbyte)(xl + left));
-				result.Add((byte)(sbyte)(xr + left));
-				result.Add((byte)(sbyte)(y + Top));
-				result.Add((byte)0);
-				for (int x = xl; x < xr; x++)
-					result.Add((byte)(x < Width ? Image[x, y] : 0));
+				location.X = -(Pixels.Length + location.X);
+				Array.Reverse(Pixels);
 			}
-			result.AddRange(ByteConverter.GetBytes((short)0));
-			if (result.Count % 4 != 0)
-				result.AddRange(new byte[4 - (result.Count % 4)]);
-			File.WriteAllBytes(filename, result.ToArray());
+			if (yflip) location.Y = -location.Y;
+		}
+
+		public int CompareTo(PixelStrip other)
+		{
+			int result = Priority.CompareTo(other.Priority);
+			if (result == 0)
+			{
+				result = Y.CompareTo(other.Y);
+				if (result == 0)
+					result = X.CompareTo(other.X);
+			}
+			return result;
 		}
 	}
 }

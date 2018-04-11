@@ -52,7 +52,7 @@ namespace SonicRetro.SonLVL.API.S2
 				else
 					spr = ObjectHelper.UnknownObject;
 				if (data.Offset != Size.Empty)
-					spr.Offset = spr.Offset + data.Offset;
+					spr.Offset(data.Offset);
 			}
 			else if (data.Image != null)
 			{
@@ -107,19 +107,19 @@ namespace SonicRetro.SonLVL.API.S2
 			List<Sprite> sprs = new List<Sprite>();
 			for (int i = 0; i < rng2.Count; i++)
 			{
+				Sprite tmp = new Sprite(spr);
 				switch (rng2.Direction)
 				{
 					case Direction.Horizontal:
-						sprs.Add(new Sprite(spr.Image, new Point(spr.X + (i * spacing), spr.Y)));
+						tmp.Offset(i * spacing, 0);
 						break;
 					case Direction.Vertical:
-						sprs.Add(new Sprite(spr.Image, new Point(spr.X, spr.Y + (i * spacing))));
+						tmp.Offset(0, i * spacing);
 						break;
 				}
+				sprs.Add(tmp);
 			}
-			Sprite result = new Sprite(sprs.ToArray());
-			result.Offset = new Point(spr.X + rng2.X, spr.Y + rng2.Y);
-			return result;
+			return new Sprite(sprs.ToArray());
 		}
 
 		public override Rectangle GetBounds(RingEntry rng)
@@ -205,7 +205,10 @@ namespace SonicRetro.SonLVL.API.S2
 			_sprite = ((RingLayoutFormat)LevelData.RingFormat).GetSprite(this);
 			_bounds = ((RingLayoutFormat)LevelData.RingFormat).GetBounds(this);
 			if (_bounds.IsEmpty)
+			{
 				_bounds = _sprite.Bounds;
+				_bounds.Offset(X, Y);
+			}
 		}
 
 		public override string Name

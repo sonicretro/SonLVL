@@ -43,7 +43,7 @@ namespace SonicRetro.SonLVL
 				byte value = LevelData.ObjTypes[idSelect.Value].DefaultSubtype;
 				foreach (byte item in LevelData.ObjTypes[idSelect.Value].Subtypes)
 				{
-					imageList1.Images.Add(LevelData.ObjTypes[idSelect.Value].SubtypeImage(item).Image.ToBitmap(LevelData.BmpPal).Resize(imageList1.ImageSize));
+					imageList1.Images.Add(LevelData.ObjTypes[idSelect.Value].SubtypeImage(item).GetBitmap().ToBitmap(LevelData.BmpPal).Resize(imageList1.ImageSize));
 					subtypeList.Items.Add(new ListViewItem(LevelData.ObjTypes[idSelect.Value].SubtypeName(item), imageList1.Images.Count - 1) { Tag = item, Selected = item == value });
 				}
 				subtypeSelect.Value = value;

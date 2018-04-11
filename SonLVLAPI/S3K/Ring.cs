@@ -85,7 +85,7 @@ namespace SonicRetro.SonLVL.API.S3K
 					else
 						spr = ObjectHelper.UnknownObject;
 					if (data.Offset != Size.Empty)
-						spr.Offset = spr.Offset + data.Offset;
+						spr.Offset(data.Offset);
 				}
 				else if (data.Image != null)
 				{
@@ -108,12 +108,12 @@ namespace SonicRetro.SonLVL.API.S3K
 
 		public override Rectangle GetBounds(RingEntry rng)
 		{
-			return new Rectangle(rng.X + spr.Offset.X, rng.Y + spr.Offset.Y, spr.Image.Width, spr.Image.Height);
+			return new Rectangle(rng.X + spr.X, rng.Y + spr.Y, spr.Width, spr.Height);
 		}
 
 		public override Sprite GetSprite(RingEntry rng)
 		{
-			return new Sprite(spr.Image, new Point(rng.X + spr.Offset.X, rng.Y + spr.Offset.Y));
+			return spr;
 		}
 
 		public override Entry CreateRing()
@@ -166,7 +166,10 @@ namespace SonicRetro.SonLVL.API.S3K
 			_sprite = ((RingLayoutFormat)LevelData.RingFormat).GetSprite(this);
 			_bounds = ((RingLayoutFormat)LevelData.RingFormat).GetBounds(this);
 			if (_bounds.IsEmpty)
+			{
 				_bounds = _sprite.Bounds;
+				_bounds.Offset(X, Y);
+			}
 		}
 	}
 }

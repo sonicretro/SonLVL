@@ -108,7 +108,7 @@ namespace SonicRetro.SonLVL.API
 			if (LevelData.ObjTypes != null)
 				foreach (KeyValuePair<byte, ObjectDefinition> item in LevelData.ObjTypes)
 				{
-					imageList1.Images.Add(item.Value.Image.Image.ToBitmap(LevelData.BmpPal).Resize(imageList1.ImageSize));
+					imageList1.Images.Add(item.Value.Image.GetBitmap().ToBitmap(LevelData.BmpPal).Resize(imageList1.ImageSize));
 					listView1.Items.Add(new ListViewItem(item.Value.Name, imageList1.Images.Count - 1) { Tag = item.Key, Selected = item.Key == Value });
 				}
 			listView1.EndUpdate();
@@ -177,7 +177,7 @@ namespace SonicRetro.SonLVL.API
 			if (e.Value == null) return;
 			byte val = (byte)e.Value;
 			if (LevelData.ObjTypes.ContainsKey(val))
-				e.Graphics.DrawImage(LevelData.ObjTypes[val].Image.Image.ToBitmap(LevelData.BmpPal).Resize(e.Bounds.Size), e.Bounds);
+				e.Graphics.DrawImage(LevelData.ObjTypes[val].Image.GetBitmap().ToBitmap(LevelData.BmpPal).Resize(e.Bounds.Size), e.Bounds);
 			else
 				e.Graphics.DrawImage(LevelData.UnknownImg.Resize(e.Bounds.Size), e.Bounds);
 		}

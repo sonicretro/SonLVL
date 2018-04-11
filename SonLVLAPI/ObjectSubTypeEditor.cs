@@ -93,7 +93,7 @@ namespace SonicRetro.SonLVL.API
 			if (LevelData.ObjTypes.ContainsKey(id))
 				foreach (byte item in LevelData.ObjTypes[id].Subtypes)
 				{
-					imageList1.Images.Add(LevelData.ObjTypes[id].SubtypeImage(item).Image.ToBitmap(LevelData.BmpPal).Resize(imageList1.ImageSize));
+					imageList1.Images.Add(LevelData.ObjTypes[id].SubtypeImage(item).GetBitmap().ToBitmap(LevelData.BmpPal).Resize(imageList1.ImageSize));
 					listView1.Items.Add(new ListViewItem(LevelData.ObjTypes[id].SubtypeName(item), imageList1.Images.Count - 1) { Tag = item, Selected = item == value });
 				}
 			listView1.EndUpdate();
@@ -174,7 +174,7 @@ namespace SonicRetro.SonLVL.API
 				sub = (byte)(ushort)e.Value;
 			else
 				sub = (byte)e.Value;
-			e.Graphics.DrawImage(LevelData.ObjTypes[((ObjectEntry)e.Context.Instance).ID].SubtypeImage(sub).Image.ToBitmap(LevelData.BmpPal).Resize(e.Bounds.Size), e.Bounds);
+			e.Graphics.DrawImage(LevelData.ObjTypes[((ObjectEntry)e.Context.Instance).ID].SubtypeImage(sub).GetBitmap().ToBitmap(LevelData.BmpPal).Resize(e.Bounds.Size), e.Bounds);
 		}
 
 		public override bool IsDropDownResizable { get { return true; } }

@@ -100,7 +100,7 @@ namespace SonicRetro.SonLVL.API
 #pragma warning restore CS0618 // Type or member is obsolete
 		[Obsolete("The two-argument version of this function is obsolete. Please change your code to use the single-argument version instead.")]
 		public virtual Rectangle GetBounds(ObjectEntry obj, Point camera) { return Rectangle.Empty; }
-		public virtual Sprite? GetDebugOverlay(ObjectEntry obj) { return null; }
+		public virtual Sprite GetDebugOverlay(ObjectEntry obj) { return null; }
 		public virtual bool Debug { get { return false; } }
 		static readonly PropertySpec[] specs = new PropertySpec[0];
 		public virtual PropertySpec[] CustomProperties => specs;
@@ -533,7 +533,7 @@ namespace SonicRetro.SonLVL.API
 					else
 						spr[0] = ObjectHelper.UnknownObject;
 					if (data.Offset != Size.Empty)
-						spr[0].Offset = spr[0].Offset + data.Offset;
+						spr[0].Offset(data.Offset);
 				}
 				else if (data.Image != null)
 				{
@@ -555,7 +555,6 @@ namespace SonicRetro.SonLVL.API
 				spr[0] = ObjectHelper.UnknownObject;
 				debug = true;
 			}
-			spr[0] = spr[0].Trim();
 			spr[1] = new Sprite(spr[0]);
 			spr[1].Flip(true, false);
 			spr[2] = new Sprite(spr[0]);
@@ -585,10 +584,7 @@ namespace SonicRetro.SonLVL.API
 
 		public override Sprite GetSprite(ObjectEntry obj)
 		{
-			Sprite sprite = spr[(obj.XFlip ? 1 : 0) | (obj.YFlip ? 2 : 0)];
-			sprite.X += obj.X;
-			sprite.Y += obj.Y;
-			return sprite;
+			return spr[(obj.XFlip ? 1 : 0) | (obj.YFlip ? 2 : 0)];
 		}
 
 		public override bool Debug { get { return debug; } }
@@ -728,15 +724,15 @@ namespace SonicRetro.SonLVL.API
 									break;
 							}
 							if (!mapimg.offset.IsEmpty)
-								sprite.Offset = new Point(sprite.X + mapimg.offset.X, sprite.Y + mapimg.offset.Y);
+								sprite.Offset(mapimg.offset.X, mapimg.offset.Y);
 							break;
 						case XMLDef.ImageFromSprite sprimg:
 							sprite = ObjectHelper.GetSprite(sprimg.frame);
 							if (!sprimg.offset.IsEmpty)
-								sprite.Offset = new Point(sprite.X + sprimg.offset.X, sprite.Y + sprimg.offset.Y);
+								sprite.Offset(sprimg.offset.X, sprimg.offset.Y);
 							break;
 					}
-					images.Add(item.id, sprite.Trim());
+					images.Add(item.id, sprite);
 				}
 			if (xmldef.ImageSets != null && xmldef.ImageSets.Items != null)
 				foreach (XMLDef.ImageSet set in xmldef.ImageSets.Items)
@@ -957,8 +953,7 @@ namespace SonicRetro.SonLVL.API
 				yoff = -yoff;
 			Sprite sp = new Sprite(images[img.image]);
 			sp.Flip(xflip, yflip);
-			sp.X += xoff;
-			sp.Y += yoff;
+			sp.Offset(xoff, yoff);
 			return sp;
 		}
 
@@ -1045,8 +1040,6 @@ namespace SonicRetro.SonLVL.API
 						{
 							Sprite spr = new Sprite(images[item.image]);
 							spr.Flip(obj.XFlip, obj.YFlip);
-							spr.X += obj.X;
-							spr.Y += obj.Y;
 							return spr;
 						}
 				}
@@ -1059,8 +1052,6 @@ namespace SonicRetro.SonLVL.API
 			else
 				sprite = ObjectHelper.UnknownObject;
 			sprite.Flip(obj.XFlip, obj.YFlip);
-			sprite.X += obj.X;
-			sprite.Y += obj.Y;
 			return sprite;
 		}
 
@@ -1107,8 +1098,7 @@ namespace SonicRetro.SonLVL.API
 				yoff = -yoff;
 			Sprite sp = new Sprite(images[img.image]);
 			sp.Flip(xflip, yflip);
-			sp.X += xoff + obj.X;
-			sp.Y += yoff + obj.Y;
+			sp.Offset(xoff, yoff);
 			return sp;
 		}
 
@@ -1230,7 +1220,7 @@ namespace SonicRetro.SonLVL.API
 					else
 						spr = ObjectHelper.UnknownObject;
 					if (data.Offset != Size.Empty)
-						spr.Offset = spr.Offset + data.Offset;
+						spr.Offset(data.Offset);
 				}
 				else if (data.Image != null)
 				{
@@ -1248,7 +1238,6 @@ namespace SonicRetro.SonLVL.API
 				spr = ObjectHelper.UnknownObject;
 				debug = true;
 			}
-			spr = spr.Trim();
 		}
 
 		public string Name { get { return name; } }
@@ -1262,7 +1251,7 @@ namespace SonicRetro.SonLVL.API
 
 		public Sprite GetSprite(StartPositionEntry st)
 		{
-			return new Sprite(spr.Image, new Point(st.X + spr.X, st.Y + spr.Y));
+			return spr;
 		}
 
 		public bool Debug { get { return debug; } }

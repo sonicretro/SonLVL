@@ -675,7 +675,7 @@ namespace SonicRetro.SonLVL.GUI
 			objectTypeImages.Images.Clear();
 			foreach (KeyValuePair<byte, ObjectDefinition> item in LevelData.ObjTypes)
 			{
-				Bitmap image = item.Value.Image.Image.ToBitmap(LevelData.BmpPal);
+				Bitmap image = item.Value.Image.GetBitmap().ToBitmap(LevelData.BmpPal);
 				ObjectSelect.imageList1.Images.Add(image.Resize(ObjectSelect.imageList1.ImageSize));
 				ObjectSelect.listView1.Items.Add(new ListViewItem(item.Value.Name, ObjectSelect.imageList1.Images.Count - 1) { Tag = item.Key });
 				objectTypeImages.Images.Add(image.Resize(objectTypeImages.ImageSize));
@@ -1640,7 +1640,7 @@ namespace SonicRetro.SonLVL.GUI
 			ObjectSelect.imageList2.Images.Clear();
 			foreach (byte item in LevelData.ObjTypes[ID].Subtypes)
 			{
-				ObjectSelect.imageList2.Images.Add(LevelData.ObjTypes[ID].SubtypeImage(item).Image.ToBitmap(LevelData.BmpPal).Resize(ObjectSelect.imageList2.ImageSize));
+				ObjectSelect.imageList2.Images.Add(LevelData.ObjTypes[ID].SubtypeImage(item).GetBitmap().ToBitmap(LevelData.BmpPal).Resize(ObjectSelect.imageList2.ImageSize));
 				ObjectSelect.listView2.Items.Add(new ListViewItem(LevelData.ObjTypes[ID].SubtypeName(item), ObjectSelect.imageList2.Images.Count - 1) { Tag = item, Selected = item == LevelData.ObjTypes[ID].DefaultSubtype });
 			}
 		}

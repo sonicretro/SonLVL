@@ -900,10 +900,8 @@ namespace SonicRetro.SonLVL.API
 
 		public abstract void UpdateSprite();
 
-		public virtual void AdjustSpritePosition(int x, int y)
+		public void AdjustSpritePosition(int x, int y)
 		{
-			_sprite.X += x;
-			_sprite.Y += y;
 			_bounds.Offset(x, y);
 		}
 
@@ -954,7 +952,7 @@ namespace SonicRetro.SonLVL.API
 
 		protected bool isLoaded = false;
 		[NonSerialized]
-		private Sprite? _debugOverlay;
+		private Sprite _debugOverlay;
 
 		int IComparable<ObjectEntry>.CompareTo(ObjectEntry other)
 		{
@@ -964,7 +962,7 @@ namespace SonicRetro.SonLVL.API
 		}
 
 		[Browsable(false)]
-		public Sprite? DebugOverlay => _debugOverlay;
+		public Sprite DebugOverlay => _debugOverlay;
 
 		public override void UpdateSprite()
 		{
@@ -972,20 +970,11 @@ namespace SonicRetro.SonLVL.API
 			_sprite = def.GetSprite(this);
 			_bounds = def.GetBounds(this);
 			if (_bounds.IsEmpty)
-				_bounds = _sprite.Bounds;
-			_debugOverlay = def.GetDebugOverlay(this);
-		}
-
-		public override void AdjustSpritePosition(int x, int y)
-		{
-			base.AdjustSpritePosition(x, y);
-			if (_debugOverlay.HasValue)
 			{
-				Sprite tmp = _debugOverlay.Value;
-				tmp.X += x;
-				tmp.Y += y;
-				_debugOverlay = tmp;
+				_bounds = _sprite.Bounds;
+				_bounds.Offset(X, Y);
 			}
+			_debugOverlay = def.GetDebugOverlay(this);
 		}
 
 		public override string Name
@@ -1164,6 +1153,7 @@ namespace SonicRetro.SonLVL.API
 			ObjectEntry obj = new S2.S2ObjectEntry() { X = X, Y = Y };
 			_sprite = LevelData.unkobj.GetSprite(obj);
 			_bounds = _sprite.Bounds;
+			_bounds.Offset(X, Y);
 		}
 
 		public override string Name
@@ -1206,7 +1196,10 @@ namespace SonicRetro.SonLVL.API
 			_sprite = def.GetSprite(this);
 			_bounds = def.GetBounds(this);
 			if (_bounds.IsEmpty)
+			{
 				_bounds = _sprite.Bounds;
+				_bounds.Offset(X, Y);
+			}
 		}
 
 		public override string Name

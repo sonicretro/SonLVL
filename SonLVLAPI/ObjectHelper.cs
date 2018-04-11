@@ -13,7 +13,7 @@ namespace SonicRetro.SonLVL.API
 		{
 			if (version == EngineVersion.Invalid)
 				version = LevelData.Game.MappingsVersion;
-			return new Sprite(LevelData.MapFrameToBmp(artfile, MappingsFrame.Load(mapfile, version)[frame], startpal));
+			return LevelData.MapFrameToBmp(artfile, MappingsFrame.Load(mapfile, version)[frame], startpal);
 		}
 
 		public static Sprite MapASMToBmp(byte[] artfile, string mapfileloc, int frame, int startpal)
@@ -38,7 +38,7 @@ namespace SonicRetro.SonLVL.API
 			if (version == EngineVersion.Invalid)
 				version = LevelData.Game.MappingsVersion;
 			byte[] mapfile = LevelData.ASMToBin(mapfileloc, label, version);
-			return new Sprite(LevelData.MapFrameToBmp(artfile, new MappingsFrame(mapfile, 0, version, string.Empty), startpal));
+			return LevelData.MapFrameToBmp(artfile, new MappingsFrame(mapfile, 0, version, string.Empty), startpal);
 		}
 
 		public static Sprite MapDPLCToBmp(byte[] artfile, byte[] mapfile, byte[] dplc, int frame, int startpal)
@@ -57,7 +57,7 @@ namespace SonicRetro.SonLVL.API
 				mapversion = LevelData.Game.MappingsVersion;
 			if (dplcversion == EngineVersion.Invalid)
 				dplcversion = LevelData.Game.DPLCVersion;
-			return new Sprite(LevelData.MapFrameToBmp(artfile, MappingsFrame.Load(mapfile, mapversion)[frame], DPLCFrame.Load(dplc, dplcversion)[frame], startpal));
+			return LevelData.MapFrameToBmp(artfile, MappingsFrame.Load(mapfile, mapversion)[frame], DPLCFrame.Load(dplc, dplcversion)[frame], startpal);
 		}
 
 		public static Sprite MapASMDPLCToBmp(byte[] artfile, string mapfileloc, string label, string dplcloc, string dplclabel, int startpal)
@@ -73,7 +73,7 @@ namespace SonicRetro.SonLVL.API
 				dplcversion = LevelData.Game.DPLCVersion;
 			byte[] mapfile = LevelData.ASMToBin(mapfileloc, label, mapversion);
 			byte[] dplcfile = LevelData.ASMToBin(dplcloc, dplclabel, dplcversion);
-			return new Sprite(LevelData.MapFrameToBmp(artfile, new MappingsFrame(mapfile, 0, mapversion, string.Empty), new DPLCFrame(dplcfile, 0, dplcversion, string.Empty), startpal));
+			return LevelData.MapFrameToBmp(artfile, new MappingsFrame(mapfile, 0, mapversion, string.Empty), new DPLCFrame(dplcfile, 0, dplcversion, string.Empty), startpal);
 		}
 
 		public static Sprite MapASMDPLCToBmp(byte[] artfile, string mapfileloc, string dplcloc, int frame, int startpal)

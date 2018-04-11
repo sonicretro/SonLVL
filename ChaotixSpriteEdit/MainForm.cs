@@ -34,9 +34,9 @@ namespace ChaotixSpriteEdit
 				using (BinaryReader br = new BinaryReader(fs))
 					for (int i = 0; i < 256; i++)
 						palette.Entries[i] = Color.FromArgb(br.ReadByte(), br.ReadByte(), br.ReadByte());
-			using (System.IO.MemoryStream ms = new System.IO.MemoryStream(Properties.Resources.pencilcur))
+			using (MemoryStream ms = new MemoryStream(Properties.Resources.pencilcur))
 				pencilcur = new Cursor(ms);
-			using (System.IO.MemoryStream ms = new System.IO.MemoryStream(Properties.Resources.fillcur))
+			using (MemoryStream ms = new MemoryStream(Properties.Resources.fillcur))
 				fillcur = new Cursor(ms);
 			spriteImagePanel.Cursor = pencilcur;
 			if (Program.Arguments.Count > 0)
@@ -67,7 +67,7 @@ namespace ChaotixSpriteEdit
 		private void openToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			using (OpenFileDialog dlg = new OpenFileDialog() { DefaultExt = "bin", Filter = "Binary Files|*.bin|All Files|*.*", RestoreDirectory = true })
-				if (dlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+				if (dlg.ShowDialog(this) == DialogResult.OK)
 					LoadSprite(dlg.FileName);
 		}
 
@@ -85,11 +85,11 @@ namespace ChaotixSpriteEdit
 		private void importFromROMToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			using (OpenFileDialog dlg = new OpenFileDialog() { DefaultExt = "bin", Filter = "ROM Files|*.bin;*.32x|All Files|*.*", RestoreDirectory = true })
-				if (dlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+				if (dlg.ShowDialog(this) == DialogResult.OK)
 				{
 					byte[] file = File.ReadAllBytes(dlg.FileName);
 					using (SpriteAddressDialog adlg = new SpriteAddressDialog(file.Length))
-						if (adlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+						if (adlg.ShowDialog(this) == DialogResult.OK)
 						{
 							sprite = Sprite.LoadChaotixSprite(file, adlg.Address);
 							spriteImagePanel.Size = new Size(sprite.Width * 4, sprite.Height * 4);
@@ -108,7 +108,7 @@ namespace ChaotixSpriteEdit
 		private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			using (SaveFileDialog dlg = new SaveFileDialog() { DefaultExt = "bin", Filter = "Binary Files|*.bin|All Files|*.*", RestoreDirectory = true })
-				if (dlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+				if (dlg.ShowDialog(this) == DialogResult.OK)
 				{
 					filename = dlg.FileName;
 					sprite.SaveChaotixSprite(filename);
@@ -140,7 +140,7 @@ namespace ChaotixSpriteEdit
 		private void palettePanel_MouseDown(object sender, MouseEventArgs e)
 		{
 			selectedColor = ((e.Y / 32) * 16) + (e.X / 32);
-			if (e.Button == System.Windows.Forms.MouseButtons.Right)
+			if (e.Button == MouseButtons.Right)
 				paletteContextMenuStrip.Show(palettePanel, e.Location);
 			palettePanel.Invalidate();
 		}
@@ -148,7 +148,7 @@ namespace ChaotixSpriteEdit
 		private void importPaletteToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			using (OpenFileDialog a = new OpenFileDialog() { DefaultExt = "bin", Filter = "32X Palettes|*.bin|Image Files|*.bmp;*.png;*.jpg;*.gif", RestoreDirectory = true })
-				if (a.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+				if (a.ShowDialog(this) == DialogResult.OK)
 				{
 					switch (Path.GetExtension(a.FileName))
 					{
@@ -162,7 +162,7 @@ namespace ChaotixSpriteEdit
 						case ".jpg":
 						case ".gif":
 							using (Bitmap bmp = new Bitmap(a.FileName))
-								if ((bmp.PixelFormat & System.Drawing.Imaging.PixelFormat.Indexed) == System.Drawing.Imaging.PixelFormat.Indexed)
+								if ((bmp.PixelFormat & PixelFormat.Indexed) == PixelFormat.Indexed)
 								{
 									Color[] pal = bmp.Palette.Entries;
 									for (int i = 0; i < pal.Length && selectedColor + i < palette.Entries.Length; i++)
@@ -178,7 +178,7 @@ namespace ChaotixSpriteEdit
 		private void importMDPaletteToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			using (OpenFileDialog a = new OpenFileDialog() { DefaultExt = "bin", Filter = "MD Palettes|*.bin", RestoreDirectory = true })
-				if (a.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+				if (a.ShowDialog(this) == DialogResult.OK)
 				{
 					SonLVLColor[] colors = SonLVLColor.Load(a.FileName, EngineVersion.S1);
 					for (int i = 0; i < colors.Length && selectedColor + i < palette.Entries.Length; i++)
@@ -191,7 +191,7 @@ namespace ChaotixSpriteEdit
 		private void exportPaletteToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			using (SaveFileDialog a = new SaveFileDialog() { DefaultExt = "bin", Filter = "32X Palettes|*.bin", RestoreDirectory = true})
-			if (a.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+			if (a.ShowDialog(this) == DialogResult.OK)
 			{
 				List<byte> fc = new List<byte>(512);
 				for (int i = 0; i < 256; i++)
@@ -203,7 +203,7 @@ namespace ChaotixSpriteEdit
 		private void palettePanel_MouseDoubleClick(object sender, MouseEventArgs e)
 		{
 			using (ColorDialog a = new ColorDialog { AllowFullOpen = true, AnyColor = true, FullOpen = true, Color = palette.Entries[selectedColor] })
-				if (a.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+				if (a.ShowDialog() == DialogResult.OK)
 				{
 					palette.Entries[selectedColor] = a.Color;
 					palettePanel.Invalidate();
@@ -315,7 +315,7 @@ namespace ChaotixSpriteEdit
 		private void importButton_Click(object sender, EventArgs e)
 		{
 			using (OpenFileDialog dlg = new OpenFileDialog() { DefaultExt = "png", Filter = "Image Files|*.png;*.bmp;*.gif;*.jpg", RestoreDirectory = true })
-				if (dlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+				if (dlg.ShowDialog(this) == DialogResult.OK)
 					using (Bitmap bmp = new Bitmap(dlg.FileName))
 					{
 						if ((bmp.PixelFormat & PixelFormat.Indexed) == PixelFormat.Indexed)
@@ -352,7 +352,7 @@ namespace ChaotixSpriteEdit
 		private void exportButton_Click(object sender, EventArgs e)
 		{
 			using (SaveFileDialog dlg = new SaveFileDialog() { DefaultExt = "png", Filter = "PNG Files|*.png", RestoreDirectory = true })
-				if (dlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+				if (dlg.ShowDialog(this) == DialogResult.OK)
 					using (Bitmap bmp = sprite.Image.ToBitmap(palette))
 						bmp.Save(dlg.FileName);
 		}
