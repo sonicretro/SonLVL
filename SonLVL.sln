@@ -33,6 +33,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "S1SSEdit", "S1SSEdit\S1SSEd
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectLayoutMerge", "ObjectLayoutMerge\ObjectLayoutMerge.csproj", "{3FCB3E21-05F9-4E82-A0E0-F91AE8335516}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Object Definitions", "Object Definitions", "{559600F7-C44B-4607-AA42-DA479F69F72E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "S2ObjectDefinitions", "S2Git\S2ObjectDefinitions.csproj", "{5C7E297C-4CE9-47F9-A493-C6F93B1CFB66}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -99,9 +103,16 @@ Global
 		{3FCB3E21-05F9-4E82-A0E0-F91AE8335516}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3FCB3E21-05F9-4E82-A0E0-F91AE8335516}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3FCB3E21-05F9-4E82-A0E0-F91AE8335516}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C7E297C-4CE9-47F9-A493-C6F93B1CFB66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C7E297C-4CE9-47F9-A493-C6F93B1CFB66}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C7E297C-4CE9-47F9-A493-C6F93B1CFB66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C7E297C-4CE9-47F9-A493-C6F93B1CFB66}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5C7E297C-4CE9-47F9-A493-C6F93B1CFB66} = {559600F7-C44B-4607-AA42-DA479F69F72E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CF5BB54B-0FB0-4194-B0CD-FA5F328CD910}
