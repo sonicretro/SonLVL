@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{060A0427-C91D-44B7-98CB-A0129B14ECDD}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>S1ObjectDefinitions</RootNamespace>
+    <AssemblyName>S1ObjectDefinitions</AssemblyName>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\INI Files\Sonic 1 Git INIs\Common\InvisibleBlock.cs">
+      <Link>Common\InvisibleBlock.cs</Link>
+    </Compile>
+    <Compile Include="..\INI Files\Sonic 1 Git INIs\Common\Ring.cs">
+      <Link>Common\Ring.cs</Link>
+    </Compile>
+    <Compile Include="..\INI Files\Sonic 1 Git INIs\GHZ\Bridge.cs">
+      <Link>GHZ\Bridge.cs</Link>
+    </Compile>
+    <Compile Include="..\INI Files\Sonic 1 Git INIs\GHZ\SpikedPole.cs">
+      <Link>GHZ\SpikedPole.cs</Link>
+    </Compile>
+    <Compile Include="..\INI Files\Sonic 1 Git INIs\GHZ\SwingingPlatform.cs">
+      <Link>GHZ\SwingingPlatform.cs</Link>
+    </Compile>
+    <Compile Include="..\INI Files\Sonic 1 Git INIs\LZ\Spikeball.cs">
+      <Link>LZ\Spikeball.cs</Link>
+    </Compile>
+    <Compile Include="..\INI Files\Sonic 1 Git INIs\MZ\SidewaysStomper.cs">
+      <Link>MZ\SidewaysStomper.cs</Link>
+    </Compile>
+    <Compile Include="..\INI Files\Sonic 1 Git INIs\SBZ\Flamethrower.cs">
+      <Link>SBZ\Flamethrower.cs</Link>
+    </Compile>
+    <Compile Include="..\INI Files\Sonic 1 Git INIs\SBZ\SwingingSpikeball.cs">
+      <Link>SBZ\SwingingSpikeball.cs</Link>
+    </Compile>
+    <Compile Include="..\INI Files\Sonic 1 Git INIs\SLZ\SwingingPlatform.cs">
+      <Link>SLZ\SwingingPlatform.cs</Link>
+    </Compile>
+    <Compile Include="..\INI Files\Sonic 1 Git INIs\SYZ\BigSpikedBall.cs">
+      <Link>SYZ\BigSpikedBall.cs</Link>
+    </Compile>
+    <Compile Include="..\INI Files\Sonic 1 Git INIs\SYZ\Block.cs">
+      <Link>SYZ\Block.cs</Link>
+    </Compile>
+    <Compile Include="..\INI Files\Sonic 1 Git INIs\SYZ\SpikeballChain.cs">
+      <Link>SYZ\SpikeballChain.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SonLVLAPI\SonLVL.API.csproj">
+      <Project>{01d2110b-f4e7-4914-8781-8b1c24d888ad}</Project>
+      <Name>SonLVL.API</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
