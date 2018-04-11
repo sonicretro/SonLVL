@@ -71,6 +71,36 @@ namespace SonicRetro.SonLVL.API
 			bounds = sprite.bounds;
 		}
 
+		public Sprite(Sprite sprite, int xoff, int yoff)
+			: this(sprite)
+		{
+			Offset(xoff, yoff);
+		}
+
+		public Sprite(Sprite sprite, Point offset)
+			: this(sprite, offset.X, offset.Y) { }
+
+		public Sprite(Sprite sprite, Size offset)
+			: this(sprite, offset.Width, offset.Height) { }
+
+		public Sprite(Sprite sprite, bool xflip, bool yflip)
+			: this(sprite)
+		{
+			Flip(xflip, yflip);
+		}
+
+		public Sprite(Sprite sprite, int xoff, int yoff, bool xflip, bool yflip)
+			: this(sprite, xoff, yoff)
+		{
+			Flip(xflip, yflip);
+		}
+
+		public Sprite(Sprite sprite, Point offset, bool xflip, bool yflip)
+			: this(sprite, offset.X, offset.Y, xflip, yflip) { }
+
+		public Sprite(Sprite sprite, Size offset, bool xflip, bool yflip)
+			: this(sprite, offset.Width, offset.Height, xflip, yflip) { }
+
 		public Sprite(params Sprite[] sprites)
 			: this((IEnumerable<Sprite>)sprites)
 		{
