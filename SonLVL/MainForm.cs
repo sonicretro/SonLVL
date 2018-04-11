@@ -3510,7 +3510,6 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			if (!loaded) return;
 			BitmapBits bmp = new BitmapBits(LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
-			bmp.Bits.FastFill(0x20);
 			if (lowToolStripMenuItem.Checked && highToolStripMenuItem.Checked)
 				bmp.DrawSprite(LevelData.ChunkSprites[SelectedChunk], 0, 0);
 			else if (lowToolStripMenuItem.Checked)
