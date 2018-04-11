@@ -200,6 +200,7 @@ namespace SonicRetro.SonLVL.API
 				strip.X += x;
 				strip.Y += y;
 			}
+			bounds.Offset(x, y);
 		}
 
 		public void Offset(Point pt) => Offset(pt.X, pt.Y);
