@@ -52,6 +52,8 @@ namespace SonicRetro.SonLVL.API
 		public int Frame;
 		[IniName("pal")]
 		public int Palette;
+		[IniName("pri")]
+		public bool Priority;
 		[IniName("image")]
 		public string Image;
 		[IniName("sprite")]
@@ -555,6 +557,8 @@ namespace SonicRetro.SonLVL.API
 				spr[0] = ObjectHelper.UnknownObject;
 				debug = true;
 			}
+			if (data.Priority)
+				spr[0].InvertPriority();
 			spr[1] = new Sprite(spr[0]);
 			spr[1].Flip(true, false);
 			spr[2] = new Sprite(spr[0]);
@@ -732,6 +736,7 @@ namespace SonicRetro.SonLVL.API
 								sprite.Offset(sprimg.offset.X, sprimg.offset.Y);
 							break;
 					}
+					if (item.priority) sprite.InvertPriority();
 					images.Add(item.id, sprite);
 				}
 			if (xmldef.ImageSets != null && xmldef.ImageSets.Items != null)
