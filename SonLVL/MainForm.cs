@@ -116,7 +116,7 @@ namespace SonicRetro.SonLVL.GUI
 		internal LogWindow LogWindow;
 		internal List<string> LogFile = new List<string>();
 		Dictionary<string, ToolStripMenuItem> levelMenuItems;
-		Dictionary<char, BitmapBits> HUDLetters, HUDNumbers;
+		Dictionary<char, HUDImage> HUDLetters, HUDNumbers;
 		FindObjectsDialog findObjectsDialog;
 		FindChunksDialog findFGChunksDialog;
 		FindChunksDialog findBGChunksDialog;
@@ -217,23 +217,23 @@ namespace SonicRetro.SonLVL.GUI
 			imageTransparency.SetColorMatrix(new ColorMatrix() { Matrix33 = 0.75f }, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
 			PalettePanelGfx = PalettePanel.CreateGraphics();
 			string HUDpath = Path.Combine(Application.StartupPath, "HUD");
-			HUDLetters = new Dictionary<char, BitmapBits>();
+			HUDLetters = new Dictionary<char, HUDImage>();
 			Dictionary<char, string> huditems = IniSerializer.Deserialize<Dictionary<char, string>>(Path.Combine(HUDpath, "HUD.ini"));
 			foreach (KeyValuePair<char, string> item in huditems)
 			{
 				BitmapBits bmp = new BitmapBits(Path.Combine(HUDpath, item.Value + ".png"));
 				if (bmp.OriginalFormat != PixelFormat.Format8bppIndexed)
 					bmp.FixUIColors();
-				HUDLetters.Add(item.Key, bmp);
+				HUDLetters.Add(item.Key, new HUDImage(bmp));
 			}
-			HUDNumbers = new Dictionary<char, BitmapBits>();
+			HUDNumbers = new Dictionary<char, HUDImage>();
 			huditems = IniSerializer.Deserialize<Dictionary<char, string>>(Path.Combine(HUDpath, "HUDnum.ini"));
 			foreach (KeyValuePair<char, string> item in huditems)
 			{
 				BitmapBits bmp = new BitmapBits(Path.Combine(HUDpath, item.Value + ".png"));
 				if (bmp.OriginalFormat != PixelFormat.Format8bppIndexed)
 					bmp.FixUIColors();
-				HUDNumbers.Add(item.Key, bmp);
+				HUDNumbers.Add(item.Key, new HUDImage(bmp));
 			}
 			objectsAboveHighPlaneToolStripMenuItem.Checked = Settings.ObjectsAboveHighPlane;
 			hUDToolStripMenuItem.Checked = Settings.ShowHUD;
@@ -1843,7 +1843,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		public Rectangle DrawHUDStr(int x, int y, string str)
 		{
-			BitmapBits curimg;
+			HUDImage curimg;
 			int curX = x;
 			int curY = y;
 			Rectangle bounds = new Rectangle() { X = x, Y = y };
@@ -1857,7 +1857,7 @@ namespace SonicRetro.SonLVL.GUI
 						curimg = HUDLetters[char.ToUpperInvariant(ch)];
 					else
 						curimg = HUDLetters[' '];
-					LevelImg8bpp.DrawBitmapComposited(curimg, new Point(curX, curY));
+					LevelImg8bpp.DrawSprite(curimg.Image, curX, curY);
 					curX += curimg.Width;
 					maxX = Math.Max(maxX, curX);
 					maxY = Math.Max(maxY, curimg.Height);
@@ -1872,7 +1872,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		public Rectangle DrawHUDNum(int x, int y, string str)
 		{
-			BitmapBits curimg;
+			HUDImage curimg;
 			int curX = x;
 			int curY = y;
 			Rectangle bounds = new Rectangle() { X = x, Y = y };
@@ -1886,7 +1886,7 @@ namespace SonicRetro.SonLVL.GUI
 						curimg = HUDNumbers[char.ToUpperInvariant(ch)];
 					else
 						curimg = HUDNumbers[' '];
-					LevelImg8bpp.DrawBitmapComposited(curimg, new Point(curX, curY));
+					LevelImg8bpp.DrawSprite(curimg.Image, curX, curY);
 					curX += curimg.Width;
 					maxX = Math.Max(maxX, curX);
 					maxY = Math.Max(maxY, curimg.Height);
@@ -1894,6 +1894,7 @@ namespace SonicRetro.SonLVL.GUI
 				curY += maxY;
 				curX = x;
 			}
+			bounds.Width = maxX - x;
 			bounds.Height = curY - y;
 			return bounds;
 		}
@@ -9426,6 +9427,20 @@ namespace SonicRetro.SonLVL.GUI
 			Solidity2 = solidity2;
 			XFlip = xflip;
 			YFlip = yflip;
+		}
+	}
+
+	class HUDImage
+	{
+		public Sprite Image { get; private set; }
+		public int Width { get; private set; }
+		public int Height { get; private set; }
+
+		public HUDImage(BitmapBits image)
+		{
+			Image = new Sprite(image);
+			Width = image.Width;
+			Height = image.Height;
 		}
 	}
 
