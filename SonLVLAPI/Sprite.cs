@@ -90,9 +90,9 @@ namespace SonicRetro.SonLVL.API
 		}
 
 		public Sprite(Sprite sprite, int xoff, int yoff, bool xflip, bool yflip)
-			: this(sprite, xoff, yoff)
+			: this(sprite, xflip, yflip)
 		{
-			Flip(xflip, yflip);
+			Offset(xoff, yoff);
 		}
 
 		public Sprite(Sprite sprite, Point offset, bool xflip, bool yflip)
