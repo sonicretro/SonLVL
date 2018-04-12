@@ -219,7 +219,7 @@ namespace SonicRetro.SonLVL.API
 			if (!xflip && !yflip) return;
 			foreach (PixelStrip strip in strips)
 				strip.Flip(xflip, yflip);
-			bounds.Flip(xflip, yflip);
+			bounds = bounds.Flip(xflip, yflip);
 		}
 
 		public BitmapBits GetBitmap()
