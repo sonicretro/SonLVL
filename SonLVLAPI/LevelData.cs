@@ -116,7 +116,7 @@ namespace SonicRetro.SonLVL.API
 				default:
 					throw new NotImplementedException("Game type " + Game.EngineVersion.ToString() + " is not supported!");
 			}
-			UnknownSprite = new Sprite(new BitmapBits(UnknownImg), new Point(-8, -7));
+			UnknownSprite = new Sprite(new BitmapBits(UnknownImg), true, -8, -7);
 			Log("Game type is " + Game.EngineVersion.ToString() + ".");
 		}
 
@@ -149,7 +149,7 @@ namespace SonicRetro.SonLVL.API
 				default:
 					throw new NotImplementedException("Game type " + Level.EngineVersion.ToString() + " is not supported!");
 			}
-			UnknownSprite = new Sprite(new BitmapBits(UnknownImg), new Point(-8, -7));
+			UnknownSprite = new Sprite(new BitmapBits(UnknownImg), true, -8, -7);
 			Log("Loading " + Level.DisplayName + "...");
 			if ((Level.ChunkWidth & 15) != 0)
 				throw new ArgumentException("Chunk width must be divisible by 16!");
