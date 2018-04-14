@@ -294,7 +294,7 @@ namespace SonicRetro.SonLVL.API
 				location.X = -(Pixels.Length + location.X);
 				Array.Reverse(Pixels);
 			}
-			if (yflip) location.Y = -location.Y;
+			if (yflip) location.Y = -location.Y - 1;
 		}
 
 		public int CompareTo(PixelStrip other)
