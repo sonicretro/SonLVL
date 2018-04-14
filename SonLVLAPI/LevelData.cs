@@ -231,6 +231,9 @@ namespace SonicRetro.SonLVL.API
 				BmpPal.Entries[ColorWhite] = Color.White;
 				BmpPal.Entries[ColorYellow] = Color.Yellow;
 				BmpPal.Entries[ColorBlack] = Color.Black;
+				BmpPal.Entries[ColorWhite | 0x80] = Color.White;
+				BmpPal.Entries[ColorYellow | 0x80] = Color.Yellow;
+				BmpPal.Entries[ColorBlack | 0x80] = Color.Black;
 				if (Level.ExtraColors != null)
 					foreach (PaletteInfo palent in Level.ExtraColors)
 						if (File.Exists(palent.Filename))
@@ -2185,6 +2188,9 @@ namespace SonicRetro.SonLVL.API
 			BmpPal.Entries[ColorWhite] = Color.White;
 			BmpPal.Entries[ColorYellow] = Color.Yellow;
 			BmpPal.Entries[ColorBlack] = Color.Black;
+			BmpPal.Entries[ColorWhite | 0x80] = Color.White;
+			BmpPal.Entries[ColorYellow | 0x80] = Color.Yellow;
+			BmpPal.Entries[ColorBlack | 0x80] = Color.Black;
 			foreach (Bitmap[] item in BlockBmps)
 			{
 				item[0].Palette = BmpPal;

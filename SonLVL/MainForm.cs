@@ -59,6 +59,9 @@ namespace SonicRetro.SonLVL.GUI
 			LevelImgPalette.Entries[LevelData.ColorWhite] = Color.White;
 			LevelImgPalette.Entries[LevelData.ColorYellow] = Color.Yellow;
 			LevelImgPalette.Entries[LevelData.ColorBlack] = Color.Black;
+			LevelImgPalette.Entries[LevelData.ColorWhite | 0x80] = Color.White;
+			LevelImgPalette.Entries[LevelData.ColorYellow | 0x80] = Color.Yellow;
+			LevelImgPalette.Entries[LevelData.ColorBlack | 0x80] = Color.Black;
 			LevelImgPalette.Entries[ColorGrid] = Settings.GridColor;
 			ChunkSelector.Invalidate();
 			DrawChunkPicture();
@@ -756,6 +759,9 @@ namespace SonicRetro.SonLVL.GUI
 					LevelImgPalette.Entries[128] = LevelData.Palette[waterPalette][2, 0].RGBColor;
 					for (int i = 129; i < 192; i++)
 						LevelImgPalette.Entries[i] = LevelData.Palette[waterPalette][(i - 128) / 16, i % 16].RGBColor;
+					LevelImgPalette.Entries[LevelData.ColorWhite | 0x80] = Color.White;
+					LevelImgPalette.Entries[LevelData.ColorYellow | 0x80] = Color.Yellow;
+					LevelImgPalette.Entries[LevelData.ColorBlack | 0x80] = Color.Black;
 				}
 			}
 			else
