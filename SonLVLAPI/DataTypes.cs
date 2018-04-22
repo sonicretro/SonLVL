@@ -974,7 +974,12 @@ namespace SonicRetro.SonLVL.API
 				_bounds = _sprite.Bounds;
 				_bounds.Offset(X, Y);
 			}
-			_debugOverlay = def.GetDebugOverlay(this);
+			UpdateDebugOverlay();
+		}
+
+		public void UpdateDebugOverlay()
+		{
+			_debugOverlay = LevelData.GetObjectDefinition(ID).GetDebugOverlay(this);
 		}
 
 		public override string Name
