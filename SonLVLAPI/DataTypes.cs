@@ -958,6 +958,8 @@ namespace SonicRetro.SonLVL.API
 		{
 			int c = X.CompareTo(other.X);
 			if (c == 0) c = Y.CompareTo(other.Y);
+			if (c == 0) c = ID.CompareTo(other.ID);
+			if (c == 0) c = SubType.CompareTo(other.SubType);
 			return c;
 		}
 
