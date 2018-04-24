@@ -2426,14 +2426,14 @@ namespace SonicRetro.SonLVL.GUI
 
 		private Entry GetEntryAtPoint(Point point)
 		{
-			foreach (ObjectEntry item in LevelData.Objects)
+			foreach (ObjectEntry item in LevelData.Objects.Reverse<ObjectEntry>())
 				if ((!hideDebugObjectsToolStripMenuItem.Checked || !LevelData.GetObjectDefinition(item.ID).Debug) && LevelData.ObjectVisible(item, allToolStripMenuItem.Checked) && item.Bounds.Contains(point))
 					return item;
-			foreach (RingEntry item in LevelData.Rings)
+			foreach (RingEntry item in LevelData.Rings.Reverse<RingEntry>())
 				if (item.Bounds.Contains(point))
 					return item;
 			if (LevelData.Bumpers != null && !hideDebugObjectsToolStripMenuItem.Checked)
-				foreach (CNZBumperEntry item in LevelData.Bumpers)
+				foreach (CNZBumperEntry item in LevelData.Bumpers.Reverse<CNZBumperEntry>())
 					if (item.Bounds.Contains(point))
 						return item;
 			foreach (StartPositionEntry item in LevelData.StartPositions)
