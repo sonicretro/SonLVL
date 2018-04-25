@@ -1192,7 +1192,74 @@ namespace SonicRetro.SonLVL.API
 		{
 			try
 			{
-				if (data.Art != null)
+				if (data.XMLFile != null)
+				{
+					XMLDef.StartPosDef xmldef = XMLDef.StartPosDef.Load(data.XMLFile);
+					if (xmldef.Images != null && xmldef.Images.Length > 0)
+					{
+						List<Sprite> images = new List<Sprite>(xmldef.Images.Length);
+						foreach (XMLDef.Image item in xmldef.Images)
+						{
+							Sprite sprite = null;
+							switch (item)
+							{
+								case XMLDef.ImageFromBitmap bmpimg:
+									sprite = new Sprite(new BitmapBits(bmpimg.filename), bmpimg.offset.ToPoint());
+									break;
+								case XMLDef.ImageFromMappings mapimg:
+									MultiFileIndexer<byte> art = new MultiFileIndexer<byte>();
+									foreach (XMLDef.ArtFile artfile in mapimg.ArtFiles)
+										art.AddFile(new List<byte>(ObjectHelper.OpenArtFile(artfile.filename,
+											artfile.compression == CompressionType.Invalid ? LevelData.Game.ObjectArtCompression : artfile.compression)),
+											artfile.offsetSpecified ? artfile.offset : -1);
+									XMLDef.MapFile map = mapimg.MapFile;
+									switch (map.type)
+									{
+										case XMLDef.MapFileType.Binary:
+											if (string.IsNullOrEmpty(map.dplcfile))
+												sprite = ObjectHelper.MapToBmp(art.ToArray(), File.ReadAllBytes(map.filename),
+													map.frame, map.startpal, map.version);
+											else
+												sprite = ObjectHelper.MapDPLCToBmp(art.ToArray(), File.ReadAllBytes(map.filename),
+													File.ReadAllBytes(map.dplcfile), map.frame, map.startpal, map.version);
+											break;
+										case XMLDef.MapFileType.ASM:
+											if (string.IsNullOrEmpty(map.label))
+											{
+												if (string.IsNullOrEmpty(map.dplcfile))
+													sprite = ObjectHelper.MapASMToBmp(art.ToArray(), map.filename,
+														map.frame, map.startpal, map.version);
+												else
+													sprite = ObjectHelper.MapASMDPLCToBmp(art.ToArray(), map.filename, map.version,
+														map.dplcfile, map.dplcver, map.frame, map.startpal);
+											}
+											else
+											{
+												if (string.IsNullOrEmpty(map.dplcfile))
+													sprite = ObjectHelper.MapASMToBmp(art.ToArray(), map.filename,
+														map.label, map.startpal, map.version);
+												else
+													sprite = ObjectHelper.MapASMDPLCToBmp(art.ToArray(), map.filename, map.label, map.version,
+														map.dplcfile, map.dplclabel, map.dplcver, map.startpal);
+											}
+											break;
+									}
+									if (!mapimg.offset.IsEmpty)
+										sprite.Offset(mapimg.offset.X, mapimg.offset.Y);
+									break;
+								case XMLDef.ImageFromSprite sprimg:
+									sprite = ObjectHelper.GetSprite(sprimg.frame);
+									if (!sprimg.offset.IsEmpty)
+										sprite.Offset(sprimg.offset.X, sprimg.offset.Y);
+									break;
+							}
+							if (item.priority) sprite.InvertPriority();
+							images.Add(sprite);
+						}
+						spr = new Sprite(images);
+					}
+				}
+				else if (data.Art != null)
 				{
 					MultiFileIndexer<byte> art = new MultiFileIndexer<byte>();
 					foreach (FileInfo file in data.Art)

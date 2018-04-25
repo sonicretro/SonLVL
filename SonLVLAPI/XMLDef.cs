@@ -4,7 +4,7 @@ using System.Xml.Serialization;
 
 namespace SonicRetro.SonLVL.API.XMLDef
 {
-	[XmlRoot(Namespace="http://www.sonicretro.org")]
+	[XmlRoot(Namespace = "http://www.sonicretro.org")]
 	public class ObjDef
 	{
 		[XmlAttribute]
@@ -39,24 +39,69 @@ namespace SonicRetro.SonLVL.API.XMLDef
 		public EnumList Enums { get; set; }
 		public Display Display { get; set; }
 
+		static readonly XmlSerializer xs = new XmlSerializer(typeof(ObjDef));
+
 		public static ObjDef Load(string filename)
 		{
-			XmlSerializer xs = new XmlSerializer(typeof(ObjDef));
-			XmlTextReader xtr = new XmlTextReader(filename);
-			ObjDef result = (ObjDef)xs.Deserialize(xtr);
-			xtr.Close();
-			return result;
+			using (XmlTextReader xtr = new XmlTextReader(filename))
+				return (ObjDef)xs.Deserialize(xtr);
 		}
 
 		public void Save(string filename)
 		{
-			XmlSerializer xs = new XmlSerializer(typeof(ObjDef));
-			System.IO.StreamWriter sw = new System.IO.StreamWriter(filename);
-			XmlTextWriter xtr = new XmlTextWriter(sw) { Formatting = Formatting.Indented };
-			xs.Serialize(xtr, this);
-			xtr.Close();
-			sw.Close();
+			using (System.IO.StreamWriter sw = new System.IO.StreamWriter(filename))
+			using (XmlTextWriter xtr = new XmlTextWriter(sw) { Formatting = Formatting.Indented })
+				xs.Serialize(xtr, this);
 		}
+	}
+
+	public class ImageList
+	{
+		[XmlElement("ImageFromMappings", typeof(ImageFromMappings))]
+		[XmlElement("ImageFromBitmap", typeof(ImageFromBitmap))]
+		[XmlElement("ImageFromSprite", typeof(ImageFromSprite))]
+		public Image[] Items { get; set; }
+	}
+
+	public abstract class Image
+	{
+		[XmlAttribute]
+		public string id { get; set; }
+		[XmlAttribute]
+		public bool priority { get; set; }
+		public XmlPoint offset { get; set; }
+		[XmlIgnore]
+		public bool offsetSpecified { get { return !offset.IsEmpty; } set { } }
+	}
+
+	public struct XmlPoint
+	{
+		[XmlAttribute]
+		public int X { get; set; }
+		[XmlIgnore]
+		public bool XSpecified { get { return X != 0; } set { } }
+		[XmlAttribute]
+		public int Y { get; set; }
+		[XmlIgnore]
+		public bool YSpecified { get { return Y != 0; } set { } }
+
+		public XmlPoint(int x, int y)
+			: this()
+		{
+			X = x;
+			Y = y;
+		}
+
+		public bool IsEmpty { get { return X == 0 & Y == 0; } }
+
+		public System.Drawing.Point ToPoint() { return new System.Drawing.Point(X, Y); }
+	}
+
+	public class ImageFromMappings : Image
+	{
+		[XmlElement("ArtFile")]
+		public ArtFile[] ArtFiles { get; set; }
+		public MapFile MapFile { get; set; }
 	}
 
 	public class ArtFile
@@ -113,55 +158,6 @@ namespace SonicRetro.SonLVL.API.XMLDef
 		ASM
 	}
 
-	public class ImageList
-	{
-		[XmlElement("ImageFromMappings", typeof(ImageFromMappings))]
-		[XmlElement("ImageFromBitmap", typeof(ImageFromBitmap))]
-		[XmlElement("ImageFromSprite", typeof(ImageFromSprite))]
-		public Image[] Items { get; set; }
-	}
-
-	public abstract class Image
-	{
-		[XmlAttribute]
-		public string id { get; set; }
-		[XmlAttribute]
-		public bool priority { get; set; }
-		public XmlPoint offset { get; set; }
-		[XmlIgnore]
-		public bool offsetSpecified { get { return !offset.IsEmpty; } set { } }
-	}
-
-	public struct XmlPoint
-	{
-		[XmlAttribute]
-		public int X { get; set; }
-		[XmlIgnore]
-		public bool XSpecified { get { return X != 0; } set { } }
-		[XmlAttribute]
-		public int Y { get; set; }
-		[XmlIgnore]
-		public bool YSpecified { get { return Y != 0; } set { } }
-
-		public XmlPoint(int x, int y)
-			: this()
-		{
-			X = x;
-			Y = y;
-		}
-
-		public bool IsEmpty { get { return X == 0 & Y == 0; } }
-
-		public System.Drawing.Point ToPoint() { return new System.Drawing.Point(X, Y); }
-	}
-
-	public class ImageFromMappings : Image
-	{
-		[XmlElement("ArtFile")]
-		public ArtFile[] ArtFiles { get; set; }
-		public MapFile MapFile { get; set; }
-	}
-
 	public class ImageFromBitmap : Image
 	{
 		[XmlAttribute]
@@ -186,6 +182,31 @@ namespace SonicRetro.SonLVL.API.XMLDef
 		public string id { get; set; }
 		[XmlElement("ImageRef")]
 		public ImageRef[] Images { get; set; }
+	}
+
+	public class ImageRef
+	{
+		[XmlAttribute]
+		public string image { get; set; }
+		public XmlPoint Offset { get; set; }
+		[XmlIgnore]
+		public bool OffsetSpecified { get { return !Offset.IsEmpty; } set { } }
+		[XmlAttribute]
+		public FlipType xflip { get; set; }
+		[XmlIgnore]
+		public bool xflipSpecified { get { return xflip != FlipType.NormalFlip; } set { } }
+		[XmlAttribute]
+		public FlipType yflip { get; set; }
+		[XmlIgnore]
+		public bool yflipSpecified { get { return yflip != FlipType.NormalFlip; } set { } }
+	}
+
+	public enum FlipType
+	{
+		NormalFlip,
+		ReverseFlip,
+		NeverFlip,
+		AlwaysFlip
 	}
 
 	public class SubtypeList
@@ -295,31 +316,6 @@ namespace SonicRetro.SonLVL.API.XMLDef
 		public string set { get; set; }
 	}
 
-	public class ImageRef
-	{
-		[XmlAttribute]
-		public string image { get; set; }
-		public XmlPoint Offset { get; set; }
-		[XmlIgnore]
-		public bool OffsetSpecified { get { return !Offset.IsEmpty; } set { } }
-		[XmlAttribute]
-		public FlipType xflip { get; set; }
-		[XmlIgnore]
-		public bool xflipSpecified { get { return xflip != FlipType.NormalFlip; } set { } }
-		[XmlAttribute]
-		public FlipType yflip { get; set; }
-		[XmlIgnore]
-		public bool yflipSpecified { get { return yflip != FlipType.NormalFlip; } set { } }
-	}
-
-	public enum FlipType
-	{
-		NormalFlip,
-		ReverseFlip,
-		NeverFlip,
-		AlwaysFlip
-	}
-
 	public class Line
 	{
 		[XmlAttribute]
@@ -339,5 +335,30 @@ namespace SonicRetro.SonLVL.API.XMLDef
 		[XmlElement("ImageSetRef", typeof(ImageSetRef))]
 		[XmlElement("ImageRef", typeof(ImageRef))]
 		public object[] Images { get; set; }
+	}
+
+
+	[XmlRoot(Namespace = "http://www.sonicretro.org")]
+	public class StartPosDef
+	{
+		[XmlElement("ImageFromMappings", typeof(ImageFromMappings))]
+		[XmlElement("ImageFromBitmap", typeof(ImageFromBitmap))]
+		[XmlElement("ImageFromSprite", typeof(ImageFromSprite))]
+		public Image[] Images { get; set; }
+
+		static readonly XmlSerializer xs = new XmlSerializer(typeof(StartPosDef));
+
+		public static StartPosDef Load(string filename)
+		{
+			using (XmlTextReader xtr = new XmlTextReader(filename))
+				return (StartPosDef)xs.Deserialize(xtr);
+		}
+
+		public void Save(string filename)
+		{
+			using (System.IO.StreamWriter sw = new System.IO.StreamWriter(filename))
+			using (XmlTextWriter xtr = new XmlTextWriter(sw) { Formatting = Formatting.Indented })
+				xs.Serialize(xtr, this);
+		}
 	}
 }
