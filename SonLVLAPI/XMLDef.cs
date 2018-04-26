@@ -69,9 +69,9 @@ namespace SonicRetro.SonLVL.API.XMLDef
 		public string id { get; set; }
 		[XmlAttribute]
 		public bool priority { get; set; }
-		public XmlPoint offset { get; set; }
+		public XmlPoint Offset { get; set; }
 		[XmlIgnore]
-		public bool offsetSpecified { get { return !offset.IsEmpty; } set { } }
+		public bool OffsetSpecified { get { return !Offset.IsEmpty; } set { } }
 	}
 
 	public struct XmlPoint

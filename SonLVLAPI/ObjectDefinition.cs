@@ -687,7 +687,7 @@ namespace SonicRetro.SonLVL.API
 					switch (item)
 					{
 						case XMLDef.ImageFromBitmap bmpimg:
-							sprite = new Sprite(new BitmapBits(bmpimg.filename), bmpimg.offset.ToPoint());
+							sprite = new Sprite(new BitmapBits(bmpimg.filename), bmpimg.Offset.ToPoint());
 							break;
 						case XMLDef.ImageFromMappings mapimg:
 							MultiFileIndexer<byte> art = new MultiFileIndexer<byte>();
@@ -727,13 +727,13 @@ namespace SonicRetro.SonLVL.API
 									}
 									break;
 							}
-							if (!mapimg.offset.IsEmpty)
-								sprite.Offset(mapimg.offset.X, mapimg.offset.Y);
+							if (!mapimg.Offset.IsEmpty)
+								sprite.Offset(mapimg.Offset.X, mapimg.Offset.Y);
 							break;
 						case XMLDef.ImageFromSprite sprimg:
 							sprite = ObjectHelper.GetSprite(sprimg.frame);
-							if (!sprimg.offset.IsEmpty)
-								sprite.Offset(sprimg.offset.X, sprimg.offset.Y);
+							if (!sprimg.Offset.IsEmpty)
+								sprite.Offset(sprimg.Offset.X, sprimg.Offset.Y);
 							break;
 					}
 					if (item.priority) sprite.InvertPriority();
@@ -1204,7 +1204,7 @@ namespace SonicRetro.SonLVL.API
 							switch (item)
 							{
 								case XMLDef.ImageFromBitmap bmpimg:
-									sprite = new Sprite(new BitmapBits(bmpimg.filename), bmpimg.offset.ToPoint());
+									sprite = new Sprite(new BitmapBits(bmpimg.filename), bmpimg.Offset.ToPoint());
 									break;
 								case XMLDef.ImageFromMappings mapimg:
 									MultiFileIndexer<byte> art = new MultiFileIndexer<byte>();
@@ -1244,13 +1244,13 @@ namespace SonicRetro.SonLVL.API
 											}
 											break;
 									}
-									if (!mapimg.offset.IsEmpty)
-										sprite.Offset(mapimg.offset.X, mapimg.offset.Y);
+									if (!mapimg.Offset.IsEmpty)
+										sprite.Offset(mapimg.Offset.X, mapimg.Offset.Y);
 									break;
 								case XMLDef.ImageFromSprite sprimg:
 									sprite = ObjectHelper.GetSprite(sprimg.frame);
-									if (!sprimg.offset.IsEmpty)
-										sprite.Offset(sprimg.offset.X, sprimg.offset.Y);
+									if (!sprimg.Offset.IsEmpty)
+										sprite.Offset(sprimg.Offset.X, sprimg.Offset.Y);
 									break;
 							}
 							if (item.priority) sprite.InvertPriority();
