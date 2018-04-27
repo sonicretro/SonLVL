@@ -1987,7 +1987,7 @@ namespace SonicRetro.SonLVL.API
 			bool extrapal = startpal >= 4;
 			startpal = (startpal & 3) + (priority ? 4 : 0);
 			startpal += map.Tile.Palette + (map.Tile.Priority ? 4 : 0);
-			priority = startpal >= 4;
+			priority = (startpal & 4) == 4;
 			startpal &= 3;
 			if (extrapal) startpal += 4;
 			int ti = 0;
