@@ -184,24 +184,40 @@ namespace SonicRetro.SonLVL.API
 
 		public PatternIndex() { }
 
-		public PatternIndex(byte[] file, int address)
+		public PatternIndex(ushort data)
 		{
-			ushort val = ByteConverter.ToUInt16(file, address);
-			Priority = (val & 0x8000) == 0x8000;
-			Palette = (byte)((val >> 13) & 0x3);
-			YFlip = (val & 0x1000) == 0x1000;
-			XFlip = (val & 0x800) == 0x800;
-			_ind = (ushort)(val & 0x7FF);
+			Priority = (data & 0x8000) == 0x8000;
+			Palette = (byte)((data >> 13) & 0x3);
+			YFlip = (data & 0x1000) == 0x1000;
+			XFlip = (data & 0x800) == 0x800;
+			_ind = (ushort)(data & 0x7FF);
 		}
 
-		public byte[] GetBytes()
+		public PatternIndex(byte[] file, int address)
+		: this(ByteConverter.ToUInt16(file, address)) { }
+
+		public PatternIndex(ushort tile, bool yflip, bool xflip, byte pal, bool pri)
+		{
+			Tile = tile;
+			YFlip = yflip;
+			XFlip = xflip;
+			Palette = pal;
+			Priority = pri;
+		}
+
+		public ushort GetUShort()
 		{
 			ushort val = _ind;
 			if (XFlip) val |= 0x800;
 			if (YFlip) val |= 0x1000;
 			val |= (ushort)(Palette << 13);
 			if (Priority) val |= 0x8000;
-			return ByteConverter.GetBytes(val);
+			return val;
+		}
+
+		public byte[] GetBytes()
+		{
+			return ByteConverter.GetBytes(GetUShort());
 		}
 
 		public override bool Equals(object obj)
@@ -233,6 +249,11 @@ namespace SonicRetro.SonLVL.API
 			if (object.ReferenceEquals(a, null))
 				return !object.ReferenceEquals(b, null);
 			return !a.Equals(b);
+		}
+
+		public static PatternIndex operator +(PatternIndex a, PatternIndex b)
+		{
+			return new PatternIndex((ushort)(a.GetUShort() + b.GetUShort()));
 		}
 
 		public PatternIndex Clone()

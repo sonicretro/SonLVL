@@ -1966,39 +1966,39 @@ namespace SonicRetro.SonLVL.API
 			return result.ToArray();
 		}
 
-		public static Sprite MapFrameToBmp(byte[] art, MappingsFrame map, int startpal)
+		public static Sprite MapFrameToBmp(byte[] art, MappingsFrame map, int startpal, bool priority = false)
 		{
-			return MapFrameToBmp(art, map, null, startpal);
+			return MapFrameToBmp(art, map, null, startpal, priority);
 		}
 
-		public static Sprite MapFrameToBmp(byte[] art, MappingsFrame map, DPLCFrame dplc, int startpal)
+		public static Sprite MapFrameToBmp(byte[] art, MappingsFrame map, DPLCFrame dplc, int startpal, bool priority = false)
 		{
 			if (dplc != null)
 				art = ProcessDPLC(art, dplc);
 			List<Sprite> sprites = new List<Sprite>(map.TileCount);
 			for (int i = map.TileCount - 1; i >= 0; i--)
-				sprites.Add(MapTileToBmp(art, map[i], startpal));
+				sprites.Add(MapTileToBmp(art, map[i], startpal, priority));
 			return new Sprite(sprites);
 		}
 
-		public static Sprite MapTileToBmp(byte[] art, MappingsTile map, int startpal)
+		public static Sprite MapTileToBmp(byte[] art, MappingsTile map, int startpal, bool priority = false)
 		{
 			BitmapBits pcbmp = new BitmapBits(map.Width * 8, map.Height * 8);
+			bool extrapal = startpal >= 4;
+			startpal = (startpal & 3) + (priority ? 4 : 0);
+			startpal += map.Tile.Palette + (map.Tile.Priority ? 4 : 0);
+			priority = startpal >= 4;
+			startpal &= 3;
+			if (extrapal) startpal += 4;
 			int ti = 0;
-			if (startpal >= 4)
-				startpal = ((map.Tile.Palette + startpal) & 3) + 4;
-			else
-				startpal = (map.Tile.Palette + startpal) & 3;
 			for (int x = 0; x < map.Width; x++)
-			{
 				for (int y = 0; y < map.Height; y++)
 				{
 					pcbmp.DrawBitmap(TileToBmp8bpp(art, map.Tile.Tile + ti, startpal), x * 8, y * 8);
 					ti++;
 				}
-			}
 			pcbmp.Flip(map.Tile.XFlip, map.Tile.YFlip);
-			return new Sprite(pcbmp, map.Tile.Priority, map.X, map.Y);
+			return new Sprite(pcbmp, priority, map.X, map.Y);
 		}
 
 		public static Color PaletteToColor(int line, int index, bool acceptTransparent)

@@ -28,25 +28,25 @@ namespace SonicRetro.SonLVL.API.S2
 				if (data.MapFile != null)
 				{
 					if (data.DPLCFile != null)
-						spr = ObjectHelper.MapDPLCToBmp(artfile, ObjectHelper.OpenArtFile(data.MapFile, data.MapCompression), data.MapVersion, ObjectHelper.OpenArtFile(data.DPLCFile, data.DPLCCompression), data.MapVersion, data.Frame, data.Palette);
+						spr = ObjectHelper.MapDPLCToBmp(artfile, ObjectHelper.OpenArtFile(data.MapFile, data.MapCompression), data.MapVersion, ObjectHelper.OpenArtFile(data.DPLCFile, data.DPLCCompression), data.MapVersion, data.Frame, data.Palette, data.Priority);
 					else
-						spr = ObjectHelper.MapToBmp(artfile, ObjectHelper.OpenArtFile(data.MapFile, data.MapCompression), data.Frame, data.Palette, data.MapVersion);
+						spr = ObjectHelper.MapToBmp(artfile, ObjectHelper.OpenArtFile(data.MapFile, data.MapCompression), data.Frame, data.Palette, data.Priority, data.MapVersion);
 				}
 				else if (data.MapFileAsm != null)
 				{
 					if (data.MapAsmLabel != null)
 					{
 						if (data.DPLCFileAsm != null)
-							spr = ObjectHelper.MapASMDPLCToBmp(artfile, data.MapFileAsm, data.MapAsmLabel, data.MapVersion, data.DPLCFileAsm, data.DPLCAsmLabel, data.MapVersion, data.Palette);
+							spr = ObjectHelper.MapASMDPLCToBmp(artfile, data.MapFileAsm, data.MapAsmLabel, data.MapVersion, data.DPLCFileAsm, data.DPLCAsmLabel, data.MapVersion, data.Palette, data.Priority);
 						else
-							spr = ObjectHelper.MapASMToBmp(artfile, data.MapFileAsm, data.MapAsmLabel, data.Palette, data.MapVersion);
+							spr = ObjectHelper.MapASMToBmp(artfile, data.MapFileAsm, data.MapAsmLabel, data.Palette, data.Priority, data.MapVersion);
 					}
 					else
 					{
 						if (data.DPLCFileAsm != null)
-							spr = ObjectHelper.MapASMDPLCToBmp(artfile, data.MapFileAsm, data.MapVersion, data.DPLCFileAsm, data.MapVersion, data.Frame, data.Palette);
+							spr = ObjectHelper.MapASMDPLCToBmp(artfile, data.MapFileAsm, data.MapVersion, data.DPLCFileAsm, data.MapVersion, data.Frame, data.Palette, data.Priority);
 						else
-							spr = ObjectHelper.MapASMToBmp(artfile, data.MapFileAsm, data.Frame, data.Palette, data.MapVersion);
+							spr = ObjectHelper.MapASMToBmp(artfile, data.MapFileAsm, data.Frame, data.Palette, data.Priority, data.MapVersion);
 					}
 				}
 				else

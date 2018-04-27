@@ -511,25 +511,25 @@ namespace SonicRetro.SonLVL.API
 					if (data.MapFile != null)
 					{
 						if (data.DPLCFile != null)
-							spr[0] = ObjectHelper.MapDPLCToBmp(artfile, LevelData.ReadFile(data.MapFile, data.MapCompression), data.MapVersion, LevelData.ReadFile(data.DPLCFile, data.DPLCCompression), data.DPLCVersion, data.Frame, data.Palette);
+							spr[0] = ObjectHelper.MapDPLCToBmp(artfile, LevelData.ReadFile(data.MapFile, data.MapCompression), data.MapVersion, LevelData.ReadFile(data.DPLCFile, data.DPLCCompression), data.DPLCVersion, data.Frame, data.Palette, data.Priority);
 						else
-							spr[0] = ObjectHelper.MapToBmp(artfile, LevelData.ReadFile(data.MapFile, data.MapCompression), data.Frame, data.Palette, data.MapVersion);
+							spr[0] = ObjectHelper.MapToBmp(artfile, LevelData.ReadFile(data.MapFile, data.MapCompression), data.Frame, data.Palette, data.Priority, data.MapVersion);
 					}
 					else if (data.MapFileAsm != null)
 					{
 						if (data.MapAsmLabel != null)
 						{
 							if (data.DPLCFileAsm != null)
-								spr[0] = ObjectHelper.MapASMDPLCToBmp(artfile, data.MapFileAsm, data.MapAsmLabel, data.MapVersion, data.DPLCFileAsm, data.DPLCAsmLabel, data.DPLCVersion, data.Palette);
+								spr[0] = ObjectHelper.MapASMDPLCToBmp(artfile, data.MapFileAsm, data.MapAsmLabel, data.MapVersion, data.DPLCFileAsm, data.DPLCAsmLabel, data.DPLCVersion, data.Palette, data.Priority);
 							else
-								spr[0] = ObjectHelper.MapASMToBmp(artfile, data.MapFileAsm, data.MapAsmLabel, data.Palette, data.MapVersion);
+								spr[0] = ObjectHelper.MapASMToBmp(artfile, data.MapFileAsm, data.MapAsmLabel, data.Palette, data.Priority, data.MapVersion);
 						}
 						else
 						{
 							if (data.DPLCFileAsm != null)
-								spr[0] = ObjectHelper.MapASMDPLCToBmp(artfile, data.MapFileAsm, data.MapVersion, data.DPLCFileAsm, data.DPLCVersion, data.Frame, data.Palette);
+								spr[0] = ObjectHelper.MapASMDPLCToBmp(artfile, data.MapFileAsm, data.MapVersion, data.DPLCFileAsm, data.DPLCVersion, data.Frame, data.Palette, data.Priority);
 							else
-								spr[0] = ObjectHelper.MapASMToBmp(artfile, data.MapFileAsm, data.Frame, data.Palette, data.MapVersion);
+								spr[0] = ObjectHelper.MapASMToBmp(artfile, data.MapFileAsm, data.Frame, data.Palette, data.Priority, data.MapVersion);
 						}
 					}
 					else
@@ -541,10 +541,16 @@ namespace SonicRetro.SonLVL.API
 				{
 					BitmapBits img = new BitmapBits(data.Image);
 					spr[0] = new Sprite(img, new Point(data.Offset));
+					if (data.Priority)
+						spr[0].InvertPriority();
 					debug = true;
 				}
 				else if (data.Sprite > -1)
+				{
 					spr[0] = ObjectHelper.GetSprite(data.Sprite);
+					if (data.Priority)
+						spr[0].InvertPriority();
+				}
 				else
 				{
 					spr[0] = ObjectHelper.UnknownObject;
@@ -557,8 +563,6 @@ namespace SonicRetro.SonLVL.API
 				spr[0] = ObjectHelper.UnknownObject;
 				debug = true;
 			}
-			if (data.Priority)
-				spr[0].InvertPriority();
 			spr[1] = new Sprite(spr[0]);
 			spr[1].Flip(true, false);
 			spr[2] = new Sprite(spr[0]);
@@ -688,6 +692,7 @@ namespace SonicRetro.SonLVL.API
 					{
 						case XMLDef.ImageFromBitmap bmpimg:
 							sprite = new Sprite(new BitmapBits(bmpimg.filename), bmpimg.Offset.ToPoint());
+							if (bmpimg.priority) sprite.InvertPriority();
 							break;
 						case XMLDef.ImageFromMappings mapimg:
 							MultiFileIndexer<byte> art = new MultiFileIndexer<byte>();
@@ -701,29 +706,29 @@ namespace SonicRetro.SonLVL.API
 								case XMLDef.MapFileType.Binary:
 									if (string.IsNullOrEmpty(map.dplcfile))
 										sprite = ObjectHelper.MapToBmp(art.ToArray(), File.ReadAllBytes(map.filename),
-											map.frame, map.startpal, map.version);
+											map.frame, map.startpal, mapimg.priority, map.version);
 									else
 										sprite = ObjectHelper.MapDPLCToBmp(art.ToArray(), File.ReadAllBytes(map.filename),
-											File.ReadAllBytes(map.dplcfile), map.frame, map.startpal, map.version);
+											File.ReadAllBytes(map.dplcfile), map.frame, map.startpal, mapimg.priority, map.version);
 									break;
 								case XMLDef.MapFileType.ASM:
 									if (string.IsNullOrEmpty(map.label))
 									{
 										if (string.IsNullOrEmpty(map.dplcfile))
 											sprite = ObjectHelper.MapASMToBmp(art.ToArray(), map.filename,
-												map.frame, map.startpal, map.version);
+												map.frame, map.startpal, mapimg.priority, map.version);
 										else
 											sprite = ObjectHelper.MapASMDPLCToBmp(art.ToArray(), map.filename, map.version,
-												map.dplcfile, map.dplcver, map.frame, map.startpal);
+												map.dplcfile, map.dplcver, map.frame, map.startpal, mapimg.priority);
 									}
 									else
 									{
 										if (string.IsNullOrEmpty(map.dplcfile))
 											sprite = ObjectHelper.MapASMToBmp(art.ToArray(), map.filename,
-												map.label, map.startpal, map.version);
+												map.label, map.startpal, mapimg.priority, map.version);
 										else
 											sprite = ObjectHelper.MapASMDPLCToBmp(art.ToArray(), map.filename, map.label, map.version,
-												map.dplcfile, map.dplclabel, map.dplcver, map.startpal);
+												map.dplcfile, map.dplclabel, map.dplcver, map.startpal, mapimg.priority);
 									}
 									break;
 							}
@@ -732,11 +737,11 @@ namespace SonicRetro.SonLVL.API
 							break;
 						case XMLDef.ImageFromSprite sprimg:
 							sprite = ObjectHelper.GetSprite(sprimg.frame);
+							if (sprimg.priority) sprite.InvertPriority();
 							if (!sprimg.Offset.IsEmpty)
 								sprite.Offset(sprimg.Offset.X, sprimg.Offset.Y);
 							break;
 					}
-					if (item.priority) sprite.InvertPriority();
 					images.Add(item.id, sprite);
 				}
 			if (xmldef.ImageSets != null && xmldef.ImageSets.Items != null)
@@ -1205,6 +1210,7 @@ namespace SonicRetro.SonLVL.API
 							{
 								case XMLDef.ImageFromBitmap bmpimg:
 									sprite = new Sprite(new BitmapBits(bmpimg.filename), bmpimg.Offset.ToPoint());
+									if (bmpimg.priority) sprite.InvertPriority();
 									break;
 								case XMLDef.ImageFromMappings mapimg:
 									MultiFileIndexer<byte> art = new MultiFileIndexer<byte>();
@@ -1218,29 +1224,29 @@ namespace SonicRetro.SonLVL.API
 										case XMLDef.MapFileType.Binary:
 											if (string.IsNullOrEmpty(map.dplcfile))
 												sprite = ObjectHelper.MapToBmp(art.ToArray(), File.ReadAllBytes(map.filename),
-													map.frame, map.startpal, map.version);
+													map.frame, map.startpal, mapimg.priority, map.version);
 											else
 												sprite = ObjectHelper.MapDPLCToBmp(art.ToArray(), File.ReadAllBytes(map.filename),
-													File.ReadAllBytes(map.dplcfile), map.frame, map.startpal, map.version);
+													File.ReadAllBytes(map.dplcfile), map.frame, map.startpal, mapimg.priority, map.version);
 											break;
 										case XMLDef.MapFileType.ASM:
 											if (string.IsNullOrEmpty(map.label))
 											{
 												if (string.IsNullOrEmpty(map.dplcfile))
 													sprite = ObjectHelper.MapASMToBmp(art.ToArray(), map.filename,
-														map.frame, map.startpal, map.version);
+														map.frame, map.startpal, mapimg.priority, map.version);
 												else
 													sprite = ObjectHelper.MapASMDPLCToBmp(art.ToArray(), map.filename, map.version,
-														map.dplcfile, map.dplcver, map.frame, map.startpal);
+														map.dplcfile, map.dplcver, map.frame, map.startpal, mapimg.priority);
 											}
 											else
 											{
 												if (string.IsNullOrEmpty(map.dplcfile))
 													sprite = ObjectHelper.MapASMToBmp(art.ToArray(), map.filename,
-														map.label, map.startpal, map.version);
+														map.label, map.startpal, mapimg.priority, map.version);
 												else
 													sprite = ObjectHelper.MapASMDPLCToBmp(art.ToArray(), map.filename, map.label, map.version,
-														map.dplcfile, map.dplclabel, map.dplcver, map.startpal);
+														map.dplcfile, map.dplclabel, map.dplcver, map.startpal, mapimg.priority);
 											}
 											break;
 									}
@@ -1249,11 +1255,11 @@ namespace SonicRetro.SonLVL.API
 									break;
 								case XMLDef.ImageFromSprite sprimg:
 									sprite = ObjectHelper.GetSprite(sprimg.frame);
+									if (sprimg.priority) sprite.InvertPriority();
 									if (!sprimg.Offset.IsEmpty)
 										sprite.Offset(sprimg.Offset.X, sprimg.Offset.Y);
 									break;
 							}
-							if (item.priority) sprite.InvertPriority();
 							images.Add(sprite);
 						}
 						spr = new Sprite(images);
@@ -1268,25 +1274,25 @@ namespace SonicRetro.SonLVL.API
 					if (data.MapFile != null)
 					{
 						if (data.DPLCFile != null)
-							spr = ObjectHelper.MapDPLCToBmp(artfile, LevelData.ReadFile(data.MapFile, data.MapCompression), data.MapVersion, LevelData.ReadFile(data.DPLCFile, data.DPLCCompression), data.DPLCVersion == EngineVersion.Invalid & LevelData.Game.DPLCVersion == EngineVersion.S3K ? EngineVersion.S2 : data.DPLCVersion, data.Frame, data.Palette);
+							spr = ObjectHelper.MapDPLCToBmp(artfile, LevelData.ReadFile(data.MapFile, data.MapCompression), data.MapVersion, LevelData.ReadFile(data.DPLCFile, data.DPLCCompression), data.DPLCVersion == EngineVersion.Invalid & LevelData.Game.DPLCVersion == EngineVersion.S3K ? EngineVersion.S2 : data.DPLCVersion, data.Frame, data.Palette, data.Priority);
 						else
-							spr = ObjectHelper.MapToBmp(artfile, LevelData.ReadFile(data.MapFile, data.MapCompression), data.Frame, data.Palette, data.MapVersion);
+							spr = ObjectHelper.MapToBmp(artfile, LevelData.ReadFile(data.MapFile, data.MapCompression), data.Frame, data.Palette, data.Priority, data.MapVersion);
 					}
 					else if (data.MapFileAsm != null)
 					{
 						if (data.MapAsmLabel != null)
 						{
 							if (data.DPLCFileAsm != null)
-								spr = ObjectHelper.MapASMDPLCToBmp(artfile, data.MapFileAsm, data.MapAsmLabel, data.MapVersion, data.DPLCFileAsm, data.DPLCAsmLabel, data.DPLCVersion == EngineVersion.Invalid & LevelData.Game.DPLCVersion == EngineVersion.S3K ? EngineVersion.S2 : data.DPLCVersion, data.Palette);
+								spr = ObjectHelper.MapASMDPLCToBmp(artfile, data.MapFileAsm, data.MapAsmLabel, data.MapVersion, data.DPLCFileAsm, data.DPLCAsmLabel, data.DPLCVersion == EngineVersion.Invalid & LevelData.Game.DPLCVersion == EngineVersion.S3K ? EngineVersion.S2 : data.DPLCVersion, data.Palette, data.Priority);
 							else
-								spr = ObjectHelper.MapASMToBmp(artfile, data.MapFileAsm, data.MapAsmLabel, data.Palette, data.MapVersion);
+								spr = ObjectHelper.MapASMToBmp(artfile, data.MapFileAsm, data.MapAsmLabel, data.Palette, data.Priority, data.MapVersion);
 						}
 						else
 						{
 							if (data.DPLCFileAsm != null)
-								spr = ObjectHelper.MapASMDPLCToBmp(artfile, data.MapFileAsm, data.MapVersion, data.DPLCFileAsm, data.DPLCVersion == EngineVersion.Invalid & LevelData.Game.DPLCVersion == EngineVersion.S3K ? EngineVersion.S2 : data.DPLCVersion, data.Frame, data.Palette);
+								spr = ObjectHelper.MapASMDPLCToBmp(artfile, data.MapFileAsm, data.MapVersion, data.DPLCFileAsm, data.DPLCVersion == EngineVersion.Invalid & LevelData.Game.DPLCVersion == EngineVersion.S3K ? EngineVersion.S2 : data.DPLCVersion, data.Frame, data.Palette, data.Priority);
 							else
-								spr = ObjectHelper.MapASMToBmp(artfile, data.MapFileAsm, data.Frame, data.Palette, data.MapVersion);
+								spr = ObjectHelper.MapASMToBmp(artfile, data.MapFileAsm, data.Frame, data.Palette, data.Priority, data.MapVersion);
 						}
 					}
 					else
