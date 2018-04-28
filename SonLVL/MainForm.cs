@@ -1302,7 +1302,9 @@ namespace SonicRetro.SonLVL.GUI
 						string pathBase = Path.Combine(a.SelectedPath, useHexadecimalIndexesToolStripMenuItem.Checked ? i.ToString("X2") : i.ToString());
 						if (exportArtcollisionpriorityToolStripMenuItem.Checked)
 						{
-							LevelData.ChunkSprites[i].GetBitmap().ToBitmap(pal).Save(pathBase + ".png");
+							bits = new BitmapBits(LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
+							bits.DrawSprite(LevelData.ChunkSprites[i]);
+							bits.ToBitmap(pal).Save(pathBase + ".png");
 							bool dualPath = false;
 							switch (LevelData.Level.ChunkFormat)
 							{
@@ -1343,14 +1345,13 @@ namespace SonicRetro.SonLVL.GUI
 						}
 						else
 						{
+							bits = new BitmapBits(LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
 							if (highToolStripMenuItem.Checked & lowToolStripMenuItem.Checked)
-								bits = LevelData.ChunkSprites[i].GetBitmap();
+								bits.DrawSprite(LevelData.ChunkSprites[i]);
 							else if (lowToolStripMenuItem.Checked)
-								bits = LevelData.ChunkSprites[i].GetBitmapLow();
+								bits.DrawSpriteLow(LevelData.ChunkSprites[i]);
 							else if (highToolStripMenuItem.Checked)
-								bits = LevelData.ChunkSprites[i].GetBitmapHigh();
-							else
-								bits = new BitmapBits(LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
+								bits.DrawSpriteHigh(LevelData.ChunkSprites[i]);
 							if (path1ToolStripMenuItem.Checked)
 								bits.DrawBitmapComposited(LevelData.ChunkColBmpBits[i][0], 0, 0);
 							else if (path2ToolStripMenuItem.Checked)
