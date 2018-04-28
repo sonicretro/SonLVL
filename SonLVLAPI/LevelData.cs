@@ -324,10 +324,10 @@ namespace SonicRetro.SonLVL.API
 						for (int i = 0; i < info.Length * 32; i += 32)
 						{
 							byte[] tile = new byte[32];
-							Array.Copy(tmp, i, tile, 0, 32);
+							Array.Copy(tmp, i + (info.Source * 32), tile, 0, 32);
 							tiles.Add(tile);
 						}
-						AnimatedTiles.AddFile(tiles, info.Offset);
+						AnimatedTiles.AddFile(tiles, info.Destination);
 					}
 				}
 				else
@@ -2180,7 +2180,7 @@ namespace SonicRetro.SonLVL.API
 					if (blk.Block < BlockBmpBits.Count)
 						blkbmp = BlockBmpBits[blk.Block];
 					else if (AnimatedBlockBmpBits != null && blk.Block >= AnimatedBlockOffset && blk.Block < AnimatedBlockOffset + AnimatedBlockBmpBits.Count)
-						blkbmp = AnimatedBlockBmpBits[AnimatedBlockOffset - blk.Block];
+						blkbmp = AnimatedBlockBmpBits[blk.Block - AnimatedBlockOffset];
 					else
 						blkbmp = InvalidBlock;
 					BitmapBits bmp = new BitmapBits(blkbmp[0]);

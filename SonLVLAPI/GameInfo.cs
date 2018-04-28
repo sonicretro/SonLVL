@@ -565,7 +565,7 @@ namespace SonicRetro.SonLVL.API
 	public class AnimatedTileInfo
 	{
 		public string Filename;
-		public int Offset, Length;
+		public int Source, Destination, Length;
 
 		public AnimatedTileInfo(string data)
 		{
@@ -573,10 +573,15 @@ namespace SonicRetro.SonLVL.API
 			Filename = split[0];
 			string offstr = split[1];
 			if (offstr.StartsWith("0x"))
-				Offset = int.Parse(offstr.Substring(2), NumberStyles.HexNumber);
+				Source = int.Parse(offstr.Substring(2), NumberStyles.HexNumber);
 			else
-				Offset = int.Parse(offstr, NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
-			string lenstr = split[2];
+				Source = int.Parse(offstr, NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
+			offstr = split[2];
+			if (offstr.StartsWith("0x"))
+				Destination = int.Parse(offstr.Substring(2), NumberStyles.HexNumber);
+			else
+				Destination = int.Parse(offstr, NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
+			string lenstr = split[3];
 			if (lenstr.StartsWith("0x"))
 				Length = int.Parse(lenstr.Substring(2), NumberStyles.HexNumber);
 			else
@@ -585,7 +590,7 @@ namespace SonicRetro.SonLVL.API
 
 		public override string ToString()
 		{
-			return Filename + ":0x" + Offset.ToString("X") + ":" + Length;
+			return Filename + ":0x" + Destination.ToString("X") + ":" + Length;
 		}
 	}
 
