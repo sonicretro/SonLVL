@@ -585,7 +585,7 @@ namespace SonicRetro.SonLVL.API
 
 		public override string ToString()
 		{
-			return Filename + ":0x" + Offset.ToString("X") + ":0x" + Length.ToString("X");
+			return Filename + ":0x" + Offset.ToString("X") + ":" + Length;
 		}
 	}
 

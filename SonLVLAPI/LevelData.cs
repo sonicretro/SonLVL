@@ -321,13 +321,13 @@ namespace SonicRetro.SonLVL.API
 					{
 						tmp = File.ReadAllBytes(info.Filename);
 						List<byte[]> tiles = new List<byte[]>();
-						for (int i = 0; i < info.Length; i += 32)
+						for (int i = 0; i < info.Length * 32; i += 32)
 						{
 							byte[] tile = new byte[32];
 							Array.Copy(tmp, i, tile, 0, 32);
 							tiles.Add(tile);
 						}
-						AnimatedTiles.AddFile(tiles, info.Offset / 32);
+						AnimatedTiles.AddFile(tiles, info.Offset);
 					}
 				}
 				else
