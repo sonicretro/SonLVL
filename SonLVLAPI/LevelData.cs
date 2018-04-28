@@ -349,7 +349,7 @@ namespace SonicRetro.SonLVL.API
 							{
 								PatternIndex pt = blk.Tiles[bx, by];
 								int pr = pt.Priority ? 1 : 0;
-								BitmapBits tile = TileToBmp8bpp(AnimatedTiles[pt.Tile] ?? Tiles[pt.Tile], 0, pt.Palette);
+								BitmapBits tile = TileToBmp8bpp(AnimatedTiles?[pt.Tile] ?? Tiles[pt.Tile], 0, pt.Palette);
 								tile.Flip(pt.XFlip, pt.YFlip);
 								bmp[pr].DrawBitmap(tile, bx * 8, by * 8);
 							}
@@ -2138,7 +2138,7 @@ namespace SonicRetro.SonLVL.API
 				{
 					PatternIndex pt = Blocks[block].Tiles[bx, by];
 					int pr = pt.Priority ? 1 : 0;
-					BitmapBits tile = TileToBmp8bpp(AnimatedTiles[pt.Tile] ?? Tiles[pt.Tile], 0, pt.Palette);
+					BitmapBits tile = TileToBmp8bpp(AnimatedTiles?[pt.Tile] ?? Tiles[pt.Tile], 0, pt.Palette);
 					tile.Flip(pt.XFlip, pt.YFlip);
 					BlockBmpBits[block][pr].DrawBitmap(tile, bx * 8, by * 8);
 				}
