@@ -393,7 +393,7 @@ namespace SonicRetro.SonLVL.API
 		[IniName("extrawatercolors")]
 		public PaletteList ExtraWaterColors { get; set; }
 		[IniName("animtiles")]
-		[IniCollection(IniCollectionMode.SingleLine, Format = "|")]
+		[IniCollection(IniCollectionMode.NoSquareBrackets, StartIndex = 1)]
 		public AnimatedTileInfo[] AnimatedTiles { get; set; }
 		[IniName("animblocks")]
 		public string AnimatedBlocks { get; set; }
