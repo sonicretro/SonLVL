@@ -157,8 +157,16 @@ namespace SonicRetro.SonLVL.API
 				throw new ArgumentException("Chunk height must be divisible by 16!");
 			byte[] tmp = null;
 #if !DEBUG
-			Parallel.Invoke(LoadLevelTiles, LoadLevelBlocks, LoadLevelChunks, () => LoadLevelLayout(levelname), LoadLevelPalette,
-				LoadLevelColInds, LoadLevelColArr, LoadLevelAngles);
+			if (Level.EngineVersion != EngineVersion.SKC)
+				Parallel.Invoke(LoadLevelTiles, LoadLevelBlocks, LoadLevelChunks, () => LoadLevelLayout(levelname), LoadLevelPalette,
+					LoadLevelColInds, LoadLevelColArr, LoadLevelAngles);
+			else
+			{
+				Parallel.Invoke(LoadLevelTiles, () => LoadLevelLayout(levelname), LoadLevelPalette,
+					LoadLevelColInds, LoadLevelColArr, LoadLevelAngles);
+				LoadLevelBlocks();
+				LoadLevelChunks();
+			}
 #else
 			LoadLevelTiles();
 			LoadLevelBlocks();
@@ -850,10 +858,27 @@ namespace SonicRetro.SonLVL.API
 		public static void SaveLevel()
 		{
 			Log("Saving " + Level.DisplayName + "...");
-			Parallel.Invoke(SaveLevelTiles, SaveLevelChunks, SaveLevelLayout, SaveLevelPalette,
-				SaveLevelObjects, SaveLevelRings, SaveLevelBumpers, SaveLevelStartPositions,
-				SaveLevelColInds, SaveLevelColArr1, SaveLevelColArr2, SaveLevelAngles);
-			SaveLevelBlocks(); // SCDPC...
+			switch (Level.EngineVersion)
+			{
+				case EngineVersion.SCDPC:
+					Parallel.Invoke(SaveLevelTiles, SaveLevelChunks, SaveLevelLayout, SaveLevelPalette,
+						SaveLevelObjects, SaveLevelRings, SaveLevelBumpers, SaveLevelStartPositions,
+						SaveLevelColInds, SaveLevelColArr1, SaveLevelColArr2, SaveLevelAngles);
+					SaveLevelBlocks(); // SCDPC...
+					break;
+				case EngineVersion.SKC:
+					Parallel.Invoke(SaveLevelTiles, SaveLevelLayout, SaveLevelPalette,
+						SaveLevelObjects, SaveLevelRings, SaveLevelBumpers, SaveLevelStartPositions,
+						SaveLevelColInds, SaveLevelColArr1, SaveLevelColArr2, SaveLevelAngles);
+					SaveLevelBlocks();
+					SaveLevelChunks();
+					break;
+				default:
+					Parallel.Invoke(SaveLevelTiles, SaveLevelBlocks, SaveLevelChunks, SaveLevelLayout, SaveLevelPalette,
+						SaveLevelObjects, SaveLevelRings, SaveLevelBumpers, SaveLevelStartPositions,
+						SaveLevelColInds, SaveLevelColArr1, SaveLevelColArr2, SaveLevelAngles);
+					break;
+			}
 		}
 
 		private static void SaveLevelTiles()
