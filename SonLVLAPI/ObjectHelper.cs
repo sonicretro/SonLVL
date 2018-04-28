@@ -23,7 +23,7 @@ namespace SonicRetro.SonLVL.API
 			if (version == EngineVersion.Invalid)
 				version = LevelData.Game.MappingsVersion;
 			byte[] mapfile = LevelData.ASMToBin(mapfileloc, label, version);
-			return LevelData.MapFrameToBmp(artfile, new MappingsFrame(mapfile, 0, version, string.Empty), startpal, false);
+			return LevelData.MapFrameToBmp(artfile, new MappingsFrame(mapfile, 0, version, string.Empty), startpal, priority);
 		}
 
 		public static Sprite MapDPLCToBmp(byte[] artfile, byte[] mapfile, byte[] dplc, int frame, int startpal, bool priority = false, EngineVersion version = EngineVersion.Invalid)
