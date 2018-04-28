@@ -58,6 +58,9 @@ namespace SonicRetro.SonLVL.API
 		public static Bitmap[] ColBmps;
 		public static List<BitmapBits[]> ChunkColBmpBits;
 		public static List<Bitmap[]> ChunkColBmps;
+		public static MultiFileIndexer<byte[]> AnimatedTiles;
+		public static List<BitmapBits[]> AnimatedBlockBmpBits;
+		public static int AnimatedBlockOffset;
 		public static Bitmap UnknownImg;
 		public static Sprite UnknownSprite;
 		public static List<Sprite> Sprites;
@@ -67,7 +70,7 @@ namespace SonicRetro.SonLVL.API
 		internal static readonly bool IsMonoRuntime = Type.GetType("Mono.Runtime") != null;
 		internal static readonly bool IsWindows = !(Environment.OSVersion.Platform == PlatformID.MacOSX | Environment.OSVersion.Platform == PlatformID.Unix | Environment.OSVersion.Platform == PlatformID.Xbox);
 		private static readonly BitmapBits InvalidTile = new BitmapBits(8, 8);
-		private static readonly BitmapBits InvalidBlock = new BitmapBits(16, 16);
+		private static readonly BitmapBits[] InvalidBlock = new BitmapBits[] { new BitmapBits(16, 16), new BitmapBits(16, 16) };
 		public const int ColorTransparent = 0;
 		public const int ColorWhite = 16;
 		public const int ColorYellow = 32;
@@ -81,12 +84,12 @@ namespace SonicRetro.SonLVL.API
 			InvalidTile.DrawLine(15, 7, 7, 7, 0);
 			InvalidTile.DrawLine(15, 0, 0, 7, 7);
 			InvalidTile.DrawLine(15, 0, 7, 7, 0);
-			InvalidBlock.DrawLine(15, 0, 0, 15, 0);
-			InvalidBlock.DrawLine(15, 0, 0, 0, 15);
-			InvalidBlock.DrawLine(15, 15, 15, 0, 15);
-			InvalidBlock.DrawLine(15, 15, 15, 15, 0);
-			InvalidBlock.DrawLine(15, 0, 0, 15, 15);
-			InvalidBlock.DrawLine(15, 0, 15, 15, 0);
+			InvalidBlock[0].DrawLine(15, 0, 0, 15, 0);
+			InvalidBlock[0].DrawLine(15, 0, 0, 0, 15);
+			InvalidBlock[0].DrawLine(15, 15, 15, 0, 15);
+			InvalidBlock[0].DrawLine(15, 15, 15, 15, 0);
+			InvalidBlock[0].DrawLine(15, 0, 0, 15, 15);
+			InvalidBlock[0].DrawLine(15, 0, 15, 15, 0);
 		}
 
 		public static void LoadGame(string filename)
@@ -311,6 +314,50 @@ namespace SonicRetro.SonLVL.API
 #endif
 			if (loadGraphics)
 			{
+				if (Level.AnimatedTiles != null)
+				{
+					AnimatedTiles = new MultiFileIndexer<byte[]>();
+					foreach (AnimatedTileInfo info in Level.AnimatedTiles)
+					{
+						tmp = File.ReadAllBytes(info.Filename);
+						List<byte[]> tiles = new List<byte[]>();
+						for (int i = 0; i < info.Length; i += 32)
+						{
+							byte[] tile = new byte[32];
+							Array.Copy(tmp, i, tile, 0, 32);
+							tiles.Add(tile);
+						}
+						AnimatedTiles.AddFile(tiles, info.Offset / 32);
+					}
+				}
+				else
+					AnimatedTiles = null;
+				if (Level.AnimatedBlocks != null)
+				{
+					AnimatedBlockBmpBits = new List<BitmapBits[]>();
+					tmp = File.ReadAllBytes(Level.AnimatedBlocks);
+					AnimatedBlockOffset = ByteConverter.ToUInt16(tmp, 0) / Block.Size;
+					int end = ((ByteConverter.ToUInt16(tmp, 2) + 1) * 2) + 4;
+					for (int i = 4; i < end; i += Block.Size)
+					{
+						Block blk = new Block(tmp, i);
+						BitmapBits[] bmp = new BitmapBits[2];
+						bmp[0] = new BitmapBits(16, 16);
+						bmp[1] = new BitmapBits(16, 16);
+						for (int by = 0; by < 2; by++)
+							for (int bx = 0; bx < 2; bx++)
+							{
+								PatternIndex pt = blk.Tiles[bx, by];
+								int pr = pt.Priority ? 1 : 0;
+								BitmapBits tile = TileToBmp8bpp(AnimatedTiles[pt.Tile] ?? Tiles[pt.Tile], 0, pt.Palette);
+								tile.Flip(pt.XFlip, pt.YFlip);
+								bmp[pr].DrawBitmap(tile, bx * 8, by * 8);
+							}
+						AnimatedBlockBmpBits.Add(bmp);
+					}
+				}
+				else
+					AnimatedBlockBmpBits = null;
 #if !DEBUG
 				Parallel.Invoke(() =>
 				{
@@ -2042,20 +2089,18 @@ namespace SonicRetro.SonLVL.API
 		{
 			List<int> blocks = new List<int>();
 			foreach (int tile in tiles)
-			{
-					for (int i = 0; i < Blocks.Count; i++)
-					{
-						if (blocks.Contains(i)) continue;
-						for (int k = 0; k < 2; k++)
-							for (int j = 0; j < 2; j++)
-								if (Blocks[i].Tiles[j, k].Tile == tile)
-								{
-									blocks.Add(i);
-									goto nextblock;
-								}
-					nextblock: ;
-					}
-			}
+				for (int i = 0; i < Blocks.Count; i++)
+				{
+					if (blocks.Contains(i)) continue;
+					for (int k = 0; k < 2; k++)
+						for (int j = 0; j < 2; j++)
+							if (Blocks[i].Tiles[j, k].Tile == tile)
+							{
+								blocks.Add(i);
+								goto nextblock;
+							}
+					nextblock:;
+				}
 			RedrawBlocks(blocks, drawChunks);
 		}
 
@@ -2089,26 +2134,20 @@ namespace SonicRetro.SonLVL.API
 			BlockBmpBits[block][1] = new BitmapBits(16, 16);
 			CompBlockBmpBits[block] = new BitmapBits(16, 16);
 			for (int by = 0; by < 2; by++)
-			{
 				for (int bx = 0; bx < 2; bx++)
 				{
 					PatternIndex pt = Blocks[block].Tiles[bx, by];
 					int pr = pt.Priority ? 1 : 0;
-					BitmapBits tile = TileToBmp8bpp(Tiles[pt.Tile], 0, pt.Palette);
+					BitmapBits tile = TileToBmp8bpp(AnimatedTiles[pt.Tile] ?? Tiles[pt.Tile], 0, pt.Palette);
 					tile.Flip(pt.XFlip, pt.YFlip);
-					BlockBmpBits[block][pr].DrawBitmap(
-						tile,
-						bx * 8, by * 8
-						);
+					BlockBmpBits[block][pr].DrawBitmap(tile, bx * 8, by * 8);
 				}
-			}
 			CompBlockBmpBits[block].DrawBitmap(BlockBmpBits[block][0], Point.Empty);
 			CompBlockBmpBits[block].DrawBitmapComposited(BlockBmpBits[block][1], Point.Empty);
 			BlockBmps[block][0] = BlockBmpBits[block][0].ToBitmap(BmpPal);
 			BlockBmps[block][1] = BlockBmpBits[block][1].ToBitmap(BmpPal);
 			CompBlockBmps[block] = CompBlockBmpBits[block].ToBitmap(BmpPal);
 			if (drawChunks)
-			{
 				for (int i = 0; i < Chunks.Count; i++)
 				{
 					bool dr = false;
@@ -2119,7 +2158,6 @@ namespace SonicRetro.SonLVL.API
 					if (dr)
 						RedrawChunk(i);
 				}
-			}
 		}
 
 		public static void RedrawChunks(IEnumerable<int> chunks)
@@ -2135,47 +2173,37 @@ namespace SonicRetro.SonLVL.API
 			ChunkColBmpBits[chunk][0] = new BitmapBits(Level.ChunkWidth, Level.ChunkHeight);
 			ChunkColBmpBits[chunk][1] = new BitmapBits(Level.ChunkWidth, Level.ChunkHeight);
 			for (int by = 0; by < Level.ChunkHeight / 16; by++)
-			{
 				for (int bx = 0; bx < Level.ChunkWidth / 16; bx++)
 				{
 					ChunkBlock blk = Chunks[chunk].Blocks[bx, by];
+					BitmapBits[] blkbmp;
 					if (blk.Block < BlockBmpBits.Count)
+						blkbmp = BlockBmpBits[blk.Block];
+					else if (AnimatedBlockBmpBits != null && blk.Block >= AnimatedBlockOffset && blk.Block < AnimatedBlockOffset + AnimatedBlockBmpBits.Count)
+						blkbmp = AnimatedBlockBmpBits[AnimatedBlockOffset - blk.Block];
+					else
+						blkbmp = InvalidBlock;
+					BitmapBits bmp = new BitmapBits(blkbmp[0]);
+					bmp.Flip(blk.XFlip, blk.YFlip);
+					tmplow.DrawBitmap(bmp, bx * 16, by * 16);
+					bmp = new BitmapBits(blkbmp[1]);
+					bmp.Flip(blk.XFlip, blk.YFlip);
+					tmphigh.DrawBitmap(bmp, bx * 16, by * 16);
+					if (ColInds1.Count > 0)
 					{
-						BitmapBits bmp = new BitmapBits(BlockBmpBits[blk.Block][0]);
+						bmp = new BitmapBits(ColBmpBits[GetColInd1(blk.Block)]);
+						bmp.IncrementIndexes((int)blk.Solid1 - 1);
 						bmp.Flip(blk.XFlip, blk.YFlip);
-						tmplow.DrawBitmap(
-							bmp,
-							bx * 16, by * 16);
-						bmp = new BitmapBits(BlockBmpBits[blk.Block][1]);
-						bmp.Flip(blk.XFlip, blk.YFlip);
-						tmphigh.DrawBitmap(
-							bmp,
-							bx * 16, by * 16);
-						if (ColInds1.Count > 0)
+						ChunkColBmpBits[chunk][0].DrawBitmap(bmp, bx * 16, by * 16);
+						if (blk is S2ChunkBlock)
 						{
-							bmp = new BitmapBits(ColBmpBits[GetColInd1(blk.Block)]);
-							bmp.IncrementIndexes((int)blk.Solid1 - 1);
+							bmp = new BitmapBits(ColBmpBits[GetColInd2(blk.Block)]);
+							bmp.IncrementIndexes((int)((S2ChunkBlock)blk).Solid2 - 1);
 							bmp.Flip(blk.XFlip, blk.YFlip);
-							ChunkColBmpBits[chunk][0].DrawBitmap(bmp, bx * 16, by * 16);
-							if (blk is S2ChunkBlock)
-							{
-								bmp = new BitmapBits(ColBmpBits[GetColInd2(blk.Block)]);
-								bmp.IncrementIndexes((int)((S2ChunkBlock)blk).Solid2 - 1);
-								bmp.Flip(blk.XFlip, blk.YFlip);
-								ChunkColBmpBits[chunk][1].DrawBitmap(bmp, bx * 16, by * 16);
-							}
+							ChunkColBmpBits[chunk][1].DrawBitmap(bmp, bx * 16, by * 16);
 						}
 					}
-					else
-					{
-						BitmapBits bmp = new BitmapBits(InvalidBlock);
-						bmp.Flip(blk.XFlip, blk.YFlip);
-						tmplow.DrawBitmap(
-							bmp,
-							bx * 16, by * 16);
-					}
 				}
-			}
 			ChunkSprites[chunk] = new Sprite(tmplow, tmphigh);
 			ChunkBmps[chunk][0] = tmplow.ToBitmap(BmpPal);
 			ChunkBmps[chunk][1] = tmphigh.ToBitmap(BmpPal);

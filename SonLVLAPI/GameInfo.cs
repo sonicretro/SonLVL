@@ -392,6 +392,11 @@ namespace SonicRetro.SonLVL.API
 		public PaletteList ExtraColors { get; set; }
 		[IniName("extrawatercolors")]
 		public PaletteList ExtraWaterColors { get; set; }
+		[IniName("animtiles")]
+		[IniCollection(IniCollectionMode.SingleLine, Format = "|")]
+		public AnimatedTileInfo[] AnimatedTiles { get; set; }
+		[IniName("animblocks")]
+		public string AnimatedBlocks { get; set; }
 	}
 
 	[TypeConverter(typeof(StringConverter<FileInfo>))]
@@ -556,8 +561,36 @@ namespace SonicRetro.SonLVL.API
 		}
 	}
 
+	[TypeConverter(typeof(StringConverter<AnimatedTileInfo>))]
+	public class AnimatedTileInfo
+	{
+		public string Filename;
+		public int Offset, Length;
+
+		public AnimatedTileInfo(string data)
+		{
+			string[] split = data.Split(':');
+			Filename = split[0];
+			string offstr = split[1];
+			if (offstr.StartsWith("0x"))
+				Offset = int.Parse(offstr.Substring(2), NumberStyles.HexNumber);
+			else
+				Offset = int.Parse(offstr, NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
+			string lenstr = split[2];
+			if (lenstr.StartsWith("0x"))
+				Length = int.Parse(lenstr.Substring(2), NumberStyles.HexNumber);
+			else
+				Length = int.Parse(lenstr, NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
+		}
+
+		public override string ToString()
+		{
+			return Filename + ":0x" + Offset.ToString("X") + ":0x" + Length.ToString("X");
+		}
+	}
+
 	/// <summary>
-	/// Converts between <see cref="System.String"/> and <typeparamref name="T"/>
+	/// Converts between <see cref="string"/> and <typeparamref name="T"/>
 	/// </summary>
 	public class StringConverter<T> : TypeConverter
 	{
