@@ -2177,10 +2177,10 @@ namespace SonicRetro.SonLVL.API
 				{
 					ChunkBlock blk = Chunks[chunk].Blocks[bx, by];
 					BitmapBits[] blkbmp;
-					if (blk.Block < BlockBmpBits.Count)
-						blkbmp = BlockBmpBits[blk.Block];
-					else if (AnimatedBlockBmpBits != null && blk.Block >= AnimatedBlockOffset && blk.Block < AnimatedBlockOffset + AnimatedBlockBmpBits.Count)
+					if (AnimatedBlockBmpBits != null && blk.Block >= AnimatedBlockOffset && blk.Block < AnimatedBlockOffset + AnimatedBlockBmpBits.Count)
 						blkbmp = AnimatedBlockBmpBits[blk.Block - AnimatedBlockOffset];
+					else if (blk.Block < BlockBmpBits.Count)
+						blkbmp = BlockBmpBits[blk.Block];
 					else
 						blkbmp = InvalidBlock;
 					BitmapBits bmp = new BitmapBits(blkbmp[0]);
