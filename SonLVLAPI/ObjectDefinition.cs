@@ -1037,6 +1037,12 @@ namespace SonicRetro.SonLVL.API
 						continue;
 					if (option.Images != null)
 						return ReadImageRefList(option, obj);
+					else
+					{
+						Sprite spr = ObjectHelper.UnknownObject;
+						spr.Flip(obj.XFlip, obj.YFlip);
+						return spr;
+					}
 				}
 			}
 			else if (xmldef.Subtypes != null && xmldef.Subtypes.Items != null)
@@ -1046,9 +1052,15 @@ namespace SonicRetro.SonLVL.API
 					if (obj.SubType == item.subtype)
 						if (item.Images != null)
 							return ReadImageRefList(item, obj);
-						else
+						else if (item.image != null)
 						{
 							Sprite spr = new Sprite(images[item.image]);
+							spr.Flip(obj.XFlip, obj.YFlip);
+							return spr;
+						}
+						else
+						{
+							Sprite spr = ObjectHelper.UnknownObject;
 							spr.Flip(obj.XFlip, obj.YFlip);
 							return spr;
 						}
