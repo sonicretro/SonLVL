@@ -53,6 +53,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReadOnlyWrapper.cs" />
     <Compile Include="ScrollingPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>

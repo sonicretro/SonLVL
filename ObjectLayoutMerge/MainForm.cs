@@ -187,6 +187,11 @@ namespace ObjectLayoutMerge
 				objectListView.Items.Add(new ListViewItem(new string[] { item.Source.ToString(), item.Entry.Data }) { Checked = item.Include });
 			suppressDraw = false;
 			objectListView.EndUpdate();
+			nextAToolStripButton.Enabled = objectList.Any(a => a.Source == Source.A);
+			nextBToolStripButton.Enabled = objectList.Any(a => a.Source == Source.B);
+			toolStrip1.Visible = nextAToolStripButton.Enabled || nextBToolStripButton.Enabled;
+			previewPanel.HScrollValue = 0;
+			previewPanel.VScrollValue = 0;
 			DrawPreview();
 		}
 
@@ -265,6 +270,45 @@ namespace ObjectLayoutMerge
 			DrawPreview();
 		}
 
+		private void nextDiffToolStripButton_Click(object sender, EventArgs e)
+		{
+			int ind = 0;
+			if (objectListView.SelectedIndices.Count > 0 && objectListView.SelectedIndices[0] < objectList.Count - 1)
+				ind = objectListView.SelectedIndices[0] + 1;
+			ind = objectList.FindIndex(ind, a => a.Source != Source.Both);
+			if (ind == -1)
+				ind = objectList.FindIndex(a => a.Source != Source.Both);
+			objectListView.SelectedIndices.Clear();
+			objectListView.SelectedIndices.Add(ind);
+			objectListView.EnsureVisible(ind);
+		}
+
+		private void nextAToolStripButton_Click(object sender, EventArgs e)
+		{
+			int ind = 0;
+			if (objectListView.SelectedIndices.Count > 0 && objectListView.SelectedIndices[0] < objectList.Count - 1)
+				ind = objectListView.SelectedIndices[0] + 1;
+			ind = objectList.FindIndex(ind, a => a.Source == Source.A);
+			if (ind == -1)
+				ind = objectList.FindIndex(a => a.Source == Source.A);
+			objectListView.SelectedIndices.Clear();
+			objectListView.SelectedIndices.Add(ind);
+			objectListView.EnsureVisible(ind);
+		}
+
+		private void nextBToolStripButton_Click(object sender, EventArgs e)
+		{
+			int ind = 0;
+			if (objectListView.SelectedIndices.Count > 0 && objectListView.SelectedIndices[0] < objectList.Count - 1)
+				ind = objectListView.SelectedIndices[0] + 1;
+			ind = objectList.FindIndex(ind, a => a.Source == Source.B);
+			if (ind == -1)
+				ind = objectList.FindIndex(a => a.Source == Source.B);
+			objectListView.SelectedIndices.Clear();
+			objectListView.SelectedIndices.Add(ind);
+			objectListView.EnsureVisible(ind);
+		}
+
 		private void objectListView_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			if (showPreview && objectListView.SelectedIndices.Count > 0)
@@ -272,6 +316,7 @@ namespace ObjectLayoutMerge
 				Entry entry = objectList[objectListView.SelectedIndices[0]].Entry;
 				previewPanel.HScrollValue = Math.Max(entry.X - (previewPanel.PanelWidth / 2), 0);
 				previewPanel.VScrollValue = Math.Max(entry.Y - (previewPanel.PanelHeight / 2), 0);
+				propertyGrid1.SelectedObject = new ReadOnlyWrapper(entry);
 			}
 		}
 
@@ -314,6 +359,7 @@ namespace ObjectLayoutMerge
 				{
 					objectListView.SelectedIndices.Clear();
 					objectListView.SelectedIndices.Add(objectList.IndexOf(obj));
+					objectListView.EnsureVisible(objectList.IndexOf(obj));
 					return;
 				}
 		}

@@ -39,19 +39,30 @@
 			this.checkAllObjectsInAToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.checkAllObjectsInBToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.checkAllObjectsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.showOnlySelectedObjectsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.showOverlaysToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+			this.splitContainer2 = new System.Windows.Forms.SplitContainer();
 			this.objectListView = new System.Windows.Forms.ListView();
 			this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-			this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.showOnlySelectedObjectsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+			this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
 			this.previewPanel = new ObjectLayoutMerge.ScrollingPanel();
-			this.showOverlaysToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.nextAToolStripButton = new System.Windows.Forms.ToolStripButton();
+			this.nextBToolStripButton = new System.Windows.Forms.ToolStripButton();
+			this.nextDiffToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.menuStrip1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
 			this.splitContainer1.Panel2.SuspendLayout();
 			this.splitContainer1.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
+			this.splitContainer2.Panel1.SuspendLayout();
+			this.splitContainer2.Panel2.SuspendLayout();
+			this.splitContainer2.SuspendLayout();
+			this.toolStrip1.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// menuStrip1
@@ -144,56 +155,6 @@
 			this.checkAllObjectsToolStripMenuItem.Text = "&Check All Objects";
 			this.checkAllObjectsToolStripMenuItem.Click += new System.EventHandler(this.checkAllObjectsToolStripMenuItem_Click);
 			// 
-			// splitContainer1
-			// 
-			this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.splitContainer1.Location = new System.Drawing.Point(0, 24);
-			this.splitContainer1.Name = "splitContainer1";
-			// 
-			// splitContainer1.Panel1
-			// 
-			this.splitContainer1.Panel1.Controls.Add(this.objectListView);
-			// 
-			// splitContainer1.Panel2
-			// 
-			this.splitContainer1.Panel2.Controls.Add(this.previewPanel);
-			this.splitContainer1.Size = new System.Drawing.Size(584, 537);
-			this.splitContainer1.SplitterDistance = 205;
-			this.splitContainer1.TabIndex = 1;
-			// 
-			// objectListView
-			// 
-			this.objectListView.CheckBoxes = true;
-			this.objectListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader1,
-            this.columnHeader2});
-			this.objectListView.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.objectListView.FullRowSelect = true;
-			this.objectListView.GridLines = true;
-			this.objectListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
-			this.objectListView.HideSelection = false;
-			this.objectListView.LabelWrap = false;
-			this.objectListView.Location = new System.Drawing.Point(0, 0);
-			this.objectListView.MultiSelect = false;
-			this.objectListView.Name = "objectListView";
-			this.objectListView.ShowGroups = false;
-			this.objectListView.Size = new System.Drawing.Size(205, 537);
-			this.objectListView.TabIndex = 0;
-			this.objectListView.UseCompatibleStateImageBehavior = false;
-			this.objectListView.View = System.Windows.Forms.View.Details;
-			this.objectListView.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler(this.objectListView_ItemChecked);
-			this.objectListView.SelectedIndexChanged += new System.EventHandler(this.objectListView_SelectedIndexChanged);
-			// 
-			// columnHeader1
-			// 
-			this.columnHeader1.Text = "Source";
-			this.columnHeader1.Width = 49;
-			// 
-			// columnHeader2
-			// 
-			this.columnHeader2.Text = "Data";
-			this.columnHeader2.Width = 146;
-			// 
 			// viewToolStripMenuItem
 			// 
 			this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -210,6 +171,107 @@
 			this.showOnlySelectedObjectsToolStripMenuItem.Size = new System.Drawing.Size(221, 22);
 			this.showOnlySelectedObjectsToolStripMenuItem.Text = "&Show Only Selected Objects";
 			this.showOnlySelectedObjectsToolStripMenuItem.CheckedChanged += new System.EventHandler(this.showOnlySelectedObjectsToolStripMenuItem_CheckedChanged);
+			// 
+			// showOverlaysToolStripMenuItem
+			// 
+			this.showOverlaysToolStripMenuItem.Checked = true;
+			this.showOverlaysToolStripMenuItem.CheckOnClick = true;
+			this.showOverlaysToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.showOverlaysToolStripMenuItem.Name = "showOverlaysToolStripMenuItem";
+			this.showOverlaysToolStripMenuItem.Size = new System.Drawing.Size(221, 22);
+			this.showOverlaysToolStripMenuItem.Text = "Show &Overlays";
+			this.showOverlaysToolStripMenuItem.CheckedChanged += new System.EventHandler(this.showOverlaysToolStripMenuItem_CheckedChanged);
+			// 
+			// splitContainer1
+			// 
+			this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.splitContainer1.Location = new System.Drawing.Point(0, 24);
+			this.splitContainer1.Name = "splitContainer1";
+			// 
+			// splitContainer1.Panel1
+			// 
+			this.splitContainer1.Panel1.Controls.Add(this.splitContainer2);
+			// 
+			// splitContainer1.Panel2
+			// 
+			this.splitContainer1.Panel2.Controls.Add(this.previewPanel);
+			this.splitContainer1.Size = new System.Drawing.Size(584, 537);
+			this.splitContainer1.SplitterDistance = 205;
+			this.splitContainer1.TabIndex = 1;
+			// 
+			// splitContainer2
+			// 
+			this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.splitContainer2.Location = new System.Drawing.Point(0, 0);
+			this.splitContainer2.Name = "splitContainer2";
+			this.splitContainer2.Orientation = System.Windows.Forms.Orientation.Horizontal;
+			// 
+			// splitContainer2.Panel1
+			// 
+			this.splitContainer2.Panel1.Controls.Add(this.objectListView);
+			this.splitContainer2.Panel1.Controls.Add(this.toolStrip1);
+			// 
+			// splitContainer2.Panel2
+			// 
+			this.splitContainer2.Panel2.Controls.Add(this.propertyGrid1);
+			this.splitContainer2.Size = new System.Drawing.Size(205, 537);
+			this.splitContainer2.SplitterDistance = 338;
+			this.splitContainer2.TabIndex = 2;
+			// 
+			// objectListView
+			// 
+			this.objectListView.CheckBoxes = true;
+			this.objectListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader1,
+            this.columnHeader2});
+			this.objectListView.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.objectListView.FullRowSelect = true;
+			this.objectListView.GridLines = true;
+			this.objectListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+			this.objectListView.HideSelection = false;
+			this.objectListView.LabelWrap = false;
+			this.objectListView.Location = new System.Drawing.Point(0, 25);
+			this.objectListView.MultiSelect = false;
+			this.objectListView.Name = "objectListView";
+			this.objectListView.ShowGroups = false;
+			this.objectListView.Size = new System.Drawing.Size(205, 313);
+			this.objectListView.TabIndex = 0;
+			this.objectListView.UseCompatibleStateImageBehavior = false;
+			this.objectListView.View = System.Windows.Forms.View.Details;
+			this.objectListView.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler(this.objectListView_ItemChecked);
+			this.objectListView.SelectedIndexChanged += new System.EventHandler(this.objectListView_SelectedIndexChanged);
+			// 
+			// columnHeader1
+			// 
+			this.columnHeader1.Text = "Source";
+			this.columnHeader1.Width = 49;
+			// 
+			// columnHeader2
+			// 
+			this.columnHeader2.Text = "Data";
+			this.columnHeader2.Width = 146;
+			// 
+			// toolStrip1
+			// 
+			this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.nextDiffToolStripButton,
+            this.nextAToolStripButton,
+            this.nextBToolStripButton});
+			this.toolStrip1.Location = new System.Drawing.Point(0, 0);
+			this.toolStrip1.Name = "toolStrip1";
+			this.toolStrip1.Size = new System.Drawing.Size(205, 25);
+			this.toolStrip1.TabIndex = 1;
+			this.toolStrip1.Text = "toolStrip1";
+			// 
+			// propertyGrid1
+			// 
+			this.propertyGrid1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.propertyGrid1.Location = new System.Drawing.Point(0, 0);
+			this.propertyGrid1.Name = "propertyGrid1";
+			this.propertyGrid1.PropertySort = System.Windows.Forms.PropertySort.Alphabetical;
+			this.propertyGrid1.Size = new System.Drawing.Size(205, 195);
+			this.propertyGrid1.TabIndex = 0;
+			this.propertyGrid1.ToolbarVisible = false;
 			// 
 			// previewPanel
 			// 
@@ -238,15 +300,29 @@
 			this.previewPanel.PanelMouseMove += new System.Windows.Forms.MouseEventHandler(this.previewPanel_PanelMouseMove);
 			this.previewPanel.ScrollBarValueChanged += new System.EventHandler(this.previewPanel_ScrollBarValueChanged);
 			// 
-			// showOverlaysToolStripMenuItem
+			// nextAToolStripButton
 			// 
-			this.showOverlaysToolStripMenuItem.Checked = true;
-			this.showOverlaysToolStripMenuItem.CheckOnClick = true;
-			this.showOverlaysToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.showOverlaysToolStripMenuItem.Name = "showOverlaysToolStripMenuItem";
-			this.showOverlaysToolStripMenuItem.Size = new System.Drawing.Size(221, 22);
-			this.showOverlaysToolStripMenuItem.Text = "Show &Overlays";
-			this.showOverlaysToolStripMenuItem.CheckedChanged += new System.EventHandler(this.showOverlaysToolStripMenuItem_CheckedChanged);
+			this.nextAToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.nextAToolStripButton.Name = "nextAToolStripButton";
+			this.nextAToolStripButton.Size = new System.Drawing.Size(46, 22);
+			this.nextAToolStripButton.Text = "Next A";
+			this.nextAToolStripButton.Click += new System.EventHandler(this.nextAToolStripButton_Click);
+			// 
+			// nextBToolStripButton
+			// 
+			this.nextBToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.nextBToolStripButton.Name = "nextBToolStripButton";
+			this.nextBToolStripButton.Size = new System.Drawing.Size(45, 22);
+			this.nextBToolStripButton.Text = "Next B";
+			this.nextBToolStripButton.Click += new System.EventHandler(this.nextBToolStripButton_Click);
+			// 
+			// nextDiffToolStripButton
+			// 
+			this.nextDiffToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.nextDiffToolStripButton.Name = "nextDiffToolStripButton";
+			this.nextDiffToolStripButton.Size = new System.Drawing.Size(57, 22);
+			this.nextDiffToolStripButton.Text = "Next Diff";
+			this.nextDiffToolStripButton.Click += new System.EventHandler(this.nextDiffToolStripButton_Click);
 			// 
 			// MainForm
 			// 
@@ -265,6 +341,13 @@
 			this.splitContainer1.Panel2.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
 			this.splitContainer1.ResumeLayout(false);
+			this.splitContainer2.Panel1.ResumeLayout(false);
+			this.splitContainer2.Panel1.PerformLayout();
+			this.splitContainer2.Panel2.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
+			this.splitContainer2.ResumeLayout(false);
+			this.toolStrip1.ResumeLayout(false);
+			this.toolStrip1.PerformLayout();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -291,6 +374,12 @@
 		private System.Windows.Forms.ToolStripMenuItem viewToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem showOnlySelectedObjectsToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem showOverlaysToolStripMenuItem;
+		private System.Windows.Forms.SplitContainer splitContainer2;
+		private System.Windows.Forms.ToolStrip toolStrip1;
+		private System.Windows.Forms.PropertyGrid propertyGrid1;
+		private System.Windows.Forms.ToolStripButton nextAToolStripButton;
+		private System.Windows.Forms.ToolStripButton nextDiffToolStripButton;
+		private System.Windows.Forms.ToolStripButton nextBToolStripButton;
 	}
 }
 
