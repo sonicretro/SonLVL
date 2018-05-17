@@ -11,7 +11,6 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
 using ChaotixObjectEntry = SonicRetro.SonLVL.API.Chaotix.ChaotixObjectEntry;
 using S1ObjectEntry = SonicRetro.SonLVL.API.S1.S1ObjectEntry;
-using S2ObjectEntry = SonicRetro.SonLVL.API.S2.S2ObjectEntry;
 using SCDObjectEntry = SonicRetro.SonLVL.API.SCD.SCDObjectEntry;
 
 namespace SonicRetro.SonLVL.GUI
@@ -88,7 +87,7 @@ namespace SonicRetro.SonLVL.GUI
 			File.WriteAllLines("SonLVL.log", LogFile.ToArray());
 			using (ErrorDialog ed = new ErrorDialog("Unhandled Exception " + e.Exception.GetType().Name + "\nLog file has been saved.\n\nDo you want to try to continue running?", true))
 			{
-				if (ed.ShowDialog(this) == System.Windows.Forms.DialogResult.Cancel)
+				if (ed.ShowDialog(this) == DialogResult.Cancel)
 					Close();
 			}
 		}
@@ -133,6 +132,7 @@ namespace SonicRetro.SonLVL.GUI
 		ushort waterHeight = 0x600;
 		MouseButtons chunkblockMouseDraw = MouseButtons.Left;
 		MouseButtons chunkblockMouseSelect = MouseButtons.Right;
+		bool layoutswapmode;
 
 		internal void Log(params string[] lines)
 		{
@@ -201,7 +201,7 @@ namespace SonicRetro.SonLVL.GUI
 							message.Add('\t' + item);
 						message.Add(string.Empty);
 						message.Add("Do you want to run the updater?");
-						if (MessageBox.Show(this, string.Join(Environment.NewLine, message.ToArray()), "SonLVL Updates", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == System.Windows.Forms.DialogResult.Yes)
+						if (MessageBox.Show(this, string.Join(Environment.NewLine, message.ToArray()), "SonLVL Updates", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
 						{
 							System.Diagnostics.Process.Start("SonLVL Updater.exe");
 							Close();
@@ -806,6 +806,17 @@ namespace SonicRetro.SonLVL.GUI
 				removeDuplicateTilesToolStripButton.Enabled = removeDuplicateBlocksToolStripButton.Enabled = removeDuplicateChunksToolStripButton.Enabled =
 				replaceBlockTilesToolStripButton.Enabled = replaceChunkBlocksToolStripButton.Enabled = replaceBackgroundToolStripButton.Enabled = replaceForegroundToolStripButton.Enabled =
 				clearBackgroundToolStripButton.Enabled = clearForegroundToolStripButton.Enabled = usageCountsToolStripMenuItem.Enabled = true;
+			layoutswapmode = false;
+			if (LevelData.Level.LayoutCopy != null)
+			{
+				layoutSwapOptionToolStripMenuItem.Enabled = true;
+				optionAToolStripMenuItem.Text = LevelData.Level.LayoutCopy.OptionA;
+				optionBToolStripMenuItem.Text = LevelData.Level.LayoutCopy.OptionB;
+				optionAToolStripMenuItem.Checked = true;
+				optionBToolStripMenuItem.Checked = false;
+			}
+			else
+				layoutSwapOptionToolStripMenuItem.Enabled = false;
 #if !DEBUG
 			loadingAnimation1.Hide();
 #endif
@@ -848,13 +859,73 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void saveToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+			if (layoutswapmode)
+			{
+				foreach (LayoutCopyInfo area in LevelData.Level.LayoutCopy.Sections)
+					if (area.X2.HasValue)
+					{
+						for (int y = 0; y < area.Height; y++)
+							for (int x = 0; x < area.Width; x++)
+							{
+								LevelData.Layout.FGLayout[area.X + x, area.Y + y] = LevelData.Layout.FGLayout[area.X2.Value + x, area.Y2.Value + y];
+								if (LevelData.Layout.FGLoop != null)
+									LevelData.Layout.FGLoop[area.X + x, area.Y + y] = LevelData.Layout.FGLoop[area.X2.Value + x, area.Y2.Value + y];
+							}
+					}
+					else
+					{
+						for (int y = 0; y < area.Height; y++)
+							for (int x = 0; x < area.Width; x++)
+							{
+								byte tmp = LevelData.Layout.FGLayout[area.X + x, area.Y + y];
+								LevelData.Layout.FGLayout[area.X + x, area.Y + y] = LevelData.Layout.FGLayout[area.X1 + x, area.Y1 + y];
+								LevelData.Layout.FGLayout[area.X1 + x, area.Y1 + y] = tmp;
+								if (LevelData.Layout.FGLoop != null)
+								{
+									bool b = LevelData.Layout.FGLoop[area.X + x, area.Y + y];
+									LevelData.Layout.FGLoop[area.X + x, area.Y + y] = LevelData.Layout.FGLoop[area.X1 + x, area.Y1 + y];
+									LevelData.Layout.FGLoop[area.X1 + x, area.Y1 + y] = b;
+								}
+							}
+					}
+			}
 			LevelData.SaveLevel();
+			if (layoutswapmode)
+			{
+				foreach (LayoutCopyInfo area in LevelData.Level.LayoutCopy.Sections)
+					if (area.X2.HasValue)
+					{
+						for (int y = 0; y < area.Height; y++)
+							for (int x = 0; x < area.Width; x++)
+							{
+								LevelData.Layout.FGLayout[area.X + x, area.Y + y] = LevelData.Layout.FGLayout[area.X1 + x, area.Y1 + y];
+								if (LevelData.Layout.FGLoop != null)
+									LevelData.Layout.FGLoop[area.X + x, area.Y + y] = LevelData.Layout.FGLoop[area.X1 + x, area.Y1 + y];
+							}
+					}
+					else
+					{
+						for (int y = 0; y < area.Height; y++)
+							for (int x = 0; x < area.Width; x++)
+							{
+								byte tmp = LevelData.Layout.FGLayout[area.X + x, area.Y + y];
+								LevelData.Layout.FGLayout[area.X + x, area.Y + y] = LevelData.Layout.FGLayout[area.X1 + x, area.Y1 + y];
+								LevelData.Layout.FGLayout[area.X1 + x, area.Y1 + y] = tmp;
+								if (LevelData.Layout.FGLoop != null)
+								{
+									bool b = LevelData.Layout.FGLoop[area.X + x, area.Y + y];
+									LevelData.Layout.FGLoop[area.X + x, area.Y + y] = LevelData.Layout.FGLoop[area.X1 + x, area.Y1 + y];
+									LevelData.Layout.FGLoop[area.X1 + x, area.Y1 + y] = b;
+								}
+							}
+					}
+			}
 		}
 
 		private void buildAndRunToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			if (LevelData.Level != null)
-				LevelData.SaveLevel();
+				saveToolStripMenuItem_Click(sender, e);
 			System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Path.Combine(Environment.CurrentDirectory, LevelData.Game.BuildScript)) { WorkingDirectory = Path.GetDirectoryName(Path.Combine(Environment.CurrentDirectory, LevelData.Game.BuildScript)) }).WaitForExit();
 			string romfile = LevelData.Game.ROMFile ?? LevelData.Game.RunCommand;
 			if (LevelData.Game.UseEmulator)
@@ -2703,6 +2774,7 @@ namespace SonicRetro.SonLVL.GUI
 							LevelData.Layout.FGLayout[chunkpoint.X, chunkpoint.Y] = (byte)SelectedChunk;
 							if (LevelData.LayoutFormat.HasLoopFlag)
 								LevelData.Layout.FGLoop[chunkpoint.X, chunkpoint.Y] = LevelData.Level.LoopChunks.Contains((byte)SelectedChunk);
+							DoLayoutCopy();
 						}
 					}
 					DrawLevel();
@@ -2737,6 +2809,7 @@ namespace SonicRetro.SonLVL.GUI
 							LevelData.Layout.FGLayout[chunkpoint.X, chunkpoint.Y] = (byte)SelectedChunk;
 							if (LevelData.LayoutFormat.HasLoopFlag)
 								LevelData.Layout.FGLoop[chunkpoint.X, chunkpoint.Y] = LevelData.Level.LoopChunks.Contains((byte)SelectedChunk);
+							DoLayoutCopy();
 							DrawLevel();
 						}
 					break;
@@ -5038,7 +5111,7 @@ namespace SonicRetro.SonLVL.GUI
 				opendlg.DefaultExt = "png";
 				opendlg.Filter = "Image Files|*.bmp;*.png;*.jpg;*.gif";
 				opendlg.RestoreDirectory = true;
-				if (opendlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+				if (opendlg.ShowDialog(this) == DialogResult.OK)
 				{
 					Bitmap colbmp1 = null, colbmp2 = null, pribmp = null;
 					if (CurrentArtTab != ArtTab.Tiles)
@@ -5492,7 +5565,7 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			if (!loaded) return;
 			using (CollisionSelector sel = new CollisionSelector())
-				if (sel.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+				if (sel.ShowDialog(this) == DialogResult.OK)
 					BlockCollision1.Value = sel.Selection;
 		}
 
@@ -5500,7 +5573,7 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			if (!loaded) return;
 			using (CollisionSelector sel = new CollisionSelector())
-				if (sel.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+				if (sel.ShowDialog(this) == DialogResult.OK)
 					BlockCollision2.Value = sel.Selection;
 		}
 
@@ -5540,7 +5613,7 @@ namespace SonicRetro.SonLVL.GUI
 						dlg.tile = new BitmapBits(8, LevelData.Level.TwoPlayerCompatible ? 16 : 8);
 						break;
 				}
-				if (dlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+				if (dlg.ShowDialog(this) == DialogResult.OK)
 					ImportImage(dlg.tile.ToBitmap(LevelData.BmpPal), null, null, null, null);
 			}
 		}
@@ -5694,6 +5767,7 @@ namespace SonicRetro.SonLVL.GUI
 						loop[x + selection.X, y + selection.Y] = false;
 					}
 				}
+			if (CurrentTab == Tab.Foreground) DoLayoutCopy();
 			List<Entry> objectselection = new List<Entry>();
 			List<Entry> objstodelete = new List<Entry>();
 			if (includeObjectsWithForegroundSelectionToolStripMenuItem.Checked & CurrentTab == Tab.Foreground)
@@ -5857,6 +5931,7 @@ namespace SonicRetro.SonLVL.GUI
 							loop[x + menuLoc.X, y + menuLoc.Y] = section.Loop[x, y];
 					}
 				}
+			if (CurrentTab == Tab.Foreground) DoLayoutCopy();
 			if (includeObjectsWithForegroundSelectionToolStripMenuItem.Checked & CurrentTab == Tab.Foreground)
 			{
 				Size off = new Size(menuLoc.X * LevelData.Level.ChunkWidth, menuLoc.Y * LevelData.Level.ChunkHeight);
@@ -5918,6 +5993,7 @@ namespace SonicRetro.SonLVL.GUI
 							loop[x + selection.X, y + selection.Y] = section.Loop[x % width, y % height];
 					}
 				}
+			if (CurrentTab == Tab.Foreground) DoLayoutCopy();
 			if (includeObjectsWithForegroundSelectionToolStripMenuItem.Checked & CurrentTab == Tab.Foreground)
 			{
 				int w = (int)Math.Ceiling(selection.Width / (double)width);
@@ -5977,6 +6053,7 @@ namespace SonicRetro.SonLVL.GUI
 					if (loop != null)
 						loop[x, y] = false;
 				}
+			if (CurrentTab == Tab.Foreground) DoLayoutCopy();
 			if (includeObjectsWithForegroundSelectionToolStripMenuItem.Checked & CurrentTab == Tab.Foreground)
 			{
 				List<Entry> objectselection = new List<Entry>();
@@ -6035,6 +6112,7 @@ namespace SonicRetro.SonLVL.GUI
 					if (loop != null)
 						loop[x, y] = false;
 				}
+			if (CurrentTab == Tab.Foreground) DoLayoutCopy();
 			DrawLevel();
 		}
 
@@ -6056,7 +6134,7 @@ namespace SonicRetro.SonLVL.GUI
 						cursize = LevelData.FGSize;
 					dg.levelHeight.Value = cursize.Height;
 					dg.levelWidth.Value = cursize.Width;
-					if (dg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+					if (dg.ShowDialog(this) == DialogResult.OK)
 					{
 						if (CurrentTab == Tab.Background)
 							LevelData.ResizeBG((int)dg.levelWidth.Value, (int)dg.levelHeight.Value);
@@ -6070,6 +6148,104 @@ namespace SonicRetro.SonLVL.GUI
 				}
 				else
 					MessageBox.Show(this, "The current game does not allow you to resize levels!", Text);
+			}
+		}
+
+		private void optionAToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			if (!layoutswapmode) return;
+			optionAToolStripMenuItem.Checked = true;
+			optionBToolStripMenuItem.Checked = false;
+			layoutswapmode = false;
+			foreach (LayoutCopyInfo area in LevelData.Level.LayoutCopy.Sections)
+				if (area.X2.HasValue)
+				{
+					for (int y = 0; y < area.Height; y++)
+						for (int x = 0; x < area.Width; x++)
+						{
+							LevelData.Layout.FGLayout[area.X + x, area.Y + y] = LevelData.Layout.FGLayout[area.X2.Value + x, area.Y2.Value + y];
+							if (LevelData.Layout.FGLoop != null)
+								LevelData.Layout.FGLoop[area.X + x, area.Y + y] = LevelData.Layout.FGLoop[area.X2.Value + x, area.Y2.Value + y];
+						}
+				}
+				else
+				{
+					for (int y = 0; y < area.Height; y++)
+						for (int x = 0; x < area.Width; x++)
+						{
+							byte tmp = LevelData.Layout.FGLayout[area.X + x, area.Y + y];
+							LevelData.Layout.FGLayout[area.X + x, area.Y + y] = LevelData.Layout.FGLayout[area.X1 + x, area.Y1 + y];
+							LevelData.Layout.FGLayout[area.X1 + x, area.Y1 + y] = tmp;
+							if (LevelData.Layout.FGLoop != null)
+							{
+								bool b = LevelData.Layout.FGLoop[area.X + x, area.Y + y];
+								LevelData.Layout.FGLoop[area.X + x, area.Y + y] = LevelData.Layout.FGLoop[area.X1 + x, area.Y1 + y];
+								LevelData.Layout.FGLoop[area.X1 + x, area.Y1 + y] = b;
+							}
+						}
+				}
+			DrawLevel();
+		}
+
+		private void optionBToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			if (layoutswapmode) return;
+			optionAToolStripMenuItem.Checked = false;
+			optionBToolStripMenuItem.Checked = true;
+			layoutswapmode = true;
+			foreach (LayoutCopyInfo area in LevelData.Level.LayoutCopy.Sections)
+				if (area.X2.HasValue)
+				{
+					for (int y = 0; y < area.Height; y++)
+						for (int x = 0; x < area.Width; x++)
+						{
+							LevelData.Layout.FGLayout[area.X + x, area.Y + y] = LevelData.Layout.FGLayout[area.X1 + x, area.Y1 + y];
+							if (LevelData.Layout.FGLoop != null)
+								LevelData.Layout.FGLoop[area.X + x, area.Y + y] = LevelData.Layout.FGLoop[area.X1 + x, area.Y1 + y];
+						}
+				}
+				else
+				{
+					for (int y = 0; y < area.Height; y++)
+						for (int x = 0; x < area.Width; x++)
+						{
+							byte tmp = LevelData.Layout.FGLayout[area.X + x, area.Y + y];
+							LevelData.Layout.FGLayout[area.X + x, area.Y + y] = LevelData.Layout.FGLayout[area.X1 + x, area.Y1 + y];
+							LevelData.Layout.FGLayout[area.X1 + x, area.Y1 + y] = tmp;
+							if (LevelData.Layout.FGLoop != null)
+							{
+								bool b = LevelData.Layout.FGLoop[area.X + x, area.Y + y];
+								LevelData.Layout.FGLoop[area.X + x, area.Y + y] = LevelData.Layout.FGLoop[area.X1 + x, area.Y1 + y];
+								LevelData.Layout.FGLoop[area.X1 + x, area.Y1 + y] = b;
+							}
+						}
+				}
+			DrawLevel();
+		}
+
+		private void DoLayoutCopy()
+		{
+			if (LevelData.Level.LayoutCopy == null) return;
+			foreach (LayoutCopyInfo area in LevelData.Level.LayoutCopy.Sections.Where(a => a.X2.HasValue))
+			{
+				int dX, dY;
+				if (layoutswapmode)
+				{
+					dX = area.X1;
+					dY = area.Y1;
+				}
+				else
+				{
+					dX = area.X2.Value;
+					dY = area.Y2.Value;
+				}
+				for (int y = 0; y < area.Height; y++)
+					for (int x = 0; x < area.Width; x++)
+					{
+						LevelData.Layout.FGLayout[dX + x, dY + y] = LevelData.Layout.FGLayout[area.X + x, area.Y + y];
+						if (LevelData.Layout.FGLoop != null)
+							LevelData.Layout.FGLoop[dX + x, dY + y] = LevelData.Layout.FGLoop[area.X + x, area.Y + y];
+					}
 			}
 		}
 
@@ -6404,6 +6580,7 @@ namespace SonicRetro.SonLVL.GUI
 					}
 				}
 			}
+			if (CurrentTab == Tab.Foreground) DoLayoutCopy();
 		}
 
 		private void deleteLayoutToolStripMenuItem_Click(object sender, EventArgs e)
@@ -6681,6 +6858,7 @@ namespace SonicRetro.SonLVL.GUI
 					}
 				}
 			}
+			if (CurrentTab == Tab.Foreground) DoLayoutCopy();
 		}
 
 		private bool alignWall_common(int x, int y, Solidity solidity)
@@ -6919,7 +7097,7 @@ namespace SonicRetro.SonLVL.GUI
 			{
 				case Tab.Objects:
 					DialogResult res = findObjectsDialog.ShowDialog(this);
-					if (res != System.Windows.Forms.DialogResult.Yes && res != System.Windows.Forms.DialogResult.OK)
+					if (res != DialogResult.Yes && res != DialogResult.OK)
 						return;
 					foundobjs = new List<ObjectEntry>(LevelData.Objects);
 					byte? id = findObjectsDialog.ID;
@@ -7677,7 +7855,7 @@ namespace SonicRetro.SonLVL.GUI
 		private void remapChunksButton_Click(object sender, EventArgs e)
 		{
 			using (TileRemappingDialog dlg = new TileRemappingDialog("Chunks", LevelData.CompChunkBmps, ChunkSelector.ImageWidth, ChunkSelector.ImageHeight))
-				if (dlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+				if (dlg.ShowDialog(this) == DialogResult.OK)
 				{
 					List<Chunk> oldchunks = LevelData.Chunks.ToList();
 					List<Sprite> oldchunkbmpbits = new List<Sprite>(LevelData.ChunkSprites);
@@ -7757,7 +7935,7 @@ namespace SonicRetro.SonLVL.GUI
 		private void remapTilesButton_Click(object sender, EventArgs e)
 		{
 			using (TileRemappingDialog dlg = new TileRemappingDialog("Tiles", TileSelector.Images, TileSelector.ImageWidth, TileSelector.ImageHeight))
-				if (dlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+				if (dlg.ShowDialog(this) == DialogResult.OK)
 				{
 					List<byte[]> oldtiles = LevelData.Tiles.ToList();
 					List<Bitmap> oldimages = new List<Bitmap>(TileSelector.Images);
@@ -7803,7 +7981,7 @@ namespace SonicRetro.SonLVL.GUI
 			using (LayoutSectionNameDialog dlg = new LayoutSectionNameDialog())
 			{
 				dlg.Value = "Section " + (savedLayoutSections.Count + 1);
-				if (dlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+				if (dlg.ShowDialog(this) == DialogResult.OK)
 				{
 					LayoutSection sec = CreateLayoutSection();
 					sec.Name = dlg.Value;
@@ -7831,7 +8009,7 @@ namespace SonicRetro.SonLVL.GUI
 		private void layoutSectionListBox_KeyDown(object sender, KeyEventArgs e)
 		{
 			if (layoutSectionListBox.SelectedIndex != -1 && e.KeyCode == Keys.Delete
-				&& MessageBox.Show(this, "Are you sure you want to delete layout section \"" + savedLayoutSections[layoutSectionListBox.SelectedIndex].Name + "\"?", "SonLVL", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == System.Windows.Forms.DialogResult.OK)
+				&& MessageBox.Show(this, "Are you sure you want to delete layout section \"" + savedLayoutSections[layoutSectionListBox.SelectedIndex].Name + "\"?", "SonLVL", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.OK)
 			{
 				savedLayoutSections.RemoveAt(layoutSectionListBox.SelectedIndex);
 				savedLayoutSectionImages.RemoveAt(layoutSectionListBox.SelectedIndex);
@@ -8342,6 +8520,7 @@ namespace SonicRetro.SonLVL.GUI
 								if (loop != null)
 									loop[x + menuLoc.X, y + menuLoc.Y] = false;
 							}
+						if (CurrentTab == Tab.Foreground) DoLayoutCopy();
 					}
 		}
 
@@ -8615,7 +8794,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void replaceForegroundToolStripButton_Click(object sender, EventArgs e)
 		{
-			if (replaceFGChunksDialog.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+			if (replaceFGChunksDialog.ShowDialog(this) == DialogResult.OK)
 			{
 				byte fc = (byte)replaceFGChunksDialog.findChunk.Value;
 				byte rc = (byte)replaceFGChunksDialog.replaceChunk.Value;
@@ -8634,7 +8813,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void replaceBackgroundToolStripButton_Click(object sender, EventArgs e)
 		{
-			if (replaceBGChunksDialog.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+			if (replaceBGChunksDialog.ShowDialog(this) == DialogResult.OK)
 			{
 				byte fc = (byte)replaceBGChunksDialog.findChunk.Value;
 				byte rc = (byte)replaceBGChunksDialog.replaceChunk.Value;
@@ -8653,7 +8832,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void replaceChunkBlocksToolStripButton_Click(object sender, EventArgs e)
 		{
-			if (replaceChunkBlocksDialog.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+			if (replaceChunkBlocksDialog.ShowDialog(this) == DialogResult.OK)
 			{
 				var list = LevelData.Chunks.SelectMany((a, b) => a.Blocks.OfType<ChunkBlock>().Select(c => new KeyValuePair<int, ChunkBlock>(b, c))).ToList();
 				ushort? block = replaceChunkBlocksDialog.findBlock.Block;
@@ -8700,7 +8879,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void replaceBlockTilesToolStripButton_Click(object sender, EventArgs e)
 		{
-			if (replaceBlockTilesDialog.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+			if (replaceBlockTilesDialog.ShowDialog(this) == DialogResult.OK)
 			{
 				var list = LevelData.Blocks.SelectMany((a, b) => a.Tiles.OfType<PatternIndex>().Select(c => new KeyValuePair<int, PatternIndex>(b, c))).ToList();
 				ushort? tile = replaceBlockTilesDialog.findTile.Tile;
@@ -9190,7 +9369,7 @@ namespace SonicRetro.SonLVL.GUI
 				opendlg.DefaultExt = "png";
 				opendlg.Filter = "Image Files|*.bmp;*.png;*.jpg;*.gif";
 				opendlg.RestoreDirectory = true;
-				if (opendlg.ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
+				if (opendlg.ShowDialog(this) == DialogResult.OK)
 				{
 					BitmapInfo bmpi;
 					using (Bitmap bmp = new Bitmap(opendlg.FileName))

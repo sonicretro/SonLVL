@@ -397,6 +397,8 @@ namespace SonicRetro.SonLVL.API
 		public AnimatedTileInfo[] AnimatedTiles { get; set; }
 		[IniName("animblocks")]
 		public string AnimatedBlocks { get; set; }
+		[IniName("layoutcopy")]
+		public LayoutCopyList LayoutCopy { get; set; }
 	}
 
 	[TypeConverter(typeof(StringConverter<FileInfo>))]
@@ -423,7 +425,7 @@ namespace SonicRetro.SonLVL.API
 		public override string ToString()
 		{
 			if (Offset != -1)
-				return Filename + ":0x" + Offset.ToString("X");
+				return $"{Filename}:0x{Offset:X}";
 			else
 				return Filename;
 		}
@@ -460,7 +462,7 @@ namespace SonicRetro.SonLVL.API
 
 		public override string ToString()
 		{
-			return Name + "|" + Palettes.ToString();
+			return $"{Name}|{Palettes.ToString()}";
 		}
 
 		IEnumerator<PaletteInfo> IEnumerable<PaletteInfo>.GetEnumerator()
@@ -496,10 +498,7 @@ namespace SonicRetro.SonLVL.API
 
 		public override string ToString()
 		{
-			List<string> data = new List<string>(Collection.Length);
-			foreach (PaletteInfo item in Collection)
-				data.Add(item.ToString());
-			return string.Join("|", data.ToArray());
+			return string.Join("|", (IEnumerable<PaletteInfo>)Collection);
 		}
 
 		IEnumerator<PaletteInfo> IEnumerable<PaletteInfo>.GetEnumerator()
@@ -535,7 +534,7 @@ namespace SonicRetro.SonLVL.API
 
 		public override string ToString()
 		{
-			return Filename + ":" + Source.ToString(NumberFormatInfo.InvariantInfo) + ":" + Destination.ToString(NumberFormatInfo.InvariantInfo) + ":" + Length.ToString(NumberFormatInfo.InvariantInfo);
+			return $"{Filename}:{Source.ToString(NumberFormatInfo.InvariantInfo)}:{Destination.ToString(NumberFormatInfo.InvariantInfo)}:{Length.ToString(NumberFormatInfo.InvariantInfo)}";
 		}
 	}
 
@@ -557,7 +556,7 @@ namespace SonicRetro.SonLVL.API
 
 		public override string ToString()
 		{
-			return Filename + ":" + Sprite + ":" + Name + (Offset == -1 ? "" : ":" + Offset.ToString("X"));
+			return $"{Filename}:{Sprite}:{Name}{(Offset == -1 ? "" : $":{Offset:X}")}";
 		}
 	}
 
@@ -590,7 +589,65 @@ namespace SonicRetro.SonLVL.API
 
 		public override string ToString()
 		{
-			return Filename + ":0x" + Destination.ToString("X") + ":" + Length;
+			return $"{Filename}:0x{Destination:X}:{Length}";
+		}
+	}
+
+	[TypeConverter(typeof(StringConverter<LayoutCopyList>))]
+	public class LayoutCopyList
+	{
+		public string OptionA { get; set; }
+		public string OptionB { get; set; }
+		public List<LayoutCopyInfo> Sections { get; set; } = new List<LayoutCopyInfo>();
+
+		public LayoutCopyList(string data)
+		{
+			string[] split = data.Split('|');
+			OptionA = split[0];
+			OptionB = split[1];
+			for (int i = 2; i < split.Length; i++)
+				Sections.Add(new LayoutCopyInfo(split[i]));
+		}
+
+		public override string ToString()
+		{
+			return $"{OptionA}|{OptionB}|{string.Join("|", Sections)}";
+		}
+	}
+
+	public class LayoutCopyInfo
+	{
+		public int X { get; set; }
+		public int Y { get; set; }
+		public int Width { get; set; }
+		public int Height { get; set; }
+		public int X1 { get; set; }
+		public int Y1 { get; set; }
+		public int? X2 { get; set; }
+		public int? Y2 { get; set; }
+
+		public LayoutCopyInfo(string data)
+		{
+			string[] split = data.Split(':');
+			X = int.Parse(split[0], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
+			Y = int.Parse(split[1], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
+			Width = int.Parse(split[2], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
+			Height = int.Parse(split[3], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
+			X1 = int.Parse(split[4], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
+			Y1 = int.Parse(split[5], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
+			if (split.Length >= 8)
+			{
+				X2 = int.Parse(split[6], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
+				Y2 = int.Parse(split[7], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
+			}
+		}
+
+		public override string ToString()
+		{
+			string result = $"{X}:{Y}:{Width}:{Height}:{X1}:{Y1}";
+			if (X2.HasValue && Y2.HasValue)
+				result += $":{X2}:{Y2}";
+			return result;
 		}
 	}
 
