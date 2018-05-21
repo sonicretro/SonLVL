@@ -974,6 +974,8 @@ namespace SonicRetro.SonLVL.API
 		protected bool isLoaded = false;
 		[NonSerialized]
 		private Sprite _debugOverlay;
+		[NonSerialized]
+		private int _depth;
 
 		int IComparable<ObjectEntry>.CompareTo(ObjectEntry other)
 		{
@@ -986,6 +988,8 @@ namespace SonicRetro.SonLVL.API
 
 		[Browsable(false)]
 		public Sprite DebugOverlay => _debugOverlay;
+		[Browsable(false)]
+		public int Depth => _depth;
 
 		public override void UpdateSprite()
 		{
@@ -997,6 +1001,7 @@ namespace SonicRetro.SonLVL.API
 				_bounds = _sprite.Bounds;
 				_bounds.Offset(X, Y);
 			}
+			_depth = def.GetDepth(this);
 			UpdateDebugOverlay();
 		}
 

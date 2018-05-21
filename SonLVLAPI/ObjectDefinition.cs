@@ -68,6 +68,8 @@ namespace SonicRetro.SonLVL.API
 		public byte DefaultSubtype;
 		[IniName("debug")]
 		public bool Debug;
+		[IniName("depth")]
+		public int Depth;
 		[IniName("subtypes")]
 		[IniCollection(IniCollectionMode.SingleLine, Format = ",", ValueConverter = typeof(ByteHexConverter))]
 		public byte[] Subtypes;
@@ -97,11 +99,8 @@ namespace SonicRetro.SonLVL.API
 		public virtual byte DefaultSubtype { get { return 0; } }
 		public abstract Sprite Image { get; }
 		public abstract Sprite GetSprite(ObjectEntry obj);
-#pragma warning disable CS0618 // Type or member is obsolete
-		public virtual Rectangle GetBounds(ObjectEntry obj) { return GetBounds(obj, Point.Empty); }
-#pragma warning restore CS0618 // Type or member is obsolete
-		[Obsolete("The two-argument version of this function is obsolete. Please change your code to use the single-argument version instead.")]
-		public virtual Rectangle GetBounds(ObjectEntry obj, Point camera) { return Rectangle.Empty; }
+		public virtual Rectangle GetBounds(ObjectEntry obj) { return Rectangle.Empty; }
+		public virtual int GetDepth(ObjectEntry obj) { return 0; }
 		public virtual Sprite GetDebugOverlay(ObjectEntry obj) { return null; }
 		public virtual bool Debug { get { return false; } }
 		static readonly PropertySpec[] specs = new PropertySpec[0];
@@ -496,6 +495,7 @@ namespace SonicRetro.SonLVL.API
 		private byte defsub;
 		private List<byte> subtypes = new List<byte>();
 		bool debug = false;
+		int depth;
 
 		public override void Init(ObjectData data)
 		{
@@ -572,6 +572,7 @@ namespace SonicRetro.SonLVL.API
 			rememberstate = data.RememberState;
 			defsub = data.DefaultSubtype;
 			debug = debug | data.Debug;
+			depth = data.Depth;
 			if (data.Subtypes != null)
 				subtypes.AddRange(data.Subtypes);
 		}
@@ -593,6 +594,11 @@ namespace SonicRetro.SonLVL.API
 		public override Sprite GetSprite(ObjectEntry obj)
 		{
 			return spr[(obj.XFlip ? 1 : 0) | (obj.YFlip ? 2 : 0)];
+		}
+
+		public override int GetDepth(ObjectEntry obj)
+		{
+			return depth;
 		}
 
 		public override bool Debug { get { return debug; } }
@@ -1169,6 +1175,15 @@ namespace SonicRetro.SonLVL.API
 					}
 				}
 			return true;
+		}
+
+		public override int GetDepth(ObjectEntry obj)
+		{
+			if (xmldef.Display != null && xmldef.Display.DisplayOptions != null)
+				foreach (XMLDef.DisplayOption option in xmldef.Display.DisplayOptions)
+					if (CheckConditions(obj, option))
+						return option.Depth;
+			return xmldef.Depth;
 		}
 
 		public override bool Debug

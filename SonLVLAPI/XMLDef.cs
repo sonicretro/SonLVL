@@ -31,6 +31,10 @@ namespace SonicRetro.SonLVL.API.XMLDef
 		public bool Debug { get; set; }
 		[XmlIgnore]
 		public bool DebugSpecified { get { return !Debug; } set { } }
+		[XmlAttribute]
+		public int Depth { get; set; }
+		[XmlIgnore]
+		public bool DepthSpecified { get; set; }
 		public ImageList Images { get; set; }
 		public ImageSetList ImageSets { get; set; }
 		public ImageRefList DefaultImage { get; set; }
@@ -296,6 +300,8 @@ namespace SonicRetro.SonLVL.API.XMLDef
 
 	public class DisplayOption : ImageRefList
 	{
+		[XmlAttribute("depth")]
+		public int Depth { get; set; }
 		[XmlElement("Condition")]
 		public Condition[] Conditions { get; set; }
 		[XmlElement("Line")]

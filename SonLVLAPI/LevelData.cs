@@ -1293,10 +1293,18 @@ namespace SonicRetro.SonLVL.API
 					}
 			if (includeObjects)
 			{
+				List<ObjectEntry> objs = new List<ObjectEntry>(Objects.Where(o => ObjectVisible(o, allTimeZones)));
+				objs.Sort((a, b) =>
+				{
+					int result = a.Depth.CompareTo(b.Depth);
+					if (result == 0)
+						result = ((IComparable<ObjectEntry>)a).CompareTo(b);
+					return result;
+				});
 				if (objectsAboveHighPlane)
 				{
-					foreach (ObjectEntry item in Objects)
-						if (!(!includeDebugObjects && GetObjectDefinition(item.ID).Debug) && ObjectVisible(item, allTimeZones))
+					foreach (ObjectEntry item in objs)
+						if (!(!includeDebugObjects && GetObjectDefinition(item.ID).Debug))
 							LevelImg8bpp.DrawSprite(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
 					if (RingFormat is RingLayoutFormat)
 						foreach (RingEntry item in Rings)
@@ -1309,8 +1317,8 @@ namespace SonicRetro.SonLVL.API
 				}
 				else
 				{
-					foreach (ObjectEntry item in Objects)
-						if (!(!includeDebugObjects && GetObjectDefinition(item.ID).Debug) && ObjectVisible(item, allTimeZones))
+					foreach (ObjectEntry item in objs)
+						if (!(!includeDebugObjects && GetObjectDefinition(item.ID).Debug))
 							LevelImg8bpp.DrawSpriteLow(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
 					if (RingFormat is RingLayoutFormat)
 						foreach (RingEntry item in Rings)
@@ -1331,8 +1339,8 @@ namespace SonicRetro.SonLVL.API
 								else if (collisionPath2)
 									LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][1], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
 							}
-					foreach (ObjectEntry item in Objects)
-						if (!(!includeDebugObjects && GetObjectDefinition(item.ID).Debug) && ObjectVisible(item, allTimeZones))
+					foreach (ObjectEntry item in objs)
+						if (!(!includeDebugObjects && GetObjectDefinition(item.ID).Debug))
 							LevelImg8bpp.DrawSpriteHigh(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
 					if (RingFormat is RingLayoutFormat)
 						foreach (RingEntry item in Rings)
@@ -1344,8 +1352,8 @@ namespace SonicRetro.SonLVL.API
 						LevelImg8bpp.DrawSpriteHigh(StartPositions[si].Sprite, StartPositions[si].X - bounds.X, StartPositions[si].Y - bounds.Y);
 				}
 				if (includeDebugObjects)
-					foreach (ObjectEntry item in Objects)
-						if (item.DebugOverlay != null && ObjectVisible(item, allTimeZones))
+					foreach (ObjectEntry item in objs)
+						if (item.DebugOverlay != null)
 							LevelImg8bpp.DrawSprite(item.DebugOverlay, item.X - bounds.X, item.Y - bounds.Y);
 			}
 			return LevelImg8bpp;
