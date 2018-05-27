@@ -1296,7 +1296,7 @@ namespace SonicRetro.SonLVL.API
 				List<ObjectEntry> objs = new List<ObjectEntry>(Objects.Where(o => ObjectVisible(o, allTimeZones)));
 				objs.Sort((a, b) =>
 				{
-					int result = a.Depth.CompareTo(b.Depth);
+					int result = -a.Depth.CompareTo(b.Depth);
 					if (result == 0)
 						result = ((IComparable<ObjectEntry>)a).CompareTo(b);
 					return result;
