@@ -1180,9 +1180,17 @@ namespace SonicRetro.SonLVL.API
 		public override int GetDepth(ObjectEntry obj)
 		{
 			if (xmldef.Display != null && xmldef.Display.DisplayOptions != null)
+			{
 				foreach (XMLDef.DisplayOption option in xmldef.Display.DisplayOptions)
 					if (CheckConditions(obj, option))
 						return option.Depth;
+			}
+			else if (xmldef.Subtypes != null && xmldef.Subtypes.Items != null)
+			{
+				foreach (XMLDef.Subtype item in xmldef.Subtypes.Items)
+					if (obj.SubType == item.subtype)
+						return item.depth;
+			}
 			return xmldef.Depth;
 		}
 
