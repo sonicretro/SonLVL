@@ -1189,7 +1189,7 @@ namespace SonicRetro.SonLVL.API
 			{
 				foreach (XMLDef.Subtype item in xmldef.Subtypes.Items)
 					if (obj.SubType == item.subtype)
-						return item.depth ?? xmldef.Depth;
+						return item.depthSpecified ? item.depth : xmldef.Depth;
 			}
 			return xmldef.Depth;
 		}

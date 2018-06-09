@@ -230,9 +230,9 @@ namespace SonicRetro.SonLVL.API.XMLDef
 		[XmlAttribute]
 		public string image { get; set; }
 		[XmlAttribute]
-		public int? depth { get; set; }
+		public int depth { get; set; }
 		[XmlIgnore]
-		public bool depthSpecified { get { return depth.HasValue; } set { } }
+		public bool depthSpecified { get; set; }
 	}
 
 	public class PropertyList
