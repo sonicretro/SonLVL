@@ -2733,8 +2733,8 @@ namespace SonicRetro.SonLVL.GUI
 					}
 				}
 				else
-					foreach (ObjectEntry item in SelectedItems.OfType<ObjectEntry>())
-						item.UpdateDebugOverlay();
+					foreach (Entry item in SelectedItems)
+						item.UpdateSprite();
 				bool moved = false;
 				for (int i = 0; i < SelectedItems.Count; i++)
 					if (SelectedItems[i].X != locs[i].X | SelectedItems[i].Y != locs[i].Y)
