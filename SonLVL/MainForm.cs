@@ -9546,25 +9546,50 @@ namespace SonicRetro.SonLVL.GUI
 						Chunk.Blocks[x, y].Block = (ushort)i;
 					}
 			Blocks = new List<Block>(blocks.Count);
-			IsInterlacedCompatible = true;
+			IsInterlacedCompatible = LevelData.Level.TwoPlayerCompatible;
 			List<ushort> tiles = new List<ushort>();
 			foreach (ushort blkind in blocks)
 			{
 				Block block = LevelData.Blocks[blkind].Clone();
-				if (!block.IsInterlacedCompatible)
-					IsInterlacedCompatible = false;
-				for (int y = 0; y < 2; y++)
+				if (LevelData.Level.TwoPlayerCompatible)
+				{
 					for (int x = 0; x < 2; x++)
-						if (block.Tiles[x, y].Tile < LevelData.Tiles.Count)
+						if (block.Tiles[x, 0].YFlip)
 						{
-							int i = tiles.IndexOf(block.Tiles[x, y].Tile);
-							if (i == -1)
-							{
-								i = tiles.Count;
-								tiles.Add(block.Tiles[x, y].Tile);
-							}
-							block.Tiles[x, y].Tile = (ushort)i;
+							for (int y = 1; y >= 0; y--)
+								if (block.Tiles[x, y].Tile < LevelData.Tiles.Count)
+								{
+									int i = tiles.Count;
+									tiles.Add(block.Tiles[x, y].Tile);
+									block.Tiles[x, y].Tile = (ushort)i;
+								}
 						}
+						else
+						{
+							for (int y = 0; y < 2; y++)
+								if (block.Tiles[x, y].Tile < LevelData.Tiles.Count)
+								{
+									int i = tiles.Count;
+									tiles.Add(block.Tiles[x, y].Tile);
+									block.Tiles[x, y].Tile = (ushort)i;
+								}
+						}
+				}
+				else
+				{
+					for (int x = 0; x < 2; x++)
+						for (int y = 0; y < 2; y++)
+							if (block.Tiles[x, y].Tile < LevelData.Tiles.Count)
+							{
+								int i = tiles.IndexOf(block.Tiles[x, y].Tile);
+								if (i == -1)
+								{
+									i = tiles.Count;
+									tiles.Add(block.Tiles[x, y].Tile);
+								}
+								block.Tiles[x, y].Tile = (ushort)i;
+							}
+				}
 				Blocks.Add(block);
 			}
 			Tiles = new List<byte[]>(tiles.Count);
@@ -9583,18 +9608,45 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			Block = new Block(block.GetBytes(), 0);
 			List<ushort> tiles = new List<ushort>();
-			for (int y = 0; y < 2; y++)
+			if (LevelData.Level.TwoPlayerCompatible)
+			{
 				for (int x = 0; x < 2; x++)
-					if (block.Tiles[x, y].Tile < LevelData.Tiles.Count)
+					if (block.Tiles[x, 0].YFlip)
 					{
-						int i = tiles.IndexOf(block.Tiles[x, y].Tile);
-						if (i == -1)
-						{
-							i = tiles.Count;
-							tiles.Add(block.Tiles[x, y].Tile);
-						}
-						Block.Tiles[x, y].Tile = (ushort)i;
+						for (int y = 1; y >= 0; y--)
+							if (block.Tiles[x, y].Tile < LevelData.Tiles.Count)
+							{
+								int i = tiles.Count;
+								tiles.Add(block.Tiles[x, y].Tile);
+								Block.Tiles[x, y].Tile = (ushort)i;
+							}
 					}
+					else
+					{
+						for (int y = 0; y < 2; y++)
+							if (block.Tiles[x, y].Tile < LevelData.Tiles.Count)
+							{
+								int i = tiles.Count;
+								tiles.Add(block.Tiles[x, y].Tile);
+								Block.Tiles[x, y].Tile = (ushort)i;
+							}
+					}
+			}
+			else
+			{
+				for (int x = 0; x < 2; x++)
+					for (int y = 0; y < 2; y++)
+						if (block.Tiles[x, y].Tile < LevelData.Tiles.Count)
+						{
+							int i = tiles.IndexOf(block.Tiles[x, y].Tile);
+							if (i == -1)
+							{
+								i = tiles.Count;
+								tiles.Add(block.Tiles[x, y].Tile);
+							}
+							Block.Tiles[x, y].Tile = (ushort)i;
+						}
+			}
 			Tiles = new List<byte[]>(tiles.Count);
 			for (int i = 0; i < tiles.Count; i++)
 				Tiles.Add(LevelData.Tiles[tiles[i]]);
