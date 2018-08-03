@@ -133,6 +133,7 @@ namespace SonicRetro.SonLVL.GUI
 		MouseButtons chunkblockMouseDraw = MouseButtons.Left;
 		MouseButtons chunkblockMouseSelect = MouseButtons.Right;
 		bool layoutswapmode;
+		int tilescale = 16;
 
 		internal void Log(params string[] lines)
 		{
@@ -633,13 +634,15 @@ namespace SonicRetro.SonLVL.GUI
 			BlockSelector.SelectedIndex = 0;
 			if (LevelData.Level.TwoPlayerCompatible)
 			{
-				TilePicture.Height = 256;
+				tilescale = 8;
+				TilePicture.Width = 64;
 				TileSelector.ImageHeight = 128;
 				rotateTileRightButton.Visible = false;
 			}
 			else
 			{
-				TilePicture.Height = 128;
+				tilescale = 16;
+				TilePicture.Width = 128;
 				TileSelector.ImageHeight = 64;
 				rotateTileRightButton.Visible = true;
 			}
@@ -4373,7 +4376,7 @@ namespace SonicRetro.SonLVL.GUI
 			using (Graphics gfx = TilePicture.CreateGraphics())
 			{
 				gfx.SetOptions();
-				gfx.DrawImage(tile.Scale(16).ToBitmap(curpal), 0, 0, 128, TilePicture.Height);
+				gfx.DrawImage(tile.Scale(tilescale).ToBitmap(curpal), 0, 0, TilePicture.Width, TilePicture.Height);
 			}
 		}
 
@@ -4382,11 +4385,11 @@ namespace SonicRetro.SonLVL.GUI
 			if (TileSelector.SelectedIndex == -1) return;
 			if (e.Button == MouseButtons.Left)
 			{
-				tile[e.X / 16, e.Y / 16] = (byte)SelectedColor.X;
+				tile[e.X / tilescale, e.Y / tilescale] = (byte)SelectedColor.X;
 				DrawTilePicture();
 			}
 			else if (e.Button == MouseButtons.Right)
-				SetSelectedColor(new Point(tile[e.X / 16, e.Y / 16], SelectedColor.Y));
+				SetSelectedColor(new Point(tile[e.X / tilescale, e.Y / tilescale], SelectedColor.Y));
 		}
 
 		private void TilePicture_MouseMove(object sender, MouseEventArgs e)
@@ -4394,7 +4397,7 @@ namespace SonicRetro.SonLVL.GUI
 			if (TileSelector.SelectedIndex == -1) return;
 			if (e.Button == MouseButtons.Left && new Rectangle(Point.Empty, TilePicture.Size).Contains(e.Location))
 			{
-				tile[e.X / 16, e.Y / 16] = (byte)SelectedColor.X;
+				tile[e.X / tilescale, e.Y / tilescale] = (byte)SelectedColor.X;
 				DrawTilePicture();
 			}
 		}
