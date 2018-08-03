@@ -5116,6 +5116,34 @@ namespace SonicRetro.SonLVL.GUI
 				opendlg.RestoreDirectory = true;
 				if (opendlg.ShowDialog(this) == DialogResult.OK)
 				{
+					Bitmap bmp = new Bitmap(opendlg.FileName);
+					switch (CurrentArtTab)
+					{
+						case ArtTab.Chunks:
+							if (bmp.Width < LevelData.Level.ChunkWidth || bmp.Height < LevelData.Level.ChunkHeight)
+							{
+								MessageBox.Show(this, $"The image you have selected is too small ({bmp.Width}x{bmp.Height}). It must be at least as large as one chunk ({LevelData.Level.ChunkWidth}x{LevelData.Level.ChunkHeight})", "SonLVL Chunk Importer", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+								bmp.Dispose();
+								return;
+							}
+							break;
+						case ArtTab.Blocks:
+							if (bmp.Width < 16 || bmp.Height < 16)
+							{
+								MessageBox.Show(this, $"The image you have selected is too small ({bmp.Width}x{bmp.Height}). It must be at least as large as one block (16x16)", "SonLVL Block Importer", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+								bmp.Dispose();
+								return;
+							}
+							break;
+						case ArtTab.Tiles:
+							if (bmp.Width < 8 || bmp.Height < (LevelData.Level.TwoPlayerCompatible ? 16 : 8))
+							{
+								MessageBox.Show(this, $"The image you have selected is too small ({bmp.Width}x{bmp.Height}). It must be at least as large as one tile (8x{(LevelData.Level.TwoPlayerCompatible ? 16 : 8)}", "SonLVL Tile Importer", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+								bmp.Dispose();
+								return;
+							}
+							break;
+					}
 					Bitmap colbmp1 = null, colbmp2 = null, pribmp = null;
 					if (CurrentArtTab != ArtTab.Tiles)
 					{
@@ -5132,7 +5160,7 @@ namespace SonicRetro.SonLVL.GUI
 						if (File.Exists(string.Format(fmt, "pri")))
 							pribmp = new Bitmap(string.Format(fmt, "pri"));
 					}
-					ImportImage(new Bitmap(opendlg.FileName), colbmp1, colbmp2, pribmp, null);
+					ImportImage(bmp, colbmp1, colbmp2, pribmp, null);
 				}
 			}
 		}
@@ -8483,6 +8511,11 @@ namespace SonicRetro.SonLVL.GUI
 				if (opendlg.ShowDialog(this) == DialogResult.OK)
 					using (Bitmap bmp = new Bitmap(opendlg.FileName))
 					{
+						if (bmp.Width < LevelData.Level.ChunkWidth || bmp.Height < LevelData.Level.ChunkHeight)
+						{
+							MessageBox.Show(this, $"The image you have selected is too small ({bmp.Width}x{bmp.Height}). It must be at least as large as one chunk ({LevelData.Level.ChunkWidth}x{LevelData.Level.ChunkHeight})", "SonLVL Layout Importer", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+							return;
+						}
 						Bitmap colbmp1 = null, colbmp2 = null, pribmp = null;
 						string fmt = Path.Combine(Path.GetDirectoryName(opendlg.FileName),
 							Path.GetFileNameWithoutExtension(opendlg.FileName) + "_{0}" + Path.GetExtension(opendlg.FileName));
@@ -8538,6 +8571,11 @@ namespace SonicRetro.SonLVL.GUI
 				if (opendlg.ShowDialog(this) == DialogResult.OK)
 					using (Bitmap bmp = new Bitmap(opendlg.FileName))
 					{
+						if (bmp.Width < LevelData.Level.ChunkWidth || bmp.Height < LevelData.Level.ChunkHeight)
+						{
+							MessageBox.Show(this, $"The image you have selected is too small ({bmp.Width}x{bmp.Height}). It must be at least as large as one chunk ({LevelData.Level.ChunkWidth}x{LevelData.Level.ChunkHeight})", "SonLVL Layout Section Importer", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+							return;
+						}
 						Bitmap colbmp1 = null, colbmp2 = null, pribmp = null;
 						string fmt = Path.Combine(Path.GetDirectoryName(opendlg.FileName),
 							Path.GetFileNameWithoutExtension(opendlg.FileName) + "_{0}" + Path.GetExtension(opendlg.FileName));
