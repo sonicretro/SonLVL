@@ -58,7 +58,7 @@ namespace S3SSEdit
 			Angle = ByteConverter.ToUInt16(data, 1024 + offset);
 			StartX = ByteConverter.ToUInt16(data, 1026 + offset);
 			StartY = ByteConverter.ToUInt16(data, 1028 + offset);
-			Perfect = ByteConverter.ToInt16(data, 1030 + offset);
+			Perfect = System.Math.Min(ByteConverter.ToInt16(data, 1030 + offset), (short)1023);
 		}
 
 		public byte[] GetBytes()
