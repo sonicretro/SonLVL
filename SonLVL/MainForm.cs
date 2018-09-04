@@ -292,6 +292,10 @@ namespace SonicRetro.SonLVL.GUI
 					break;
 			}
 			mainMenuStrip.Visible = Settings.ShowMenu;
+			enableDraggingPaletteButton.Checked = Settings.EnableDraggingPalette;
+			enableDraggingTilesButton.Checked = Settings.EnableDraggingTiles;
+			enableDraggingBlocksButton.Checked = Settings.EnableDraggingBlocks;
+			enableDraggingChunksButton.Checked = Settings.EnableDraggingChunks;
 			if (System.Diagnostics.Debugger.IsAttached)
 				logToolStripMenuItem_Click(sender, e);
 			if (!string.IsNullOrEmpty(Settings.Emulator))
@@ -364,6 +368,10 @@ namespace SonicRetro.SonLVL.GUI
 				else
 					Settings.WindowMode = WindowMode.Normal;
 				Settings.ShowMenu = mainMenuStrip.Visible;
+				Settings.EnableDraggingPalette = enableDraggingPaletteButton.Checked;
+				Settings.EnableDraggingTiles = enableDraggingTilesButton.Checked;
+				Settings.EnableDraggingBlocks = enableDraggingBlocksButton.Checked;
+				Settings.EnableDraggingChunks = enableDraggingChunksButton.Checked;
 				Settings.Save();
 			}
 		}

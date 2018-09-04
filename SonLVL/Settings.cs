@@ -63,6 +63,14 @@ namespace SonicRetro.SonLVL
 		public WindowMode WindowMode { get; set; }
 		[DefaultValue(true)]
 		public bool ShowMenu { get; set; }
+		[DefaultValue(true)]
+		public bool EnableDraggingPalette { get; set; }
+		[DefaultValue(true)]
+		public bool EnableDraggingTiles { get; set; }
+		[DefaultValue(true)]
+		public bool EnableDraggingBlocks { get; set; }
+		[DefaultValue(true)]
+		public bool EnableDraggingChunks { get; set; }
 
 		public static Settings Load()
 		{
@@ -90,6 +98,10 @@ namespace SonicRetro.SonLVL
 				result.ViewLowPlane = result.ViewHighPlane = true;
 				result.ZoomLevel = "1x";
 				result.ShowMenu = true;
+				result.EnableDraggingPalette = true;
+				result.EnableDraggingTiles = true;
+				result.EnableDraggingBlocks = true;
+				result.EnableDraggingChunks = true;
 				return result;
 			}
 		}
