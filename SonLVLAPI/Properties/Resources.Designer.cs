@@ -97,5 +97,5 @@ namespace SonicRetro.SonLVL.API.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
-	}
+    }
 }
