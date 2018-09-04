@@ -5747,6 +5747,36 @@ namespace SonicRetro.SonLVL.GUI
 									break;
 							}
 						break;
+					case Keys.A:
+						if (e.Control)
+							switch (CurrentArtTab)
+							{
+								case ArtTab.Chunks:
+									LevelData.Chunks.Add(new Chunk());
+									SelectedChunk = (short)(LevelData.Chunks.Count - 1);
+									InsertChunk();
+									break;
+								case ArtTab.Blocks:
+									LevelData.Blocks.Add(new Block());
+									SelectedBlock = LevelData.Blocks.Count - 1;
+									InsertBlock();
+									break;
+								case ArtTab.Tiles:
+									if (LevelData.Level.TwoPlayerCompatible)
+									{
+										LevelData.Tiles.Add(new byte[32]);
+										LevelData.Tiles.Add(new byte[32]);
+										SelectedTile = LevelData.Tiles.Count - 2;
+									}
+									else
+									{
+										LevelData.Tiles.InsertAfter(SelectedTile, new byte[32]);
+										SelectedTile = LevelData.Tiles.Count - 1;
+									}
+									InsertTile();
+									break;
+							}
+						break;
 				}
 			}
 		}
