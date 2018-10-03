@@ -126,7 +126,7 @@ namespace SonicRetro.SonLVL.API
 						for (int r = 0; r < tilesPerCol; r++)
 						{
 							if (i == selectedIndex)
-								g.DrawRectangle(new Pen(Color.Yellow, 2), (actualImageWidth * c) + 1 - hScrollBar1.Value, actualImageHeight * r + 1, actualImageWidth - 2, actualImageHeight - 2);
+								g.DrawRectangle(new Pen(Color.Red, 2), (actualImageWidth * c) + 1 - hScrollBar1.Value, actualImageHeight * r + 1, actualImageWidth - 2, actualImageHeight - 2);
 							g.DrawImage(Images[i], (actualImageWidth * c) + 2 - hScrollBar1.Value, (actualImageHeight * r) + 2, imageWidth, imageHeight);
 							i++;
 							if (i == Images.Count) return;
@@ -145,7 +145,7 @@ namespace SonicRetro.SonLVL.API
 						for (int c = 0; c < tilesPerRow; c++)
 						{
 							if (i == selectedIndex)
-								g.DrawRectangle(new Pen(Color.Yellow, 2), actualImageWidth * c + 1, (actualImageHeight * r) - vScrollBar1.Value + 1, actualImageWidth - 2, actualImageHeight - 2);
+								g.DrawRectangle(new Pen(Color.Red, 2), actualImageWidth * c + 1, (actualImageHeight * r) - vScrollBar1.Value + 1, actualImageWidth - 2, actualImageHeight - 2);
 							g.DrawImage(Images[i], (actualImageWidth * c) + 2, (actualImageHeight * r) + 2 - vScrollBar1.Value, imageWidth, imageHeight);
 							i++;
 							if (i == Images.Count) return;
