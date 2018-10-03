@@ -810,6 +810,10 @@ namespace SonicRetro.SonLVL.GUI
 			layoutSectionListBox.EndUpdate();
 			foundobjs = null;
 			SelectedObjectChanged();
+			ChunkID.Maximum = LevelData.Chunks.Count - 1;
+			BlockID.Maximum = LevelData.Blocks.Count - 1;
+			TileID.Increment = LevelData.Level.TwoPlayerCompatible ? 2 : 1;
+			TileID.Maximum = LevelData.Tiles.Count - 1;
 			ChunkCount.Text = LevelData.Chunks.Count.ToString("X") + " / 100";
 			BlockCount.Text = LevelData.Blocks.Count.ToString("X") + " / " + LevelData.GetBlockMax().ToString("X");
 			TileCount.Text = LevelData.Tiles.Count.ToString("X") + " / 800";
@@ -3021,7 +3025,7 @@ namespace SonicRetro.SonLVL.GUI
 			SelectedChunkBlock = new Rectangle(0, 0, 1, 1);
 			chunkBlockEditor.SelectedObjects = new[] { LevelData.Chunks[SelectedChunk].Blocks[0, 0] };
 			DrawChunkPicture();
-			ChunkID.Text = SelectedChunk.ToString("X2");
+			ChunkID.Value = SelectedChunk;
 			ChunkCount.Text = LevelData.Chunks.Count.ToString("X") + " / 100";
 			DrawLevel();
 		}
@@ -3766,7 +3770,7 @@ namespace SonicRetro.SonLVL.GUI
 					}
 					else
 						ColIndBox.Enabled = false;
-				BlockID.Text = SelectedBlock.ToString("X3");
+				BlockID.Value = SelectedBlock;
 				BlockCount.Text = LevelData.Blocks.Count.ToString("X") + " / " + LevelData.GetBlockMax().ToString("X");
 				DrawBlockPicture();
 				if (copiedChunkBlock.Block != SelectedBlock)
@@ -4352,14 +4356,13 @@ namespace SonicRetro.SonLVL.GUI
 				{
 					SelectedTile = TileSelector.SelectedIndex * 2;
 					tile = BitmapBits.FromTileInterlaced(LevelData.TileArray, SelectedTile);
-					TileID.Text = SelectedTile.ToString("X3");
 				}
 				else
 				{
 					SelectedTile = TileSelector.SelectedIndex;
 					tile = BitmapBits.FromTile(LevelData.Tiles[SelectedTile], 0);
-					TileID.Text = SelectedTile.ToString("X3");
 				}
+				TileID.Value = SelectedTile;
 				TileCount.Text = LevelData.Tiles.Count.ToString("X") + " / 800";
 				DrawTilePicture();
 				if (copiedBlockTile.Tile != SelectedTile)
@@ -4533,6 +4536,7 @@ namespace SonicRetro.SonLVL.GUI
 			LevelData.ChunkColBmpBits.RemoveAt(SelectedChunk);
 			LevelData.ChunkColBmps.RemoveAt(SelectedChunk);
 			LevelData.CompChunkBmps.RemoveAt(SelectedChunk);
+			ChunkID.Maximum = LevelData.Chunks.Count - 1;
 			SelectedChunk = (short)Math.Min(SelectedChunk, LevelData.Chunks.Count - 1);
 			LevelData.RemapLayouts((layout, x, y) =>
 			{
@@ -4554,6 +4558,7 @@ namespace SonicRetro.SonLVL.GUI
 			LevelData.ColInds1.RemoveAt(SelectedBlock);
 			if (LevelData.ColInds2 != null && LevelData.ColInds2 != LevelData.ColInds1)
 				LevelData.ColInds2.RemoveAt(SelectedBlock);
+			BlockID.Maximum = LevelData.Blocks.Count - 1;
 			for (int i = 0; i < LevelData.Chunks.Count; i++)
 			{
 				bool dr = false;
@@ -4578,6 +4583,7 @@ namespace SonicRetro.SonLVL.GUI
 				LevelData.Tiles.RemoveAt(SelectedTile);
 			LevelData.UpdateTileArray();
 			TileSelector.Images.RemoveAt(LevelData.Level.TwoPlayerCompatible ? SelectedTile / 2 : SelectedTile);
+			TileID.Maximum = LevelData.Tiles.Count - 1;
 			blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 			for (int i = 0; i < LevelData.Blocks.Count; i++)
 			{
@@ -4648,6 +4654,7 @@ namespace SonicRetro.SonLVL.GUI
 			});
 			LevelData.RedrawChunk(SelectedChunk);
 			ChunkSelector.SelectedIndex = SelectedChunk;
+			ChunkID.Maximum = LevelData.Chunks.Count - 1;
 			importChunksToolStripButton.Enabled = LevelData.Chunks.Count < 256;
 			drawChunkToolStripButton.Enabled = importChunksToolStripButton.Enabled;
 		}
@@ -4668,6 +4675,7 @@ namespace SonicRetro.SonLVL.GUI
 							LevelData.Chunks[i].Blocks[x, y].Block++;
 			LevelData.RedrawBlock(SelectedBlock, false);
 			BlockSelector.SelectedIndex = SelectedBlock;
+			BlockID.Maximum = LevelData.Blocks.Count - 1;
 			importBlocksToolStripButton.Enabled = LevelData.Blocks.Count < LevelData.GetBlockMax();
 			drawBlockToolStripButton.Enabled = importBlocksToolStripButton.Enabled;
 		}
@@ -4680,25 +4688,28 @@ namespace SonicRetro.SonLVL.GUI
 			else
 				TileSelector.Images.Insert(SelectedTile, LevelData.TileToBmp4bpp(LevelData.Tiles[SelectedTile], 0, SelectedColor.Y, false));
 			blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
-			for (int i = 0; i < LevelData.Blocks.Count; i++)
-				if (LevelData.Level.TwoPlayerCompatible)
-				{
+			if (LevelData.Level.TwoPlayerCompatible)
+			{
+				for (int i = 0; i < LevelData.Blocks.Count; i++)
 					for (int x = 0; x < 2; x++)
 						if ((LevelData.Blocks[i].Tiles[x, 0].Tile & ~1) >= SelectedTile && LevelData.Blocks[i].Tiles[x, 0].Tile < LevelData.Tiles.Count)
 						{
 							LevelData.Blocks[i].Tiles[x, 0].Tile += 2;
 							LevelData.Blocks[i].Tiles[x, 1].Tile += 2;
 						}
-					TileSelector.SelectedIndex = SelectedTile / 2;
-				}
-				else
-				{
+				TileID.Maximum = LevelData.Tiles.Count - 1;
+				TileSelector.SelectedIndex = SelectedTile / 2;
+			}
+			else
+			{
+				for (int i = 0; i < LevelData.Blocks.Count; i++)
 					for (int y = 0; y < 2; y++)
 						for (int x = 0; x < 2; x++)
 							if (LevelData.Blocks[i].Tiles[x, y].Tile >= SelectedTile && LevelData.Blocks[i].Tiles[x, y].Tile < LevelData.Tiles.Count)
 								LevelData.Blocks[i].Tiles[x, y].Tile++;
-					TileSelector.SelectedIndex = SelectedTile;
-				}
+				TileID.Maximum = LevelData.Tiles.Count - 1;
+				TileSelector.SelectedIndex = SelectedTile;
+			}
 			importTilesToolStripButton.Enabled = LevelData.Tiles.Count < 0x800;
 			drawTileToolStripButton.Enabled = importTilesToolStripButton.Enabled;
 		}
@@ -4757,6 +4768,7 @@ namespace SonicRetro.SonLVL.GUI
 						}
 						LevelData.UpdateTileArray();
 						RefreshTileSelector();
+						TileID.Maximum = LevelData.Tiles.Count - 1;
 						blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 						List<ushort> blocks = new List<ushort>(cnkcpy.Blocks.Count);
 						for (int i = 0; i < cnkcpy.Blocks.Count; i++)
@@ -4787,6 +4799,7 @@ namespace SonicRetro.SonLVL.GUI
 							}
 							blocks.Add(bi);
 						}
+						BlockID.Maximum = LevelData.Blocks.Count - 1;
 						for (int y = 0; y < LevelData.Level.ChunkHeight / 16; y++)
 							for (int x = 0; x < LevelData.Level.ChunkWidth / 16; x++)
 								if (cnkcpy.Chunk.Blocks[x, y].Block < blocks.Count)
@@ -4829,6 +4842,7 @@ namespace SonicRetro.SonLVL.GUI
 						}
 						LevelData.UpdateTileArray();
 						RefreshTileSelector();
+						TileID.Maximum = LevelData.Tiles.Count - 1;
 						for (int y = 0; y < 2; y++)
 							for (int x = 0; x < 2; x++)
 								if (blkcpy.Block.Tiles[x, y].Tile < tiles.Count)
@@ -4912,6 +4926,7 @@ namespace SonicRetro.SonLVL.GUI
 						}
 						LevelData.UpdateTileArray();
 						RefreshTileSelector();
+						TileID.Maximum = LevelData.Tiles.Count - 1;
 						blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 						List<ushort> blocks = new List<ushort>(cnkcpy.Blocks.Count);
 						for (int i = 0; i < cnkcpy.Blocks.Count; i++)
@@ -4941,6 +4956,7 @@ namespace SonicRetro.SonLVL.GUI
 							}
 							blocks.Add(bi);
 						}
+						BlockID.Maximum = LevelData.Blocks.Count - 1;
 						for (int y = 0; y < LevelData.Level.ChunkHeight / 16; y++)
 							for (int x = 0; x < LevelData.Level.ChunkWidth / 16; x++)
 								if (cnkcpy.Chunk.Blocks[x, y].Block < blocks.Count)
@@ -4984,6 +5000,7 @@ namespace SonicRetro.SonLVL.GUI
 						}
 						LevelData.UpdateTileArray();
 						RefreshTileSelector();
+						TileID.Maximum = LevelData.Tiles.Count - 1;
 						for (int y = 0; y < 2; y++)
 							for (int x = 0; x < 2; x++)
 								if (blkcpy.Block.Tiles[x, y].Tile < tiles.Count)
@@ -5299,6 +5316,7 @@ namespace SonicRetro.SonLVL.GUI
 					LevelData.Tiles.Add(t);
 				LevelData.UpdateTileArray();
 				RefreshTileSelector();
+				TileID.Maximum = LevelData.Tiles.Count - 1;
 				TileSelector.SelectedIndex = TileSelector.Images.Count - 1;
 			}
 			if (newBlocks.Count > 0)
@@ -5325,6 +5343,7 @@ namespace SonicRetro.SonLVL.GUI
 					LevelData.RedrawBlock(LevelData.Blocks.Count - 1, false);
 				}
 				SelectedBlock = LevelData.Blocks.Count - 1;
+				BlockID.Maximum = LevelData.Blocks.Count - 1;
 				BlockSelector.SelectedIndex = SelectedBlock;
 			}
 			else if (newTiles.Count > 0)
@@ -5343,6 +5362,7 @@ namespace SonicRetro.SonLVL.GUI
 					LevelData.RedrawChunk(LevelData.Chunks.Count - 1);
 				}
 				SelectedChunk = (short)(LevelData.Chunks.Count - 1);
+				ChunkID.Maximum = LevelData.Chunks.Count - 1;
 				ChunkSelector.SelectedIndex = SelectedChunk;
 			}
 			else if (newBlocks.Count > 0)
@@ -5499,7 +5519,7 @@ namespace SonicRetro.SonLVL.GUI
 			{
 				SelectedCol = CollisionSelector.SelectedIndex;
 				ColAngle.Value = LevelData.Angles[SelectedCol];
-				ColID.Text = SelectedCol.ToString("X2");
+				ColID.Value = SelectedCol;
 				DrawColPicture();
 			}
 		}
@@ -8264,6 +8284,7 @@ namespace SonicRetro.SonLVL.GUI
 							tiles.Add(ti);
 						}
 						LevelData.UpdateTileArray();
+						TileID.Maximum = LevelData.Tiles.Count - 1;
 						RefreshTileSelector();
 						blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
 						List<ushort> blocks = new List<ushort>(cnkcpy.Blocks.Count);
@@ -8294,6 +8315,7 @@ namespace SonicRetro.SonLVL.GUI
 							}
 							blocks.Add(bi);
 						}
+						BlockID.Maximum = LevelData.Blocks.Count - 1;
 						for (int y = 0; y < LevelData.Level.ChunkHeight / 16; y++)
 							for (int x = 0; x < LevelData.Level.ChunkWidth / 16; x++)
 								cnkcpy.Chunk.Blocks[x, y].Block = blocks[cnkcpy.Chunk.Blocks[x, y].Block];
@@ -8332,6 +8354,7 @@ namespace SonicRetro.SonLVL.GUI
 							tiles.Add(ti);
 						}
 						LevelData.UpdateTileArray();
+						TileID.Maximum = LevelData.Tiles.Count - 1;
 						RefreshTileSelector();
 						for (int y = 0; y < 2; y++)
 							for (int x = 0; x < 2; x++)
@@ -8723,6 +8746,7 @@ namespace SonicRetro.SonLVL.GUI
 				numdel++;
 			}
 			LevelData.UpdateTileArray();
+			TileID.Maximum = LevelData.Tiles.Count - 1;
 			RefreshTileSelector();
 			TileSelector.SelectedIndex = Math.Min(TileSelector.SelectedIndex, TileSelector.Images.Count - 1);
 			blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
@@ -8761,6 +8785,7 @@ namespace SonicRetro.SonLVL.GUI
 					LevelData.ColInds2.RemoveAt(i);
 				numdel++;
 			}
+			BlockID.Maximum = LevelData.Blocks.Count - 1;
 			SelectedBlock = BlockSelector.SelectedIndex = Math.Min(SelectedBlock, LevelData.Blocks.Count - 1);
 			chunkBlockEditor.SelectedObjects = chunkBlockEditor.SelectedObjects;
 			MessageBox.Show(this, "Deleted " + numdel + " unused blocks.", "SonLVL");
@@ -8802,6 +8827,7 @@ namespace SonicRetro.SonLVL.GUI
 				LevelData.CompChunkBmps.RemoveAt(i);
 				numdel++;
 			}
+			ChunkID.Maximum = LevelData.Chunks.Count - 1;
 			ChunkSelector.SelectedIndex = SelectedChunk = Math.Min(SelectedChunk, (short)(LevelData.Chunks.Count - 1));
 			MessageBox.Show(this, "Deleted " + numdel + " unused chunks.", "SonLVL");
 		}
@@ -9037,6 +9063,7 @@ namespace SonicRetro.SonLVL.GUI
 					LevelData.ChunkColBmps.RemoveAt(i);
 					LevelData.CompChunkBmps.RemoveAt(i);
 				}
+				ChunkID.Maximum = LevelData.Chunks.Count;
 				ChunkSelector.SelectedIndex = Math.Min(ChunkSelector.SelectedIndex, LevelData.Chunks.Count - 1);
 				LevelData.RemapLayouts((layout, x, y) =>
 				{
@@ -9217,6 +9244,26 @@ namespace SonicRetro.SonLVL.GUI
 			}
 		}
 
+		private void ChunkID_ValueChanged(object sender, EventArgs e)
+		{
+			ChunkSelector.SelectedIndex = (int)ChunkID.Value;
+		}
+
+		private void BlockID_ValueChanged(object sender, EventArgs e)
+		{
+			BlockSelector.SelectedIndex = (int)BlockID.Value;
+		}
+
+		private void TileID_ValueChanged(object sender, EventArgs e)
+		{
+			TileSelector.SelectedIndex = (int)(LevelData.Level.TwoPlayerCompatible ? TileID.Value / 2 : TileID.Value);
+		}
+
+		private void ColID_ValueChanged(object sender, EventArgs e)
+		{
+			CollisionSelector.SelectedIndex = (int)ColID.Value;
+		}
+
 		private void removeDuplicateBlocksToolStripButton_Click(object sender, EventArgs e)
 		{
 			if (MessageBox.Show(this, "This action may break other levels that share part of the same block set.\n\nAre you sure you want to remove all duplicate blocks?", "SonLVL", MessageBoxButtons.OKCancel) != DialogResult.OK)
@@ -9282,6 +9329,7 @@ namespace SonicRetro.SonLVL.GUI
 					if (!Object.ReferenceEquals(LevelData.ColInds1, LevelData.ColInds2))
 						LevelData.ColInds2.RemoveAt(i);
 				}
+				BlockID.Maximum = LevelData.Blocks.Count - 1;
 				BlockSelector.SelectedIndex = Math.Min(BlockSelector.SelectedIndex, LevelData.Blocks.Count - 1);
 				for (int i = 0; i < LevelData.Chunks.Count; i++)
 					foreach (ChunkBlock cb in LevelData.Chunks[i].Blocks)
@@ -9355,6 +9403,7 @@ namespace SonicRetro.SonLVL.GUI
 						LevelData.Tiles.RemoveAt(i);
 					}
 					LevelData.UpdateTileArray();
+					TileID.Maximum = LevelData.Tiles.Count - 1;
 					RefreshTileSelector();
 					TileSelector.SelectedIndex = Math.Min(TileSelector.SelectedIndex, TileSelector.Images.Count - 1);
 					for (int i = 0; i < LevelData.Blocks.Count; i++)
@@ -9424,6 +9473,7 @@ namespace SonicRetro.SonLVL.GUI
 						TileSelector.Images.RemoveAt(i);
 					}
 					LevelData.UpdateTileArray();
+					TileID.Maximum = LevelData.Tiles.Count - 1;
 					TileSelector.SelectedIndex = Math.Min(TileSelector.SelectedIndex, LevelData.Tiles.Count - 1);
 					for (int i = 0; i < LevelData.Blocks.Count; i++)
 						foreach (PatternIndex cb in LevelData.Blocks[i].Tiles)
