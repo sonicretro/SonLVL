@@ -1317,9 +1317,37 @@ namespace SonicRetro.SonLVL.API
 				}
 				else
 				{
+					BitmapBits objbmplow = new BitmapBits(bounds.Size);
+					BitmapBits objbmplevel = new BitmapBits(bounds.Size);
+					BitmapBits objbmphigh = new BitmapBits(bounds.Size);
+					int curdepth = int.MinValue;
 					foreach (ObjectEntry item in objs)
 						if (!(!includeDebugObjects && GetObjectDefinition(item.ID).Debug))
-							LevelImg8bpp.DrawSpriteLow(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
+						{
+							if (item.Depth != curdepth)
+							{
+								curdepth = item.Depth;
+								objbmplow.DrawBitmapComposited(objbmplevel, 0, 0);
+								objbmplevel.Clear();
+							}
+							objbmplevel.DrawSpriteLow(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
+							BitmapBits hi = item.Sprite.GetBitmapHigh();
+							for (int y = 0; y < hi.Height; y++)
+							{
+								if (item.Y - bounds.Y + item.Sprite.Y + y < 0) continue;
+								if (item.Y - bounds.Y + item.Sprite.Y + y >= objbmplow.Height) break;
+								int rowoff = objbmplow.GetPixelIndex(item.X - bounds.X + item.Sprite.X, item.Y - bounds.Y + item.Sprite.Y + y);
+								for (int x = 0; x < hi.Width; x++)
+								{
+									if (item.X - bounds.X + item.Sprite.X + x < 0) continue;
+									if (item.X - bounds.X + item.Sprite.X + x >= objbmplow.Width) break;
+									if (objbmplow.Bits[rowoff + x] == 0)
+										objbmphigh.Bits[rowoff + x] = hi[x, y];
+								}
+							}
+						}
+					LevelImg8bpp.DrawBitmapComposited(objbmplow, 0, 0);
+					LevelImg8bpp.DrawBitmapComposited(objbmplevel, 0, 0);
 					if (RingFormat is RingLayoutFormat)
 						foreach (RingEntry item in Rings)
 							LevelImg8bpp.DrawSpriteLow(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
@@ -1339,9 +1367,7 @@ namespace SonicRetro.SonLVL.API
 								else if (collisionPath2)
 									LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][1], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
 							}
-					foreach (ObjectEntry item in objs)
-						if (!(!includeDebugObjects && GetObjectDefinition(item.ID).Debug))
-							LevelImg8bpp.DrawSpriteHigh(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
+					LevelImg8bpp.DrawBitmapComposited(objbmphigh, 0, 0);
 					if (RingFormat is RingLayoutFormat)
 						foreach (RingEntry item in Rings)
 							LevelImg8bpp.DrawSpriteHigh(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
