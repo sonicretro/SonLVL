@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 
 namespace SonicRetro.SonLVL.API
@@ -10,17 +9,18 @@ namespace SonicRetro.SonLVL.API
 	{
 		private List<PixelStrip> strips;
 		public System.Collections.ObjectModel.ReadOnlyCollection<PixelStrip> Strips => new System.Collections.ObjectModel.ReadOnlyCollection<PixelStrip>(strips);
-		public Rectangle Bounds { get; private set; }
-		public Point Location => Bounds.Location;
-		public Size Size => Bounds.Size;
-		public int X => Bounds.X;
-		public int Y => Bounds.Y;
-		public int Width => Bounds.Width;
-		public int Height => Bounds.Height;
-		public int Left => Bounds.Left;
-		public int Top => Bounds.Top;
-		public int Right => Bounds.Right;
-		public int Bottom => Bounds.Bottom;
+		private Rectangle bounds;
+		public Rectangle Bounds => bounds;
+		public Point Location => bounds.Location;
+		public Size Size => bounds.Size;
+		public int X => bounds.X;
+		public int Y => bounds.Y;
+		public int Width => bounds.Width;
+		public int Height => bounds.Height;
+		public int Left => bounds.Left;
+		public int Top => bounds.Top;
+		public int Right => bounds.Right;
+		public int Bottom => bounds.Bottom;
 
 		public Sprite(BitmapBits lowImg, int xoff, int yoff)
 		{
@@ -67,7 +67,7 @@ namespace SonicRetro.SonLVL.API
 			strips = new List<PixelStrip>(sprite.strips.Count);
 			foreach (PixelStrip strip in sprite.strips)
 				strips.Add(new PixelStrip(strip));
-			Bounds = sprite.Bounds;
+			bounds = sprite.bounds;
 		}
 
 		public Sprite(Sprite sprite, int xoff, int yoff)
@@ -188,7 +188,7 @@ namespace SonicRetro.SonLVL.API
 				r = Math.Max(r, strip.X + strip.Width);
 				b = Math.Max(b, strip.Y + 1);
 			}
-			Bounds = Rectangle.FromLTRB(l, t, r, b);
+			bounds = Rectangle.FromLTRB(l, t, r, b);
 		}
 
 		public void Offset(int x, int y)
@@ -199,7 +199,7 @@ namespace SonicRetro.SonLVL.API
 				strip.X += x;
 				strip.Y += y;
 			}
-			Bounds.Offset(x, y);
+			bounds.Offset(x, y);
 		}
 
 		public void Offset(Point pt) => Offset(pt.X, pt.Y);
@@ -218,8 +218,7 @@ namespace SonicRetro.SonLVL.API
 			if (!xflip && !yflip) return;
 			foreach (PixelStrip strip in strips)
 				strip.Flip(xflip, yflip);
-			strips.Sort();
-			Bounds = Bounds.Flip(xflip, yflip);
+			bounds = bounds.Flip(xflip, yflip);
 		}
 
 		public BitmapBits GetBitmap()
