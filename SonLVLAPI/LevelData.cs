@@ -1359,7 +1359,7 @@ namespace SonicRetro.SonLVL.API
 						LevelImg8bpp.DrawSpriteHigh(StartPositions[si].Sprite, StartPositions[si].X - bounds.X, StartPositions[si].Y - bounds.Y);
 				}
 				if (includeDebugObjects)
-					foreach (ObjectEntry item in objs)
+					foreach (ObjectEntry item in objs.OfType<ObjectEntry>())
 						if (item.DebugOverlay != null)
 							LevelImg8bpp.DrawSprite(item.DebugOverlay, item.X - bounds.X, item.Y - bounds.Y);
 			}
