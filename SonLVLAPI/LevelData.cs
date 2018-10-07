@@ -64,6 +64,8 @@ namespace SonicRetro.SonLVL.API
 		public static Bitmap UnknownImg;
 		public static Sprite UnknownSprite;
 		public static List<Sprite> Sprites;
+		public static int WaterPalette;
+		public static ushort WaterHeight = 0x600;
 		public delegate void LogEventHandler(params string[] message);
 		public static event LogEventHandler LogEvent = delegate { };
 		public static event Action PaletteChangedEvent = delegate { };

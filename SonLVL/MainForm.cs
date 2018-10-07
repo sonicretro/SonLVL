@@ -46,11 +46,11 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			LevelData.BmpPal.Entries.CopyTo(LevelImgPalette.Entries, 0);
 			LevelImgPalette.Entries[LevelData.ColorTransparent] = LevelData.PaletteToColor(2, 0, false);
-			if (waterPalette != -1)
+			if (LevelData.WaterPalette != -1)
 			{
-				LevelImgPalette.Entries[128] = LevelData.Palette[waterPalette][2, 0].RGBColor;
+				LevelImgPalette.Entries[128] = LevelData.Palette[LevelData.WaterPalette][2, 0].RGBColor;
 				for (int i = 129; i < 192; i++)
-					LevelImgPalette.Entries[i] = LevelData.Palette[waterPalette][(i - 128) / 16, i % 16].RGBColor;
+					LevelImgPalette.Entries[i] = LevelData.Palette[LevelData.WaterPalette][(i - 128) / 16, i % 16].RGBColor;
 			}
 			if (invertColorsToolStripMenuItem.Checked)
 				for (int i = 0; i < 256; i++)
@@ -128,8 +128,6 @@ namespace SonicRetro.SonLVL.GUI
 		ReplaceBlockTilesDialog replaceBlockTilesDialog;
 		List<LayoutSection> savedLayoutSections;
 		List<Bitmap> savedLayoutSectionImages;
-		int waterPalette;
-		ushort waterHeight = 0x600;
 		MouseButtons chunkblockMouseDraw = MouseButtons.Left;
 		MouseButtons chunkblockMouseSelect = MouseButtons.Right;
 		bool layoutswapmode;
@@ -763,13 +761,13 @@ namespace SonicRetro.SonLVL.GUI
 				selectPaletteToolStripMenuItem.DropDownItems.Add(new ToolStripMenuItem("None") { Checked = LevelData.Level.WaterPalette < 2, Tag = -1 });
 				for (int i = 1; i < LevelData.PalName.Count; i++)
 					selectPaletteToolStripMenuItem.DropDownItems.Add(new ToolStripMenuItem(LevelData.PalName[i]) { Checked = LevelData.Level.WaterPalette - 1 == i, Tag = i });
-				waterPalette = LevelData.Level.WaterPalette < 2 ? -1 : LevelData.Level.WaterPalette - 1;
-				waterHeight = (ushort)LevelData.Level.WaterHeight;
-				if (waterPalette != -1)
+				LevelData.WaterPalette = LevelData.Level.WaterPalette < 2 ? -1 : LevelData.Level.WaterPalette - 1;
+				LevelData.WaterHeight = (ushort)LevelData.Level.WaterHeight;
+				if (LevelData.WaterPalette != -1)
 				{
-					LevelImgPalette.Entries[128] = LevelData.Palette[waterPalette][2, 0].RGBColor;
+					LevelImgPalette.Entries[128] = LevelData.Palette[LevelData.WaterPalette][2, 0].RGBColor;
 					for (int i = 129; i < 192; i++)
-						LevelImgPalette.Entries[i] = LevelData.Palette[waterPalette][(i - 128) / 16, i % 16].RGBColor;
+						LevelImgPalette.Entries[i] = LevelData.Palette[LevelData.WaterPalette][(i - 128) / 16, i % 16].RGBColor;
 					LevelImgPalette.Entries[LevelData.ColorWhite | 0x80] = Color.White;
 					LevelImgPalette.Entries[LevelData.ColorYellow | 0x80] = Color.Yellow;
 					LevelImgPalette.Entries[LevelData.ColorBlack | 0x80] = Color.Black;
@@ -778,7 +776,7 @@ namespace SonicRetro.SonLVL.GUI
 			else
 			{
 				blendAlternatePaletteToolStripButton.Enabled = waterPaletteToolStripMenuItem.Visible = false;
-				waterPalette = -1;
+				LevelData.WaterPalette = -1;
 			}
 			for (int i = 0; i < 16; i++)
 				curpal[i] = LevelData.PaletteToColor(SelectedColor.Y, i, false);
@@ -1072,13 +1070,13 @@ namespace SonicRetro.SonLVL.GUI
 			((ToolStripMenuItem)e.ClickedItem).Checked = true;
 			LevelData.CurPal = paletteToolStripDropDownButton.DropDownItems.IndexOf(e.ClickedItem);
 			paletteToolStripDropDownButton.Text = "Palette: " + e.ClickedItem.Text;
-			if (waterPalette == LevelData.CurPal)
-				waterPalette = -1;
+			if (LevelData.WaterPalette == LevelData.CurPal)
+				LevelData.WaterPalette = -1;
 			selectPaletteToolStripMenuItem.DropDownItems.Clear();
-			selectPaletteToolStripMenuItem.DropDownItems.Add(new ToolStripMenuItem("None") { Checked = waterPalette == -1, Tag = -1 });
+			selectPaletteToolStripMenuItem.DropDownItems.Add(new ToolStripMenuItem("None") { Checked = LevelData.WaterPalette == -1, Tag = -1 });
 			for (int i = 0; i < LevelData.PalName.Count; i++)
 				if (i != LevelData.CurPal)
-					selectPaletteToolStripMenuItem.DropDownItems.Add(new ToolStripMenuItem(LevelData.PalName[i]) { Checked = waterPalette == i, Tag = i });
+					selectPaletteToolStripMenuItem.DropDownItems.Add(new ToolStripMenuItem(LevelData.PalName[i]) { Checked = LevelData.WaterPalette == i, Tag = i });
 			LevelData.PaletteChanged();
 			DrawLevel();
 		}
@@ -1475,19 +1473,19 @@ namespace SonicRetro.SonLVL.GUI
 						for (int i = 0; i < bmp.Bits.Length; i++)
 							if (bmp.Bits[i] == 0)
 								bmp.Bits[i] = 32;
-						if (waterPalette != -1 && bmp.Height > waterHeight)
-							bmp.ApplyWaterPalette(waterHeight);
+						if (LevelData.WaterPalette != -1 && bmp.Height > LevelData.WaterHeight)
+							bmp.ApplyWaterPalette(LevelData.WaterHeight);
 						Bitmap res = bmp.ToBitmap();
 						ColorPalette pal = res.Palette;
 						for (int i = 0; i < 64; i++)
 							pal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, transparentBackgroundToolStripMenuItem.Checked);
 						pal.Entries.Fill(Color.Black, 64, 192);
-						if (waterPalette != -1)
+						if (LevelData.WaterPalette != -1)
 							for (int i = 128; i < 192; i++)
 								if (transparentBackgroundToolStripMenuItem.Checked && i % 16 == 0)
 									pal.Entries[i] = Color.Transparent;
 								else
-									pal.Entries[i] = LevelData.Palette[waterPalette][(i - 128) / 16, i % 16].RGBColor;
+									pal.Entries[i] = LevelData.Palette[LevelData.WaterPalette][(i - 128) / 16, i % 16].RGBColor;
 						res.Palette = pal;
 						res.Save(a.FileName);
 						bool dualPath = false;
@@ -1552,8 +1550,8 @@ namespace SonicRetro.SonLVL.GUI
 					else
 					{
 						BitmapBits bmp = LevelData.DrawForeground(null, includeobjectsWithFGToolStripMenuItem.Checked, !hideDebugObjectsToolStripMenuItem.Checked, objectsAboveHighPlaneToolStripMenuItem.Checked, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked, allToolStripMenuItem.Checked);
-						if (waterPalette != -1 && bmp.Height > waterHeight)
-							bmp.ApplyWaterPalette(waterHeight);
+						if (LevelData.WaterPalette != -1 && bmp.Height > LevelData.WaterHeight)
+							bmp.ApplyWaterPalette(LevelData.WaterHeight);
 						using (Bitmap res = bmp.ToBitmap(LevelImgPalette))
 							res.Save(a.FileName);
 					}
@@ -1772,8 +1770,8 @@ namespace SonicRetro.SonLVL.GUI
 					layout = LevelData.Layout.FGLayout;
 					loop = LevelData.Layout.FGLoop;
 					LevelImg8bpp = LevelData.DrawForeground(dispRect, CurrentTab == Tab.Objects || includeobjectsWithFGToolStripMenuItem.Checked, !hideDebugObjectsToolStripMenuItem.Checked, objectsAboveHighPlaneToolStripMenuItem.Checked, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked, allToolStripMenuItem.Checked);
-					if (waterPalette != -1 && camera.Y + LevelImg8bpp.Height > waterHeight)
-						LevelImg8bpp.ApplyWaterPalette(Math.Max(waterHeight - camera.Y, 0));
+					if (LevelData.WaterPalette != -1 && camera.Y + LevelImg8bpp.Height > LevelData.WaterHeight)
+						LevelImg8bpp.ApplyWaterPalette(Math.Max(LevelData.WaterHeight - camera.Y, 0));
 					break;
 				case Tab.Background:
 					lvlsize = LevelData.BGSize;
@@ -8678,22 +8676,22 @@ namespace SonicRetro.SonLVL.GUI
 			foreach (ToolStripMenuItem item in selectPaletteToolStripMenuItem.DropDownItems)
 				item.Checked = false;
 			((ToolStripMenuItem)e.ClickedItem).Checked = true;
-			waterPalette = (int)e.ClickedItem.Tag;
+			LevelData.WaterPalette = (int)e.ClickedItem.Tag;
 			selectPaletteToolStripMenuItem.DropDownItems.Clear();
-			selectPaletteToolStripMenuItem.DropDownItems.Add(new ToolStripMenuItem("None") { Checked = waterPalette == -1, Tag = -1 });
+			selectPaletteToolStripMenuItem.DropDownItems.Add(new ToolStripMenuItem("None") { Checked = LevelData.WaterPalette == -1, Tag = -1 });
 			for (int i = 0; i < LevelData.PalName.Count; i++)
 				if (i != LevelData.CurPal)
-					selectPaletteToolStripMenuItem.DropDownItems.Add(new ToolStripMenuItem(LevelData.PalName[i]) { Checked = waterPalette == i, Tag = i });
+					selectPaletteToolStripMenuItem.DropDownItems.Add(new ToolStripMenuItem(LevelData.PalName[i]) { Checked = LevelData.WaterPalette == i, Tag = i });
 			LevelData.PaletteChanged();
 			DrawLevel();
 		}
 
 		private void setPositionToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			using (WaterHeightDialog dlg = new WaterHeightDialog(waterHeight))
+			using (WaterHeightDialog dlg = new WaterHeightDialog(LevelData.WaterHeight))
 				if (dlg.ShowDialog(this) == DialogResult.OK)
 				{
-					waterHeight = dlg.Value;
+					LevelData.WaterHeight = dlg.Value;
 					DrawLevel();
 				}
 		}
