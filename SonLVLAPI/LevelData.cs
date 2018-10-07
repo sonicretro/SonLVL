@@ -1327,27 +1327,14 @@ namespace SonicRetro.SonLVL.API
 							if (item.Depth != curdepth)
 							{
 								curdepth = item.Depth;
-								objbmplow.DrawBitmapComposited(objbmplevel, 0, 0);
+								objbmphigh.DrawBitmapComposited(objbmplevel, 0, 0);
 								objbmplevel.Clear();
 							}
-							objbmplevel.DrawSpriteLow(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
-							BitmapBits hi = item.Sprite.GetBitmapHigh();
-							for (int y = 0; y < hi.Height; y++)
-							{
-								if (item.Y - bounds.Y + item.Sprite.Y + y < 0) continue;
-								if (item.Y - bounds.Y + item.Sprite.Y + y >= objbmplow.Height) break;
-								int rowoff = objbmplow.GetPixelIndex(item.X - bounds.X + item.Sprite.X, item.Y - bounds.Y + item.Sprite.Y + y);
-								for (int x = 0; x < hi.Width; x++)
-								{
-									if (item.X - bounds.X + item.Sprite.X + x < 0) continue;
-									if (item.X - bounds.X + item.Sprite.X + x >= objbmplow.Width) break;
-									if (objbmplow.Bits[rowoff + x] == 0)
-										objbmphigh.Bits[rowoff + x] = hi[x, y];
-								}
-							}
+							objbmplow.DrawSpriteLow(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
+							objbmphigh.ClearSpriteLow(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
+							objbmplevel.DrawSpriteHigh(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
 						}
 					LevelImg8bpp.DrawBitmapComposited(objbmplow, 0, 0);
-					LevelImg8bpp.DrawBitmapComposited(objbmplevel, 0, 0);
 					if (RingFormat is RingLayoutFormat)
 						foreach (RingEntry item in Rings)
 							LevelImg8bpp.DrawSpriteLow(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
@@ -1368,6 +1355,7 @@ namespace SonicRetro.SonLVL.API
 									LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][1], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
 							}
 					LevelImg8bpp.DrawBitmapComposited(objbmphigh, 0, 0);
+					LevelImg8bpp.DrawBitmapComposited(objbmplevel, 0, 0);
 					if (RingFormat is RingLayoutFormat)
 						foreach (RingEntry item in Rings)
 							LevelImg8bpp.DrawSpriteHigh(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);

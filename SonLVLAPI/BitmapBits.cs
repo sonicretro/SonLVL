@@ -472,6 +472,27 @@ namespace SonicRetro.SonLVL.API
 				Array.Copy(strip.Pixels, srcl, Bits, GetPixelIndex(stx + srcl, sty), srcr - srcl);
 		}
 
+		public void ClearSpriteLow(Sprite sprite, int x, int y)
+		{
+			foreach (PixelStrip strip in sprite.Strips.Where(a => a.Priority == false))
+				ClearStrip(strip, x, y);
+		}
+
+		private void ClearStrip(PixelStrip strip, int x, int y)
+		{
+			int sty = strip.Y + y;
+			if (sty < 0 || sty >= Height) return;
+			int stx = strip.X + x;
+			int srcl = 0;
+			if (stx < 0)
+				srcl = -stx;
+			int srcr = strip.Width;
+			if (srcr > Width - stx)
+				srcr = Width - stx;
+			if (srcr > srcl)
+				Array.Clear(Bits, GetPixelIndex(stx + srcl, sty), srcr - srcl);
+		}
+
 		public void ReplaceColor(byte old, byte @new)
 		{
 			for (int i = 0; i < Bits.Length; i++)
