@@ -853,6 +853,32 @@ namespace SonicRetro.SonLVL.API
 
 		public void DrawBezier(byte index, Point p1, Point p2, Point p3) => DrawBezier(index, p1.X, p1.Y, p2.X, p2.Y, p3.X, p3.Y);
 
+		public void DrawGraphX(byte index, int xmin, int xmax, int yoff, Func<int, int> func)
+		{
+			Point? last = null;
+			for (int x = xmin; x <= xmax; x++)
+			{
+				Point cur = new Point(x, func(x) + yoff);
+				if (last.HasValue)
+					DrawLine(index, last.Value, cur);
+				SafeSetPixel(index, x, cur.Y);
+				last = cur;
+			}
+		}
+
+		public void DrawGraphY(byte index, int ymin, int ymax, int xoff, Func<int,int> func)
+		{
+			Point? last = null;
+			for (int y = ymin; y <= ymax; y++)
+			{
+				Point cur = new Point(func(y) + xoff, y);
+				if (last.HasValue)
+					DrawLine(index, last.Value, cur);
+				SafeSetPixel(index, cur.X, y);
+				last = cur;
+			}
+		}
+
 		public override int GetHashCode() => base.GetHashCode();
 
 		public BitmapBits GetSection(int x, int y, int width, int height)
