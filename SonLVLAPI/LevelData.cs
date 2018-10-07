@@ -1293,21 +1293,20 @@ namespace SonicRetro.SonLVL.API
 					}
 			if (includeObjects)
 			{
-				List<ObjectEntry> objs = new List<ObjectEntry>(Objects.Where(o => ObjectVisible(o, allTimeZones)));
+				List<Entry> objs = new List<Entry>(Objects.Where(o => ObjectVisible(o, allTimeZones)));
+				if (RingFormat is RingLayoutFormat)
+					objs.AddRange(Rings);
 				objs.Sort((a, b) =>
 				{
 					int result = -a.Depth.CompareTo(b.Depth);
 					if (result == 0)
-						result = ((IComparable<ObjectEntry>)a).CompareTo(b);
+						result = ((IComparable<Entry>)a).CompareTo(b);
 					return result;
 				});
 				if (objectsAboveHighPlane)
 				{
-					foreach (ObjectEntry item in objs)
-						if (!(!includeDebugObjects && GetObjectDefinition(item.ID).Debug))
-							LevelImg8bpp.DrawSprite(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
-					if (RingFormat is RingLayoutFormat)
-						foreach (RingEntry item in Rings)
+					foreach (Entry item in objs)
+						if (item is RingEntry || !(!includeDebugObjects && GetObjectDefinition(((ObjectEntry)item).ID).Debug))
 							LevelImg8bpp.DrawSprite(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
 					if (Bumpers != null && includeDebugObjects)
 						foreach (CNZBumperEntry item in Bumpers)
@@ -1321,8 +1320,8 @@ namespace SonicRetro.SonLVL.API
 					BitmapBits objbmplevel = new BitmapBits(bounds.Size);
 					BitmapBits objbmphigh = new BitmapBits(bounds.Size);
 					int curdepth = int.MinValue;
-					foreach (ObjectEntry item in objs)
-						if (!(!includeDebugObjects && GetObjectDefinition(item.ID).Debug))
+					foreach (Entry item in objs)
+						if (item is RingEntry || !(!includeDebugObjects && GetObjectDefinition(((ObjectEntry)item).ID).Debug))
 						{
 							if (item.Depth != curdepth)
 							{
@@ -1335,9 +1334,6 @@ namespace SonicRetro.SonLVL.API
 							objbmplevel.DrawSpriteHigh(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
 						}
 					LevelImg8bpp.DrawBitmapComposited(objbmplow, 0, 0);
-					if (RingFormat is RingLayoutFormat)
-						foreach (RingEntry item in Rings)
-							LevelImg8bpp.DrawSpriteLow(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
 					if (Bumpers != null && includeDebugObjects)
 						foreach (CNZBumperEntry item in Bumpers)
 							LevelImg8bpp.DrawSpriteLow(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
@@ -1356,9 +1352,6 @@ namespace SonicRetro.SonLVL.API
 							}
 					LevelImg8bpp.DrawBitmapComposited(objbmphigh, 0, 0);
 					LevelImg8bpp.DrawBitmapComposited(objbmplevel, 0, 0);
-					if (RingFormat is RingLayoutFormat)
-						foreach (RingEntry item in Rings)
-							LevelImg8bpp.DrawSpriteHigh(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
 					if (Bumpers != null && includeDebugObjects)
 						foreach (CNZBumperEntry item in Bumpers)
 							LevelImg8bpp.DrawSpriteHigh(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
