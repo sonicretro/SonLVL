@@ -1136,7 +1136,7 @@ namespace SonicRetro.SonLVL.API
 	}
 
 	[Serializable]
-	public abstract class CNZBumperEntry : Entry, IComparable<CNZBumperEntry>
+	public abstract class ExtraObjEntry : Entry, IComparable<ExtraObjEntry>
 	{
 		[Browsable(false)]
 		public virtual bool Debug => false;
@@ -1160,7 +1160,7 @@ namespace SonicRetro.SonLVL.API
 			Y = ByteConverter.ToUInt16(bytes, 4);
 		}
 
-		int IComparable<CNZBumperEntry>.CompareTo(CNZBumperEntry other)
+		int IComparable<ExtraObjEntry>.CompareTo(ExtraObjEntry other)
 		{
 			int c = X.CompareTo(other.X);
 			if (c == 0) c = Y.CompareTo(other.Y);
@@ -1168,7 +1168,7 @@ namespace SonicRetro.SonLVL.API
 		}
 	}
 
-	public class ActualCNZBumperEntry : CNZBumperEntry
+	public class ActualCNZBumperEntry : ExtraObjEntry
 	{
 		[Description("The type of bumper.")]
 		[TypeConverter(typeof(UInt16HexConverter))]

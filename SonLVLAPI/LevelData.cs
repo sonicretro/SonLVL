@@ -42,7 +42,7 @@ namespace SonicRetro.SonLVL.API
 		public static List<RingEntry> Rings;
 		public static bool ringstartterm, ringendterm;
 		public static RingFormat RingFormat;
-		public static List<CNZBumperEntry> Bumpers;
+		public static List<ExtraObjEntry> ExtraObjects;
 		public static List<StartPositionEntry> StartPositions;
 		public static Dictionary<string, ObjectData> INIObjDefs;
 		public static Dictionary<byte, ObjectDefinition> ObjTypes;
@@ -799,37 +799,37 @@ namespace SonicRetro.SonLVL.API
 		{
 			if (Level.ExtraObjects != null)
 			{
-				Bumpers = new List<CNZBumperEntry>();
+				ExtraObjects = new List<ExtraObjEntry>();
 				if (File.Exists(Level.ExtraObjects.Filename))
 				{
 					var tmp = File.ReadAllBytes(Level.ExtraObjects.Filename);
 					if (tmp.Length < 10 || ByteConverter.ToInt16(tmp, 2) < 0) return;
 
-					var ent = CompileCodeFile<CNZBumperEntry>(Level.ExtraObjects.CodeFile, Level.ExtraObjects.CodeType);
+					var ent = CompileCodeFile<ExtraObjEntry>(Level.ExtraObjects.CodeFile, Level.ExtraObjects.CodeType);
 					for (var i = 0; true; i += 2)
 					{
 						ent.ID = ByteConverter.ToUInt16(tmp, i);
 						ent.Position = new Position(ByteConverter.ToUInt16(tmp, i += 2), ByteConverter.ToUInt16(tmp, i += 2));
-						Bumpers.Add(ent);
+						ExtraObjects.Add(ent);
 						if (loadGraphics) ent.UpdateSprite();
 
 						if (ByteConverter.ToInt16(tmp, i + 4) < 0) return;
-						ent = (CNZBumperEntry)Activator.CreateInstance(ent.GetType());
+						ent = (ExtraObjEntry)Activator.CreateInstance(ent.GetType());
 					}
 				}
 			}
 			else if (Level.Bumpers != null)
 			{
-				Bumpers = new List<CNZBumperEntry>();
+				ExtraObjects = new List<ExtraObjEntry>();
 				if (File.Exists(Level.Bumpers))
 				{
 					Log("Loading bumpers from file \"" + Level.Bumpers + "\", using compression " + Level.BumperCompression + "...");
 					byte[] tmp = Compression.Decompress(Level.Bumpers, Level.BumperCompression);
-					for (int i = 0; i < tmp.Length; i += CNZBumperEntry.Size)
+					for (int i = 0; i < tmp.Length; i += ExtraObjEntry.Size)
 					{
 						if (ByteConverter.ToUInt16(tmp, i + 2) == 0xFFFF) break;
-						CNZBumperEntry ent = new ActualCNZBumperEntry(tmp, i);
-						Bumpers.Add(ent);
+						ExtraObjEntry ent = new ActualCNZBumperEntry(tmp, i);
+						ExtraObjects.Add(ent);
 						if (loadGraphics) ent.UpdateSprite();
 					}
 				}
@@ -838,7 +838,7 @@ namespace SonicRetro.SonLVL.API
 			}
 			else
 			{
-				Bumpers = null;
+				ExtraObjects = null;
 			}
 		}
 
@@ -1153,11 +1153,11 @@ namespace SonicRetro.SonLVL.API
 
 		private static void SaveLevelExtraObjects()
 		{
-			if (Bumpers != null)
+			if (ExtraObjects != null)
 			{
-				Bumpers.Sort();
+				ExtraObjects.Sort();
 				List<byte> tmp = new List<byte>();
-				foreach (CNZBumperEntry item in Bumpers)
+				foreach (ExtraObjEntry item in ExtraObjects)
 					tmp.AddRange(item.GetBytes());
 
 				if (Level.ExtraObjects != null)
@@ -1340,8 +1340,8 @@ namespace SonicRetro.SonLVL.API
 					foreach (Entry item in objs)
 						if (item is RingEntry || !(!includeDebugObjects && GetObjectDefinition(((ObjectEntry)item).ID).Debug))
 							LevelImg8bpp.DrawSprite(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
-					if (Bumpers != null)
-						foreach (CNZBumperEntry item in Bumpers.Where(obj => includeDebugObjects || !obj.Debug))
+					if (ExtraObjects != null)
+						foreach (ExtraObjEntry item in ExtraObjects.Where(obj => includeDebugObjects || !obj.Debug))
 						{
 							LevelImg8bpp.DrawSpriteHigh(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
 							if (includeDebugObjects)
@@ -1373,8 +1373,8 @@ namespace SonicRetro.SonLVL.API
 							objbmplevel.DrawSpriteHigh(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
 						}
 					LevelImg8bpp.DrawBitmapComposited(objbmplow, 0, 0);
-					if (Bumpers != null)
-						foreach (CNZBumperEntry item in Bumpers.Where(obj => includeDebugObjects || !obj.Debug))
+					if (ExtraObjects != null)
+						foreach (ExtraObjEntry item in ExtraObjects.Where(obj => includeDebugObjects || !obj.Debug))
 							LevelImg8bpp.DrawSpriteLow(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
 					for (int si = StartPositions.Count - 1; si >= 0; si--)
 						LevelImg8bpp.DrawSpriteLow(StartPositions[si].Sprite, StartPositions[si].X - bounds.X, StartPositions[si].Y - bounds.Y);
@@ -1391,8 +1391,8 @@ namespace SonicRetro.SonLVL.API
 							}
 					LevelImg8bpp.DrawBitmapComposited(objbmphigh, 0, 0);
 					LevelImg8bpp.DrawBitmapComposited(objbmplevel, 0, 0);
-					if (Bumpers != null)
-						foreach (CNZBumperEntry item in Bumpers.Where(obj => includeDebugObjects || !obj.Debug))
+					if (ExtraObjects != null)
+						foreach (ExtraObjEntry item in ExtraObjects.Where(obj => includeDebugObjects || !obj.Debug))
 						{
 							LevelImg8bpp.DrawSpriteHigh(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
 							if (includeDebugObjects)
