@@ -1889,7 +1889,7 @@ namespace SonicRetro.SonLVL.GUI
 							case RingEntry rngitem:
 								brush = ringBrush;
 								break;
-							case CNZBumperEntry bmpitem:
+							case ExtraObjEntry bmpitem:
 								brush = objectBrush;
 								break;
 							case StartPositionEntry strtitem:
@@ -2117,9 +2117,9 @@ namespace SonicRetro.SonLVL.GUI
 							oi.ID = (byte)(oi.ID == 0 ? 255 : oi.ID - 1);
 							SelectedItems[i].UpdateSprite();
 						}
-						else if (SelectedItems[i] is CNZBumperEntry)
+						else if (SelectedItems[i] is ExtraObjEntry)
 						{
-							CNZBumperEntry ci = SelectedItems[i] as CNZBumperEntry;
+							ExtraObjEntry ci = SelectedItems[i] as ExtraObjEntry;
 							ci.ID = (ushort)(ci.ID == 0 ? 65535 : ci.ID - 1);
 							ci.UpdateSprite();
 						}
@@ -2211,9 +2211,9 @@ namespace SonicRetro.SonLVL.GUI
 								oi.ID = (byte)(oi.ID == 255 ? 0 : oi.ID + 1);
 								SelectedItems[i].UpdateSprite();
 							}
-							else if (SelectedItems[i] is CNZBumperEntry)
+							else if (SelectedItems[i] is ExtraObjEntry)
 							{
-								CNZBumperEntry ci = SelectedItems[i] as CNZBumperEntry;
+								ExtraObjEntry ci = SelectedItems[i] as ExtraObjEntry;
 								ci.ID = (ushort)(ci.ID == 0 ? 65535 : ci.ID - 1);
 								ci.UpdateSprite();
 							}
@@ -2517,8 +2517,8 @@ namespace SonicRetro.SonLVL.GUI
 			foreach (RingEntry item in LevelData.Rings.Reverse<RingEntry>())
 				if (item.Bounds.Contains(point))
 					return item;
-			if (LevelData.Bumpers != null && !hideDebugObjectsToolStripMenuItem.Checked)
-				foreach (CNZBumperEntry item in LevelData.Bumpers.Reverse<CNZBumperEntry>())
+			if (LevelData.ExtraObjects != null)
+				foreach (ExtraObjEntry item in LevelData.ExtraObjects.Where(obj => !hideDebugObjectsToolStripMenuItem.Checked || !obj.Debug).Reverse())
 					if (item.Bounds.Contains(point))
 						return item;
 			foreach (StartPositionEntry item in LevelData.StartPositions)
@@ -2542,7 +2542,7 @@ namespace SonicRetro.SonLVL.GUI
 					{
 						if (ModifierKeys != Keys.Shift)
 						{
-							if (ModifierKeys != Keys.Control || LevelData.Bumpers == null)
+							if (ModifierKeys != Keys.Control || LevelData.Level.Bumpers == null)
 							{
 								if (typeof(ChaotixObjectEntry).IsAssignableFrom(LevelData.ObjectFormat.ObjectType))
 									ObjectSelect.numericUpDown2.Maximum = 0x1FFF;
@@ -2582,13 +2582,13 @@ namespace SonicRetro.SonLVL.GUI
 							}
 							else
 							{
-								LevelData.Bumpers.Add(new CNZBumperEntry() { X = gridx, Y = gridy });
-								LevelData.Bumpers[LevelData.Bumpers.Count - 1].UpdateSprite();
+								LevelData.ExtraObjects.Add(new ActualCNZBumperEntry() { X = gridx, Y = gridy });
+								LevelData.ExtraObjects[LevelData.ExtraObjects.Count - 1].UpdateSprite();
 								SelectedItems.Clear();
-								SelectedItems.Add(LevelData.Bumpers[LevelData.Bumpers.Count - 1]);
+								SelectedItems.Add(LevelData.ExtraObjects[LevelData.ExtraObjects.Count - 1]);
 								SelectedObjectChanged();
-								AddUndo(new ObjectAddedUndoAction(LevelData.Bumpers[LevelData.Bumpers.Count - 1]));
-								LevelData.Bumpers.Sort();
+								AddUndo(new ObjectAddedUndoAction(LevelData.ExtraObjects[LevelData.ExtraObjects.Count - 1]));
+								LevelData.ExtraObjects.Sort();
 								DrawLevel();
 							}
 						}
@@ -2714,8 +2714,8 @@ namespace SonicRetro.SonLVL.GUI
 						foreach (RingEntry item in LevelData.Rings)
 							if (item.Bounds.IntersectsWith(selbnds))
 								SelectedItems.Add(item);
-						if (LevelData.Bumpers != null && !hideDebugObjectsToolStripMenuItem.Checked)
-							foreach (CNZBumperEntry item in LevelData.Bumpers)
+						if (LevelData.ExtraObjects != null)
+							foreach (ExtraObjEntry item in LevelData.ExtraObjects.Where(obj => !hideDebugObjectsToolStripMenuItem.Checked || !obj.Debug))
 								if (item.Bounds.IntersectsWith(selbnds))
 									SelectedItems.Add(item);
 						foreach (StartPositionEntry item in LevelData.StartPositions)
@@ -2757,7 +2757,7 @@ namespace SonicRetro.SonLVL.GUI
 				ObjectProperties.SelectedObjects = SelectedItems.ToArray();
 				LevelData.Objects.Sort();
 				LevelData.Rings.Sort();
-				if (LevelData.Bumpers != null) LevelData.Bumpers.Sort();
+				if (LevelData.ExtraObjects != null) LevelData.ExtraObjects.Sort();
 			}
 			objdrag = false;
 			selecting = false;
@@ -3254,9 +3254,9 @@ namespace SonicRetro.SonLVL.GUI
 					LevelData.Rings.Remove((RingEntry)item);
 					selitems.Add(item);
 				}
-				else if (item is CNZBumperEntry)
+				else if (item is ExtraObjEntry)
 				{
-					LevelData.Bumpers.Remove((CNZBumperEntry)item);
+					LevelData.ExtraObjects.Remove((ExtraObjEntry)item);
 					selitems.Add(item);
 				}
 			}
@@ -3277,7 +3277,7 @@ namespace SonicRetro.SonLVL.GUI
 					selitems.Add(item);
 				else if (item is RingEntry)
 					selitems.Add(item);
-				else if (item is CNZBumperEntry)
+				else if (item is ExtraObjEntry)
 					selitems.Add(item);
 			}
 			if (selitems.Count == 0) return;
@@ -3309,15 +3309,15 @@ namespace SonicRetro.SonLVL.GUI
 						LevelData.Objects.Add((ObjectEntry)item);
 					else if (item is RingEntry)
 						LevelData.Rings.Add((RingEntry)item);
-					else if (item is CNZBumperEntry)
-						LevelData.Bumpers.Add((CNZBumperEntry)item);
+					else if (item is ExtraObjEntry)
+						LevelData.ExtraObjects.Add((ExtraObjEntry)item);
 					item.UpdateSprite();
 				}
 				AddUndo(new ObjectsPastedUndoAction(new List<Entry>(SelectedItems)));
 				SelectedObjectChanged();
 				LevelData.Objects.Sort();
 				LevelData.Rings.Sort();
-				if (LevelData.Bumpers != null) LevelData.Bumpers.Sort();
+				if (LevelData.ExtraObjects != null) LevelData.ExtraObjects.Sort();
 				DrawLevel();
 			}
 		}
@@ -3337,9 +3337,9 @@ namespace SonicRetro.SonLVL.GUI
 					LevelData.Rings.Remove((RingEntry)item);
 					selitems.Add(item);
 				}
-				else if (item is CNZBumperEntry)
+				else if (item is ExtraObjEntry)
 				{
-					LevelData.Bumpers.Remove((CNZBumperEntry)item);
+					LevelData.ExtraObjects.Remove((ExtraObjEntry)item);
 					selitems.Add(item);
 				}
 			}
@@ -5883,8 +5883,8 @@ namespace SonicRetro.SonLVL.GUI
 							objectselection.Add(ent);
 							objstodelete.Add(item);
 						}
-				if (LevelData.Bumpers != null)
-					foreach (CNZBumperEntry item in LevelData.Bumpers)
+				if (LevelData.ExtraObjects != null)
+					foreach (ExtraObjEntry item in LevelData.ExtraObjects)
 						if (item.Y >= y & item.Y < selection.Bottom * LevelData.Level.ChunkHeight
 							& item.X >= x & item.X < selection.Right * LevelData.Level.ChunkWidth)
 						{
@@ -5900,8 +5900,8 @@ namespace SonicRetro.SonLVL.GUI
 						LevelData.Objects.Remove((ObjectEntry)item);
 					if (item is RingEntry)
 						LevelData.Rings.Remove((RingEntry)item);
-					if (item is CNZBumperEntry)
-						LevelData.Bumpers.Remove((CNZBumperEntry)item);
+					if (item is ExtraObjEntry)
+						LevelData.ExtraObjects.Remove((ExtraObjEntry)item);
 					if (SelectedItems.Contains(item))
 						SelectedItems.Remove(item);
 				}
@@ -5967,8 +5967,8 @@ namespace SonicRetro.SonLVL.GUI
 							ent.Y -= (ushort)y;
 							objectselection.Add(ent);
 						}
-				if (LevelData.Bumpers != null)
-					foreach (CNZBumperEntry item in LevelData.Bumpers)
+				if (LevelData.ExtraObjects != null)
+					foreach (ExtraObjEntry item in LevelData.ExtraObjects)
 						if (item.Y >= y & item.Y < selection.Bottom * LevelData.Level.ChunkHeight
 							& item.X >= x & item.X < selection.Right * LevelData.Level.ChunkWidth)
 						{
@@ -6031,14 +6031,14 @@ namespace SonicRetro.SonLVL.GUI
 						LevelData.Objects.Add((ObjectEntry)newent);
 					else if (newent is RingEntry)
 						LevelData.Rings.Add((RingEntry)newent);
-					else if (newent is CNZBumperEntry)
-						LevelData.Bumpers.Add((CNZBumperEntry)newent);
+					else if (newent is ExtraObjEntry)
+						LevelData.ExtraObjects.Add((ExtraObjEntry)newent);
 					newent.UpdateSprite();
 				}
 				LevelData.Objects.Sort();
 				LevelData.Rings.Sort();
-				if (LevelData.Bumpers != null)
-					LevelData.Bumpers.Sort();
+				if (LevelData.ExtraObjects != null)
+					LevelData.ExtraObjects.Sort();
 			}
 			DrawLevel();
 		}
@@ -6102,16 +6102,16 @@ namespace SonicRetro.SonLVL.GUI
 									LevelData.Objects.Add((ObjectEntry)it2);
 								else if (it2 is RingEntry)
 									LevelData.Rings.Add((RingEntry)it2);
-								else if (it2 is CNZBumperEntry)
-									LevelData.Bumpers.Add((CNZBumperEntry)it2);
+								else if (it2 is ExtraObjEntry)
+									LevelData.ExtraObjects.Add((ExtraObjEntry)it2);
 								it2.UpdateSprite();
 							}
 						}
 					}
 				LevelData.Objects.Sort();
 				LevelData.Rings.Sort();
-				if (LevelData.Bumpers != null)
-					LevelData.Bumpers.Sort();
+				if (LevelData.ExtraObjects != null)
+					LevelData.ExtraObjects.Sort();
 			}
 			DrawLevel();
 		}
@@ -6154,8 +6154,8 @@ namespace SonicRetro.SonLVL.GUI
 						if (item.Y >= selection.Top * LevelData.Level.ChunkHeight & item.Y < selection.Bottom * LevelData.Level.ChunkHeight
 							& item.X >= selection.Left * LevelData.Level.ChunkWidth & item.X < selection.Right * LevelData.Level.ChunkWidth)
 							objectselection.Add(item);
-				if (LevelData.Bumpers != null)
-					foreach (CNZBumperEntry item in LevelData.Bumpers)
+				if (LevelData.ExtraObjects != null)
+					foreach (ExtraObjEntry item in LevelData.ExtraObjects)
 						if (item.Y >= selection.Top * LevelData.Level.ChunkHeight & item.Y < selection.Bottom * LevelData.Level.ChunkHeight
 							& item.X >= selection.Left * LevelData.Level.ChunkWidth & item.X < selection.Right * LevelData.Level.ChunkWidth)
 							objectselection.Add(item);
@@ -6165,8 +6165,8 @@ namespace SonicRetro.SonLVL.GUI
 						LevelData.Objects.Remove((ObjectEntry)item);
 					if (item is RingEntry)
 						LevelData.Rings.Remove((RingEntry)item);
-					if (item is CNZBumperEntry)
-						LevelData.Bumpers.Remove((CNZBumperEntry)item);
+					if (item is ExtraObjEntry)
+						LevelData.ExtraObjects.Remove((ExtraObjEntry)item);
 					if (SelectedItems.Contains(item))
 						SelectedItems.Remove(item);
 				}
@@ -6458,8 +6458,8 @@ namespace SonicRetro.SonLVL.GUI
 									item.X += (ushort)(selection.Width * LevelData.Level.ChunkWidth);
 									item.UpdateSprite();
 								}
-						if (LevelData.Bumpers != null)
-							foreach (CNZBumperEntry item in LevelData.Bumpers)
+						if (LevelData.ExtraObjects != null)
+							foreach (ExtraObjEntry item in LevelData.ExtraObjects)
 								if (item.Y >= selection.Top * LevelData.Level.ChunkHeight & item.Y < selection.Bottom * LevelData.Level.ChunkHeight & item.X >= selection.Left * LevelData.Level.ChunkWidth)
 								{
 									item.X += (ushort)(selection.Width * LevelData.Level.ChunkWidth);
@@ -6522,8 +6522,8 @@ namespace SonicRetro.SonLVL.GUI
 									item.Y += (ushort)(selection.Height * LevelData.Level.ChunkHeight);
 									item.UpdateSprite();
 								}
-						if (LevelData.Bumpers != null)
-							foreach (CNZBumperEntry item in LevelData.Bumpers)
+						if (LevelData.ExtraObjects != null)
+							foreach (ExtraObjEntry item in LevelData.ExtraObjects)
 								if (item.X >= selection.Left * LevelData.Level.ChunkWidth & item.X < selection.Right * LevelData.Level.ChunkWidth & item.Y >= selection.Top * LevelData.Level.ChunkHeight)
 								{
 									item.Y += (ushort)(selection.Height * LevelData.Level.ChunkHeight);
@@ -6586,8 +6586,8 @@ namespace SonicRetro.SonLVL.GUI
 									item.Y += (ushort)(selection.Height * LevelData.Level.ChunkHeight);
 									item.UpdateSprite();
 								}
-						if (LevelData.Bumpers != null)
-							foreach (CNZBumperEntry item in LevelData.Bumpers)
+						if (LevelData.ExtraObjects != null)
+							foreach (ExtraObjEntry item in LevelData.ExtraObjects)
 								if (item.Y >= selection.Top * LevelData.Level.ChunkHeight)
 								{
 									item.Y += (ushort)(selection.Height * LevelData.Level.ChunkHeight);
@@ -6650,8 +6650,8 @@ namespace SonicRetro.SonLVL.GUI
 									item.X += (ushort)(selection.Width * LevelData.Level.ChunkWidth);
 									item.UpdateSprite();
 								}
-						if (LevelData.Bumpers != null)
-							foreach (CNZBumperEntry item in LevelData.Bumpers)
+						if (LevelData.ExtraObjects != null)
+							foreach (ExtraObjEntry item in LevelData.ExtraObjects)
 								if (item.X >= selection.Left * LevelData.Level.ChunkWidth)
 								{
 									item.X += (ushort)(selection.Width * LevelData.Level.ChunkWidth);
@@ -6728,8 +6728,8 @@ namespace SonicRetro.SonLVL.GUI
 									item.X -= (ushort)(selection.Width * LevelData.Level.ChunkWidth);
 									item.UpdateSprite();
 								}
-						if (LevelData.Bumpers != null)
-							foreach (CNZBumperEntry item in LevelData.Bumpers)
+						if (LevelData.ExtraObjects != null)
+							foreach (ExtraObjEntry item in LevelData.ExtraObjects)
 								if (item.Y >= selection.Top * LevelData.Level.ChunkHeight & item.Y < selection.Bottom * LevelData.Level.ChunkHeight & item.X >= selection.Right * LevelData.Level.ChunkWidth)
 								{
 									item.X -= (ushort)(selection.Width * LevelData.Level.ChunkWidth);
@@ -6788,8 +6788,8 @@ namespace SonicRetro.SonLVL.GUI
 									item.Y -= (ushort)(selection.Height * LevelData.Level.ChunkHeight);
 									item.UpdateSprite();
 								}
-						if (LevelData.Bumpers != null)
-							foreach (CNZBumperEntry item in LevelData.Bumpers)
+						if (LevelData.ExtraObjects != null)
+							foreach (ExtraObjEntry item in LevelData.ExtraObjects)
 								if (item.X >= selection.Left * LevelData.Level.ChunkWidth & item.X < selection.Right * LevelData.Level.ChunkWidth & item.Y >= selection.Bottom * LevelData.Level.ChunkHeight)
 								{
 									item.Y -= (ushort)(selection.Height * LevelData.Level.ChunkHeight);
@@ -6848,8 +6848,8 @@ namespace SonicRetro.SonLVL.GUI
 									item.Y -= (ushort)(selection.Height * LevelData.Level.ChunkHeight);
 									item.UpdateSprite();
 								}
-						if (LevelData.Bumpers != null)
-							foreach (CNZBumperEntry item in LevelData.Bumpers)
+						if (LevelData.ExtraObjects != null)
+							foreach (ExtraObjEntry item in LevelData.ExtraObjects)
 								if (item.Y >= selection.Bottom * LevelData.Level.ChunkHeight)
 								{
 									item.Y -= (ushort)(selection.Height * LevelData.Level.ChunkHeight);
@@ -6918,8 +6918,8 @@ namespace SonicRetro.SonLVL.GUI
 									item.X -= (ushort)(selection.Width * LevelData.Level.ChunkWidth);
 									item.UpdateSprite();
 								}
-						if (LevelData.Bumpers != null)
-							foreach (CNZBumperEntry item in LevelData.Bumpers)
+						if (LevelData.ExtraObjects != null)
+							foreach (ExtraObjEntry item in LevelData.ExtraObjects)
 								if (item.X >= selection.Right * LevelData.Level.ChunkWidth)
 								{
 									item.X -= (ushort)(selection.Width * LevelData.Level.ChunkWidth);
@@ -9945,9 +9945,9 @@ namespace SonicRetro.SonLVL.GUI
 			{
 				LevelData.Rings.Add((RingEntry)obj);
 			}
-			else if (obj is CNZBumperEntry)
+			else if (obj is ExtraObjEntry)
 			{
-				LevelData.Bumpers.Add((CNZBumperEntry)obj);
+				LevelData.ExtraObjects.Add((ExtraObjEntry)obj);
 			}
 		}
 
@@ -9961,9 +9961,9 @@ namespace SonicRetro.SonLVL.GUI
 			{
 				LevelData.Rings.Remove((RingEntry)obj);
 			}
-			else if (obj is CNZBumperEntry)
+			else if (obj is ExtraObjEntry)
 			{
-				LevelData.Bumpers.Remove((CNZBumperEntry)obj);
+				LevelData.ExtraObjects.Remove((ExtraObjEntry)obj);
 			}
 		}
 	}
@@ -9990,9 +9990,9 @@ namespace SonicRetro.SonLVL.GUI
 				{
 					LevelData.Rings.Add((RingEntry)item);
 				}
-				else if (item is CNZBumperEntry)
+				else if (item is ExtraObjEntry)
 				{
-					LevelData.Bumpers.Add((CNZBumperEntry)item);
+					LevelData.ExtraObjects.Add((ExtraObjEntry)item);
 				}
 			}
 		}
@@ -10009,9 +10009,9 @@ namespace SonicRetro.SonLVL.GUI
 				{
 					LevelData.Rings.Remove((RingEntry)item);
 				}
-				else if (item is CNZBumperEntry)
+				else if (item is ExtraObjEntry)
 				{
-					LevelData.Bumpers.Remove((CNZBumperEntry)item);
+					LevelData.ExtraObjects.Remove((ExtraObjEntry)item);
 				}
 			}
 		}
@@ -10040,9 +10040,9 @@ namespace SonicRetro.SonLVL.GUI
 				{
 					LevelData.Rings.Add((RingEntry)item);
 				}
-				else if (item is CNZBumperEntry)
+				else if (item is ExtraObjEntry)
 				{
-					LevelData.Bumpers.Add((CNZBumperEntry)item);
+					LevelData.ExtraObjects.Add((ExtraObjEntry)item);
 				}
 			}
 		}
@@ -10059,9 +10059,9 @@ namespace SonicRetro.SonLVL.GUI
 				{
 					LevelData.Rings.Remove((RingEntry)item);
 				}
-				else if (item is CNZBumperEntry)
+				else if (item is ExtraObjEntry)
 				{
-					LevelData.Bumpers.Remove((CNZBumperEntry)item);
+					LevelData.ExtraObjects.Remove((ExtraObjEntry)item);
 				}
 			}
 		}

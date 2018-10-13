@@ -343,6 +343,8 @@ namespace SonicRetro.SonLVL.API
 		public string RingCodeType { get; set; }
 		[IniName("rings")]
 		public string Rings { get; set; }
+		[IniName("extraobjects")]
+		public ExtraObjectInfo ExtraObjects { get; set; }
 		[IniName("bumpercmp")]
 		public CompressionType BumperCompression { get; set; }
 		[IniName("bumpers")]
@@ -535,6 +537,25 @@ namespace SonicRetro.SonLVL.API
 		public override string ToString()
 		{
 			return $"{Filename}:{Source.ToString(NumberFormatInfo.InvariantInfo)}:{Destination.ToString(NumberFormatInfo.InvariantInfo)}:{Length.ToString(NumberFormatInfo.InvariantInfo)}";
+		}
+	}
+
+	[TypeConverter(typeof(StringConverter<ExtraObjectInfo>))]
+	public class ExtraObjectInfo
+	{
+		public string Filename, CodeFile, CodeType;
+
+		public ExtraObjectInfo(string data)
+		{
+			string[] split = data.Split('|');
+			Filename = split[0];
+			CodeFile = split[1];
+			CodeType = split[2];
+		}
+
+		public override string ToString()
+		{
+			return $"{Filename}|{CodeFile}|{CodeType}";
 		}
 	}
 
