@@ -1138,9 +1138,11 @@ namespace SonicRetro.SonLVL.API
 	[Serializable]
 	public abstract class ExtraObjEntry : Entry, IComparable<ExtraObjEntry>
 	{
+		public abstract ushort ID { get; set; }
+
 		[Browsable(false)]
 		public virtual bool Debug => false;
-		public abstract ushort ID { get; set; }
+		public virtual void Init() { }
 
 		public static int Size { get { return 6; } }
 
