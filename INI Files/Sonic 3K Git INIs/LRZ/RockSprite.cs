@@ -8,7 +8,7 @@ namespace S3KObjectDefinitions.LRZ
 {
 	class RockSprite : ExtraObjEntry
 	{
-		private static Sprite[] sprites = new Sprite[30];
+		private static Sprite[] sprites;
 
 		[Description("The sprite's appearance.")]
 		public override ushort ID { get; set; }
@@ -25,12 +25,13 @@ namespace S3KObjectDefinitions.LRZ
 			_bounds.Offset(X, Y);
 		}
 
-		static RockSprite()
+		public override void Init()
 		{
 			var art = LevelData.ReadFile("LevelArt", 0);
 			var map = LevelData.ReadFile(
 				"../Levels/LRZ/Misc/Rock Sprite Attribute Data.bin", CompressionType.Uncompressed);
 
+			sprites = new Sprite[30];
 			for (var index = 0; index < sprites.Length; index++)
 				sprites[index] = ObjectHelper.VDPToBmp(art, map, index, true);
 		}

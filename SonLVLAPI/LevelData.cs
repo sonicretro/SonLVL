@@ -806,6 +806,8 @@ namespace SonicRetro.SonLVL.API
 					if (tmp.Length < 10 || ByteConverter.ToInt16(tmp, 2) < 0) return;
 
 					var ent = CompileCodeFile<ExtraObjEntry>(Level.ExtraObjects.CodeFile, Level.ExtraObjects.CodeType);
+					ent.Init();
+
 					for (var i = 0; true; i += 2)
 					{
 						ent.ID = ByteConverter.ToUInt16(tmp, i);
