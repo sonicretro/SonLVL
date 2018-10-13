@@ -224,6 +224,12 @@ namespace SonicRetro.SonLVL.API
 						result.ChunkWidth = result.ChunkHeight = 128;
 						break;
 				}
+			if (result.LayoutCompression == CompressionType.Invalid)
+				result.LayoutCompression = LayoutCompression;
+			if (result.FGLayoutCompression == CompressionType.Invalid)
+				result.FGLayoutCompression = FGLayoutCompression;
+			if (result.BGLayoutCompression == CompressionType.Invalid)
+				result.BGLayoutCompression = BGLayoutCompression;
 			if (result.FGLayoutCompression == CompressionType.Invalid)
 				result.FGLayoutCompression = result.LayoutCompression;
 			if (result.BGLayoutCompression == CompressionType.Invalid)
