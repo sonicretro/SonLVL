@@ -2517,8 +2517,8 @@ namespace SonicRetro.SonLVL.GUI
 			foreach (RingEntry item in LevelData.Rings.Reverse<RingEntry>())
 				if (item.Bounds.Contains(point))
 					return item;
-			if (LevelData.Bumpers != null && !hideDebugObjectsToolStripMenuItem.Checked)
-				foreach (CNZBumperEntry item in LevelData.Bumpers.Reverse<CNZBumperEntry>())
+			if (LevelData.Bumpers != null)
+				foreach (CNZBumperEntry item in LevelData.Bumpers.Where(obj => !hideDebugObjectsToolStripMenuItem.Checked || !obj.Debug).Reverse())
 					if (item.Bounds.Contains(point))
 						return item;
 			foreach (StartPositionEntry item in LevelData.StartPositions)
@@ -2542,7 +2542,7 @@ namespace SonicRetro.SonLVL.GUI
 					{
 						if (ModifierKeys != Keys.Shift)
 						{
-							if (ModifierKeys != Keys.Control || LevelData.Bumpers == null)
+							if (ModifierKeys != Keys.Control || LevelData.Level.Bumpers == null)
 							{
 								if (typeof(ChaotixObjectEntry).IsAssignableFrom(LevelData.ObjectFormat.ObjectType))
 									ObjectSelect.numericUpDown2.Maximum = 0x1FFF;
@@ -2582,7 +2582,7 @@ namespace SonicRetro.SonLVL.GUI
 							}
 							else
 							{
-								LevelData.Bumpers.Add(new CNZBumperEntry() { X = gridx, Y = gridy });
+								LevelData.Bumpers.Add(new ActualCNZBumperEntry() { X = gridx, Y = gridy });
 								LevelData.Bumpers[LevelData.Bumpers.Count - 1].UpdateSprite();
 								SelectedItems.Clear();
 								SelectedItems.Add(LevelData.Bumpers[LevelData.Bumpers.Count - 1]);
@@ -2714,8 +2714,8 @@ namespace SonicRetro.SonLVL.GUI
 						foreach (RingEntry item in LevelData.Rings)
 							if (item.Bounds.IntersectsWith(selbnds))
 								SelectedItems.Add(item);
-						if (LevelData.Bumpers != null && !hideDebugObjectsToolStripMenuItem.Checked)
-							foreach (CNZBumperEntry item in LevelData.Bumpers)
+						if (LevelData.Bumpers != null)
+							foreach (CNZBumperEntry item in LevelData.Bumpers.Where(obj => !hideDebugObjectsToolStripMenuItem.Checked || !obj.Debug))
 								if (item.Bounds.IntersectsWith(selbnds))
 									SelectedItems.Add(item);
 						foreach (StartPositionEntry item in LevelData.StartPositions)

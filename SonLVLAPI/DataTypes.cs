@@ -1135,26 +1135,14 @@ namespace SonicRetro.SonLVL.API
 		Vertical
 	}
 
-	[DefaultProperty("ID")]
 	[Serializable]
-	public class CNZBumperEntry : Entry, IComparable<CNZBumperEntry>
+	public abstract class CNZBumperEntry : Entry, IComparable<CNZBumperEntry>
 	{
-		[DefaultValue(0)]
-		[Description("The type of bumper.")]
-		[TypeConverter(typeof(UInt16HexConverter))]
-		public ushort ID { get; set; }
+		[Browsable(false)]
+		public virtual bool Debug => false;
+		public abstract ushort ID { get; set; }
 
 		public static int Size { get { return 6; } }
-
-		public CNZBumperEntry() { pos = new Position(this); }
-
-		public CNZBumperEntry(byte[] file, int address)
-		{
-			byte[] bytes = new byte[Size];
-			Array.Copy(file, address, bytes, 0, Size);
-			FromBytes(bytes);
-			pos = new Position(this);
-		}
 
 		public override byte[] GetBytes()
 		{
@@ -1177,6 +1165,24 @@ namespace SonicRetro.SonLVL.API
 			int c = X.CompareTo(other.X);
 			if (c == 0) c = Y.CompareTo(other.Y);
 			return c;
+		}
+	}
+
+	public class ActualCNZBumperEntry : CNZBumperEntry
+	{
+		[Description("The type of bumper.")]
+		[TypeConverter(typeof(UInt16HexConverter))]
+		public override ushort ID { get; set; }
+		public override bool Debug => true;
+
+		public ActualCNZBumperEntry() { pos = new Position(this); }
+
+		public ActualCNZBumperEntry(byte[] file, int address)
+		{
+			byte[] bytes = new byte[Size];
+			Array.Copy(file, address, bytes, 0, Size);
+			FromBytes(bytes);
+			pos = new Position(this);
 		}
 
 		public override void UpdateSprite()
@@ -1303,6 +1309,17 @@ namespace SonicRetro.SonLVL.API
 					X = ByteConverter.ToInt16(file, address + 4);
 					break;
 			}
+		}
+
+		public MappingsTile(short xpos, short ypos, byte size, ushort tile)
+		{
+			Y = ypos;
+			Width = (byte)(((size & 0xC) >> 2) + 1);
+			Height = (byte)((size & 0x3) + 1);
+			Tile = new PatternIndex(tile);
+			Tile2 = new PatternIndex(tile);
+			Tile2.Tile = (ushort)(Tile2.Tile >> 1);
+			X = xpos;
 		}
 
 		public byte[] GetBytes(EngineVersion version)

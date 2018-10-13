@@ -4,6 +4,17 @@ namespace SonicRetro.SonLVL.API
 	{
 		public static byte[] OpenArtFile(string file, CompressionType comp) { return LevelData.ReadFile(file, comp); }
 
+		public static Sprite VDPToBmp(byte[] artfile, byte[] mapfile, int frame, bool sizeAfterLinkData = false)
+		{
+			var offset = frame << 3;
+			var ypos = ByteConverter.ToInt16(mapfile, offset);
+			var size = mapfile[offset + (sizeAfterLinkData ? 3 : 2)];
+			var tile = ByteConverter.ToUInt16(mapfile, offset + 4);
+			var xpos = ByteConverter.ToInt16(mapfile, offset + 6);
+
+			return LevelData.MapTileToBmp(artfile, new MappingsTile(xpos, ypos, size, tile), 0);
+		}
+
 		public static Sprite MapToBmp(byte[] artfile, byte[] mapfile, int frame, int startpal, bool priority = false, EngineVersion version = EngineVersion.Invalid)
 		{
 			if (version == EngineVersion.Invalid)
