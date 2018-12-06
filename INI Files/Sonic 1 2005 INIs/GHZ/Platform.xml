@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
-<ObjDef xmlns="http://www.sonicretro.org" Namespace="S12005ObjectDefinitions.GHZ" TypeName="Platform" Language="cs" Name="Platform" Image="img1">
+<ObjDef xmlns="http://www.sonicretro.org" Name="Platform" Image="img1">
   <Images>
     <ImageFromMappings id="img1">
-      <ArtFile filename="LevelArt"/>
-      <MapFile type="ASM" filename="../_maps/obj18ghz.asm" frame="0" startpal="2"/>
+      <ArtFile filename="../artnem/8x8ghz1.bin"/>
+      <MapFile type="ASM" filename="../_maps/Obj18ghz.asm" frame="0" startpal="2"/>
     </ImageFromMappings>
     <ImageFromMappings id="img2">
-      <ArtFile filename="LevelArt"/>
-      <MapFile type="ASM" filename="../_maps/obj18ghz.asm" frame="1" startpal="2"/>
+      <ArtFile filename="../artnem/8x8ghz1.bin"/>
+      <MapFile type="ASM" filename="../_maps/Obj18ghz.asm" frame="1" startpal="2"/>
     </ImageFromMappings>
   </Images>
   <Subtypes>
