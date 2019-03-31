@@ -59,7 +59,7 @@ namespace S3KObjectDefinitions.Common
 
 		public override Sprite Image
 		{
-			get { return sprites[0][0]; }
+			get { return sprites[1][0]; }
 		}
 
 		public override ReadOnlyCollection<byte> Subtypes
