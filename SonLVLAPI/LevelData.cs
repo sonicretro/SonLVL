@@ -1318,6 +1318,8 @@ namespace SonicRetro.SonLVL.API
 								LevelImg8bpp.DrawSpriteLow(ChunkSprites[Layout.FGLayout[x, y]], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
 							if (!includeObjects || objectsAboveHighPlane)
 							{
+								if (highPlane)
+									LevelImg8bpp.DrawSpriteHigh(ChunkSprites[Layout.FGLayout[x, y]], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
 								if (collisionPath1)
 									LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][0], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
 								else if (collisionPath2)
