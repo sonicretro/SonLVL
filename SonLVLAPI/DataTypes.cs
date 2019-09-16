@@ -1170,6 +1170,7 @@ namespace SonicRetro.SonLVL.API
 		}
 	}
 
+	[Serializable]
 	public class ActualCNZBumperEntry : ExtraObjEntry
 	{
 		[Description("The type of bumper.")]
