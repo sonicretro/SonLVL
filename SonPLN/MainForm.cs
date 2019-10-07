@@ -28,19 +28,17 @@ namespace SonicRetro.SonLVL.SonPLN
 				Log("Mono runtime detected.");
 			Log("Operating system: " + Environment.OSVersion.ToString());
 			LevelData.LogEvent += Log;
-			LevelData.PaletteChangedEvent += LevelData_PaletteChangedEvent;
 			InitializeComponent();
 		}
 
 		const int ColorGrid = 64;
 
-		void LevelData_PaletteChangedEvent()
+		void PaletteChanged()
 		{
+			for (int i = 0; i < 64; i++)
+				LevelData.BmpPal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, true);
 			LevelData.BmpPal.Entries.CopyTo(LevelImgPalette.Entries, 0);
-			LevelImgPalette.Entries[LevelData.ColorTransparent] = LevelData.PaletteToColor(2, 0, false);
-			LevelImgPalette.Entries[LevelData.ColorWhite] = Color.White;
-			LevelImgPalette.Entries[LevelData.ColorYellow] = Color.Yellow;
-			LevelImgPalette.Entries[LevelData.ColorBlack] = Color.Black;
+			LevelImgPalette.Entries[LevelData.ColorTransparent] = LevelData.PaletteToColor(0, 0, false);
 			LevelImgPalette.Entries[ColorGrid] = Settings.GridColor;
 			curpal = new Color[16];
 			for (int i = 0; i < 16; i++)
@@ -83,6 +81,7 @@ namespace SonicRetro.SonLVL.SonPLN
 		PatternIndex[,] planemap;
 		ReplaceTilesDialog replaceTilesDialog;
 		TextMapping textMapping;
+		bool[,] PalValid = new bool[4, 16];
 
 		internal void Log(params string[] lines)
 		{
@@ -412,9 +411,7 @@ namespace SonicRetro.SonLVL.SonPLN
 			LevelData.Palette = new List<SonLVLColor[,]>() { new SonLVLColor[4, 16] };
 			LevelData.PalNum = new List<byte[,]>() { new byte[4, 16] };
 			LevelData.PalAddr = new List<int[,]>() { new int[4, 16] };
-			for (int l = 0; l < 4; l++)
-				for (int c = 0; c < 16; c++)
-					LevelData.PalAddr[0][l, c] = -1;
+			PalValid = new bool[4, 16];
 			if (level.Palette == null || string.IsNullOrWhiteSpace(level.Palette[0].Filename))
 				throw new FormatException("Level must contain at least one Palette file!");
 			byte palfilenum = 0;
@@ -429,6 +426,7 @@ namespace SonicRetro.SonLVL.SonPLN
 					LevelData.Palette[0][(pa + palent.Destination) / 16, (pa + palent.Destination) % 16] = palfile[pa + palent.Source];
 					LevelData.PalNum[0][(pa + palent.Destination) / 16, (pa + palent.Destination) % 16] = palfilenum;
 					LevelData.PalAddr[0][(pa + palent.Destination) / 16, (pa + palent.Destination) % 16] = pa + palent.Source;
+					PalValid[(pa + palent.Destination) / 16, (pa + palent.Destination) % 16] = true;
 				}
 				palfilenum++;
 			}
@@ -567,7 +565,7 @@ namespace SonicRetro.SonLVL.SonPLN
 			}
 			for (int pl = 0; pl < 4; pl++)
 				for (int pi = 0; pi < 16; pi++)
-					if (LevelData.PalAddr[0][pl, pi] != -1)
+					if (PalValid[pl, pi])
 						palfiles[LevelData.PalNum[0][pl, pi]][LevelData.PalAddr[0][pl, pi]] = LevelData.Palette[0][pl, pi].MDColor;
 			for (byte pn = 0; pn < palent.Collection.Length; pn++)
 			{
@@ -808,11 +806,6 @@ namespace SonicRetro.SonLVL.SonPLN
 		#endregion
 
 		#region Help Menu
-		private void viewReadmeToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			System.Diagnostics.Process.Start(Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "readme.txt"));
-		}
-
 		private void reportBugToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			using (BugReportDialog err = new BugReportDialog("SonLVL", string.Join(Environment.NewLine, LogFile.ToArray())))
@@ -1140,15 +1133,20 @@ namespace SonicRetro.SonLVL.SonPLN
 			if (pal == null)
 			{
 				pal = new Color[4, 16];
-				for (int y = 0; y <= 3; y++)
-					for (int x = 0; x <= 15; x++)
+				for (int y = 0; y < 4; y++)
+					for (int x = 0; x < 16; x++)
 						pal[y, x] = LevelData.PaletteToColor(y, x, false);
 			}
-			for (int y = 0; y <= 3; y++)
-				for (int x = 0; x <= 15; x++)
+			for (int y = 0; y < 4; y++)
+				for (int x = 0; x < 16; x++)
 				{
 					PalettePanelGfx.FillRectangle(new SolidBrush(pal[y, x]), x * 20, y * 20, 20, 20);
 					PalettePanelGfx.DrawRectangle(Pens.White, x * 20, y * 20, 19, 19);
+					if (!PalValid[y, x])
+					{
+						PalettePanelGfx.DrawLine(Pens.Red, x * 20, y * 20, x * 20 + 20, y * 20 + 20);
+						PalettePanelGfx.DrawLine(Pens.Red, x * 20, y * 20 + 20, x * 20 + 20, y * 20);
+					}
 				}
 			if (disppal == null)
 				PalettePanelGfx.DrawRectangle(new Pen(Color.Yellow, 2), SelectedColor.X * 20, SelectedColor.Y * 20, 20, 20);
@@ -1170,22 +1168,25 @@ namespace SonicRetro.SonLVL.SonPLN
 			int line = e.Y / 20;
 			int index = e.X / 20;
 			if (index < 0 || index > 15 || line < 0 || line > 3) return;
+			if (!PalValid[line, index]) return;
 			SelectedColor = new Point(index, line);
-			ColorDialog a = new ColorDialog
+			using (ColorDialog a = new ColorDialog
 			{
 				AllowFullOpen = true,
 				AnyColor = true,
 				FullOpen = true,
 				Color = LevelData.PaletteToColor(line, index, false)
-			};
-			if (cols != null)
-				a.CustomColors = cols;
-			if (a.ShowDialog() == DialogResult.OK)
+			})
 			{
-				LevelData.ColorToPalette(line, index, a.Color);
-				LevelData.PaletteChanged();
+				if (cols != null)
+					a.CustomColors = cols;
+				if (a.ShowDialog() == DialogResult.OK)
+				{
+					LevelData.ColorToPalette(line, index, a.Color);
+					PaletteChanged();
+				}
+				cols = a.CustomColors;
 			}
-			cols = a.CustomColors;
 			loaded = false;
 			ushort md = LevelData.Palette[LevelData.CurPal][line, index].MDColor;
 			colorRed.Value = md & 0xF;
@@ -1198,7 +1199,7 @@ namespace SonicRetro.SonLVL.SonPLN
 		{
 			if (!loaded) return;
 			LevelData.Palette[LevelData.CurPal][SelectedColor.Y, SelectedColor.X] = new SonLVLColor((ushort)((int)colorRed.Value | (int)colorGreen.Value << 4 | (int)colorBlue.Value << 8));
-			LevelData.PaletteChanged();
+			PaletteChanged();
 		}
 
 		private Color[] curpal;
@@ -1208,6 +1209,7 @@ namespace SonicRetro.SonLVL.SonPLN
 			Point mouseColor = new Point(e.X / 20, e.Y / 20);
 			if (mouseColor.X < 0 || mouseColor.X > 15 || mouseColor.Y < 0 || mouseColor.Y > 3) return;
 			if (mouseColor == SelectedColor) return;
+			if (!PalValid[mouseColor.Y, mouseColor.X]) return;
 			bool newpal = mouseColor.Y != SelectedColor.Y;
 			switch (e.Button)
 			{
@@ -1243,7 +1245,7 @@ namespace SonicRetro.SonLVL.SonPLN
 							b += badd;
 							LevelData.ColorToPalette(SelectedColor.Y, x, Color.FromArgb((int)Math.Round(r, MidpointRounding.AwayFromZero), (int)Math.Round(g, MidpointRounding.AwayFromZero), (int)Math.Round(b, MidpointRounding.AwayFromZero)));
 						}
-						LevelData.PaletteChanged();
+						PaletteChanged();
 					}
 					break;
 			}
@@ -1368,7 +1370,7 @@ namespace SonicRetro.SonLVL.SonPLN
 				for (int x = 0; x < 16; x++)
 					LevelData.ColorToPalette(y, x, newpal[y, x]);
 			SelectedColor = mouseColor;
-			LevelData.PaletteChanged();
+			PaletteChanged();
 		}
 
 		private void importPaletteToolStripButton_Click(object sender, EventArgs e)
@@ -1442,7 +1444,7 @@ namespace SonicRetro.SonLVL.SonPLN
 					}
 				}
 			}
-			LevelData.PaletteChanged();
+			PaletteChanged();
 		}
 
 		private BitmapBits tile;
