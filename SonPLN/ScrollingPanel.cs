@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace SonicRetro.SonLVL
+namespace SonicRetro.SonLVL.SonPLN
 {
 	public partial class ScrollingPanel : UserControl
 	{

@@ -1718,6 +1718,29 @@ namespace SonicRetro.SonLVL.API
 			return bmp;
 		}
 
+		public static BitmapBits TileToBmp8bpp(byte[] tiles, PatternIndex index)
+		{
+			BitmapBits bmp;
+			if (tiles != null && index.Tile * 32 + 32 <= tiles.Length)
+			{
+				bmp = new BitmapBits(8, 8);
+				for (int i = 0; i < 32; i++)
+				{
+					bmp.Bits[i * 2] = (byte)((tiles[i + (index.Tile * 32)] >> 4) + (index.Palette * 16));
+					bmp.Bits[(i * 2) + 1] = (byte)((tiles[i + (index.Tile * 32)] & 0xF) + (index.Palette * 16));
+					if (bmp.Bits[i * 2] % 16 == 0) bmp.Bits[i * 2] = 0;
+					if (bmp.Bits[(i * 2) + 1] % 16 == 0) bmp.Bits[(i * 2) + 1] = 0;
+				}
+			}
+			else
+			{
+				bmp = new BitmapBits(InvalidTile);
+				bmp.IncrementIndexes(index.Palette * 16);
+			}
+			bmp.Flip(index.XFlip, index.YFlip);
+			return bmp;
+		}
+
 		public static int[] GetOffsetList(byte[] file)
 		{
 			short endlist = short.MaxValue;

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26430.16
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29230.47
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SonLVL.GUI", "SonLVL\SonLVL.GUI.csproj", "{934ED80F-F466-423E-8203-9A3F35583323}"
 EndProject
@@ -38,6 +38,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "S2ObjectDefinitions", "S2Git\S2ObjectDefinitions.csproj", "{5C7E297C-4CE9-47F9-A493-C6F93B1CFB66}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "S1ObjectDefinitions", "S1ObjectDefinitions\S1ObjectDefinitions.csproj", "{060A0427-C91D-44B7-98CB-A0129B14ECDD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SonPLN", "SonPLN\SonPLN.csproj", "{8E642379-6A8F-4B2E-85DE-E4AF63CFFEAC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -113,6 +115,10 @@ Global
 		{060A0427-C91D-44B7-98CB-A0129B14ECDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{060A0427-C91D-44B7-98CB-A0129B14ECDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{060A0427-C91D-44B7-98CB-A0129B14ECDD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E642379-6A8F-4B2E-85DE-E4AF63CFFEAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E642379-6A8F-4B2E-85DE-E4AF63CFFEAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E642379-6A8F-4B2E-85DE-E4AF63CFFEAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E642379-6A8F-4B2E-85DE-E4AF63CFFEAC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
