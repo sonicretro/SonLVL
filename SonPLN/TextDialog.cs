@@ -82,7 +82,18 @@ namespace SonicRetro.SonLVL.SonPLN
 			if (!str.Equals(tb.Text, StringComparison.Ordinal))
 			{
 				skip = true;
+				int selst = tb.SelectionStart;
+				int selle = tb.SelectionLength;
 				tb.Text = str;
+				if (selst > str.Length)
+				{
+					selst = str.Length;
+					selle = 0;
+				}
+				else
+					selle = Math.Min(selle, str.Length - selst);
+				tb.SelectionStart = selst;
+				tb.SelectionLength = selle;
 				skip = false;
 			}
 			Lines[Array.IndexOf(textBoxes, tb)] = str;
