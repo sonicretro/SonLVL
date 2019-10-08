@@ -1071,7 +1071,7 @@ namespace SonicRetro.SonLVL.SonPLN
 						if (SelectedTile < LevelData.Tiles.Count)
 							TileSelector.SelectedIndex = SelectedTile;
 						copiedTile = planemap[chunkpoint.X, chunkpoint.Y].Clone();
-						SetSelectedColor(new Point(0, copiedTile.Palette));
+						SetSelectedColor(new Point(SelectedColor.X, copiedTile.Palette));
 						xFlip.Checked = copiedTile.XFlip;
 						yFlip.Checked = copiedTile.YFlip;
 						priority.Checked = copiedTile.Priority;
