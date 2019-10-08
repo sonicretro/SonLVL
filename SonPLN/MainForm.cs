@@ -387,6 +387,9 @@ namespace SonicRetro.SonLVL.SonPLN
 		private void LoadLevelLayout()
 		{
 			planemap = new PatternIndex[level.Width, level.Height];
+			for (int y = 0; y < level.Height; y++)
+				for (int x = 0; x < level.Width; x++)
+					planemap[x, y] = new PatternIndex();
 			if (level.Mappings == null)
 				throw new FormatException("Level must contain Mappings file!");
 			if (File.Exists(level.Mappings))
