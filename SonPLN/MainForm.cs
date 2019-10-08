@@ -421,12 +421,20 @@ namespace SonicRetro.SonLVL.SonPLN
 				Log("Loading palette file \"" + palent.Filename + "\"...", "Source: " + palent.Source + " Destination: " + palent.Destination + " Length: " + palent.Length);
 				if (!File.Exists(palent.Filename)) throw new FileNotFoundException("Palette file could not be loaded! Have you set up your disassembly properly?", palent.Filename);
 				SonLVLColor[] palfile = SonLVLColor.Load(palent.Filename, level.PaletteFormat);
+				int ind = palent.Destination % 16;
+				int line = palent.Destination / 16;
 				for (int pa = 0; pa < palent.Length; pa++)
 				{
-					LevelData.Palette[0][(pa + palent.Destination) / 16, (pa + palent.Destination) % 16] = palfile[pa + palent.Source];
-					LevelData.PalNum[0][(pa + palent.Destination) / 16, (pa + palent.Destination) % 16] = palfilenum;
-					LevelData.PalAddr[0][(pa + palent.Destination) / 16, (pa + palent.Destination) % 16] = pa + palent.Source;
-					PalValid[(pa + palent.Destination) / 16, (pa + palent.Destination) % 16] = true;
+					LevelData.Palette[0][line, ind] = palfile[pa + palent.Source];
+					LevelData.PalNum[0][line, ind] = palfilenum;
+					LevelData.PalAddr[0][line, ind] = pa + palent.Source;
+					PalValid[line, ind] = true;
+					if (++ind == 16)
+					{
+						ind = 0;
+						if (++line == 4)
+							line = 0;
+					}
 				}
 				palfilenum++;
 			}
