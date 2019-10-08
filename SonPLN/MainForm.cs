@@ -550,6 +550,8 @@ namespace SonicRetro.SonLVL.SonPLN
 			{
 				fileind++;
 				if (tileent.Filename.Equals("dummy", StringComparison.OrdinalIgnoreCase)) continue;
+				if (fileind == 0 && tileent.Offset > 0)
+					fileind++;
 				List<byte> tmp = new List<byte>(tilefiles[fileind].Count * 32);
 				foreach (byte[] item in tilefiles[fileind])
 					tmp.AddRange(item);
