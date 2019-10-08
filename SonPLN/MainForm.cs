@@ -1863,8 +1863,8 @@ namespace SonicRetro.SonLVL.SonPLN
 			if (MessageBox.Show(this, "Resizing the mappings requires editing the code that loads the mappings. Are you sure you want to do this?", "SonPLN", MessageBoxButtons.OKCancel) == DialogResult.OK)
 				using (ResizeLevelDialog dg = new ResizeLevelDialog())
 				{
-					dg.levelHeight.Value = planemap.GetLength(0);
-					dg.levelWidth.Value = planemap.GetLength(1);
+					dg.levelHeight.Value = planemap.GetLength(1);
+					dg.levelWidth.Value = planemap.GetLength(0);
 					if (dg.ShowDialog(this) == DialogResult.OK)
 					{
 						ResizeMap((int)dg.levelWidth.Value, (int)dg.levelHeight.Value);
