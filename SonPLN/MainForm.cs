@@ -357,6 +357,11 @@ namespace SonicRetro.SonLVL.SonPLN
 				}
 				else if (File.Exists(tileent.Filename))
 				{
+					if (LevelData.Tiles.FileCount == 0 && tileent.Offset > 0)
+					{
+						Log("Loading dummy tile data.");
+						LevelData.Tiles.AddFile(new List<byte[]>() { new byte[32] }, -1);
+					}
 					Log("Loading 8x8 tiles from file \"" + tileent.Filename + "\", using compression " + level.TileCompression.ToString() + "...");
 					byte[] tmp = Compression.Decompress(tileent.Filename, level.TileCompression);
 					LevelData.Pad(ref tmp, 32);
