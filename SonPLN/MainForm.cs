@@ -921,8 +921,8 @@ namespace SonicRetro.SonLVL.SonPLN
 
 		private void UpdateScrollBars()
 		{
-			foregroundPanel.HScrollMaximum = (int)Math.Max(((planemap.GetLength(0) + 1) * 8) - (foregroundPanel.PanelWidth / ZoomLevel), 0);
-			foregroundPanel.VScrollMaximum = (int)Math.Max(((planemap.GetLength(1) + 1) * 8) - (foregroundPanel.PanelHeight / ZoomLevel), 0);
+			foregroundPanel.HScrollMaximum = (int)Math.Max((planemap.GetLength(0) * 8) + foregroundPanel.HScrollLargeChange - (foregroundPanel.PanelWidth / ZoomLevel), 0);
+			foregroundPanel.VScrollMaximum = (int)Math.Max((planemap.GetLength(1) * 8) + foregroundPanel.VScrollLargeChange - (foregroundPanel.PanelHeight / ZoomLevel), 0);
 		}
 
 		Rectangle prevbnds;
