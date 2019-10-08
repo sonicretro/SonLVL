@@ -423,11 +423,12 @@ namespace SonicRetro.SonLVL.SonPLN
 				SonLVLColor[] palfile = SonLVLColor.Load(palent.Filename, level.PaletteFormat);
 				int ind = palent.Destination % 16;
 				int line = palent.Destination / 16;
+				int src = palent.Source;
 				for (int pa = 0; pa < palent.Length; pa++)
 				{
-					LevelData.Palette[0][line, ind] = palfile[pa + palent.Source];
+					LevelData.Palette[0][line, ind] = palfile[src];
 					LevelData.PalNum[0][line, ind] = palfilenum;
-					LevelData.PalAddr[0][line, ind] = pa + palent.Source;
+					LevelData.PalAddr[0][line, ind] = src;
 					PalValid[line, ind] = true;
 					if (++ind == 16)
 					{
@@ -435,6 +436,8 @@ namespace SonicRetro.SonLVL.SonPLN
 						if (++line == 4)
 							line = 0;
 					}
+					if (++src == palfile.Length)
+						src = 0;
 				}
 				palfilenum++;
 			}
