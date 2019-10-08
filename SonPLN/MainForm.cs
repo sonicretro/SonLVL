@@ -357,7 +357,7 @@ namespace SonicRetro.SonLVL.SonPLN
 				}
 				else if (File.Exists(tileent.Filename))
 				{
-					if (LevelData.Tiles.FileCount == 0 && tileent.Offset > 0)
+					if (LevelData.Tiles.FileCount == 0 && (tileent.Offset > 0 || level.TileOffset > 0))
 					{
 						Log("Loading dummy tile data.");
 						LevelData.Tiles.AddFile(new List<byte[]>() { new byte[32] }, -1);
@@ -398,8 +398,10 @@ namespace SonicRetro.SonLVL.SonPLN
 				int x = 0, y = 0;
 				for (int i = 0; i < tmp.Length; i += PatternIndex.Size)
 				{
-					planemap[x++, y] = new PatternIndex(tmp, i);
-					if (x == level.Width)
+					planemap[x, y] = new PatternIndex(tmp, i);
+					if (level.TileOffset > 0 && planemap[x, y].Tile > 0)
+						planemap[x, y].Tile -= (ushort)(level.TileOffset - 1);
+					if (++x == level.Width)
 					{
 						x = 0;
 						if (++y == level.Height)
@@ -455,6 +457,12 @@ namespace SonicRetro.SonLVL.SonPLN
 				textMapping = new TextMapping(level.TextMapping);
 			else if (level.TextMappingFile != null && File.Exists(level.TextMappingFile))
 				textMapping = IniSerializer.Deserialize<TextMapping>(level.TextMappingFile);
+			if (textMapping != null && level.TileOffset > 0)
+				foreach (var cm in textMapping.Characters)
+					for (int y = 0; y < textMapping.Height; y++)
+						for (int x = 0; x < (cm.Value.Width ?? textMapping.DefaultWidth); x++)
+							if (cm.Value.Map[x, y] > 0)
+								cm.Value.Map[x, y] -= (ushort)(level.TileOffset - 1);
 		}
 
 		private void backgroundLevelLoader_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -550,8 +558,8 @@ namespace SonicRetro.SonLVL.SonPLN
 			{
 				fileind++;
 				if (tileent.Filename.Equals("dummy", StringComparison.OrdinalIgnoreCase)) continue;
-				if (fileind == 0 && tileent.Offset > 0)
-					fileind++;
+				if (fileind == 0 && (tileent.Offset > 0 || level.TileOffset > 0))
+					fileind++; // skip dummy data
 				List<byte> tmp = new List<byte>(tilefiles[fileind].Count * 32);
 				foreach (byte[] item in tilefiles[fileind])
 					tmp.AddRange(item);
@@ -564,7 +572,16 @@ namespace SonicRetro.SonLVL.SonPLN
 			List<byte> tmp = new List<byte>(planemap.GetLength(0) * planemap.GetLength(1) * PatternIndex.Size);
 			for (int y = 0; y < planemap.GetLength(1); y++)
 				for (int x = 0; x < planemap.GetLength(0); x++)
-					tmp.AddRange(planemap[x, y].GetBytes());
+				{
+					if (level.TileOffset > 0 && planemap[x,y].Tile > 0)
+					{
+						PatternIndex pi = planemap[x, y].Clone();
+						pi.Tile += (ushort)(level.TileOffset - 1);
+						tmp.AddRange(pi.GetBytes());
+					}
+					else
+						tmp.AddRange(planemap[x, y].GetBytes());
+				}
 			Compression.Compress(tmp.ToArray(), level.Mappings, level.MappingsCompression);
 		}
 

@@ -1,6 +1,8 @@
 using SonicRetro.SonLVL.API;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 
@@ -47,11 +49,11 @@ namespace SonicRetro.SonLVL.SonPLN
 				if (gam != null)
 				{
 					val = gam.GetValue(this, null);
-					if (!object.Equals(val, prop.PropertyType.GetDefaultValue()))
+					if (!Equals(val, prop.PropertyType.GetDefaultValue()))
 						prop.SetValue(result, val, null);
 				}
 				val = prop.GetValue(info, null);
-				if (!object.Equals(val, prop.PropertyType.GetDefaultValue()))
+				if (!Equals(val, prop.PropertyType.GetDefaultValue()))
 					prop.SetValue(result, val, null);
 			}
 			if (result.DisplayName == null) result.DisplayName = levelName;
@@ -74,6 +76,9 @@ namespace SonicRetro.SonLVL.SonPLN
 		public CompressionType MappingsCompression { get; set; }
 		[IniName("mappings")]
 		public string Mappings { get; set; }
+		[IniName("tileoff")]
+		[TypeConverter(typeof(Int32HexConverter))]
+		public int TileOffset { get; set; }
 		[IniName("palettefmt")]
 		public EngineVersion PaletteFormat { get; set; }
 		[IniName("palette")]
@@ -119,9 +124,9 @@ namespace SonicRetro.SonLVL.SonPLN
 						num = map.Substring(i, pipe - i);
 					i += num.Length;
 					if (num.StartsWith("0x"))
-						tile = ushort.Parse(num.Substring(2), System.Globalization.NumberStyles.HexNumber);
+						tile = ushort.Parse(num.Substring(2), NumberStyles.HexNumber);
 					else
-						tile = ushort.Parse(num, System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo);
+						tile = ushort.Parse(num, NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
 				}
 				if (end.HasValue)
 					for (char c = start; c <= end.Value; c++)
@@ -163,17 +168,66 @@ namespace SonicRetro.SonLVL.SonPLN
 			}
 			set
 			{
-				Map = new ushort[value[0].Split(new[] { ", " }, System.StringSplitOptions.None).Length, value.Length];
+				Map = new ushort[value[0].Split(new[] { ", " }, StringSplitOptions.None).Length, value.Length];
 				for (int y = 0; y < Map.GetLength(1); y++)
 				{
-					string[] tmp = value[y].Split(new[] { ", " }, System.StringSplitOptions.None);
+					string[] tmp = value[y].Split(new[] { ", " }, StringSplitOptions.None);
 					for (int x = 0; x < Map.GetLength(0); x++)
 						if (tmp[x].StartsWith("0x"))
-							Map[x, y] = ushort.Parse(tmp[x].Substring(2), System.Globalization.NumberStyles.HexNumber);
+							Map[x, y] = ushort.Parse(tmp[x].Substring(2), NumberStyles.HexNumber);
 						else
-							Map[x, y] = ushort.Parse(tmp[x], System.Globalization.NumberStyles.Integer, System.Globalization.NumberFormatInfo.InvariantInfo);
+							Map[x, y] = ushort.Parse(tmp[x], NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
 				}
 			}
+		}
+	}
+
+	public class Int32HexConverter : TypeConverter
+	{
+		public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
+		{
+			if (destinationType == typeof(string))
+				return true;
+			return base.CanConvertTo(context, destinationType);
+		}
+
+		public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+		{
+			if (destinationType == typeof(string) && value is int ival)
+			{
+				if (ival < 10)
+					return ival.ToString(NumberFormatInfo.InvariantInfo);
+				return $"0x{ival:X}";
+			}
+			return base.ConvertTo(context, culture, value, destinationType);
+		}
+
+		public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+		{
+			if (sourceType == typeof(string))
+				return true;
+			return base.CanConvertFrom(context, sourceType);
+		}
+
+		public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+		{
+			if (value is string str)
+			{
+				if (str.StartsWith("0x"))
+					return int.Parse(str.Substring(2), NumberStyles.HexNumber);
+				else
+					return int.Parse(str, NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
+			}
+			return base.ConvertFrom(context, culture, value);
+		}
+
+		public override bool IsValid(ITypeDescriptorContext context, object value)
+		{
+			if (value is int)
+				return true;
+			if (value is string)
+				return int.TryParse((string)value, NumberStyles.HexNumber, NumberFormatInfo.InvariantInfo, out int i);
+			return base.IsValid(context, value);
 		}
 	}
 }
