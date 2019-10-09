@@ -627,6 +627,37 @@ namespace SonicRetro.SonLVL.SonPLN
 		#endregion
 
 		#region Edit Menu
+		private void resizeLevelToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			if (MessageBox.Show(this, "Resizing the mappings requires editing the code that loads the mappings. Are you sure you want to do this?", "SonPLN", MessageBoxButtons.OKCancel) == DialogResult.OK)
+				using (ResizeLevelDialog dg = new ResizeLevelDialog())
+				{
+					dg.levelHeight.Value = planemap.GetLength(1);
+					dg.levelWidth.Value = planemap.GetLength(0);
+					if (dg.ShowDialog(this) == DialogResult.OK)
+					{
+						ResizeMap((int)dg.levelWidth.Value, (int)dg.levelHeight.Value);
+						loaded = false;
+						UpdateScrollBars();
+						loaded = true;
+						DrawLevel();
+					}
+				}
+		}
+
+		private void ResizeMap(int width, int height)
+		{
+			int oldwidth = planemap.GetLength(0);
+			int oldheight = planemap.GetLength(1);
+			PatternIndex[,] newFG = new PatternIndex[width, height];
+			for (int y = 0; y < height; y++)
+				for (int x = 0; x < width; x++)
+					if (x < oldwidth && y < oldheight)
+						newFG[x, y] = planemap[x, y];
+					else
+						newFG[x, y] = new PatternIndex();
+			planemap = newFG;
+		}
 		#endregion
 
 		#region View Menu
@@ -1859,35 +1890,6 @@ namespace SonicRetro.SonLVL.SonPLN
 				for (int x = FGSelection.Left; x < FGSelection.Right; x++)
 					planemap[x, y] = copiedTile.Clone();
 			DrawLevel();
-		}
-
-		private void resizeLevelToolStripMenuItem_Click(object sender, EventArgs e)
-		{
-			if (MessageBox.Show(this, "Resizing the mappings requires editing the code that loads the mappings. Are you sure you want to do this?", "SonPLN", MessageBoxButtons.OKCancel) == DialogResult.OK)
-				using (ResizeLevelDialog dg = new ResizeLevelDialog())
-				{
-					dg.levelHeight.Value = planemap.GetLength(1);
-					dg.levelWidth.Value = planemap.GetLength(0);
-					if (dg.ShowDialog(this) == DialogResult.OK)
-					{
-						ResizeMap((int)dg.levelWidth.Value, (int)dg.levelHeight.Value);
-						loaded = false;
-						UpdateScrollBars();
-						loaded = true;
-						DrawLevel();
-					}
-				}
-		}
-
-		private void ResizeMap(int width, int height)
-		{
-			int oldwidth = planemap.GetLength(0);
-			int oldheight = planemap.GetLength(1);
-			PatternIndex[,] newFG = new PatternIndex[width, height];
-			for (int y = 0; y < Math.Min(height, oldheight); y++)
-				for (int x = 0; x < Math.Min(width, oldwidth); x++)
-					newFG[x, y] = planemap[x, y];
-			planemap = newFG;
 		}
 
 		private void insertLayoutToolStripMenuItem_Click(object sender, EventArgs e)
