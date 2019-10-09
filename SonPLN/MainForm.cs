@@ -232,7 +232,7 @@ namespace SonicRetro.SonLVL.SonPLN
 						else
 							parent = levelMenuItems[curpath];
 					}
-					ToolStripMenuItem ts = new ToolStripMenuItem(itempath[itempath.Length - 1], null, new EventHandler(LevelToolStripMenuItem_Clicked)) { Tag = item.Key };
+					ToolStripMenuItem ts = new ToolStripMenuItem(itempath[itempath.Length - 1].Replace("&", "&&"), null, new EventHandler(LevelToolStripMenuItem_Clicked)) { Tag = item.Key };
 					levelMenuItems.Add(item.Key, ts);
 					parent.DropDownItems.Add(ts);
 				}
