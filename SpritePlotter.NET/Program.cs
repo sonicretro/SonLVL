@@ -16,6 +16,7 @@ namespace SpritePlotter
 			LongOpt[] opts = new[] {
 				new LongOpt("help", Argument.No, null, 'h'),
 				new LongOpt("padding", Argument.Required, null, 'p'),
+				new LongOpt("transparent", Argument.Required, null, 't'),
 				new LongOpt("startpal", Argument.Required, null, 's'),
 				new LongOpt("nullfirst", Argument.No, null, 'n'),
 				new LongOpt("twoplayer", Argument.No, null, '2'),
@@ -36,6 +37,7 @@ namespace SpritePlotter
 				args = new string[] { "-h" };
 			Getopt getopt = new Getopt("SpritePlotter.NET", args, Getopt.digest(opts), opts);
 			int padding = 2;
+			Color? transparent = null;
 			byte startpal = 0;
 			bool nullfirst = false;
 			bool twoplayer = false;
@@ -62,6 +64,12 @@ namespace SpritePlotter
 						return;
 					case 'p':
 						padding = int.Parse(getopt.Optarg);
+						break;
+					case 't':
+						if (getopt.Optarg.StartsWith("#"))
+							transparent = Color.FromArgb((int)(0xFF000000 | uint.Parse(getopt.Optarg.Substring(1), System.Globalization.NumberStyles.HexNumber)));
+						else
+							transparent = Color.FromName(getopt.Optarg.Replace(" ", ""));
 						break;
 					case 's':
 						startpal = byte.Parse(getopt.Optarg);
@@ -176,6 +184,8 @@ namespace SpritePlotter
 			}
 			if (palette.Length > 64)
 				palette = palette.Take(64).ToArray(); // lazy
+			if (transparent.HasValue)
+				palette[0] = transparent.Value;
 			BitmapBits lowplane = null, highplane = null, combinedplanes = null;
 			if (lowplanefile != null)
 			{

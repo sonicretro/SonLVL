@@ -4,6 +4,8 @@ Arguments:
 
     -h, --help              Shows this help screen.
     -p, --padding=number    Pixels of padding between sprites. Default 2.
+    -t, --transparent=color Transparent color, as a name or #RRGGBB.
+                            Defaults to first color of palette.
     -s, --startpal=number   Starting palette line for mappings (0-based).
     -n, --nullfirst         Inserts a blank frame at the start of the
                             mappings.
