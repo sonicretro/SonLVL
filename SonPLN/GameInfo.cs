@@ -57,6 +57,10 @@ namespace SonicRetro.SonLVL.SonPLN
 					prop.SetValue(result, val, null);
 			}
 			if (result.DisplayName == null) result.DisplayName = levelName;
+			result.Palettes = new NamedPaletteList[info.ExtraPalettes.Length + 1];
+			result.Palettes[0] = new NamedPaletteList("Normal", info.Palette);
+			if (info.ExtraPalettes.Length > 0)
+				info.ExtraPalettes.CopyTo(result.Palettes, 1);
 			return result;
 		}
 	}
@@ -81,8 +85,13 @@ namespace SonicRetro.SonLVL.SonPLN
 		public int TileOffset { get; set; }
 		[IniName("palettefmt")]
 		public EngineVersion PaletteFormat { get; set; }
+		[IniIgnore]
+		public NamedPaletteList[] Palettes { get; set; }
 		[IniName("palette")]
 		public PaletteList Palette { get; set; }
+		[IniName("palette")]
+		[IniCollection(IniCollectionMode.NoSquareBrackets, StartIndex = 2)]
+		public NamedPaletteList[] ExtraPalettes { get; set; }
 		[IniName("width")]
 		public int Width { get; set; }
 		[IniName("height")]

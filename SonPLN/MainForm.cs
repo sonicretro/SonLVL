@@ -81,7 +81,7 @@ namespace SonicRetro.SonLVL.SonPLN
 		PatternIndex[,] planemap;
 		ReplaceTilesDialog replaceTilesDialog;
 		TextMapping textMapping;
-		bool[,] PalValid = new bool[4, 16];
+		List<bool[,]> PalValid = new List<bool[,]>();
 
 		internal void Log(params string[] lines)
 		{
@@ -418,39 +418,49 @@ namespace SonicRetro.SonLVL.SonPLN
 
 		private void LoadLevelPalette()
 		{
-			LevelData.Palette = new List<SonLVLColor[,]>() { new SonLVLColor[4, 16] };
-			LevelData.PalNum = new List<byte[,]>() { new byte[4, 16] };
-			LevelData.PalAddr = new List<int[,]>() { new int[4, 16] };
-			PalValid = new bool[4, 16];
+			LevelData.PalName = new List<string>();
+			LevelData.Palette = new List<SonLVLColor[,]>();
+			LevelData.PalNum = new List<byte[,]>();
+			LevelData.PalAddr = new List<int[,]>();
+			PalValid = new List<bool[,]>();
 			if (level.Palette == null || string.IsNullOrWhiteSpace(level.Palette[0].Filename))
 				throw new FormatException("Level must contain at least one Palette file!");
 			byte palfilenum = 0;
-			for (byte pn = 0; pn < level.Palette.Collection.Length; pn++)
+			for (int palnum = 0; palnum < level.Palettes.Length; palnum++)
 			{
-				PaletteInfo palent = level.Palette[pn];
-				Log("Loading palette file \"" + palent.Filename + "\"...", "Source: " + palent.Source + " Destination: " + palent.Destination + " Length: " + palent.Length);
-				if (!File.Exists(palent.Filename)) throw new FileNotFoundException("Palette file could not be loaded! Have you set up your disassembly properly?", palent.Filename);
-				SonLVLColor[] palfile = SonLVLColor.Load(palent.Filename, level.PaletteFormat);
-				int ind = palent.Destination % 16;
-				int line = palent.Destination / 16;
-				int src = palent.Source;
-				for (int pa = 0; pa < palent.Length; pa++)
+				LevelData.PalName.Add(level.Palettes[palnum].Name);
+				LevelData.Palette.Add(new SonLVLColor[4, 16]);
+				LevelData.PalNum.Add(new byte[4, 16]);
+				LevelData.PalAddr.Add(new int[4, 16]);
+				PalValid.Add(new bool[4, 16]);
+				for (byte pn = 0; pn < level.Palettes[palnum].Palettes.Collection.Length; pn++)
 				{
-					LevelData.Palette[0][line, ind] = palfile[src];
-					LevelData.PalNum[0][line, ind] = palfilenum;
-					LevelData.PalAddr[0][line, ind] = src;
-					PalValid[line, ind] = true;
-					if (++ind == 16)
+					PaletteInfo palent = level.Palettes[palnum].Palettes[pn];
+					Log("Loading palette file \"" + palent.Filename + "\"...", "Source: " + palent.Source + " Destination: " + palent.Destination + " Length: " + palent.Length);
+					if (!File.Exists(palent.Filename)) throw new FileNotFoundException("Palette file could not be loaded! Have you set up your disassembly properly?", palent.Filename);
+					SonLVLColor[] palfile = SonLVLColor.Load(palent.Filename, level.PaletteFormat);
+					int ind = palent.Destination % 16;
+					int line = palent.Destination / 16;
+					int src = palent.Source;
+					for (int pa = 0; pa < palent.Length; pa++)
 					{
-						ind = 0;
-						if (++line == 4)
-							line = 0;
+						LevelData.Palette[palnum][line, ind] = palfile[src];
+						LevelData.PalNum[palnum][line, ind] = palfilenum;
+						LevelData.PalAddr[palnum][line, ind] = src;
+						PalValid[palnum][line, ind] = true;
+						if (++ind == 16)
+						{
+							ind = 0;
+							if (++line == 4)
+								line = 0;
+						}
+						if (++src == palfile.Length)
+							src = 0;
 					}
-					if (++src == palfile.Length)
-						src = 0;
+					palfilenum++;
 				}
-				palfilenum++;
 			}
+			LevelData.CurPal = 0;
 		}
 
 		private void ProcessTextMapping()
@@ -527,6 +537,11 @@ namespace SonicRetro.SonLVL.SonPLN
 			saveToolStripMenuItem.Enabled = true;
 			editToolStripMenuItem.Enabled = true;
 			exportToolStripMenuItem.Enabled = true;
+			paletteToolStripDropDownButton.DropDownItems.Clear();
+			foreach (string item in LevelData.PalName)
+				paletteToolStripDropDownButton.DropDownItems.Add(new ToolStripMenuItem(item));
+			((ToolStripMenuItem)paletteToolStripDropDownButton.DropDownItems[0]).Checked = true;
+			paletteToolStripDropDownButton.Text = "Palette: " + LevelData.PalName[0];
 			for (int i = 0; i < 16; i++)
 				curpal[i] = LevelData.PaletteToColor(SelectedColor.Y, i, false);
 			TileID.Maximum = LevelData.Tiles.Count - 1;
@@ -592,25 +607,30 @@ namespace SonicRetro.SonLVL.SonPLN
 		{
 			byte[] paltmp;
 			List<ushort[]> palfiles = new List<ushort[]>();
-			PaletteList palent = level.Palette;
-			for (byte pn = 0; pn < palent.Collection.Length; pn++)
+			byte palfilenum = 0;
+			for (int palnum = 0; palnum < level.Palettes.Length; palnum++)
 			{
-				paltmp = File.ReadAllBytes(palent[pn].Filename);
-				ushort[] palfile = new ushort[paltmp.Length / 2];
-				for (int pi = 0; pi < paltmp.Length; pi += 2)
-					palfile[pi / 2] = API.ByteConverter.ToUInt16(paltmp, pi);
-				palfiles.Add(palfile);
-			}
-			for (int pl = 0; pl < 4; pl++)
-				for (int pi = 0; pi < 16; pi++)
-					if (PalValid[pl, pi])
-						palfiles[LevelData.PalNum[0][pl, pi]][LevelData.PalAddr[0][pl, pi]] = LevelData.Palette[0][pl, pi].MDColor;
-			for (byte pn = 0; pn < palent.Collection.Length; pn++)
-			{
-				List<byte> tmp = new List<byte>();
-				for (int pi = 0; pi < palfiles[pn].Length; pi++)
-					tmp.AddRange(API.ByteConverter.GetBytes(palfiles[pn][pi]));
-				File.WriteAllBytes(palent[pn].Filename, tmp.ToArray());
+				PaletteList palent = level.Palettes[palnum].Palettes;
+				for (byte pn = 0; pn < palent.Collection.Length; pn++)
+				{
+					paltmp = File.ReadAllBytes(palent[pn].Filename);
+					ushort[] palfile = new ushort[paltmp.Length / 2];
+					for (int pi = 0; pi < paltmp.Length; pi += 2)
+						palfile[pi / 2] = API.ByteConverter.ToUInt16(paltmp, pi);
+					palfiles.Add(palfile);
+				}
+				for (int pl = 0; pl < 4; pl++)
+					for (int pi = 0; pi < 16; pi++)
+						if (PalValid[palnum][pl, pi])
+							palfiles[LevelData.PalNum[palnum][pl, pi]][LevelData.PalAddr[palnum][pl, pi]] = LevelData.Palette[palnum][pl, pi].MDColor;
+				for (byte pn = 0; pn < palent.Collection.Length; pn++)
+				{
+					List<byte> tmp = new List<byte>();
+					for (int pi = 0; pi < palfiles[pn + palfilenum].Length; pi++)
+						tmp.AddRange(API.ByteConverter.GetBytes(palfiles[pn + palfilenum][pi]));
+					File.WriteAllBytes(palent[pn].Filename, tmp.ToArray());
+				}
+				palfilenum = (byte)palfiles.Count;
 			}
 		}
 
@@ -661,6 +681,17 @@ namespace SonicRetro.SonLVL.SonPLN
 		#endregion
 
 		#region View Menu
+		private void paletteToolStripDropDownButton_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+		{
+			foreach (ToolStripMenuItem item in paletteToolStripDropDownButton.DropDownItems)
+				item.Checked = false;
+			((ToolStripMenuItem)e.ClickedItem).Checked = true;
+			LevelData.CurPal = paletteToolStripDropDownButton.DropDownItems.IndexOf(e.ClickedItem);
+			paletteToolStripDropDownButton.Text = "Palette: " + e.ClickedItem.Text;
+			PaletteChanged();
+			DrawLevel();
+		}
+
 		private void gridColorToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			ColorDialog a = new ColorDialog
@@ -1212,7 +1243,7 @@ namespace SonicRetro.SonLVL.SonPLN
 				{
 					PalettePanelGfx.FillRectangle(new SolidBrush(pal[y, x]), x * 20, y * 20, 20, 20);
 					PalettePanelGfx.DrawRectangle(Pens.White, x * 20, y * 20, 19, 19);
-					if (!PalValid[y, x])
+					if (!PalValid[LevelData.CurPal][y, x])
 					{
 						PalettePanelGfx.DrawLine(Pens.Red, x * 20, y * 20, x * 20 + 20, y * 20 + 20);
 						PalettePanelGfx.DrawLine(Pens.Red, x * 20, y * 20 + 20, x * 20 + 20, y * 20);
@@ -1238,7 +1269,7 @@ namespace SonicRetro.SonLVL.SonPLN
 			int line = e.Y / 20;
 			int index = e.X / 20;
 			if (index < 0 || index > 15 || line < 0 || line > 3) return;
-			if (!PalValid[line, index]) return;
+			if (!PalValid[LevelData.CurPal][line, index]) return;
 			SelectedColor = new Point(index, line);
 			using (ColorDialog a = new ColorDialog
 			{
@@ -1279,7 +1310,7 @@ namespace SonicRetro.SonLVL.SonPLN
 			Point mouseColor = new Point(e.X / 20, e.Y / 20);
 			if (mouseColor.X < 0 || mouseColor.X > 15 || mouseColor.Y < 0 || mouseColor.Y > 3) return;
 			if (mouseColor == SelectedColor) return;
-			if (!PalValid[mouseColor.Y, mouseColor.X]) return;
+			if (!PalValid[LevelData.CurPal][mouseColor.Y, mouseColor.X]) return;
 			bool newpal = mouseColor.Y != SelectedColor.Y;
 			switch (e.Button)
 			{
