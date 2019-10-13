@@ -1179,12 +1179,13 @@ namespace SonicRetro.SonLVL.SonPLN
 			switch (CurrentTab)
 			{
 				case Tab.Foreground:
-					splitContainer2.Panel2.Controls.Add(TileSelector);
+					tableLayoutPanel1.Controls.Add(TileSelector, 0, 1);
 					TileSelector.AllowDrop = false;
 					foregroundPanel.Focus();
 					break;
 				case Tab.Art:
 					panel1.Controls.Add(TileSelector);
+					TileSelector.BringToFront();
 					TileSelector.AllowDrop = enableDraggingTilesButton.Checked;
 					break;
 			}
