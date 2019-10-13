@@ -2461,7 +2461,7 @@ namespace SonicRetro.SonLVL.SonPLN
 						x += found.Value.Value.Width ?? textMapping.DefaultWidth;
 					}
 				}
-				strs[y] = sb.ToString();
+				strs[y / textMapping.Height] = sb.ToString();
 			}
 			if (unmapped && MessageBox.Show(this, "Selection contains tiles that aren't mapped to characters. These tiles will be converted to spaces.", "SonPLN", MessageBoxButtons.OKCancel) == DialogResult.Cancel)
 				return;
