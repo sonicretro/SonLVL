@@ -160,6 +160,7 @@ namespace SonicRetro.SonLVL.SonPLN
 			this.toolStripSeparator12 = new System.Windows.Forms.ToolStripSeparator();
 			this.insertLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.deleteLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.importToolStripButton = new System.Windows.Forms.ToolStripButton();
 			label4 = new System.Windows.Forms.Label();
 			label3 = new System.Windows.Forms.Label();
 			label2 = new System.Windows.Forms.Label();
@@ -929,7 +930,8 @@ namespace SonicRetro.SonLVL.SonPLN
 			this.fgToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			this.fgToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.replaceForegroundToolStripButton,
-            this.clearForegroundToolStripButton});
+            this.clearForegroundToolStripButton,
+            this.importToolStripButton});
 			this.fgToolStrip.Location = new System.Drawing.Point(0, 0);
 			this.fgToolStrip.Name = "fgToolStrip";
 			this.fgToolStrip.Size = new System.Drawing.Size(360, 25);
@@ -1447,6 +1449,14 @@ namespace SonicRetro.SonLVL.SonPLN
 			this.deleteLayoutToolStripMenuItem.Text = "&Delete...";
 			this.deleteLayoutToolStripMenuItem.Click += new System.EventHandler(this.deleteLayoutToolStripMenuItem_Click);
 			// 
+			// importToolStripButton
+			// 
+			this.importToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.importToolStripButton.Enabled = false;
+			this.importToolStripButton.Name = "importToolStripButton";
+			this.importToolStripButton.Size = new System.Drawing.Size(47, 22);
+			this.importToolStripButton.Text = "Import";
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1621,5 +1631,6 @@ namespace SonicRetro.SonLVL.SonPLN
 		private System.Windows.Forms.ToolStripMenuItem cyclePaletteToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem editTextToolStripMenuItem;
 		private System.Windows.Forms.ToolStripDropDownButton paletteToolStripDropDownButton;
+		private System.Windows.Forms.ToolStripButton importToolStripButton;
 	}
 }

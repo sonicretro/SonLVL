@@ -547,7 +547,8 @@ namespace SonicRetro.SonLVL.SonPLN
 			TileID.Maximum = LevelData.Tiles.Count - 1;
 			TileCount.Text = LevelData.Tiles.Count.ToString("X") + " / 800";
 			deleteUnusedTilesToolStripButton.Enabled = removeDuplicateTilesToolStripButton.Enabled =
-				clearForegroundToolStripButton.Enabled = usageCountsToolStripMenuItem.Enabled = true;
+				replaceForegroundToolStripButton.Enabled = clearForegroundToolStripButton.Enabled =
+				importToolStripButton.Enabled = usageCountsToolStripMenuItem.Enabled = true;
 			Enabled = true;
 			UseWaitCursor = false;
 			DrawLevel();
@@ -2315,6 +2316,12 @@ namespace SonicRetro.SonLVL.SonPLN
 				DrawLevel();
 				MessageBox.Show(this, "Replaced " + list.Count + " tiles.", "SonPLN");
 			}
+		}
+
+		private void importToolStripButton_Click(object sender, EventArgs e)
+		{
+			menuLoc = new Point();
+			importToolStripMenuItem2_Click(sender, e);
 		}
 
 		private void TileID_ValueChanged(object sender, EventArgs e)
