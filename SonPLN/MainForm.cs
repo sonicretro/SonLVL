@@ -2262,7 +2262,9 @@ namespace SonicRetro.SonLVL.SonPLN
 		{
 			if (MessageBox.Show(this, "Are you sure you want to clear the plane?", "Clear Plane", MessageBoxButtons.OKCancel) == DialogResult.OK)
 			{
-				Array.Clear(planemap, 0, planemap.GetLength(0) * planemap.GetLength(1));
+				for (int y = 0; y < planemap.GetLength(1); y++)
+					for (int x = 0; x < planemap.GetLength(0); x++)
+						planemap[x, y] = new PatternIndex();
 			}
 		}
 
