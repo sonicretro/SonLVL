@@ -4751,19 +4751,38 @@ namespace SonicRetro.SonLVL.GUI
 							return;
 						}
 						List<ushort> tiles = new List<ushort>(cnkcpy.Tiles.Count);
-						foreach (byte[] tile in cnkcpy.Tiles)
-						{
-							ushort ti = (ushort)LevelData.Tiles.Count;
-							for (ushort j = 0; j < LevelData.Tiles.Count; j++)
-								if (tile.FastArrayEqual(LevelData.Tiles[j]))
+						if (LevelData.Level.TwoPlayerCompatible)
+							for (int i = 0; i < cnkcpy.Tiles.Count; i += 2)
+							{
+								ushort ti = (ushort)LevelData.Tiles.Count;
+								for (ushort j = 0; j < LevelData.Tiles.Count; j += 2)
+									if (cnkcpy.Tiles[i].FastArrayEqual(LevelData.Tiles[j]) && cnkcpy.Tiles[i + 1].FastArrayEqual(LevelData.Tiles[j + 1]))
+									{
+										ti = j;
+										break;
+									}
+								if (ti == LevelData.Tiles.Count)
 								{
-									ti = j;
-									break;
+									LevelData.Tiles.Add(cnkcpy.Tiles[i]);
+									LevelData.Tiles.Add(cnkcpy.Tiles[i + 1]);
 								}
-							if (ti == LevelData.Tiles.Count)
-								LevelData.Tiles.Add(tile);
-							tiles.Add(ti);
-						}
+								tiles.Add(ti);
+								tiles.Add((ushort)(ti + 1));
+							}
+						else
+							foreach (byte[] tile in cnkcpy.Tiles)
+							{
+								ushort ti = (ushort)LevelData.Tiles.Count;
+								for (ushort j = 0; j < LevelData.Tiles.Count; j++)
+									if (tile.FastArrayEqual(LevelData.Tiles[j]))
+									{
+										ti = j;
+										break;
+									}
+								if (ti == LevelData.Tiles.Count)
+									LevelData.Tiles.Add(tile);
+								tiles.Add(ti);
+							}
 						LevelData.UpdateTileArray();
 						RefreshTileSelector();
 						TileID.Maximum = LevelData.Tiles.Count - 1;
@@ -4825,19 +4844,38 @@ namespace SonicRetro.SonLVL.GUI
 							return;
 						}
 						List<ushort> tiles = new List<ushort>(blkcpy.Tiles.Count);
-						foreach (byte[] tile in blkcpy.Tiles)
-						{
-							ushort ti = (ushort)LevelData.Tiles.Count;
-							for (ushort j = 0; j < LevelData.Tiles.Count; j++)
-								if (tile.FastArrayEqual(LevelData.Tiles[j]))
+						if (LevelData.Level.TwoPlayerCompatible)
+							for (int i = 0; i < blkcpy.Tiles.Count; i += 2)
+							{
+								ushort ti = (ushort)LevelData.Tiles.Count;
+								for (ushort j = 0; j < LevelData.Tiles.Count; j += 2)
+									if (blkcpy.Tiles[i].FastArrayEqual(LevelData.Tiles[j]) && blkcpy.Tiles[i + 1].FastArrayEqual(LevelData.Tiles[j + 1]))
+									{
+										ti = j;
+										break;
+									}
+								if (ti == LevelData.Tiles.Count)
 								{
-									ti = j;
-									break;
+									LevelData.Tiles.Add(blkcpy.Tiles[i]);
+									LevelData.Tiles.Add(blkcpy.Tiles[i + 1]);
 								}
-							if (ti == LevelData.Tiles.Count)
-								LevelData.Tiles.Add(tile);
-							tiles.Add(ti);
-						}
+								tiles.Add(ti);
+								tiles.Add((ushort)(ti + 1));
+							}
+						else
+							foreach (byte[] tile in blkcpy.Tiles)
+							{
+								ushort ti = (ushort)LevelData.Tiles.Count;
+								for (ushort j = 0; j < LevelData.Tiles.Count; j++)
+									if (tile.FastArrayEqual(LevelData.Tiles[j]))
+									{
+										ti = j;
+										break;
+									}
+								if (ti == LevelData.Tiles.Count)
+									LevelData.Tiles.Add(tile);
+								tiles.Add(ti);
+							}
 						LevelData.UpdateTileArray();
 						RefreshTileSelector();
 						TileID.Maximum = LevelData.Tiles.Count - 1;
@@ -4909,19 +4947,38 @@ namespace SonicRetro.SonLVL.GUI
 							return;
 						}
 						List<ushort> tiles = new List<ushort>(cnkcpy.Tiles.Count);
-						foreach (byte[] tile in cnkcpy.Tiles)
-						{
-							ushort ti = (ushort)LevelData.Tiles.Count;
-							for (ushort j = 0; j < LevelData.Tiles.Count; j++)
-								if (tile.FastArrayEqual(LevelData.Tiles[j]))
+						if (LevelData.Level.TwoPlayerCompatible)
+							for (int i = 0; i < cnkcpy.Tiles.Count; i += 2)
+							{
+								ushort ti = (ushort)LevelData.Tiles.Count;
+								for (ushort j = 0; j < LevelData.Tiles.Count; j += 2)
+									if (cnkcpy.Tiles[i].FastArrayEqual(LevelData.Tiles[j]) && cnkcpy.Tiles[i + 1].FastArrayEqual(LevelData.Tiles[j + 1]))
+									{
+										ti = j;
+										break;
+									}
+								if (ti == LevelData.Tiles.Count)
 								{
-									ti = j;
-									break;
+									LevelData.Tiles.Add(cnkcpy.Tiles[i]);
+									LevelData.Tiles.Add(cnkcpy.Tiles[i + 1]);
 								}
-							if (ti == LevelData.Tiles.Count)
-								LevelData.Tiles.Add(tile);
-							tiles.Add(ti);
-						}
+								tiles.Add(ti);
+								tiles.Add((ushort)(ti + 1));
+							}
+						else
+							foreach (byte[] tile in cnkcpy.Tiles)
+							{
+								ushort ti = (ushort)LevelData.Tiles.Count;
+								for (ushort j = 0; j < LevelData.Tiles.Count; j++)
+									if (tile.FastArrayEqual(LevelData.Tiles[j]))
+									{
+										ti = j;
+										break;
+									}
+								if (ti == LevelData.Tiles.Count)
+									LevelData.Tiles.Add(tile);
+								tiles.Add(ti);
+							}
 						LevelData.UpdateTileArray();
 						RefreshTileSelector();
 						TileID.Maximum = LevelData.Tiles.Count - 1;
@@ -4983,19 +5040,38 @@ namespace SonicRetro.SonLVL.GUI
 							return;
 						}
 						List<ushort> tiles = new List<ushort>(blkcpy.Tiles.Count);
-						foreach (byte[] tile in blkcpy.Tiles)
-						{
-							ushort ti = (ushort)LevelData.Tiles.Count;
-							for (ushort j = 0; j < LevelData.Tiles.Count; j++)
-								if (tile.FastArrayEqual(LevelData.Tiles[j]))
+						if (LevelData.Level.TwoPlayerCompatible)
+							for (int i = 0; i < blkcpy.Tiles.Count; i += 2)
+							{
+								ushort ti = (ushort)LevelData.Tiles.Count;
+								for (ushort j = 0; j < LevelData.Tiles.Count; j += 2)
+									if (blkcpy.Tiles[i].FastArrayEqual(LevelData.Tiles[j]) && blkcpy.Tiles[i + 1].FastArrayEqual(LevelData.Tiles[j + 1]))
+									{
+										ti = j;
+										break;
+									}
+								if (ti == LevelData.Tiles.Count)
 								{
-									ti = j;
-									break;
+									LevelData.Tiles.Add(blkcpy.Tiles[i]);
+									LevelData.Tiles.Add(blkcpy.Tiles[i + 1]);
 								}
-							if (ti == LevelData.Tiles.Count)
-								LevelData.Tiles.Add(tile);
-							tiles.Add(ti);
-						}
+								tiles.Add(ti);
+								tiles.Add((ushort)(ti + 1));
+							}
+						else
+							foreach (byte[] tile in blkcpy.Tiles)
+							{
+								ushort ti = (ushort)LevelData.Tiles.Count;
+								for (ushort j = 0; j < LevelData.Tiles.Count; j++)
+									if (tile.FastArrayEqual(LevelData.Tiles[j]))
+									{
+										ti = j;
+										break;
+									}
+								if (ti == LevelData.Tiles.Count)
+									LevelData.Tiles.Add(tile);
+								tiles.Add(ti);
+							}
 						LevelData.UpdateTileArray();
 						RefreshTileSelector();
 						TileID.Maximum = LevelData.Tiles.Count - 1;
