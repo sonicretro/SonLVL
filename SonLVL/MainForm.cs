@@ -5016,8 +5016,8 @@ namespace SonicRetro.SonLVL.GUI
 					if (LevelData.Level.TwoPlayerCompatible)
 					{
 						byte[][] t = (byte[][])Clipboard.GetData("SonLVLTileInterlaced");
-						LevelData.Tiles.InsertAfter(SelectedTile, t[1]);
-						LevelData.Tiles.InsertAfter(SelectedTile, t[0]);
+						LevelData.Tiles.InsertAfter(SelectedTile + 1, t[1]);
+						LevelData.Tiles.InsertAfter(SelectedTile + 1, t[0]);
 						SelectedTile += 2;
 					}
 					else
@@ -5076,8 +5076,8 @@ namespace SonicRetro.SonLVL.GUI
 					break;
 				case ArtTab.Tiles:
 					if (LevelData.Level.TwoPlayerCompatible)
-						LevelData.Tiles.InsertAfter(SelectedTile, new byte[32]);
-					LevelData.Tiles.InsertAfter(SelectedTile, new byte[32]);
+						LevelData.Tiles.InsertBefore(SelectedTile, new byte[32]);
+					LevelData.Tiles.InsertBefore(SelectedTile, new byte[32]);
 					InsertTile();
 					break;
 			}
@@ -5100,8 +5100,8 @@ namespace SonicRetro.SonLVL.GUI
 				case ArtTab.Tiles:
 					if (LevelData.Level.TwoPlayerCompatible)
 					{
-						LevelData.Tiles.InsertAfter(SelectedTile, new byte[32]);
-						LevelData.Tiles.InsertAfter(SelectedTile, new byte[32]);
+						LevelData.Tiles.InsertAfter(SelectedTile + 1, new byte[32]);
+						LevelData.Tiles.InsertAfter(SelectedTile + 1, new byte[32]);
 						SelectedTile += 2;
 					}
 					else
