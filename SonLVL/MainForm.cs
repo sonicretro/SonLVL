@@ -10103,54 +10103,18 @@ namespace SonicRetro.SonLVL.GUI
 					}
 			Blocks = new List<Block>(blocks.Count);
 			IsInterlacedCompatible = LevelData.Level.TwoPlayerCompatible;
-			List<ushort> tiles = new List<ushort>();
+			List<ushort> tiles = blocks.SelectMany(a => LevelData.Blocks[a].Tiles.OfType<PatternIndex>()).Select(a => a.Tile).Distinct().Where(a => a < LevelData.Tiles.Count).ToList();
+			tiles.Sort();
 			foreach (ushort blkind in blocks)
 			{
 				Block block = LevelData.Blocks[blkind].Clone();
-				if (LevelData.Level.TwoPlayerCompatible)
-				{
-					for (int x = 0; x < 2; x++)
-						if (block.Tiles[x, 0].YFlip)
-						{
-							for (int y = 1; y >= 0; y--)
-								if (block.Tiles[x, y].Tile < LevelData.Tiles.Count)
-								{
-									int i = tiles.Count;
-									tiles.Add(block.Tiles[x, y].Tile);
-									block.Tiles[x, y].Tile = (ushort)i;
-								}
-						}
-						else
-						{
-							for (int y = 0; y < 2; y++)
-								if (block.Tiles[x, y].Tile < LevelData.Tiles.Count)
-								{
-									int i = tiles.Count;
-									tiles.Add(block.Tiles[x, y].Tile);
-									block.Tiles[x, y].Tile = (ushort)i;
-								}
-						}
-				}
-				else
-				{
-					for (int x = 0; x < 2; x++)
-						for (int y = 0; y < 2; y++)
-							if (block.Tiles[x, y].Tile < LevelData.Tiles.Count)
-							{
-								int i = tiles.IndexOf(block.Tiles[x, y].Tile);
-								if (i == -1)
-								{
-									i = tiles.Count;
-									tiles.Add(block.Tiles[x, y].Tile);
-								}
-								block.Tiles[x, y].Tile = (ushort)i;
-							}
-				}
+				for (int x = 0; x < 2; x++)
+					for (int y = 0; y < 2; y++)
+						if (block.Tiles[x, y].Tile < LevelData.Tiles.Count)
+							block.Tiles[x, y].Tile = (ushort)tiles.IndexOf(block.Tiles[x, y].Tile);
 				Blocks.Add(block);
 			}
-			Tiles = new List<byte[]>(tiles.Count);
-			for (int i = 0; i < tiles.Count; i++)
-				Tiles.Add(LevelData.Tiles[tiles[i]]);
+			Tiles = tiles.Select(a => LevelData.Tiles[a]).ToList();
 		}
 	}
 
@@ -10163,49 +10127,13 @@ namespace SonicRetro.SonLVL.GUI
 		public BlockCopyData(Block block)
 		{
 			Block = new Block(block.GetBytes(), 0);
-			List<ushort> tiles = new List<ushort>();
-			if (LevelData.Level.TwoPlayerCompatible)
-			{
-				for (int x = 0; x < 2; x++)
-					if (block.Tiles[x, 0].YFlip)
-					{
-						for (int y = 1; y >= 0; y--)
-							if (block.Tiles[x, y].Tile < LevelData.Tiles.Count)
-							{
-								int i = tiles.Count;
-								tiles.Add(block.Tiles[x, y].Tile);
-								Block.Tiles[x, y].Tile = (ushort)i;
-							}
-					}
-					else
-					{
-						for (int y = 0; y < 2; y++)
-							if (block.Tiles[x, y].Tile < LevelData.Tiles.Count)
-							{
-								int i = tiles.Count;
-								tiles.Add(block.Tiles[x, y].Tile);
-								Block.Tiles[x, y].Tile = (ushort)i;
-							}
-					}
-			}
-			else
-			{
-				for (int x = 0; x < 2; x++)
-					for (int y = 0; y < 2; y++)
-						if (block.Tiles[x, y].Tile < LevelData.Tiles.Count)
-						{
-							int i = tiles.IndexOf(block.Tiles[x, y].Tile);
-							if (i == -1)
-							{
-								i = tiles.Count;
-								tiles.Add(block.Tiles[x, y].Tile);
-							}
-							Block.Tiles[x, y].Tile = (ushort)i;
-						}
-			}
-			Tiles = new List<byte[]>(tiles.Count);
-			for (int i = 0; i < tiles.Count; i++)
-				Tiles.Add(LevelData.Tiles[tiles[i]]);
+			List<ushort> tiles = Block.Tiles.OfType<PatternIndex>().Select(a => a.Tile).Distinct().Where(a => a < LevelData.Tiles.Count).ToList();
+			tiles.Sort();
+			for (int x = 0; x < 2; x++)
+				for (int y = 0; y < 2; y++)
+					if (block.Tiles[x, y].Tile < LevelData.Tiles.Count)
+						Block.Tiles[x, y].Tile = (ushort)tiles.IndexOf(block.Tiles[x, y].Tile);
+			Tiles = tiles.Select(a => LevelData.Tiles[a]).ToList();
 		}
 	}
 
