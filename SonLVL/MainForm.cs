@@ -4651,8 +4651,8 @@ namespace SonicRetro.SonLVL.GUI
 					layout[x, y]++;
 			});
 			LevelData.RedrawChunk(SelectedChunk);
-			ChunkSelector.SelectedIndex = SelectedChunk;
 			ChunkID.Maximum = LevelData.Chunks.Count - 1;
+			ChunkSelector.SelectedIndex = SelectedChunk;
 			importChunksToolStripButton.Enabled = LevelData.Chunks.Count < 256;
 			drawChunkToolStripButton.Enabled = importChunksToolStripButton.Enabled;
 		}
@@ -4672,8 +4672,8 @@ namespace SonicRetro.SonLVL.GUI
 						if (LevelData.Chunks[i].Blocks[x, y].Block >= SelectedBlock && LevelData.Chunks[i].Blocks[x, y].Block < LevelData.Blocks.Count)
 							LevelData.Chunks[i].Blocks[x, y].Block++;
 			LevelData.RedrawBlock(SelectedBlock, false);
-			BlockSelector.SelectedIndex = SelectedBlock;
 			BlockID.Maximum = LevelData.Blocks.Count - 1;
+			BlockSelector.SelectedIndex = SelectedBlock;
 			importBlocksToolStripButton.Enabled = LevelData.Blocks.Count < LevelData.GetBlockMax();
 			drawBlockToolStripButton.Enabled = importBlocksToolStripButton.Enabled;
 		}
