@@ -177,6 +177,11 @@ namespace SonicRetro.SonLVL.API
 
 		private void CalculateBounds()
 		{
+			if (strips.Count == 0)
+			{
+				bounds = Rectangle.Empty;
+				return;
+			}
 			int l = int.MaxValue;
 			int t = int.MaxValue;
 			int r = int.MinValue;
