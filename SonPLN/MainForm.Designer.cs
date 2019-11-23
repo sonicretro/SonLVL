@@ -111,6 +111,7 @@ namespace SonicRetro.SonLVL.SonPLN
 			this.fgToolStrip = new System.Windows.Forms.ToolStrip();
 			this.replaceForegroundToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.clearForegroundToolStripButton = new System.Windows.Forms.ToolStripButton();
+			this.importToolStripButton = new System.Windows.Forms.ToolStripButton();
 			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
 			this.TileSelector = new SonicRetro.SonLVL.API.TileList();
 			this.panel2 = new System.Windows.Forms.Panel();
@@ -160,7 +161,6 @@ namespace SonicRetro.SonLVL.SonPLN
 			this.toolStripSeparator12 = new System.Windows.Forms.ToolStripSeparator();
 			this.insertLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.deleteLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.importToolStripButton = new System.Windows.Forms.ToolStripButton();
 			label4 = new System.Windows.Forms.Label();
 			label3 = new System.Windows.Forms.Label();
 			label2 = new System.Windows.Forms.Label();
@@ -956,6 +956,15 @@ namespace SonicRetro.SonLVL.SonPLN
 			this.clearForegroundToolStripButton.Text = "Clear";
 			this.clearForegroundToolStripButton.Click += new System.EventHandler(this.clearForegroundToolStripButton_Click);
 			// 
+			// importToolStripButton
+			// 
+			this.importToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.importToolStripButton.Enabled = false;
+			this.importToolStripButton.Name = "importToolStripButton";
+			this.importToolStripButton.Size = new System.Drawing.Size(47, 22);
+			this.importToolStripButton.Text = "Import";
+			this.importToolStripButton.Click += new System.EventHandler(this.importToolStripButton_Click);
+			// 
 			// tableLayoutPanel1
 			// 
 			this.tableLayoutPanel1.ColumnCount = 1;
@@ -1448,14 +1457,6 @@ namespace SonicRetro.SonLVL.SonPLN
 			this.deleteLayoutToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
 			this.deleteLayoutToolStripMenuItem.Text = "&Delete...";
 			this.deleteLayoutToolStripMenuItem.Click += new System.EventHandler(this.deleteLayoutToolStripMenuItem_Click);
-			// 
-			// importToolStripButton
-			// 
-			this.importToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-			this.importToolStripButton.Enabled = false;
-			this.importToolStripButton.Name = "importToolStripButton";
-			this.importToolStripButton.Size = new System.Drawing.Size(47, 22);
-			this.importToolStripButton.Text = "Import";
 			// 
 			// MainForm
 			// 
