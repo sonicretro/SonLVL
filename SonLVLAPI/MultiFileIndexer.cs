@@ -2,14 +2,33 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace SonicRetro.SonLVL.API
 {
 	public class MultiFileIndexer<T> : IList<T>
 	{
-		private List<List<T>> filedata = new List<List<T>>();
-		private List<int> fileoffs = new List<int>();
-		private List<bool> fixedoff = new List<bool>();
+		private class MFIEntry : IComparable<MFIEntry>
+		{
+			public List<T> Data { get; set; }
+			public int Offset { get; set; }
+			public bool Fixed { get; private set; }
+			public int Count => Data.Count;
+
+			public MFIEntry(List<T> data, int offset, bool @fixed)
+			{
+				Data = data;
+				Offset = offset;
+				Fixed = @fixed;
+			}
+
+			public int CompareTo(MFIEntry other)
+			{
+				return Offset.CompareTo(other.Offset);
+			}
+		}
+
+		private List<MFIEntry> files = new List<MFIEntry>();
 		Func<T> defaultItem;
 
 		public MultiFileIndexer()
@@ -24,18 +43,15 @@ namespace SonicRetro.SonLVL.API
 
 		public void AddFile(List<T> data, int offset)
 		{
-			fixedoff.Add(offset != -1);
-			if (offset == -1)
-				offset = Count;
-			filedata.Add(data);
-			fileoffs.Add(offset);
+			bool fix = offset != -1;
+			files.Add(new MFIEntry(data, fix ? offset : Count, fix));
 		}
 
 		private int GetContainingFile(int index)
 		{
-			for (int i = filedata.Count - 1; i >= 0; i--)
+			for (int i = files.Count - 1; i >= 0; i--)
 			{
-				if (index >= fileoffs[i] && index - fileoffs[i] < filedata[i].Count)
+				if (index >= files[i].Offset && index - files[i].Offset < files[i].Count)
 					return i;
 			}
 			return -1;
@@ -55,46 +71,48 @@ namespace SonicRetro.SonLVL.API
 			{
 				int i = GetContainingFile(index);
 				if (i == -1) return default(T);
-				return filedata[i][index - fileoffs[i]];
+				return files[i].Data[index - files[i].Offset];
 			}
 			set
 			{
 				int i = GetContainingFile(index);
-				filedata[i][index - fileoffs[i]] = value;
+				files[i].Data[index - files[i].Offset] = value;
 			}
 		}
 
 		public void Add(T item)
 		{
-			filedata[GetContainingFile(Count - 1)].Add(item);
+			files.Max().Data.Add(item);
 		}
 
 		public void InsertBefore(int index, T insertItem)
 		{
 			int i = GetContainingFile(index);
-			filedata[i].Insert(index - fileoffs[i], insertItem);
+			files[i].Data.Insert(index - files[i].Offset, insertItem);
 			for (i++; i < FileCount; i++)
-				if (!fixedoff[i])
-					fileoffs[i]++;
+				if (!files[i].Fixed)
+					files[i].Offset++;
 		}
 
 		public void InsertAfter(int index, T insertItem)
 		{
 			int i = GetContainingFile(index);
-			filedata[i].Insert(index - fileoffs[i] + 1, insertItem);
+			if (i + 1 < files.Count && files[i + 1].Offset == files[i].Offset + files[i].Count)
+				++i;
+			files[i].Data.Insert(index - files[i].Offset + 1, insertItem);
 			for (i++; i < FileCount; i++)
-				if (!fixedoff[i])
-					fileoffs[i]++;
+				if (!files[i].Fixed)
+					files[i].Offset++;
 		}
 
 		public bool Remove(T item)
 		{
 			int i = GetContainingFile(ToList().IndexOf(item));
 			if (i == -1) return false;
-			filedata[i].Remove(item);
+			files[i].Data.Remove(item);
 			for (i++; i < FileCount; i++)
-				if (!fixedoff[i])
-					fileoffs[i]--;
+				if (!files[i].Fixed)
+					files[i].Offset--;
 			FillGaps();
 			return true;
 		}
@@ -102,18 +120,16 @@ namespace SonicRetro.SonLVL.API
 		public void RemoveAt(int index)
 		{
 			int i = GetContainingFile(index);
-			filedata[i].RemoveAt(index - fileoffs[i]);
+			files[i].Data.RemoveAt(index - files[i].Offset);
 			for (i++; i < FileCount; i++)
-				if (!fixedoff[i])
-					fileoffs[i]--;
+				if (!files[i].Fixed)
+					files[i].Offset--;
 			FillGaps();
 		}
 
 		public void Clear()
 		{
-			filedata.Clear();
-			fileoffs.Clear();
-			fixedoff.Clear();
+			files.Clear();
 		}
 
 		public int Count
@@ -121,13 +137,13 @@ namespace SonicRetro.SonLVL.API
 			get
 			{
 				int maxind = 0;
-				for (int i = 0; i < filedata.Count; i++)
-					maxind = Math.Max(fileoffs[i] + filedata[i].Count, maxind);
+				for (int i = 0; i < files.Count; i++)
+					maxind = Math.Max(files[i].Offset + files[i].Count, maxind);
 				return maxind;
 			}
 		}
 
-		public int FileCount { get { return filedata.Count; } }
+		public int FileCount { get { return files.Count; } }
 
 		public List<T> ToList()
 		{
@@ -146,15 +162,12 @@ namespace SonicRetro.SonLVL.API
 
 		public ReadOnlyCollection<T> GetFile(int file)
 		{
-			return new ReadOnlyCollection<T>(filedata[file]);
+			return new ReadOnlyCollection<T>(files[file].Data);
 		}
         
 		public ReadOnlyCollection<ReadOnlyCollection<T>> GetFiles()
 		{
-			List<ReadOnlyCollection<T>> files = new List<ReadOnlyCollection<T>>();
-			foreach (List<T> item in filedata)
-				files.Add(new ReadOnlyCollection<T>(item));
-			return new ReadOnlyCollection<ReadOnlyCollection<T>>(files);
+			return files.Select(a => a.Data.AsReadOnly()).ToList().AsReadOnly();
 		}
 
 		IEnumerator<T> IEnumerable<T>.GetEnumerator()
