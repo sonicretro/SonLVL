@@ -1,0 +1,30 @@
+Usage: spriteplotter [options]
+
+Arguments:
+
+    -h, --help              Shows this help screen.
+    -p, --padding=number    Pixels of padding between sprites. Default 2.
+    -t, --transparent=color Transparent color, as a name or #RRGGBB.
+                            Defaults to first color of palette.
+    -s, --startpal=number   Starting palette line for mappings (0-based).
+    -n, --nullfirst         Inserts a blank frame at the start of the
+                            mappings.
+    -2, --twoplayer         Enforces restrictions for Sonic 2 2P mode.
+    -f, --format=fmt        The format of mappings and DPLCs. One of
+                            Binary, ASM, Macro. Default Binary.
+    -g, --game=game         The target game. One of S1, S2, S3K, S3Kp.
+    -c, --artcmp=compress   Compression to use for art file. One of
+                            Uncompressed, Nemesis, Kosinski, KosinskiM.
+                            Default Uncompressed.
+    -r, --searchradius=num  Pixels to expand the sprites' rectangles
+                            when searching for a center point.
+        --lowplane=file     Image to use for the low plane of sprites.
+        --highplane=file    Image to use for the high plane of sprites.
+        --palette=file      Image or MD palette file to use for the
+                            palette. Not required for indexed color images.
+        --center=file       Image containing center points for sprites.
+        --artfile=file      File to which tiles will be written. Required.
+        --mapfile=file      File to which mappings will be written. Required.
+        --dplcfile=file     File to which DPLCs will be written. If omitted,
+                            mappings will not use DPLCs.
+        --palfile=file      File to which palette will be written. Optional.

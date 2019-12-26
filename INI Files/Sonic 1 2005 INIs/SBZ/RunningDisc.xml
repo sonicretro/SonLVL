@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<ObjDef xmlns="http://www.sonicretro.org" Name="Running Disc" Image="img1" RememberState="true">
+  <Images>
+    <ImageFromMappings id="img1">
+      <ArtFile filename="../artnem/sbzwhee1.bin"/>
+      <MapFile type="ASM" filename="../_maps/obj67.asm" frame="0" startpal="2" />
+    </ImageFromMappings>
+  </Images>
+  <Subtypes>
+    <Subtype id="00" name="00 Doesnt animate, crashes when used" image="img1"/>
+    <Subtype id="10" name="10 slowest animation" image="img1"/>
+    <Subtype id="20" name="20 slower animation" image="img1"/>
+    <Subtype id="30" name="30 slightly slower" image="img1"/>
+    <Subtype id="40" name="40 normal" image="img1"/>
+    <Subtype id="50" name="50 Anything past 40 is faster" image="img1"/>
+  </Subtypes>
+</ObjDef>

@@ -1,18 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{16ED2BDD-5C71-4DAD-ACA9-669E0628CACE}</ProjectGuid>
+    <ProjectGuid>{060A0427-C91D-44B7-98CB-A0129B14ECDD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>S1ObjectDefinitions</RootNamespace>
     <AssemblyName>S1ObjectDefinitions</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -37,26 +35,53 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common\InvisibleBlock.cs" />
-    <Compile Include="Common\Ring.cs" />
-    <Compile Include="GHZ\Bridge.cs" />
-    <Compile Include="GHZ\SwingingPlatform.cs" />
+    <Compile Include="..\INI Files\Sonic 1 Git INIs\Common\InvisibleBlock.cs">
+      <Link>Common\InvisibleBlock.cs</Link>
+    </Compile>
+    <Compile Include="..\INI Files\Sonic 1 Git INIs\Common\Ring.cs">
+      <Link>Common\Ring.cs</Link>
+    </Compile>
+    <Compile Include="..\INI Files\Sonic 1 Git INIs\GHZ\Bridge.cs">
+      <Link>GHZ\Bridge.cs</Link>
+    </Compile>
+    <Compile Include="..\INI Files\Sonic 1 Git INIs\GHZ\SpikedPole.cs">
+      <Link>GHZ\SpikedPole.cs</Link>
+    </Compile>
+    <Compile Include="..\INI Files\Sonic 1 Git INIs\GHZ\SwingingPlatform.cs">
+      <Link>GHZ\SwingingPlatform.cs</Link>
+    </Compile>
+    <Compile Include="..\INI Files\Sonic 1 Git INIs\LZ\Spikeball.cs">
+      <Link>LZ\Spikeball.cs</Link>
+    </Compile>
+    <Compile Include="..\INI Files\Sonic 1 Git INIs\MZ\SidewaysStomper.cs">
+      <Link>MZ\SidewaysStomper.cs</Link>
+    </Compile>
+    <Compile Include="..\INI Files\Sonic 1 Git INIs\SBZ\Flamethrower.cs">
+      <Link>SBZ\Flamethrower.cs</Link>
+    </Compile>
+    <Compile Include="..\INI Files\Sonic 1 Git INIs\SBZ\SwingingSpikeball.cs">
+      <Link>SBZ\SwingingSpikeball.cs</Link>
+    </Compile>
+    <Compile Include="..\INI Files\Sonic 1 Git INIs\SLZ\SwingingPlatform.cs">
+      <Link>SLZ\SwingingPlatform.cs</Link>
+    </Compile>
+    <Compile Include="..\INI Files\Sonic 1 Git INIs\SYZ\BigSpikedBall.cs">
+      <Link>SYZ\BigSpikedBall.cs</Link>
+    </Compile>
+    <Compile Include="..\INI Files\Sonic 1 Git INIs\SYZ\Block.cs">
+      <Link>SYZ\Block.cs</Link>
+    </Compile>
+    <Compile Include="..\INI Files\Sonic 1 Git INIs\SYZ\SpikeballChain.cs">
+      <Link>SYZ\SpikeballChain.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SYZ\Block.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SonLVLAPI\SonLVL.API.csproj">
-      <Project>{01D2110B-F4E7-4914-8781-8B1C24D888AD}</Project>
+      <Project>{01d2110b-f4e7-4914-8781-8b1c24d888ad}</Project>
       <Name>SonLVL.API</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

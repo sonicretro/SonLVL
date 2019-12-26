@@ -10,29 +10,11 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SonicRetro.SonLVL</RootNamespace>
     <AssemblyName>SonLVL</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ApplicationIcon>Resources\ringmon1.ico</ApplicationIcon>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>
-    <UpgradeBackupLocation />
     <TargetFrameworkProfile />
-    <PublishUrl>publish\</PublishUrl>
-    <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-    <UpdatePeriodically>false</UpdatePeriodically>
-    <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <UseApplicationTrust>false</UseApplicationTrust>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -41,11 +23,6 @@
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
-    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
-    <CodeAnalysisFailOnMissingRules>true</CodeAnalysisFailOnMissingRules>
-    <WarningLevel>4</WarningLevel>
-    <Optimize>false</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <OutputPath>bin\Release\</OutputPath>
@@ -54,9 +31,6 @@
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
-    <CodeAnalysisFailOnMissingRules>true</CodeAnalysisFailOnMissingRules>
-    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -75,6 +49,47 @@
       <DependentUpon>AddGroupDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="AnimationInfo.cs" />
+    <Compile Include="ChunkBlockEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ChunkBlockEditor.Designer.cs">
+      <DependentUpon>ChunkBlockEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LoadErrorDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LoadErrorDialog.Designer.cs">
+      <DependentUpon>LoadErrorDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PatternIndexSearchControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PatternIndexSearchControl.Designer.cs">
+      <DependentUpon>PatternIndexSearchControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="ReplaceBlockTilesDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ReplaceBlockTilesDialog.Designer.cs">
+      <DependentUpon>ReplaceBlockTilesDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ReplaceChunkBlocksDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ReplaceChunkBlocksDialog.Designer.cs">
+      <DependentUpon>ReplaceChunkBlocksDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ChunkBlockSearchControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ChunkBlockSearchControl.Designer.cs">
+      <DependentUpon>ChunkBlockSearchControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="CollisionSelector.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -93,12 +108,6 @@
     <Compile Include="ErrorDialog.Designer.cs">
       <DependentUpon>ErrorDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="BugReportDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="BugReportDialog.Designer.cs">
-      <DependentUpon>BugReportDialog.cs</DependentUpon>
-    </Compile>
     <Compile Include="Extensions.cs" />
     <Compile Include="FindChunksDialog.cs">
       <SubType>Form</SubType>
@@ -112,11 +121,23 @@
     <Compile Include="FindObjectsDialog.Designer.cs">
       <DependentUpon>FindObjectsDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="ImportProgressControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ImportProgressControl.Designer.cs">
+      <DependentUpon>ImportProgressControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="InsertDeleteDialog.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="InsertDeleteDialog.Designer.cs">
       <DependentUpon>InsertDeleteDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LayoutSectionNameDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LayoutSectionNameDialog.Designer.cs">
+      <DependentUpon>LayoutSectionNameDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="LoadingAnimation.cs">
       <SubType>UserControl</SubType>
@@ -135,6 +156,21 @@
     </Compile>
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NumericUpDownMulti.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="PatternIndexEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PatternIndexEditor.Designer.cs">
+      <DependentUpon>PatternIndexEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ReplaceChunksDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ReplaceChunksDialog.Designer.cs">
+      <DependentUpon>ReplaceChunksDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="ResizeLevelDialog.cs">
       <SubType>Form</SubType>
@@ -156,9 +192,39 @@
     <Compile Include="AlternatePaletteDialog.Designer.cs">
       <DependentUpon>AlternatePaletteDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="ScrollingPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ScrollingPanel.Designer.cs">
+      <DependentUpon>ScrollingPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="Settings.cs" />
+    <Compile Include="StatisticsDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="StatisticsDialog.Designer.cs">
+      <DependentUpon>StatisticsDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TileRemappingDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TileRemappingDialog.Designer.cs">
+      <DependentUpon>TileRemappingDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WaterHeightDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WaterHeightDialog.Designer.cs">
+      <DependentUpon>WaterHeightDialog.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="AddGroupDialog.resx">
       <DependentUpon>AddGroupDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ChunkBlockEditor.resx">
+      <DependentUpon>ChunkBlockEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ChunkBlockSearchControl.resx">
+      <DependentUpon>ChunkBlockSearchControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="CollisionSelector.resx">
       <DependentUpon>CollisionSelector.cs</DependentUpon>
@@ -169,17 +235,23 @@
     <EmbeddedResource Include="ErrorDialog.resx">
       <DependentUpon>ErrorDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="BugReportDialog.resx">
-      <DependentUpon>BugReportDialog.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="FindChunksDialog.resx">
       <DependentUpon>FindChunksDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FindObjectsDialog.resx">
       <DependentUpon>FindObjectsDialog.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="ImportProgressControl.resx">
+      <DependentUpon>ImportProgressControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="InsertDeleteDialog.resx">
       <DependentUpon>InsertDeleteDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LayoutSectionNameDialog.resx">
+      <DependentUpon>LayoutSectionNameDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LoadErrorDialog.resx">
+      <DependentUpon>LoadErrorDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="LoadingAnimation.resx">
       <DependentUpon>LoadingAnimation.cs</DependentUpon>
@@ -191,6 +263,21 @@
       <DependentUpon>MainForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="PatternIndexEditor.resx">
+      <DependentUpon>PatternIndexEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PatternIndexSearchControl.resx">
+      <DependentUpon>PatternIndexSearchControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ReplaceBlockTilesDialog.resx">
+      <DependentUpon>ReplaceBlockTilesDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ReplaceChunkBlocksDialog.resx">
+      <DependentUpon>ReplaceChunkBlocksDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ReplaceChunksDialog.resx">
+      <DependentUpon>ReplaceChunksDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ResizeLevelDialog.resx">
       <DependentUpon>ResizeLevelDialog.cs</DependentUpon>
     </EmbeddedResource>
@@ -199,18 +286,49 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <EmbeddedResource Include="AlternatePaletteDialog.resx">
       <DependentUpon>AlternatePaletteDialog.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="ScrollingPanel.resx">
+      <DependentUpon>ScrollingPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="StatisticsDialog.resx">
+      <DependentUpon>StatisticsDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TileRemappingDialog.resx">
+      <DependentUpon>TileRemappingDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WaterHeightDialog.resx">
+      <DependentUpon>WaterHeightDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="app.config" />
+    <None Include="HUD\HUD.ini">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\HUDnum.ini">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="loadanim\Animation.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="loadanim\anims.ini">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="loadanim\Art.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="loadanim\DPLCs.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="loadanim\Mappings.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="loadanim\Palette.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -220,9 +338,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\UnknownImg.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\paste.png" />
@@ -235,32 +350,7 @@
     <None Include="Resources\gogglemon.ico" />
   </ItemGroup>
   <ItemGroup>
-    <BootstrapperPackage Include=".NETFramework,Version=v4.0">
-      <Visible>False</Visible>
-      <ProductName>Microsoft .NET Framework 4 %28x86 and x64%29</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
-      <Visible>False</Visible>
-      <ProductName>Windows Installer 3.1</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\lightningmon.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\UnknownImg3K.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\clockmon.ico" />
@@ -281,10 +371,174 @@
     <None Include="Resources\Tailsmon2.ico" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\sonicbored1.png" />
+    <None Include="HUD\-.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\0.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\4.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\5.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\6.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\7.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\8.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\9.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\A.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\Aw.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\B.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\bslsh.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\Bw.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\C.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\col.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\Cw.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\D.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\dot.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\Dw.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\E.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\Ew.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\F.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\Fw.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\G.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\H.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\I.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\J.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\K.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\L.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\M.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\N.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\O.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\P.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\Q.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\R.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\S.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\slsh.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\spc.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\T.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\U.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\V.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\W.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\X.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\Y.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="HUD\Z.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="readme.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="SZDDComp License.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="SZDDComp source.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\sonicbored2.png" />
+    <None Include="Resources\pencil.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\fill.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\fillcur.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\fliph.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\flipv.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

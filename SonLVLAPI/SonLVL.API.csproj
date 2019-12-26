@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SonicRetro.SonLVL.API</RootNamespace>
     <AssemblyName>SonLVLAPI</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -22,6 +22,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,27 +32,42 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="SonicRetro.KensSharp.Common">
-      <HintPath>..\..\KENSSharp\Frontend\bin\Release\SonicRetro.KensSharp.Common.dll</HintPath>
+    <Reference Include="SonicRetro.KensSharp.Common, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Dependencies\SonicRetro.KensSharp.Common.dll</HintPath>
     </Reference>
-    <Reference Include="SonicRetro.KensSharp.Enigma">
-      <HintPath>..\..\KENSSharp\Frontend\bin\Release\SonicRetro.KensSharp.Enigma.dll</HintPath>
+    <Reference Include="SonicRetro.KensSharp.Comper">
+      <HintPath>..\Dependencies\SonicRetro.KensSharp.Comper.dll</HintPath>
     </Reference>
-    <Reference Include="SonicRetro.KensSharp.Kosinski">
-      <HintPath>..\..\KENSSharp\Frontend\bin\Release\SonicRetro.KensSharp.Kosinski.dll</HintPath>
+    <Reference Include="SonicRetro.KensSharp.Enigma, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Dependencies\SonicRetro.KensSharp.Enigma.dll</HintPath>
     </Reference>
-    <Reference Include="SonicRetro.KensSharp.Nemesis">
-      <HintPath>..\..\KENSSharp\Frontend\bin\Release\SonicRetro.KensSharp.Nemesis.dll</HintPath>
+    <Reference Include="SonicRetro.KensSharp.Kosinski+, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Dependencies\SonicRetro.KensSharp.Kosinski+.dll</HintPath>
+    </Reference>
+    <Reference Include="SonicRetro.KensSharp.Kosinski, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Dependencies\SonicRetro.KensSharp.Kosinski.dll</HintPath>
+    </Reference>
+    <Reference Include="SonicRetro.KensSharp.Nemesis, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Dependencies\SonicRetro.KensSharp.Nemesis.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Design" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="SZDDComp">
-      <HintPath>.\SZDDComp.dll</HintPath>
+    <Reference Include="SZDDComp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Dependencies\SZDDComp.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -58,12 +75,27 @@
     <Compile Include="BlockSelector.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="BugReportDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BugReportDialog.Designer.cs">
+      <DependentUpon>BugReportDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="ByteConverter.cs" />
+    <Compile Include="Chaotix\Object.cs" />
     <Compile Include="Compression.cs" />
     <Compile Include="DataTypes.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="FileSelector.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="FileSelector.designer.cs">
+      <DependentUpon>FileSelector.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FileSelectorMode.cs" />
     <Compile Include="GameInfo.cs" />
     <Compile Include="IniFile.cs" />
+    <Compile Include="IniSerializer.cs" />
     <Compile Include="KeyboardPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -79,6 +111,7 @@
     <Compile Include="ObjectIDEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="ObjectLayoutFormat.cs" />
     <Compile Include="ObjectSubTypeEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -88,13 +121,22 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="RingFormat.cs" />
     <Compile Include="S1\Layout.cs" />
+    <Compile Include="S1\Object.cs" />
+    <Compile Include="S1\Ring.cs" />
     <Compile Include="S2NA\Layout.cs" />
+    <Compile Include="S2NA\Object.cs" />
     <Compile Include="S2\Layout.cs" />
+    <Compile Include="S2\Object.cs" />
+    <Compile Include="S2\Ring.cs" />
     <Compile Include="S3K\Layout.cs" />
+    <Compile Include="S3K\Object.cs" />
+    <Compile Include="S3K\Ring.cs" />
     <Compile Include="SCDPC\Layout.cs" />
+    <Compile Include="SCD\Object.cs" />
     <Compile Include="SKC\Layout.cs" />
-    <Compile Include="TileFormat.cs" />
+    <Compile Include="Sprite.cs" />
     <Compile Include="TileList.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -110,6 +152,12 @@
     <EmbeddedResource Include="BlockSelector.resx">
       <DependentUpon>BlockSelector.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="BugReportDialog.resx">
+      <DependentUpon>BugReportDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FileSelector.resx">
+      <DependentUpon>FileSelector.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="KeyboardPanel.resx">
       <DependentUpon>KeyboardPanel.cs</DependentUpon>
     </EmbeddedResource>
@@ -122,6 +170,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="TileList.resx">
       <DependentUpon>TileList.cs</DependentUpon>

@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<ObjDef xmlns="http://www.sonicretro.org" Name="Spiked Weight" Image="img1">
+  <Images>
+    <ImageFromMappings id="img1">
+      <ArtFile filename="../artnem/mzmetal.bin"/>
+      <MapFile type="ASM" filename="../_maps/obj31.asm" frame="0" startpal="0"/>
+    </ImageFromMappings>
+    <ImageFromMappings id="img2">
+      <ArtFile filename="../artnem/mzmetal.bin"/>
+      <MapFile type="ASM" filename="../_maps/obj31.asm" frame="9" startpal="0"/>
+    </ImageFromMappings>
+    <ImageFromMappings id="img3">
+      <ArtFile filename="../artnem/mzmetal.bin"/>
+      <MapFile type="ASM" filename="../_maps/obj31.asm" frame="10" startpal="0"/>
+    </ImageFromMappings>
+  </Images>
+  <Subtypes>
+    <Subtype id="00" name="00 Lifts up when buttons pushed" image="img1"/>
+    <Subtype id="01" name="01 Lifts up and falls down" image="img1"/>
+    <Subtype id="02" name="02 Subtype 01 but shorter" image="img1"/>
+    <Subtype id="03" name="03 Subtype 01 but starts at top" image="img1"/>
+    <Subtype id="04" name="04 Subtype 02 but starts at top" image="img1"/>
+    <Subtype id="05" name="05 Subtype 01 repeat(?)" image="img1"/>
+    <Subtype id="06" name="06 Subtype 01 but longer" image="img1"/>
+    <Subtype id="0B" name="0B Simply doesn't move" image="img1"/>
+    <Subtype id="10" name="10 Lifts up when buttons pushed" image="img2"/>
+    <Subtype id="11" name="11 Lifts up and falls down" image="img2"/>
+    <Subtype id="12" name="12 Subtype 21 but shorter" image="img2"/>
+    <Subtype id="13" name="13 Subtype 21 but starts at top" image="img2"/>
+    <Subtype id="14" name="14 Subtype 22 but starts at top" image="img2"/>
+    <Subtype id="15" name="15 Subtype 21 repeat(?)" image="img2"/>
+    <Subtype id="16" name="16 Subtype 21 but longer" image="img2"/>
+    <Subtype id="1B" name="1B Doesn't move" image="img2"/>
+    <Subtype id="20" name="20 Lifts up when buttons pushed" image="img3"/>
+    <Subtype id="21" name="21 Lifts up and falls down" image="img3"/>
+    <Subtype id="22" name="22 Subtype 21 but shorter" image="img3"/>
+    <Subtype id="23" name="23 Subtype 21 but starts at top" image="img3"/>
+    <Subtype id="24" name="24 Subtype 22 but starts at top" image="img3"/>
+    <Subtype id="25" name="25 Subtype 21 repeat(?)" image="img3"/>
+    <Subtype id="26" name="26 Subtype 21 but longer" image="img3"/>
+    <Subtype id="2B" name="2B Doesn't move" image="img3"/>
+    <Subtype id="31" name="31 01 with broken collision" image="img1"/>
+    <Subtype id="41" name="41 01 with broken art and collision" image="img1"/>
+    <Subtype id="51" name="51 01 with broken art" image="img1"/>
+    <Subtype id="61" name="61 01 with broken art and no collision (except spikes)" image="img1"/>
+    <Subtype id="71" name="71 01 with no art and really big collision" image="img1"/>
+    <Subtype id="80" name="80 repeat of subtype 00" image="img1"/>
+    <Subtype id="81" name="81 Just sits there" image="im13"/>
+  </Subtypes>
+</ObjDef>

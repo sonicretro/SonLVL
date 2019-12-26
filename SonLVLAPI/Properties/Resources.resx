@@ -124,4 +124,10 @@
   <data name="UnknownImg3K" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\UnknownImg3K.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="FileSelectorAlreadyBeingInitialized" xml:space="preserve">
+    <value>The file selector is already being initialized.</value>
+  </data>
+  <data name="FileSelectorNotBeingInitialized" xml:space="preserve">
+    <value>The file selector is not being initialized.</value>
+  </data>
 </root>

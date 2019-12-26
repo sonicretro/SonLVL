@@ -1,0 +1,137 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{6D1D6A5F-2C62-4944-8409-2D0A40819BEB}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>S3SSEdit</RootNamespace>
+    <AssemblyName>S3SSEdit</AssemblyName>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\yelsphere.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="InsertTextDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="InsertTextDialog.Designer.cs">
+      <DependentUpon>InsertTextDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LayoutData.cs" />
+    <Compile Include="LayoutDrawer.cs" />
+    <Compile Include="LayoutSectionNameDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LayoutSectionNameDialog.Designer.cs">
+      <DependentUpon>LayoutSectionNameDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="ProjectFile.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StageSelectDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="StageSelectDialog.Designer.cs">
+      <DependentUpon>StageSelectDialog.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="InsertTextDialog.resx">
+      <DependentUpon>InsertTextDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LayoutSectionNameDialog.resx">
+      <DependentUpon>LayoutSectionNameDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="StageSelectDialog.resx">
+      <DependentUpon>StageSelectDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="app.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\gridpal.bin" />
+    <None Include="Resources\yellow.png" />
+    <None Include="Resources\ring.png" />
+    <None Include="Resources\red.png" />
+    <None Include="Resources\bumper.png" />
+    <None Include="Resources\blue.png" />
+    <None Include="Resources\east.png" />
+    <None Include="Resources\north.png" />
+    <None Include="Resources\south.png" />
+    <None Include="Resources\west.png" />
+    <None Include="Resources\copy.png" />
+    <None Include="Resources\cut.png" />
+    <None Include="Resources\delete.png" />
+    <None Include="Resources\fliph.png" />
+    <Content Include="Resources\flipv.png" />
+    <None Include="Resources\paste.png" />
+    <None Include="Resources\rotatel.png" />
+    <None Include="Resources\rotater.png" />
+    <None Include="Resources\FontHS.png" />
+    <Content Include="Resources\yelsphere.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SonLVLAPI\SonLVL.API.csproj">
+      <Project>{01d2110b-f4e7-4914-8781-8b1c24d888ad}</Project>
+      <Name>SonLVL.API</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
