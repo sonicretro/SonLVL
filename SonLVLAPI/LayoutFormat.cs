@@ -18,6 +18,7 @@ namespace SonicRetro.SonLVL.API
 		public virtual CompressionType DefaultCompression { get { return CompressionType.Uncompressed; } }
 		public virtual bool HasLoopFlag { get { return false; } }
 		public virtual bool IsResizable { get { return false; } }
+
 		/// <summary>
 		/// The maximum (or only) size of a level layout.
 		/// </summary>
@@ -31,6 +32,10 @@ namespace SonicRetro.SonLVL.API
 		/// If false, the FG and BG data are stored in separate files.
 		/// </summary>
 		public abstract bool IsCombinedLayout { get; }
+		/// <summary>
+        /// The maximum bytes that can be taken by level layout data.
+		/// </summary>
+		public virtual int MaxBytes { get { return -1; } }
 	}
 
 	/// <summary>
