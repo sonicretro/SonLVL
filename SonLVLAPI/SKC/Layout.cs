@@ -71,5 +71,7 @@ namespace SonicRetro.SonLVL.API.SKC
 		public override System.Drawing.Size DefaultSize { get { return new System.Drawing.Size(128, 16); } }
 
 		public virtual ushort StartAddress { get { return 0x8000; } }
+
+		public override int MaxBytes => 3960;
 	}
 }
