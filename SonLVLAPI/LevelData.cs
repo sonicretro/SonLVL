@@ -122,6 +122,8 @@ namespace SonicRetro.SonLVL.API
 					UnknownImg = Properties.Resources.UnknownImg3K.Copy();
 					littleendian = true;
 					break;
+				case EngineVersion.Custom:
+					throw new NotImplementedException("Engine is custom, and \"unknownimg\" is missing in INI file.");
 				default:
 					throw new NotImplementedException("Game type " + Game.EngineVersion.ToString() + " is not supported!");
 			}
@@ -154,6 +156,10 @@ namespace SonicRetro.SonLVL.API
 				case EngineVersion.SKC:
 					UnknownImg = Properties.Resources.UnknownImg3K.Copy();
 					littleendian = true;
+					break;
+				case EngineVersion.Custom:
+					if (Game.UnknownImgPath == null)
+						throw new NotImplementedException("Engine is custom, and \"unknownimg\" is missing in INI file.");
 					break;
 				default:
 					throw new NotImplementedException("Game type " + Level.EngineVersion.ToString() + " is not supported!");
