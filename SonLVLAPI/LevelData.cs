@@ -99,7 +99,11 @@ namespace SonicRetro.SonLVL.API
 			Log("Opening INI file \"" + filename + "\"...");
 			Game = GameInfo.Load(filename);
 			Environment.CurrentDirectory = Path.GetDirectoryName(filename);
-			switch (Game.EngineVersion)
+			if(Game.UnknownImgPath != null)
+			{
+				UnknownImg = new Bitmap(Game.UnknownImgPath);
+			}
+			else switch (Game.EngineVersion)
 			{
 				case EngineVersion.S1:
 				case EngineVersion.SCD:
@@ -154,6 +158,9 @@ namespace SonicRetro.SonLVL.API
 				default:
 					throw new NotImplementedException("Game type " + Level.EngineVersion.ToString() + " is not supported!");
 			}
+			// support for custom unknown images
+			if(Game.UnknownImgPath != null)
+				UnknownImg = new Bitmap(Game.UnknownImgPath);
 			UnknownSprite = new Sprite(new BitmapBits(UnknownImg), true, -8, -7);
 			Log("Loading " + Level.DisplayName + "...");
 			if ((Level.ChunkWidth & 15) != 0)

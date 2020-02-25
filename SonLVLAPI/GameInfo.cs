@@ -13,6 +13,8 @@ namespace SonicRetro.SonLVL.API
 		[DefaultValue(EngineVersion.S2)]
 		[IniName("version")]
 		public EngineVersion EngineVersion { get; set; }
+		[IniName("gamename")]
+		public string GameName { get; set; }
 		[IniName("objlst")]
 		[IniCollection(IniCollectionMode.SingleLine, Format = "|")]
 		public string[] ObjectList { get; set; }
@@ -100,6 +102,12 @@ namespace SonicRetro.SonLVL.API
 		public string Angles { get; set; }
 		[IniName("2pcompat")]
 		public bool TwoPlayerCompatible { get; set; }
+		// extra data like unknown image, icon, etc.
+		[IniName("sonlvlicon")]
+		public string SonLVLIconPath { get; set; }
+		[IniName("unknownimg")]
+		public string UnknownImgPath { get; set; }
+		// end of extra data
 		[IniName("buildscr")]
 		public string BuildScript { get; set; }
 		[IniName("romfile")]
@@ -123,6 +131,8 @@ namespace SonicRetro.SonLVL.API
 				result.MappingsVersion = result.EngineVersion;
 			if (result.DPLCVersion == EngineVersion.Invalid)
 				result.DPLCVersion = result.MappingsVersion;
+			if (result.GameName == null)
+				result.GameName = result.EngineVersion.ToString();
 			return result;
 		}
 

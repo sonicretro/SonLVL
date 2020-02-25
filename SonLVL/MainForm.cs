@@ -416,7 +416,11 @@ namespace SonicRetro.SonLVL.GUI
 				}
 			}
 			timeZoneToolStripMenuItem.Visible = false;
-			switch (LevelData.Game.EngineVersion)
+			if(LevelData.Game.SonLVLIconPath != null)
+			{
+				Icon = new Icon(LevelData.Game.SonLVLIconPath);
+			}
+			else switch (LevelData.Game.EngineVersion)
 			{
 				case EngineVersion.S1:
 					Icon = Properties.Resources.gogglemon;
@@ -439,7 +443,7 @@ namespace SonicRetro.SonLVL.GUI
 				default:
 					throw new NotImplementedException("Game type " + LevelData.Game.EngineVersion.ToString() + " is not supported!");
 			}
-			Text = "SonLVL - " + LevelData.Game.EngineVersion.ToString();
+			Text = "SonLVL - " + LevelData.Game.GameName;
 			buildAndRunToolStripMenuItem.Enabled = LevelData.Game.BuildScript != null & (LevelData.Game.ROMFile != null | LevelData.Game.RunCommand != null);
 			if (Settings.MRUList.Count == 0)
 				recentProjectsToolStripMenuItem.DropDownItems.Remove(noneToolStripMenuItem2);
@@ -499,7 +503,7 @@ namespace SonicRetro.SonLVL.GUI
 			((ToolStripMenuItem)sender).Checked = true;
 			Enabled = false;
 			UseWaitCursor = true;
-			Text = "SonLVL - " + LevelData.Game.EngineVersion + " - Loading " + LevelData.Game.GetLevelInfo((string)((ToolStripMenuItem)sender).Tag).DisplayName + "...";
+			Text = "SonLVL - " + LevelData.Game.GameName + " - Loading " + LevelData.Game.GetLevelInfo((string)((ToolStripMenuItem)sender).Tag).DisplayName + "...";
 			LevelData.littleendian = false;
 			string anipath = Path.Combine(Application.StartupPath, "loadanim");
 			Dictionary<string, AnimationInfo> animini = AnimationInfo.Load(Path.Combine(anipath, "anims.ini"));
@@ -614,7 +618,7 @@ namespace SonicRetro.SonLVL.GUI
 				}
 				using (LoadErrorDialog ed = new LoadErrorDialog(true, msg))
 					ed.ShowDialog(this);
-				Text = "SonLVL - " + LevelData.Game.EngineVersion.ToString();
+				Text = "SonLVL - " + LevelData.Game.GameName;
 				Enabled = true;
 				loadingAnimation1.Hide();
 				return;
@@ -696,7 +700,7 @@ namespace SonicRetro.SonLVL.GUI
 			ObjectSelect.listView2.Items.Clear();
 			ObjectSelect.imageList2.Images.Clear();
 			ColIndBox.Visible = collisionToolStripMenuItem.Visible = LevelData.ColInds1.Count > 0;
-			Text = "SonLVL - " + LevelData.Game.EngineVersion + " - " + LevelData.Level.DisplayName;
+			Text = "SonLVL - " + LevelData.Game.GameName + " - " + LevelData.Level.DisplayName;
 			UpdateScrollBars();
 			objectPanel.HScrollValue = 0;
 			objectPanel.HScrollSmallChange = 16;
