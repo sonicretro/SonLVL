@@ -193,6 +193,8 @@ namespace SonicRetro.SonLVL.SonPLN
 					case EngineVersion.S2:
 					case EngineVersion.S2NA:
 					case EngineVersion.S3K:
+					case EngineVersion.Chaotix:
+					case EngineVersion.Custom:		// assuming it's a Mega Drive engine...
 						break;
 					case EngineVersion.SKC:
 						LevelData.littleendian = true;
