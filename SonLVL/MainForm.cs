@@ -2083,18 +2083,30 @@ namespace SonicRetro.SonLVL.GUI
 			{
 				case Keys.Up:
 					if (!loaded) return;
+					if(e.Alt && SelectedItems.Count > 0) {
+						foreach(Entry e in SelectedItems) e.Y--; }
+						else
 					objectPanel.VScrollValue = (int)Math.Max(objectPanel.VScrollValue - vstep, objectPanel.VScrollMinimum);
 					break;
 				case Keys.Down:
 					if (!loaded) return;
+					if(e.Alt && SelectedItems.Count > 0) {
+						foreach(Entry e in SelectedItems) e.Y++; }
+						else
 					objectPanel.VScrollValue = (int)Math.Min(objectPanel.VScrollValue + vstep, objectPanel.VScrollMaximum - LevelData.Level.ChunkHeight + 1);
 					break;
 				case Keys.Left:
 					if (!loaded) return;
+					if(e.Alt && SelectedItems.Count > 0) {
+						foreach(Entry e in SelectedItems) e.X--; }
+						else
 					objectPanel.HScrollValue = (int)Math.Max(objectPanel.HScrollValue - hstep, objectPanel.HScrollMinimum);
 					break;
 				case Keys.Right:
 					if (!loaded) return;
+					if(e.Alt && SelectedItems.Count > 0) {
+						foreach(Entry e in SelectedItems) e.X++; }
+						else
 					objectPanel.HScrollValue = (int)Math.Min(objectPanel.HScrollValue + hstep, objectPanel.HScrollMaximum - LevelData.Level.ChunkWidth + 1);
 					break;
 				case Keys.Delete:
