@@ -4,8 +4,8 @@ namespace SonicRetro.SonLVL.API.S2
 	{
 		public override void ReadLayout(byte[] rawdata, LayoutData layout)
 		{
-			layout.FGLayout = new byte[DefaultSize.Width, DefaultSize.Height];
-			layout.BGLayout = new byte[DefaultSize.Width, DefaultSize.Height];
+			layout.FGLayout = new ushort[DefaultSize.Width, DefaultSize.Height];
+			layout.BGLayout = new ushort[DefaultSize.Width, DefaultSize.Height];
 			int c = 0;
 			for (int lr = 0; lr < DefaultSize.Height; lr++)
 			{
@@ -23,9 +23,9 @@ namespace SonicRetro.SonLVL.API.S2
 			for (int lr = 0; lr < DefaultSize.Height; lr++)
 			{
 				for (int lc = 0; lc < DefaultSize.Width; lc++)
-					rawdata[c++] = layout.FGLayout[lc, lr];
+					rawdata[c++] = (byte)layout.FGLayout[lc, lr];
 				for (int lc = 0; lc < DefaultSize.Width; lc++)
-					rawdata[c++] = layout.BGLayout[lc, lr];
+					rawdata[c++] = (byte)layout.BGLayout[lc, lr];
 			}
 		}
 

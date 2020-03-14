@@ -15,8 +15,8 @@ namespace SonicRetro.SonLVL.API.SKC
 			int bgw = ByteConverter.ToUInt16(rawdata, 2);
 			int fgh = Math.Min((int)ByteConverter.ToUInt16(rawdata, 4), MaxSize.Height);
 			int bgh = Math.Min((int)ByteConverter.ToUInt16(rawdata, 6), MaxSize.Height);
-			layout.FGLayout = new byte[fgw, fgh];
-			layout.BGLayout = new byte[bgw, bgh];
+			layout.FGLayout = new ushort[fgw, fgh];
+			layout.BGLayout = new ushort[bgw, bgh];
 			for (int la = 0; la < Math.Max(fgh, bgh) * 4; la += 4)
 			{
 				ushort lfp = ByteConverter.ToUInt16(rawdata, 8 + la);
@@ -55,10 +55,10 @@ namespace SonicRetro.SonLVL.API.SKC
 			List<byte> l = new List<byte>();
 			for (int y = 0; y < fgh; y++)
 				for (int x = 0; x < fgw; x++)
-					l.Add(layout.FGLayout[x, y]);
+					l.Add((byte)layout.FGLayout[x, y]);
 			for (int y = 0; y < bgh; y++)
 				for (int x = 0; x < bgw; x++)
-					l.Add(layout.BGLayout[x, y]);
+					l.Add((byte)layout.BGLayout[x, y]);
 			for (int i = 0; i < l.Count; i++)
 				tmp.Add(l[i ^ 1]);
 			rawdata = tmp.ToArray();

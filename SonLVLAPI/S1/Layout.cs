@@ -2,11 +2,11 @@ namespace SonicRetro.SonLVL.API.S1
 {
 	public class Layout : LayoutFormatSeparate
 	{
-		private void ReadLayoutInternal(byte[] rawdata, ref byte[,] layout, ref bool[,] loop)
+		private void ReadLayoutInternal(byte[] rawdata, ref ushort[,] layout, ref bool[,] loop)
 		{
 			int w = rawdata[0] + 1;
 			int h = rawdata[1] + 1;
-			layout = new byte[w, h];
+			layout = new ushort[w, h];
 			loop = new bool[w, h];
 			for (int lr = 0; lr < h; lr++)
 				for (int lc = 0; lc < w; lc++)
@@ -27,7 +27,7 @@ namespace SonicRetro.SonLVL.API.S1
 			ReadLayoutInternal(rawdata, ref layout.BGLayout, ref layout.BGLoop);
 		}
 
-		private void WriteLayoutInternal(byte[,] layout, bool[,] loop, out byte[] rawdata)
+		private void WriteLayoutInternal(ushort[,] layout, bool[,] loop, out byte[] rawdata)
 		{
 			int w = layout.GetLength(0);
 			int h = layout.GetLength(1);

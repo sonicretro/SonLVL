@@ -46,6 +46,9 @@ namespace SonicRetro.SonLVL.API
 		public int ChunkWidth { get; set; }
 		[IniName("chunkheight")]
 		public int ChunkHeight { get; set; }
+		[IniName("chunkmax")]
+		[TypeConverter(typeof(UInt16HexConverter))]
+		public ushort? ChunkMax { get; set; }
 		[IniName("layoutfmt")]
 		public EngineVersion LayoutFormat { get; set; }
 		[IniName("layoutcmp")]
