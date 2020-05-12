@@ -2,16 +2,16 @@ namespace SonicRetro.SonLVL.API.S2NA
 {
 	public class Layout : LayoutFormatSeparate
 	{
-		private void ReadLayoutInternal(byte[] rawdata, ref byte[,] layout)
+		private void ReadLayoutInternal(byte[] rawdata, ref ushort[,] layout)
 		{
 			int w = rawdata[0] + 1;
 			int h = rawdata[1] + 1;
-			layout = new byte[w, h];
+			layout = new ushort[w, h];
 			for (int lr = 0; lr < h; lr++)
 				for (int lc = 0; lc < w; lc++)
 				{
 					if ((lr * w) + lc + 2 >= rawdata.Length) break;
-					layout[lc, lr] = rawdata[(lr * w) + lc + 2];
+					layout[lc, lr] = (byte)rawdata[(lr * w) + lc + 2];
 				}
 		}
 
@@ -25,7 +25,7 @@ namespace SonicRetro.SonLVL.API.S2NA
 			ReadLayoutInternal(rawdata, ref layout.BGLayout);
 		}
 
-		private void WriteLayoutInternal(byte[,] layout, out byte[] rawdata)
+		private void WriteLayoutInternal(ushort[,] layout, out byte[] rawdata)
 		{
 			int w = layout.GetLength(0);
 			int h = layout.GetLength(1);
@@ -35,7 +35,7 @@ namespace SonicRetro.SonLVL.API.S2NA
 			int c = 2;
 			for (int lr = 0; lr < h; lr++)
 				for (int lc = 0; lc < w; lc++)
-					rawdata[c++] = layout[lc, lr];
+					rawdata[c++] = (byte)layout[lc, lr];
 		}
 
 		public override void WriteFG(LayoutData layout, out byte[] rawdata)
