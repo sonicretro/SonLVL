@@ -7,9 +7,9 @@ namespace SonicRetro.SonLVL.API.SCDPC
 {
 	public class Layout : LayoutFormatSeparate
 	{
-		private void ReadLayoutInternal(byte[] rawdata, ref byte[,] layout)
+		private void ReadLayoutInternal(byte[] rawdata, ref ushort[,] layout)
 		{
-			layout = new byte[MaxSize.Width, MaxSize.Height];
+			layout = new ushort[MaxSize.Width, MaxSize.Height];
 			int c = 0;
 			for (int lr = 0; lr < MaxSize.Height; lr++)
 				for (int lc = 0; lc < MaxSize.Width; lc++)
@@ -26,13 +26,13 @@ namespace SonicRetro.SonLVL.API.SCDPC
 			ReadLayoutInternal(rawdata, ref layout.BGLayout);
 		}
 
-		private void WriteLayoutInternal(byte[,] layout, out byte[] rawdata)
+		private void WriteLayoutInternal(ushort[,] layout, out byte[] rawdata)
 		{
 			rawdata = new byte[MaxSize.Width * MaxSize.Height];
 			int c = 0;
 			for (int lr = 0; lr < MaxSize.Height; lr++)
 				for (int lc = 0; lc < MaxSize.Width; lc++)
-					rawdata[c++] = layout[lc, lr];
+					rawdata[c++] = (byte)layout[lc, lr];
 		}
 
 		public override void WriteFG(LayoutData layout, out byte[] rawdata)

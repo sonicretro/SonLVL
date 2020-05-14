@@ -3006,7 +3006,7 @@ namespace SonicRetro.SonLVL.API
 
 		public static void ResizeFG(int width, int height)
 		{
-			byte[,] newFG = new byte[width, height];
+			ushort[,] newFG = new ushort[width, height];
 			bool[,] newFGLoop = Layout.FGLoop != null ? new bool[width, height] : null;
 			Size oldsize = FGSize;
 			for (int y = 0; y < Math.Min(height, oldsize.Height); y++)
@@ -3024,7 +3024,7 @@ namespace SonicRetro.SonLVL.API
 
 		public static void ResizeBG(int width, int height)
 		{
-			byte[,] newBG = new byte[width, height];
+			ushort[,] newBG = new ushort[width, height];
 			bool[,] newBGLoop = Layout.BGLoop != null ? new bool[width, height] : null;
 			Size oldsize = BGSize;
 			for (int y = 0; y < Math.Min(height, oldsize.Height); y++)
@@ -3053,6 +3053,14 @@ namespace SonicRetro.SonLVL.API
 			if (Game.BlockMax.HasValue)
 				blockmax = Game.BlockMax.Value;
 			return blockmax;
+		}
+
+		public static int GetChunkMax()
+		{
+			int chunkmax = 0x100;
+			if (Game.BlockMax.HasValue)
+				chunkmax = Game.ChunkMax.Value;
+			return chunkmax;
 		}
 
 		public static byte GetColInd1(int index)
@@ -3135,7 +3143,7 @@ namespace SonicRetro.SonLVL.API
 			}
 		}
 
-		public static void RemapLayouts(Action<byte[,], int, int> func)
+		public static void RemapLayouts(Action<ushort[,], int, int> func)
 		{
 			for (int y = 0; y < FGHeight; y++)
 				for (int x = 0; x < FGWidth; x++)
@@ -3159,9 +3167,9 @@ namespace SonicRetro.SonLVL.API
 
 	public class LayoutData
 	{
-		public byte[,] FGLayout;
+		public ushort[,] FGLayout;
 		public bool[,] FGLoop;
-		public byte[,] BGLayout;
+		public ushort[,] BGLayout;
 		public bool[,] BGLoop;
 	}
 
