@@ -3058,7 +3058,7 @@ namespace SonicRetro.SonLVL.API
 		public static int GetChunkMax()
 		{
 			int chunkmax = 0x100;
-			if (Game.BlockMax.HasValue)
+			if (Game.ChunkMax.HasValue)
 				chunkmax = Game.ChunkMax.Value;
 			return chunkmax;
 		}
