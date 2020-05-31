@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<ObjDef xmlns="http://www.sonicretro.org" Name="Stomper and Door" Image="img2" RememberState="true">
+  <Images>
+    <ImageFromMappings id="img1">
+      <ArtFile filename="../artnem/sbzhdoor.bin"/>
+      <MapFile type="ASM" filename="SBZ/SBZ Horizontal Door map.asm" frame="0" startpal="2" />
+    </ImageFromMappings>
+    <ImageFromMappings id="img2">
+      <ArtFile filename="../artnem/sbzstomp.bin"/>
+      <MapFile type="ASM" filename="../_maps/obj6B.asm" frame="1" startpal="1" />
+    </ImageFromMappings>
+  </Images>
+  <Subtypes>
+    <Subtype id="00" name="00 Does Nothing" image="img1"/>
+    <Subtype id="10" name="10 Does Nothing" image="img2"/>
+    <Subtype id="13" name="13 short, fast, smashy" image="img2"/>
+    <Subtype id="24" name="24 shorter range smashy" image="img2"/>
+    <Subtype id="34" name="34 Smashy" image="img2"/>
+    <Subtype id="80" name="80 Moves out when buttons pushed" image="img1"/>
+    <Subtype id="81" name="81 Moves out when buttons pushed" image="img1"/>
+    <Subtype id="82" name="82 Moves out when buttons pushed" image="img1"/>
+    <Subtype id="83" name="83 Moves out when buttons pushed" image="img1"/>
+    <Subtype id="88" name="88 Simple Platform" image="img1"/>
+  </Subtypes>
+</ObjDef>
