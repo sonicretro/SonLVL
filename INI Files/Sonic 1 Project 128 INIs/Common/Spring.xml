@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ObjDef xmlns="http://www.sonicretro.org" Namespace="S12005ObjectDefinitions.Common" TypeName="Spring" Language="cs" Name="Spring" Image="redvert" RememberState="false" Debug="false">
+<ObjDef xmlns="http://www.sonicretro.org" Name="Spring" Image="redvert">
   <Images>
     <ImageFromMappings id="redvert">
       <ArtFile filename="../artnem/springh.bin" />
@@ -35,7 +35,6 @@
       <EnumMember name="Up" />
       <EnumMember name="Horizontal" />
       <EnumMember name="Down" />
-      <EnumMember name="Horizontal 2" />
     </Enum>
     <Enum name="SpringColor">
       <EnumMember name="Red" />

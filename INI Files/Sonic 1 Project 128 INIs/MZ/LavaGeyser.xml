@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<ObjDef xmlns="http://www.sonicretro.org" Name="lava geyser/lavafall producer" Image="img1">
+  <Images>
+    <ImageFromMappings id="img1">
+      <ArtFile filename="../artnem/mzlava.bin"/>
+      <MapFile type="ASM" filename="../_maps/obj4C.asm" frame="4" startpal="3"/>
+    </ImageFromMappings>
+  </Images>
+  <Subtypes>
+	<Subtype id="00" name="Immediately shoots lava up" image="img1"/>
+    <Subtype id="01" name="Pours lava down" image="img1"/>
+  </Subtypes>
+</ObjDef>
