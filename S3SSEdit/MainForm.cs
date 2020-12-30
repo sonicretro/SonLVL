@@ -581,6 +581,12 @@ namespace S3SSEdit
 			DrawLayout();
 		}
 
+		private void itemCountsToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			using (StatisticsDialog dlg = new StatisticsDialog(layout))
+				dlg.ShowDialog(this);
+		}
+
 		private void MainForm_KeyDown(object sender, KeyEventArgs e)
 		{
 			switch (e.KeyCode)
@@ -1834,6 +1840,19 @@ namespace S3SSEdit
 			DrawLayout();
 		}
 
+		private void deleteToolStripMenuItem1_Click(object sender, EventArgs e)
+		{
+			Rectangle area = selection;
+			if (area.IsEmpty)
+				area = new Rectangle(0, 0, layout.Layout.Size, layout.Layout.Size);
+			SphereType[,] sect = new SphereType[area.Width, area.Height];
+			for (int y = 0; y < area.Height; y++)
+				for (int x = 0; x < area.Width; x++)
+					sect[x, y] = layout.Layout[area.X + x, area.Y + y];
+			DoAction(new ClearAction(new SphereType[area.Width, area.Height], area.Location));
+			DrawLayout();
+		}
+
 		private void saveSectionToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			using (LayoutSectionNameDialog dlg = new LayoutSectionNameDialog())
@@ -2515,5 +2534,15 @@ namespace S3SSEdit
 		public BSRotateRightAction(SphereType[,] spheres, int x, int y) : base(spheres, x, y) { }
 
 		public override string Name => "Rotate Right";
+	}
+
+	[Serializable]
+	class ClearAction : AreaFillAction
+	{
+		public ClearAction(SphereType[,] spheres, Point position) : base(spheres, position) { }
+
+		public ClearAction(SphereType[,] spheres, int x, int y) : base(spheres, x, y) { }
+
+		public override string Name => "Clear";
 	}
 }

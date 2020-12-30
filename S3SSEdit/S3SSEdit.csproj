@@ -72,6 +72,12 @@
     <Compile Include="StageSelectDialog.Designer.cs">
       <DependentUpon>StageSelectDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="StatisticsDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="StatisticsDialog.Designer.cs">
+      <DependentUpon>StatisticsDialog.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="InsertTextDialog.resx">
       <DependentUpon>InsertTextDialog.cs</DependentUpon>
     </EmbeddedResource>
@@ -88,6 +94,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="StageSelectDialog.resx">
       <DependentUpon>StageSelectDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="StatisticsDialog.resx">
+      <DependentUpon>StatisticsDialog.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.config" />
     <None Include="Properties\Settings.settings">
