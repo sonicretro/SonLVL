@@ -1980,6 +1980,8 @@ namespace SonicRetro.SonLVL.API
 				result = labels[data];
 			else if (data.StartsWith("$"))
 				result = long.Parse(data.Substring(1), System.Globalization.NumberStyles.HexNumber);
+			else if (data.StartsWith("%"))
+				result = Convert.ToInt64(data.Substring(1), 2);
 			else
 				result = long.Parse(data, System.Globalization.NumberStyles.None, System.Globalization.NumberFormatInfo.InvariantInfo);
 			if (neg)
