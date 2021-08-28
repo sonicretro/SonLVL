@@ -7926,12 +7926,12 @@ namespace SonicRetro.SonLVL.GUI
 							{
 								if (LevelData.Blocks[i].Tiles[x, 0].Tile / 2 == newindex)
 								{
-									LevelData.Blocks[i].Tiles[x, 0].Tile = (ushort)(oldindex / 2);
+									LevelData.Blocks[i].Tiles[x, 0].Tile = (ushort)(oldindex * 2);
 									LevelData.Blocks[i].MakeInterlacedCompatible();
 								}
 								else if (LevelData.Blocks[i].Tiles[x, 0].Tile / 2 == oldindex)
 								{
-									LevelData.Blocks[i].Tiles[x, 0].Tile = (ushort)(newindex / 2);
+									LevelData.Blocks[i].Tiles[x, 0].Tile = (ushort)(newindex * 2);
 									LevelData.Blocks[i].MakeInterlacedCompatible();
 								}
 							}
@@ -7956,8 +7956,8 @@ namespace SonicRetro.SonLVL.GUI
 						byte[] t2 = LevelData.Tiles[oldindex * 2 + 1];
 						LevelData.Tiles.Insert(newindex * 2, t2);
 						LevelData.Tiles.Insert(newindex * 2, t1);
-						LevelData.Tiles.RemoveAt(oldindex > newindex ? oldindex / 2 + 2 : oldindex);
-						LevelData.Tiles.RemoveAt(oldindex > newindex ? oldindex / 2 + 2 : oldindex);
+						LevelData.Tiles.RemoveAt(oldindex > newindex ? oldindex * 2 + 2 : oldindex * 2);
+						LevelData.Tiles.RemoveAt(oldindex > newindex ? oldindex * 2 + 2 : oldindex * 2);
 					}
 					else
 						LevelData.Tiles.Move(oldindex, newindex);
