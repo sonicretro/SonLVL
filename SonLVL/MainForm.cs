@@ -7986,6 +7986,7 @@ namespace SonicRetro.SonLVL.GUI
 									if (t == oldindex)
 									{
 										LevelData.Blocks[i].Tiles[x, 0].Tile = (ushort)(newindex * 2);
+										LevelData.Blocks[i].MakeInterlacedCompatible();
 									}
 									else if (t >= newindex && t < oldindex)
 									{
