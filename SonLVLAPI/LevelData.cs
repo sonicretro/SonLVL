@@ -173,6 +173,11 @@ namespace SonicRetro.SonLVL.API
 				throw new ArgumentException("Chunk width must be divisible by 16!");
 			if ((Level.ChunkHeight & 15) != 0)
 				throw new ArgumentException("Chunk height must be divisible by 16!");
+				if (!Directory.Exists("dllcache"))
+				{
+					DirectoryInfo dir = Directory.CreateDirectory("dllcache");
+					dir.Attributes |= FileAttributes.Hidden;
+				}
 			byte[] tmp = null;
 #if !DEBUG
 			if (Level.EngineVersion != EngineVersion.SKC)
@@ -305,11 +310,6 @@ namespace SonicRetro.SonLVL.API
 				filecache = new Dictionary<string, byte[]>();
 				unkobj = new DefaultObjectDefinition();
 				unkobj.Init(new ObjectData());
-				if (!Directory.Exists("dllcache"))
-				{
-					DirectoryInfo dir = Directory.CreateDirectory("dllcache");
-					dir.Attributes |= FileAttributes.Hidden;
-				}
 				if (Game.ObjectList != null)
 					foreach (string item in Game.ObjectList)
 						LoadObjectDefinitionFile(item);
