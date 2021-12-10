@@ -19,25 +19,13 @@ namespace SonicRetro.SonLVL
 		{
 			initializing = true;
 			tileList.Images.Clear();
-			if (LevelData.Level.TwoPlayerCompatible)
-			{
-				tile.Increment = 2;
-				tileList.ImageHeight = 128;
-				for (int i = 0; i < LevelData.Tiles.Count - 1; i += 2)
-					tileList.Images.Add(LevelData.InterlacedTileToBmp4bpp(LevelData.TileArray, i, (int)palette.Value));
-			}
-			else
-			{
-				tile.Increment = 1;
-				tileList.ImageHeight = 64;
-				for (int i = 0; i < LevelData.Tiles.Count; i++)
-					tileList.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, (int)palette.Value, false));
-			}
+			tile.Increment = 1;
+			tileList.ImageHeight = 64;
+			for (int i = 0; i < LevelData.Tiles.Count; i++)
+				tileList.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, (int)palette.Value, false));
 			tileList.ChangeSize();
 			if (tile.Value >= LevelData.Tiles.Count)
 				tileList.SelectedIndex = -1;
-			else if (LevelData.Level.TwoPlayerCompatible)
-				tileList.SelectedIndex = (int)tile.Value / 2;
 			else
 				tileList.SelectedIndex = (int)tile.Value;
 			initializing = false;
@@ -50,8 +38,6 @@ namespace SonicRetro.SonLVL
 				initializing = true;
 				if (tile.Value >= LevelData.Tiles.Count)
 					tileList.SelectedIndex = -1;
-				else if (LevelData.Level.TwoPlayerCompatible)
-					tileList.SelectedIndex = (int)tile.Value / 2;
 				else
 					tileList.SelectedIndex = (int)tile.Value;
 				initializing = false;
@@ -61,7 +47,7 @@ namespace SonicRetro.SonLVL
 		private void tileList_SelectedIndexChanged(object sender, EventArgs e)
 		{
 			if (!initializing && tileList.SelectedIndex > -1)
-				tile.Value = LevelData.Level.TwoPlayerCompatible ? tileList.SelectedIndex * 2 : tileList.SelectedIndex;
+				tile.Value = tileList.SelectedIndex;
 		}
 
 		private void searchTile_CheckedChanged(object sender, EventArgs e)
@@ -77,18 +63,9 @@ namespace SonicRetro.SonLVL
 		private void palette_ValueChanged(object sender, EventArgs e)
 		{
 			tileList.Images.Clear();
-			if (LevelData.Level.TwoPlayerCompatible)
-			{
-				tileList.ImageHeight = 128;
-				for (int i = 0; i < LevelData.Tiles.Count - 1; i += 2)
-					tileList.Images.Add(LevelData.InterlacedTileToBmp4bpp(LevelData.TileArray, i, (int)palette.Value));
-			}
-			else
-			{
-				tileList.ImageHeight = 64;
-				for (int i = 0; i < LevelData.Tiles.Count; i++)
-					tileList.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, (int)palette.Value, false));
-			}
+			tileList.ImageHeight = 64;
+			for (int i = 0; i < LevelData.Tiles.Count; i++)
+				tileList.Images.Add(LevelData.TileToBmp4bpp(LevelData.Tiles[i], 0, (int)palette.Value, false));
 			tileList.ChangeSize();
 		}
 
