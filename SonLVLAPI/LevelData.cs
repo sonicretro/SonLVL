@@ -3042,16 +3042,7 @@ namespace SonicRetro.SonLVL.API
 
 		public static int GetBlockMax()
 		{
-			int blockmax = 0x400;
-			switch (Game.EngineVersion)
-			{
-				case EngineVersion.S2:
-				case EngineVersion.S2NA:
-				case EngineVersion.S3K:
-				case EngineVersion.SKC:
-					blockmax = 0x300;
-					break;
-			}
+			int blockmax = 0x300;
 			if (Game.BlockMax.HasValue)
 				blockmax = Game.BlockMax.Value;
 			return blockmax;
