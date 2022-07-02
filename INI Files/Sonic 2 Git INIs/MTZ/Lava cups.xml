@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.MTZ" TypeName="LavaCups" Language="cs" Name="Lava Cups" Image="platform" DefaultSubtype="10">
+  <Images>
+    <ImageFromMappings id="platform">
+      <ArtFile filename="../art/nemesis/Lava cup from MTZ.bin" />
+      <MapFile type="Binary" filename="../mappings/sprite/obj6C.bin" frame="0" startpal="3" />
+    </ImageFromMappings>
+  </Images>
+  <Properties>
+    <CustomProperty name="Height" type="ConveyorHeight">
+      <get><![CDATA[return obj.SubType & 3;]]></get>
+      <set><![CDATA[obj.SubType = (byte)(value | 0x80);]]></set>
+    </CustomProperty>
+  </Properties>
+  <Enums>
+    <Enum name="ConveyorHeight">
+      <EnumMember name="Short" />
+      <EnumMember name="Medium" />
+      <EnumMember name="Long" />
+    </Enum>
+  </Enums>
+  <Display>
+    <DisplayOption>
+      <Condition property="Height" value="Short" />
+      <ImageRef image="platform">
+        <Offset X="0" Y="0" />
+      </ImageRef>
+      <ImageRef image="platform">
+        <Offset X="-32" Y="58" />
+      </ImageRef>
+      <ImageRef image="platform">
+        <Offset X="-32" Y="128" />
+      </ImageRef>
+      <ImageRef image="platform">
+        <Offset X="-32" Y="198" />
+      </ImageRef>
+      <ImageRef image="platform">
+        <Offset X="0" Y="256" />
+      </ImageRef>
+      <ImageRef image="platform">
+        <Offset X="32" Y="198" />
+      </ImageRef>
+      <ImageRef image="platform">
+        <Offset X="32" Y="128" />
+      </ImageRef>
+      <ImageRef image="platform">
+        <Offset X="32" Y="58" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Height" value="Medium" />
+      <ImageRef image="platform">
+        <Offset X="0" Y="0" />
+      </ImageRef>
+      <ImageRef image="platform">
+        <Offset X="-32" Y="90" />
+      </ImageRef>
+      <ImageRef image="platform">
+        <Offset X="-32" Y="192" />
+      </ImageRef>
+      <ImageRef image="platform">
+        <Offset X="-32" Y="294" />
+      </ImageRef>
+      <ImageRef image="platform">
+        <Offset X="0" Y="384" />
+      </ImageRef>
+      <ImageRef image="platform">
+        <Offset X="32" Y="294" />
+      </ImageRef>
+      <ImageRef image="platform">
+        <Offset X="32" Y="192" />
+      </ImageRef>
+      <ImageRef image="platform">
+        <Offset X="32" Y="90" />
+      </ImageRef>
+    </DisplayOption>
+    <DisplayOption>
+      <Condition property="Height" value="Long" />
+      <ImageRef image="platform">
+        <Offset X="0" Y="0" />
+      </ImageRef>
+      <ImageRef image="platform">
+        <Offset X="-32" Y="122" />
+      </ImageRef>
+      <ImageRef image="platform">
+        <Offset X="-32" Y="256" />
+      </ImageRef>
+      <ImageRef image="platform">
+        <Offset X="-32" Y="390" />
+      </ImageRef>
+      <ImageRef image="platform">
+        <Offset X="0" Y="512" />
+      </ImageRef>
+      <ImageRef image="platform">
+        <Offset X="32" Y="390" />
+      </ImageRef>
+      <ImageRef image="platform">
+        <Offset X="32" Y="256" />
+      </ImageRef>
+      <ImageRef image="platform">
+        <Offset X="32" Y="122" />
+      </ImageRef>
+    </DisplayOption>
+  </Display>
+</ObjDef>
