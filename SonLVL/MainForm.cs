@@ -6472,6 +6472,19 @@ namespace SonicRetro.SonLVL.GUI
 				ObjectEntry obj = LevelData.CreateObject((byte)e.Data.GetData("SonicRetro.SonLVL.GUI.ObjectDrop"));
 				obj.X = (ushort)(Math.Round((clientPoint.X + objectPanel.HScrollValue) / gs, MidpointRounding.AwayFromZero) * gs);
 				obj.Y = (ushort)(Math.Round((clientPoint.Y + objectPanel.VScrollValue) / gs, MidpointRounding.AwayFromZero) * gs);
+				if (obj is SCDObjectEntry objcd)
+					switch (LevelData.Level.TimeZone)
+					{
+						case API.TimeZone.Past:
+							objcd.ShowPast = true;
+							break;
+						case API.TimeZone.Present:
+							objcd.ShowPresent = true;
+							break;
+						case API.TimeZone.Future:
+							objcd.ShowFuture = true;
+							break;
+					}
 				obj.UpdateSprite();
 				LevelData.Objects.Add(obj);
 				LevelData.Objects.Sort();
