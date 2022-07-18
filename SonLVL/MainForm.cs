@@ -2606,6 +2606,19 @@ namespace SonicRetro.SonLVL.GUI
 							ent.Y = gridy;
 							if (ent is ObjectEntry)
 							{
+								if (ent is SCDObjectEntry entcd)
+									switch (LevelData.Level.TimeZone)
+									{
+										case API.TimeZone.Past:
+											entcd.ShowPast = true;
+											break;
+										case API.TimeZone.Present:
+											entcd.ShowPresent = true;
+											break;
+										case API.TimeZone.Future:
+											entcd.ShowFuture = true;
+											break;
+									}
 								LevelData.Objects.Add((ObjectEntry)ent);
 								LevelData.Objects.Sort();
 							}
@@ -3122,6 +3135,19 @@ namespace SonicRetro.SonLVL.GUI
 			ent.Y = (ushort)(Math.Round((menuLoc.Y / ZoomLevel + objectPanel.VScrollValue) / gs, MidpointRounding.AwayFromZero) * gs);
 			if (ent is ObjectEntry)
 			{
+				if (ent is SCDObjectEntry entcd)
+					switch (LevelData.Level.TimeZone)
+					{
+						case API.TimeZone.Past:
+							entcd.ShowPast = true;
+							break;
+						case API.TimeZone.Present:
+							entcd.ShowPresent = true;
+							break;
+						case API.TimeZone.Future:
+							entcd.ShowFuture = true;
+							break;
+					}
 				LevelData.Objects.Add((ObjectEntry)ent);
 				LevelData.Objects.Sort();
 			}
@@ -3226,7 +3252,22 @@ namespace SonicRetro.SonLVL.GUI
 							ent.X = (ushort)pt.X;
 							ent.Y = (ushort)pt.Y;
 							if (ent is ObjectEntry)
+							{
+								if (ent is SCDObjectEntry entcd)
+									switch (LevelData.Level.TimeZone)
+									{
+										case API.TimeZone.Past:
+											entcd.ShowPast = true;
+											break;
+										case API.TimeZone.Present:
+											entcd.ShowPresent = true;
+											break;
+										case API.TimeZone.Future:
+											entcd.ShowFuture = true;
+											break;
+									}
 								LevelData.Objects.Add((ObjectEntry)ent);
+							}
 							else
 								LevelData.Rings.Add((RingEntry)ent);
 							ent.UpdateSprite();
@@ -6472,6 +6513,19 @@ namespace SonicRetro.SonLVL.GUI
 				ObjectEntry obj = LevelData.CreateObject((byte)e.Data.GetData("SonicRetro.SonLVL.GUI.ObjectDrop"));
 				obj.X = (ushort)(Math.Round((clientPoint.X + objectPanel.HScrollValue) / gs, MidpointRounding.AwayFromZero) * gs);
 				obj.Y = (ushort)(Math.Round((clientPoint.Y + objectPanel.VScrollValue) / gs, MidpointRounding.AwayFromZero) * gs);
+				if (obj is SCDObjectEntry objcd)
+					switch (LevelData.Level.TimeZone)
+					{
+						case API.TimeZone.Past:
+							objcd.ShowPast = true;
+							break;
+						case API.TimeZone.Present:
+							objcd.ShowPresent = true;
+							break;
+						case API.TimeZone.Future:
+							objcd.ShowFuture = true;
+							break;
+					}
 				obj.UpdateSprite();
 				LevelData.Objects.Add(obj);
 				LevelData.Objects.Sort();
