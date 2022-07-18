@@ -2606,6 +2606,19 @@ namespace SonicRetro.SonLVL.GUI
 							ent.Y = gridy;
 							if (ent is ObjectEntry)
 							{
+								if (ent is SCDObjectEntry entcd)
+									switch (LevelData.Level.TimeZone)
+									{
+										case API.TimeZone.Past:
+											entcd.ShowPast = true;
+											break;
+										case API.TimeZone.Present:
+											entcd.ShowPresent = true;
+											break;
+										case API.TimeZone.Future:
+											entcd.ShowFuture = true;
+											break;
+									}
 								LevelData.Objects.Add((ObjectEntry)ent);
 								LevelData.Objects.Sort();
 							}
@@ -3122,6 +3135,19 @@ namespace SonicRetro.SonLVL.GUI
 			ent.Y = (ushort)(Math.Round((menuLoc.Y / ZoomLevel + objectPanel.VScrollValue) / gs, MidpointRounding.AwayFromZero) * gs);
 			if (ent is ObjectEntry)
 			{
+				if (ent is SCDObjectEntry entcd)
+					switch (LevelData.Level.TimeZone)
+					{
+						case API.TimeZone.Past:
+							entcd.ShowPast = true;
+							break;
+						case API.TimeZone.Present:
+							entcd.ShowPresent = true;
+							break;
+						case API.TimeZone.Future:
+							entcd.ShowFuture = true;
+							break;
+					}
 				LevelData.Objects.Add((ObjectEntry)ent);
 				LevelData.Objects.Sort();
 			}
@@ -3226,7 +3252,22 @@ namespace SonicRetro.SonLVL.GUI
 							ent.X = (ushort)pt.X;
 							ent.Y = (ushort)pt.Y;
 							if (ent is ObjectEntry)
+							{
+								if (ent is SCDObjectEntry entcd)
+									switch (LevelData.Level.TimeZone)
+									{
+										case API.TimeZone.Past:
+											entcd.ShowPast = true;
+											break;
+										case API.TimeZone.Present:
+											entcd.ShowPresent = true;
+											break;
+										case API.TimeZone.Future:
+											entcd.ShowFuture = true;
+											break;
+									}
 								LevelData.Objects.Add((ObjectEntry)ent);
+							}
 							else
 								LevelData.Rings.Add((RingEntry)ent);
 							ent.UpdateSprite();

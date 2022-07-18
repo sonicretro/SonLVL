@@ -234,9 +234,11 @@ namespace SonicRetro.SonLVL.API
 			switch (Level.RingFormat)
 			{
 				case EngineVersion.S1:
+					RingFormat = new S1.Ring();
+					break;
 				case EngineVersion.SCD:
 				case EngineVersion.SCDPC:
-					RingFormat = new S1.Ring();
+					RingFormat = new SCD.Ring();
 					break;
 				case EngineVersion.S2:
 				case EngineVersion.S2NA:

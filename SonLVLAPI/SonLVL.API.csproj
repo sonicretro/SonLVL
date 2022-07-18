@@ -135,6 +135,7 @@
     <Compile Include="S3K\Ring.cs" />
     <Compile Include="SCDPC\Layout.cs" />
     <Compile Include="SCD\Object.cs" />
+    <Compile Include="SCD\Ring.cs" />
     <Compile Include="SKC\Layout.cs" />
     <Compile Include="Sprite.cs" />
     <Compile Include="TileList.cs">
