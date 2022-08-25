@@ -100,6 +100,10 @@ namespace SonicRetro.SonLVL.SonPLN
 		public string TextMapping { get; set; }
 		[IniName("textmapfile")]
 		public string TextMappingFile { get; set; }
+		[IniName("bgcolorline")]
+		public int BgPalLine { get; set; }
+		[IniName("bgcolorindex")]
+		public int BgPalIndex { get; set; }
 	}
 
 	public class TextMapping

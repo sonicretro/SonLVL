@@ -159,11 +159,7 @@ namespace SonicRetro.SonLVL.SonPLN
             this.toolStripSeparator12 = new System.Windows.Forms.ToolStripSeparator();
             this.insertLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteLayoutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.bgColorPanel = new System.Windows.Forms.Panel();
-            this.label1 = new System.Windows.Forms.Label();
-            this.bgColorLine = new System.Windows.Forms.NumericUpDown();
             this.TileSelector = new SonicRetro.SonLVL.API.TileList();
-            this.bgColorIndex = new System.Windows.Forms.NumericUpDown();
             this.label5 = new System.Windows.Forms.Label();
             this.foregroundPanel = new SonicRetro.SonLVL.SonPLN.ScrollingPanel();
             label4 = new System.Windows.Forms.Label();
@@ -211,9 +207,6 @@ namespace SonicRetro.SonLVL.SonPLN
             this.paletteToolStrip.SuspendLayout();
             this.tileContextMenuStrip.SuspendLayout();
             this.layoutContextMenuStrip.SuspendLayout();
-            this.bgColorPanel.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.bgColorLine)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.bgColorIndex)).BeginInit();
             this.SuspendLayout();
             // 
             // label4
@@ -1072,7 +1065,6 @@ namespace SonicRetro.SonLVL.SonPLN
             // panel8
             // 
             this.panel8.AutoScroll = true;
-            this.panel8.Controls.Add(this.bgColorPanel);
             this.panel8.Controls.Add(this.PalettePanel);
             this.panel8.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel8.Location = new System.Drawing.Point(106, 25);
@@ -1414,42 +1406,6 @@ namespace SonicRetro.SonLVL.SonPLN
             this.deleteLayoutToolStripMenuItem.Text = "&Delete...";
             this.deleteLayoutToolStripMenuItem.Click += new System.EventHandler(this.deleteLayoutToolStripMenuItem_Click);
             // 
-            // bgColorPanel
-            // 
-            this.bgColorPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.bgColorPanel.Controls.Add(this.bgColorIndex);
-            this.bgColorPanel.Controls.Add(this.label5);
-            this.bgColorPanel.Controls.Add(this.bgColorLine);
-            this.bgColorPanel.Controls.Add(this.label1);
-            this.bgColorPanel.Enabled = false;
-            this.bgColorPanel.Location = new System.Drawing.Point(320, 0);
-            this.bgColorPanel.Name = "bgColorPanel";
-            this.bgColorPanel.Size = new System.Drawing.Size(232, 80);
-            this.bgColorPanel.TabIndex = 1;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(4, 5);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(115, 13);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Background Color Line";
-            // 
-            // bgColorLine
-            // 
-            this.bgColorLine.Location = new System.Drawing.Point(125, 3);
-            this.bgColorLine.Maximum = new decimal(new int[] {
-            3,
-            0,
-            0,
-            0});
-            this.bgColorLine.Name = "bgColorLine";
-            this.bgColorLine.Size = new System.Drawing.Size(53, 20);
-            this.bgColorLine.TabIndex = 6;
-            this.bgColorLine.ValueChanged += new System.EventHandler(this.BGColorChanged);
-            // 
             // TileSelector
             // 
             this.TileSelector.AllowDrop = true;
@@ -1473,19 +1429,6 @@ namespace SonicRetro.SonLVL.SonPLN
             this.TileSelector.Paint += new System.Windows.Forms.PaintEventHandler(this.TileSelector_Paint);
             this.TileSelector.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TileList_KeyDown);
             this.TileSelector.MouseDown += new System.Windows.Forms.MouseEventHandler(this.TileSelector_MouseDown);
-            // 
-            // bgColorIndex
-            // 
-            this.bgColorIndex.Location = new System.Drawing.Point(125, 29);
-            this.bgColorIndex.Maximum = new decimal(new int[] {
-            15,
-            0,
-            0,
-            0});
-            this.bgColorIndex.Name = "bgColorIndex";
-            this.bgColorIndex.Size = new System.Drawing.Size(53, 20);
-            this.bgColorIndex.TabIndex = 8;
-            this.bgColorIndex.ValueChanged += new System.EventHandler(this.BGColorChanged);
             // 
             // label5
             // 
@@ -1581,10 +1524,6 @@ namespace SonicRetro.SonLVL.SonPLN
             this.paletteToolStrip.PerformLayout();
             this.tileContextMenuStrip.ResumeLayout(false);
             this.layoutContextMenuStrip.ResumeLayout(false);
-            this.bgColorPanel.ResumeLayout(false);
-            this.bgColorPanel.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.bgColorLine)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.bgColorIndex)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1704,10 +1643,6 @@ namespace SonicRetro.SonLVL.SonPLN
 		private System.Windows.Forms.ToolStripMenuItem editTextToolStripMenuItem;
 		private System.Windows.Forms.ToolStripDropDownButton paletteToolStripDropDownButton;
 		private System.Windows.Forms.ToolStripButton importToolStripButton;
-		private System.Windows.Forms.Panel bgColorPanel;
-		private System.Windows.Forms.NumericUpDown bgColorLine;
-		private System.Windows.Forms.Label label1;
-		private System.Windows.Forms.NumericUpDown bgColorIndex;
 		private System.Windows.Forms.Label label5;
 	}
 }

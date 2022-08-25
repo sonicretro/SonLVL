@@ -38,7 +38,7 @@ namespace SonicRetro.SonLVL.SonPLN
 			for (int i = 0; i < 64; i++)
 				LevelData.BmpPal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, true);
 			LevelData.BmpPal.Entries.CopyTo(LevelImgPalette.Entries, 0);
-			LevelImgPalette.Entries[LevelData.ColorTransparent] = LevelData.PaletteToColor((int)bgColorLine.Value, (int)bgColorIndex.Value, false);
+			LevelImgPalette.Entries[LevelData.ColorTransparent] = LevelData.PaletteToColor(level.BgPalLine & 3, level.BgPalIndex & 0xF, false);
 			LevelImgPalette.Entries[ColorGrid] = Settings.GridColor;
 			curpal = new Color[16];
 			for (int i = 0; i < 16; i++)
@@ -336,7 +336,7 @@ namespace SonicRetro.SonLVL.SonPLN
 				using (Bitmap palbmp = new Bitmap(1, 1, PixelFormat.Format8bppIndexed))
 					LevelImgPalette = palbmp.Palette;
 				LevelData.BmpPal.Entries.CopyTo(LevelImgPalette.Entries, 0);
-				LevelImgPalette.Entries[LevelData.ColorTransparent] = LevelData.PaletteToColor((int)bgColorLine.Value, (int)bgColorIndex.Value, false);
+				LevelImgPalette.Entries[LevelData.ColorTransparent] = LevelData.PaletteToColor(level.BgPalLine & 3, level.BgPalIndex & 0xF, false);
 				LevelImgPalette.Entries[ColorGrid] = Settings.GridColor;
 				curpal = new Color[16];
 #if !DEBUG
@@ -530,7 +530,6 @@ namespace SonicRetro.SonLVL.SonPLN
 			}
 			colorEditingPanel.Enabled = true;
 			paletteToolStrip.Enabled = true;
-			bgColorPanel.Enabled = true;
 			panel2.Enabled = true;
 			copiedTile = new PatternIndex();
 			xFlip.Checked = false;
@@ -2533,11 +2532,6 @@ namespace SonicRetro.SonLVL.SonPLN
 					}
 					DrawLevel();
 				}
-		}
-
-		private void BGColorChanged(object sender, EventArgs e)
-		{
-			PaletteChanged();
 		}
 
 		private void importOverToolStripMenuItem_Click(object sender, EventArgs e)
