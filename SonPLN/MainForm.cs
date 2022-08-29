@@ -38,7 +38,7 @@ namespace SonicRetro.SonLVL.SonPLN
 			for (int i = 0; i < 64; i++)
 				LevelData.BmpPal.Entries[i] = LevelData.PaletteToColor(i / 16, i % 16, true);
 			LevelData.BmpPal.Entries.CopyTo(LevelImgPalette.Entries, 0);
-			LevelImgPalette.Entries[LevelData.ColorTransparent] = LevelData.PaletteToColor(0, 0, false);
+			LevelImgPalette.Entries[LevelData.ColorTransparent] = LevelData.PaletteToColor(level.BgPalLine & 3, level.BgPalIndex & 0xF, false);
 			LevelImgPalette.Entries[ColorGrid] = Settings.GridColor;
 			curpal = new Color[16];
 			for (int i = 0; i < 16; i++)
@@ -336,7 +336,7 @@ namespace SonicRetro.SonLVL.SonPLN
 				using (Bitmap palbmp = new Bitmap(1, 1, PixelFormat.Format8bppIndexed))
 					LevelImgPalette = palbmp.Palette;
 				LevelData.BmpPal.Entries.CopyTo(LevelImgPalette.Entries, 0);
-				LevelImgPalette.Entries[LevelData.ColorTransparent] = LevelData.PaletteToColor(0, 0, false);
+				LevelImgPalette.Entries[LevelData.ColorTransparent] = LevelData.PaletteToColor(level.BgPalLine & 3, level.BgPalIndex & 0xF, false);
 				LevelImgPalette.Entries[ColorGrid] = Settings.GridColor;
 				curpal = new Color[16];
 #if !DEBUG
