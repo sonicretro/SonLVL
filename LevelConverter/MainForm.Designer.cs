@@ -45,7 +45,7 @@ namespace SonicRetro.SonLVL.LevelConverter
 			// comboBox1
 			// 
 			this.comboBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-			| System.Windows.Forms.AnchorStyles.Right)));
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.comboBox1.FormattingEnabled = true;
 			this.comboBox1.Location = new System.Drawing.Point(77, 42);
@@ -84,16 +84,17 @@ namespace SonicRetro.SonLVL.LevelConverter
 			// comboBox2
 			// 
 			this.comboBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-			| System.Windows.Forms.AnchorStyles.Right)));
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.comboBox2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.comboBox2.FormattingEnabled = true;
 			this.comboBox2.Items.AddRange(new object[] {
-			"Sonic 1",
-			"Sonic 2",
-			"Sonic 3 & Knuckles",
-			"Sonic & Knuckles Collection",
-			"Sonic CD PC",
-			"Sonic 2 Nick Arcade"});
+            "Sonic 1",
+            "Sonic 2",
+            "Sonic 3 & Knuckles",
+            "Sonic & Knuckles Collection",
+            "Sonic CD",
+            "Sonic CD PC",
+            "Sonic 2 Nick Arcade"});
 			this.comboBox2.Location = new System.Drawing.Point(77, 73);
 			this.comboBox2.Name = "comboBox2";
 			this.comboBox2.Size = new System.Drawing.Size(395, 21);
@@ -115,7 +116,7 @@ namespace SonicRetro.SonLVL.LevelConverter
 			// fileSelector1
 			// 
 			this.fileSelector1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-			| System.Windows.Forms.AnchorStyles.Right)));
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.fileSelector1.DefaultExt = "";
 			this.fileSelector1.FileName = "";
 			this.fileSelector1.Filter = "INI Files|*.ini";

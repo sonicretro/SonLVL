@@ -132,9 +132,12 @@ namespace SonicRetro.SonLVL.LevelConverter
 					OutFmt = EngineVersion.SKC;
 					break;
 				case 4:
-					OutFmt = EngineVersion.SCDPC;
+					OutFmt = EngineVersion.SCD;
 					break;
 				case 5:
+					OutFmt = EngineVersion.SCDPC;
+					break;
+				case 6:
 					OutFmt = EngineVersion.S2NA;
 					break;
 			}
@@ -742,6 +745,7 @@ namespace SonicRetro.SonLVL.LevelConverter
 						case EngineVersion.SKC:
 							ObjS1ToS3K();
 							break;
+						case EngineVersion.SCD:
 						case EngineVersion.SCDPC:
 							ObjS1ToSCD();
 							break;
@@ -758,6 +762,7 @@ namespace SonicRetro.SonLVL.LevelConverter
 						case EngineVersion.SKC:
 							ObjS2ToS3K();
 							break;
+						case EngineVersion.SCD:
 						case EngineVersion.SCDPC:
 							ObjS2ToSCD();
 							break;
@@ -774,11 +779,13 @@ namespace SonicRetro.SonLVL.LevelConverter
 						case EngineVersion.S2NA:
 							ObjS3KToS2();
 							break;
+						case EngineVersion.SCD:
 						case EngineVersion.SCDPC:
 							ObjS3KToSCD();
 							break;
 					}
 					break;
+				case EngineVersion.SCD:
 				case EngineVersion.SCDPC:
 					switch (OutFmt)
 					{
@@ -834,6 +841,7 @@ namespace SonicRetro.SonLVL.LevelConverter
 						tmp2.Add(0);
 					}
 					break;
+				case EngineVersion.SCD:
 				case EngineVersion.SCDPC:
 					for (int oi = 0; oi < LevelData.Objects.Count; oi++)
 					{
