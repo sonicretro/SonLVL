@@ -1578,7 +1578,23 @@ namespace SonicRetro.SonLVL.API
 						def = new DefaultObjectDefinition();
 					lock (objdefs)
 						objdefs.Add(new KeyValuePair<byte, ObjectDefinition>(ID, def));
-					def.Init(group.Value);
+#if !DEBUG
+					try
+#endif
+					{
+						def.Init(group.Value);
+					}
+#if !DEBUG
+					catch (Exception ex)
+					{
+						Log("Object definition " + ID.ToString("X2") + " failed to initialize!");
+						Log(ex.ToString());
+						def = new DefaultObjectDefinition();
+						lock (objdefs)
+							objdefs.Add(new KeyValuePair<byte, ObjectDefinition>(ID, def));
+						def.Init(new ObjectData());
+					}
+#endif
 				}
 #if !DEBUG
 			});
