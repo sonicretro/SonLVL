@@ -90,6 +90,7 @@ namespace SonicRetro.SonLVL.GUI
 		private void numericUpDown1_ValueChanged(object sender, EventArgs e)
 		{
 			TilePicture.Size = new Size(tile.Width * (int)numericUpDown1.Value, tile.Height * (int)numericUpDown1.Value);
+			DrawTile();
 		}
 
 		Cursor pencilcur, fillcur;

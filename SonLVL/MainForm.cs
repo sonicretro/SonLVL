@@ -10085,6 +10085,94 @@ namespace SonicRetro.SonLVL.GUI
 			}
 		}
 
+		private void drawOverToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			using (DrawTileDialog dlg = new DrawTileDialog())
+			{
+				switch (CurrentArtTab)
+				{
+					case ArtTab.Chunks:
+						dlg.tile = new BitmapBits(LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
+						dlg.tile.DrawSprite(LevelData.ChunkSprites[SelectedChunk]);
+						break;
+					case ArtTab.Blocks:
+						dlg.tile = new BitmapBits(LevelData.CompBlockBmpBits[SelectedBlock]);
+						break;
+					case ArtTab.Tiles:
+						if (LevelData.Level.TwoPlayerCompatible)
+							dlg.tile = LevelData.InterlacedTileToBmp8bpp(LevelData.TileArray, SelectedTile, SelectedColor.Y);
+						else
+							dlg.tile = LevelData.TileToBmp8bpp(LevelData.TileArray, SelectedTile, SelectedColor.Y);
+						break;
+				}
+				if (dlg.ShowDialog(this) == DialogResult.OK)
+				{
+					BitmapInfo bmpi = new BitmapInfo(dlg.tile.ToBitmap(LevelData.BmpPal));
+					ImportResult res = LevelData.BitmapToTiles(bmpi, new bool[bmpi.Width / 8, bmpi.Height / 8], null, new List<byte[]>(), false, false, Application.DoEvents);
+					List<int> editedTiles = new List<int>();
+					switch (CurrentArtTab)
+					{
+						case ArtTab.Chunks:
+							Chunk cnk = LevelData.Chunks[SelectedChunk];
+							for (int by = 0; by < LevelData.Level.ChunkHeight / 16; by++)
+								for (int bx = 0; bx < LevelData.Level.ChunkWidth / 16; bx++)
+								{
+									Block blk = LevelData.Blocks[cnk.Blocks[bx, by].Block].Flip(cnk.Blocks[bx, by].XFlip, cnk.Blocks[bx, by].YFlip);
+									for (int y = 0; y < 2; y++)
+										for (int x = 0; x < 2; x++)
+											if (!editedTiles.Contains(blk.Tiles[x, y].Tile))
+											{
+												LevelData.Tiles[blk.Tiles[x, y].Tile] = LevelData.FlipTile(res.Art[res.Mappings[(bx * 2) + x, (by * 2) + y].Tile], blk.Tiles[x, y].XFlip, blk.Tiles[x, y].YFlip);
+												editedTiles.Add(blk.Tiles[x, y].Tile);
+											}
+								}
+							break;
+						case ArtTab.Blocks:
+							Block blk2 = LevelData.Blocks[SelectedBlock];
+							for (int y = 0; y < 2; y++)
+								for (int x = 0; x < 2; x++)
+									if (!editedTiles.Contains(blk2.Tiles[x, y].Tile))
+									{
+										LevelData.Tiles[blk2.Tiles[x, y].Tile] = LevelData.FlipTile(res.Art[res.Mappings[x, y].Tile], blk2.Tiles[x, y].XFlip, blk2.Tiles[x, y].YFlip);
+										editedTiles.Add(blk2.Tiles[x, y].Tile);
+									}
+							break;
+						case ArtTab.Tiles:
+							LevelData.Tiles[SelectedTile] = res.Art[res.Mappings[0, 0].Tile];
+							editedTiles.Add(SelectedTile);
+							if (LevelData.Level.TwoPlayerCompatible)
+								LevelData.Tiles[SelectedTile + 1] = res.Art[res.Mappings[0, 1].Tile];
+							break;
+					}
+					LevelData.UpdateTileArray();
+					RefreshTileSelector();
+					TileSelector.Invalidate();
+					if (editedTiles.Contains(SelectedTile))
+						TileSelector_SelectedIndexChanged(this, EventArgs.Empty);
+					blockTileEditor.SelectedObjects = blockTileEditor.SelectedObjects;
+					List<int> editedBlocks = new List<int>();
+					for (int i = 0; i < LevelData.Blocks.Count; i++)
+						if (LevelData.Blocks[i].Tiles.OfType<PatternIndex>().Any(a => editedTiles.Contains(a.Tile)))
+						{
+							editedBlocks.Add(i);
+							LevelData.RedrawBlock(i, false);
+						}
+					if (editedBlocks.Contains(SelectedBlock))
+						DrawBlockPicture();
+					BlockSelector.Invalidate();
+					chunkBlockEditor.SelectedObjects = chunkBlockEditor.SelectedObjects;
+					for (int i = 0; i < LevelData.Chunks.Count; i++)
+						if (LevelData.Chunks[i].Blocks.OfType<ChunkBlock>().Any(a => editedBlocks.Contains(a.Block)))
+						{
+							LevelData.RedrawChunk(i);
+							if (i == SelectedChunk)
+								DrawChunkPicture();
+						}
+					ChunkSelector.Invalidate();
+				}
+			}
+		}
+
 		private void BlockSelector_MouseDoubleClick(object sender, MouseEventArgs e)
 		{
 			if (loaded && e.Button == MouseButtons.Left)
