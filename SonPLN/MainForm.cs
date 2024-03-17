@@ -2400,8 +2400,8 @@ namespace SonicRetro.SonLVL.SonPLN
 					{
 						PatternIndex nb = tileMap[cb.Tile];
 						cb.Tile = nb.Tile;
-						cb.XFlip ^= nb.XFlip;
-						cb.YFlip ^= nb.YFlip;
+						cb.XFlip = !nb.XFlip;
+						cb.YFlip = !nb.YFlip;
 					}
 				DrawLevel();
 			}
@@ -2433,7 +2433,7 @@ namespace SonicRetro.SonLVL.SonPLN
 				for (int x = 0; x < FGSelection.Width; x++)
 				{
 					PatternIndex tmp = planemap[x + FGSelection.Left, y + FGSelection.Top];
-					tmp.XFlip ^= tmp.XFlip;
+					tmp.XFlip = !tmp.XFlip;
 					res[FGSelection.Width - 1 - x + FGSelection.Left, y + FGSelection.Top] = tmp;
 				}
 			planemap = res;
@@ -2446,7 +2446,7 @@ namespace SonicRetro.SonLVL.SonPLN
 				for (int x = 0; x < FGSelection.Width; x++)
 				{
 					PatternIndex tmp = planemap[x + FGSelection.Left, y + FGSelection.Top];
-					tmp.YFlip ^= tmp.YFlip;
+					tmp.YFlip = !tmp.YFlip;
 					res[x + FGSelection.Left, FGSelection.Height - 1 - y + FGSelection.Top] = tmp;
 				}
 			planemap = res;
@@ -2456,7 +2456,10 @@ namespace SonicRetro.SonLVL.SonPLN
 		{
 			for (int y = 0; y < FGSelection.Height; y++)
 				for (int x = 0; x < FGSelection.Width; x++)
-					planemap[x + FGSelection.Left, y + FGSelection.Top].Priority ^= true;
+				{
+					bool tmp = planemap[x + FGSelection.Left, y + FGSelection.Top].Priority;
+					planemap[x + FGSelection.Left, y + FGSelection.Top].Priority = !tmp;
+				}
 		}
 
 		private void CyclePaletteToolStripMenuItem_Click(object sender, EventArgs e)
