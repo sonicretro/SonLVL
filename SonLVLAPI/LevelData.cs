@@ -3088,8 +3088,10 @@ namespace SonicRetro.SonLVL.API
 					newFG[x, y] = Layout.FGLayout[x, y];
 					if (newFGLoop != null)
 						newFGLoop[x, y] = Layout.FGLoop[x, y];
-					newFGXFlip[x, y] = Layout.FGXFlip[x, y];
-					newFGYFlip[x, y] = Layout.FGYFlip[x, y];
+					if (Layout.FGXFlip != null)
+						newFGXFlip[x, y] = Layout.FGXFlip[x, y];
+					if (Layout.FGYFlip != null)
+						newFGYFlip[x, y] = Layout.FGYFlip[x, y];
 				}
 			Layout.FGLayout = newFG;
 			Layout.FGLoop = newFGLoop;
@@ -3112,8 +3114,10 @@ namespace SonicRetro.SonLVL.API
 					newBG[x, y] = Layout.BGLayout[x, y];
 					if (newBGLoop != null)
 						newBGLoop[x, y] = Layout.BGLoop[x, y];
-					newBGXFlip[x, y] = Layout.BGXFlip[x, y];
-					newBGYFlip[x, y] = Layout.BGYFlip[x, y];
+					if (Layout.BGXFlip != null)
+						newBGXFlip[x, y] = Layout.BGXFlip[x, y];
+					if (Layout.BGYFlip != null)
+						newBGYFlip[x, y] = Layout.BGYFlip[x, y];
 				}
 			Layout.BGLayout = newBG;
 			Layout.BGLoop = newBGLoop;
