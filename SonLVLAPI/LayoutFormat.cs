@@ -18,6 +18,8 @@ namespace SonicRetro.SonLVL.API
 		public virtual CompressionType DefaultCompression { get { return CompressionType.Uncompressed; } }
 		public virtual bool HasLoopFlag { get { return false; } }
 		public virtual bool IsResizable { get { return false; } }
+		public virtual bool HasXFlipFlag { get { return false; } }
+		public virtual bool HasYFlipFlag { get { return false; } }
 
 		/// <summary>
 		/// The maximum (or only) size of a level layout.

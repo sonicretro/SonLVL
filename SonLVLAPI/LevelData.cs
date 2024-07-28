@@ -1319,6 +1319,18 @@ namespace SonicRetro.SonLVL.API
 				for (int x = cl; x <= cr; x++)
 					if (Layout.FGLayout[x, y] < Chunks.Count)
 					{
+						bool xflip = false;
+						bool yflip = false;
+						if (Layout.FGXFlip != null)
+							xflip = Layout.FGXFlip[x, y];
+						if (Layout.FGYFlip != null)
+							yflip = Layout.FGYFlip[x, y];
+
+						ChunkSprites[Layout.FGLayout[x, y]].Flip(xflip, yflip);
+						ChunkSprites[Layout.FGLayout[x, y]].Offset(Level.ChunkWidth * (xflip ? 1 : 0), Level.ChunkHeight * (yflip ? 1 : 0));
+						ChunkColBmpBits[Layout.FGLayout[x, y]][0].Flip(xflip, yflip);
+						ChunkColBmpBits[Layout.FGLayout[x, y]][1].Flip(xflip, yflip);
+
 						if ((!includeObjects || objectsAboveHighPlane) && lowPlane && highPlane)
 						{
 							LevelImg8bpp.DrawSprite(ChunkSprites[Layout.FGLayout[x, y]], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
@@ -1341,6 +1353,11 @@ namespace SonicRetro.SonLVL.API
 									LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][1], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
 							}
 						}
+
+						ChunkColBmpBits[Layout.FGLayout[x, y]][0].Flip(xflip, yflip);
+						ChunkColBmpBits[Layout.FGLayout[x, y]][1].Flip(xflip, yflip);
+						ChunkSprites[Layout.FGLayout[x, y]].Offset(-Level.ChunkWidth * (xflip ? 1 : 0), -Level.ChunkHeight * (yflip ? 1 : 0));
+						ChunkSprites[Layout.FGLayout[x, y]].Flip(xflip, yflip);
 					}
 			if (includeObjects)
 			{
@@ -1401,12 +1418,29 @@ namespace SonicRetro.SonLVL.API
 						for (int x = cl; x <= cr; x++)
 							if (Layout.FGLayout[x, y] < Chunks.Count)
 							{
+								bool xflip = false;
+								bool yflip = false;
+								if (Layout.FGXFlip != null)
+									xflip = Layout.FGXFlip[x, y];
+								if (Layout.FGYFlip != null)
+									yflip = Layout.FGYFlip[x, y];
+
+								ChunkSprites[Layout.FGLayout[x, y]].Flip(xflip, yflip);
+								ChunkSprites[Layout.FGLayout[x, y]].Offset(Level.ChunkWidth * (xflip ? 1 : 0), Level.ChunkHeight * (yflip ? 1 : 0));
+								ChunkColBmpBits[Layout.FGLayout[x, y]][0].Flip(xflip, yflip);
+								ChunkColBmpBits[Layout.FGLayout[x, y]][1].Flip(xflip, yflip);
+
 								if (highPlane)
 									LevelImg8bpp.DrawSpriteHigh(ChunkSprites[Layout.FGLayout[x, y]], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
 								if (collisionPath1)
 									LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][0], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
 								else if (collisionPath2)
 									LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.FGLayout[x, y]][1], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
+
+								ChunkColBmpBits[Layout.FGLayout[x, y]][0].Flip(xflip, yflip);
+								ChunkColBmpBits[Layout.FGLayout[x, y]][1].Flip(xflip, yflip);
+								ChunkSprites[Layout.FGLayout[x, y]].Offset(-Level.ChunkWidth * (xflip ? 1 : 0), -Level.ChunkHeight * (yflip ? 1 : 0));
+								ChunkSprites[Layout.FGLayout[x, y]].Flip(xflip, yflip);
 							}
 					LevelImg8bpp.DrawBitmapComposited(objbmphigh, 0, 0);
 					LevelImg8bpp.DrawBitmapComposited(objbmplevel, 0, 0);
@@ -1456,6 +1490,18 @@ namespace SonicRetro.SonLVL.API
 				for (int x = Math.Max(bounds.X / Level.ChunkWidth, 0); x <= Math.Min((bounds.Right - 1) / Level.ChunkWidth, Layout.BGLayout.GetLength(0) - 1); x++)
 					if (Layout.BGLayout[x, y] < Chunks.Count)
 					{
+						bool xflip = false;
+						bool yflip = false;
+						if (Layout.BGXFlip != null)
+							xflip = Layout.BGXFlip[x, y];
+						if (Layout.BGYFlip != null)
+							yflip = Layout.BGYFlip[x, y];
+
+						ChunkSprites[Layout.BGLayout[x, y]].Flip(xflip, yflip);
+						ChunkSprites[Layout.BGLayout[x, y]].Offset(Level.ChunkWidth * (xflip ? 1 : 0), Level.ChunkHeight * (yflip ? 1 : 0));
+						ChunkColBmpBits[Layout.BGLayout[x, y]][0].Flip(xflip, yflip);
+						ChunkColBmpBits[Layout.BGLayout[x, y]][1].Flip(xflip, yflip);
+
 						if (lowPlane && highPlane)
 							LevelImg8bpp.DrawSprite(ChunkSprites[Layout.BGLayout[x, y]], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
 						else if (lowPlane)
@@ -1466,6 +1512,11 @@ namespace SonicRetro.SonLVL.API
 							LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.BGLayout[x, y]][0], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
 						else if (collisionPath2)
 							LevelImg8bpp.DrawBitmapComposited(ChunkColBmpBits[Layout.BGLayout[x, y]][1], x * Level.ChunkWidth - bounds.X, y * Level.ChunkHeight - bounds.Y);
+
+						ChunkColBmpBits[Layout.BGLayout[x, y]][0].Flip(xflip, yflip);
+						ChunkColBmpBits[Layout.BGLayout[x, y]][1].Flip(xflip, yflip);
+						ChunkSprites[Layout.BGLayout[x, y]].Offset(-Level.ChunkWidth * (xflip ? 1 : 0), -Level.ChunkHeight * (yflip ? 1 : 0));
+						ChunkSprites[Layout.BGLayout[x, y]].Flip(xflip, yflip);
 					}
 			return LevelImg8bpp;
 		}
@@ -3028,6 +3079,8 @@ namespace SonicRetro.SonLVL.API
 		{
 			ushort[,] newFG = new ushort[width, height];
 			bool[,] newFGLoop = Layout.FGLoop != null ? new bool[width, height] : null;
+			bool[,] newFGXFlip = new bool[width, height];
+			bool[,] newFGYFlip = new bool[width, height];
 			Size oldsize = FGSize;
 			for (int y = 0; y < Math.Min(height, oldsize.Height); y++)
 				for (int x = 0; x < Math.Min(width, oldsize.Width); x++)
@@ -3035,9 +3088,15 @@ namespace SonicRetro.SonLVL.API
 					newFG[x, y] = Layout.FGLayout[x, y];
 					if (newFGLoop != null)
 						newFGLoop[x, y] = Layout.FGLoop[x, y];
+					if (Layout.FGXFlip != null)
+						newFGXFlip[x, y] = Layout.FGXFlip[x, y];
+					if (Layout.FGYFlip != null)
+						newFGYFlip[x, y] = Layout.FGYFlip[x, y];
 				}
 			Layout.FGLayout = newFG;
 			Layout.FGLoop = newFGLoop;
+			Layout.FGXFlip = newFGXFlip;
+			Layout.FGYFlip = newFGYFlip;
 		}
 
 		public static void ResizeBG(Size newSize) { ResizeBG(newSize.Width, newSize.Height); }
@@ -3046,6 +3105,8 @@ namespace SonicRetro.SonLVL.API
 		{
 			ushort[,] newBG = new ushort[width, height];
 			bool[,] newBGLoop = Layout.BGLoop != null ? new bool[width, height] : null;
+			bool[,] newBGXFlip = new bool[width, height];
+			bool[,] newBGYFlip = new bool[width, height];
 			Size oldsize = BGSize;
 			for (int y = 0; y < Math.Min(height, oldsize.Height); y++)
 				for (int x = 0; x < Math.Min(width, oldsize.Width); x++)
@@ -3053,9 +3114,15 @@ namespace SonicRetro.SonLVL.API
 					newBG[x, y] = Layout.BGLayout[x, y];
 					if (newBGLoop != null)
 						newBGLoop[x, y] = Layout.BGLoop[x, y];
+					if (Layout.BGXFlip != null)
+						newBGXFlip[x, y] = Layout.BGXFlip[x, y];
+					if (Layout.BGYFlip != null)
+						newBGYFlip[x, y] = Layout.BGYFlip[x, y];
 				}
 			Layout.BGLayout = newBG;
 			Layout.BGLoop = newBGLoop;
+			Layout.BGXFlip = newBGXFlip;
+			Layout.BGYFlip = newBGYFlip;
 		}
 
 		public static int GetBlockMax()
@@ -3180,8 +3247,12 @@ namespace SonicRetro.SonLVL.API
 	{
 		public ushort[,] FGLayout;
 		public bool[,] FGLoop;
+		public bool[,] FGXFlip;
+		public bool[,] FGYFlip;
 		public ushort[,] BGLayout;
 		public bool[,] BGLoop;
+		public bool[,] BGXFlip;
+		public bool[,] BGYFlip;
 	}
 
 	public enum EngineVersion
