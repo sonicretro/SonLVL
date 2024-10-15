@@ -401,7 +401,7 @@ namespace SonicRetro.SonLVL.API
 		public TimeZone TimeZone { get; set; }
 		[IniCollection(IniCollectionMode.SingleLine, Format = ",", ValueConverter = typeof(ByteHexConverter))]
 		[IniName("loopchunks")]
-		public List<byte> LoopChunks { get; set; }
+		public List<ushort> LoopChunks { get; set; }
 		[IniName("2pcompat")]
 		public bool TwoPlayerCompatible { get; set; }
 		[IniName("sprites")]
