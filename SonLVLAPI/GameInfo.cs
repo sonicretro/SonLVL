@@ -399,7 +399,7 @@ namespace SonicRetro.SonLVL.API
 		public string Angles { get; set; }
 		[IniName("timezone")]
 		public TimeZone TimeZone { get; set; }
-		[IniCollection(IniCollectionMode.SingleLine, Format = ",", ValueConverter = typeof(ByteHexConverter))]
+		[IniCollection(IniCollectionMode.SingleLine, Format = ",", ValueConverter = typeof(UInt16HexConverter))]
 		[IniName("loopchunks")]
 		public List<ushort> LoopChunks { get; set; }
 		[IniName("2pcompat")]
