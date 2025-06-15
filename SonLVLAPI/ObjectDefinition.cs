@@ -457,6 +457,9 @@ namespace SonicRetro.SonLVL.API
 
 		public override void SetValue(object component, object value)
 		{
+			if (value is string s)
+				value = (Enumeration.ContainsKey(s)) ? Enumeration[s] : int.Parse(s);
+
 			item.SetValue((ObjectEntry)component, value);
 		}
 
