@@ -34,6 +34,9 @@ namespace SonicRetro.SonLVL
 		public Graphics PanelGraphics { get; private set; }
 
 		[Browsable(false)]
+		public BufferedGraphics PanelGraphicsBuffer { get; private set; }
+
+		[Browsable(false)]
 		public int PanelWidth { get { return panel.Width; } }
 
 		[Browsable(false)]
@@ -217,12 +220,20 @@ namespace SonicRetro.SonLVL
 		{
 			PanelGraphics = panel.CreateGraphics();
 			PanelGraphics.SetOptions();
+
+			using (Graphics graphics = CreateGraphics())
+				PanelGraphicsBuffer = BufferedGraphicsManager.Current.Allocate(graphics, new Rectangle(0, 0, PanelWidth, PanelHeight));
+			PanelGraphicsBuffer.Graphics.SetOptions();
 		}
 
 		private void panel_Resize(object sender, EventArgs e)
 		{
 			PanelGraphics = panel.CreateGraphics();
 			PanelGraphics.SetOptions();
+
+			using (Graphics graphics = CreateGraphics())
+				PanelGraphicsBuffer = BufferedGraphicsManager.Current.Allocate(graphics, new Rectangle(0, 0, PanelWidth, PanelHeight));
+			PanelGraphicsBuffer.Graphics.SetOptions();
 		}
 
 		public Point PanelPointToClient(Point p)
