@@ -2174,6 +2174,7 @@ namespace SonicRetro.SonLVL.GUI
 							ci.UpdateSprite();
 						}
 					}
+					ObjectProperties.Refresh();
 					DrawLevel();
 					break;
 				case Keys.C:
@@ -2206,6 +2207,7 @@ namespace SonicRetro.SonLVL.GUI
 							}
 							item.UpdateSprite();
 						}
+						ObjectProperties.Refresh();
 						DrawLevel();
 					}
 					break;
@@ -2234,6 +2236,7 @@ namespace SonicRetro.SonLVL.GUI
 								++item.SubType;
 							item.UpdateSprite();
 						}
+						ObjectProperties.Refresh();
 						DrawLevel();
 					}
 					break;
@@ -2264,10 +2267,11 @@ namespace SonicRetro.SonLVL.GUI
 							else if (SelectedItems[i] is ExtraObjEntry)
 							{
 								ExtraObjEntry ci = SelectedItems[i] as ExtraObjEntry;
-								ci.ID = (ushort)(ci.ID == 0 ? 65535 : ci.ID - 1);
+								ci.ID = (ushort)(ci.ID == 65535 ? 0 : ci.ID + 1);
 								ci.UpdateSprite();
 							}
 						}
+						ObjectProperties.Refresh();
 						DrawLevel();
 					}
 					break;
@@ -2280,6 +2284,7 @@ namespace SonicRetro.SonLVL.GUI
 						ent.Y += (ushort)gs;
 						ent.AdjustSpritePosition(-gs, gs);
 					}
+					ObjectProperties.Refresh();
 					DrawLevel();
 					break;
 				case Keys.NumPad2:
@@ -2290,6 +2295,7 @@ namespace SonicRetro.SonLVL.GUI
 						ent.Y += (ushort)gs;
 						ent.AdjustSpritePosition(0, gs);
 					}
+					ObjectProperties.Refresh();
 					DrawLevel();
 					break;
 				case Keys.NumPad3:
@@ -2301,6 +2307,7 @@ namespace SonicRetro.SonLVL.GUI
 						ent.Y += (ushort)gs;
 						ent.AdjustSpritePosition(gs, gs);
 					}
+					ObjectProperties.Refresh();
 					DrawLevel();
 					break;
 				case Keys.NumPad4:
@@ -2311,6 +2318,7 @@ namespace SonicRetro.SonLVL.GUI
 						ent.X -= (ushort)gs;
 						ent.AdjustSpritePosition(-gs, 0);
 					}
+					ObjectProperties.Refresh();
 					DrawLevel();
 					break;
 				case Keys.NumPad6:
@@ -2321,6 +2329,7 @@ namespace SonicRetro.SonLVL.GUI
 						ent.X += (ushort)gs;
 						ent.AdjustSpritePosition(gs, 0);
 					}
+					ObjectProperties.Refresh();
 					DrawLevel();
 					break;
 				case Keys.NumPad7:
@@ -2332,6 +2341,7 @@ namespace SonicRetro.SonLVL.GUI
 						ent.Y -= (ushort)gs;
 						ent.AdjustSpritePosition(-gs, -gs);
 					}
+					ObjectProperties.Refresh();
 					DrawLevel();
 					break;
 				case Keys.NumPad8:
@@ -2342,6 +2352,7 @@ namespace SonicRetro.SonLVL.GUI
 						ent.Y -= (ushort)gs;
 						ent.AdjustSpritePosition(0, -gs);
 					}
+					ObjectProperties.Refresh();
 					DrawLevel();
 					break;
 				case Keys.NumPad9:
@@ -2353,6 +2364,7 @@ namespace SonicRetro.SonLVL.GUI
 						ent.Y -= (ushort)gs;
 						ent.AdjustSpritePosition(gs, -gs);
 					}
+					ObjectProperties.Refresh();
 					DrawLevel();
 					break;
 			}
@@ -2592,53 +2604,69 @@ namespace SonicRetro.SonLVL.GUI
 					{
 						if (ModifierKeys != Keys.Shift)
 						{
-							if (ModifierKeys != Keys.Control || LevelData.Level.Bumpers == null)
+							if ((ModifierKeys & Keys.Control) == Keys.Control)
 							{
-								if (typeof(ChaotixObjectEntry).IsAssignableFrom(LevelData.ObjectFormat.ObjectType))
-									ObjectSelect.numericUpDown2.Maximum = 0x1FFF;
-								else
-									ObjectSelect.numericUpDown2.Maximum = 0xFF;
-								if (ObjectSelect.ShowDialog(this) == DialogResult.OK)
+								if (LevelData.Level.ExtraObjects != null)
 								{
-									ObjectEntry ent = LevelData.CreateObject((byte)ObjectSelect.numericUpDown1.Value);
-									LevelData.Objects.Add(ent);
-									if (ent is ChaotixObjectEntry)
-										((ChaotixObjectEntry)ent).FullSubType = (ushort)ObjectSelect.numericUpDown2.Value;
-									else
-										ent.SubType = (byte)ObjectSelect.numericUpDown2.Value;
-									ent.X = gridx;
-									ent.Y = gridy;
-									if (ent is SCDObjectEntry entcd)
-										switch (LevelData.Level.TimeZone)
-										{
-											case API.TimeZone.Past:
-												entcd.ShowPast = true;
-												break;
-											case API.TimeZone.Present:
-												entcd.ShowPresent = true;
-												break;
-											case API.TimeZone.Future:
-												entcd.ShowFuture = true;
-												break;
-										}
-									ent.UpdateSprite();
+									var ent = (ExtraObjEntry)Activator.CreateInstance(LevelData.ExtraObjectsType);
+									ent.Position = new Position(gridx, gridy);
+									LevelData.ExtraObjects.Add(ent);
+									LevelData.ExtraObjects[LevelData.ExtraObjects.Count - 1].UpdateSprite();
 									SelectedItems.Clear();
-									SelectedItems.Add(ent);
+									SelectedItems.Add(LevelData.ExtraObjects[LevelData.ExtraObjects.Count - 1]);
 									SelectedObjectChanged();
-									AddUndo(new ObjectAddedUndoAction(ent));
-									LevelData.Objects.Sort();
+									AddUndo(new ObjectAddedUndoAction(LevelData.ExtraObjects[LevelData.ExtraObjects.Count - 1]));
+									LevelData.ExtraObjects.Sort();
 									DrawLevel();
+									return;
+								}
+								else if (LevelData.Level.Bumpers != null)
+								{
+									LevelData.ExtraObjects.Add(new ActualCNZBumperEntry() { X = gridx, Y = gridy });
+									LevelData.ExtraObjects[LevelData.ExtraObjects.Count - 1].UpdateSprite();
+									SelectedItems.Clear();
+									SelectedItems.Add(LevelData.ExtraObjects[LevelData.ExtraObjects.Count - 1]);
+									SelectedObjectChanged();
+									AddUndo(new ObjectAddedUndoAction(LevelData.ExtraObjects[LevelData.ExtraObjects.Count - 1]));
+									LevelData.ExtraObjects.Sort();
+									DrawLevel();
+									return;
 								}
 							}
+							
+							if (typeof(ChaotixObjectEntry).IsAssignableFrom(LevelData.ObjectFormat.ObjectType))
+								ObjectSelect.numericUpDown2.Maximum = 0x1FFF;
 							else
+								ObjectSelect.numericUpDown2.Maximum = 0xFF;
+							if (ObjectSelect.ShowDialog(this) == DialogResult.OK)
 							{
-								LevelData.ExtraObjects.Add(new ActualCNZBumperEntry() { X = gridx, Y = gridy });
-								LevelData.ExtraObjects[LevelData.ExtraObjects.Count - 1].UpdateSprite();
+								ObjectEntry ent = LevelData.CreateObject((byte)ObjectSelect.numericUpDown1.Value);
+								LevelData.Objects.Add(ent);
+								if (ent is ChaotixObjectEntry)
+									((ChaotixObjectEntry)ent).FullSubType = (ushort)ObjectSelect.numericUpDown2.Value;
+								else
+									ent.SubType = (byte)ObjectSelect.numericUpDown2.Value;
+								ent.X = gridx;
+								ent.Y = gridy;
+								if (ent is SCDObjectEntry entcd)
+									switch (LevelData.Level.TimeZone)
+									{
+										case API.TimeZone.Past:
+											entcd.ShowPast = true;
+											break;
+										case API.TimeZone.Present:
+											entcd.ShowPresent = true;
+											break;
+										case API.TimeZone.Future:
+											entcd.ShowFuture = true;
+											break;
+									}
+								ent.UpdateSprite();
 								SelectedItems.Clear();
-								SelectedItems.Add(LevelData.ExtraObjects[LevelData.ExtraObjects.Count - 1]);
+								SelectedItems.Add(ent);
 								SelectedObjectChanged();
-								AddUndo(new ObjectAddedUndoAction(LevelData.ExtraObjects[LevelData.ExtraObjects.Count - 1]));
-								LevelData.ExtraObjects.Sort();
+								AddUndo(new ObjectAddedUndoAction(ent));
+								LevelData.Objects.Sort();
 								DrawLevel();
 							}
 						}
@@ -3435,7 +3463,17 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			if (Clipboard.ContainsData(typeof(List<Entry>).AssemblyQualifiedName))
 			{
+				// TODO:
+				// This List<Entry> cast doesn't work correctly on the SK LRZ Rock Sprites, so pasting them crashes the editor
+				// Extra info:
+				// - It works fine with the S2 CNZ Bumpers, which are also ExtraObjEntry types
+				// - It seems to only break if the list contains objects from runtime-compiled code
+				//   (which is why LRZ breaks, since the CNZ Bumpers are built into SonLVL while LRZ's Rocks are external)
+				// - After some testing, it seems like the issue comes from the (de)serializer getting confused by dynamically compiled assemblies?
+				// As for what a fix for this would look like.. there doesn't seem to be any easy fixes without hardcoding LRZ rocks or reworking SonLVL's copy paste system as a whole..?
+
 				List<Entry> objs = Clipboard.GetData(typeof(List<Entry>).AssemblyQualifiedName) as List<Entry>;
+				if (objs == null) return; // temp fix for LRZ-related crashes, see above
 				Point upleft = new Point(int.MaxValue, int.MaxValue);
 				foreach (Entry item in objs)
 				{

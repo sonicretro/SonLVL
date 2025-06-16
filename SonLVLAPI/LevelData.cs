@@ -42,6 +42,7 @@ namespace SonicRetro.SonLVL.API
 		public static List<RingEntry> Rings;
 		public static bool ringstartterm, ringendterm;
 		public static RingFormat RingFormat;
+		public static Type ExtraObjectsType;
 		public static List<ExtraObjEntry> ExtraObjects;
 		public static List<StartPositionEntry> StartPositions;
 		public static Dictionary<string, ObjectData> INIObjDefs;
@@ -821,6 +822,7 @@ namespace SonicRetro.SonLVL.API
 					if (tmp.Length < 10 || ByteConverter.ToInt16(tmp, 2) < 0) return;
 
 					var ent = CompileCodeFile<ExtraObjEntry>(Level.ExtraObjects.CodeFile, Level.ExtraObjects.CodeType);
+					ExtraObjectsType = ent.GetType();
 					if (loadGraphics) ent.Init();
 
 					for (var i = 0; true; i += 2)
@@ -831,12 +833,13 @@ namespace SonicRetro.SonLVL.API
 						if (loadGraphics) ent.UpdateSprite();
 
 						if (ByteConverter.ToInt16(tmp, i + 4) < 0) return;
-						ent = (ExtraObjEntry)Activator.CreateInstance(ent.GetType());
+						ent = (ExtraObjEntry)Activator.CreateInstance(ExtraObjectsType);
 					}
 				}
 			}
 			else if (Level.Bumpers != null)
 			{
+				ExtraObjectsType = typeof(ExtraObjEntry);
 				ExtraObjects = new List<ExtraObjEntry>();
 				if (File.Exists(Level.Bumpers))
 				{
