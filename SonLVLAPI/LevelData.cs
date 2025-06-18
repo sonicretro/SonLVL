@@ -1880,6 +1880,13 @@ namespace SonicRetro.SonLVL.API
 			{ "af2ndRoutine", 0xFA } // increment 2nd routine counter
 		};
 
+		public enum IfStatementMode
+		{
+			None,
+			IfStatement,
+			Else
+		}
+
 		public static byte[] ASMToBin(string file, int sti, EngineVersion version, out Dictionary<string, int> labels)
 		{
 			labels = GetASMLabels(file, sti, version);
@@ -1888,6 +1895,7 @@ namespace SonicRetro.SonLVL.API
 					labels.Add(item.Key, item.Value);
 			string[] fc = File.ReadAllLines(file);
 			List<byte> result = new List<byte>();
+			IfStatementMode ifStatementMode = IfStatementMode.None;
 			string lastlabel = string.Empty;
 			string offsetLabel = string.Empty;
 			for (int st = sti; st < fc.Length; st++)
@@ -1909,7 +1917,26 @@ namespace SonicRetro.SonLVL.API
 						ln[0] = l[1];
 					if (ln.Length == 0) continue;
 				}
-				if (ln[0].Equals("even"))
+
+				if (ln[0].StartsWith("if"))
+				{
+					// No way to know what the purpose of this check is.. but let's just assume and make it true
+					ifStatementMode = IfStatementMode.IfStatement;
+				}
+				else if (ifStatementMode == IfStatementMode.IfStatement && ln[0].Equals("else"))
+				{
+					// Skip everything in the else block
+					ifStatementMode = IfStatementMode.Else;
+				}
+				else if (ln[0].Equals("endif"))
+				{
+					ifStatementMode = IfStatementMode.None;
+				}
+				else if (ifStatementMode == IfStatementMode.Else)
+				{
+					// We're just skipping through, do nothing
+				}
+				else if (ln[0].Equals("even"))
 				{
 					if (result.Count % 2 == 1)
 						result.Add(0);
@@ -2048,6 +2075,20 @@ namespace SonicRetro.SonLVL.API
 				data = data.Substring(1);
 			}
 			long result;
+
+			if (data.IndexOf('-') > 0)
+			{
+				// Subtraction (not negative numbers)
+				result = ParseASMNum(data.Substring(0, data.IndexOf('-')), labels) - ParseASMNum(data.Substring(data.IndexOf('-') + 1), labels);
+				data = result.ToString();
+			}
+			else if (data.IndexOf('+') > 0)
+			{
+				// Addition
+				result = ParseASMNum(data.Substring(0, data.IndexOf('+')), labels) + ParseASMNum(data.Substring(data.IndexOf('+') + 1), labels);
+				data = result.ToString();
+			}
+
 			if (labels.ContainsKey(data))
 				result = labels[data];
 			else if (data.StartsWith("$"))
@@ -2097,6 +2138,7 @@ namespace SonicRetro.SonLVL.API
 		{
 			string[] fc = File.ReadAllLines(file);
 			Dictionary<string, int> labels = new Dictionary<string, int>();
+			IfStatementMode ifStatementMode = IfStatementMode.None;
 			int curaddr = 0;
 			for (int st = sti; st < fc.Length; st++)
 			{
@@ -2121,7 +2163,26 @@ namespace SonicRetro.SonLVL.API
 					}
 					if (ln.Length == 0) continue;
 				}
-				if (ln[0].Equals("even"))
+
+				if (ln[0].StartsWith("if"))
+				{
+					// No way to know what the purpose of this check is.. but let's just assume and make it true
+					ifStatementMode = IfStatementMode.IfStatement;
+				}
+				else if (ifStatementMode == IfStatementMode.IfStatement && ln[0].Equals("else"))
+				{
+					// Skip everything in the else block
+					ifStatementMode = IfStatementMode.Else;
+				}
+				else if (ln[0].Equals("endif"))
+				{
+					ifStatementMode = IfStatementMode.None;
+				}
+				else if (ifStatementMode == IfStatementMode.Else)
+				{
+					// We're just skipping through, do nothing
+				}
+				else if (ln[0].Equals("even"))
 				{
 					if (curaddr % 2 == 1)
 						curaddr++;
