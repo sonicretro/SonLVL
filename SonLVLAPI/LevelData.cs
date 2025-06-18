@@ -839,7 +839,7 @@ namespace SonicRetro.SonLVL.API
 			}
 			else if (Level.Bumpers != null)
 			{
-				ExtraObjectsType = typeof(ExtraObjEntry);
+				ExtraObjectsType = typeof(ActualCNZBumperEntry);
 				ExtraObjects = new List<ExtraObjEntry>();
 				if (File.Exists(Level.Bumpers))
 				{
