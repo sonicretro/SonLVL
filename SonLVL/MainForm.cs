@@ -10622,9 +10622,8 @@ namespace SonicRetro.SonLVL.GUI
 
 		public static ObjectCopyData Load(string text)
 		{
-			var serializer = new XmlSerializer(typeof(ObjectCopyData));
 			using (var reader = new StringReader(text))
-				return (ObjectCopyData)serializer.Deserialize(reader);
+				return (ObjectCopyData)xmlSerializer.Deserialize(reader);
 		}
 
 		public override string ToString()
