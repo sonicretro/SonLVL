@@ -5,6 +5,8 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Xml;
+using System.Xml.Serialization;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -2763,7 +2765,7 @@ namespace SonicRetro.SonLVL.GUI
 						copyToolStripMenuItem.Enabled = false;
 						deleteToolStripMenuItem.Enabled = false;
 					}
-					pasteToolStripMenuItem.Enabled = Clipboard.ContainsData(typeof(List<Entry>).AssemblyQualifiedName);
+					pasteToolStripMenuItem.Enabled = Clipboard.ContainsText();
 					objectContextMenuStrip.Show(objectPanel, menuLoc);
 					break;
 			}
@@ -3436,7 +3438,7 @@ namespace SonicRetro.SonLVL.GUI
 				}
 			}
 			if (selitems.Count == 0) return;
-			Clipboard.SetData(typeof(List<Entry>).AssemblyQualifiedName, selitems);
+			Clipboard.SetText(new ObjectCopyData(selitems).ToString());
 			AddUndo(new ObjectsDeletedUndoAction(selitems));
 			SelectedItems.Clear();
 			SelectedObjectChanged();
@@ -3456,24 +3458,47 @@ namespace SonicRetro.SonLVL.GUI
 					selitems.Add(item);
 			}
 			if (selitems.Count == 0) return;
-			Clipboard.SetData(typeof(List<Entry>).AssemblyQualifiedName, selitems);
+			Clipboard.SetText(new ObjectCopyData(selitems).ToString());
 		}
 
 		private void pasteToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			if (Clipboard.ContainsData(typeof(List<Entry>).AssemblyQualifiedName))
+			if (Clipboard.ContainsText())
 			{
-				// TODO:
-				// This List<Entry> cast doesn't work correctly on the SK LRZ Rock Sprites, so pasting them crashes the editor
-				// Extra info:
-				// - It works fine with the S2 CNZ Bumpers, which are also ExtraObjEntry types
-				// - It seems to only break if the list contains objects from runtime-compiled code
-				//   (which is why LRZ breaks, since the CNZ Bumpers are built into SonLVL while LRZ's Rocks are external)
-				// - After some testing, it seems like the issue comes from the (de)serializer getting confused by dynamically compiled assemblies?
-				// As for what a fix for this would look like.. there doesn't seem to be any easy fixes without hardcoding LRZ rocks or reworking SonLVL's copy paste system as a whole..?
+				ObjectCopyData copyData;
+				try
+				{
+					copyData = ObjectCopyData.Load(Clipboard.GetText());
+				}
+				catch
+				{
+					// We're likely not proper xml copy data so we couldn't be parsed correctly, let's just stop
+					return;
+				}
 
-				List<Entry> objs = Clipboard.GetData(typeof(List<Entry>).AssemblyQualifiedName) as List<Entry>;
-				if (objs == null) return; // temp fix for LRZ-related crashes, see above
+				List<Entry> objs = new List<Entry>();
+
+				foreach (var entry in copyData.objects)
+				{
+					var ent = (Entry)Activator.CreateInstance(LevelData.ObjectFormat.ObjectType);
+					ent.Data = entry.data;
+					objs.Add(ent);
+				}
+
+				foreach (var entry in copyData.rings)
+				{
+					var ent = LevelData.RingFormat.CreateRing();
+					ent.Data = entry.data;
+					objs.Add(ent);
+				}
+
+				foreach (var entry in copyData.extraobjects)
+				{
+					var ent = (ExtraObjEntry)Activator.CreateInstance(LevelData.ExtraObjectsType);
+					ent.Data = entry.data;
+					objs.Add(ent);
+				}
+
 				Point upleft = new Point(int.MaxValue, int.MaxValue);
 				foreach (Entry item in objs)
 				{
@@ -10557,6 +10582,57 @@ namespace SonicRetro.SonLVL.GUI
 			if (loaded && e.Button == MouseButtons.Left)
 				foreach (PatternIndex til in GetSelectedBlockTiles())
 					til.Tile = (ushort)TileSelector.SelectedIndex;
+		}
+	}
+	
+	[XmlRoot("objectCopyData")]
+	public class ObjectCopyData
+	{
+		public class EntryCopyData
+		{
+			[XmlAttribute]
+			public string data;
+
+			public EntryCopyData() {}
+			public EntryCopyData(string data) => this.data = data;
+		}
+		
+		[XmlArrayItem("object")]
+		public List<EntryCopyData> objects = new List<EntryCopyData>();
+		[XmlArrayItem("ring")]
+		public List<EntryCopyData> rings = new List<EntryCopyData>();
+		[XmlArrayItem("extraobject")]
+		public List<EntryCopyData> extraobjects = new List<EntryCopyData>();
+		
+		private static readonly XmlSerializer xmlSerializer = new XmlSerializer(typeof(ObjectCopyData));
+
+		public ObjectCopyData() { }
+		public ObjectCopyData(List<Entry> items)
+		{
+			foreach (Entry item in items)
+			{
+				if (item is ObjectEntry)
+					objects.Add(new EntryCopyData(item.Data));
+				else if (item is RingEntry)
+					rings.Add(new EntryCopyData(item.Data));
+				else if (item is ExtraObjEntry)
+					extraobjects.Add(new EntryCopyData(item.Data));
+			}
+		}
+
+		public static ObjectCopyData Load(string text)
+		{
+			using (var reader = new StringReader(text))
+				return (ObjectCopyData)xmlSerializer.Deserialize(reader);
+		}
+
+		public override string ToString()
+		{
+			using (StringWriter textWriter = new StringWriter())
+			{
+				xmlSerializer.Serialize(textWriter, this);
+				return textWriter.ToString();
+			}
 		}
 	}
 
