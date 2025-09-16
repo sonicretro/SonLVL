@@ -730,6 +730,7 @@ namespace SonicRetro.SonLVL.API
 					break;
 				case EngineVersion.S3K:
 				case EngineVersion.SKC:
+					int blockmax = GetBlockMax();
 					if (Level.CollisionIndex != null && File.Exists(Level.CollisionIndex))
 					{
 						byte[] tmp = Compression.Decompress(Level.CollisionIndex, Level.CollisionIndexCompression);
@@ -737,25 +738,25 @@ namespace SonicRetro.SonLVL.API
 						{
 							case 0:
 							case 1:
-								Array.Resize(ref tmp, 0x600);
-								for (int i = 0; i < 0x600; i += 2)
+								Array.Resize(ref tmp, blockmax * 2);
+								for (int i = 0; i < blockmax * 2; i += 2)
 								{
 									ColInds1.Add(tmp[i]);
 									ColInds2.Add(tmp[i + 1]);
 								}
 								break;
 							case 2:
-								for (int i = 0; i < 0x600; i += 2)
+								for (int i = 0; i < blockmax * 2; i += 2)
 									ColInds1.Add((byte)ByteConverter.ToUInt16(tmp, i));
-								for (int i = 0x600; i < 0xC00; i += 2)
+								for (int i = blockmax * 2; i < blockmax * 4; i += 2)
 									ColInds2.Add((byte)ByteConverter.ToUInt16(tmp, i));
 								break;
 						}
 					}
 					else
 					{
-						ColInds1.AddRange(new byte[0x300]);
-						ColInds2.AddRange(new byte[0x300]);
+						ColInds1.AddRange(new byte[blockmax]);
+						ColInds2.AddRange(new byte[blockmax]);
 					}
 					break;
 			}
@@ -1231,13 +1232,14 @@ namespace SonicRetro.SonLVL.API
 				case EngineVersion.SKC:
 					if (Level.CollisionIndex != null)
 					{
+						int blockmax = GetBlockMax();
 						List<byte> tmp = new List<byte>();
 						byte[] cif = null;
 						switch (Level.CollisionIndexSize)
 						{
 							case 0:
 							case 1:
-								cif = new byte[0x600];
+								cif = new byte[blockmax * 2];
 								for (int i = 0; i < ColInds1.Count; i++)
 								{
 									tmp.Add(ColInds1[i]);
@@ -1246,14 +1248,14 @@ namespace SonicRetro.SonLVL.API
 								tmp.CopyTo(0, cif, 0, Math.Min(tmp.Count, cif.Length));
 								break;
 							case 2:
-								cif = new byte[0xC00];
+								cif = new byte[blockmax * 4];
 								foreach (byte item in ColInds1)
 									tmp.AddRange(ByteConverter.GetBytes((ushort)item));
-								tmp.CopyTo(0, cif, 0, Math.Min(tmp.Count, 0x600));
+								tmp.CopyTo(0, cif, 0, Math.Min(tmp.Count, blockmax * 2));
 								tmp.Clear();
 								foreach (byte item in ColInds2)
 									tmp.AddRange(ByteConverter.GetBytes((ushort)item));
-								tmp.CopyTo(0, cif, 0x600, Math.Min(tmp.Count, 0x600));
+								tmp.CopyTo(0, cif, blockmax * 2, Math.Min(tmp.Count, blockmax * 2));
 								break;
 						}
 						Compression.Compress(cif, Level.CollisionIndex, Level.CollisionIndexCompression);
