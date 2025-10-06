@@ -354,44 +354,61 @@ namespace SonicRetro.SonLVL.API
 
 		public void DrawBitmapComposited(BitmapBits source, int x, int y)
 		{
-			int srcl = 0;
-			if (x < 0)
-				srcl = -x;
-			int srct = 0;
-			if (y < 0)
-				srct = -y;
-			int srcr = source.Width;
-			if (srcr > Width - x)
-				srcr = Width - x;
-			int srcb = source.Height;
-			if (srcb > Height - y)
-				srcb = Height - y;
-			for (int c = srct; c < srcb; c++)
-				for (int r = srcl; r < srcr; r++)
-					if (source[r, c] != 0)
-						this[x + r, y + c] = source[r, c];
+			int srcl = Math.Max(0, -x);
+			int srct = Math.Max(0, -y);
+			int srcr = Math.Min(source.Width, Width - x);
+			int srcb = Math.Min(source.Height, Height - y);
+
+			// Nothing to draw, nope
+			if (srcl >= srcr || srct >= srcb)
+				return;
+
+			// The this[] indexer isn't inherently slow, but calling it for every pixel in both images' area adds up very quickly
+			// So, instead, let's access Bits directly, and keep track of the indexes ourselves instead of recalcuating them for every pixel
+			for (int srcY = srct, destY = y + srct; srcY < srcb; srcY++, destY++)
+			{
+				// Calculate base indexes for the row
+				int srcBase = srcY * source.Width;
+				int dstBase = destY * Width;
+
+				// Now, loop through every column within the row
+				for (int srcX = srcl, destX = x + srcl; srcX < srcr; srcX++, destX++)
+				{
+					byte pixel = source.Bits[srcBase + srcX];
+					if (pixel != 0)
+						Bits[dstBase + destX] = pixel;
+				}
+			}
 		}
 
 		public void DrawBitmapComposited(BitmapBits source, Point location) => DrawBitmapComposited(source, location.X, location.Y);
 
 		public void DrawBitmapBehind(BitmapBits source, int x, int y)
 		{
-			int srcl = 0;
-			if (x < 0)
-				srcl = -x;
-			int srct = 0;
-			if (y < 0)
-				srct = -y;
-			int srcr = source.Width;
-			if (srcr > Width - x)
-				srcr = Width - x;
-			int srcb = source.Height;
-			if (srcb > Height - y)
-				srcb = Height - y;
-			for (int c = srct; c < srcb; c++)
-				for (int r = srcl; r < srcr; r++)
-					if (this[x + r, y + c] == 0)
-						this[x + r, y + c] = source[r, c];
+			int srcl = Math.Max(0, -x);
+			int srct = Math.Max(0, -y);
+			int srcr = Math.Min(source.Width, Width - x);
+			int srcb = Math.Min(source.Height, Height - y);
+
+			// Nothing to draw, nope
+			if (srcl >= srcr || srct >= srcb)
+				return;
+
+			// The this[] indexer isn't inherently slow, but calling it for every pixel in both images' area adds up very quickly
+			// So, instead, let's access Bits directly, and keep track of the indexes ourselves instead of recalcuating them for every pixel
+			for (int srcY = srct, destY = y + srct; srcY < srcb; srcY++, destY++)
+			{
+				// Calculate base indexes for the row
+				int srcBase = srcY * source.Width;
+				int dstBase = destY * Width;
+
+				// Now, loop through every column within the row
+				for (int srcX = srcl, destX = x + srcl; srcX < srcr; srcX++, destX++)
+				{
+					if (Bits[dstBase + destX] == 0)
+						Bits[dstBase + destX] = source.Bits[srcBase + srcX];
+				}
+			}
 		}
 
 		public void DrawBitmapBehind(BitmapBits source, Point location) => DrawBitmapBehind(source, location.X, location.Y);
