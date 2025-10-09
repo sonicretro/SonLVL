@@ -2623,7 +2623,7 @@ namespace SonicRetro.SonLVL.GUI
             // 
             this.splitContainer2.Panel2.Controls.Add(tabControl2);
             this.splitContainer2.Size = new System.Drawing.Size(650, 372);
-            this.splitContainer2.SplitterDistance = 360;
+            this.splitContainer2.SplitterDistance = 357;
             this.splitContainer2.TabIndex = 4;
             // 
             // foregroundPanel
@@ -2713,7 +2713,7 @@ namespace SonicRetro.SonLVL.GUI
             // 
             this.splitContainer3.Panel2.Controls.Add(this.tabControl3);
             this.splitContainer3.Size = new System.Drawing.Size(650, 372);
-            this.splitContainer3.SplitterDistance = 360;
+            this.splitContainer3.SplitterDistance = 357;
             this.splitContainer3.TabIndex = 4;
             // 
             // backgroundPanel

@@ -648,8 +648,28 @@ namespace SonicRetro.SonLVL.GUI
 			drawBlockToolStripButton.Enabled = importBlocksToolStripButton.Enabled;
 			importTilesToolStripButton.Enabled = LevelData.Tiles.Count < 0x800;
 			drawTileToolStripButton.Enabled = importTilesToolStripButton.Enabled;
-			chunkXFlip.Enabled = LevelData.LayoutFormat.HasXFlipFlag;
-			chunkYFlip.Enabled = LevelData.LayoutFormat.HasYFlipFlag;
+			
+			// If neither chunk flip button is needed, then let the chunk selector take up the entire area
+			if (!LevelData.LayoutFormat.HasXFlipFlag && !LevelData.LayoutFormat.HasYFlipFlag)
+			{
+				panel2.Dock = panel3.Dock = DockStyle.Fill;
+				chunkXFlip.Visible = chunkYFlip.Visible = false;
+			}
+			else
+			{
+				// Otherwise, show them both and disable as needed
+				chunkXFlip.Visible = chunkYFlip.Visible = true;
+				chunkXFlip.Enabled = LevelData.LayoutFormat.HasXFlipFlag;
+				chunkYFlip.Enabled = LevelData.LayoutFormat.HasYFlipFlag;
+
+				// (a bit dirty, but we need to manually restore these after changing DockStyle in case it was Fill before..)
+				panel2.Dock = panel3.Dock = DockStyle.None;
+				panel2.Size = new Size(tabPage8.Size.Width, tabPage8.Size.Height - 50);
+				panel3.Size = new Size(tabPage10.Size.Width, tabPage10.Size.Height - 50);
+				panel2.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+				panel3.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+			}
+
 			BlockSelector.SelectedIndex = 0;
 			if (LevelData.Level.TwoPlayerCompatible)
 			{
