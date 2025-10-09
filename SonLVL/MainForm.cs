@@ -1105,7 +1105,7 @@ namespace SonicRetro.SonLVL.GUI
 
 		private void invertColorsToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			LevelData_PaletteChangedEvent();
+			if (loaded) LevelData_PaletteChangedEvent();
 		}
 
 		private void paletteToolStripDropDownButton_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
