@@ -10431,8 +10431,12 @@ namespace SonicRetro.SonLVL.GUI
 										for (int x = 0; x < 2; x++)
 											if (!editedTiles.Contains(blk.Tiles[x, y].Tile))
 											{
-												LevelData.Tiles[blk.Tiles[x, y].Tile] = LevelData.FlipTile(res.Art[res.Mappings[(bx * 2) + x, (by * 2) + y].Tile], blk.Tiles[x, y].XFlip, blk.Tiles[x, y].YFlip);
-												editedTiles.Add(blk.Tiles[x, y].Tile);
+												// If the tile isn't part of the normal level tiles (namely because it's an ani tile, stored separately), then just skip over it
+												if (LevelData.Tiles.ContainsIndex(blk.Tiles[x, y].Tile))
+												{
+													LevelData.Tiles[blk.Tiles[x, y].Tile] = LevelData.FlipTile(res.Art[res.Mappings[(bx * 2) + x, (by * 2) + y].Tile], blk.Tiles[x, y].XFlip, blk.Tiles[x, y].YFlip);
+													editedTiles.Add(blk.Tiles[x, y].Tile);
+												}
 											}
 								}
 							break;
@@ -10519,8 +10523,12 @@ namespace SonicRetro.SonLVL.GUI
 										for (int x = 0; x < 2; x++)
 											if (!editedTiles.Contains(blk.Tiles[x, y].Tile))
 											{
-												LevelData.Tiles[blk.Tiles[x, y].Tile] = LevelData.FlipTile(res.Art[res.Mappings[(bx * 2) + x, (by * 2) + y].Tile], blk.Tiles[x, y].XFlip, blk.Tiles[x, y].YFlip);
-												editedTiles.Add(blk.Tiles[x, y].Tile);
+												// If the tile isn't part of the normal level tiles (namely because it's an ani tile, stored separately), then just skip over it
+												if (LevelData.Tiles.ContainsIndex(blk.Tiles[x, y].Tile))
+												{
+													LevelData.Tiles[blk.Tiles[x, y].Tile] = LevelData.FlipTile(res.Art[res.Mappings[(bx * 2) + x, (by * 2) + y].Tile], blk.Tiles[x, y].XFlip, blk.Tiles[x, y].YFlip);
+													editedTiles.Add(blk.Tiles[x, y].Tile);
+												}
 											}
 								}
 							break;

@@ -127,6 +127,8 @@ namespace SonicRetro.SonLVL.API
 			FillGaps();
 		}
 
+		public bool ContainsIndex(int index) => GetContainingFile(index) != -1;
+
 		public void Clear()
 		{
 			files.Clear();
