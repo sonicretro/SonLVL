@@ -509,10 +509,10 @@ namespace SonicRetro.SonLVL.SonPLN
 			UpdateScrollBars();
 			foregroundPanel.HScrollValue = 0;
 			foregroundPanel.HScrollSmallChange = 8;
-			foregroundPanel.HScrollLargeChange = 128;
+			foregroundPanel.HScrollLargeChange = 32;
 			foregroundPanel.VScrollValue = 0;
 			foregroundPanel.VScrollSmallChange = 8;
-			foregroundPanel.VScrollLargeChange = 128;
+			foregroundPanel.VScrollLargeChange = 32;
 			foregroundPanel.HScrollEnabled = true;
 			foregroundPanel.VScrollEnabled = true;
 			switch (level.PaletteFormat)
@@ -986,8 +986,8 @@ namespace SonicRetro.SonLVL.SonPLN
 
 		private void UpdateScrollBars()
 		{
-			foregroundPanel.HScrollMaximum = (int)Math.Max((planemap.GetLength(0) * 8) + foregroundPanel.HScrollLargeChange - (foregroundPanel.PanelWidth / ZoomLevel), 0);
-			foregroundPanel.VScrollMaximum = (int)Math.Max((planemap.GetLength(1) * 8) + foregroundPanel.VScrollLargeChange - (foregroundPanel.PanelHeight / ZoomLevel), 0);
+			foregroundPanel.HScrollMaximum = (int)Math.Max((planemap.GetLength(0) * 8) + foregroundPanel.HScrollLargeChange - (foregroundPanel.PanelWidth / ZoomLevel), foregroundPanel.HScrollLargeChange - 1);
+			foregroundPanel.VScrollMaximum = (int)Math.Max((planemap.GetLength(1) * 8) + foregroundPanel.VScrollLargeChange - (foregroundPanel.PanelHeight / ZoomLevel), foregroundPanel.VScrollLargeChange - 1);
 		}
 
 		Rectangle prevbnds;
@@ -1044,7 +1044,7 @@ namespace SonicRetro.SonLVL.SonPLN
 					break;
 				case Keys.Down:
 					if (!loaded) return;
-					foregroundPanel.VScrollValue = (int)Math.Min(foregroundPanel.VScrollValue + step, foregroundPanel.VScrollMaximum - 8 + 1);
+					foregroundPanel.VScrollValue = Math.Max((int)Math.Min(foregroundPanel.VScrollValue + step, foregroundPanel.VScrollMaximum - foregroundPanel.VScrollLargeChange + 1), foregroundPanel.VScrollMinimum);
 					break;
 				case Keys.Left:
 					if (!loaded) return;
@@ -1052,7 +1052,7 @@ namespace SonicRetro.SonLVL.SonPLN
 					break;
 				case Keys.Right:
 					if (!loaded) return;
-					foregroundPanel.HScrollValue = (int)Math.Min(foregroundPanel.HScrollValue + step, foregroundPanel.HScrollMaximum - 8 + 1);
+					foregroundPanel.HScrollValue = Math.Max((int)Math.Min(foregroundPanel.HScrollValue + step, foregroundPanel.HScrollMaximum - foregroundPanel.HScrollLargeChange + 1), foregroundPanel.HScrollMinimum);
 					break;
 				case Keys.A:
 					if (!loaded) return;
