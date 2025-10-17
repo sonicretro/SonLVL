@@ -949,16 +949,26 @@ namespace SonicRetro.SonLVL.SonPLN
 				default:
 					return;
 			}
+
 			Point camera = new Point(panel.HScrollValue, panel.VScrollValue);
 			Rectangle dispRect = new Rectangle(camera.X, camera.Y, (int)(panel.PanelWidth / ZoomLevel), (int)(panel.PanelHeight / ZoomLevel));
 			LevelImg8bpp = DrawPlane(dispRect, true, true);
+
 			if (enableGridToolStripMenuItem.Checked)
 			{
-				for (int x = (8 - (camera.X % 8)) % 8; x < LevelImg8bpp.Width; x += 8)
-					LevelImg8bpp.DrawLine(ColorGrid, x, 0, x, LevelImg8bpp.Height - 1);
-				for (int y = (8 - (camera.Y % 8)) % 8; y < LevelImg8bpp.Height; y += 8)
-					LevelImg8bpp.DrawLine(ColorGrid, 0, y, LevelImg8bpp.Width - 1, y);
+				// Let's constrain the grid to stay within the mapping bounds
+				int length = Math.Min(LevelImg8bpp.Height, (planemap.GetLength(1) * 8) - camera.Y);
+				int end = Math.Min(camera.X + (LevelImg8bpp.Width - 1), planemap.GetLength(0) * 8);
+
+				for (int x = camera.X & ~7; x <= end; x += 8)
+					LevelImg8bpp.DrawLine(ColorGrid, x - camera.X, 0, x - camera.X, length);
+
+				length = Math.Min(LevelImg8bpp.Width, (planemap.GetLength(0) * 8) - camera.X);
+				end = Math.Min(camera.Y + (LevelImg8bpp.Height - 1), planemap.GetLength(1) * 8);
+				for (int y = camera.Y & ~7; y <= end; y += 8)
+					LevelImg8bpp.DrawLine(ColorGrid, 0, y - camera.Y, length, y - camera.Y);
 			}
+
 			LevelBmp = LevelImg8bpp.ToBitmap(LevelImgPalette).To32bpp();
 			LevelGfx = Graphics.FromImage(LevelBmp);
 			LevelGfx.SetOptions();
