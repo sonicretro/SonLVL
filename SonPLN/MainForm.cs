@@ -1646,7 +1646,9 @@ namespace SonicRetro.SonLVL.SonPLN
 
 		private void cutTilesToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			Clipboard.SetData("SonLVLTile", LevelData.Tiles[SelectedTile]);
+			DataObject data = new DataObject("SonLVLTile", LevelData.Tiles[SelectedTile]);
+			data.SetImage(tile.ToBitmap(curpal));
+			Clipboard.SetDataObject(data);
 			DeleteTile();
 		}
 
@@ -1668,7 +1670,9 @@ namespace SonicRetro.SonLVL.SonPLN
 
 		private void copyTilesToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			Clipboard.SetData("SonLVLTile", LevelData.Tiles[SelectedTile]);
+			DataObject data = new DataObject("SonLVLTile", LevelData.Tiles[SelectedTile]);
+			data.SetImage(tile.ToBitmap(curpal));
+			Clipboard.SetDataObject(data);
 		}
 
 		private void InsertTile()
@@ -1879,6 +1883,9 @@ namespace SonicRetro.SonLVL.SonPLN
 
 		private void cutToolStripMenuItem1_Click(object sender, EventArgs e)
 		{
+			DataObject data = new DataObject();
+			data.SetImage(DrawPlane(new Rectangle(FGSelection.Left * 8, FGSelection.Top * 8, FGSelection.Width * 8, FGSelection.Height * 8), true, true).ToBitmap(LevelImgPalette));
+			
 			PatternIndex[,] layoutsection = new PatternIndex[FGSelection.Width, FGSelection.Height];
 			for (int y = 0; y < FGSelection.Height; y++)
 				for (int x = 0; x < FGSelection.Width; x++)
@@ -1886,7 +1893,9 @@ namespace SonicRetro.SonLVL.SonPLN
 					layoutsection[x, y] = planemap[x + FGSelection.X, y + FGSelection.Y].Clone();
 					planemap[x + FGSelection.X, y + FGSelection.Y] = new PatternIndex();
 				}
-			Clipboard.SetData(typeof(PatternIndex[,]).AssemblyQualifiedName, layoutsection);
+
+			data.SetData(typeof(PatternIndex[,]).AssemblyQualifiedName, layoutsection);
+			Clipboard.SetDataObject(data);
 			DrawLevel();
 		}
 
@@ -1896,7 +1905,9 @@ namespace SonicRetro.SonLVL.SonPLN
 			for (int y = 0; y < FGSelection.Height; y++)
 				for (int x = 0; x < FGSelection.Width; x++)
 					layoutsection[x, y] = planemap[x + FGSelection.X, y + FGSelection.Y].Clone();
-			Clipboard.SetData(typeof(PatternIndex[,]).AssemblyQualifiedName, layoutsection);
+			DataObject data = new DataObject(typeof(PatternIndex[,]).AssemblyQualifiedName, layoutsection);
+			data.SetImage(DrawPlane(new Rectangle(FGSelection.Left * 8, FGSelection.Top * 8, FGSelection.Width * 8, FGSelection.Height * 8), true, true).ToBitmap(LevelImgPalette));
+			Clipboard.SetDataObject(data);
 		}
 
 		private void pasteOnceToolStripMenuItem_Click(object sender, EventArgs e)
