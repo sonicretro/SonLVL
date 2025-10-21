@@ -299,6 +299,7 @@ namespace SonicRetro.SonLVL.SonPLN
 			((ToolStripMenuItem)sender).Checked = true;
 			Enabled = false;
 			UseWaitCursor = true;
+			FGSelection = Rectangle.Empty;
 			levelname = (string)((ToolStripMenuItem)sender).Tag;
 			level = game.GetLevelInfo(levelname);
 			Text = $"SonPLN - {game.EngineVersion} - Loading {level.DisplayName}...";
@@ -974,10 +975,14 @@ namespace SonicRetro.SonLVL.SonPLN
 			LevelGfx.SetOptions();
 			Point pnlcur = panel.PanelPointToClient(Cursor.Position);
 			if (!selecting && SelectedTile < LevelData.Tiles.Count)
+			{
+				tile.Flip(xFlip.Checked, yFlip.Checked);
 				LevelGfx.DrawImage(tile.ToBitmap(curpal),
 				new Rectangle(((((int)(pnlcur.X / ZoomLevel) + camera.X) / 8) * 8) - camera.X, ((((int)(pnlcur.Y / ZoomLevel) + camera.Y) / 8) * 8) - camera.Y, 8, 8),
 				0, 0, 8, 8,
 				GraphicsUnit.Pixel, imageTransparency);
+				tile.Flip(xFlip.Checked, yFlip.Checked);
+			}
 			if (!selection.IsEmpty)
 			{
 				Rectangle selbnds = selection.Scale(8, 8);
@@ -1064,6 +1069,33 @@ namespace SonicRetro.SonLVL.SonPLN
 					if (!loaded) return;
 					foregroundPanel.HScrollValue = Math.Max((int)Math.Min(foregroundPanel.HScrollValue + step, foregroundPanel.HScrollMaximum - foregroundPanel.HScrollLargeChange + 1), foregroundPanel.HScrollMinimum);
 					break;
+				case Keys.C:
+					if (!loaded) return;
+					if (e.Control)
+						copyToolStripMenuItem1_Click(this, EventArgs.Empty);
+					else
+						priority.Checked = !priority.Checked;
+					break;
+				case Keys.X:
+					if (!loaded) return;
+					if (e.Control)
+						cutToolStripMenuItem1_Click(this, EventArgs.Empty);
+					else
+						xFlip.Checked = !xFlip.Checked;
+					break;
+				case Keys.V:
+					if (!loaded || !e.Control || FGSelection.IsEmpty) return;
+					pasteOnceToolStripMenuItem_Click(this, EventArgs.Empty);
+					break;
+				case Keys.Y:
+				case Keys.S:
+					if (!loaded || e.Control) return;
+					yFlip.Checked = !yFlip.Checked;
+					break;
+				case Keys.P:
+					if (!loaded || e.Control) return;
+					priority.Checked = !priority.Checked;
+					break;
 				case Keys.A:
 					if (!loaded) return;
 					SelectedTile = SelectedTile == 0 ? LevelData.Tiles.Count - 1 : SelectedTile - 1;
@@ -1076,6 +1108,10 @@ namespace SonicRetro.SonLVL.SonPLN
 					break;
 				case Keys.I:
 					enableGridToolStripMenuItem.Checked = !enableGridToolStripMenuItem.Checked;
+					DrawLevel();
+					break;
+				case Keys.Escape:
+					FGSelection = Rectangle.Empty;
 					DrawLevel();
 					break;
 				case Keys.OemMinus:
@@ -1913,11 +1949,12 @@ namespace SonicRetro.SonLVL.SonPLN
 		private void pasteOnceToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			PatternIndex[,] section = (PatternIndex[,])Clipboard.GetData(typeof(PatternIndex[,]).AssemblyQualifiedName);
-			int w = Math.Min(section.GetLength(0), planemap.GetLength(0) - menuLoc.X);
-			int h = Math.Min(section.GetLength(1), planemap.GetLength(1) - menuLoc.Y);
+			int w = Math.Min(section.GetLength(0), planemap.GetLength(0) - FGSelection.X);
+			int h = Math.Min(section.GetLength(1), planemap.GetLength(1) - FGSelection.Y);
 			for (int y = 0; y < h; y++)
 				for (int x = 0; x < w; x++)
 					planemap[x + menuLoc.X, y + menuLoc.Y] = section[x, y].Clone();
+			FGSelection = new Rectangle(menuLoc.X, menuLoc.Y, w, h);
 			DrawLevel();
 		}
 
