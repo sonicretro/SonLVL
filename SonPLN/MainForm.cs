@@ -129,6 +129,10 @@ namespace SonicRetro.SonLVL.SonPLN
 			mainMenuStrip.Visible = Settings.ShowMenu;
 			enableDraggingPaletteButton.Checked = Settings.EnableDraggingPalette;
 			enableDraggingTilesButton.Checked = Settings.EnableDraggingTiles;
+
+			if (Settings.TilesTabWidth > 0)
+				splitContainer2.SplitterDistance = Math.Max(splitContainer2.Width - Settings.TilesTabWidth, 200);
+
 			if (Settings.MRUList == null)
 				Settings.MRUList = new List<string>();
 			List<string> mru = new List<string>();
@@ -175,6 +179,7 @@ namespace SonicRetro.SonLVL.SonPLN
 				Settings.ShowMenu = mainMenuStrip.Visible;
 				Settings.EnableDraggingPalette = enableDraggingPaletteButton.Checked;
 				Settings.EnableDraggingTiles = enableDraggingTilesButton.Checked;
+				Settings.TilesTabWidth = splitContainer2.Width - splitContainer2.SplitterDistance;
 				Settings.Save();
 			}
 		}

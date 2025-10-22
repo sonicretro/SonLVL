@@ -30,6 +30,7 @@ namespace SonicRetro.SonLVL.SonPLN
 		public bool ExportArtCollisionPriority { get; set; }
 		[DefaultValue("1x")]
 		public string ZoomLevel { get; set; }
+		public int TilesTabWidth { get; set; }
 		public Tab CurrentTab { get; set; }
 		public WindowMode WindowMode { get; set; }
 		[DefaultValue(true)]
