@@ -205,7 +205,11 @@ namespace SpriteSheetGen
 			if (gridsize == 0)
 			{
 				for (int i = 0; i < spritesMerged.Count; i++)
-					gridsize = Math.Max(gridsize, Math.Max(spritesMerged[i].Width, spritesMerged[i].Height));
+				{
+					gridsize = Math.Max(gridsize, Math.Max(spritesMerged[i].Width - centers[i].X, spritesMerged[i].Height - centers[i].Y));
+					gridsize = Math.Max(gridsize, Math.Max(centers[i].X, centers[i].Y));
+				}
+				gridsize *= 2;
 				if (!fixedwidth)
 					width = (padding * 2 + gridsize) * columns;
 			}
@@ -226,7 +230,7 @@ namespace SpriteSheetGen
 						y += rowheight;
 						rowheight = 0;
 					}
-					off = new System.Drawing.Point(x, y);
+					off = new Point(x, y);
 					centers[i] = new Point(centers[i].X + off.X, centers[i].Y + off.Y);
 					if (!fixedwidth)
 						width = Math.Max(width, x + spr.Width + padding);
@@ -250,8 +254,8 @@ namespace SpriteSheetGen
 						x = padding;
 						y += gridsize + 2 * padding;
 					}
-					off = new Point(x + (gridsize - spr.Width) / 2, y + (gridsize - spr.Height) / 2);
-					centers[i] = new Point(centers[i].X + off.X, centers[i].Y + off.Y);
+					off = new Point(x + gridsize / 2 - centers[i].X, y + gridsize / 2 - centers[i].Y);
+					centers[i] = new Point(x + gridsize / 2, y + gridsize / 2);
 					height = Math.Max(height, y + gridsize + padding);
 					if (!fixedwidth && ++rowcnt == columns)
 					{
