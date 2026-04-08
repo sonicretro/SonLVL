@@ -264,10 +264,10 @@ namespace SpritePlotter
 				newsprites.AddRange(sprites.Where(a => a.IntersectsWith(rect)).OrderBy(a => a.X));
 			sprites = newsprites;
 			List<byte[]> tiles = new List<byte[]>();
-			NamedList<MappingsFrame> map = new NamedList<MappingsFrame>("Map_" + Path.GetFileNameWithoutExtension(mapfile), sprites.Count);
+			NamedList<MappingsFrame> map = new NamedList<MappingsFrame>("Map_" + Path.GetFileNameWithoutExtension(mapfile).Replace(" ", "_"), sprites.Count);
 			NamedList<DPLCFrame> dplc = null;
 			if (dplcfile != null)
-				dplc = new NamedList<DPLCFrame>("DPLC_" + Path.GetFileNameWithoutExtension(dplcfile), sprites.Count);
+				dplc = new NamedList<DPLCFrame>("DPLC_" + Path.GetFileNameWithoutExtension(dplcfile).Replace(" ", "_"), sprites.Count);
 			if (nullfirst)
 			{
 				map.Add(new MappingsFrame(map.Name + "_Null"));
