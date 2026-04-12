@@ -9716,6 +9716,8 @@ namespace SonicRetro.SonLVL.GUI
 			Array.Clear(LevelData.ColArr1[CollisionSelector.SelectedIndex], 0, 16);
 			LevelData.Angles[CollisionSelector.SelectedIndex] = 0;
 			LevelData.RedrawCol(CollisionSelector.SelectedIndex, true);
+			CollisionSelector.Images[SelectedCol] = LevelData.ColBmps[SelectedCol];
+			CollisionSelector.Invalidate();
 			CollisionSelector_SelectedIndexChanged(this, EventArgs.Empty);
 		}
 
