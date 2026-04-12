@@ -10271,11 +10271,13 @@ namespace SonicRetro.SonLVL.GUI
 					switch (CurrentTab)
 					{
 						case Tab.Foreground:
+							Rectangle area = FGSelection.Scale(LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
+							
 							if (exportArtcollisionpriorityToolStripMenuItem.Checked)
 							{
 								string pathBase = Path.Combine(Path.GetDirectoryName(a.FileName), Path.GetFileNameWithoutExtension(a.FileName));
 								string pathExt = Path.GetExtension(a.FileName);
-								BitmapBits bmp = LevelData.DrawForeground(FGSelection, false, false, false, true, true, false, false, false);
+								BitmapBits bmp = LevelData.DrawForeground(area, false, false, false, true, true, false, false, false);
 								for (int i = 0; i < bmp.Bits.Length; i++)
 									if (bmp.Bits[i] == 0)
 										bmp.Bits[i] = 32;
@@ -10307,16 +10309,16 @@ namespace SonicRetro.SonLVL.GUI
 								}
 								if (dualPath)
 								{
-									bmp = LevelData.DrawForeground(FGSelection, false, false, false, false, false, true, false, false);
+									bmp = LevelData.DrawForeground(area, false, false, false, false, false, true, false, false);
 									bmp.UnfixUIColors();
 									bmp.ToBitmap4bpp(Color.Magenta, Color.White, Color.Yellow, Color.Black).Save(pathBase + "_col1" + pathExt);
-									bmp = LevelData.DrawForeground(FGSelection, false, false, false, false, false, false, true, false);
+									bmp = LevelData.DrawForeground(area, false, false, false, false, false, false, true, false);
 									bmp.UnfixUIColors();
 									bmp.ToBitmap4bpp(Color.Magenta, Color.White, Color.Yellow, Color.Black).Save(pathBase + "_col2" + pathExt);
 								}
 								else if (LevelData.LayoutFormat.HasLoopFlag && LevelData.Layout.FGLoop.OfType<bool>().Any(b => b))
 								{
-									bmp = LevelData.DrawForeground(FGSelection, false, false, false, false, false, true, false, false);
+									bmp = LevelData.DrawForeground(area, false, false, false, false, false, true, false, false);
 									bmp.UnfixUIColors();
 									bmp.ToBitmap4bpp(Color.Magenta, Color.White, Color.Yellow, Color.Black).Save(pathBase + "_col1" + pathExt);
 									ushort[,] copy = (ushort[,])LevelData.Layout.FGLayout.Clone();
@@ -10324,14 +10326,14 @@ namespace SonicRetro.SonLVL.GUI
 										for (int x = FGSelection.Left; x < FGSelection.Right; x++)
 											if (LevelData.Layout.FGLoop[x, y])
 												LevelData.Layout.FGLayout[x, y]++;
-									bmp = LevelData.DrawForeground(FGSelection, false, false, false, false, false, true, false, false);
+									bmp = LevelData.DrawForeground(area, false, false, false, false, false, true, false, false);
 									bmp.UnfixUIColors();
 									bmp.ToBitmap4bpp(Color.Magenta, Color.White, Color.Yellow, Color.Black).Save(pathBase + "_col2" + pathExt);
 									LevelData.Layout.FGLayout = copy;
 								}
 								else
 								{
-									bmp = LevelData.DrawForeground(FGSelection, false, false, false, false, false, true, false, false);
+									bmp = LevelData.DrawForeground(area, false, false, false, false, false, true, false, false);
 									bmp.UnfixUIColors();
 									bmp.ToBitmap4bpp(Color.Magenta, Color.White, Color.Yellow, Color.Black).Save(pathBase + "_col" + pathExt);
 								}
@@ -10358,7 +10360,7 @@ namespace SonicRetro.SonLVL.GUI
 							}
 							else
 							{
-								BitmapBits bmp = LevelData.DrawForeground(FGSelection, includeobjectsWithFGToolStripMenuItem.Checked, !hideDebugObjectsToolStripMenuItem.Checked, objectsAboveHighPlaneToolStripMenuItem.Checked, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked, allToolStripMenuItem.Checked);
+								BitmapBits bmp = LevelData.DrawForeground(area, includeobjectsWithFGToolStripMenuItem.Checked, !hideDebugObjectsToolStripMenuItem.Checked, objectsAboveHighPlaneToolStripMenuItem.Checked, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked, allToolStripMenuItem.Checked);
 								int w = LevelData.WaterHeight - (FGSelection.Top * LevelData.Level.ChunkHeight);
 								if (LevelData.WaterPalette != -1 && bmp.Height > w)
 									bmp.ApplyWaterPalette(w);
@@ -10367,11 +10369,13 @@ namespace SonicRetro.SonLVL.GUI
 							}
 							break;
 						case Tab.Background:
+							area = BGSelection.Scale(LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
+
 							if (exportArtcollisionpriorityToolStripMenuItem.Checked)
 							{
 								string pathBase = Path.Combine(Path.GetDirectoryName(a.FileName), Path.GetFileNameWithoutExtension(a.FileName));
 								string pathExt = Path.GetExtension(a.FileName);
-								BitmapBits bmp = LevelData.DrawBackground(BGSelection, true, true, false, false);
+								BitmapBits bmp = LevelData.DrawBackground(area, true, true, false, false);
 								for (int i = 0; i < bmp.Bits.Length; i++)
 									if (bmp.Bits[i] == 0)
 										bmp.Bits[i] = 32;
@@ -10394,16 +10398,16 @@ namespace SonicRetro.SonLVL.GUI
 								}
 								if (dualPath)
 								{
-									bmp = LevelData.DrawBackground(BGSelection, false, false, true, false);
+									bmp = LevelData.DrawBackground(area, false, false, true, false);
 									bmp.UnfixUIColors();
 									bmp.ToBitmap4bpp(Color.Magenta, Color.White, Color.Yellow, Color.Black).Save(pathBase + "_col1" + pathExt);
-									bmp = LevelData.DrawBackground(BGSelection, false, false, false, true);
+									bmp = LevelData.DrawBackground(area, false, false, false, true);
 									bmp.UnfixUIColors();
 									bmp.ToBitmap4bpp(Color.Magenta, Color.White, Color.Yellow, Color.Black).Save(pathBase + "_col2" + pathExt);
 								}
 								else if (LevelData.LayoutFormat.HasLoopFlag && LevelData.Layout.BGLoop.OfType<bool>().Any(b => b))
 								{
-									bmp = LevelData.DrawBackground(BGSelection, false, false, true, false);
+									bmp = LevelData.DrawBackground(area, false, false, true, false);
 									bmp.UnfixUIColors();
 									bmp.ToBitmap4bpp(Color.Magenta, Color.White, Color.Yellow, Color.Black).Save(pathBase + "_col1" + pathExt);
 									ushort[,] copy = (ushort[,])LevelData.Layout.BGLayout.Clone();
@@ -10411,14 +10415,14 @@ namespace SonicRetro.SonLVL.GUI
 										for (int x = BGSelection.Left; x < BGSelection.Right; x++)
 											if (LevelData.Layout.BGLoop[x, y])
 												LevelData.Layout.BGLayout[x, y]++;
-									bmp = LevelData.DrawBackground(BGSelection, false, false, true, false);
+									bmp = LevelData.DrawBackground(area, false, false, true, false);
 									bmp.UnfixUIColors();
 									bmp.ToBitmap4bpp(Color.Magenta, Color.White, Color.Yellow, Color.Black).Save(pathBase + "_col2" + pathExt);
 									LevelData.Layout.BGLayout = copy;
 								}
 								else
 								{
-									bmp = LevelData.DrawBackground(BGSelection, false, false, true, false);
+									bmp = LevelData.DrawBackground(area, false, false, true, false);
 									bmp.UnfixUIColors();
 									bmp.ToBitmap4bpp(Color.Magenta, Color.White, Color.Yellow, Color.Black).Save(pathBase + "_col" + pathExt);
 								}
@@ -10445,7 +10449,7 @@ namespace SonicRetro.SonLVL.GUI
 							}
 							else
 							{
-								BitmapBits bmp = LevelData.DrawBackground(BGSelection, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked);
+								BitmapBits bmp = LevelData.DrawBackground(area, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked);
 								using (Bitmap res = bmp.ToBitmap(LevelImgPalette))
 									res.Save(a.FileName);
 							}
