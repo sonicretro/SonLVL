@@ -6312,7 +6312,7 @@ namespace SonicRetro.SonLVL.GUI
 				xflip = LevelData.Layout.BGXFlip;
 				yflip = LevelData.Layout.BGYFlip;
 				selection = BGSelection;
-				area = new Rectangle(BGSelection.X * 128, BGSelection.Y * 128, BGSelection.Width * 128, BGSelection.Height * 128);
+				area = BGSelection.Scale(LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
 				data.SetImage(LevelData.DrawBackground(area, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked).ToBitmap(LevelImgPalette));
 			}
 			else
@@ -6321,7 +6321,8 @@ namespace SonicRetro.SonLVL.GUI
 				loop = LevelData.Layout.FGLoop;
 				xflip = LevelData.Layout.FGXFlip;
 				yflip = LevelData.Layout.FGYFlip;
-				selection = FGSelection; area = new Rectangle(FGSelection.X * 128, FGSelection.Y * 128, FGSelection.Width * 128, FGSelection.Height * 128);
+				selection = FGSelection;
+				area = FGSelection.Scale(LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
 				data.SetImage(LevelData.DrawForeground(area, includeobjectsWithFGToolStripMenuItem.Checked, !hideDebugObjectsToolStripMenuItem.Checked, objectsAboveHighPlaneToolStripMenuItem.Checked, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked, allToolStripMenuItem.Checked).ToBitmap(LevelImgPalette));
 			}
 
@@ -6417,12 +6418,12 @@ namespace SonicRetro.SonLVL.GUI
 			Rectangle area;
 			if (CurrentTab == Tab.Background)
 			{
-				area = new Rectangle(BGSelection.X * 128, BGSelection.Y * 128, BGSelection.Width * 128, BGSelection.Height * 128);
+				area = BGSelection.Scale(LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
 				data.SetImage(LevelData.DrawBackground(area, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked).ToBitmap(LevelImgPalette));
 			}
 			else
 			{
-				area = new Rectangle(FGSelection.X * 128, FGSelection.Y * 128, FGSelection.Width * 128, FGSelection.Height * 128);
+				area = FGSelection.Scale(LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
 				data.SetImage(LevelData.DrawForeground(area, includeobjectsWithFGToolStripMenuItem.Checked, !hideDebugObjectsToolStripMenuItem.Checked, objectsAboveHighPlaneToolStripMenuItem.Checked, lowToolStripMenuItem.Checked, highToolStripMenuItem.Checked, path1ToolStripMenuItem.Checked, path2ToolStripMenuItem.Checked, allToolStripMenuItem.Checked).ToBitmap(LevelImgPalette));
 			}
 
