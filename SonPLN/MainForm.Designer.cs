@@ -616,6 +616,7 @@ namespace SonicRetro.SonLVL.SonPLN
             this.enableGridToolStripMenuItem.ShortcutKeyDisplayString = "I";
             this.enableGridToolStripMenuItem.Size = new System.Drawing.Size(119, 22);
             this.enableGridToolStripMenuItem.Text = "&Enable";
+            this.enableGridToolStripMenuItem.Click += new System.EventHandler(this.enableGridToolStripMenuItem_Click);
             // 
             // gridColorToolStripMenuItem
             // 

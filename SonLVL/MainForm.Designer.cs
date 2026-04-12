@@ -2978,6 +2978,7 @@ namespace SonicRetro.SonLVL.GUI
             this.CollisionSelector.Size = new System.Drawing.Size(449, 462);
             this.CollisionSelector.TabIndex = 2;
             this.CollisionSelector.SelectedIndexChanged += new System.EventHandler(this.CollisionSelector_SelectedIndexChanged);
+            this.CollisionSelector.KeyDown += new System.Windows.Forms.KeyEventHandler(this.CollisionSelector_KeyDown);
             this.CollisionSelector.MouseDown += new System.Windows.Forms.MouseEventHandler(this.CollisionSelector_MouseDown);
             // 
             // tableLayoutPanel8
