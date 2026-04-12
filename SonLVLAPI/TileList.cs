@@ -350,7 +350,11 @@ namespace SonicRetro.SonLVL.API
 						hScrollBar1.Value += x;
 					if (x + actualImageWidth > Width)
 						hScrollBar1.Value += (x + actualImageWidth) - Width;
+
+					// Pardon the odd synatx.. but let's make sure to clamp the value within bounds
+					ScrollValue = hScrollBar1.Value;
 					break;
+
 				case Direction.Vertical:
 					int tilesPerRow = Math.Max((Width - vScrollBar1.Width) / actualImageWidth, 1);
 					int y = ((SelectedIndex / tilesPerRow) * actualImageHeight) - vScrollBar1.Value;
@@ -358,6 +362,9 @@ namespace SonicRetro.SonLVL.API
 						vScrollBar1.Value += y;
 					if (y + actualImageHeight > Height)
 						vScrollBar1.Value += (y + actualImageHeight) - Height;
+
+					// Pardon the odd synatx.. but let's make sure to clamp the value within bounds
+					ScrollValue = vScrollBar1.Value;
 					break;
 			}
 		}
