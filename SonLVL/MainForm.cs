@@ -97,7 +97,8 @@ namespace SonicRetro.SonLVL.GUI
 
 		ImageAttributes imageTransparency = new ImageAttributes();
 		Bitmap LevelBmp;
-		Graphics LevelGfx, PalettePanelGfx;
+		Graphics LevelGfx, PalettePanelGfx, ChunkPictureGfx;
+		BufferedGraphics ChunkPictureGfxBuffer;
 		bool loaded;
 		ushort SelectedChunk;
 		List<Entry> SelectedItems;
@@ -137,6 +138,7 @@ namespace SonicRetro.SonLVL.GUI
 		MouseButtons chunkblockMouseSelect = MouseButtons.Right;
 		bool layoutswapmode;
 		int tilescale = 16;
+		int chunkImgScale = 1;
 
 		internal void Log(params string[] lines)
 		{
@@ -642,7 +644,24 @@ namespace SonicRetro.SonLVL.GUI
 			CollisionSelector.Images = new List<Bitmap>(LevelData.ColBmps);
 			CollisionSelector.ChangeSize();
 			ChunkSelector.SelectedIndex = 0;
+
+			chunkImgScale = 1;
 			ChunkPicture.Size = new Size(LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
+
+			// If we're smaller than an S1 chunk (whether that be an S2/S3K chunk at 128x128, or a custom format that's 64x64 or less..),
+			//  let's go ahead and double the size of the chunk picture, instead of keeping it 1x
+			if (ChunkPicture.Size.Width < 256 && ChunkPicture.Size.Height < 256)
+			{
+				ChunkPicture.Size += ChunkPicture.Size;
+				chunkImgScale = 2;
+			}
+
+			ChunkPictureGfx = ChunkPicture.CreateGraphics();
+			ChunkPictureGfx.SetOptions();
+
+			ChunkPictureGfxBuffer = BufferedGraphicsManager.Current.Allocate(ChunkPictureGfx, new Rectangle(Point.Empty, ChunkPicture.Size));
+			ChunkPictureGfxBuffer.Graphics.SetOptions();
+
 			flipChunkHButton.Enabled = flipChunkVButton.Enabled = true;
 			remapChunksButton.Enabled = remapBlocksButton.Enabled = remapTilesButton.Enabled = true;
 			importChunksToolStripButton.Enabled = LevelData.Chunks.Count < LevelData.GetChunkMax();
@@ -3762,9 +3781,10 @@ namespace SonicRetro.SonLVL.GUI
 				ChunkPicture_MouseMove(sender, e);
 			else if (e.Button == chunkblockMouseSelect)
 			{
-				if (!SelectedChunkBlock.Contains(e.X / 16, e.Y / 16))
+				int blockSize = 16 * chunkImgScale;
+				if (!SelectedChunkBlock.Contains(e.X / blockSize, e.Y / blockSize))
 				{
-					SelectedChunkBlock = new Rectangle(e.X / 16, e.Y / 16, 1, 1);
+					SelectedChunkBlock = new Rectangle(e.X / blockSize, e.Y / blockSize, 1, 1);
 					copiedChunkBlock = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
 					if (copiedChunkBlock.Block < LevelData.Blocks.Count)
 						BlockSelector.SelectedIndex = copiedChunkBlock.Block;
@@ -3780,10 +3800,13 @@ namespace SonicRetro.SonLVL.GUI
 		private void ChunkPicture_MouseMove(object sender, MouseEventArgs e)
 		{
 			if (!loaded) return;
-			if (e.X > 0 && e.Y > 0 && e.X < LevelData.Level.ChunkWidth && e.Y < LevelData.Level.ChunkHeight)
+			if (e.X > 0 && e.Y > 0 && e.X < LevelData.Level.ChunkWidth * chunkImgScale && e.Y < LevelData.Level.ChunkHeight * chunkImgScale)
+			{
+				int blockSize = 16 * chunkImgScale;
+
 				if (e.Button == chunkblockMouseDraw)
 				{
-					SelectedChunkBlock = new Rectangle(e.X / 16, e.Y / 16, 1, 1);
+					SelectedChunkBlock = new Rectangle(e.X / blockSize, e.Y / blockSize, 1, 1);
 					ChunkBlock destBlock = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
 					destBlock.Block = copiedChunkBlock.Block;
 					destBlock.Solid1 = copiedChunkBlock.Solid1;
@@ -3803,10 +3826,11 @@ namespace SonicRetro.SonLVL.GUI
 							selecting = true;
 						else
 							return;
-					SelectedChunkBlock = Rectangle.FromLTRB(Math.Min(SelectedChunkBlock.Left, e.X / 16), Math.Min(SelectedChunkBlock.Top, e.Y / 16), Math.Max(SelectedChunkBlock.Right, e.X / 16 + 1), Math.Max(SelectedChunkBlock.Bottom, e.Y / 16 + 1));
+					SelectedChunkBlock = Rectangle.FromLTRB(Math.Min(SelectedChunkBlock.Left, e.X / blockSize), Math.Min(SelectedChunkBlock.Top, e.Y / blockSize), Math.Max(SelectedChunkBlock.Right, e.X / blockSize + 1), Math.Max(SelectedChunkBlock.Bottom, e.Y / blockSize + 1));
 					copiedChunkBlock = (chunkBlockEditor.SelectedObjects = GetSelectedChunkBlocks())[0];
 					DrawChunkPicture();
 				}
+			}
 		}
 
 		enum ChunkBlockMenuMode { Chunks, Blocks }
@@ -3943,12 +3967,19 @@ namespace SonicRetro.SonLVL.GUI
 					}
 					break;
 				case Keys.X:
-					foreach (ChunkBlock item in blocks)
-						item.XFlip = !item.XFlip;
+					if (!e.Control)
+						foreach (ChunkBlock item in blocks)
+							item.XFlip = !item.XFlip;
 					break;
 				case Keys.Y:
-					foreach (ChunkBlock item in blocks)
-						item.YFlip = !item.YFlip;
+					if (!e.Control)
+						foreach (ChunkBlock item in blocks)
+							item.YFlip = !item.YFlip;
+					break;
+				case Keys.Escape:
+					SelectedChunkBlock = new Rectangle(0, 0, 1, 1);
+					copiedChunkBlock = LevelData.Chunks[SelectedChunk].Blocks[SelectedChunkBlock.X, SelectedChunkBlock.Y];
+					blocks = new[] { copiedChunkBlock };
 					break;
 				default:
 					return;
@@ -3990,13 +4021,13 @@ namespace SonicRetro.SonLVL.GUI
 		private void DrawChunkPicture()
 		{
 			if (!loaded) return;
-			BitmapBits bmp = GetChunkPreview();
-			bmp.DrawRectangle(LevelData.ColorWhite, SelectedChunkBlock.X * 16 - 1, SelectedChunkBlock.Y * 16 - 1, SelectedChunkBlock.Width * 16 + 1, SelectedChunkBlock.Height * 16 + 1);
-			using (Graphics gfx = ChunkPicture.CreateGraphics())
-			{
-				gfx.SetOptions();
-				gfx.DrawImage(bmp.ToBitmap(LevelImgPalette), 0, 0, LevelData.Level.ChunkWidth, LevelData.Level.ChunkHeight);
-			}
+
+			var bmp = GetChunkPreview().Scale(chunkImgScale).ToBitmap(LevelImgPalette);
+			int blockSize = 16 * chunkImgScale;
+
+			ChunkPictureGfxBuffer.Graphics.DrawImage(bmp, 0, 0, LevelData.Level.ChunkWidth * chunkImgScale, LevelData.Level.ChunkHeight * chunkImgScale);
+			ChunkPictureGfxBuffer.Graphics.FillRectangle(selectionBrush, SelectedChunkBlock.X * blockSize - 1, SelectedChunkBlock.Y * blockSize - 1, SelectedChunkBlock.Width * blockSize + 1, SelectedChunkBlock.Height * blockSize + 1);
+			ChunkPictureGfxBuffer.Render(ChunkPictureGfx);
 		}
 
 		private void ChunkPicture_Paint(object sender, PaintEventArgs e)
