@@ -5,7 +5,6 @@ using System.Linq;
 using SonicRetro.SonLVL.API;
 using S1ObjectEntry = SonicRetro.SonLVL.API.S1.S1ObjectEntry;
 using S2ObjectEntry = SonicRetro.SonLVL.API.S2.S2ObjectEntry;
-using S2NAObjectEntry = SonicRetro.SonLVL.API.S2NA.S2NAObjectEntry;
 using S3KObjectEntry = SonicRetro.SonLVL.API.S3K.S3KObjectEntry;
 using SCDObjectEntry = SonicRetro.SonLVL.API.SCD.SCDObjectEntry;
 
@@ -72,13 +71,11 @@ namespace ObjectLayoutDiff
 						switch (format)
 						{
 							case EngineVersion.S1:
+							case EngineVersion.S2NA:
 								objtype = typeof(S1ObjectEntry);
 								break;
 							case EngineVersion.S2:
 								objtype = typeof(S2ObjectEntry);
-								break;
-							case EngineVersion.S2NA:
-								objtype = typeof(S2NAObjectEntry);
 								break;
 							case EngineVersion.S3K:
 							case EngineVersion.SKC:
@@ -117,6 +114,7 @@ namespace ObjectLayoutDiff
 						switch (format)
 						{
 							case EngineVersion.S1:
+							case EngineVersion.S2NA:
 								tmp.AddRange(new byte[] { 0xFF, 0xFF });
 								while (tmp.Count % S1ObjectEntry.Size > 0)
 									tmp.Add(0);
@@ -124,11 +122,6 @@ namespace ObjectLayoutDiff
 							case EngineVersion.S2:
 								tmp.AddRange(new byte[] { 0xFF, 0xFF });
 								while (tmp.Count % S2ObjectEntry.Size > 0)
-									tmp.Add(0);
-								break;
-							case EngineVersion.S2NA:
-								tmp.AddRange(new byte[] { 0xFF, 0xFF });
-								while (tmp.Count % S2NAObjectEntry.Size > 0)
 									tmp.Add(0);
 								break;
 							case EngineVersion.S3K:
@@ -161,6 +154,7 @@ namespace ObjectLayoutDiff
 			switch (format)
 			{
 				case EngineVersion.S1:
+				case EngineVersion.S2NA:
 					for (int oa = 0; oa < file.Length; oa += S1ObjectEntry.Size)
 					{
 						if (ByteConverter.ToUInt16(file, oa) == 0xFFFF) break;
@@ -172,13 +166,6 @@ namespace ObjectLayoutDiff
 					{
 						if (ByteConverter.ToUInt16(file, oa) == 0xFFFF) break;
 						result.Add(new S2ObjectEntry(file, oa));
-					}
-					break;
-				case EngineVersion.S2NA:
-					for (int oa = 0; oa < file.Length; oa += S2NAObjectEntry.Size)
-					{
-						if (ByteConverter.ToUInt16(file, oa) == 0xFFFF) break;
-						result.Add(new S2NAObjectEntry(file, oa));
 					}
 					break;
 				case EngineVersion.S3K:
