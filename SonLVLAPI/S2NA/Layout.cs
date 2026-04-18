@@ -50,6 +50,6 @@ namespace SonicRetro.SonLVL.API.S2NA
 
 		public override bool IsResizable { get { return true; } }
 
-		public override System.Drawing.Size MaxSize { get { return new System.Drawing.Size(64, 8); } }
+		public override System.Drawing.Size MaxSize { get { return new System.Drawing.Size(128, 16); } }
 	}
 }

@@ -211,10 +211,10 @@ namespace SonicRetro.SonLVL.API
 			switch (Level.ObjectFormat)
 			{
 				case EngineVersion.S1:
+				case EngineVersion.S2NA:
 					ObjectFormat = new S1.Object();
 					break;
 				case EngineVersion.S2:
-				case EngineVersion.S2NA:
 					ObjectFormat = new S2.Object();
 					break;
 				case EngineVersion.S3K:
