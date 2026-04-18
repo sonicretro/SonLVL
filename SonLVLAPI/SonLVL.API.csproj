@@ -126,7 +126,6 @@
     <Compile Include="S1\Object.cs" />
     <Compile Include="S1\Ring.cs" />
     <Compile Include="S2NA\Layout.cs" />
-    <Compile Include="S2NA\Object.cs" />
     <Compile Include="S2\Layout.cs" />
     <Compile Include="S2\Object.cs" />
     <Compile Include="S2\Ring.cs" />
