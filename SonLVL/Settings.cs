@@ -36,6 +36,11 @@ namespace SonicRetro.SonLVL
 		[IniIgnore]
 		public byte ObjectGridSize { get; set; }
 		public string Username { get; set; }
+
+		// If alpha is >63, then R/G/B are the background colour to be used in the editor
+		// Otherwise, if alpha < 255, then it's a palette index (from 0-63) to use as the background colour instead (while the previous custom colour is still preserved in R/G/B)
+		public Color BackgroundColor { get; set; }
+		
 		public bool IncludeObjectsInForegroundSelection { get; set; }
 		[DefaultValue(true)]
 		public bool TransparentBackgroundExport { get; set; }
@@ -93,6 +98,7 @@ namespace SonicRetro.SonLVL
 				result.ShowGrid = oldset.ShowGrid;
 				result.GridColor = oldset.GridColor;
 				result.Username = oldset.Username;
+				result.BackgroundColor = Color.FromArgb(32, 30, 80, 100);
 				result.IncludeObjectsInForegroundSelection = oldset.IncludeObjectsInForegroundSelection;
 				result.TransparentBackgroundExport = true;
 				result.ViewLowPlane = result.ViewHighPlane = true;

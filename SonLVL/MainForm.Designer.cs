@@ -151,6 +151,7 @@ namespace SonicRetro.SonLVL.GUI
             this.hideDebugObjectsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.objectsAboveHighPlaneToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.hUDToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.backgroundColorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.invertColorsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.waterPaletteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.selectPaletteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -1647,6 +1648,7 @@ namespace SonicRetro.SonLVL.GUI
             this.hideDebugObjectsToolStripMenuItem,
             this.objectsAboveHighPlaneToolStripMenuItem,
             this.hUDToolStripMenuItem,
+            this.backgroundColorToolStripMenuItem,
             this.invertColorsToolStripMenuItem,
             this.waterPaletteToolStripMenuItem,
             this.layersToolStripMenuItem,
@@ -1697,6 +1699,13 @@ namespace SonicRetro.SonLVL.GUI
             this.hUDToolStripMenuItem.ShortcutKeyDisplayString = "O";
             this.hUDToolStripMenuItem.Size = new System.Drawing.Size(221, 22);
             this.hUDToolStripMenuItem.Text = "&HUD";
+            // 
+            // backgroundColorToolStripMenuItem
+            // 
+            this.backgroundColorToolStripMenuItem.Name = "backgroundColorToolStripMenuItem";
+            this.backgroundColorToolStripMenuItem.Size = new System.Drawing.Size(221, 22);
+            this.backgroundColorToolStripMenuItem.Text = "&Background Color...";
+            this.backgroundColorToolStripMenuItem.Click += new System.EventHandler(this.backgroundColorToolStripMenuItem_Click);
             // 
             // invertColorsToolStripMenuItem
             // 
@@ -3857,6 +3866,7 @@ namespace SonicRetro.SonLVL.GUI
 		private System.Windows.Forms.ToolStripMenuItem flipChunkBlocksHorizontallyToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem flipChunkBlocksVerticallyToolStripMenuItem;
 		private System.Windows.Forms.ToolStripButton enableDraggingPaletteButton;
+		private System.Windows.Forms.ToolStripMenuItem backgroundColorToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem invertColorsToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem layoutSwapOptionToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem optionAToolStripMenuItem;

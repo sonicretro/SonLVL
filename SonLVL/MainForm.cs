@@ -47,16 +47,27 @@ namespace SonicRetro.SonLVL.GUI
 		void LevelData_PaletteChangedEvent()
 		{
 			LevelData.BmpPal.Entries.CopyTo(LevelImgPalette.Entries, 0);
-			LevelImgPalette.Entries[LevelData.ColorTransparent] = LevelData.PaletteToColor(2, 0, false);
+			
+			if (Settings.BackgroundColor.A < 64)
+				LevelImgPalette.Entries[LevelData.ColorTransparent] = LevelData.PaletteToColor(Settings.BackgroundColor.A / 16, Settings.BackgroundColor.A & 15, false);
+			else
+				LevelImgPalette.Entries[LevelData.ColorTransparent] = Settings.BackgroundColor;
+
 			if (LevelData.WaterPalette != -1)
 			{
-				LevelImgPalette.Entries[128] = LevelData.Palette[LevelData.WaterPalette][2, 0].RGBColor;
+				if (Settings.BackgroundColor.A < 64)
+					LevelImgPalette.Entries[LevelData.ColorTransparent | 0x80] = LevelData.Palette[LevelData.WaterPalette][Settings.BackgroundColor.A / 16, Settings.BackgroundColor.A & 15].RGBColor;
+				else
+					LevelImgPalette.Entries[LevelData.ColorTransparent | 0x80] = Settings.BackgroundColor;
+
 				for (int i = 129; i < 192; i++)
 					LevelImgPalette.Entries[i] = LevelData.Palette[LevelData.WaterPalette][(i - 128) / 16, i % 16].RGBColor;
 			}
+
 			if (invertColorsToolStripMenuItem.Checked)
 				for (int i = 0; i < 256; i++)
 					LevelImgPalette.Entries[i] = LevelImgPalette.Entries[i].Invert();
+			
 			LevelImgPalette.Entries[LevelData.ColorWhite] = Color.White;
 			LevelImgPalette.Entries[LevelData.ColorYellow] = Color.Yellow;
 			LevelImgPalette.Entries[LevelData.ColorBlack] = Color.Black;
@@ -589,7 +600,10 @@ namespace SonicRetro.SonLVL.GUI
 			}
 			LevelImgPalette = new Bitmap(1, 1, PixelFormat.Format8bppIndexed).Palette;
 			LevelData.BmpPal.Entries.CopyTo(LevelImgPalette.Entries, 0);
-			LevelImgPalette.Entries[LevelData.ColorTransparent] = LevelData.PaletteToColor(2, 0, false);
+			if (Settings.BackgroundColor.A < 64)
+				LevelImgPalette.Entries[LevelData.ColorTransparent] = LevelData.PaletteToColor(Settings.BackgroundColor.A / 16, Settings.BackgroundColor.A & 15, false);
+			else
+				LevelImgPalette.Entries[LevelData.ColorTransparent] = Settings.BackgroundColor;
 			LevelImgPalette.Entries[LevelData.ColorWhite] = Color.White;
 			LevelImgPalette.Entries[LevelData.ColorYellow] = Color.Yellow;
 			LevelImgPalette.Entries[LevelData.ColorBlack] = Color.Black;
@@ -820,9 +834,14 @@ namespace SonicRetro.SonLVL.GUI
 				LevelData.WaterHeight = (ushort)LevelData.Level.WaterHeight;
 				if (LevelData.WaterPalette != -1)
 				{
-					LevelImgPalette.Entries[128] = LevelData.Palette[LevelData.WaterPalette][2, 0].RGBColor;
+					if (Settings.BackgroundColor.A < 64)
+						LevelImgPalette.Entries[LevelData.ColorTransparent | 0x80] = LevelData.Palette[LevelData.WaterPalette][Settings.BackgroundColor.A / 16, Settings.BackgroundColor.A & 15].RGBColor;
+					else
+						LevelImgPalette.Entries[LevelData.ColorTransparent | 0x80] = Settings.BackgroundColor;
+
 					for (int i = 129; i < 192; i++)
 						LevelImgPalette.Entries[i] = LevelData.Palette[LevelData.WaterPalette][(i - 128) / 16, i % 16].RGBColor;
+					
 					LevelImgPalette.Entries[LevelData.ColorWhite | 0x80] = Color.White;
 					LevelImgPalette.Entries[LevelData.ColorYellow | 0x80] = Color.Yellow;
 					LevelImgPalette.Entries[LevelData.ColorBlack | 0x80] = Color.Black;
@@ -1158,6 +1177,54 @@ namespace SonicRetro.SonLVL.GUI
 		{
 			objectsAboveHighPlaneToolStripMenuItem.Checked = !objectsAboveHighPlaneToolStripMenuItem.Checked;
 			DrawLevel();
+		}
+
+		private void backgroundColorToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			using (BackgroundColorDialog dialog = new BackgroundColorDialog())
+			{
+				if (Settings.BackgroundColor.A < 64)
+				{
+					dialog.index.Value = Settings.BackgroundColor.A;
+					dialog.customColorOverlay.Visible = dialog.useLevelColor.Checked = true;
+				}
+				else
+				{
+					dialog.index.Value = 32;
+					dialog.index.Enabled = false;
+					dialog.useCustomColor.Checked = true;
+				}
+
+				dialog.customColorBox.BackColor = Color.FromArgb(255, Settings.BackgroundColor);
+
+				if (dialog.ShowDialog(this) == DialogResult.OK)
+				{
+					if (dialog.useLevelColor.Checked)
+						Settings.BackgroundColor = Color.FromArgb((int)dialog.index.Value, Settings.BackgroundColor);
+					else
+						Settings.BackgroundColor = dialog.customColorBox.BackColor;
+
+					if (loaded)
+					{
+						if (Settings.BackgroundColor.A < 64)
+							LevelImgPalette.Entries[LevelData.ColorTransparent] = LevelData.PaletteToColor(Settings.BackgroundColor.A / 16, Settings.BackgroundColor.A & 15, false);
+						else
+							LevelImgPalette.Entries[LevelData.ColorTransparent] = Settings.BackgroundColor;
+
+						if (LevelData.WaterPalette != -1)
+						{
+							if (Settings.BackgroundColor.A < 64)
+								LevelImgPalette.Entries[LevelData.ColorTransparent | 0x80] = LevelData.Palette[LevelData.WaterPalette][Settings.BackgroundColor.A / 16, Settings.BackgroundColor.A & 15].RGBColor;
+							else
+								LevelImgPalette.Entries[LevelData.ColorTransparent | 0x80] = Settings.BackgroundColor;
+						}
+
+						DrawBlockPicture();
+						DrawChunkPicture();
+						DrawLevel();
+					}
+				}
+			}
 		}
 
 		private void invertColorsToolStripMenuItem_Click(object sender, EventArgs e)
