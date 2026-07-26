@@ -14,10 +14,10 @@ namespace S1ObjectDefinitions.LZ
 
 		public override void Init(ObjectData data)
 		{
-			byte[] artfile = ObjectHelper.OpenArtFile("../artnem/lzspball.bin", CompressionType.Nemesis);
-			img = ObjectHelper.MapASMToBmp(artfile, "../_maps/obj57lz.asm", 1, 0);
+			byte[] artfile = ObjectHelper.OpenArtFile("../artnem/LZ Spiked Ball & Chain.nem", CompressionType.Nemesis);
+			img = ObjectHelper.MapASMToBmp(artfile, "../_maps/Spiked Ball and Chain (LZ).asm", 1, 0);
 			for (int i = 0; i < labels.Length; i++)
-				imgs.Add(ObjectHelper.MapASMToBmp(artfile, "../_maps/obj57lz.asm", labels[i], 0));
+				imgs.Add(ObjectHelper.MapASMToBmp(artfile, "../_maps/Spiked Ball and Chain (LZ).asm", labels[i], 0));
 		}
 
 		public override ReadOnlyCollection<byte> Subtypes

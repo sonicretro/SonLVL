@@ -2,12 +2,12 @@
 <ObjDef xmlns="http://www.sonicretro.org" Name="Collapsing Cliff" Image="light">
   <Images>
     <ImageFromMappings id="light">
-      <ArtFile filename="../artnem/8x8ghz.bin"/>
-      <MapFile type="ASM" filename="../_maps/obj1A.asm" frame="0" startpal="2"/>
+      <ArtFile filename="LevelArt"/>
+      <MapFile type="ASM" filename="../_maps/Collapsing Ledge.asm" frame="0" startpal="2"/>
     </ImageFromMappings>
     <ImageFromMappings id="shadow">
-      <ArtFile filename="../artnem/8x8ghz.bin"/>
-      <MapFile type="ASM" filename="../_maps/obj1A.asm" frame="1" startpal="2"/>
+      <ArtFile filename="LevelArt"/>
+      <MapFile type="ASM" filename="../_maps/Collapsing Ledge.asm" frame="1" startpal="2"/>
     </ImageFromMappings>
   </Images>
   <Subtypes>

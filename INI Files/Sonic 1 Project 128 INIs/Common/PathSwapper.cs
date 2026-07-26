@@ -59,6 +59,11 @@ namespace S1ObjectDefinitions.Common
 			get { return "Path Swapper"; }
 		}
 
+		public override bool RememberState
+		{
+			get { return false; }
+		}
+
 		public override string SubtypeName(byte subtype)
 		{
 			string result = (subtype & 4) == 4 ? "Horizontal" : "Vertical";
