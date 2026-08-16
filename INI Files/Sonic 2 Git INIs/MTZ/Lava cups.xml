@@ -2,8 +2,8 @@
 <ObjDef xmlns="http://www.sonicretro.org" Namespace="S2ObjectDefinitions.MTZ" TypeName="LavaCups" Language="cs" Name="Lava Cups" Image="platform" DefaultSubtype="10">
   <Images>
     <ImageFromMappings id="platform">
-      <ArtFile filename="../art/nemesis/Lava cup from MTZ.bin" />
-      <MapFile type="Binary" filename="../mappings/sprite/obj6C.bin" frame="0" startpal="3" />
+      <ArtFile filename="../art/nemesis/Lava cup from MTZ.nem" />
+      <MapFile type="ASM" filename="../mappings/sprite/obj6C.asm" frame="0" startpal="3" />
     </ImageFromMappings>
   </Images>
   <Properties>
