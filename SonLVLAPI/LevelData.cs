@@ -791,9 +791,13 @@ namespace SonicRetro.SonLVL.API
 			if (Level.Objects != null)
 			{
 				Objects = ObjectFormat.TryReadLayout(Level.Objects, Level.ObjectCompression, out objectterm);
-				if (loadGraphics)
-					for (int i = 0; i < Objects.Count; i++)
+				for (int i = 0; i < Objects.Count; i++)
+				{
+					if (loadGraphics)
 						Objects[i].UpdateSprite();
+					if (Objects[i] is SCD.SCDObjectEntry scdobj)
+						scdobj.TimeZone = Level.TimeZone;
+				}
 			}
 			else
 				Objects = new List<ObjectEntry>();

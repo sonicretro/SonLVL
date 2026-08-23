@@ -71,6 +71,9 @@ namespace SonicRetro.SonLVL.API.SCD
 			set { SubType2 = byte.Parse(value, System.Globalization.NumberStyles.HexNumber); }
 		}
 
+		[Browsable(false)]
+		public TimeZone TimeZone { get; set; }
+
 		public static int Size { get { return 8; } }
 
 		public SCDObjectEntry() { pos = new Position(this); isLoaded = true; }
