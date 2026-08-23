@@ -397,6 +397,10 @@ namespace SonicRetro.SonLVL.API
 		public CompressionType AngleCompression { get; set; }
 		[IniName("angles")]
 		public string Angles { get; set; }
+		[IniName("zone")]
+		public int Zone { get; set; }
+		[IniName("act")]
+		public int Act { get; set; }
 		[IniName("timezone")]
 		public TimeZone TimeZone { get; set; }
 		[IniCollection(IniCollectionMode.SingleLine, Format = ",", ValueConverter = typeof(UInt16HexConverter))]
