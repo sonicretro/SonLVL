@@ -403,6 +403,8 @@ namespace SonicRetro.SonLVL.API
 		public int Act { get; set; }
 		[IniName("timezone")]
 		public TimeZone TimeZone { get; set; }
+		[IniName("goodfuture")]
+		public bool GoodFuture { get; set; }
 		[IniCollection(IniCollectionMode.SingleLine, Format = ",", ValueConverter = typeof(UInt16HexConverter))]
 		[IniName("loopchunks")]
 		public List<ushort> LoopChunks { get; set; }
