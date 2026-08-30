@@ -103,6 +103,7 @@ namespace SonicRetro.SonLVL.API
 		public virtual int GetDepth(ObjectEntry obj) { return 0; }
 		public virtual Sprite GetDebugOverlay(ObjectEntry obj) { return null; }
 		public virtual bool Debug { get { return false; } }
+		public virtual bool GetDebug(ObjectEntry obj) { return Debug; }
 		static readonly PropertySpec[] specs = new PropertySpec[0];
 		public virtual PropertySpec[] CustomProperties => specs;
 	}
@@ -605,6 +606,11 @@ namespace SonicRetro.SonLVL.API
 		}
 
 		public override bool Debug { get { return debug; } }
+
+		public override bool GetDebug(ObjectEntry obj)
+		{
+			return debug;
+		}
 	}
 
 	public class XMLObjectDefinition : ObjectDefinition
@@ -1200,6 +1206,11 @@ namespace SonicRetro.SonLVL.API
 		public override bool Debug
 		{
 			get { return xmldef.Debug; }
+		}
+
+		public override bool GetDebug(ObjectEntry obj)
+		{
+			return xmldef.Debug;
 		}
 
 		public override bool RememberState

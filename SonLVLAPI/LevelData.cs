@@ -1379,7 +1379,7 @@ namespace SonicRetro.SonLVL.API
 				if (objectsAboveHighPlane)
 				{
 					foreach (Entry item in objs)
-						if (item is RingEntry || !(!includeDebugObjects && GetObjectDefinition(((ObjectEntry)item).ID).Debug))
+						if (item is RingEntry || !(!includeDebugObjects && GetObjectDefinition(((ObjectEntry)item).ID).GetDebug((ObjectEntry)item)))
 							LevelImg8bpp.DrawSprite(item.Sprite, item.X - bounds.X, item.Y - bounds.Y);
 					if (ExtraObjects != null)
 						foreach (ExtraObjEntry item in ExtraObjects.Where(obj => includeDebugObjects || !obj.Debug))
@@ -1401,7 +1401,7 @@ namespace SonicRetro.SonLVL.API
 					BitmapBits objbmphigh = new BitmapBits(bounds.Size);
 					int curdepth = int.MinValue;
 					foreach (Entry item in objs)
-						if (item is RingEntry || !(!includeDebugObjects && GetObjectDefinition(((ObjectEntry)item).ID).Debug))
+						if (item is RingEntry || !(!includeDebugObjects && GetObjectDefinition(((ObjectEntry)item).ID).GetDebug((ObjectEntry)item)))
 						{
 							if (item.Depth != curdepth)
 							{

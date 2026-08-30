@@ -2799,7 +2799,7 @@ namespace SonicRetro.SonLVL.GUI
 		private Entry GetEntryAtPoint(Point point)
 		{
 			foreach (ObjectEntry item in LevelData.Objects.Reverse<ObjectEntry>())
-				if ((!hideDebugObjectsToolStripMenuItem.Checked || !LevelData.GetObjectDefinition(item.ID).Debug) && LevelData.ObjectVisible(item, allToolStripMenuItem.Checked) && item.Bounds.Contains(point))
+				if ((!hideDebugObjectsToolStripMenuItem.Checked || !LevelData.GetObjectDefinition(item.ID).GetDebug(item)) && LevelData.ObjectVisible(item, allToolStripMenuItem.Checked) && item.Bounds.Contains(point))
 					return item;
 			foreach (RingEntry item in LevelData.Rings.Reverse<RingEntry>())
 				if (item.Bounds.Contains(point))
@@ -3025,7 +3025,7 @@ namespace SonicRetro.SonLVL.GUI
 						Math.Max(selpoint.X, mouse.X),
 						Math.Max(selpoint.Y, mouse.Y));
 						foreach (ObjectEntry item in LevelData.Objects)
-							if ((!hideDebugObjectsToolStripMenuItem.Checked || !LevelData.GetObjectDefinition(item.ID).Debug) && LevelData.ObjectVisible(item, allToolStripMenuItem.Checked) && item.Bounds.IntersectsWith(selbnds))
+							if ((!hideDebugObjectsToolStripMenuItem.Checked || !LevelData.GetObjectDefinition(item.ID).GetDebug(item)) && LevelData.ObjectVisible(item, allToolStripMenuItem.Checked) && item.Bounds.IntersectsWith(selbnds))
 								SelectedItems.Add(item);
 						foreach (RingEntry item in LevelData.Rings)
 							if (item.Bounds.IntersectsWith(selbnds))
